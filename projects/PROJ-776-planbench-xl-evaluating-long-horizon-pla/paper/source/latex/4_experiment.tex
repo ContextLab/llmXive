@@ -1,0 +1,184 @@
+\section{Experiment}
+% \emre{Takeaways are too general, can we add more interesting and catchy observations? }
+
+\input{Tables/experiment_hyperparameter}
+
+\input{Tables/main_table}
+
+% This is a test sentence before the table.
+
+% This is a test sentence before the table.
+
+% This is a test sentence before the table.
+
+% This is a test sentence before the table.
+
+% This is a test sentence before the table.
+
+\subsection{Settings}
+
+\paragraph{Models.}
+
+We evaluate both proprietary and open-source models to ensure comprehensive assessment of current frontier LLM capabilities.
+Proprietary models include 
+\textit{GPT}~\citep{GPT-5.4}, and \textit{Gemini}~\citep{Gemini-3.1-Pro}, while open-source models include \textit{Qwen3}~\citep{Qwen3}, \textit{Llama3}~\citep{Llama-3} and \textit{Deepseek}~\citep{DeepSeek-V4}. 
+All models use a temperature of 0.0 for deterministic decoding and a max token length of 8192 to prevent truncation.
+
+\paragraph{Metrics.}
+ 
+We evaluate performance using metrics spanning three categories: task completion, exploration behavior and execution quality.
+Together, these metrics provide a holistic view of model performance in massive-tool environments.
+Full metric definitions and illustrative examples are provided in Appendix~\ref{app:full-metric-definition} and Appendix~\ref{app:metric-illustrative-examples}.
+
+\noindent \textbf{(1) Accuracy (\%):} It measures the proportion of queries with a correct final answer.
+
+% \jy{At evaluation time, the agent receives the question and initial evidence, and its final answer is compared against the ground-truth answer derived from the target datatype. }
+
+\noindent \textbf{(2) Executed Ground-Truth Datatype Precision (EGT Prec.):} This metric measures the fraction of unique datatypes produced by executed tool calls that belong to the ground-truth datatype set, indicating how often execution stays relevant.
+% Repeated production of the same datatype is counted only once.
+
+\noindent \textbf{(3) Average Turns (Avg. Turns):} This metric measures the average interaction turns per query.
+
+\noindent \textbf{(4) Mean Explored Datatypes (Mean EDT):} This metric measures the average number of new datatypes uncovered through tool retrieval beyond each query’s initial input datatypes.
+
+\noindent \textbf{(5) Search-to-Call Ratio (S/C Ratio):} This metric quantifies the tool-retrieval/tool-call turn ratio, capturing the exploration–exploitation balance.
+
+% \noindent \textbf{(6) Invalid Tool Call Rate (ITCR) (\%):} This metric measures the invalid tool-call rate, including unretrieved tools, incorrect arguments, etc.
+
+\noindent \textbf{(6) Invalid Tool Call Rate (ITCR) (\%):} This metric measures the fraction of structurally or procedurally invalid calls, such as using unretrieved tools, mismatched arguments, or unavailable inputs.
+
+\noindent \textbf{(7) Untrusted Input Rejection Rate (UIRR) (\%):} This metric measures the fraction of tool-call attempts rejected because at least one argument value is taken from a noisy tool response.
+
+
+% \qh{add UIRR}
+
+% \jy{Too long. make it shorter.}
+% For blocking robustness, we additionally report \textit{Blocked Accuracy}, measured under the path1 blocking setting, and $\mathbf{\Delta}$\textit{Acc.}~(\%), computed as blocked accuracy minus default accuracy.
+
+\paragraph{Prompts and Environment Settings.}
+Table~\ref{tab:default_env_settings} summarizes the main benchmark and environment parameters, and Figure~\ref{fig:inference-prompt} shows the inference prompt.
+The benchmark contains $56$ datatypes, $327$ evaluation queries, and $1{,}665$ tools.
+Here, $L^*$ denotes the shortest valid solution length in tool calls ($5$--$9$), $T_{\max}=100$ denotes the interaction budget, $\Lambda_{\mathrm{ret}}^{\mathrm{cap}}=30$ denotes the maximum number of tools returned per retrieval, and $\sigma_0=42$ denotes the global random seed.
+
+
+
+
+% === For environment setup ===
+% You need to specify the hyperparameters you used in the previous settings.
+% \jy{Note this}
+
+% === For inference prompt ===
+% Our inference prompt is provided in Figure~\ref{fig:inference-prompt}.
+
+
+\subsection{Results}
+
+% \begin{takeaway}
+% Most models struggle with massive-tool planning, and success requires both discovering useful tools and executing them precisely.
+% \end{takeaway}
+
+\begin{takeaway}
+Planning with massive toolsets remains highly challenging for most models.
+\end{takeaway}
+
+% \qh{update}
+% \paragraph{Planning with massive toolsets remains highly challenging for most models.}
+\noindent Table~\ref{tab:main_unblocked_results_grounded} shows a sharp divide between frontier models and the rest. 
+\textit{Gemini-3.1-Pro} achieve the highest accuracy of 77.06\%, while maintaining the highest EGT Precision with about 20 turns. 
+In contrast, most other models remain below 60\% accuracy, with \textit{Qwen3-8B} and \textit{Llama-3.1-8B-Instruct} achieving 0\%, revealing the difficulty of long-horizon, exploration-driven planning across large tool ecosystems.
+The gaps are also large within model families: larger Qwen and Llama variants outperform their smaller counterparts, and full frontier models far exceed their lightweight versions such as \textit{Gemini-3.5-Flash} and \textit{GPT-5.4-Mini}. 
+Together, these results suggest that both model family and scale matter for this task.
+Robustness checks, including confidence intervals, are reported in Appendix~\ref{app:evaluation-robustness}.
+
+% \input{Figures/noise_combined}
+
+\begin{takeaway}
+Tool discovery requires broad, accurate, and bi-directional exploration.
+\end{takeaway}
+
+% \qh{2. second paragraph should be: exploration tendency (measured by Mean EDT) don't always means high acc.}
+
+\paragraph{Exploration tendency strongly relates to task success.}
+Broad tool retrieval can expose agents to more potential intermediate information, making exploration tendency strongly associated with task success.
+We measure this exploration tendency using Mean EDT, the average number of new datatypes uncovered through retrieval beyond the query's initial datatypes. 
+Across models, Mean EDT is strongly correlated with accuracy (Pearson coefficient~\citep{Pearson} $r=0.902$), suggesting that agents uncover more intermediate information are generally more likely to complete the task successfully. 
+However, exploration tendency does not explain performance entirely. 
+For example, \textit{Llama-3.3-70B-Instruct} achieves a Mean EDT score comparable to \textit{GPT-5.4} (19.20 vs. 20.65), yet the two models differ substantially in accuracy (18.96\% vs. 51.90\%).
+This indicates that broad retrieval is an important driver of success, but it remains only part of effective long-horizon tool~use. 
+
+% \paragraph{Weak models exhibit different failure modes in exploration.}
+% The exploration metrics show that broader search does not always lead to higher success. 
+% Some models explore a large tool and datatype space but still fail to convert this exploration into accurate task completion. 
+% For example, \textit{Llama-3.3-70B-Instruct} and \textit{Gemini-3.1-Flash-Lite} have high Mean EDT values (23.88 and 17.43) and elevated search-to-call ratios (2.10 and 4.50), yet their accuracies remain only 44.95\% and 34.56\%. 
+% A similar pattern appears within the \textit{DeepSeek} family. 
+% \textit{DeepSeek-V4-Flash} explores slightly more broadly than \textit{DeepSeek-V4-Pro} (28.16 vs. 27.84 Mean EDT), but its accuracy is more than 17 points lower.
+% Other models fail for the opposite reason. 
+% \textit{GPT-5.4-Mini} uses the fewest turns on average (11.85), but reaches only 16.51\% accuracy and 0.165 EGT recall, suggesting that it often stops before finding the right solution path.
+% Together, these results point to two common failure modes. 
+% Some models explore too little to identify the needed tools, while others explore broadly but fail to organize the retrieved tools into an effective plan.
+
+
+
+% \qh{the following 4 paragraph have already been updated}
+
+
+\paragraph{Frequent retrieval does not guarantee effective exploration.}
+A high S/C Ratio and a large number of interaction turns indicate that an agent spends substantial effort on retrieval, but such effort does not necessarily translate into broad discovery of useful intermediate information.
+For example, \textit{Gemini-3.5-Flash} has the highest S/C Ratio among all models (10.44) and also uses the most turns on average (57.87).
+However, \textit{Gemini-3.1-Pro} achieves a higher Mean EDT while using only about one third of the turns and one seventh of the S/C Ratio.
+This contrast shows that frequent searching and long interactions are not sufficient for effective exploration.
+An agent may search proactively, but if these searches repeatedly revisit unuseful or uninformative tools, they contribute little to the discovery of new task-relevant datatypes.
+
+
+% \paragraph{Stronger agents explore more efficiently.}
+% In contrast, the stronger agents achieve higher Mean EDT with substantially lower S/C ratios. 
+% \textit{Gemini-3.1-Pro} uses only 19.55 turns on average with an S/C Ratio of 1.59, but discovers 27.41 datatypes on average. 
+% Similarly, \textit{DeepSeek-V4-Flash} reaches a Mean EDT of 25.34 with 31.41 turns and an S/C Ratio of 2.80. 
+% These results show that strong agents do not simply search more; rather, they issue more diverse and broad retrieval requests, better interpret the returned tools, and more effectively expand the useful information frontier.
+
+% \begin{takeaway}
+% Effective tool discovery correlates with balancing forward anticipation from evidence and backward anticipation from goals.
+% \end{takeaway}
+
+\paragraph{Effective tool discovery requires bi-directional anticipation.}
+We define the forward/backward retrieval ratio (F/B ratio) as the total number of input-conditioned retrievals divided by the total number of output-conditioned retrievals across all query traces for a model. 
+Across models, agents generally issue more input-conditioned than output-conditioned retrievals, indicating a common preference for forward anticipation. 
+Lower-performing models, such as \textit{Llama-3.1-8B-Instruct} and \textit{Qwen3-14B}, rely heavily on input-conditioned retrieval, yielding F/B ratios of 16.56 and 14.18, respectively. 
+This suggests that retrieving tools compatible with currently available inputs is often insufficient: these agents may identify executable next steps, but fail to reason backward about which intermediate datatypes must be discovered to reach the final goal.
+This pattern is further supported by correlation analysis, where the relative frequency of output-conditioned retrieval is strongly correlated with accuracy (Pearson $r=0.800$). 
+Together, these results suggest that effective tool discovery requires agents to combine forward exploration from current evidence with backward anticipation from the desired outcome.
+
+% \paragraph{Forward exploration alone is insufficient.}
+% We define the \textit{forward/backward retrieval ratio} (F/B ratio) as the total number of input-conditioned retrievals divided by the total number of output-conditioned retrievals across all query traces for a model.
+% Across models, agents generally issue more input-conditioned than output-conditioned retrievals, indicating a common preference for forward anticipation.
+% Lower-performing models, such as \textit{Llama-3.1-8B-Instruct} and \textit{Qwen3-14B}, rely heavily on input-conditioned retrieval, yielding F/B ratios of 16.56 and 14.18, respectively.
+% This suggests that retrieving tools compatible with currently available inputs is often insufficient: these agents may identify executable next steps, but fail to target the missing intermediate outputs needed to advance toward the final goal.
+% Thus, excessive reliance on forward exploration is associated with weaker performance, highlighting the role of backward anticipation in guiding effective tool discovery.
+
+% \paragraph{Stronger agents better balance forward and backward anticipation.}
+% Stronger agents make substantially greater use of output-conditioned retrieval, resulting in F/B ratios closer to parity.
+% % \qh{gemini-3.1-pro: 1.33; gpt-5.4: 0.86; deepseek-v4-flash: 2.10}
+% For example, \textit{Gemini-3.1-Pro} and \textit{GPT-5.4} both achieve an F/B ratio of approximately 1, reflecting a relatively balanced use of forward and backward anticipation.
+% This pattern is further supported by the correlation analysis: the relative frequency of output-conditioned retrieval is strongly correlated with accuracy (Pearson $r=0.800$).
+% Together, these results suggest that effective tool discovery requires agents to reason in both directions: exploring forward from current evidence while also reasoning backward from the desired outcome to identify missing intermediate information and tools.
+
+
+
+\begin{takeaway}
+Successful long-horizon tool use requires both effective exploration and accurate exploitation.
+\end{takeaway}
+
+\noindent Beyond effective exploration, successful agents must accurately exploit the information they uncover, which EGT Precision captures by measuring whether executed tool calls stay on task-relevant paths. 
+EGT Precision is highly correlated with accuracy (Pearson coefficient $r=0.781$), indicating that models are much more likely to succeed when they execute relevant tool-use trajectories.
+The strongest models further support this pattern: \textit{Gemini-3.1-Pro} achieve the highest accuracies (77.06\%) while also attaining the highest EGT Precision (91.47\%). 
+These results suggest that effective long-horizon tool use requires not only sufficient exploration, but also precise execution over the explored tool space.
+
+\begin{takeaway}
+Basic tool-use reliability remains necessary.
+\end{takeaway}
+
+\noindent Accurate exploration and exploitation also depend on reliable tool-use. 
+Accuracy is negatively correlated with ITCR (Pearson coefficient $r=-0.443$), showing that models that frequently make invalid tool calls are much less likely to complete the task successfully. 
+For example, \textit{Llama-3.1-8B-Instruct} has the second highest ITCR and the lowest accuracy, while the strongest model, \textit{Gemini-3.1-Pro}, keep ITCR near zero (0.68\%). 
+This suggests that effective long-horizon tool-use requires not only broad exploration and accurate exploitation, but also basic reliability in invoking tools with valid arguments.
+The moderate correlation also indicates that invalid tool calls alone do not explain performance differences, and that failures also arise from ineffective exploration and exploitation.

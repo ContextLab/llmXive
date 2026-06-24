@@ -1,0 +1,22 @@
+\begin{table}[t]
+\centering
+\small
+\resizebox{0.6\columnwidth}{!}{
+\begin{tabular}{lc}
+\toprule
+\textbf{Metric} & \textbf{\textit{Qwen3-8B}} \\
+\midrule
+Accuracy (\%) & 85.95 \\
+GT Tool Retrieved (\%) & 92.43 \\
+Avg. Turns & 3.18 \\
+S/C Ratio & 0.95 \\
+ITCR (\%) & 0.00 \\
+EGT Prec. (\%) & 96.45 \\
+\bottomrule
+\end{tabular}
+}
+\caption{Single-step tool retrieval evaluation on \textit{Qwen3-8B}. 
+Each query is constructed from one tool by using its input datatypes as the initial information and its output datatype as the target. 
+The ideal trajectory contains three turns, corresponding to retrieval, tool call, and final answer.}
+\label{tab:single-step-retriever-results}
+\end{table}

@@ -1,0 +1,406 @@
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Error Case: Premature Answering,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Model / setting]
+Llama-3.3-70B-Instruct, Default
+
+[Raw query]
+Finance is reconciling a commerce-side transaction and one linked payment field is still 
+missing.
+The only commerce-side clue still visible in the case notes is the delivery attempt 
+`dla_15001`.
+They need the finance-side answer before the reconciliation ticket can be closed.
+What authorization status is recorded for that case right now?
+
+[Observed trajectory excerpt]
+1. Get_Shipment_ID_From_Delivery_Attempt_ID_V2("dla_15001")
+   -> shipment_id = "shp_14001"
+
+2. Get_Order_ID_From_Shipment_ID_Quick("shp_14001")
+   -> order_id = "ord_7001"
+
+3. Get_Order_Status_From_Order_ID_Nano("ord_7001")
+   -> order_status = "refunded"
+
+4. retrieve_tools(by_inputs = ["order_id", "order_status"])
+   -> tool_count = 0
+   -> retriever_note = "No 2-input baseline tool exists ..."
+
+5. final_answer
+   -> {"answer": "refunded"}
+
+[Expected vs. observed]
+expected_answer = "approved"
+target_datatype_reached = false
+failure_reason_detail = "target_datatype_not_reached"
+\end{lstlisting}
+\end{tcolorbox}
+\caption{A representative default-setting failure of \emph{Premature Answering}. The model follows a valid prefix of the path, but after observing \textit{order\_status = refunded}, it answers with a semantically adjacent status instead of continuing toward \textit{auth\_status}.}
+\label{fig:case_default_premature_answer}
+\end{figure*}
+
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Error Case: Unresolved Execution,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Model / setting]
+DeepSeek-V4-Flash, Default
+
+[Raw query]
+A payments analyst is tracing the downstream charge record for a retail purchase.
+The team can confirm the order draft `odrft_4001`, and the same case also points to
+the purchased variant `var_3001`. They want the processor-side value that
+corresponds to the same case. Please trace the linked records and return the
+payment intent ID.
+
+[Observed trajectory excerpt]
+4. retrieve_tools(by_inputs = ["order_draft_id", "variant_id"])
+   -> tool_count = 1
+
+7. Get_Order_Draft_Item_ID_From_Order_Draft_ID_And_Variant_ID("odrft_4001", "var_3001")
+   -> order_draft_item_id = "odritm_5001"
+
+9. Get_Order_Item_ID_From_Order_Draft_Item_ID_Fast("odritm_5001")
+   -> order_item_id = "orditm_8001"
+
+10. Get_Order_ID_From_Order_Item_ID_Enterprise("orditm_8001")
+    -> order_id = "ord_7001"
+
+...
+
+24. Get_Pricing_Snapshot_ID_From_Order_ID_Fast("ord_7001")
+    -> pricing_snapshot_id = "psnap_6001"
+
+25. retrieve_tools(by_inputs = ["payment_intent_id"])
+    -> tool_count = 10
+
+28. Get_Return_Request_ID_From_Order_ID_Enterprise("ord_7001")
+    -> return_request_id = "rrq_16001"
+
+29. Get_Return_Audit_ID_From_Return_Request_ID_Edge("rrq_16001")
+    -> return_audit_id = "raud_17001"
+
+30. Get_Refund_ID_From_Return_Audit_ID_Nano("raud_17001")
+    -> refund_id = "ref_18001"
+
+[Terminal outcome]
+final_answer = null
+failure_reason_detail = "exceeded_max_steps"
+
+[Expected vs. observed]
+expected_answer = "pi_10001"
+target_datatype = "payment_intent_id"
+target_datatype_reached = false
+\end{lstlisting}
+\end{tcolorbox}
+\caption{A representative default-setting failure of \emph{Unresolved Execution}. The model follows a correct early prefix of the path and continues executing valid actions, but it spends too much of the budget on additional retrieval and never commits to a final answer.}
+\label{fig:case_default_unresolved_execution}
+\end{figure*}
+
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Error Case: Noisy Response Adoption,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Model / setting]
+GPT-5.4, Blocked
+
+[Raw query]
+The accounting team is closing out a retail payment trail and needs one linked field from
+the same case. The only concrete reference left in the ticket is the delivery attempt
+`dla_15001`. They need the finance-side answer before the reconciliation ticket can be
+closed. What is the exact funding account reference associated with that purchase?
+
+[Observed trajectory excerpt]
+...
+26. Get_Auth_ID_From_Refund_ID_Prime("ref_18001")
+    -> auth_id = "auth_11001"
+
+27. Get_Payment_Method_ID_From_Auth_ID_Edge("auth_11001")
+    -> payment_method_id = "pm_9001"
+
+28. Get_Account_Number_From_Payment_Method_ID("pm_9001")
+    -> output_value = "error: endpoint temporarily unavailable."
+
+29. Get_Account_Number_From_Payment_Method_ID_Core("pm_9001")
+    -> output_value = "aaabbbundefined"
+
+30. final_answer
+    -> aaabbbundefined
+
+[Expected vs. observed]
+expected_answer = "acct_tok_4242"
+target_datatype_reached = true
+failure_reason_detail = "final_answer_wrong"
+\end{lstlisting}
+\end{tcolorbox}
+\caption{A representative blocked failure of \emph{Noisy Response Adoption}. The model does reach the target datatype \textit{account\_number}, but then accepts a corrupted target-typed value and returns it as the final answer.}
+\label{fig:case_blocked_wrong_after_target}
+\end{figure*}
+
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Error Case: Format Error,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Model / setting]
+Qwen3-32B, Blocked
+
+[Raw query]
+The accounting team is closing out a retail payment trail and needs one linked field from
+the same case. The only concrete reference left in the ticket is the delivery attempt
+`dla_15001`. They need the finance-side answer before the reconciliation ticket can be
+closed. What is the exact funding account reference associated with that purchase?
+
+[Observed trajectory excerpt]
+1. Get_Shipment_ID_From_Delivery_Attempt_ID("dla_15001")
+   -> shipment_id = "error"
+
+4. Get_Warehouse_Request_ID_From_Delivery_Attempt_ID("dla_15001")
+   -> warehouse_request_id = "wr_13001"
+
+6. Get_Order_ID_From_Warehouse_Request_ID_Max("wr_13001")
+   -> order_id = "ord_7001"
+
+12. Get_Default_Payment_Method_ID_From_User_ID_Max("usr_1001")
+    -> default_payment_method_id = "pm_9001"
+
+15. Get_Account_Number_From_Payment_Method_ID("pm_9001")
+    -> rejected: missing required datatype ["payment_method_id"]
+
+18. Get_Default_Payment_Method_ID_From_Payment_Method_ID_Prime("pm_9001")
+    -> rejected: missing required datatype ["payment_method_id"]
+
+19. Get_Account_Number_From_Payment_Method_ID("pm_9001")
+    -> rejected again: missing required datatype ["payment_method_id"]
+
+[Terminal outcome]
+final_answer = null
+failure_reason_detail = "exceeded_max_tool_call_errors"
+\end{lstlisting}
+\end{tcolorbox}
+\caption{A representative blocked failure of \emph{Format Error}. The model makes local progress, but then repeatedly treats \textit{default\_payment\_method\_id} as if it were \textit{payment\_method\_id}, causing an invalid-call loop and eventual termination without a grounded answer.}
+\label{fig:case_blocked_collapse}
+\end{figure*}
+
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Data Case: Representative Query and Task Profile,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Natural-language query]
+The accounting team is closing out a retail payment trail and needs one linked field from
+the same case. The only concrete reference left in the ticket is the delivery attempt
+`dla_15001`. They need the finance-side answer before the reconciliation ticket can be
+closed. What is the exact funding account reference associated with that purchase?
+
+[Underlying task record: retail_task_0001]
+{
+  "input_datatypes": ["delivery_attempt_id"],
+  "num_inputs": 1,
+  "target_datatype": "account_number",
+  "steps": 8,
+  "one_available_path": [
+    "get_outbound_shipment_id_from_attempt_record_id_v2",
+    "get_placed_order_id_from_shipment_reference_quick",
+    "get_return_request_from_order_enterprise",
+    "get_internal_return_review_id_from_return_ticket_id_edge",
+    "get_finance_refund_id_from_review_ticket_id_nano",
+    "get_auth_id_from_finance_refund_id_prime",
+    "get_payment_setup_id_from_authorization_record_id_core",
+    "get_account_from_payment_intent_v3"
+  ]
+}
+\end{lstlisting}
+\end{tcolorbox}
+\caption{A representative retail query and its task profile. The same task is expressed both as a natural-language user query (shown to agents) and as a typed planning problem with explicit input datatypes, target datatype, and one available solution path (used only for benchmark construction and evaluation).}
+\label{fig:case_data_query_profile}
+\end{figure*}
+
+\clearpage
+\onecolumn
+
+\begin{center}
+\begin{tcolorbox}[
+    breakable,
+    colback=black!5!white,
+    colframe=black,
+    title=Data Case: Representative Tool Definitions,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Tool 1]
+### agent_visible
+{
+  "type": "function",
+  "name": "get_outbound_shipment_id_from_attempt_record_id_v2",
+  "description": "Given `delivery attempt id`, this returns the shipment that this
+  specific delivery attempt belongs to. Use it when you need the broader parcel context
+  behind one attempt event.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "delivery_attempt_id": {
+        "type": "string",
+        "description": "Unique ID of a specific delivery attempt for a shipment. One
+        shipment can have multiple delivery attempts, so this is narrower than shipment_id."
+      }
+    },
+    "required": ["delivery_attempt_id"],
+    "additionalProperties": false
+  },
+  "strict": true
+}
+
+### internal_metadata
+{
+  "input_datatypes": ["delivery_attempt_id"],
+  "output_datatype": "shipment_id"
+}
+
+[Tool 2]
+### agent_visible
+{
+  "type": "function",
+  "name": "get_return_request_from_order_enterprise",
+  "description": "Given `completed order record id`, this returns the customer-facing
+  return request created for that order, if one exists. Use it when you need to move from
+  the purchase record into the return workflow.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "completed_order_record_id": {
+        "type": "string",
+        "description": "Unique ID of the final placed order. Unlike order_draft_id, this
+        refers to the real order after checkout."
+      }
+    },
+    "required": ["completed_order_record_id"],
+    "additionalProperties": false
+  },
+  "strict": true
+}
+
+### internal_metadata
+{
+  "input_datatypes": ["order_id"],
+  "output_datatype": "return_request_id"
+}
+
+[Tool 3]
+### agent_visible
+{
+  "type": "function",
+  "name": "get_account_from_payment_intent_v3",
+  "description": "Given `payment initiation id`, this returns the recognizable account
+  or card number tied to that payment attempt, usually in masked form. Use it when you need
+  a human-readable identifier for the instrument that was used.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "payment_initiation_id": {
+        "type": "string",
+        "description": "Unique ID of the payment intent for an order. This represents
+        the stage where the system is preparing to start a payment, not the final payment
+        result."
+      }
+    },
+    "required": ["payment_initiation_id"],
+    "additionalProperties": false
+  },
+  "strict": true
+}
+
+### internal_metadata
+{
+  "input_datatypes": ["payment_intent_id"],
+  "output_datatype": "account_number"
+}
+\end{lstlisting}
+% \end{tcolorbox}
+
+% \refstepcounter{figure}\label{fig:case_data_tools}
+% \smallskip
+% \noindent\textbf{Figure~\thefigure:} Representative tool definitions from the same task family. The \texttt{agent\_visible} section shows the function schema exposed to the model, while \texttt{internal\_metadata} is used only by the benchmark implementation. Together, these tools span fulfillment, after-sales, and payment datatypes, illustrating why successful planning often requires cross-subflow composition rather than single-hop lookup.
+% \end{center}
+
+\end{tcolorbox}
+\end{center}
+
+\refstepcounter{figure}\label{fig:case_data_tools}
+\smallskip
+\noindent\parbox{\textwidth}{\raggedright
+\textbf{Figure~\thefigure:} Representative tool definitions from the same task family. The \texttt{agent\_visible} section shows the function schema exposed to the model, while \texttt{internal\_metadata} is used only by the benchmark implementation. Together, these tools span fulfillment, after-sales, and payment datatypes, illustrating why successful planning often requires cross-subflow composition rather than single-hop lookup.
+}

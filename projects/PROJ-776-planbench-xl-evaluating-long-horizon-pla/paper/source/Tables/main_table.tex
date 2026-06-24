@@ -1,0 +1,399 @@
+% % \begin{table*}[t]
+% % \begin{center}
+% % \tabcolsep=0.015\linewidth
+% % \resizebox{1\linewidth}{!}{
+% % \begin{tabular}{lcccccccc}
+% % \toprule
+% % \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} & \multicolumn{1}{c}{\textbf{Task Completion}} & \multicolumn{2}{c}{\textbf{Exploration Behavior}} & \multicolumn{3}{c}{\textbf{Execution Quality}} & \multicolumn{2}{c}{\textbf{Blocking Robustness}} \\
+% % \cmidrule(lr){2-2} \cmidrule(lr){3-4} \cmidrule(lr){5-7} \cmidrule(lr){8-9}
+% % & Default Acc. (\%) $\uparrow$ & Mean EDT & S/C Ratio & EGT Prec. $\uparrow$ & EGT Rec. $\uparrow$ & ITCR (\%) $\downarrow$ & Blocked Acc. (\%) & $\mathbf{\Delta}$ Acc. (\%) \\
+% % \midrule
+% % \textit{Greedy Policy} &  &  &  &  &  &  &  &  \\
+% % \midrule
+% % \textit{Qwen3-8B} & 19.27 & 14.68 & 0.98 & 0.497 & 0.223 & 20.79 & 15.17 & -4.10 \\
+% % \textit{Qwen3-14B} & 22.02 & 17.95 & 0.30 & 0.432 & 0.311 & 14.70 & 11.04 & -10.98 \\
+% % \textit{Qwen3-32B} & 42.86 & 18.31 & 1.86 & 0.719 & 0.336 & 13.44 & 29.91 & -12.95 \\
+% % \textit{Llama-3.1-8B-Instruct} &  &  &  &  &  &  &  &  \\
+% % \textit{Llama-3.3-70B-Instruct} & 44.95 & 23.88 & 2.10 & 0.680 & 0.359 & 8.29 & 28.13 & -16.82 \\
+% % \textit{DeepSeek-V4-Flash} &  &  &  &  &  &  &  &  \\
+% % \textit{Gemini-3.1-Flash-Lite} &  &  &  &  &  &  &  &  \\
+% % \textit{Gemini-3.1-Pro} &  &  &  &  &  &  &  &  \\
+% % \textit{GPT-5.4-Mini} &  &  &  &  &  &  &  &  \\
+% % \textit{GPT-5.4} & 96.64 & 23.38 & 1.41 & 0.975 & 0.566 & 0.10 & 40.80 & -55.84 \\
+% % \bottomrule
+% % \end{tabular}
+% % }
+% % \end{center}
+% % \caption{}
+% % \label{tab:main_unblocked_results}
+% % \end{table*}
+
+
+% % \begin{table*}[t]
+% % \begin{center}
+% % \tabcolsep=0.015\linewidth
+% % \resizebox{1\linewidth}{!}{
+% % \begin{tabular}{lccccccc}
+% % \toprule
+% % \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} 
+% % & \multicolumn{2}{c}{\textbf{Task Completion}} 
+% % & \multicolumn{2}{c}{\textbf{Exploration Behavior}} 
+% % & \multicolumn{3}{c}{\textbf{Execution Quality}} \\
+% % \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-8}
+% % & Accuracy (\%) $\uparrow$ 
+% % & Avg. Turns
+% % & Mean EDT 
+% % & S/C Ratio 
+% % & EGT Prec. $\uparrow$ 
+% % & EGT Rec. $\uparrow$ 
+% % & ITCR (\%) $\downarrow$ \\
+% % \midrule
+% % \textit{Qwen3-8B} & 19.44 & 18.97 & 14.64 & 0.99 & 0.496 & 0.223 & 20.33 \\
+% % \textit{Qwen3-14B} & 23.24 & 22.94 & 18.27 & 0.30 & 0.437 & 0.313 & 15.02 \\
+% % \textit{Qwen3-32B} & 42.11 & 17.56 & 17.95 & 1.84 & 0.720 & 0.334 & 14.81 \\
+% % \textit{Llama-3.1-8B-Instruct} & \phantom{0}4.28 & 18.03 & \phantom{0}7.30 & 1.72 & 0.391 & 0.056 & 42.45 \\
+% % \textit{Llama-3.3-70B-Instruct} & 44.95 & 19.38 & 23.88 & 2.10 & 0.680 & 0.359 & \phantom{0}8.29 \\
+% % \textit{DeepSeek-V4-Flash} & 74.31 & 21.24 & 28.16 & 2.05 & 0.862 & 0.538 & \phantom{0}2.39 \\
+% % \textit{DeepSeek-V4-Pro} & 91.44 & 19.80 & 27.84 & 1.80 & 0.936 & 0.596 & \phantom{0}0.23 \\
+% % \textit{Gemini-3.1-Flash-Lite} & 34.56 & 24.16 & 17.43 & 4.50 & 0.683 & 0.295 & \phantom{0}5.98 \\
+% % \textit{Gemini-3.1-Pro} & \textbf{98.78} & 15.79 & 26.58 & 1.46 & \textbf{0.982} & \textbf{0.573} & \textbf{\phantom{0}0.00} \\
+% % \textit{GPT-5.4-Mini} & 16.51 & 11.85 & 14.15 & 1.71 & 0.649 & 0.165 & 22.26 \\
+% % \textit{GPT-5.4} & \underline{96.64} & 17.25 & 23.38 & 1.41 & \underline{0.975} & \underline{0.566} & \underline{\phantom{0}0.10} \\
+% % \bottomrule
+% % \end{tabular}
+% % }
+% % \end{center}
+% % \caption{}
+% % \label{tab:main_unblocked_results}
+% % \end{table*}
+
+% % \begin{table*}[t]
+% % \begin{center}
+% % \tabcolsep=0.015\linewidth
+% % \resizebox{0.95\linewidth}{!}{
+% % \begin{tabular}{lcccccc}
+% % \toprule
+% % \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} 
+% % & \multicolumn{2}{c}{\textbf{Task Completion}} 
+% % & \multicolumn{2}{c}{\textbf{Exploration Behavior}} 
+% % & \multicolumn{2}{c}{\textbf{Execution Quality}} \\
+% % \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+% % & Accuracy (\%) $\uparrow$ 
+% % & Avg. Turns
+% % & Mean EDT 
+% % & S/C Ratio 
+% % & EGT Prec. $\uparrow$ 
+% % & ITCR (\%) $\downarrow$ \\
+% % \midrule
+% % \textit{Qwen3-8B} & 19.44 & 18.97 & 14.64 & 0.99 & 0.496 & 20.33 \\
+% % \textit{Qwen3-14B} & 23.24 & 22.94 & 18.27 & 0.30 & 0.437 & 15.02 \\
+% % \textit{Qwen3-32B} & 42.11 & 17.56 & 17.95 & 1.84 & 0.720 & 14.81 \\
+% % \textit{Llama-3.1-8B-Instruct} & \phantom{0}4.28 & 18.03 & \phantom{0}7.30 & 1.72 & 0.391 & 42.45 \\
+% % \textit{Llama-3.3-70B-Instruct} & 44.95 & 19.38 & 23.88 & 2.10 & 0.680 & \phantom{0}8.29 \\
+% % \textit{DeepSeek-V4-Flash} & 74.31 & 21.24 & 28.16 & 2.05 & 0.862 & \phantom{0}2.39 \\
+% % \textit{DeepSeek-V4-Pro} & 91.44 & 19.80 & 27.84 & 1.80 & 0.936 & \phantom{0}0.23 \\
+% % \textit{Gemini-3.1-Flash-Lite} & 34.56 & 24.16 & 17.43 & 4.50 & 0.683 & \phantom{0}5.98 \\
+% % \textit{Gemini-3.1-Pro} & \textbf{98.78} & 15.79 & 26.58 & 1.46 & \textbf{0.982} & \textbf{\phantom{0}0.00} \\
+% % \textit{GPT-5.4-Mini} & 16.51 & 11.85 & 14.15 & 1.71 & 0.649 & 22.26 \\
+% % \textit{GPT-5.4} & \underline{96.64} & 17.25 & 23.38 & 1.41 & \underline{0.975} & \underline{\phantom{0}0.10} \\
+% % \bottomrule
+% % \end{tabular}
+% % }
+% % \end{center}
+% % \caption{}
+% % \label{tab:main_unblocked_results}
+% % \end{table*}
+
+% \begin{table*}[t]
+% % \vspace{-0.45in}
+% \begin{center}
+% \tabcolsep=0.015\linewidth
+% \resizebox{0.95\linewidth}{!}{
+% \begin{tabular}{lcccccc}
+% \toprule
+% \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} 
+% & \multicolumn{3}{c}{\textbf{Task Completion}} 
+% & \multicolumn{2}{c}{\textbf{Exploration Behavior}} 
+% & \multicolumn{1}{c}{\textbf{Execution Quality}} \\
+% \cmidrule(lr){2-4} \cmidrule(lr){5-6} \cmidrule(lr){7-7}
+% & Accuracy (\%) $\uparrow$ 
+% & EGT Prec. (\%) $\uparrow$
+% & Avg. Turns
+% & Mean EDT 
+% & S/C Ratio 
+% & ITCR (\%) $\downarrow$ \\
+% \midrule
+% \textit{Qwen3-8B} & 19.44 & 49.55 & 18.97 & 14.64 & 0.99 & 20.33 \\
+% \textit{Qwen3-14B} & 23.24 & 43.74 & 22.94 & 18.27 & 0.30 & 15.02 \\
+% \textit{Qwen3-32B} & 36.70 & 72.00 & 17.35 & 17.73 & 1.84 & 14.81 \\
+% \textit{Llama-3.1-8B-Instruct} & \phantom{0}4.28 & 39.07 & 18.03 & \phantom{0}7.30 & 1.72 & 42.45 \\
+% \textit{Llama-3.3-70B-Instruct} & 37.92 & 67.99 & 19.38 & 23.88 & 2.10 & \phantom{0}8.29 \\
+% \textit{DeepSeek-V4-Flash} & 74.31 & 86.17 & 21.24 & 28.16 & 2.05 & \phantom{0}2.39 \\
+% % \textit{DeepSeek-V4-Pro} & 91.44 & 93.60 & 19.80 & 27.84 & 1.80 & \phantom{0}0.23 \\
+% \textit{Gemini-3.1-Flash-Lite} & 34.56 & 68.34 & 24.16 & 17.43 & 4.50 & \phantom{0}5.98 \\
+% \textit{Gemini-3.1-Pro} & \textbf{98.78} & \textbf{98.16} & 15.86 & 26.60 & 1.47 & \textbf{\phantom{0}0.00} \\
+% \textit{GPT-5.4-Mini} & 16.51 & 64.92 & 11.85 & 14.15 & 1.71 & 22.26 \\
+% \textit{GPT-5.4} & \underline{96.64} & \underline{97.51} & 17.25 & 23.38 & 1.41 & \phantom{0}\underline{0.10} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{center}
+% \vspace{-0.13in}
+% \caption{\BENCH{} main evaluation results in the \textit{default} setting under the grounded accuracy criterion. 
+% Scores in \textbf{bold} indicate the best performance among all models, and \underline{underlined} scores denote the second-best performance.
+% % A query is counted as correct only when the final answer matches the gold answer \emph{and} the target datatype has been reached.
+% The metrics in (\%) are in percentage forms.}
+% \label{tab:main_unblocked_results_grounded}
+% \vspace{-0.17in}
+% \end{table*}
+
+% \begin{table*}[t]
+% \begin{center}
+% \tabcolsep=0.015\linewidth
+% \resizebox{1\linewidth}{!}{
+% \begin{tabular}{lcccccccc}
+% \toprule
+% \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} & \multicolumn{1}{c}{\textbf{Task Completion}} & \multicolumn{2}{c}{\textbf{Exploration Behavior}} & \multicolumn{3}{c}{\textbf{Execution Quality}} & \multicolumn{2}{c}{\textbf{Blocking Robustness}} \\
+% \cmidrule(lr){2-2} \cmidrule(lr){3-4} \cmidrule(lr){5-7} \cmidrule(lr){8-9}
+% & Default Acc. (\%) $\uparrow$ & Mean EDT & S/C Ratio & EGT Prec. $\uparrow$ & EGT Rec. $\uparrow$ & ITCR (\%) $\downarrow$ & Blocked Acc. (\%) & $\mathbf{\Delta}$ Acc. (\%) \\
+% \midrule
+% \textit{Greedy Policy} &  &  &  &  &  &  &  &  \\
+% \midrule
+% \textit{Qwen3-8B} & 19.27 & 14.68 & 0.98 & 0.497 & 0.223 & 20.79 & 15.17 & -4.10 \\
+% \textit{Qwen3-14B} & 22.02 & 17.95 & 0.30 & 0.432 & 0.311 & 14.70 & 11.04 & -10.98 \\
+% \textit{Qwen3-32B} & 42.86 & 18.31 & 1.86 & 0.719 & 0.336 & 13.44 & 29.91 & -12.95 \\
+% \textit{Llama-3.1-8B-Instruct} &  &  &  &  &  &  &  &  \\
+% \textit{Llama-3.3-70B-Instruct} & 44.95 & 23.88 & 2.10 & 0.680 & 0.359 & 8.29 & 28.13 & -16.82 \\
+% \textit{DeepSeek-V4-Flash} &  &  &  &  &  &  &  &  \\
+% \textit{Gemini-3.1-Flash-Lite} &  &  &  &  &  &  &  &  \\
+% \textit{Gemini-3.1-Pro} &  &  &  &  &  &  &  &  \\
+% \textit{GPT-5.4-Mini} &  &  &  &  &  &  &  &  \\
+% \textit{GPT-5.4} & 96.64 & 23.38 & 1.41 & 0.975 & 0.566 & 0.10 & 40.80 & -55.84 \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{center}
+% \caption{}
+% \label{tab:main_unblocked_results}
+% \end{table*}
+
+
+% \begin{table*}[t]
+% \begin{center}
+% \tabcolsep=0.015\linewidth
+% \resizebox{1\linewidth}{!}{
+% \begin{tabular}{lccccccc}
+% \toprule
+% \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} 
+% & \multicolumn{2}{c}{\textbf{Task Completion}} 
+% & \multicolumn{2}{c}{\textbf{Exploration Behavior}} 
+% & \multicolumn{3}{c}{\textbf{Execution Quality}} \\
+% \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-8}
+% & Accuracy (\%) $\uparrow$ 
+% & Avg. Turns
+% & Mean EDT 
+% & S/C Ratio 
+% & EGT Prec. $\uparrow$ 
+% & EGT Rec. $\uparrow$ 
+% & ITCR (\%) $\downarrow$ \\
+% \midrule
+% \textit{Qwen3-8B} & 19.44 & 18.97 & 14.64 & 0.99 & 0.496 & 0.223 & 20.33 \\
+% \textit{Qwen3-14B} & 23.24 & 22.94 & 18.27 & 0.30 & 0.437 & 0.313 & 15.02 \\
+% \textit{Qwen3-32B} & 42.11 & 17.56 & 17.95 & 1.84 & 0.720 & 0.334 & 14.81 \\
+% \textit{Llama-3.1-8B-Instruct} & \phantom{0}4.28 & 18.03 & \phantom{0}7.30 & 1.72 & 0.391 & 0.056 & 42.45 \\
+% \textit{Llama-3.3-70B-Instruct} & 44.95 & 19.38 & 23.88 & 2.10 & 0.680 & 0.359 & \phantom{0}8.29 \\
+% \textit{DeepSeek-V4-Flash} & 74.31 & 21.24 & 28.16 & 2.05 & 0.862 & 0.538 & \phantom{0}2.39 \\
+% \textit{DeepSeek-V4-Pro} & 91.44 & 19.80 & 27.84 & 1.80 & 0.936 & 0.596 & \phantom{0}0.23 \\
+% \textit{Gemini-3.1-Flash-Lite} & 34.56 & 24.16 & 17.43 & 4.50 & 0.683 & 0.295 & \phantom{0}5.98 \\
+% \textit{Gemini-3.1-Pro} & \textbf{98.78} & 15.79 & 26.58 & 1.46 & \textbf{0.982} & \textbf{0.573} & \textbf{\phantom{0}0.00} \\
+% \textit{GPT-5.4-Mini} & 16.51 & 11.85 & 14.15 & 1.71 & 0.649 & 0.165 & 22.26 \\
+% \textit{GPT-5.4} & \underline{96.64} & 17.25 & 23.38 & 1.41 & \underline{0.975} & \underline{0.566} & \underline{\phantom{0}0.10} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{center}
+% \caption{}
+% \label{tab:main_unblocked_results}
+% \end{table*}
+
+% \begin{table*}[t]
+% \begin{center}
+% \tabcolsep=0.015\linewidth
+% \resizebox{0.95\linewidth}{!}{
+% \begin{tabular}{lcccccc}
+% \toprule
+% \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} 
+% & \multicolumn{2}{c}{\textbf{Task Completion}} 
+% & \multicolumn{2}{c}{\textbf{Exploration Behavior}} 
+% & \multicolumn{2}{c}{\textbf{Execution Quality}} \\
+% \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+% & Accuracy (\%) $\uparrow$ 
+% & Avg. Turns
+% & Mean EDT 
+% & S/C Ratio 
+% & EGT Prec. $\uparrow$ 
+% & ITCR (\%) $\downarrow$ \\
+% \midrule
+% \textit{Qwen3-8B} & 19.44 & 18.97 & 14.64 & 0.99 & 0.496 & 20.33 \\
+% \textit{Qwen3-14B} & 23.24 & 22.94 & 18.27 & 0.30 & 0.437 & 15.02 \\
+% \textit{Qwen3-32B} & 42.11 & 17.56 & 17.95 & 1.84 & 0.720 & 14.81 \\
+% \textit{Llama-3.1-8B-Instruct} & \phantom{0}4.28 & 18.03 & \phantom{0}7.30 & 1.72 & 0.391 & 42.45 \\
+% \textit{Llama-3.3-70B-Instruct} & 44.95 & 19.38 & 23.88 & 2.10 & 0.680 & \phantom{0}8.29 \\
+% \textit{DeepSeek-V4-Flash} & 74.31 & 21.24 & 28.16 & 2.05 & 0.862 & \phantom{0}2.39 \\
+% \textit{DeepSeek-V4-Pro} & 91.44 & 19.80 & 27.84 & 1.80 & 0.936 & \phantom{0}0.23 \\
+% \textit{Gemini-3.1-Flash-Lite} & 34.56 & 24.16 & 17.43 & 4.50 & 0.683 & \phantom{0}5.98 \\
+% \textit{Gemini-3.1-Pro} & \textbf{98.78} & 15.79 & 26.58 & 1.46 & \textbf{0.982} & \textbf{\phantom{0}0.00} \\
+% \textit{GPT-5.4-Mini} & 16.51 & 11.85 & 14.15 & 1.71 & 0.649 & 22.26 \\
+% \textit{GPT-5.4} & \underline{96.64} & 17.25 & 23.38 & 1.41 & \underline{0.975} & \underline{\phantom{0}0.10} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{center}
+% \caption{}
+% \label{tab:main_unblocked_results}
+% \end{table*}
+
+% \begin{table*}[t]
+% \begin{center}
+% \tabcolsep=0.015\linewidth
+% \resizebox{1\linewidth}{!}{
+% \begin{tabular}{lcccccccc}
+% \toprule
+% \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} & \multicolumn{1}{c}{\textbf{Task Completion}} & \multicolumn{2}{c}{\textbf{Exploration Behavior}} & \multicolumn{3}{c}{\textbf{Execution Quality}} & \multicolumn{2}{c}{\textbf{Blocking Robustness}} \\
+% \cmidrule(lr){2-2} \cmidrule(lr){3-4} \cmidrule(lr){5-7} \cmidrule(lr){8-9}
+% & Default Acc. (\%) $\uparrow$ & Mean EDT & S/C Ratio & EGT Prec. $\uparrow$ & EGT Rec. $\uparrow$ & ITCR (\%) $\downarrow$ & Blocked Acc. (\%) & $\mathbf{\Delta}$ Acc. (\%) \\
+% \midrule
+% \textit{Greedy Policy} &  &  &  &  &  &  &  &  \\
+% \midrule
+% \textit{Qwen3-8B} & 19.27 & 14.68 & 0.98 & 0.497 & 0.223 & 20.79 & 15.17 & -4.10 \\
+% \textit{Qwen3-14B} & 22.02 & 17.95 & 0.30 & 0.432 & 0.311 & 14.70 & 11.04 & -10.98 \\
+% \textit{Qwen3-32B} & 42.86 & 18.31 & 1.86 & 0.719 & 0.336 & 13.44 & 29.91 & -12.95 \\
+% \textit{Llama-3.1-8B-Instruct} &  &  &  &  &  &  &  &  \\
+% \textit{Llama-3.3-70B-Instruct} & 44.95 & 23.88 & 2.10 & 0.680 & 0.359 & 8.29 & 28.13 & -16.82 \\
+% \textit{DeepSeek-V4-Flash} &  &  &  &  &  &  &  &  \\
+% \textit{Gemini-3.1-Flash-Lite} &  &  &  &  &  &  &  &  \\
+% \textit{Gemini-3.1-Pro} &  &  &  &  &  &  &  &  \\
+% \textit{GPT-5.4-Mini} &  &  &  &  &  &  &  &  \\
+% \textit{GPT-5.4} & 96.64 & 23.38 & 1.41 & 0.975 & 0.566 & 0.10 & 40.80 & -55.84 \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{center}
+% \caption{}
+% \label{tab:main_unblocked_results}
+% \end{table*}
+
+
+% \begin{table*}[t]
+% \begin{center}
+% \tabcolsep=0.015\linewidth
+% \resizebox{1\linewidth}{!}{
+% \begin{tabular}{lccccccc}
+% \toprule
+% \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} 
+% & \multicolumn{2}{c}{\textbf{Task Completion}} 
+% & \multicolumn{2}{c}{\textbf{Exploration Behavior}} 
+% & \multicolumn{3}{c}{\textbf{Execution Quality}} \\
+% \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-8}
+% & Accuracy (\%) $\uparrow$ 
+% & Avg. Turns
+% & Mean EDT 
+% & S/C Ratio 
+% & EGT Prec. $\uparrow$ 
+% & EGT Rec. $\uparrow$ 
+% & ITCR (\%) $\downarrow$ \\
+% \midrule
+% \textit{Qwen3-8B} & 19.44 & 18.97 & 14.64 & 0.99 & 0.496 & 0.223 & 20.33 \\
+% \textit{Qwen3-14B} & 23.24 & 22.94 & 18.27 & 0.30 & 0.437 & 0.313 & 15.02 \\
+% \textit{Qwen3-32B} & 42.11 & 17.56 & 17.95 & 1.84 & 0.720 & 0.334 & 14.81 \\
+% \textit{Llama-3.1-8B-Instruct} & \phantom{0}4.28 & 18.03 & \phantom{0}7.30 & 1.72 & 0.391 & 0.056 & 42.45 \\
+% \textit{Llama-3.3-70B-Instruct} & 44.95 & 19.38 & 23.88 & 2.10 & 0.680 & 0.359 & \phantom{0}8.29 \\
+% \textit{DeepSeek-V4-Flash} & 74.31 & 21.24 & 28.16 & 2.05 & 0.862 & 0.538 & \phantom{0}2.39 \\
+% \textit{DeepSeek-V4-Pro} & 91.44 & 19.80 & 27.84 & 1.80 & 0.936 & 0.596 & \phantom{0}0.23 \\
+% \textit{Gemini-3.1-Flash-Lite} & 34.56 & 24.16 & 17.43 & 4.50 & 0.683 & 0.295 & \phantom{0}5.98 \\
+% \textit{Gemini-3.1-Pro} & \textbf{98.78} & 15.79 & 26.58 & 1.46 & \textbf{0.982} & \textbf{0.573} & \textbf{\phantom{0}0.00} \\
+% \textit{GPT-5.4-Mini} & 16.51 & 11.85 & 14.15 & 1.71 & 0.649 & 0.165 & 22.26 \\
+% \textit{GPT-5.4} & \underline{96.64} & 17.25 & 23.38 & 1.41 & \underline{0.975} & \underline{0.566} & \underline{\phantom{0}0.10} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{center}
+% \caption{}
+% \label{tab:main_unblocked_results}
+% \end{table*}
+
+% \begin{table*}[t]
+% \begin{center}
+% \tabcolsep=0.015\linewidth
+% \resizebox{0.95\linewidth}{!}{
+% \begin{tabular}{lcccccc}
+% \toprule
+% \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} 
+% & \multicolumn{2}{c}{\textbf{Task Completion}} 
+% & \multicolumn{2}{c}{\textbf{Exploration Behavior}} 
+% & \multicolumn{2}{c}{\textbf{Execution Quality}} \\
+% \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+% & Accuracy (\%) $\uparrow$ 
+% & Avg. Turns
+% & Mean EDT 
+% & S/C Ratio 
+% & EGT Prec. $\uparrow$ 
+% & ITCR (\%) $\downarrow$ \\
+% \midrule
+% \textit{Qwen3-8B} & 19.44 & 18.97 & 14.64 & 0.99 & 0.496 & 20.33 \\
+% \textit{Qwen3-14B} & 23.24 & 22.94 & 18.27 & 0.30 & 0.437 & 15.02 \\
+% \textit{Qwen3-32B} & 42.11 & 17.56 & 17.95 & 1.84 & 0.720 & 14.81 \\
+% \textit{Llama-3.1-8B-Instruct} & \phantom{0}4.28 & 18.03 & \phantom{0}7.30 & 1.72 & 0.391 & 42.45 \\
+% \textit{Llama-3.3-70B-Instruct} & 44.95 & 19.38 & 23.88 & 2.10 & 0.680 & \phantom{0}8.29 \\
+% \textit{DeepSeek-V4-Flash} & 74.31 & 21.24 & 28.16 & 2.05 & 0.862 & \phantom{0}2.39 \\
+% \textit{DeepSeek-V4-Pro} & 91.44 & 19.80 & 27.84 & 1.80 & 0.936 & \phantom{0}0.23 \\
+% \textit{Gemini-3.1-Flash-Lite} & 34.56 & 24.16 & 17.43 & 4.50 & 0.683 & \phantom{0}5.98 \\
+% \textit{Gemini-3.1-Pro} & \textbf{98.78} & 15.79 & 26.58 & 1.46 & \textbf{0.982} & \textbf{\phantom{0}0.00} \\
+% \textit{GPT-5.4-Mini} & 16.51 & 11.85 & 14.15 & 1.71 & 0.649 & 22.26 \\
+% \textit{GPT-5.4} & \underline{96.64} & 17.25 & 23.38 & 1.41 & \underline{0.975} & \underline{\phantom{0}0.10} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{center}
+% \caption{}
+% \label{tab:main_unblocked_results}
+% \end{table*}
+
+\begin{table*}[t]
+\begin{center}
+\tabcolsep=0.015\linewidth
+\resizebox{0.97\linewidth}{!}{
+\begin{tabular}{lccccccc}
+\toprule
+\multicolumn{1}{c}{\multirow{2}{*}{\textbf{Model Name}}} 
+& \multicolumn{3}{c}{\textbf{Task Completion}} 
+& \multicolumn{2}{c}{\textbf{Exploration Behavior}} 
+& \multicolumn{2}{c}{\textbf{Execution Quality}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+& Accuracy (\%) $\uparrow$ 
+& EGT Prec. (\%) $\uparrow$
+& Avg. Turns
+& Mean EDT 
+& S/C Ratio 
+& ITCR (\%) $\downarrow$
+& UIRR (\%) $\downarrow$ \\
+\midrule
+\textit{Qwen3-8B} & \phantom{0}0.00 & 35.31 & 25.65 & \phantom{0}7.64 & \phantom{0}0.20 & \phantom{0}6.11 & \underline{\phantom{0}0.10} \\
+\textit{Qwen3-14B} & \phantom{0}0.92 & 47.77 & 35.74 & 12.01 & \phantom{0}0.09 & \phantom{0}3.94 & \phantom{0}0.93 \\
+\textit{Qwen3-32B} & \phantom{0}2.75 & 62.36 & 12.03 & 18.54 & \phantom{0}1.59 & 10.05 & \phantom{0}7.43 \\
+\textit{Llama-3.1-8B-Instruct} & \phantom{0}0.00 & 41.33 & 21.62 & \phantom{0}9.89 & \phantom{0}1.49 & 18.03 & \phantom{0}5.25 \\
+\textit{Llama-3.3-70B-Instruct} & 18.96 & 59.67 & 19.13 & 19.20 & \phantom{0}2.22 & 21.47 & \phantom{0}2.13 \\
+\textit{DeepSeek-V4-Flash} & \underline{63.08} & 65.57 & 31.41 & \underline{25.34} & \phantom{0}2.80 & \phantom{0}8.27 & \phantom{0}3.29 \\
+\textit{Gemini-3.1-Pro} & \textbf{77.06} & \textbf{91.47} & 19.55 & \textbf{27.41} & \phantom{0}1.59 & \textbf{\phantom{0}0.68} & \phantom{0}0.30 \\
+\textit{Gemini-3.5-Flash} & 52.19 & \underline{85.29} & 57.87 & 25.16 & 10.44 & \underline{\phantom{0}2.94} & \textbf{\phantom{0}0.00} \\
+\textit{GPT-5.4-Mini} & \phantom{0}3.07 & 71.25 & 10.81 & \phantom{0}9.22 & \phantom{0}1.97 & 51.71 & \phantom{0}4.42 \\
+\textit{GPT-5.4} & 51.90 & 72.92 & 22.92 & 20.65 & \phantom{0}2.70 & \phantom{0}6.28 & \phantom{0}1.91 \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+% \vspace{-0.13in}
+\caption{\bench{} main evaluation results in the \textit{default} setting under the grounded accuracy criterion.Scores in \textbf{bold} indicate the best performance among all models, and \underline{underlined} scores denote the second-best performance. For \textit{Mean EDT}, higher values generally indicate broader exploration but are not strictly better in all cases; we still highlight the top two values to aid readability.The metrics in (\%) are reported in percentage form.}
+\label{tab:main_unblocked_results_grounded}
+% \vspace{-0.17in}
+\end{table*}

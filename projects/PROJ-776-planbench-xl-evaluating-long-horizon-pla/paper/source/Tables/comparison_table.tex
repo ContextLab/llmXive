@@ -1,0 +1,83 @@
+% \begin{table*}[t]
+% \small
+% \centering
+% \resizebox{0.95\linewidth}{!}{
+%     \begin{tabular}{lcccccccc}
+%     \toprule
+%     \textbf{Benchmark} 
+%     & \textbf{\makecell{Tool-\\Use}} 
+%     & \textbf{\makecell{Tool\\Retrieval}}
+%     & \textbf{\makecell{Implicit\\Sub-goals}}
+%     & \textbf{\makecell{Bidirectional\\Exploration}}
+%     & \textbf{\makecell{Corrupted\\Tools}} 
+%     & \textbf{\makecell{Long-\\Horizon}}
+%     & \textbf{\makecell{Adjustable\\Difficulty}} 
+%     & \textbf{\makecell{Scalable\\Generation}} \\
+%     \midrule
+%     \textit{ToolBench}~\citep{ToolBench} & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \gmark & \gmark \\
+%     \textit{RestBench}~\citep{RestGPT} & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \gmark & \xmark \\
+%     \textit{APIBench}~\citep{APIBench} & \cmark & \cmark & \xmark & \xmark & \gmark & \xmark & \gmark & \gmark \\
+%     \textit{ToolRet}~\citep{ToolRet} & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \gmark & \gmark \\
+%     \textit{API-Bank}~\citep{API-Bank} & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \gmark & \cmark \\
+%     \textit{EscapeBench}~\citep{EscapeBench} & \cmark & \xmark & \cmark & \gmark & \xmark & \cmark & \cmark & \xmark \\
+%     \textit{MCP-Universe}~\citep{MCP-Universe} & \cmark & \xmark & \gmark & \xmark & \xmark & \xmark & \gmark & \xmark \\
+%     \textit{MCPBench}~\citep{MCP-Bench} & \cmark & \cmark & \xmark & \gmark & \xmark & \gmark & \gmark & \cmark \\
+%     \textit{ACEBench}~\citep{ACEBench} & \cmark & \xmark & \gmark & \xmark & \xmark & \xmark & \gmark & \gmark \\
+%     \textit{BFCL v4}~\citep{BFCL-v4} & \cmark & \xmark & \xmark & \xmark & \cmark & \gmark & \cmark & \xmark \\
+%     \textit{Tool Decathlon}~\citep{Tool-Decathlon} & \cmark & \xmark & \gmark & \xmark & \xmark & \cmark & \gmark & \xmark \\
+%     \textit{LiveMCPBench}~\citep{LiveMCPBench} & \cmark & \cmark & \xmark & \gmark & \xmark & \gmark & \cmark & \xmark \\
+%     \textit{ToolGym}~\citep{ToolGym} & \cmark & \cmark & \xmark & \xmark & \cmark & \cmark & \cmark & \cmark \\
+%     \textit{AgentNoiseBench}~\citep{AgentNoiseBench} & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark & \cmark \\
+%     \midrule
+%     \textit{\BENCH{} (\textbf{\textit{Ours}})} & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+%     \bottomrule
+%     \end{tabular}
+% }
+
+% \caption{For each benchmark, the table reports whether each trait is fully (\cmark), partially (\gmark), or not (\xmark) addressed. Detailed explanations are provided in Appendix~\ref{app:comparison-traits}. }
+% \label{tab:comparison-table}
+% \vspace{-0.2in}
+% \end{table*}
+
+\begin{table*}[t]
+% \vspace{-0.15in}
+\small
+\centering
+\resizebox{0.97\linewidth}{!}{
+    \begin{tabular}{lccccccc}
+    \toprule
+    \textbf{Benchmark} 
+    & \textbf{\makecell{Tool-\\Use}} 
+    & \textbf{\makecell{Tool\\Retrieval}}
+    & \textbf{\makecell{Implicit\\Sub-goals}}
+    & \textbf{\makecell{Bi-directional\\Exploration}}
+    & \textbf{\makecell{Unreliable\\Tools}} 
+    & \textbf{\makecell{Long-\\Horizon}}
+    & \textbf{\makecell{Scalable\\Generation}} \\
+    \midrule
+    \textit{ToolBench}~\citep{ToolBench} & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \gmark \\
+    \textit{RestBench}~\citep{RestGPT} & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\
+    \textit{APIBench}~\citep{APIBench} & \cmark & \cmark & \xmark & \xmark & \gmark & \xmark & \gmark \\
+    \textit{ToolRet}~\citep{ToolRet} & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \gmark \\
+    \textit{API-Bank}~\citep{API-Bank} & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+    \textit{EscapeBench}~\citep{EscapeBench} & \cmark & \xmark & \cmark & \gmark & \xmark & \cmark & \xmark \\
+    \textit{MCP-Universe}~\citep{MCP-Universe} & \cmark & \xmark & \gmark & \xmark & \xmark & \xmark & \xmark \\
+    \textit{MCPBench}~\citep{MCP-Bench} & \cmark & \cmark & \xmark & \gmark & \xmark & \gmark & \cmark \\
+    \textit{ACEBench}~\citep{ACEBench} & \cmark & \xmark & \gmark & \xmark & \xmark & \xmark & \gmark \\
+    \textit{BFCL v4}~\citep{BFCL-v4} & \cmark & \xmark & \xmark & \xmark & \cmark & \gmark & \xmark \\
+    \textit{Tool Decathlon}~\citep{Tool-Decathlon} & \cmark & \xmark & \gmark & \xmark & \xmark & \cmark & \xmark \\
+    \textit{LiveMCPBench}~\citep{LiveMCPBench} & \cmark & \cmark & \xmark & \gmark & \xmark & \gmark & \xmark \\
+    \textit{ToolGym}~\citep{ToolGym} & \cmark & \cmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
+    \textit{AgentNoiseBench}~\citep{AgentNoiseBench} & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark \\
+    \textit{OpaqueToolsBench}~\citep{OpaqueToolsBench} & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark \\
+    \textit{WildAGTEval}~\citep{kim2026perfectapiscomprehensiveevaluation} & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark \\
+    \midrule
+    \textit{\BENCH{} (\textbf{\textit{Ours}})} & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+    \bottomrule
+    \end{tabular}
+}
+% \vspace{-0.1in}
+\caption{For each benchmark, the table reports whether each trait is fully (\cmark), partially (\gmark), or not (\xmark) addressed. Detailed explanations of each traits are provided in Appendix~\ref{app:comparison-traits}. }
+\label{tab:comparison-table}
+\vspace{-0.1in}
+\end{table*}

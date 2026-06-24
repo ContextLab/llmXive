@@ -1,0 +1,24 @@
+\section{Conclusion}
+
+% === Lead-in: what we do ===
+
+% === Failure-modes: What our main findings are ===
+
+% === Implications: What this failure modes implies ===
+
+% === significance and future directions ===
+
+% % === Lead-in: what we do ===
+% In this work, we introduced \BENCH{}, an interactive benchmark for evaluating long-horizon adaptive planning in large-scale, retrieval-mediated tool ecosystems.
+% % === Failure-modes: What our main findings are ===
+% Our results show that current LLM agents remain brittle in massive-tool environments. Although frontier models perform well under clean tool access, their performance drops sharply when relevant tools are blocked, silently corrupted, or require longer recovery paths, while simply extending test-time interaction yields only limited gains.
+% % === Implications: What these failure modes imply ===
+% These failure modes suggest that robust tool use requires more than broad exploration or stronger general reasoning. 
+% Agents must be able to recognize unreliable tool feedback, preserve useful intermediate evidence, and re-plan through alternative tool-use paths under partial and imperfect tool observability.
+% % === significance and future directions ===
+% Looking forward, \bench{} provides a testbed for developing more robust and adaptive LLM agents that can actively explore large tool ecosystems, recover from unreliable tools, and operate under real-world uncertainty, with future directions discussed in Appendix~\ref{app:potential-improvement-methods}.
+
+In this work, we introduced \BENCH{}, an interactive benchmark for evaluating long-horizon adaptive planning in large-scale, retrieval-mediated tool ecosystems.
+Our results show that current LLM agents remain brittle in massive-tool environments: even frontier models drop sharply when relevant tools are blocked, silently corrupted, or require longer recovery paths, while longer test-time interaction brings only limited gains.
+These failures suggest that robust planning requires agents to recognize unreliable feedback, preserve intermediate evidence, and re-plan under partial and imperfect tool observability.
+Looking forward, \bench{} provides a testbed for developing adaptive agents that explore large tool ecosystems, recover from unreliable tools, and operate under real-world uncertainty, with future directions in Appendix~\ref{app:potential-improvement-methods}.

@@ -1,0 +1,26 @@
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Enforce Exploration Prompt,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+Environment feedback:
+The final answer you just gave does not appear to be correct, and you have not obtained the target information yet. Please continue exploring if needed before giving another final answer.
+\end{lstlisting}
+\end{tcolorbox}
+\caption{Additional feedback prompt injected in the blocked+enforced setting when the agent outputs an incorrect final answer before reaching the target datatype. 
+% \qh{Also check this if possible}
+}
+\label{fig:enforced-prompt}
+\end{figure*}

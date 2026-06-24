@@ -1,0 +1,178 @@
+\section{Analysis}
+\label{sec:analysis}
+
+In this section, we analyze factors that influence model performance from three complementary
+perspectives. As described in Section~\ref{sec:benchmark}, our task and tool construction is 
+structured, enabling controlled analysis along several dimensions:
+\begin{itemize}[topsep=2pt, partopsep=3pt, leftmargin=*, itemsep=-3pt]
+    \item \textbf{Block Types and Severity} (Takeaway~\ref{tak:analysis-block-type-severity}):
+    How agents perform under different types and severities of tool-path blocking.
+
+    \item \textbf{Inference-Time Augmentation} (Takeaway~\ref{tak:analysis-test-time-tricks}):
+    Whether additional test-time computation improves adaptation under blocked tool paths.
+
+    \item \textbf{Path Length Effects} (Takeaway~\ref{tak:analysis-path-length}):
+    How minimal solution paths affect task accuracy.
+\end{itemize}
+
+% Unless otherwise specified, we analyze the Tool Usage metrics, which provide the most objective
+% evaluation signal and serve as the primary benchmark metrics. The first two analyses use the same
+% setting as the main experiment; for inference-time analysis, we further evaluate different sampling
+% temperatures and evaluation modes. Finally, we examine subjective metrics and highlight several
+% noteworthy patterns and failure modes.
+
+\input{Figures/noise_combined}
+
+\input{Figures/fine_grained_blocking}
+
+\input{Figures/enforced_budget_preview}
+
+
+% In this section, we focus on five representative models for deeper analysis: \textit{GPT-5.4}, \textit{DeepSeek-V4-Flash}, \textit{Llama-3.3-70B}, \textit{Qwen3-32B}, and \textit{Qwen3-14B}.
+
+\begin{takeaway}[label={tak:analysis-block-type-severity}]
+% \label{tak:analysis-block-type-severity}
+Agents are vulnerable under corrupted tool environments, especially when failures are silent or alternative paths become longer.
+\end{takeaway}
+
+\paragraph{Viable-path reduction sharply weakens performance.}
+We vary the block ratio, defined as the proportion of originally feasible solution paths disabled by replacing selected path-critical tools with block alternatives. 
+As shown in the right panel of Figure~\ref{fig:noise_combined}, as the block ratio increases, all four models perform worse, showing that agents become less reliable as the environment leaves fewer viable paths available. 
+% GPT-5.4: 33.54 -> 40.76 -> 40.89 -> 42.99
+% DeepSeek-V4-Flash: 50.46 -> 54.49 -> 57.49 -> 58.10
+% Gemini-3.5-Flash: 42.20 -> 45.26 -> 47.40 -> 50.46
+% Llama-3.3-70B: 11.31 -> 14.37 -> 17.13 -> 18.65
+This degradation is especially pronounced for \textit{GPT-5.4}, whose accuracy drops by more than 20 percentage points, and the same trend is consistently observed across the other three models.
+% \qh{GPT-5.4: drops from 51.90\% to 31.19\%; Gemini-3.5-Flash: 52.19\% to 38.84\%; DeepSeek-V4-Flash: 63.08\% to 48.32\%}
+These results suggest that stronger environmental constraints systematically weaken adaptive planning by forcing agents to recover within a smaller solution space.
+
+% \jy{refine the rest of the paper}
+
+% \paragraph{Implicit tool errors are usually more harmful than explicit ones.}
+% In order to break down which kinds of noise interfere most with model performance, we vary the type of noisy tool used to replace the blocked baseline tools while keeping the rest of the blocked setting fixed.
+% Across most models, performance drops the most when noisy tools fail silently by returning plausible but incorrect values. 
+% Models perform noticeably better when the failure is made explicit through an error message. 
+% This pattern is especially clear for \textit{GPT-5.4}, \textit{DeepSeek-V4-Flash}, and \textit{Llama-3.3-70B}, which all perform worst under silent failures and better when tool failures are explicit. 
+% \textit{Qwen3-14B} follows the same general trend, with silent failures again among the most damaging settings. 
+% Overall, these results suggest that models are more vulnerable to silent tool failures than to explicit errors or irrelevant tools. 
+% Further analysis shows that models often continue reasoning with incorrect returned values under silent failures, rather than recognizing that the values themselves are wrong.
+% Detailed results are provided in Appendix~\ref{app:additional-experiment-results}.
+
+\paragraph{Silent tool failures are the most~harmful.}
+% \qh{not very obvious now}
+% \qh{GPT-5.4 33.12\%、DeepSeek 47.09\%、Gemini 38.84\%、Llama 11.31\%}
+To isolate the effect of each block type, we keep the block tools and block ratio fixed, and vary only the behavior of the replacement tools. 
+The left panel of Figure~\ref{fig:noise_combined} further breaks down performance by block type. 
+Among the single-type perturbations, excluding the mixed condition, implicit failures lead to the lowest accuracy for all selected models. 
+This suggests that silent failures are especially disruptive: unlike explicit errors or semantically mismatched tools, they provide weak failure signals and are therefore harder for agents to recognize.
+UIRR provides a quantitative view of this failure pattern.
+On average, UIRR is highest under implicit failures ($11.99\%$), compared with explicit failures ($9.67\%$) and misleading tools ($9.89\%$).
+This indicates that agents are more likely to reuse values returned by silently failed tools as inputs to later tool calls, allowing the failure to propagate along the trajectory.
+As a result, agents are less likely to recognize that the current tool path has become unreliable and to recover through alternative planning.
+
+
+% | Model | Block Type | Acc. (\%) | UIRR (\%) |
+% | --- | --- | ---: | ---: |
+% | GPT-5.4 | blocker | 31.19 | 10.73 |
+% | GPT-5.4 | explicit | 40.57 | 7.67 |
+% | GPT-5.4 | implicit | 33.12 | 12.01 |
+% | GPT-5.4 | misleading | 37.18 | 10.20 |
+% | Gemini-3.5-Flash | blocker | 38.84 | 4.60 |
+% | Gemini-3.5-Flash | explicit | 40.37 | 8.03 |
+% | Gemini-3.5-Flash | implicit | 38.84 | 5.91 |
+% | Gemini-3.5-Flash | misleading | 40.98 | 6.33 |
+% | DeepSeek-V4-Flash | blocker | 48.32 | 7.55 |
+% | DeepSeek-V4-Flash | explicit | 49.24 | 9.45 |
+% | DeepSeek-V4-Flash | implicit | 47.09 | 9.98 |
+% | DeepSeek-V4-Flash | misleading | 49.85 | 9.38 |
+% | Llama-3.3-70B | blocker | 11.01 | 17.07 |
+% | Llama-3.3-70B | explicit | 13.15 | 13.53 |
+% | Llama-3.3-70B | implicit | 11.31 | 20.05 |
+% | Llama-3.3-70B | misleading | 13.76 | 13.66 |
+
+\paragraph{Agents struggle to re-plan through longer recovery paths.}
+% \qh{
+% GPT-5.4 longest: 11.36\%，standard blocker 31.19\%
+% DeepSeek-V4-Flash: shortest 54.43\%, longest 19.88\%
+% Gemini-3.5-Flash: shortest 46.18\%, longest 22.57\%
+% Llama-3.3-70B: shortest 14.68\%, longest 0.61\%}
+To examine whether block performance depends on the structure of the remaining solution space, we compare two path-restricted settings: one where only the shortest valid solution path remains available, and one where only the longest valid solution path remains available. 
+As shown in Figure~\ref{fig:fine_grained_blocking}, the gap is substantial: when only the longest path is kept, accuracy drops sharply across models, indicating that agents struggle to effectively adapt and re-plan when recovery requires following longer and less direct tool-use trajectories. 
+This effect is especially pronounced for stronger models: for example, \textit{GPT-5.4} falls to only slightly above 10\% accuracy, compared with around 30\% under the standard block setting. 
+This suggests that current agents remain limited in deep adaptive planning: once direct recovery routes are removed, they struggle to reconstruct longer tool-use chains through more distant intermediate steps.
+
+\input{Figures/task_steps}
+
+
+\begin{takeaway}[label={tak:analysis-test-time-tricks}]
+Simply scaling test-time compute yields only limited performance gains.
+\label{sec:enforce-analysis}
+\end{takeaway}
+
+\noindent To examine whether additional test-time interaction can mitigate the performance drop under blocking, we run an enforced-exploration experiment.
+Specifically, whenever an agent attempts to terminate with an incorrect answer, we insert an additional user message instructing the model to continue exploring rather than stop.
+This intervention can be applied multiple times within the same trajectory, up to a predefined enforced budget, with the detailed prompt shown in Figure~\ref{fig:enforced-prompt}.
+As shown in Figure~\ref{fig:enforced_budget_preview}, increasing the enforced budget provides only limited gains: most models improve by less than 5 percentage points.
+Moreover, even with additional interaction opportunities, block-setting performance remains far below the corresponding no-block accuracy.
+This persistent gap suggests that blocking exposes deeper limitations in adaptive re-planning under unexpected events, rather than a failure that can be resolved by extra test-time interaction alone.
+
+% To examine whether test-time scaling can mitigate the performance drop under blocking, we run an additional enforced-exploration experiment.
+% Specifically, whenever an agent attempts to terminate with an incorrect answer, we insert an additional user message instructing the model to continue exploring rather than stop, with the detailed prompt shown in Figure~\ref{fig:enforced-prompt}.
+% 这里我们是给多次的提醒的，不只是一次，次数是表里的enforced budget,这里都没有写清楚，下面直接说interaction opportunities了。
+% As shown in Figure~\ref{fig:enforced_budget_preview}, simply increasing interaction opportunities brings only limited gains: most models improve by less than 5 percentage points.
+% Moreover, compared with the no-block setting, most models still fail to recover their original accuracy. 这个要突出far from original accuracy.
+% These results suggest that the block setting degradation cannot be resolved by extra test-time interaction alone, and instead reflects deeper limitations in adaptive re-planning under unexpected events.
+% Further discussion is provided in Appendix~\ref{app:why-is-not-a-search-problem}.
+% \qh{
+% GPT-5.4: 31.19\% -> 43.12\%, +11.93 points
+% DeepSeek-V4-Flash: 48.32\% -> 50.76\%, +2.44
+% Gemini-3.5-Flash: 38.84\% -> 40.67\%, +1.83
+% Llama-3.3-70B: 11.01\% -> 14.98\%, +3.97}
+
+% To test whether the blocked performance drop is mainly caused by a limited interaction budget, we relax the step limit under the same blocked environment.
+% We further add a user feedback to models after an incorrect final answer, encouraging the model to continue exploring.
+% Increasing the budget improves performance for several models.
+% \textit{DeepSeek-V4-Flash} rises sharply from 29.05\% to 53.82\%, and \textit{GPT-5.4} improves from 41.50\% to 57.80\%.
+% However, both models remain well below their default performance even after the budget is relaxed.
+% Adding feedback on top of the larger budget brings further gains for some models, most notably \textit{GPT-5.4}, which increases from 57.80\% to 65.34\%.
+% Feedback has an uneven effect, with almost no additional improvement for \textit{DeepSeek-V4-Flash} and only modest absolute gains for \textit{Llama-3.3-70B}, \textit{Qwen3-14B}, and \textit{Qwen3-32B}.
+% Overall, these results suggest that the blocked setting is not simply a budget issue.
+% More interaction can recover part of the lost performance, and feedback can sometimes help further, but many models still struggle to adapt when the original solution paths are disrupted.
+
+
+% \subsection{Further Analysis}
+% \label{app:additional-analysis}
+
+% \qh{this conclusion no longer holds}
+
+
+\begin{takeaway}[label={tak:analysis-path-length}]
+% \label{tak:analysis-path-length}
+Longer shortest-path groups are associated with lower accuracy.
+\end{takeaway}
+
+% \jy{check}
+
+% \paragraph{Accuracy tends to decrease in longer-path groups.}
+% \qh{GPT: 75.35 -> 12.50, DeepSeek-V4-Flash: 81.25 -> 11.76, Llama-3.3-70B: 35.17 -> 0.00}
+\noindent We group queries by the shortest valid solution length $L^*$ and report accuracy within each group, which provides a useful view of how performance changes across tasks with different minimal tool-use horizons. 
+As shown in Figure~\ref{fig:task_step}, accuracy generally decreases as $L^*$ increases.
+This pattern suggests that longer minimal tool-use horizons are associated with greater difficulty, even before any blocking perturbation is applied.
+
+% \paragraph{Blocking causes larger losses on longer-path tasks.}
+% The same grouping shows that blocking causes larger performance drops on tasks with longer shortest solution paths. 
+% Compared with the default setting, all models lose substantial accuracy after blocking, but the loss is especially clear in the longer-path groups. 
+% For instance, \textit{GPT-5.4} remains the strongest model overall, yet the gap between its default and block performance becomes much larger from the $L^*=5$ group to the $L^*\ge 8$ group. 
+% Other models show a similar pattern, with the longest block tasks converging to low accuracy. 
+% These results suggest that blocking is especially harmful when a task requires maintaining and repairing a longer tool-use trajectory.
+
+% \begin{takeaway}
+%     Models are poor reasoners and planners when faced with a large tool burden.
+% \end{takeaway}
+%
+% To examine how models behave when retrieval is removed, we conduct an \textit{all tools} experiment. In this setting, the agent is given the full retail tool inventory at the beginning of each query instead of relying on retrieval.
+%
+% As shown in Table~\ref{tab:all_tools_comparison}, the \textit{all tools} setting degrades performance for both tested models relative to the standard \textit{default} setting. This indicates that simply providing more tools does not make the task easier. Instead, when the context contains a large number of available tools, models struggle to identify, sequence, and execute the appropriate ones. The result suggests that current models remain weak planners under a large tool burden, and that retrieval is not merely a context-saving mechanism but an important component for reducing tool-selection complexity.
+%
+% \input{Tables/all_tools}
+

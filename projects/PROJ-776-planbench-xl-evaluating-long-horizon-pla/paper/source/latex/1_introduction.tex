@@ -1,0 +1,94 @@
+\section{Introduction}
+
+
+
+% \emre{Can you try to add a figure like in Cheng's multimodal creativity paper Figure 1?}
+% \emre{How do you ensure the quality and reliability of your benchmark during task curation? Any human validation or analysis detils? maybe you can shortly refer in intro as well.}
+% \emre{From current version, I don't understand how one task sample and the model experiment look like; what are the model inputs (Question, tool-menu (cropped), Answer), how is model output look like, what is system prompt for this benchmark, etc. I think you should give more details for reproducibility which will increase the reliability of the benchmark.}
+Large language model (LLM) agents equipped with external tools have shown strong capabilities in solving complex real-world tasks~\citep{ToolRL, Code2Math}. 
+In practice, however, tool environments are often large-scale, including enterprise MCP servers~\citep{MCP, MCP-Bench}, software ecosystems~\citep{APIBench} and web/API platforms~\citep{ToolBench}. 
+Due to context-length limitations, agents often rely on tool retrieval~\citep{ToolGen, ToolRet} to access only a relevant subset of tool descriptions at each step, making tool use a retrieval-mediated process.
+This partial tool visibility becomes especially challenging in long-horizon tasks~\citep{SELFGOAL, EscapeBench}, where agents must explore intermediate sub-goals, retrieve useful tools, and adapt their plans as the task unfolds.
+% \xc{Would be nice to have a compact figure on the top-right corner of the first page. This will facilitate the reviewer's reading and leave a good impression.}
+
+\input{Tables/comparison_table}
+
+Furthermore, retrieval over large tool sets is inherently unreliable~\citep{Tool-Retrieval-is-not-reliable-1}. 
+Relevant tools may be missed~\citep{COLT}, while retrieved tools may be damaged~\citep{OpaqueToolsBench}, stale~\citep{ToolQA-D}, misleading~\citep{TRUSTDESC}, or unreliable~\citep{ToolSandbox}. 
+As summarized in Table~\ref{tab:comparison-table}, existing benchmarks do not fully capture this setting, as many assume a fixed, visible toolset~\citep{AppWorld}, explicit intermediate goals~\citep{ToolHop}, clean tool descriptions~\citep{OpaqueToolsBench}, or one-shot retrieval~\citep{ToolBench}, and therefore abstract away the uncertainty introduced by retrieved tool.
+Together, these limitations leave open a central question: \textbf{Can LLM agents solve long-horizon tasks in large tool ecosystems by iteratively exploring partial tool retrieval results and adapting when plausible tool-use paths fail?} 
+Evaluating this requires a benchmark with:
+\textbf{(1) Partial tool visibility}, where agents access only retrieved subsets of a large tool space and must iteratively discover tools for intermediate information; and
+\textbf{(2) Unreliable and noisy tools}, where retrieved tools may be missing, failing, or misleading, requiring adaptation when plausible tool-use paths break.
+
+
+% \emre{can you refer either here or at appendix what each dimension/column in Table 1 means? If you are discussing in later sections you can shortly refer or give spoiler. Column3-8 needs clarification for me eventhough I also work on tool-learning; it would be worse for reviewers.}
+
+To this end, we introduce \BENCH{}, an interactive and dynamic tool-use benchmark situated in the retail domain. 
+\bench{} consists of 327 distinct evaluation instances built over 1,665 tools, with each instance designed as a multi-step retail workflow that requires approximately 25 turns on average.
+Unlike settings where agents are given a fixed and fully visible toolset, \bench{} places agents in a retrieval-mediated environment where useful tools must be discovered during problem solving.
+By design, tool discovery in \bench{} is structured around \textbf{bi-directional anticipation}: (1) \textit{Forward Anticipation}: agents may search forward from accumulated evidence, (2) \textit{Backward Anticipation}: search backward from desired outcomes, or bridge known and hypothesized states during planning.
+This mirrors human problem solving, where people often reason from both the current state and the desired goal, forming intermediate sub-goals to close the gap~\citep{newell1972human}.
+To model unreliable tool environments, PlanBench-XL includes documented noisy tools in both default and block settings, where some retrieved tools explicitly indicate that they may return irrelevant, outdated, or erroneous outputs, reflecting the noise among functionally similar tools in real-world ecosystems.
+On top of this base noise, we design a optional retrieval-time blocker module that replaces path-critical tools with explicit or implicit failures, forcing agents to identify disrupted tool-use paths and adaptively re-plan as execution unfolds.
+
+
+We evaluate ten leading open-source and proprietary LLMs on \bench{}. 
+Our results show that long-horizon planning over massive tool ecosystems remains highly challenging. 
+While most models remain below two-thirds accuracy in the default setting, performance drops sharply under retrieval-time blocking, with \textit{GPT-5.4} falling to around 30\% when only one feasible path remains and to slightly above 10\% when only the longest recovery path is preserved.
+We further find that success requires not only broad exploration, but also precise exploitation of discovered information and reliable tool invocation. 
+These findings suggest that current LLM agents still lack robust adaptive planning capabilities in large, partially observable, and unreliable tool environments.
+We summarize our main contributions as follows:
+\begin{itemize}[topsep=3pt, partopsep=1.5pt, leftmargin=*, itemsep=-4.5pt]
+    \item \textbf{Scalable Benchmark Framework:} We introduce \bench{}, a scalable LLM-based task generator that automatically creates grounded queries with paired tools, creating diverse, complex tasks to evaluate agents’ planning abilities.
+    
+    \item \textbf{Dynamic Interaction Environment:} We design an interactive environment that simulates real-world unpredictability with three blocking events, forcing real-time adaptation and re-planning, and can serve as an RL playground for agent training.
+    
+    \item \textbf{Comprehensive Analysis:} We evaluate ten frontier LLMs and reveal that current agents struggle with massive-tool planning, especially under corrupted tool access and longer recovery paths.
+\end{itemize}
+Looking ahead, \BENCH{} lays the foundation for robust and adaptive LLM agents that actively explore large tool ecosystems, detect unreliable tool access, and re-plan under real-world uncertainty.
+% \emre{It would be good to mention how it helps for future work, it is the main purpose of benchmarks and analysis I believe. For example, it would be very nice if you can summarize your chronic error findings around this 10 LLMs inside 3-4 pillars and their ratios.}
+% \xc{I might be misunderstanding. I think one of the most vital novelty/feature in your framework is the noise control via tool blocking in a graph structure. I think it's better to mention it as one of the main contributions.}
+
+% Paragraph 1:
+
+% 1. LLM agents with tools have become strong at complex real-world tasks.
+
+% 2. Real-world tool environments are large-scale.
+%    Examples: enterprise MCP servers, software ecosystems, web/API platforms, internal company toolbases.
+
+% 3. Because context is limited, agents cannot load all tool descriptions.
+%    So tool retrieval is commonly used to expose only a subset of tools at each step.
+
+% 4. But this changes the nature of tool use.
+%    The agent no longer operates over a fully observed toolset.
+%    Instead, it only observes tools through retrieval.
+%    Therefore, tool access becomes partially observed.
+
+% 5. The challenge posed by partial observability becomes more severe in long-horizon / multi-hop tasks.
+%    The agent often does not know all required tools from the beginning.
+%    It must discover intermediate subgoals and retrieve tools as the task unfolds.
+
+% 6. Therefore, successful task solving requires more than one-shot retrieval.
+%    The agent must iteratively explore the toolbase, interpret retrieved tools, verify their behavior, and re-plan.
+
+% Paragraph 2:
+
+% 7. However, retrieval over large toolbases is unreliable.
+%    There are two major failure modes:
+%    7.1 Relevant tools may not be retrieved.
+%    7.2 Retrieved tools may be unreliable, damaged, stale, or misleading.
+%        7.2.1 Some failures are explicit, e.g., tool returns an error.
+%        7.2.2 Some failures are implicit, e.g., tool returns plausible but wrong information.
+
+% 8. Existing benchmarks do not fully capture this setting.
+%    Many assume a fixed visible toolset, clean tool descriptions, or one-shot retrieval.
+%    They do not evaluate iterative retrieval, exploration, verification, and re-planning under unreliable tool access.
+
+% 9. This creates the central problem:
+%    Can LLM agents robustly solve long-horizon tasks when tool access is retrieved, partial, and unreliable?
+
+% Paragraph 3:
+
+% 10. Therefore, we propose a benchmark / framework that evaluates agents in large-scale retrieved tool environments with partial observability and unreliable tools.
+

@@ -1,0 +1,1206 @@
+\clearpage
+
+\appendix
+
+\input{Tables/blocking-comparison-tab}
+
+\section{Comparison Traits}
+\label{app:comparison-traits}
+
+% \rui{Add citations, try to make the authors anonymous lol}
+
+In this appendix, we describe the comparison traits used in Table~\ref{tab:comparison-table}. 
+Rather than treating these traits as isolated checklist items, we use them to characterize increasingly realistic conditions for tool-using agents~\citep{yao2024taubench}: operating with external tools~\citep{ToolOrchestra,xRouter}, discovering relevant tools from large tool spaces~\citep{APIBench,ToolBench, ToolRet}, exploring from both known evidence and desired outcomes~\citep{NAACL,EscapeBench}, remaining robust when retrieved tools are imperfect~\citep{ToolGym} and effectively re-plan~\citep{shen2023taskbench, CostBench,AdaPlanBench}.
+
+\paragraph{Tool-Use.}
+Tool-use is a basic requirement for evaluating agents that interact with external environments~\citep{ToolRL}.
+In real applications, agents must often obtain information or perform operations through APIs~\citep{APIBench}, databases~\citep{LiveAPIBench}, or other executable interfaces~\citep{SWEAgent} rather than relying only on parametric knowledge.
+We therefore distinguish benchmarks where tool invocation is central to task completion from those where tools are only optional.
+
+\paragraph{Tool Retrieval.}
+Real-world tool ecosystems can contain hundreds or thousands of APIs~\citep{ToolLLM, LiveAPIBench, liu-etal-2024-gprooft}, making it impractical to expose the full tool set in the prompt. 
+Agents must instead retrieve or discover relevant tools during problem solving. 
+This trait captures whether a benchmark evaluates tool use under such retrieval-mediated access, rather than assuming that the correct tools are already visible to the agent.
+
+\paragraph{Implicit Sub-goals.}
+Complex tasks rarely specify all intermediate steps or sub-goals explicitly~\citep{EscapeBench}. 
+In realistic workflows, an agent may need to infer what intermediate information is missing, what sub-goal should be solved next, and which tools can bridge the gap between the current state and the final objective~\citep{PlanAndSolve}. 
+This trait captures whether a benchmark requires agents to discover and pursue such latent intermediate goals, instead of following fully specified instructions.
+
+\paragraph{Bi-directional Exploration.}
+In real-world environments, effective exploration may need to proceed in two directions: forward from currently available evidence, and backward from the desired target outcome~\citep{BackwardPlanningLLM}. 
+For example, an agent may ask what can be obtained from a known order ID, or instead ask what tools could produce a required refund status. 
+This trait captures whether a benchmark encourages agents to combine forward planning from task goals with backward planning from available tool affordances~\citep{CreativityBench}, rather than limiting them to fixed tool lists, one-shot retrieval, or purely forward expansion from explicit instructions.
+
+\paragraph{Unreliable Tools.}
+Retrieved tools in real systems may be unavailable, stale, misleading, broken, or only partially relevant~\citep{CostBench, UserBench}. 
+Robust agents therefore need to evaluate tool feedback, recognize failure modes, and recover from unreliable tool access. 
+This trait captures whether a benchmark exposes agents to imperfect tools as part of the task environment, rather than assuming clean and fully reliable tool descriptions and executions.
+
+\paragraph{Long-Horizon.}
+Many practical tool-use tasks require multiple dependent steps, where the result of one tool call determines what should be retrieved or executed next~\citep{ReAct}.
+Long-horizon settings test whether agents can maintain state, plan across several interactions, and avoid compounding errors~\citep{AgentBench, WebArena, NESTful}.
+Following the criterion used in~\citet{Tool-Decathlon}, we regard tasks involving around 25 turns or more as long-horizon.
+In \bench{}, each task is constructed to require at least five dependent tool invocations, ensuring that solving it cannot be reduced to single-step API selection.
+Empirically, when retrieval and execution are both counted as interactions, agents require around 25 turns on average to complete a task, matching this long-horizon convention.
+This trait captures whether a benchmark systematically evaluates such extended multi-step tool-use trajectories, rather than mostly single-step API selection or isolated function calling.
+
+% \paragraph{Adjustable Difficulty.}
+% A useful benchmark should support controlled variation in task difficulty~\citep{RandomWorld, NESTful} so that model failures can be analyzed in a disentangled manner across different levels of challenge.
+% In tool-use settings, difficulty can arise from longer solution paths, larger tool spaces, more distractors, more branching alternatives, tighter interaction budgets, or stronger environmental perturbations~\citep{ToolLLM, LiveAPIBench, NESTful, WebArena}. 
+% This trait captures whether a benchmark provides mechanisms for studying performance across different levels of difficulty, rather than presenting a fixed task mixture.
+
+\paragraph{Scalable Generation.}
+Realistic agent evaluation requires broad coverage over tasks, tools, and environments~\citep{RandomWorld, ToolLLM, LiveAPIBench,guo2025mathematical}. 
+Manual benchmark construction alone often limits diversity and makes it difficult to stress-test agents under many configurations. 
+This trait captures whether a benchmark includes a scalable construction pipeline for generating tasks, tools, environments, or perturbations, enabling broader and more systematic evaluation.
+
+
+
+
+\section{Experiment Details}
+\label{app:experiment-details}
+
+\subsection{Construction Model Choice}
+\label{app:model-choice}
+
+We use $M_{\mathrm{gen}}=GPT-5.2$ and $M_{\mathrm{fil}}=GPT-5.2$ in the data construction process.
+
+\subsection{Tool Construction Details}
+\label{app:tool-construction-details}
+
+\subsubsection{Tool Schema Construction Details}
+\label{app:schema-construction-details}
+
+% \qh{How the name and descriptions are generated?}
+% \qh{Here you only need to write about ``baseline tools'', but try not to introduce the concept ``baseline tools'' in the paper. We only have tools}
+Following the notation in the main text, each tool $\tau \in \mathcal{T}$ has an input datatype set $\mathcal{D}*{\mathrm{in}}(\tau)$ and an output datatype set $\mathcal{D}*{\mathrm{out}}(\tau)$, with $|\mathcal{D}*{\mathrm{in}}(\tau)|=m$ and $|\mathcal{D}*{\mathrm{out}}(\tau)|=n$.
+In the released retail benchmark, we instantiate this construction with $m\in{1,2,3,4,5}$ and $n=1$.
+Although the combinatorial candidate space grows rapidly with larger $m$, LLM-based filtering keeps the final released tool library sparse.
+We use $m\leq 5$ because this range better matches common real-world tool schemas.
+Many real-world tools need more than one input, such as an user name together with a timestamp, product item, or order status constraint.
+Tools with more than five required inputs are relatively uncommon in the retail setting.
+We therefore include multi-input tools to better match practical tool-use scenarios, but avoid creating tools with unrealistically large input signatures.
+Benchmark difficulty instead comes from composing tools over long paths, retrieving useful tools, and re-planning when earlier choices fail.
+
+\paragraph{Tool Name Construction.}
+Tool names in our benchmark are generated automatically by code according to a fixed naming rule.
+% \jy{why use 5--10 aliases? write about the intuitions.}
+To better match real-world tool ecosystems, where the same information can be named differently across tools, we maintain $5$--$10$ aliases for each datatype.
+For example, the same datatype may appear as ``user name'', ``customer name'', or ``name on the account'' in different tool names.
+This alias design also help prevent agents from recovering the underlying tool graph by simply matching canonical datatype names across tool names.
+When constructing a tool name, we select one alias for each input and output datatype.
+Names follow the template \texttt{Get\_<Output>\_From\_<Input>[\_<Variant>]}, where \texttt{<Output>} is constructed from the selected alias of the output datatype, \texttt{<Input>} is constructed from the selected aliases of the required input datatypes, and the optional \texttt{<Variant>} suffix, such as ``\texttt{V2}'' or ``\texttt{Pro}'', provides additional version information when needed. 
+The suffix does not always indicate a functional difference.
+It is used to simulate the existence of multiple tool versions in real-world tool ecosystems.
+This naming convention keeps the tool inventory human-readable and machine-parsable.
+
+\paragraph{Tool Description Construction.}
+Tool descriptions in our benchmark are generated using $M_{\mathrm{gen}}$ to produce natural-language explanations of tool functionality. 
+Each description explains what information the tool retrieves from the given input and clarifies the contextual meaning of the returned output datatypes in high-level natural language. 
+The descriptions provide natural-language context for the tool names and help distinguish tools whose input-output signatures are similar.
+
+% \qh{i have add this section to describe why and how to construct noisy tools}
+\subsubsection{Noisy Tool Construction}
+\label{app:noisy_tool}
+
+Real-world retrieval over large tool ecosystems is rarely fully clean: retrieved candidates may be semantically related to the current intent, but still differ in reliability, freshness, authority, or executability.
+To better reflect this setting, we augment the tool ecosystem with noisy tools that appear relevant to the same retrieval intent as valid tools, but whose outputs are unreliable or otherwise unhelpful for solving the task.
+To achieve this, We generate five noisy variants for each executable tool, resulting in $925$ noisy tools for $185$ executable tools.
+Each noisy tool is paired with one executable tool and keeps the same required inputs and declared output datatype.
+Its name follows the same alias-based naming rule, usually with a small suffix or version change.
+Its description is generated by $M_{\mathrm{gen}}$ and stays close to the paired tool in task intent, but it also explicitly describes why the tool is unavailable or unreliable.
+Thus, noisy tools are plausible retrieval candidates, but they are not meant to be indistinguishable from the corresponding executable tools.
+
+We construct five noise categories:
+\begin{itemize}
+\item \textbf{Deprecated.} The tool looks like a normal endpoint, but returns an unsupported-endpoint error when invoked.
+\item \textbf{Condition-limited.} The tool has a valid-looking signature, but is only available under special record conditions that are not satisfied in the benchmark instance.
+\item \textbf{Stale.} The tool returns the right type of field, but the value comes from an outdated cache or lagging replica.
+\item \textbf{Unreliable.} The tool declares the intended output field, but returns a value from a related but wrong backend field.
+\item \textbf{Non-authoritative value.} The tool returns a preview, default, estimated, or otherwise non-final value instead of the final backend truth.
+\end{itemize}
+
+For each executable tool, we use $M_{\mathrm{gen}}$ to synthesize one noisy counterpart for each category.
+The execution behavior is changed according to the target noise category.
+This construction tests whether agents can use tool descriptions to reject superficially relevant but explicitly unreliable tools.
+
+\subsubsection{Tool Filtering Details}
+\label{app:detailed-filtering-criteria}
+
+% \qh{list the rules (bullet point, clear), use which LLM}
+% \qh{More detailed and structured.}
+
+We use $M_{\mathrm{fil}}$=\textit{GPT-5.2} to screen all candidate tools, and only retain a candidate tool if it meets all of the following criteria:
+\begin{itemize}
+    \item \textbf{Deterministic dependency.} The declared input datatype set should be sufficient for determining the output datatype set. We exclude tools with redundant inputs when a strict subset already determines the same output datatype set. For example, if \texttt{Get\_Phone\_From\_User\_ID} already maps a user ID to the corresponding phone number, then \texttt{Get\_Phone\_From\_User\_ID\_and\_Email} should be filtered out, because the email input is redundant for determining the same output datatype.
+    \item \textbf{Tool-grounded information access.} A tool must correspond to retrieving or deriving information from the external database, rather than encoding a pure reasoning shortcut that the model could perform without interacting with the environment. For example, \texttt{Get\_TotalPrice\_From\_Qty\_and\_UnitPrice} should be filtered out, because the total price can be directly computed as quantity multiplied by unit price without~calling the~tool.
+    \item \textbf{Domain realism.} The input-output relation must be plausible under the retail domain semantics encoded in the database and datatype inventory. For example, \texttt{Get\_Order\_ID\_From\_Product\_Size} should be filtered out, because a product size alone would not normally be enough to determine a specific order in a retail setting.
+    \item \textbf{Non-trivial information gain.} The output datatype set must contribute genuinely new state information, rather than merely renaming, formatting, or echoing already available values. For example, \texttt{Get\_Formatted\_Phone\_From\_Phone} should be filtered out, because converting a phone number such as \texttt{135****6821} into a formatted variant such as \texttt{(+1)135****6821} does not introduce new task-relevant information.
+    % \item \textbf{Executable uniqueness.} Under the released database, a valid tool call should map matching inputs to a unique tuple of output values. This is required by the executor, which raises an error if the same typed lookup would produce multiple distinct output-value tuples. \qh{1. Example: what should be filtered? 2. What is ``executor''? I kind of cannot understand this requirement.}
+\end{itemize}
+
+\subsubsection{Why Tool Calls Are Necessary}
+\label{app:tools-necessity-details}
+
+% \qh{why every tools must be called instead of doing pure reasoning?}
+% \qh{either search, or wrapped search tools, so must call.}
+
+Tool-use is necessary in \bench{} because every tool call reveals backend values that are inaccessible before execution.
+At the single-tool level, tools are constructed either as direct search operations or as action-like operations exposed through a search-style interface. 
+A \textit{\textbf{direct search tool}} uses valid input identifiers to look up requested fields in the hidden backend database. Since these values are not stated in the user query and cannot be inferred, the agent must invoke the tool to obtain them.
+The same principle applies to \textit{\textbf{action-like tools}}. 
+Such a tool represents an operation and returns the values produced by that operation, such as an \texttt{operation ID}, \texttt{confirmation token}, or \texttt{created-record identifier}.
+These values are only available after the tool is invoked and may serve as a required typed input for later tools. 
+Because the concrete information needed to proceed is only exposed through tool execution, the agent cannot bypass any single tool call by reasoning about what should happen.
+
+\subsection{Query Construction Details}
+\label{app:query-construction-details}
+
+% \qh{1. how to filter the queries by difficulty-related properties?}
+% \qh{list the rules (bullet point, clear)}
+
+We first enumerate all solvable tasks from the path catalogs. 
+A task is solvable if the target datatype set can be reached from the declared initial datatype set through at least one valid tool sequence. 
+We then filter these solvable tasks by solution length and input usage, and construct the tasks into queries.
+
+The filtering rules are:
+\begin{itemize}
+    \item \textbf{Removing short tasks.} We remove tasks whose shortest valid solution path is shorter than 5 steps, since these tasks can be solved with only a short lookup chain.
+    \item \textbf{Keeping useful multi-input tasks.} We keep both one-input and multi-input tasks. For a multi-input task, the target datatype set should not be reachable from only part of the declared input datatype set. This avoids cases where a task is labeled as multi-input but one of the inputs is never actually needed.
+\end{itemize}
+
+% \subsection{State Graph}
+% \label{app:state-graph}
+
+% \qh{you actually need to formalize it using formulas.}
+% \qh{node: state(include datatype), edge: tool}
+
+\subsection{State Graph}
+\label{app:state-graph}
+
+For a query instance indexed by $i$, let $r_i=(\mathcal{D}_{i,0}, \mathcal{Y}_i)$ denote its internal task specification, where $\mathcal{D}_{i,0}\subseteq\mathcal{D}$ is the initial datatype set and $\mathcal{Y}_i\subseteq\mathcal{D}$ is the target datatype set.
+We define the state graph for query $i$ as $\mathcal{G}_i=(\mathcal{V}_i,\mathcal{E}_i)$.
+Each node $s \in \mathcal{V}_i$ is an internal agent state, represented by the set of datatypes that have been obtained so far:
+\begin{equation}
+s \subseteq \mathcal{D}.
+\end{equation}
+The initial state is
+\begin{equation}
+s_i^0 = \mathcal{D}_{i,0}.
+\end{equation}
+Each directed edge corresponds to one valid tool invocation. 
+For a state $s$ and a tool $\tau$, the edge induced by $\tau$ is defined as
+\begin{equation}
+\begin{aligned}
+(s,\tau,s') \in \mathcal{E}_i
+\quad \Longleftrightarrow \quad
+& \mathcal{D}_{\mathrm{in}}(\tau) \subseteq s, \\
+& \mathcal{D}_{\mathrm{out}}(\tau) \setminus s \neq \emptyset, \\
+& s' = s \cup \mathcal{D}_{\mathrm{out}}(\tau).
+\end{aligned}
+\end{equation}
+Thus, a tool can be invoked only when all of its input datatypes are already available, and executing it expands the current state by adding its output datatype set.
+Under this representation, a tool-use trajectory is a path in $\mathcal{G}_i$:
+\begin{equation}
+\pi = (\tau_1,\ldots,\tau_K),
+\end{equation}
+which induces a sequence of states
+\begin{equation}
+s_i^0 \xrightarrow{\tau_1} s_i^1 \xrightarrow{\tau_2} \cdots \xrightarrow{\tau_K} s_i^K.
+\end{equation}
+The task $r_i$ is solvable when there exists a path $\pi$ such that
+\begin{equation}
+\mathcal{Y}_i \subseteq s_i^K.
+\end{equation}
+We use this state-graph representation for reachability checks, path enumeration, and blocking analysis.
+
+\subsection{Ground-truth Details}
+\label{app:groundtruth-details}
+
+\subsubsection{Process-level Tool Call Ground-truth}
+\label{app:process-level-groundtruth}
+
+We construct process-level ground truth by enumerating valid paths in $\mathcal{G}_i$. 
+For each query instance $i$, we first compute the inclusion-minimal tool sets that can reach 
+$\mathcal{Y}_i$ from $\mathcal{D}_{i,0}$.
+The computation is performed by a backward search from the target datatype set. 
+Starting with the unresolved goal set $G=\mathcal{Y}_i$, the search repeatedly selects an unresolved datatype $g \in G$ and enumerates tools whose output datatype set contains $g$.
+When a tool $\tau$ is selected, the search adds $\tau$ to the current tool set, removes the goals covered by its output datatype set, and adds its required input datatypes as new goals:
+\begin{equation}
+G' = 
+(G \setminus \mathcal{D}_{\mathrm{out}}(\tau)) 
+\cup 
+(\mathcal{D}_{\mathrm{in}}(\tau) \setminus \mathcal{D}_{i,0}).
+\end{equation}
+The recursion terminates when all unresolved goals are already covered by the query-provided datatypes, i.e.,
+\begin{equation}
+G \setminus \mathcal{D}_{i,0} = \emptyset.
+\end{equation}
+
+During this backward search, we maintain an antichain of tool sets under set inclusion. 
+A candidate tool set is discarded if it strictly contains an existing solution set, and any existing supersets are removed when a smaller solution set is found. 
+The resulting collection is denoted as
+\begin{equation}
+\mathcal{M}_i = \{R_{i,1},\ldots,R_{i,J_i}\},
+\end{equation}
+where each $R_{i,j} \subseteq \mathcal{T}$ is an inclusion-minimal tool set sufficient to reach $\mathcal{Y}_i$ from $\mathcal{D}_{i,0}$.
+
+\begin{algorithm}[t]
+\caption{Computing inclusion-minimal tool sets}
+\label{alg:minimal-tool-sets}
+\begin{algorithmic}[1]
+\Require Initial datatype set $\mathcal{D}_{i,0}$, target datatype set $\mathcal{Y}_i$, tools $\mathcal{T}$
+\Ensure Inclusion-minimal tool sets $\mathcal{M}_i$
+\Function{Solve}{$G$}
+    \State $G \gets G \setminus \mathcal{D}_{i,0}$
+    \If{$G = \emptyset$}
+        \State \Return $\{\emptyset\}$
+    \EndIf
+    \State Select one datatype $g \in G$
+    \State $\mathcal{A} \gets \emptyset$
+    \ForAll{$\tau \in \mathcal{T}: g \in \mathcal{D}_{\mathrm{out}}(\tau)$}
+        \State $G' \gets (G \setminus \mathcal{D}_{\mathrm{out}}(\tau)) \cup (\mathcal{D}_{\mathrm{in}}(\tau) \setminus \mathcal{D}_{i,0})$
+        \ForAll{$R \in \Call{Solve}{G'}$}
+            \State $R' \gets R \cup \{\tau\}$
+            \State $\mathcal{A} \gets \mathrm{Add}(\mathcal{A}, R')$
+        \EndFor
+    \EndFor
+    \State \Return $\mathcal{A}$
+\EndFunction
+\State \Return $\Call{Solve}{\mathcal{Y}_i}$
+\end{algorithmic}
+\end{algorithm}
+
+For each inclusion-minimal tool set $R_{i,j} \in \mathcal{M}_i$, we enumerate all legal execution orders on $\mathcal{G}_i$. 
+An ordered sequence $\pi=(\tau_1,\ldots,\tau_K)$ is legal for $R_{i,j}$ if it is a permutation of the tools in $R_{i,j}$ and every tool is executable when it is called. 
+Equivalently, if the induced states are
+\begin{equation}
+s_i^0 \xrightarrow{\tau_1} s_i^1 \xrightarrow{\tau_2} \cdots \xrightarrow{\tau_K} s_i^K,
+\end{equation}
+then for every step $k$,
+\begin{equation}
+\mathcal{D}_{\mathrm{in}}(\tau_k) \subseteq s_i^{k-1},
+\qquad
+s_i^k = s_i^{k-1} \cup \mathcal{D}_{\mathrm{out}}(\tau_k).
+\end{equation}
+The sequence is retained only if it reaches the target datatype set:
+\begin{equation}
+\mathcal{Y}_i \subseteq s_i^K.
+\end{equation}
+
+Let $\mathrm{Legal}_i(R_{i,j})$ denote the retained legal execution orders of $R_{i,j}$ that reach $\mathcal{Y}_i$ in $\mathcal{G}_i$. 
+The process-level ground truth for query $i$ is the union of these sequences:
+\begin{equation}
+\Pi_i = \bigcup_{R_{i,j}\in\mathcal{M}_i} \mathrm{Legal}_i(R_{i,j}).
+\end{equation}
+Each $\pi \in \Pi_i$ records the ordered tool names and its number of steps. 
+This set serves as the reference for process-level evaluation and forms the path catalog used in later analyses.
+
+\subsubsection{Final Answer}
+\label{app:final-answer-groundtruth}
+
+% \qh{use $M_{\mathrm{gen}}$ to walk through one of the ground-truth path}
+
+% \qh{specify the detailed evaluation metric for acc., e.g., exact match/in-accuracy.}
+
+% \jy{try to actually specify it in the main content}
+\paragraph{Final Answer Construction.}
+We construct the gold final answer by executing one valid ground-truth path for each query. 
+For query $i$, we select a path $\pi_i^\star \in \Pi_i$. 
+Given the query input values and $\pi_i^\star$, a designated generation model $M_{\mathrm{gen}}$ walks through the sequence and invokes the tools in order. 
+The values returned for the target datatype set $\mathcal{Y}_i$ are used to construct the gold final answer $o_i^\star$. 
+In our experiments, we set $M_{\mathrm{gen}}$ to \textit{GPT-5.2}.
+
+\paragraph{Answer Evaluation Protocol.}
+A model prediction is judged by normalized containment matching~\citep{NAACL}. 
+Let $\hat{o}_i$ denote the model's final answer for query $i$. 
+We normalize both $o_i^\star$ and $\hat{o}_i$ by lowercasing the strings, removing lightweight markup and quotation characters, and collapsing repeated whitespace. 
+The prediction is marked correct when the normalized gold answer appears as a sub-string of the normalized prediction. 
+This criterion avoids relying on semantic equivalence while allowing harmless formatting around an otherwise correct value.
+
+\subsection{Retriever Details}
+\label{app:retriever-details}
+
+% \qh{1. how you match the agents' natural language request to the pre-defined datatypes}
+
+% \qh{2. How do you implement the three modes? state that if (input, output) is fixed, then the tool is unique.}
+
+% \qh{3. no (input, output) don't exists, will note.}
+
+\paragraph{Request Matching Mechanism.} The retriever maps an agent's natural-language request to canonical datatypes and then returns tools that satisfy the requested typed constraints. 
+Each datatype contains a canonical name, a description, and a small set of aliases. 
+At retrieval time, the query phrase and datatype aliases are encoded with a lightweight hashing encoder based on word tokens, token bigrams, and character trigrams. 
+The retriever selects the top-1 datatype by cosine-style sparse-vector similarity. 
+This alias-aware matching supports surface-form variation in agent requests, such as ``phone'', ``user phone'', or ``phone number for the user account''.
+% \qh{ i have added these sentence to explain the upperbound (30); remember to refer to B.9.3}
+To reduce the context burden on the agent, we cap each retrieval result at $\Lambda_{\mathrm{ret}}^{\mathrm{cap}}=30$ tools. This cap does not exclude tools required for solving a task. In our benchmark, any single retrieval request matches at most $K_{\max}^{\mathrm{ret}}=14$ executable tools, where executable tools refer to the non-noisy tools that can produce valid intermediate or final outputs.
+For each retrieval request, the retriever first identifies all executable tools whose stored typed interfaces match the resolved type-level retrieval query, and returns these tools before adding any distractors. It then fills the remaining slots with noisy variants paired with the matched executable tools, stopping when the returned list reaches $\Lambda_{\mathrm{ret}}^{\mathrm{cap}}=30$ or when no paired noisy variants remain. To avoid concentrating distractors around only a few executable tools, noisy variants are added as evenly as possible across the matched executable tools.
+
+
+
+\paragraph{Retriever modes.}
+The retriever supports the same three lookup modes described in the main text. 
+Below, we provide the implementation details of how each mode maps the agent's request to tool candidates.
+\begin{itemize}
+    \item \textbf{Input-conditioned retrieval.} The agent specifies an input datatype set. The retriever maps the request to canonical input datatypes and returns tools $\tau$ whose input datatype set $\mathcal{D}_{\mathrm{in}}(\tau)$ matches the requested input constraint. Input datatypes are matched as an unordered set.
+    \item \textbf{Output-conditioned retrieval.} The agent specifies an output datatype set. The retriever maps the request to canonical output datatypes and returns tools $\tau$ whose output datatype set $\mathcal{D}_{\mathrm{out}}(\tau)$ matches the requested output constraint. Output datatypes are also matched as an unordered set.
+    \item \textbf{Input-output-conditioned retrieval.} The agent specifies both an input datatype set and an output datatype set. The retriever maps all requested datatypes to their canonical forms and returns tools $\tau$ whose typed interface satisfies both constraints.
+\end{itemize}
+
+After the datatype mapping step, tool retrieval is performed by exact matching over the typed tool interfaces. 
+For each retrieval request, the environment returns between $K_{\min}^{\mathrm{ret}}=1$ and $K_{\max}^{\mathrm{ret}}=14$ candidate tools, depending on how many tools satisfy the resolved typed constraint.
+Given a resolved output datatype set, input datatype set, or both, the retriever returns tools whose stored interface matches the requested constraint.
+If no single tool satisfies the requested typed constraint, the environment returns a retrieval message indicating that no direct one-step tool is available and that the agent may need to search through intermediate datatypes.
+
+\subsection{Runtime Protocol Details}
+\label{app:runtime-interaction-details}
+
+\paragraph{Datatype Checking.}
+The runtime enforces datatype constraints during both tool execution and final-answer evaluation. 
+Before a tool is executed, all datatypes required by the tool's input signature must already be present in the internal state. 
+This prevents the agent from calling a tool before the necessary intermediate values have been obtained. 
+When the agent submits its final answer, the evaluation environment also verifies whether the internal state contains all target datatypes in $\mathcal{Y}_i$.
+An answer is marked incorrect if the current internal state does not contain $\mathcal{Y}_i$, even when the answer string matches the gold value.
+This prevents the agent from bypassing the tool trajectory and guessing or copying a plausible final value without reaching the required typed state.
+
+\paragraph{Tool Availability.}
+The agent may only call tools that have been returned by the retriever during the current interaction. 
+The callable set is accumulated across retrieval rounds, so a tool retrieved in any previous round remains callable in later rounds. 
+
+% \paragraph{Argument Compatibility.}
+% A tool call is valid only if its arguments satisfy both signature and value compatibility. 
+% For signature compatibility, the provided argument keys must exactly match the tool's input datatype set $\mathcal{D}_{\mathrm{in}}(\tau)$, and every required input datatype must have been obtained in the current trajectory. 
+% For value compatibility, the provided argument values must match a backend record under those input datatypes. 
+% Before comparison, both provided values and backend values are converted into canonical string forms, where lists and dictionaries are serialized deterministically and scalar values are converted to strings. 
+% The comparison is then performed by exact equality over these canonical forms, which avoids spurious mismatches caused by representation differences such as dictionary key order or scalar values represented as text. 
+% When signature compatibility fails, the call is rejected as invalid. 
+% When value compatibility fails, the requested output cannot be resolved from the provided arguments.
+
+\paragraph{Tool Output Resolution.}
+For a valid call to tool $\tau$, the environment resolves the values associated with the output datatype set $\mathcal{D}_{\mathrm{out}}(\tau)$.
+During backend construction, we ensure that each valid tool call determines a unique output-value tuple for $\mathcal{D}_{\mathrm{out}}(\tau)$.
+This uniqueness follows from non-duplicated key fields and typed tool interfaces that correspond to well-defined backend relations.
+At execution time, if exactly one matching output-value tuple is found, that tuple is returned.
+If no matching output-value tuple is found, the runtime reports that the requested output datatypes cannot be obtained from the provided arguments through the called tool.
+
+\paragraph{Termination.}
+The environment finalizes a query under the following conditions:
+\textbf{(1) Step budget reached:} Each model response counts as one step, including retrieval requests, tool calls, final answers, and invalidly formatted actions.
+% \item \textbf{Error budget reached.} For malformed or invalid actions, the runtime returns task-specific feedback and increments the corresponding error counter. The runtime tracks three error counters: action-label errors, retrieval-request errors, and tool-call errors. Action-label errors occur when the model response does not contain a valid action label. Retrieval-request errors occur when a retrieval request cannot be parsed or does not satisfy the retrieval schema. Tool-call errors occur when a tool call cannot be executed under the runtime protocol, such as when the call payload is malformed, the tool has not been retrieved, the argument keys do not match the tool input signature, or required input datatypes are missing from the current state. When one error counter reaches its configured limit, the query is finalized with the corresponding failure reason, namely \texttt{exceeded\_max\_label\_errors}, \texttt{exceeded\_max\_retrieval\_errors}, or \texttt{exceeded\_max\_tool\_call\_errors}.
+\textbf{(2) Final answer submitted:} When the agent submits a final answer, the runtime checks both the answer string and the internal typed state. 
+
+\subsection{Metric Details}
+\label{app:metric-details}
+
+\subsubsection{Metrics Formulation}
+\label{app:full-metric-definition}
+% \qh{write the formulas according to costbench Appendix B.3.1}
+
+Let $\mathcal{Q}$ be the evaluated query set. 
+For each query $i \in \mathcal{Q}$, let $c_i \in \{0,1\}$ indicate whether the final answer is correct, let $T_i$ be the number of interaction turns, let $S_i$ and $C_i$ be the numbers of retrieval and tool-call turns, let $N_i^{\mathrm{inv}}$ be the number of structurally invalid tool calls, and let $N_i^{\mathrm{untr}}$ be the number of tool calls rejected because at least one argument value comes from a noisy-tool response.
+Let $\mathcal{D}_{i,0}$ denote the initial datatype set, $\mathcal{D}_i^{\mathrm{exec}}$ the set of datatypes produced by successful executed tool calls, and $\mathcal{D}_i^{\mathrm{gt}}$ the process-level ground-truth datatype set derived from all valid paths of the task.
+
+\paragraph{Task Completion Metrics.}
+Accuracy measures whether the agent produces the correct final answer after following the runtime protocol. 
+A prediction is counted as correct only when the submitted answer matches the gold answer under normalized containment matching and the internal typed state contains $\mathcal{Y}_i$.
+Formally, we compute
+\begin{equation}
+\begin{aligned}
+\mathrm{Acc} = \frac{1}{|\mathcal{Q}|}\sum_{i \in \mathcal{Q}} c_i.
+\end{aligned}
+\end{equation}
+
+We also report execution-ground-truth precision, denoted as EGT Precision, to measure how much of the agent's executed datatype trajectory overlaps with the process-level ground truth. 
+For each query, it computes the fraction of successfully executed datatypes that appear in the ground-truth datatype set:
+\begin{equation}
+\begin{aligned}
+\mathrm{EGT\mbox{-}Prec} 
+= \frac{1}{|\mathcal{Q}'|}\sum_{i \in \mathcal{Q}'}
+\frac{|\mathcal{D}_i^{\mathrm{exec}} \cap \mathcal{D}_i^{\mathrm{gt}}|}
+{|\mathcal{D}_i^{\mathrm{exec}}|},
+\end{aligned}
+\end{equation}
+where $\mathcal{Q}'=\{i \in \mathcal{Q}: |\mathcal{D}_i^{\mathrm{exec}}|>0\}$ excludes queries with no executed datatypes.
+
+Finally, we report the average number of interaction turns:
+\begin{equation}
+\begin{aligned}
+\mathrm{AvgTurns} = \frac{1}{|\mathcal{Q}|}\sum_{i \in \mathcal{Q}} T_i.
+\end{aligned}
+\end{equation}
+Each model response counts as one turn, including retrieval requests, tool calls, final answers, and invalidly formatted actions.
+
+\paragraph{Exploration Behavior Metrics.}
+We measure how broadly the agent explores the datatype space using the mean explored datatype count. 
+For each query, the explored datatype closure $\mathcal{D}_i^{\mathrm{exp}}$ is initialized from the input datatypes $\mathcal{D}_{i,0}$ and expanded during the interaction by successful executions and datatype outputs implied by retrieved tools. 
+The per-query explored datatype count is
+\begin{equation}
+\begin{aligned}
+\mathrm{EDT}_i = |\mathcal{D}_i^{\mathrm{exp}} \setminus \mathcal{D}_{i,0}|,
+\end{aligned}
+\end{equation}
+and the reported mean is
+\begin{equation}
+\begin{aligned}
+\mathrm{MeanEDT} = \frac{1}{|\mathcal{Q}|}\sum_{i \in \mathcal{Q}} \mathrm{EDT}_i.
+\end{aligned}
+\end{equation}
+
+We also report the search-to-call ratio, which compares how often the agent retrieves tools against how often it executes tools:
+\begin{equation}
+\begin{aligned}
+\mathrm{S/C\ Ratio} = \frac{\sum_{i \in \mathcal{Q}} S_i}{\sum_{i \in \mathcal{Q}} C_i}.
+\end{aligned}
+\end{equation}
+A larger value indicates more retrieval activity relative to tool execution.
+
+\paragraph{Execution Quality Metrics.}
+We use the invalid tool-call ratio to measure how often the agent attempts tool calls that violate the runtime protocol for structural reasons.
+A tool call is counted as invalid when it fails parsing or violates tool-call constraints, such as calling an unretrieved tool, providing mismatched argument keys, or calling a tool before its required input datatypes are available.
+The metric is computed as
+\begin{equation}
+\begin{aligned}
+\mathrm{ITCR} = \frac{\sum_{i \in \mathcal{Q}} N_i^{\mathrm{inv}}}{\sum_{i \in \mathcal{Q}} C_i}.
+\end{aligned}
+\end{equation}
+
+We also report the untrusted input rejection rate, which measures how often the agent uses a value returned by a noisy tool as an argument to another tool call.
+Such calls are rejected because noisy-tool outputs are not treated as trusted runtime values.
+The metric is computed as
+\begin{equation}
+\begin{aligned}
+\mathrm{UIRR} = \frac{\sum_{i \in \mathcal{Q}} N_i^{\mathrm{untr}}}{\sum_{i \in \mathcal{Q}} C_i}.
+\end{aligned}
+\end{equation}
+
+\subsubsection{Illustrative Examples for Metrics}
+\label{app:metric-illustrative-examples}
+
+% \rui{write this according to costbench Appendix B.3.3, including a figure and demonstrations.}
+
+We illustrate the seven metrics using the trajectory in Figure~\ref{fig:metric-illustrative-example}. 
+\input{Figures/metric}
+The example is synthetic, but follows the same evaluation logic as our implementation. 
+Let the initial datatype be $U$ and the target datatype be $S$, where $U$ denotes a user ID and $S$ denotes a refund status. 
+The gold answer is \texttt{refunded}. 
+The ground-truth path is
+\begin{equation}
+U \rightarrow O \rightarrow R \rightarrow S,
+\end{equation}
+where $O$ is an order ID and $R$ is a return request ID. 
+Thus, the ground-truth datatype set is
+\begin{equation}
+\mathcal{D}^{\mathrm{gt}}_q = \{U,O,R,S\}.
+\end{equation}
+
+The trajectory contains ten actions in total. 
+There are three retrieval turns, corresponding to steps (1), (3), and (4); six tool-call turns, corresponding to steps (2), (5), (6), (7), (8), and (9); and one final-answer turn at step (10).
+Among the tool calls, step (5) is a structurally invalid call and produces no datatype.
+Step (6) invokes a noisy tool and returns an \emph{untrusted} value for datatype $R$.
+Step (7) then attempts to use that noisy return value as an argument in a later tool call, which is rejected and therefore counted by UIRR rather than ITCR.
+The trusted successful tool calls are steps (2), (8), and (9), which produce $O$, $R$, and $S$, respectively.
+Finally, the agent outputs \texttt{refunded}.
+
+\paragraph{Accuracy.}
+Accuracy uses the grounded criterion: the answer must match the gold answer and the target datatype must be reached. 
+Here, the final answer is \texttt{refunded}, and $S$ is reached. 
+Therefore,
+\begin{equation}
+\mathrm{Acc}(q)=1.
+\end{equation}
+For a one-query evaluation set, this corresponds to $100\%$ accuracy.
+
+\paragraph{Executed Ground-Truth Datatype Precision.}
+EGT Precision measures how many executed datatypes lie on the ground-truth path.
+Only \emph{trusted} successful tool outputs are added to the executed datatype set.
+Thus, the noisy return from step (6) is not counted here, while the trusted successful tool calls in steps (2), (8), and (9) produce
+\begin{equation}
+\mathcal{D}^{\mathrm{exec}}_q = \{O,R,S\}.
+\end{equation}
+All of them are in $\mathcal{D}^{\mathrm{gt}}_q$.
+Therefore,
+\begin{equation}
+\mathrm{EGTPrec}(q)
+\;=\; \frac{|\{O,R,S\}|}{|\{O,R,S\}|}
+\;=\; \frac{3}{3}
+\;=\; 100\%.
+\end{equation}
+This shows that an agent can still encounter invalid and noisy behavior while remaining perfectly on-path in terms of trusted executed datatypes.
+
+\paragraph{Average Turns.}
+The trajectory contains ten recorded turns in total: three retrieval turns, six tool-call turns, and one final-answer turn.
+Thus,
+\begin{equation}
+\mathrm{Turns}(q)=10.
+\end{equation}
+For a one-query evaluation set, the Avg. Turns value is $10$.
+
+\paragraph{Mean Explored Datatypes.}
+EDT counts newly discovered datatypes beyond the initial input datatype.
+Across the three retrieval turns, the retrieved tool set makes datatypes $O$, $R$, and $S$ reachable from the initial datatype $U$ under the closure rule used in evaluation.
+Therefore, the explored datatype set is
+\begin{equation}
+\mathcal{D}^{\mathrm{explore}}_q = \{U,O,R,S\}.
+\end{equation}
+Since $U$ is the initial datatype, the discovered datatypes are
+\begin{equation}
+\mathcal{D}^{\mathrm{new}}_q = \{O,R,S\}.
+\end{equation}
+Therefore,
+\begin{equation}
+\mathrm{EDT}(q)=3.
+\end{equation}
+This metric captures how many new datatypes become reachable through retrieval, regardless of whether all later calls succeed.
+
+\paragraph{Search-to-Call Ratio.}
+The agent performs three retrieval turns and six tool-call turns.
+Both the invalid call in step (5) and the untrusted-input-rejected call in step (7) are still counted as call turns.
+Therefore,
+\begin{equation}
+\mathrm{S/C}(q)=\frac{3}{6}=0.50.
+\end{equation}
+This ratio captures the balance between tool search and tool execution.
+
+\paragraph{Invalid Tool Call Rate.}
+ITCR measures the fraction of attempted tool calls that are invalid for structural or protocol reasons. 
+The agent makes six tool-call attempts in total, and exactly one of them, step (5), is counted by ITCR.
+The rejected call in step (7) is \emph{not} counted by ITCR because the current implementation records it separately as an untrusted-input rejection.
+Thus,
+\begin{equation}
+\mathrm{ITCR}(q)=\frac{1}{6}\approx 16.7\%.
+\end{equation}
+
+\paragraph{Untrusted Input Rejection Rate.}
+UIRR measures the fraction of attempted tool calls that are rejected because one or more arguments come from untrusted inputs. 
+Here, exactly one tool-call attempt, step (7), is rejected for that reason, out of six total call attempts.
+Therefore,
+\begin{equation}
+\mathrm{UIRR}(q)=\frac{1}{6}\approx 16.7\%.
+\end{equation}
+
+% Overall, this example obtains
+% \[
+% \mathrm{Acc}=100\%,\quad
+% \mathrm{EGT Prec}=100\%,\quad
+% \mathrm{Turns}=10,
+% \]
+% \[
+% \mathrm{EDT}=3,\quad
+% \mathrm{S/C}=0.50,
+% \]
+% \[
+% \mathrm{ITCR}=\frac{1}{6}\approx 16.7\%,\quad
+% \mathrm{UIRR}=\frac{1}{6}\approx 16.7\%.
+% \]
+In the full evaluation, Accuracy, EGT Precision, Avg. Turns, and Mean EDT are averaged over queries, while S/C Ratio, ITCR, and UIRR are computed from global totals across all evaluated trajectories.
+
+\subsection{Blocking Details}
+\label{app:blocker-details}
+
+% \qh{blocking is comprised of the env response, which is determined by the additional tools (noisy tools) and the selection of blocked tools. We will introduce one by one in this section.}
+
+Blocking in \bench{} is implemented by replacing selected tools in the retrieval results. 
+When the agent retrieves a tool that has been selected for blocking, the environment removes that tool from the returned candidate list and returns its corresponding additional tool instead. 
+The agent therefore observes a normal retrieval result, but the tool it would otherwise rely on has been replaced. 
+This behavior is determined by two components: how the additional tools are constructed and which tools are selected for blocking in each task. 
+We describe these two components below in Appendix~\ref{app:noisy-tool-construction} and Appendix~\ref{app:blocked-tool-selection}, respectively.
+
+\subsubsection{Blocking Formalization}
+\label{app:blocking-formalization}
+
+% \rui{formalize blocker here}
+
+We formalize retrieval-time blocking as a perturbation applied to the tool candidates returned by the retriever. 
+Let $\mathcal{T}$ denote the original tool set. 
+For each task instance $i$, let $\mathcal{T}^{(i)}_{\mathrm{blk}} \subseteq \mathcal{T}$ be the set of baseline tools selected for blocking. 
+This set is hidden from the agent.
+
+Let $\mathcal{B}$ denote the set of blocking perturbation types. 
+For a blocked tool $\tau \in \mathcal{T}^{(i)}_{\mathrm{blk}}$ and a perturbation type $b \in \mathcal{B}$, the environment constructs an additional tool
+\begin{equation}
+\phi_b(\tau) \in \mathcal{T}^{+},
+\end{equation}
+where $\mathcal{T}^{+}$ is the set of additional tools. 
+The function $\phi_b$ maps a blocked tool to the corresponding replacement tool under perturbation type $b$.
+
+At interaction step $t$, suppose the unperturbed retriever returns a ranked candidate list
+\begin{equation}
+L_t = [\tau_1,\ldots,\tau_K].
+\end{equation}
+The blocking environment transforms $L_t$ into the observed retrieval list
+\begin{equation}
+\widetilde{L}_t
+=
+\bigoplus_{k=1}^{K} \rho_i(\tau_k),
+\end{equation}
+where $\oplus$ denotes list concatenation and
+\begin{equation}
+\rho_i(\tau_k)
+=
+\begin{cases}
+[\phi_b(\tau_k)]_{b\in\mathcal{B}}, 
+& \tau_k \in \mathcal{T}^{(i)}_{\mathrm{blk}},\\
+[\tau_k], 
+& \tau_k \notin \mathcal{T}^{(i)}_{\mathrm{blk}}.
+\end{cases}
+\end{equation}
+Thus, if a retrieved baseline tool is selected for blocking, the original tool is removed from the candidate list and replaced by its corresponding additional tools. 
+If a retrieved tool is not selected for blocking, it remains unchanged.
+
+A retrieval-time blocking event occurs at step $t$ if the original retrieval result contains at least one selected blocked tool:
+\begin{equation}
+E^{(i)}_{\mathrm{blk}}(t)
+=
+\mathbb{I}
+\left[
+L_t \cap \mathcal{T}^{(i)}_{\mathrm{blk}}
+\neq \emptyset
+\right].
+\end{equation}
+The number of blocked baseline tools encountered in the retrieval result is
+\begin{equation}
+N^{(i)}_{\mathrm{blk}}(t)
+=
+\left|
+L_t \cap \mathcal{T}^{(i)}_{\mathrm{blk}}
+\right|.
+\end{equation}
+The agent observes only $\widetilde{L}_t$, rather than the original retrieval list $L_t$ or the hidden blocked set $\mathcal{T}^{(i)}_{\mathrm{blk}}$.
+
+\subsubsection{Additional Tool Construction}
+\label{app:noisy-tool-construction}
+
+% \qh{noisy tool construction.}
+
+For each original tool $\tau \in \mathcal{T}$, we construct three corresponding additional tools, one for each blocking perturbation.
+The additional tools are generated by the same generation model used in query construction, $M_{\mathrm{gen}}=\textit{GPT-5.2}$, conditioned on the original tool name, description, input datatype set 
+$\mathcal{D}_{\mathrm{in}}(\tau)$, and output datatype set 
+$\mathcal{D}_{\mathrm{out}}(\tau)$.
+The goal is to preserve the retrieval-facing form of the original tool while modifying the behavior or functionality according to the blocking type.
+
+For explicit failure and implicit failure blocks, the additional tools are designed to be indistinguishable from the original tool based on their surface information. 
+Their names follow the same template \texttt{Get\_<Output>\_From\_<Input>[\_<Variant>]} and may differ only in the optional suffix. 
+Their descriptions are written in the same style as the original description, with similar length, wording structure, and functional meaning. 
+Thus, from the agent's perspective, these tools appear to provide the same input-output mapping as the original tool. 
+The difference is only revealed after execution: the explicit failure tool returns an error, while the implicit failure tool returns an impossible or counterfactual value.
+
+For semantic misleading blocks, the additional tool also follows the same naming format and remains semantically related to the original tool. 
+However, it is constructed to support a different function. 
+Its description explicitly states this actual function, while keeping a style and length similar to the original description. 
+Therefore, unlike the explicit and implicit failure tools, a semantic misleading tool can be distinguished from the original tool by carefully reading its description.
+
+\subsubsection{Selection of Blocked Tools}
+\label{app:blocked-tool-selection}
+
+% \rui{Please check all this. 1. is it correct?-Correct now}
+
+% \qh{Please check all this. is it correct?}
+
+% We next describe how the blocked tool set $\mathcal{T}^{(q)}_{\mathrm{blk}}$ is selected in the \textit{\textbf{blocked mode}} setting used in the main evaluation. 
+% For each task instance $q$, let $\Pi_q$ denote its catalog of valid solution paths. 
+% Each path $\pi \in \Pi_q$ is represented as the set of tools appearing on that path. 
+% The blocker selects which paths to affect, without considering the order in which those paths are explored.
+% Let
+% \[
+% \mathcal{E}_q = \bigcup_{\pi \in \Pi_q} \pi
+% \]
+% be the set of unique tools appearing in the path catalog.
+% For a candidate blocked tool set $C \subseteq \mathcal{E}_q$, a path is blocked if it contains at least one tool in $C$. 
+% The set of blocked paths is
+% \[
+% \mathrm{Blk}_q(C)
+% =
+% \{\pi \in \Pi_q : \pi \cap C \neq \emptyset\}.
+% \]
+% The remaining feasible path count is
+% \[
+% r_q(C)
+% =
+% |\Pi_q| - |\mathrm{Blk}_q(C)|.
+% \]
+
+% The blocker always leave at least one feasible solution path. 
+% It uses target remaining path count $r^\star=1$, tolerance $\delta=1$, minimum remaining path count $r_{\min}=1$, and maximum selected tool count $m=4$.
+% We define the feasible candidate set as
+% \[
+% \mathcal{C}_q=\{C\subseteq\mathcal{E}_q: C \text{ is feasible}\},
+% \]
+% where feasibility requires
+% \[
+% |C|\leq m,
+% \]
+% \[
+% r_q(C)\geq r_{\min},
+% \]
+% \[
+% |r_q(C)-r^\star|\leq\delta.
+% \]
+% With $r^\star=1$, $\delta=1$, and $r_{\min}=1$ as a common case used in our experiments, the environment only accepts candidates with $r_q(C) \in \{1,2\}$.
+% % \rui{cannot understand why rq(C) belongs to 1 or 2.}
+% Thus, the blocker tries to collapse the task to a single remaining feasible path, but allows two remaining paths when an exact target hit is not available.
+
+% Candidate enumeration is finite. 
+% The blocker always includes the empty candidate $C=\emptyset$, then enumerates tool combinations up to size $m$. 
+% Enumeration stops when the maximum number of candidate combinations is reached. 
+% Therefore, the selection procedure is a bounded rule-based search over candidate tool sets, rather than an exhaustive search over all subsets of $\mathcal{E}_q$.
+
+% Candidate selection is performed over a finite candidate pool rather than over all subsets of $\mathcal{E}_q$. 
+% For each query $q$, the blocker constructs $\mathcal{C}_q$ by first including the empty candidate $C=\emptyset$, and then enumerating tool combinations up to size $m$. 
+% Enumeration stops once the maximum number of candidate combinations is reached. 
+% Thus, $\mathcal{C}_q$ defines a bounded rule-based search space over candidate blocked tool sets.
+
+% Among feasible candidates in this finite pool, the blocker first minimizes the distance to the target remaining-path count:
+% \[
+% d_q(C) = |r_q(C)-r^\star|.
+% \]
+% The best candidate pool is
+% \[
+% \mathcal{C}^{\star}_q
+% =
+% \arg\min_{C \in \mathcal{C}_q} d_q(C).
+% \]
+% If multiple candidates remain in $\mathcal{C}^{\star}_q$, the final blocked set is sampled by a seeded random choice:
+% \[
+% \mathcal{T}^{(q)}_{\mathrm{blk}}
+% \sim
+% \mathrm{Uniform}
+% \left(
+% \mathcal{C}^{\star}_q;
+% \mathrm{seed}+\mathrm{hash}(q)
+% \right).
+% \]
+% \qh{there should be a sign for the seed in the main content}
+% This seeded tie-breaking makes the selected blocked set reproducible for each task.
+% After $\mathcal{T}^{(q)}_{\mathrm{blk}}$ is selected, the default setting uses \texttt{fixed\_multi} noise. \rui{What is the purpose of stating this? Why should readers know what is ``fixed\_multi''? What is that?} 
+% Specifically,
+% \[
+% \mathcal{B}
+% =
+% \{
+% \mathrm{err},\mathrm{cf},\mathrm{irr}
+% \},
+% \]
+% corresponding to explicit error, counterfactual response, and irrelevant semantic replacement~\qh{check the right name for ``counterfactual'' and ``irrelevant semantic replacement'', also the ``irr'' thing, would it better if change it to ``mis''?}. 
+% For every selected tool $\tau \in \mathcal{T}^{(q)}_{\mathrm{blk}}$, the environment creates one replacement event for each $b\in\mathcal{B}$. 
+% Thus, each selected tool is replaced by three additional tools at retrieval time:
+% \[
+% \tau
+% \mapsto
+% \{\phi_{\mathrm{err}}(\tau),
+% \phi_{\mathrm{cf}}(\tau),
+% \phi_{\mathrm{irr}}(\tau)\}.
+% \]
+
+% If no feasible candidate exists, the blocker marks the task as unresolved and creates no replacement events. 
+% In that case, $\mathcal{T}^{(q)}_{\mathrm{blk}}=\emptyset$ and retrieval proceeds unchanged. 
+% Under the default retail \texttt{blocker/} setting, all task instances are resolved successfully.
+
+% \paragraph{Selecting Blocked Tools.}
+We next describe how the hidden blocked tool set $\mathcal{T}^{(i)}_{\mathrm{blk}}$ is selected for each task instance $i$ in the main block setting.
+This selection is performed before the interaction starts and is hidden from the agent.
+The goal is to perturb useful tools while preserving at least one feasible solution path, so that the task remains solvable but requires recovery through alternative tool-use paths.
+
+\paragraph{Path-Based Blocking Objective.}
+Let $\Pi_i$ denote the catalog of valid solution paths for task instance $i$.
+For each path $\pi=(\tau_1,\ldots,\tau_K)\in\Pi_i$, let $\mathrm{Tools}(\pi)=\{\tau_1,\ldots,\tau_K\}$ denote the unordered set of tools appearing on that path.
+Thus, the blocker selects which paths to affect, without considering the order in which those paths may be explored.
+Let
+\begin{equation}
+\mathcal{P}_i = \bigcup_{\pi \in \Pi_i} \mathrm{Tools}(\pi)
+\end{equation}
+be the set of unique tools appearing in the path catalog.
+For a candidate blocked tool set $C \subseteq \mathcal{P}_i$, a path is blocked if it contains at least one tool in $C$:
+\begin{equation}
+\mathrm{Blk}_i(C)
+=
+\{\pi \in \Pi_i : \mathrm{Tools}(\pi) \cap C \neq \emptyset\}.
+\end{equation}
+The number of remaining feasible paths is
+\begin{equation}
+n_i(C)
+=
+|\Pi_i| - |\mathrm{Blk}_i(C)|.
+\end{equation}
+
+\paragraph{Feasibility Constraints.}
+The blocker is constrained to preserve at least one feasible solution path.
+A candidate blocked tool set $C$ is feasible if
+% \[
+% |C|\leq K_{\mathrm{blk}},
+% \]
+\begin{equation}
+n_i(C)\geq n_{\min},
+\end{equation}
+\begin{equation}
+|n_i(C)-n^\star|\leq\delta.
+\end{equation}
+Our main block setting uses a target remaining-path count of $n^\star=1$, a tolerance of $\delta=1$, and a minimum remaining-path count of $n_{\min}=1$.
+Since $n_i(C)$ is an integer, these constraints require $n_i(C)\in\{1,2\}$.
+% Thus, the blocker tries to reduce the task to a single remaining feasible path, while allowing two remaining paths when an exact target hit is not available.
+
+\paragraph{Finite Candidate Enumeration.}
+Blocked tool candidate selection is performed over a finite enumerated pool rather than over all subsets of $\mathcal{P}_i$.
+Let $\widetilde{\mathcal{C}}_i$ denote this finite candidate pool.
+The blocker first includes the empty candidate $C=\emptyset$, and then enumerates tool combinations up to size $K_{\mathrm{blk}}$, the maximum selected tool count.
+Enumeration stops once the maximum number of candidate combinations is reached.
+Thus, $\widetilde{\mathcal{C}}_i$ defines a bounded rule-based search space over candidate blocked tool sets.
+The feasible candidate set is then
+\begin{equation}
+\mathcal{C}_i
+=
+\{C\in\widetilde{\mathcal{C}}_i: C \text{ is feasible}\}.
+\end{equation}
+In \bench{}, the enumerated combinations for all cases are within the maximum candidate number limit.
+
+\paragraph{Candidate Selection and Tie-Breaking.}
+Among feasible candidates, the blocker minimizes the absolute deviation from the target remaining-path count:
+\begin{equation}
+d_i(C)=|n_i(C)-n^\star|.
+\end{equation}
+The best candidate pool is
+\begin{equation}
+\mathcal{C}^{\star}_i
+=
+\arg\min_{C\in\mathcal{C}_i} d_i(C).
+\end{equation}
+Let $\sigma_0$ denote the global seed, and define the task-specific seed as $\sigma_i = \sigma_0 + \mathrm{hash}(i)$.
+If multiple candidates remain in $\mathcal{C}^{\star}_i$, the final blocked tool set is sampled by seeded tie-breaking:
+\begin{equation}
+\mathcal{T}^{(i)}_{\mathrm{blk}}
+\sim
+\mathrm{Uniform}
+\left(
+\mathcal{C}^{\star}_i;
+\sigma_i
+\right).
+\end{equation}
+This seeded tie-breaking makes the selected blocked tool set reproducible for each task.
+
+\paragraph{Instantiating Blocking Perturbations.}
+After $\mathcal{T}^{(i)}_{\mathrm{blk}}$ is selected, each selected tool is instantiated with the blocking perturbation types defined in the retrieval-time blocking formalization.
+% In the main blocked setting, we use $\mathcal{B}=\{
+% \mathrm{err},\mathrm{cf},\mathrm{mis}\},$
+% corresponding to explicit error, counterfactual output, and misleading semantic replacement~\qh{check the right name for ``counterfactual'' and ``misleading semantic replacement'', also whether ``mis'' is the best symbol}.
+In the main block setting, we use $\mathcal{B}=\{b_{\mathrm{exp}}, b_{\mathrm{imp}}, b_{\mathrm{sem}}\}$, where $b_{\mathrm{exp}}$ denotes explicit failure, $b_{\mathrm{imp}}$ denotes implicit failure, and $b_{\mathrm{sem}}$ denotes semantic misleading.
+For every selected tool $\tau \in \mathcal{T}^{(i)}_{\mathrm{blk}}$, the environment constructs one additional tool for each $b\in\mathcal{B}$:
+\begin{equation}
+\tau
+\mapsto
+\{\phi_{b_{\mathrm{exp}}}(\tau),
+\phi_{b_{\mathrm{imp}}}(\tau),
+\phi_{b_{\mathrm{sem}}}(\tau)\}.
+\end{equation}
+During retrieval, these additional tools replace the original selected tool according to the retrieval-time blocking transformation defined above.
+
+% \qh{i have added this paragraph to explain the details about returning both blocking tools and noisy tools, and the upperbound (30)}
+\paragraph{Returned-list Budget under Blocking.}
+We use the same per-retrieval cap $\Lambda_{\mathrm{ret}}^{\mathrm{cap}}=30$ in the block setting, which keeps the retrieval context size comparable to the default setting.
+Suppose the original typed match returns $K$ executable tools, and $m=N^{(i)}*{\mathrm{blk}}(t)$ of them are selected for blocking.
+For each selected tool $\tau$, the environment removes $\tau$ and inserts the three blocking replacements ${\phi*{b_{\mathrm{exp}}}(\tau), \phi_{b_{\mathrm{imp}}}(\tau), \phi_{b_{\mathrm{sem}}}(\tau)}$.
+After this replacement step, the returned list contains $K-m+3m=K+2m$ primary tools.
+The environment then fills the remaining slots with ordinary noisy tools, up to the cap:
+\begin{equation}
+\Lambda_{\mathrm{ret}}^{\mathrm{cap}} - (K+2m).
+\end{equation}
+In this benchmark, $K+2m \leq \Lambda_{\mathrm{ret}}^{\mathrm{cap}}$, so this quantity is always non-negative.
+Thus, blocking replacements are always retained, and the cap only controls how many ordinary noisy distractors are appended.
+
+\paragraph{Unresolved Cases.}
+If no feasible candidate exists, the blocker marks the task as unresolved and creates no replacement tools.
+In that case,
+\begin{equation}
+\mathcal{T}^{(i)}_{\mathrm{blk}}=\emptyset,
+\end{equation}
+and retrieval proceeds unchanged.
+Under the setting used in our experiments, all task instances are resolved successfully.
+
+% \rui{Write a algorithm box}
+
+% \qh{replace all the formula with equations with (x)}
+
+
+\subsubsection{Practical Relevance and Significance of Blocking}
+\label{app:blocker-significance}
+
+The blocking setting is designed to approximate realistic failure modes in large-scale tool ecosystems, where agents rarely interact with a perfectly curated and reliable set of tools. In practical deployments, retrieved tools may be unavailable, deprecated, stale, misconfigured, or only superficially related to the agent's current need. Such failures are especially challenging in retrieval-mediated tool use because the agent must decide not only which tool to call, but also whether the retrieved tool is trustworthy and whether its observation should be incorporated into the plan. Our blocking mechanism therefore evaluates an agent's ability to detect unreliable tool access, avoid misleading evidence, and recover by searching for alternative solutions.
+
+\paragraph{Explicit failure blocks.}
+Explicit failure blocks simulate tools that appear relevant at retrieval time but fail once invoked.
+This situation is common in real systems when an API endpoint is deprecated, an external service is temporarily unavailable, authentication has expired, or a backend schema has changed. 
+For example, in a retail workflow, an agent may retrieve a tool that appears to check whether an item is available at a store, but the call returns an error because the inventory service is unavailable. 
+Although such failures are relatively easy to recognize after execution, they still require adaptive planning: the agent must avoid repeatedly calling the failed tool, reinterpret the missing information as a planning constraint, and search for another route to the final answer.
+
+\paragraph{Implicit failure blocks.}
+Implicit failure blocks model a subtle class of tool failures in which the selected tool appears appropriate according to its description, but the returned observation is semantically invalid for the task. 
+Unlike explicit failures, the tool does not raise an error or signal incompatibility; instead, it produces an output that may be syntactically well-formed but is either irrelevant to the user’s request or counterfactual with respect to basic domain knowledge. 
+For example, a tool invoked to retrieve an exchange rate may return a negative value, or a weather tool may report a temperature below absolute zero. 
+In other cases, the tool may return information that is structurally valid but unrelated or unusable for the intended domain, despite the tool description suggesting that it should be helpful. 
+This setting tests whether agents can recognize that a tool observation is not reliable merely because it comes from a seemingly relevant tool, and whether they can reject outputs that are unhelpful, nonsensical, or inconsistent with commonsense constraints rather than incorporating them into subsequent reasoning.
+
+% \jy{check from here.}
+\paragraph{Semantic misleading blocks.}
+Semantic misleading blocks represent retrieval noise in which the returned tool is semantically close to the desired tool but supports a different function. This reflects a common problem in large tool repositories: many tools share similar names, overlapping descriptions, or related domain vocabulary, yet differ in their precise semantics. For example, an agent searching for a tool to obtain the estimated delivery date of an order may instead retrieve a tool for estimating the pickup date of an in-store return. Unlike explicit and implicit failure blocks, semantic misleading blocks can often be detected before execution through careful inspection of the tool description and input-output schema. However, they still increase the difficulty of tool selection, particularly under long-horizon planning, where the agent must keep track of many intermediate sub-goals and avoid following superficially relevant but functionally incorrect tools.
+
+% \jy{Do this.}
+
+Together, these three blocking types cover complementary sources of unreliability. 
+Explicit failures test recovery from visible tool unavailability; implicit failures test robustness to silent misinformation; and semantic misleading blocks test fine-grained tool understanding under retrieval noise. 
+By evaluating agents under all three conditions, \bench{} measures not only whether an agent can solve a task when the correct tools are available, but also whether it can maintain reliable planning behavior when the tool ecosystem itself becomes partially unreliable.
+
+% \subsection{Randomized yet Reproducible
+% Environment}
+% \label{app:randomized-yet-reproducible-environment}
+
+% \qh{pass}
+% \jy{decide if this is necessary.}
+
+\section{Additional Experiment Results}
+\label{app:additional-experiment-results}
+
+\subsection{Evaluation Robustness}
+\label{app:evaluation-robustness}
+
+% \qh{confidence interval. refer to costbench table 8}
+
+\input{Tables/95CI}
+\paragraph{Theoretical Bounds.} To quantify statistical uncertainty in the default-setting results, we estimate 95\% confidence intervals by non-parametric bootstrap~\cite{justus2024bootstrap,marcon,wang2025diversity,wang2025prospect,zong2025critical} resampling 10,000 times over the evaluated queries.
+As shown in Table~\ref{tab:confidence-interval-retail}, the resulting intervals are generally narrow across models. 
+Averaged over the evaluated models, the radius is $2.94$ percentage points for Accuracy, $3.70$ percentage points for EGT Prec., $2.10$ turns for Avg. Turns, $0.77$ datatypes for Mean EDT, $0.26$ for S/C Ratio, $2.10$ percentage points for ITCR, and $1.04$ percentage points for UIRR. 
+These intervals are small relative to many of the performance gaps in Table~\ref{tab:main_unblocked_results_grounded}, suggesting that the main trends are unlikely to be artifacts of test-set sampling noise.
+
+%\qh{different seed ablation.}
+\input{Figures/seed_acc}
+\paragraph{Empirical Results.} To further empirically examine robustness to seed variation, we reran the blocked evaluation of \textit{DeepSeek-V4-Flash} and \textit{Llama3.3-70B-Instruct} with seeds 1000, 2000, and 3000 while keeping the model and all other configuration choices fixed. 
+As shown in Figure~\ref{fig:seed_acc}, the results are highly consistent across seeds. 
+These small fluctuations suggest that the block setting conclusions for this model are not sensitive to the particular seeded choice of blocker configuration.
+
+\subsection{Retriever Robustness}
+\label{app:retriever-robustness}
+
+% \qh{single-step retriever results.}
+
+To verify that the main benchmark results are not primarily limited by retriever coverage, we construct a single-step tool retrieval evaluation. 
+For each released executable tool $\tau$, we create a one-step task whose initial datatype set is $\mathcal{D}_{\mathrm{in}}(\tau)$ and whose target datatype set is $\mathcal{D}_{\mathrm{out}}(\tau)$.
+The task therefore has a valid solution consisting of exactly one tool call after the correct tool is retrieved. 
+We instantiate these tasks using the same query construction pipeline as the main benchmark. 
+Concrete input values are sampled from the backend, the resulting instance is checked to be executable, and $M_{\mathrm{gen}}$ verbalizes the structured task into a natural-language query. 
+The gold answer is obtained by executing the corresponding tool on the instantiated input values.
+
+We run this evaluation on \textit{Qwen3-8B}, a relatively weak model in the main benchmark. 
+This setting provides a conservative sanity check because the same model performs poorly on full multi-step tasks but can still be tested on whether it can identify and invoke the correct tool in a one-step setting. 
+The ideal trajectory for each single-step query contains three turns, corresponding to one retrieval request, one tool call, and one final answer.
+As in the main benchmark, retrieval does not return only the executable tool.
+For a single-step task constructed from $\tau$, the returned candidate list may also include noisy variants paired with $\tau$, denoted as $\mathcal{N}(\tau)$.
+Thus, the model must select the executable tool from a mixed set of relevant-looking candidates.
+
+% \qh{update}
+% As shown in Table~\ref{tab:single-step-retriever-results}, \textit{Qwen3-8B} achieves $85.95\%$ accuracy over 185 single-step queries.
+% The ground-truth tool is included in $92.43\%$ of the returned retrieval lists, which we report as \textit{GT Tool Retrieved}.
+% Its average number of turns is $3.18$, which is close to the ideal value of 3. 
+% The search-to-call ratio is $0.95$, and the invalid tool-call rate is $0.00\%$. 
+As shown in Table~\ref{tab:single-step-retriever-results}, \textit{Qwen3-8B} achieves $85.95\%$ accuracy over $185$ single-step queries, with the ground-truth tool included in $92.43\%$ of the returned retrieval lists.
+Its average number of turns is $3.18$, and its search-to-call ratio is $0.95$, both close to the ideal single-step trajectory of one retrieval request, one tool call, and one final answer.
+The invalid tool-call rate is $0.00\%$.
+These results indicate that the retriever and runtime protocol provide reliable access to the correct tools in single-step settings. 
+Thus, the much lower performance of the same model on the full benchmark is better explained by multi-step planning, state tracking, and execution decisions than by failures of the retriever.
+
+
+% \jy{provide the fractions containing the ground-truth tool}
+
+\input{Tables/single_step}
+
+
+
+
+
+% \section{Case Study}
+% \label{app:case-study}
+
+% \subsection{Error Case Study}
+% \qh{update}
+
+% We present three representative failure cases, one for each high-level error family discussed in Appendix~\ref{app:error-analysis}. Figure~\ref{fig:case_default_premature_answer} shows a default-setting case of \emph{Premature Answering}, where the model stops on a semantically related datatype and commits a wrong answer. Figure~\ref{fig:case_default_unresolved_execution} shows a default case of \emph{Unresolved Execution}, where the model keeps searching and calling without committing a final answer. Figure~\ref{fig:case_blocked_wrong_after_target} shows a blocked case of \emph{Noisy Response Adoption}, where the model reaches the target datatype but still accepts a corrupted target-typed value. Figure~\ref{fig:case_blocked_collapse} shows a blocked case of \emph{Interaction Breakdown}, where the model repeatedly issues invalid tool calls and never stabilizes into a grounded answer. Together, these cases complement the aggregate statistics by showing what each failure family looks like at the raw trajectory level.
+
+% \subsection{Data Case Study}
+% \label{app:data-case-study}
+% To show what benchmark instances look like concretely, we provide one representative retail task and several real tool definitions from its ground-truth path. 
+% Figure~\ref{fig:case_data_query_profile} shows the natural-language query and one available solution path for \texttt{retail\_task\_0001}. 
+% Figures~\ref{fig:case_data_tools} shows representative tool definitions drawn from that path. 
+% In each tool definition, the agent-visible function schema consists of \texttt{type}, \texttt{name}, \texttt{description}, \texttt{parameters}, and \texttt{strict}. Fields such as \texttt{input\_datatypes}, \texttt{output\_datatype}, \texttt{surface\_output}, and datatype-to-argument mappings are internal metadata used by the benchmark code for retrieval, dependency validation, execution, and evaluation. 
+% These examples illustrate two important properties of the data. 
+% First, the benchmark is built over an internal type system: tools are associated with input and output datatypes so that we can validate dependencies and construct solution paths. 
+% These annotations are not presented to the agent as task-level hints.
+% Second, even a single retail task may traverse multiple business subflows, such as fulfillment, returns, and payment, before reaching the target field. 
+
+\section{Case Study}
+\label{app:case-study}
+
+
+
+\subsection{Error Case Study}
+
+We present representative raw trajectories for the mechanisms analyzed in Appendix~\ref{sec:error-analysis}. 
+Figure~\ref{fig:case_irrecoverable_drift_wrong_tool_value} shows \textit{Irrecoverable Drift}: the model obtains useful intermediate evidence, then takes a non-progress step and turns an off-path tool value into the final answer. 
+Figure~\ref{fig:case_irrecoverable_drift_search_exhaustion} shows a drifted trajectory that ends through \emph{Search Exhaustion}: after partial progress, the model continues retrieving and calling tools but never grounds the target answer. 
+Figure~\ref{fig:case_interaction_breakdown} shows \textit{Format Error}, where repeated invalid tool calls terminate the run before the agent can stabilize on a valid solution path. 
+Figure~\ref{fig:case_silent_failure_output_accepted} shows how a blocked alternative can contaminate the trajectory when a silent failure returns a plausible target-typed value. 
+Together, these cases show the same separation used in the error analysis: where the trajectory breaks, how corrupted tool outputs affect later decisions, and how the model terminates after the trajectory is no longer grounded.
+
+\subsection{Data Case Study}
+\label{app:data-case-study}
+
+To make the tool-use path structure concrete, we provide one representative retail task and several tool definitions from an available solution path. Figure~\ref{fig:case_data_query_profile} shows the natural-language query and one valid path for \texttt{retail\_task\_0001}. Figure~\ref{fig:case_data_tools} shows representative tool definitions from the same task family. The agent-visible schema consists of the function name, description, parameters, and strictness constraints; datatype annotations such as input datatype and output datatype are internal benchmark metadata used for retrieval, dependency validation, progress-call annotation, and evaluation. This distinction is important for the error analysis: models must infer useful tool transitions from natural-language tool schemas, while our diagnostics measure progress against feasible solution paths.
+
+These examples also show why the benchmark is not a single-hop lookup task. The representative path begins from a fulfillment-side clue, moves through order and return records, and then enters the payment subflow before reaching the requested account field. A failure can therefore occur before the model obtains useful evidence, after it drifts away from a valid solution path, or after a corrupted executable-looking output is treated as grounded evidence. The data case study grounds the aggregate results by showing the structure that makes progress, drift, recovery, blocked-branch contamination, and format error measurable.
+
+% \qh{Help him.}
+
+\section{Justifications and Design Choices}
+\label{app:justifications}
+
+% \paragraph{Tools.}
+% \rui{Justification for 138 tools: is it not much?}
+% Our benchmark provides a pool of 1,665 real-world retail tools.
+% One might ask whether this number is large enough to constitute a \emph{massive-tools} regime.
+% We argue that it is, for two reasons.
+% First, as shown in Table~\ref{tab:all_tools_comparison}, providing all tools in context without retrieval leads to substantial performance degradation compared to the default setting.
+% This confirms that even current strong models struggle when exposed to the full inventory, and that the tool space is already large enough to stress their planning and selection capabilities.
+% Second, we deliberately avoid artificially scaling the tool set to a very large scale like in \textit{ToolBench}~\citep{ToolBench}, since doing so would make retrieval quality itself a dominant confounder.
+% Our goal is to keep retrieval meaningful and measurable, so that experimental results reflect the planning and execution challenges induced by a realistically large retail tool ecosystem, rather than being driven primarily by retrieval failure.
+
+\paragraph{Retriever.} 
+
+% \jy{write about the reasonableness and trade-offs in the retriever design.}
+
+\bench{} uses a simplified retriever to expose the tool space through controlled natural-language queries. 
+This design abstracts away some complexity of real-world retrieval systems, since the underlying matching is grounded in the predefined datatype structure rather than noisy documentation, imperfect ranking, or dynamically changing tool catalogs. 
+As a result, tool retrieval in \bench{} can be easier and more stable than in deployed tool ecosystems. 
+However, this simplification is intentional.
+Our goal is not to benchmark retrieval systems themselves, but to isolate agents' ability to explore, plan, and recover under partial tool observability. 
+By grounding retrieval in datatypes, we can systematically control which tools are discoverable, which paths remain feasible, and how blocking events affect the solution space. 
+This enables reproducible evaluation, fair model comparison, and fine-grained analysis of exploration and re-planning failures, while leaving more realistic retriever noise as an important direction for future extensions.
+
+\paragraph{Task Complexity and Diversity.} 
+\bench{} is designed to contain queries that are both complex and diverse. 
+The \textbf{\textit{complexity}} of each query is controlled by the underlying state graph rather than by surface-level linguistic difficulty.
+We only retain tasks whose shortest valid solution requires at least five distinct tool calls, ensuring that each query requires non-trivial multi-step reasoning and cannot be solved by a single direct lookup. 
+Empirically, these tasks also require long interactions in the easiest default setting, with agents taking around 25 turns on average in the easiest setting, which further shows that the benchmark evaluates long-horizon planning rather than isolated tool invocation.
+The \textbf{\textit{diversity}} of \bench{} comes from its datatype-grounded construction process. 
+Instead of manually writing queries or relying on paraphrase variation, we first define a broad set of domain-specific datatypes that represent distinct kinds of retail information. 
+Tools are then generated by pairing different input and output datatype sets. 
+As a result, each query is grounded in a different transformation path over these datatypes. 
+This makes the query distribution diverse at the semantic and structural levels.
+
+\section{Discussion}
+\label{app:discussion}
+
+\subsection{Beyond Simple Search Problem}
+\label{app:why-is-not-a-search-problem}
+
+The enforced-exploration results presented in Section~\ref{sec:enforce-analysis} raise a natural question: whether the block setting can be reduced to a simple search problem, and whether the performance drop can be resolved by allocating more test-time interaction.
+We argue that this is not the case. 
+The main difficulty does not only come from insufficient search over an explicit state space. 
+Instead, agents must infer latent intermediate goals, translate them into natural-language retrieval requests, interpret imperfect tool feedback, and revise their plans under partial observability.
+
+\paragraph{Not a rule-based graph search problem.}
+Although our benchmark construction relies on an underlying typed state graph (introduced in Appendix~\ref{app:state-graph}), this graph is not exposed to the agent during evaluation. 
+The graph is defined over internal datatypes, which are used to construct tools, compute valid solution paths, and verify whether the target information has been reached. 
+However, the agent never observes these datatypes or the graph structure. 
+It can only interact with the environment by issuing \textit{\textbf{natural-language retrieval requests}} and interpreting the returned tool descriptions. 
+The environment then maps these requests to the internal datatype space. 
+Therefore, a rule-based graph search algorithm could solve the task only in an oracle setting where the typed graph is directly available. 
+This differs from the actual evaluation setting, where the agent must recover useful tool paths from partial and natural-language observations.
+
+\paragraph{Not solved by additional test-time exploration.}
+We further examine whether the block-setting degradation is mainly caused by a limited interaction budget.
+Inspired by test-time scaling methods that force models to continue reasoning before termination~\citep{s1}, we design an enforced-exploration analysis for our multi-turn setting.
+Specifically, whenever an agent attempts to terminate with an incorrect answer, we insert an additional user message asking it to keep exploring the tool space and environment.
+This intervention can be triggered multiple times within the same trajectory, up to the enforced budget used in the experiment.
+It is used only for analysis, not as a deployable method, because it relies on ground-truth evaluation to determine whether the attempted final answer is incorrect.
+The results show that additional interaction alone brings only limited gains.
+Even with repeated continuation prompts, most models improve by less than 5 percentage points and remain far below their no-block accuracy.
+This suggests that the main bottleneck is not simply the number of available interaction steps, but the agent's ability to diagnose failed or misleading tool paths, abandon an invalid plan,and construct a new recovery plan.
+Thus, retrieval-time blocking evaluates adaptive re-planning under partial observability, rather than simple search over a known state space.
+
+\subsection{Evaluation Fairness}
+\label{app:evaluation-fairness}
+
+To ensure fair comparison across models, \bench{} applies the same blocking configuration to every model within each blocking setting. 
+Specifically, for a given evaluation setting, the set of tools selected for blocking is pre-computed for every task instance and then kept fixed across all evaluated models. 
+Thus, all models are evaluated on the same benchmark database, with the same blocked tools, the same replacement tools, and the same perturbation type under each setting.
+
+This design ensures that the induced changes to the solution space are identical across models. 
+Since the blocked tools are the same for every model, the solution paths removed by blocking are also the same. 
+Conversely, the remaining feasible paths available after blocking are shared across models as well. 
+Therefore, any performance differences observed under a blocking setting can be attributed to the models’ ability to detect failures, avoid misleading tools, and adaptively recover through the remaining valid paths, rather than to differences in the blocking conditions they face.
+
+\subsection{Future Work}
+\label{app:potential-improvement-methods}
+
+\paragraph{Diversity-aware tool exploration.}
+To address the insufficient-exploration problem that our benchmark pinpoints, future agents could be trained to retrieve tools with explicit diversity objectives. 
+Instead of repeatedly searching around the same local tool neighborhood, the agent should generate complementary retrieval queries under different views: forward from currently known evidence, backward from the desired target, and bridge queries that connect known and missing information. 
+This direction is closely related to prior work on tool retrieval and large-scale API selection, which improves tool discovery through better retrieval, generation, or iterative feedback \citep{APIBench,ToolRet,xu2024enhancing,ToolGen}. 
+In \bench{}, such methods could be optimized using exploration-oriented signals, such as increasing the breadth of useful explored datatypes while avoiding redundant searches.
+
+\paragraph{Failure-aware tool verification.}
+To mitigate the silent-failure problem highlighted by our blocking analysis, agents need mechanisms for validating whether a tool response is trustworthy before incorporating it into later steps. 
+A concrete method is to add a verification phase after each suspicious tool call: the agent checks whether the output has a valid type, whether it is semantically plausible, whether it contradicts previous evidence, and whether an independent alternative tool can confirm it. 
+This direction connects to prior work on imperfect, opaque, or evolving tools, where agents must learn tool behavior through interaction or adapt to changing APIs \citep{OpaqueToolsBench,ToolSandbox, acikgoz2026toolr0}. 
+In \bench{}, this method is especially useful for implicit failure blocks, where the tool does not return an explicit error but instead produces a counterfactual value that can mislead later planning.
+
+\paragraph{Backtracking-based recovery planning.}
+To address the brittle re-planning problem exposed when direct paths are blocked, agents could be equipped with explicit backtracking and recovery policies. 
+When a tool fails, returns an implausible result, or becomes inconsistent with the current plan, the agent should mark the corresponding path as unreliable, roll back to the most recent valid state, and search for an alternative path from either the current evidence or the final target. This is related to search-based and hierarchical planning methods, which decompose long-horizon tasks into smaller decision points and revise plans when execution diverges from expectation \citep{AnyTool,verma2025leap,koh2026tree}. In \bench{}, such a method would directly target the longest-path setting, where agents must recover through less direct chains of intermediate tools rather than simply extending the same failed trajectory.
+
+\paragraph{Training with blocker-aware trajectories.}
+To improve robustness under unreliable tool access, agents can be trained on trajectories that explicitly contain retrieval misses, explicit errors, implicit errors, and semantic distractions. Rather than only learning successful tool-call demonstrations, the model should learn recovery behaviors: recognizing a blocked path, avoiding repeated calls to failed tools, discarding suspicious observations, and searching for alternative tools. Reinforcement learning is a natural fit here, since \bench{} provides executable feedback and can define rewards for final accuracy, relevant execution, low invalid-call rate, and successful recovery after blockers. This is aligned with recent work showing that tool-use agents can be improved through interaction-based learning and reward-driven tool use \citep{schick2023toolformer,ToolRL}. Compared with simple test-time scaling, blocker-aware training directly teaches the missing adaptive behavior rather than merely giving the model more turns.
+
+
+\subsection{Significance and Generalization}
+\label{app:significance-generalization}
+
+\paragraph{On the Significance of \bench{}.}
+
+\bench{} introduces two key novelties for evaluating real-world tool-using agents. First, it explicitly evaluates agents' ability to explore implicit sub-goals in large-scale tool ecosystems. Unlike settings where the required tools or intermediate steps are given in advance, \bench{} requires agents to infer what information is missing, retrieve relevant tools, and construct a valid multi-step solution path. This capability is increasingly important in practical agent scenarios, where external capabilities such as online skills, plugins, and MCP servers are often only partially visible and must be discovered through retrieval before they can be used.
+
+A central contribution of \bench{} is that it does not measure this ability only through final accuracy. 
+Instead, it provides \textbf{\textit{dedicated metrics for both exploration and exploitation}}. 
+Exploration-oriented metrics capture the breadth and diversity of intermediate information uncovered by the agent, while exploitation-oriented metrics assess whether the agent can use the discovered tools along task-relevant paths.
+These metrics help disentangle which capabilities are associated with final task success, revealing whether strong performance depends more on discovering intermediate information, efficiently navigating the tool space, or accurately executing over the explored tools.
+
+Second, \bench{} introduces \textit{\textbf{blocking mechanism}} to evaluate whether agents can adapt when originally useful tools become unavailable or unreliable. 
+This reflects realistic large-scale tool environments: an online skill may be removed, an API may return an error, an MCP server may expose a misleadingly similar tool, or a retrieved capability may silently produce an unreliable result. 
+In such cases, a robust agent should not simply follow the first plausible path it finds; it should detect the disruption, revise its plan, and recover through alternative tool-use paths.
+
+Together, implicit sub-goal exploration and dynamic blocking make \bench{} a broadly applicable benchmark for studying adaptive planning in large, partially observable tool ecosystems. 
+These two components capture challenges that are central to future agent deployments, where success depends not only on calling tools correctly, but also on discovering useful capabilities, exploiting them coherently, and recovering when the environment changes.
+
+\paragraph{On the Generalization of \bench{}.}
+
+Although \bench{} is instantiated in the retail domain, its core design is \textit{\textbf{domain-general}}. 
+The benchmark can be adapted to other domains by replacing the domain-specific datatypes, tool library, and backend database while preserving the same exploration protocol and dynamic blocking mechanism. 
+
+In particular, the \textit{\textbf{exploration setting}} applies to any task where a user provides initial information and specifies a desired outcome, but leaves the intermediate sub-goals and tool-use path implicit. 
+This input-to-output structure appears in many multi-step tool-use domains, including travel planning, enterprise workflow automation, customer support, healthcare administration, finance, and software engineering. 
+In such settings, agents must determine which intermediate information is needed and which tools can produce it, making implicit sub-goal exploration a domain-general challenge rather than a retail-specific one.
+
+The \textit{\textbf{blocking mechanism}} is also broadly applicable. 
+Across tool-use environments, relevant tools may become unavailable, return errors, expose outdated information, or be replaced by superficially similar but functionally different alternatives. 
+Therefore, the ability to detect disrupted tool-use paths and recover through alternative paths is not specific to retail, but is a general requirement for robust multi-turn tool-use planning. 
+For these reasons, \bench{} provides a general framework for studying exploration, exploitation, and adaptive re-planning in large-scale tool ecosystems, and its findings are expected to be informative for a broad range of multi-step tool-use settings.
+
+\section{Human Annotation}
+\label{app:human-annotation}
+
+To validate the quality of the constructed tool library and datatype inventory, we conducted a human annotation study with five annotators, all of whom had relevant research experience. 
+Each annotator evaluated 10 tools and 5 datatypes, resulting in 50 annotated tools and 25 annotated datatypes in total. 
+Following the standard Likert-scale convention~\citep{likert1932technique}, annotators rated each item from 1 to 5 based on its reasonableness and realism (screenshots provided in Figure~\ref{fig:annotation_1} and~\ref{fig:annotation_2}). The annotated tools received an average score of 4.32, and the annotated datatypes received an average score of 4.56. These results indicate that both the generated tools and datatypes are of high quality and align well with realistic retail-domain scenarios.
+
+\input{Figures/case_study_figures}
+\input{Tables/case_study_figures}
+\input{Figures/inference_prompt}
+\input{Figures/enforced-prompt}
+\input{Figures/annotation_1}
+\input{Figures/annotation_2}

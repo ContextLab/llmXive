@@ -1,0 +1,63 @@
+% % \begin{table*}[t]
+% % \centering
+% % \small
+% % \setlength{\tabcolsep}{5pt}
+% % \begin{tabular}{lccccc}
+% % \toprule
+% % \textbf{Model}
+% % & \textbf{Failed runs}
+% % & \textbf{No Traction}
+% % & \textbf{Irrecoverable Drift}
+% % & \textbf{Weak Recovery}
+% % & \textbf{Interaction Breakdown} \\
+% % \midrule
+% % \textit{GPT-5.4} & 152 & 7.2 & 69.1 & 5.9 & 13.2 \\
+% % \textit{DeepSeek-V4-Flash} & 120 & 2.5 & 21.7 & 3.3 & 71.7 \\
+% % \textit{Gemini-3.5-Flash} & 153 & 13.1 & 60.1 & 3.3 & 7.8 \\
+% % \textit{Llama-3.3-70B-Instruct} & 265 & 10.9 & 35.1 & 0.4 & 52.5 \\
+% % \midrule
+% % \textbf{All models} & 690 & 9.1 & 45.8 & 2.8 & 37.2 \\
+% % \bottomrule
+% % \end{tabular}
+% % \caption{Default-setting trajectory failure categories (\% of failed runs). A successful call is counted as progress if it produces a new intermediate value needed by at least one valid tool-use path toward the final answer.}
+% % \label{tab:mechanistic_navigation_breakdown}
+% % \end{table*}
+
+% \begin{table*}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{5pt}
+% \resizebox{\linewidth}{!}{
+% \begin{tabular}{llcccccc}
+% \toprule
+% \multirow{2}{*}{\textbf{Model}}
+% & \multirow{2}{*}{\shortstack{\textbf{Dominant}\\\textbf{Ending}}}
+% & \multicolumn{2}{c}{\textbf{\# Non-interaction Failures}}
+% & \multicolumn{2}{c}{\textbf{Dominant Ending Ratio (\%)}}
+% & \multicolumn{2}{c}{\textbf{Failure-only S/C Ratio}} \\
+% \cmidrule(lr){3-4}
+% \cmidrule(lr){5-6}
+% \cmidrule(lr){7-8}
+% & &
+% \textbf{Default} & \textbf{Blocker} & \textbf{Default} & \textbf{Blocker} & \textbf{Default} & \textbf{Blocker} \\
+% \midrule
+% \textit{GPT-5.4}
+% & Surrender & 132 & 139 & 77.3 & 80.6 & 4.5 & 4.2 \\
+% \textit{DeepSeek-V4-Flash}
+% & Wrong tool value & 34 & 44 & 58.8 & 65.9 & 6.1 & 4.6 \\
+% \textit{Gemini-3.5-Flash}
+% & Search exhaustion & 141 & 154 & 90.8 & 85.1 & 29.1 & 18.3 \\
+% \textit{Llama-3.3-70B}
+% & Wrong tool value & 126 & 106 & 81.7 & 71.7 & 2.1 & 2.0 \\
+% \bottomrule
+% \end{tabular}
+% }
+% \caption{
+% The most frequent ending type for each model after planning failures.
+% \emph{\# Non-interaction Failures} is the number of failures after excluding interaction breakdowns in the corresponding setting.
+% \emph{Dominant Ending Ratio} is the share of those failures that end with the behavior named in the second column.
+% \emph{Failure-only S/C Ratio} is the average S/C Ratio computed only over the non-interaction failure traces.
+% \jy{check this table}
+% }
+% \label{tab:mechanistic_termination_behavior}
+% \end{table*}

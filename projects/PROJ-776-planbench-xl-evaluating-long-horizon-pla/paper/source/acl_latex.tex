@@ -1,0 +1,258 @@
+ % This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[preprint]{acl}
+\usepackage{multicol}
+\usepackage{multirow}
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{booktabs}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{bbm}
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+% ============= additional package(s) =============
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{makecell}
+\usepackage{booktabs}
+% \usepackage[most]{tcolorbox}
+\usepackage{wrapfig}
+\usepackage{pifont}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+% \hypersetup{
+%   colorlinks=false,
+%   pdfborder={0 0 1}
+% }
+
+% ============= checkmarks =============
+\newcommand{\cmark}{\textcolor[rgb]{0.0, 0.6, 0.0}{\ding{51}}} % Muted dark green
+\newcommand{\xmark}{\textcolor[rgb]{0.7, 0.0, 0.0}{\ding{55}}} % Muted dark red
+\newcommand{\gmark}{\textcolor[rgb]{1,0.647,0}{\ding{51}}}
+
+% ============= colors =============
+\definecolor{rgbBlueBg}{HTML}{EAF4FF}
+\definecolor{emreblue}{HTML}{4d7ea8}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+% ============= customized comments =============   
+\NewDocumentCommand{\jy}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{Jiayu}}\textsf{\textbf{\small[#1]}}}}
+\NewDocumentCommand{\qh}
+{ mO{} }{\textcolor{purple}{\textsuperscript{\textit{Qihan}}\textsf{\textbf{\small[#1]}}}}
+\NewDocumentCommand{\cheng}
+{ mO{} }{\textcolor{orange}{\textsuperscript{\textit{cheng}}\textsf{\textbf{\small[#1]}}}}
+\NewDocumentCommand{\rui}
+{ mO{} }{\textcolor{red}{\textsuperscript{\textit{Rui}}\textsf{\textbf{\small[#1]}}}}
+\NewDocumentCommand{\xc}
+{ mO{} }{\textcolor{cyan}{\textsuperscript{\textit{Xiaocheng}}\textsf{\textbf{\small[#1]}}}}
+\NewDocumentCommand{\emre}
+{ mO{} }{\textcolor{emreblue}{\textsuperscript{\textit{Emre}}\textsf{\textbf{\small[#1]}}}}
+\NewDocumentCommand{\TODO}
+{ mO{} }{\textcolor{red}{\textsuperscript{\textit{TODO}}\textsf{\textbf{\small[#1]}}}}
+\NewDocumentCommand{\heng}
+{ mO{} }{\textcolor{red}{\textsuperscript{\textit{Heng}}\textsf{\textbf{\small[#1]}}}}
+
+\title{\textbf{PlanBench-XL}: Evaluating Long-Horizon Planning of LLM Tool-Use Agents in Large-Scale Tool Ecosystems}
+
+% ============= takeaway box =============
+\tcbset{
+  aibox/.style={
+    width=\linewidth,
+    top=7pt,
+    bottom=2pt,
+    colback=rgbBlueBg,
+    colframe=black,
+    colbacktitle=black,
+    enhanced,
+    center,
+    attach boxed title to top left={
+      yshift=-0.1in,
+      xshift=0.15in
+    },
+    boxed title style={
+      boxrule=0pt,
+      colframe=white
+    },
+  }
+}
+
+\newcounter{takeaway}
+\renewcommand{\thetakeaway}{\arabic{takeaway}}
+
+\newenvironment{takeaway}[1][]%
+{%
+  \refstepcounter{takeaway}%
+  \begin{tcolorbox}[
+    aibox,
+    title={Takeaway~\thetakeaway},
+    #1
+  ]%
+}%
+{%
+  \end{tcolorbox}%
+}
+
+\newcommand{\BENCH}[1]{\textbf{PlanBench-XL}}
+\newcommand{\bench}[1]{PlanBench-XL}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+%%%%%%%%%%%%%%%% Links %%%%%%%%%%%%%%%%
+\newcommand{\logoh}{1.35em}
+
+\newcommand{\linkblock}{%
+\small
+\href{https://github.com/JiayuJeff/PlanBench-XL}{%
+\raisebox{-0.15\height}{\includegraphics[height=\logoh]{Figures/logos/github-logo.png}}%
+\hspace{0.35em}{\textbf{Code}}%
+}%
+\quad
+\href{https://huggingface.co/datasets/JiayuJeff/PlanBench-XL}{%
+\raisebox{-0.2\height}{\includegraphics[height=\logoh]{Figures/logos/hf-logo.png}}%
+\hspace{0.35em}{\textbf{Dataset}}%
+}%
+\quad
+\href{https://planbench-xl.github.io/}{%
+\raisebox{-0.2\height}{\includegraphics[height=\logoh]{Figures/logos/website-logo.png}}%
+\hspace{0.35em}{\textbf{Project Page}}%
+}%
+}
+
+\author{
+\textbf{Jiayu Liu\textsuperscript{*}},
+\textbf{Qihan Lin\textsuperscript{*}},
+\textbf{Cheng Qian\textsuperscript{}},
+\textbf{Rui Wang\textsuperscript{}}, 
+\textbf{Emre Can Acikgoz\textsuperscript{}}, \\
+\textbf{Xiaocheng Yang\textsuperscript{}}, 
+% \textbf{Qing Zong\textsuperscript{}},
+\textbf{Jiateng Liu\textsuperscript{}},
+\textbf{Zhenhailong Wang}\textsuperscript{},  \\
+\textbf{Xiusi Chen\textsuperscript{}},
+\textbf{Heng Ji\textsuperscript{}},
+\textbf{Dilek Hakkani-T\"ur\textsuperscript{}} \\
+University of Illinois Urbana-Champaign \\
+% ~~\textsuperscript{2}The Hong Kong University of Science and Technology \\
+% ~~\textsuperscript{2}University of Texas at Austin \\
+ \texttt{\{jiayul12,hengji,dilek\}@illinois.edu}
+\\[1.5ex]
+\linkblock
+}
+
+
+\begin{document}
+
+
+
+\maketitle
+
+
+
+
+
+\input{latex/0_abstract}
+\input{latex/1_introduction}
+\input{latex/2_related_work}
+\input{latex/3_bench}
+\input{latex/4_experiment}
+\input{latex/5_Analysis}
+\input{latex/6_error_analysis_GPT}
+\input{latex/6_error_analysis}
+\input{latex/7_conclusion}
+
+
+
+
+
+
+\section*{Limitations}
+
+
+
+While \bench{} provides a principled and scalable framework for evaluating adaptive planning under massive, retrieval-mediated tool access, it has several limitations.
+First, \bench{} is currently instantiated in the retail domain. Although its queries cover diverse multi-step workflows, a single domain may not fully capture the breadth of real-world tool-use scenarios. Since \bench{} is built with a scalable generation pipeline over typed datatypes, executable tools, and backend databases, it can be extended to additional domains in future work.
+Second, our retrieval-time blockers simulate representative tool-access failures, including explicit errors, counterfactual outputs, and irrelevant tools. However, real-world tool ecosystems may involve more complex and dynamic failures. This reflects a realism--controllability trade-off: our design enables systematic robustness analysis, while abstracting away some open-ended complexity.
+Third, \bench{} uses a self-defined retriever to expose tools through controlled natural-language retrieval. While this enables reproducible evaluation of exploration and re-planning, it may not fully capture real-world retrieval systems, where tool discovery can be affected by noisy documentation, imperfect ranking, changing tool catalogs, and deployment-specific retrievers.
+We discuss these trade-offs further in Appendix~\ref{app:justifications}.
+
+\section*{Ethics Statements}
+
+% \paragraph{Potential risk.}
+
+
+\paragraph{Offensive Content.}
+Our benchmark focuses on the retail domain, where offensive content is relatively unlikely to arise. 
+In addition, all data were carefully sampled and validated to ensure that the dataset does not contain offensive material. 
+Therefore, we believe the benchmark presents minimal risk of negative societal impact.
+
+\paragraph{Licenses.} 
+Our code will be released under the MIT license to allow unrestricted research use. 
+The \bench{} will be distributed under a Creative Commons (CC) license, providing free access for the academic community. 
+Our use of existing models and tools is strictly consistent with their original licenses and intended research purposes. 
+We take full responsibility for any potential rights violations or licensing issues, and all resources comply with their respective terms of use while supporting research purposes.
+
+\paragraph{Model Usage.}
+All open-source models were hosted and executed locally using the vLLM library~\cite{vllm}, while all closed-source models were accessed through their respective APIs. 
+
+\paragraph{Data Annotations.}
+
+All data annotation was performed by the paper's co-authors, who are qualified researchers with relevant expertise, ensuring that the process was conducted responsibly and in accordance with ethical standards.
+
+% Bibliography entries for the entire Anthology, followed by custom entries
+% \bibliographystyle{acl_natbib}
+% \bibliography{custom}
+\input{acl_latex.bbl}
+
+\input{latex/appendix}
+
+\end{document}

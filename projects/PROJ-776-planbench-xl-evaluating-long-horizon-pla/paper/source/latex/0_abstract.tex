@@ -1,0 +1,42 @@
+\begin{abstract}
+
+% % ============== Motivation ================
+% Sentence 1: Real-World Challenge. (Why we want to investigate the problem)
+% % ============== Gap =======================
+% Sentence 2: However, existing work overlooked xxx (gap)
+% % ============== Lead-in ===================
+% Sentence 3: To address this gap, we introduce \BENCH{}, a xxx (briefly introduce)
+% % ============== Design ====================
+% Sentence 4: What did we design to fill in the gap? (In this paper mostly exploration and blocking?)
+% % ============== Findings ==================
+% Sentence 5: Interesting findings (important takeaways, mostly focus on what, how and why agent fails)
+% % ============== Significance ==============
+% Sentence 6: Significance
+
+% \jy{change ``observability'', adaptive: what is that?}
+% % ============== Motivation ================
+% Sentence 1: Real-World Challenge. (Why we want to investigate the problem)
+LLM agents increasingly operate in large tool ecosystems, where real-world tasks require discovering relevant tools, inferring implicit sub-goals, and adapting to dynamic environments over long horizons.
+% % ============== Gap =======================
+% Sentence 2: However, existing work overlooked xxx (gap)
+However, existing benchmarks rarely evaluate planning under retrieval-limited tool visibility.
+% % ============== Lead-in ===================
+% Sentence 3: To address this gap, we introduce \BENCH{}, a xxx (briefly introduce)
+To address this gap, we introduce \BENCH{}, an interactive benchmark of 327 retail tasks over 1,665 tools that tests whether agents can iteratively retrieve usable tools, invoke them to uncover intermediate evidence for subsequent calls toward the final goal.
+% \cheng{check grammar}
+% % ============== Design ====================
+% Sentence 4: What did we design to fill in the gap? (In this paper mostly exploration and blocking?)
+\bench{} further features an optional blocking mechanism that simulates real-world unpredictability through missing, failing, or distracting tool functions, forcing agents to detect disrupted paths and adapt at runtime.
+% % ============== Findings ==================
+% Sentence 5: Interesting findings (important takeaways, mostly focus on what, how and why agent fails)
+Experiments on ten leading LLMs show that massive-tool planning remains challenging: while \textit{GPT-5.4} achieves 51.90\% accuracy in block-free settings, it collapses to 11.36\% under the most severe blocking condition.
+Further analysis shows that agents are especially vulnerable when failures lack explicit error signals or when recovery requires longer alternative tool-use paths.
+% % ============== Significance ==============
+% Sentence 6: Significance
+These results establish \bench{} as a testbed for diagnosing agentic planning failures and highlight the need for robust adaptive planning in long-horizon tasks with large, imperfect tool environments.\footnote{*Equal Contribution.}
+
+
+% \jy{Needs concrete results.}
+% \emre{I recommend to use more clear word choices and explanations to be safe in abstract. If we use new words or concepts, we should first define them which better for introduction; e.g., retrieval-mediated, silent failure, adapting (to what), etc.}
+% \jy{need to make it shorter.}
+\end{abstract}

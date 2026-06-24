@@ -1,0 +1,101 @@
+% \begin{table*}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{5pt}
+% \renewcommand{\arraystretch}{1.15}
+
+% \begin{tabularx}{\textwidth}{
+% >{\raggedright\arraybackslash}p{0.18\textwidth}
+% >{\centering\arraybackslash}p{0.14\textwidth}
+% >{\centering\arraybackslash}p{0.13\textwidth}
+% >{\centering\arraybackslash}p{0.16\textwidth}
+% >{\raggedright\arraybackslash}X
+% }
+% \toprule
+% \textbf{Blocking Type} &
+% \textbf{Detection Stage} &
+% \textbf{Signal Explicitness} &
+% \textbf{Response--Description Alignment} &
+% \textbf{Agent-Side Interpretation} \\
+% \midrule
+
+% \textbf{Semantic Misleading} &
+% After retrieval &
+% Medium &
+% Aligned &
+% The retrieved tool is superficially similar to the blocked tool, but its description or schema reveals that it supports a different function. If invoked, the response is consistent with the tool's own description. \\
+
+% \textbf{Explicit Failure} &
+% After tool call &
+% High &
+% Misaligned &
+% The retrieved tool appears usable before invocation, but calling it returns an explicit error or failure message, directly signaling that the tool cannot support the intended path. \\
+
+% \textbf{Implicit Failure} &
+% After tool call &
+% Low &
+% Misaligned &
+% The retrieved tool appears usable and returns a value without an explicit error, but the response violates the tool's described behavior or task-world consistency, making the blockage harder to detect. \\
+
+% \bottomrule
+% \end{tabularx}
+
+% \caption{
+% Taxonomy of blocking types. We characterize each blocker by the earliest stage at which an agent can detect it, the explicitness of the observable failure signal, and whether the tool response aligns with the retrieved tool description. \qh{This table is ugly.}
+% }
+% \label{tab:blocking-comparison-tab}
+% \end{table*}
+
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.18}
+
+\begin{tabularx}{\textwidth}{@{}
+>{\raggedright\arraybackslash}p{0.14\textwidth}
+>{\centering\arraybackslash}p{0.10\textwidth}
+>{\centering\arraybackslash}p{0.10\textwidth}
+>{\centering\arraybackslash}p{0.13\textwidth}
+>{\raggedright\arraybackslash}X
+@{}}
+\toprule
+\textbf{Blocking Type} &
+\textbf{Detection Stage} &
+\textbf{Signal Explicitness} &
+% \textbf{Response--Description Alignment} &
+\textbf{Alignment} &
+\textbf{Agent-Side Interpretation} \\
+% \textbf{Blocking Type} &
+% \makecell{\textbf{Detection}\\\textbf{Stage}} &
+% \makecell{\textbf{Signal}\\\textbf{Explicitness}} &
+% \makecell{\textbf{Alignment}} &
+% \makecell{\textbf{Agent-Side}\\\textbf{Interpretation}} \\
+\midrule
+
+\textbf{Semantic Misleading} &
+After retrieval &
+Medium &
+Aligned &
+The retrieved tool is superficially similar to the blocked tool, but its description or schema reveals that it supports a different function. If invoked, the response is consistent with the tool's own description. \\
+
+\textbf{Explicit Failure} &
+After tool call &
+High &
+Misaligned &
+The retrieved tool appears usable before invocation, but calling it returns an explicit error or failure message, directly signaling that the tool cannot support the intended path. \\
+
+\textbf{Implicit Failure} &
+After tool call &
+Low &
+Misaligned &
+The retrieved tool appears usable and returns a value without an explicit error, but the response violates the tool's described behavior or task-world consistency, making the blockage harder to detect. \\
+
+\bottomrule
+\end{tabularx}
+
+\caption{\textbf{Taxonomy of blocking types}. We characterize each blocker by the earliest stage at which an agent can detect it (\textit{Detection Stage}), the explicitness of the observable failure signal (\textit{Signal Explicitness}), whether the retrieved tool description aligns with the tool's actual behavior (\textit{Alignment}), and how the agent should interpret the blocking (\textit{Agent-Side Interpretation}).
+}
+\label{tab:blocking-comparison-tab}
+\end{table*}

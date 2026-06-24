@@ -1,0 +1,344 @@
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Error Case: Irrecoverable Drift with Wrong Tool Value,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Model / setting]
+DeepSeek-V4-Flash, Default
+
+[Raw query]
+Finance is reconciling a commerce-side transaction and one linked payment field is still missing.
+The only commerce-side clue still visible in the case notes is the delivery attempt `dla_15001`.
+They want the processor-side value that corresponds to the same case.
+Can you identify and return the corresponding payment method ID?
+
+[Observed trajectory excerpt]
+3. Get_Outbound_Shipment_ID_From_Attempt_Record_ID_V2("dla_15001")
+   -> shipment_id = "shp_14001"
+
+5. Get_Placed_Order_ID_From_Shipment_Reference_Quick("shp_14001")
+   -> order_id = "ord_7001"
+
+6. retrieve_tools(by_io_info = {"output": "payment method id", "input": ["order"]})
+   -> tool_count = 0
+
+11. Get_Order_Draft_From_Live_Order_ID_Instant("ord_7001")
+    -> order_draft_id = "odrft_4001"
+
+15. Get_Default_Method_ID_From_Order_Draft_Reference_Turbo("odrft_4001")
+    -> default_payment_method_id = "pm_9001"
+
+16. final_answer
+    -> pm_9001
+
+[Expected vs. observed]
+expected_answer = "pm_9001"
+target_datatype = "payment_method_id"
+observed_datatype = "default_payment_method_id"
+target_datatype_reached = false
+failure_reason_detail = "target_datatype_not_reached"
+\end{lstlisting}
+\end{tcolorbox}
+\caption{A representative default-setting failure of \emph{Irrecoverable Drift} with a wrong tool-value ending. The model obtains useful intermediate evidence, then follows a non-progress branch to \textit{default\_payment\_method\_id} and returns that off-path value instead of grounding the requested \textit{payment\_method\_id}.}
+\label{fig:case_irrecoverable_drift_wrong_tool_value}
+\end{figure*}
+
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Error Case: Irrecoverable Drift with Search Exhaustion,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Model / setting]
+Gemini-3.5-Flash, Default
+
+[Raw query]
+The accounting team is closing out a retail payment trail and needs one linked field from
+the same case. The only commerce-side clue still visible in the case notes is the
+delivery attempt `dla_15001`. The missing payment detail is blocking the audit trail
+for this purchase. Can you identify and return the corresponding authorization code?
+
+[Observed trajectory excerpt]
+1. retrieve_tools(by_inputs = ["delivery attempt"])
+   -> tool_count = 30
+
+2. Get_Fulfillment_Job_ID_From_Delivery_Try_ID("dla_15001")
+   -> warehouse_request_id = "wr_13001"
+
+4. Get_Live_Order_ID_From_Warehouse_Request_Max("wr_13001")
+   -> order_id = "ord_7001"
+
+6. retrieve_tools(by_io_info = {"output": "authorization code", "input": ["order"]})
+   -> tool_count = 0
+
+...
+
+80. retrieve_tools(by_inputs = ["payment intent"])
+    -> tool_count = 30
+
+98. retrieve_tools(by_inputs = ["order", "invoice"])
+    -> tool_count = 0
+
+99. retrieve_tools(by_inputs = ["order", "receipt"])
+    -> tool_count = 0
+
+100. retrieve_tools(by_inputs = ["order", "billing"])
+     -> tool_count = 0
+
+[Terminal outcome]
+final_answer = null
+failure_reason_detail = "exceeded_max_steps"
+
+[Expected vs. observed]
+expected_answer = "AUTH-AX91"
+target_datatype = "auth_code"
+target_datatype_reached = false
+\end{lstlisting}
+\end{tcolorbox}
+\caption{A representative default-setting failure where partial progress turns into drift and then \emph{Search Exhaustion}. The model obtains useful early datatypes, but then spends almost the entire remaining budget on retrieval without grounding \textit{auth\_code}.}
+\label{fig:case_irrecoverable_drift_search_exhaustion}
+\end{figure*}
+
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Error Case: Silent Failure Output Accepted,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Model / setting]
+Gemini-3.5-Flash, Blocker
+
+[Raw query]
+A payments analyst is tracing the downstream charge record for a retail purchase.
+The only concrete reference left in the ticket is the order ID `ord_7001`.
+The missing payment detail is blocking the audit trail for this purchase.
+Can you identify and return the corresponding funding account reference?
+
+[Observed trajectory excerpt]
+...
+20. Get_Return_Request_From_Order_Enterprise("ord_7001")
+    -> return_request_id = "rrq_16001"
+
+22. Get_Finance_Refund_ID_From_Review_Ticket_ID_Nano("raud_17001")
+    -> refund_id = "ref_18001"
+
+24. Get_Auth_ID_From_Payment_Record_ID_Core("pay_12001")
+    -> auth_id = "auth_11001"
+
+26. Get_Payment_Intent_From_Auth_Reference_Quick("auth_11001")
+    -> payment_intent_id = "-2147483648"
+    -> tool_type = "blocker_misleading"
+
+27. Get_Checkout_Intent_ID_From_Charge_ID("pay_12001")
+    -> payment_intent_id = "pi_10001"
+
+29. Get_Account_From_Payment_Intent_V3_Preview("pi_10001")
+    -> output_datatype = "account_number"
+    -> output_value = "acct_tok_5212"
+    -> tool_type = "noisy_misleading"
+
+30. final_answer
+    -> acct_tok_5212
+
+[Expected vs. observed]
+expected_answer = "acct_tok_4242"
+target_datatype_reached = false
+failure_reason_detail = "target_datatype_not_reached"
+\end{lstlisting}
+\end{tcolorbox}
+\caption{A representative blocked-setting failure in which a corrupted executable-looking output is treated as grounded evidence. The model recovers a valid \textit{payment\_intent\_id}, but then accepts a noisy account-number value and returns it as the final answer.}
+\label{fig:case_silent_failure_output_accepted}
+\end{figure*}
+
+\begin{figure*}[htbp]
+\begin{tcolorbox}[
+    colback=black!5!white,
+    colframe=black,
+    title=Error Case: Format Error,
+    fonttitle=\bfseries,
+    colbacktitle=black!20!white,
+    coltitle=black,
+    boxrule=1.5pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=12pt,
+    right=12pt,
+    top=12pt,
+    bottom=12pt
+]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+[Model / setting]
+GPT-5.4, Default
+
+[Raw query]
+The accounting team is closing out a retail payment trail and needs one linked field from
+the same case. The only commerce-side clue still visible in the case notes is the draft
+item `odritm_5001`. They need the finance-side answer before the reconciliation ticket
+can be closed. Can you identify and return the corresponding payment method type?
+
+[Observed trajectory excerpt]
+5. Get_Order_Item_Reference_From_Cart_Item_Reference_Fast("odritm_5001")
+   -> order_item_id = "orditm_8001"
+
+8. Get_Order_Reference_From_Placed_Order_Item_ID_Enterprise("orditm_8001")
+   -> order_id = "ord_7001"
+
+15. Get_Quote_Record_ID_From_Order_Reference_Fast("ord_7001")
+    -> pricing_snapshot_id = "psnap_6001"
+
+19. Get_Account_ID_From_Draft_Line_ID("odritm_5001")
+    -> user_id = "usr_1001"
+
+21. Get_Saved_Method_ID_From_User_Record_ID_Max("usr_1001")
+    -> default_payment_method_id = "pm_9001"
+
+22. Get_Payment_Type_From_Payment_Method_Reference("pm_9001")
+    -> rejected: missing required datatype ["payment_method_id"]
+
+24. Get_Payment_Type_From_Payment_Method_Reference("pm_9001")
+    -> rejected: missing required datatype ["payment_method_id"]
+
+25. Get_Account_ID_From_Saved_Payment_Method_ID("pm_9001")
+    -> rejected: missing required datatype ["payment_method_id"]
+
+[Terminal outcome]
+final_answer = null
+failure_reason_detail = "exceeded_max_tool_call_errors"
+
+[Expected vs. observed]
+expected_answer = "credit_card"
+target_datatype_reached = false
+\end{lstlisting}
+\end{tcolorbox}
+\caption{A representative \emph{Format Error}. The model makes partial progress, but then repeatedly calls tools with values whose held datatype does not satisfy the required input datatype, producing invalid tool calls until the run terminates.}
+\label{fig:case_interaction_breakdown}
+\end{figure*}
+
+% \begin{figure*}[htbp]
+% \begin{tcolorbox}[
+%     colback=black!5!white,
+%     colframe=black,
+%     title=Data Case: Representative Query and Task Profile,
+%     fonttitle=\bfseries,
+%     colbacktitle=black!20!white,
+%     coltitle=black,
+%     boxrule=1.5pt,
+%     arc=5pt,
+%     boxsep=5pt,
+%     left=12pt,
+%     right=12pt,
+%     top=12pt,
+%     bottom=12pt
+% ]
+% \begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+% [Natural-language query]
+% The accounting team is closing out a retail payment trail and needs one linked field from
+% the same case. The only concrete reference left in the ticket is the delivery attempt
+% `dla_15001`. They need the finance-side answer before the reconciliation ticket can be
+% closed. What is the exact funding account reference associated with that purchase?
+
+% [Underlying task record: retail_task_0001]
+% {
+%   "input_datatypes": ["delivery_attempt_id"],
+%   "num_inputs": 1,
+%   "target_datatype": "account_number",
+%   "steps": 8,
+%   "one_available_path": [
+%     "Get_Shipment_ID_From_Delivery_Attempt_ID_V2",
+%     "Get_Order_ID_From_Shipment_ID_Quick",
+%     "Get_Return_Request_ID_From_Order_ID_Enterprise",
+%     "Get_Return_Audit_ID_From_Return_Request_ID_Edge",
+%     "Get_Refund_ID_From_Return_Audit_ID_Nano",
+%     "Get_Auth_ID_From_Refund_ID_Prime",
+%     "Get_Payment_Intent_ID_From_Auth_ID_Core",
+%     "Get_Account_Number_From_Payment_Intent_ID_V3"
+%   ]
+% }
+% \end{lstlisting}
+% \end{tcolorbox}
+% \caption{A representative retail query and its task profile. The same task is expressed both as a natural-language user query and as an internal tool-use path with input datatypes, target datatype, and one available solution path used for benchmark construction and evaluation.}
+% \label{fig:case_data_query_profile}
+% \end{figure*}
+
+% \begin{figure*}[htbp]
+% \begin{tcolorbox}[
+%     colback=black!5!white,
+%     colframe=black,
+%     title=Data Case: Representative Tool Definitions,
+%     fonttitle=\bfseries,
+%     colbacktitle=black!20!white,
+%     coltitle=black,
+%     boxrule=1.5pt,
+%     arc=5pt,
+%     boxsep=5pt,
+%     left=12pt,
+%     right=12pt,
+%     top=12pt,
+%     bottom=12pt
+% ]
+% \begin{lstlisting}[basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true]
+% [Tool 1]
+% {
+%   "tool_name": "Get_Shipment_ID_From_Delivery_Attempt_ID_V2",
+%   "input_datatypes": ["delivery_attempt_id"],
+%   "output_datatype": "shipment_id",
+%   "description": "Given `delivery_attempt_id`, this returns the shipment that this
+%   specific delivery attempt belongs to."
+% }
+
+% [Tool 2]
+% {
+%   "tool_name": "Get_Return_Request_ID_From_Order_ID_Enterprise",
+%   "input_datatypes": ["order_id"],
+%   "output_datatype": "return_request_id",
+%   "description": "Given `order_id`, this returns the customer-facing return request
+%   created for that order, if one exists."
+% }
+
+% [Tool 3]
+% {
+%   "tool_name": "Get_Account_Number_From_Payment_Intent_ID_V3",
+%   "input_datatypes": ["payment_intent_id"],
+%   "output_datatype": "account_number",
+%   "description": "Given `payment_intent_id`, this returns the recognizable account
+%   or card number tied to that payment attempt, usually in masked form."
+% }
+% \end{lstlisting}
+% \end{tcolorbox}
+% \caption{Representative tool definitions from the same task family. Even this small sample already spans fulfillment, after-sales, and payment datatypes, illustrating why successful planning often requires cross-subflow composition rather than single-hop lookup.}
+% \label{fig:case_data_tools}
+% \end{figure*}
