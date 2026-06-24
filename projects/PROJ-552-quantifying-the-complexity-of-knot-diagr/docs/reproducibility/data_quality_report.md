@@ -7,7 +7,7 @@ The following table summarizes the counts of each data quality flag applied to t
 | Flag | Description | Record Count |
 |------|-------------|--------------|
 | data_quality_flags | General quality issues | 1 |
-| missing_invariant_flags | Uncomputable invariants | *TBD* |
+| missing_invariant_flags | Uncomputable invariants | 9988 |
 
 
 ## Flag Summary

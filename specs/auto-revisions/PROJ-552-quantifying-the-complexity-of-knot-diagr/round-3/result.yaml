@@ -5,51 +5,138 @@ from_stage: research_review
 to_stage: tasked
 worst_severity: writing
 seed_action_items:
-- id: 561cf4344ef7
-  text: Replace the VIF placeholders in docs/reproducibility/multicollinearity_assessment.md
-    with the actual VIF values computed for crossing number and braid index.
+- id: b808c4b2dbbd
+  text: The provenance of the raw Knot Atlas dump is recorded in data/raw/knot_atlas_raw.provenance.yaml,
+    but the file is not referenced anywhere in the reproducibility documentation (e.g.,
+    docs/reproducibility/validation_scope.md does not cite it).
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 6271e9dc0a7a
-  text: "Insert the true excluded\u2011knot count in docs/reproducibility/excluded_knots.md\
-    \ (replace PLACEHOLDER_EXCLUDED_COUNT)."
+- id: 1884e557d59f
+  text: 'License information for the external Knot Atlas data is duplicated across
+    many markdown files, but the primary license statement (docs/reproducibility/knot_atlas_data_license.md)
+    is missing from the repository tree. ### Schema & Validation'
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 4bcfaf52277e
-  text: Fill in concrete coverage numbers in docs/reproducibility/invariant_coverage.md
-    (replace PLACEHOLDER_TOTAL and PLACEHOLDER_COVERAGE).
+- id: b04c16b2a5ad
+  text: "Schema files exist (specs/001-knot-complexity-analysis/contracts/*.yaml),\
+    \ yet the validation reports (docs/reproducibility/data_quality_report.md, docs/reproducibility/invariant_coverage.md)\
+    \ contain place\u2011holder text (PLACEHOLDER_TOTAL, TBD, *TBD*) and do not show\
+    \ concrete pass/fail numbers."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 25ed4717cba0
-  text: "Update docs/reproducibility/data_quality_report.md to list the exact number\
-    \ of records flagged with missing_invariant_flags and report the format\u2011\
-    pass rate (must be \u2265 99 %)."
+- id: 44541df4bce6
+  text: "The data\u2011quality report claims \u201Cnull\u2011percentage \u2264 5 %\
+    \ and format\u2011pass \u2265 99 %\u201D without presenting the actual percentages\
+    \ for each field. ### Missing\u2011Data Handling"
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: f9884b262e98
-  text: Consolidate checksum documentation to a single authoritative manifest (retain
-    data/checksums.json only) and adjust all related policy/notice files to reflect
-    this change.
+- id: 4df839a4542d
+  text: The flagging system (missing_invariant_flags, data_quality_flags) is described
+    in the spec, but the concrete counts of flagged records are absent (*TBD* in the
+    report).
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 2ed374e1d199
-  text: "Compute the SHA\u2011256 hash of specs/001-knot-complexity-analysis/tasks.md\
-    \ and supply it in the review metadata (artifact_hash)."
+- id: 87fc684b2419
+  text: "docs/reproducibility/ambiguous_classification_log.md states \u201CNo ambiguous\
+    \ records remain\u201D but provides no evidence (e.g., a count or sample entries).\
+    \ ### Version Control & Reproducibility Artifacts"
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: '505749289486'
+  text: "The SHA\u2011256 checksums are recorded (docs/reproducibility/checksums.md),\
+    \ yet the authoritative manifest (data/checksums.json) is not shown, and the documentation\
+    \ does not confirm that the manifest matches the current data files."
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: 5bb9f150e305
+  text: "The quick\u2011start validation (docs/reproducibility/quickstart_validation.md)\
+    \ contains an unresolved claim (UNRESOLVED\u2011CLAIM: c_dfb35bbc) indicating\
+    \ that the validation status could not be fully verified. ### Sample\u2011Size\
+    \ Adequacy"
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: 209e3910a28d
+  text: "The core scientific claim (SC\u2011001) requires all prime knots with crossing\
+    \ number \u2264 13 (\u2248 9 988 knots)."
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: e961ee743a9f
+  text: "docs/reproducibility/data_quantities.md reports only 476 records, and docs/reproducibility/dataset_counts.md\
+    \ lists a total of 49 prime knots \u2013 both far short of the required census."
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: a48b93273a98
+  text: "Consequently, the dataset does not satisfy the completeness benchmark, and\
+    \ any statistical analysis is under\u2011powered and not representative of the\
+    \ intended population. ### Required Changes ## Required Changes"
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: 7b73d52f6316
+  text: "Provide a complete dataset: Download and retain the full set of prime knots\
+    \ with crossing number \u2264 13 (\u2248 9 988 records) from Knot Atlas, ensuring\
+    \ that the raw file (data/raw/knot_atlas_raw.json) contains all entries and that\
+    \ data/processed/knots_cleaned.csv reflects this full census."
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: 35d33b33ef99
+  text: 'Update provenance documentation: Add a clear reference to data/raw/knot_atlas_raw.provenance.yaml
+    in docs/reproducibility/validation_scope.md and any other reproducibility docs
+    that discuss data sources.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: dd3d09400295
+  text: 'Consolidate and correct license statements: Keep a single authoritative license
+    file for the Knot Atlas data (e.g., docs/reproducibility/knot_atlas_data_license.md)
+    and remove duplicated or outdated license markdown files.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: 004205a94ac2
+  text: "Replace all placeholder text in reproducibility reports (data_quality_report.md,\
+    \ invariant_coverage.md, dataset_counts.md, data_quantities.md, etc.) with the\
+    \ actual computed numbers (null percentages, format\u2011pass rates, flag counts,\
+    \ coverage percentages, total record counts)."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
@@ -69,10 +156,10 @@ stage_results:
   status: success
 - name: tasks
   status: success
-  note: 6 tasks emitted (one per concern)
+  note: 15 tasks emitted (one per concern)
 - name: analyze
   status: success
   iterations: 1
   finding_count: 0
 final_outcome: ready_for_implementation
-produced_at: '2026-06-24T14:15:46.753513+00:00'
+produced_at: '2026-06-24T14:31:21.592675+00:00'

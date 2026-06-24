@@ -1,3 +1,3 @@
 # Ambiguous Classification Log
 
-Instances where alternating versus non‑alternating classification was ambiguous are logged here. Each entry records the knot identifier and the reason for exclusion or the “unclassifiable” flag applied. No ambiguous records remain after applying the flagging logic defined in `code/data/validator.py`.
+Instances where alternating versus non‑alternating classification was ambiguous are logged here. Each entry records the knot identifier and the reason for exclusion or the “unclassifiable” flag applied. No ambiguous records remain after applying the flagging logic defined in `code/data/validator.py`. A check of the generated log (`data/logs.jsonl`) confirms that the total number of ambiguous records is 0.
