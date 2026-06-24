@@ -1,0 +1,537 @@
+resolved_at: '2026-06-24T07:15:30.346356+00:00'
+datasets:
+- intent: OSF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8356815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8208834
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3554292
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7032367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10821345
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/2euf9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wx2g5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4c28b/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qmhxt/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/nf6vc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SCS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tobaba2001/scs_phase2_ts_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 182987
+      parsed: true
+  - url: https://huggingface.co/datasets/jmarmier/scs-phase-iii/resolve/main/training_pairs.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tobaba2001/scs_phase2_ts_dataset2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 181091
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/fokori/nva-scsophitia/resolve/main/scsophitia_a.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tobaba2001/scs_phase2_ts_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jmarmier/scs-phase-iii/resolve/main/training_pairs.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/tobaba2001/scs_phase2_ts_dataset2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/tobaba2001/scs_phase2_ts_dataset3/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8406734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8410803
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6635588
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10019046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4750888
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.26643
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/2zhkx/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://conservancy.umn.edu/handle/11299/280931
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://air.unimi.it/handle/2434/155477
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/104068
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10501050
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/An_examination_and_explanation_of_the_factors_influencing_the_emergence_and_persistence_of_the_Syrian_crisis_based_on_Brecher_s_research_model/32778402
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20824822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20824822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mu.edu.et/handle/123456789/1262
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://oparu.uni-ulm.de//handle/123456789/60429
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/HuggingFaceBio/midtraining-csv-evals/resolve/main/Qwen3-4B-Base_results.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 739
+      parsed: true
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/HuggingFaceBio/midtraining-csv-evals/resolve/main/Qwen3-4B-Base_results.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6557219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20819647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.ht76hdrz6
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17585419
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: IDs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sanchit-gandhi/file-ids/resolve/main/ami-ihm/test-transcription.txt
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Rifky/ID-SQuAD/resolve/main/data/test-00000-of-00001-8b418c6050385dc1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/rdpahalavan/CIC-IDS2017/resolve/main/Network-Flows/CICIDS_Flow.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Rifky/ID-SQuAD/resolve/main/data/test-00000-of-00001-8b418c6050385dc1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sanchit-gandhi/file-ids/resolve/main/ami-ihm/test-transcription.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/rdpahalavan/CIC-IDS2017/resolve/main/Network-Flows/CICIDS_Flow.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/xpl/conhome/9109357/proceeding
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 418
+  - url: https://www.earthdoc.org/content/papers/10.3997/2214-4609.201902585
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.18970300261
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/4622437
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3873027
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20730974
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20730974
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20824145
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20824145
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18090957
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
