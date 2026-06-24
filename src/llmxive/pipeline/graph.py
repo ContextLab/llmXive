@@ -15,6 +15,7 @@ without changing public APIs.
 from __future__ import annotations
 
 import logging
+import time
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -46,6 +47,10 @@ from llmxive.agents.project_initializer import (
 from llmxive.agents.publisher import PaperPublisher
 from llmxive.agents.research_reviewer import ResearchReviewerAgent
 from llmxive.agents.runner import run_agent
+from llmxive.config import (
+    IMPLEMENT_BATCH_BUDGET_SECONDS,
+    IMPLEMENT_TASK_BATCH,
+)
 from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline._kickback import (
     CONVERGENCE_KICKBACK_CAP,
@@ -233,6 +238,21 @@ def _all_paper_tasks_done(project_dir: Path) -> bool:
     text = candidates[0].read_text(encoding="utf-8")
     has_any = "[ ]" in text or "[X]" in text or "[x]" in text
     return has_any and "[ ]" not in text
+
+
+def _incomplete_task_count(project_dir: Path, *, paper: bool) -> int:
+    """Count remaining unchecked (`- [ ]`) tasks in the project's tasks.md.
+
+    Drives the implement-batch loop's progress guard: each speckit-implementer
+    run checks off (or skips) exactly one task, so this count must strictly
+    DECREASE every iteration. If it ever fails to (a task left `[ ]`), the batch
+    stops rather than spinning. Returns a large sentinel when no tasks.md exists
+    yet (treated as "not drainable this tick")."""
+    base = (project_dir / "paper") if paper else project_dir
+    candidates = sorted(base.glob("specs/*/tasks.md"))
+    if not candidates:
+        return -1
+    return candidates[0].read_text(encoding="utf-8").count("- [ ]")
 
 
 def _human_input_marker(project_dir: Path) -> bool:
@@ -545,45 +565,99 @@ def run_one_step(
         # SlashCommandAgents take no constructor args; the registry
         # entry is consulted at run() time via the SlashCommandContext.
         speckit_agent = _SPECKIT_AGENTS[agent_name]()
-        sk_ctx = SlashCommandContext(
-            project_id=project.id,
-            project_dir=project_dir,
-            run_id=run_id,
-            task_id=str(uuid4()),
-            inputs=[],
-            expected_outputs=[],
-            prompt_template_path=repo / entry.prompt_path,
-            default_backend=entry.default_backend,
-            fallback_backends=entry.fallback_backends,
-            default_model=entry.default_model,
-            prompt_version=entry.prompt_version,
-            agent_name=entry.name,
+
+        # IMPLEMENT-STAGE BATCHING: the implementer checks off ONE task per
+        # run, but a project carries 50-60 tasks and the load-balanced scheduler
+        # picks any single stage only a fraction of the time — so at one
+        # task/tick NO project ever drained in_progress (the universal wall:
+        # zero projects had EVER reached research_complete). When an
+        # implement-stage project is picked, drain up to IMPLEMENT_TASK_BATCH
+        # tasks THIS tick, bounded by IMPLEMENT_BATCH_BUDGET_SECONDS wall-clock
+        # (well under every implement-cron job timeout) and a strict
+        # progress guard (the remaining-task count MUST fall each pass).
+        _is_implement_batch = (
+            (agent_name == "implementer"
+             and project.current_stage in {Stage.ANALYZED, Stage.IN_PROGRESS})
+            or (agent_name == "paper_implementer"
+                and project.current_stage in {Stage.PAPER_ANALYZED, Stage.PAPER_IN_PROGRESS})
         )
-        try:
-            speckit_agent.run(sk_ctx)
-        except StagePanelKickback as exc:
-            # CONTROLLED non-convergence: the panel already wrote its
-            # convergence_kickback.yaml sentinel. Do NOT propagate — fall through
-            # to _decide_next_stage below, which CONSUMES that sentinel and routes
-            # the project to the content stage to auto-retry (bounded by the
-            # per-stage kickback cap → human escalation). Propagating instead
-            # would skip routing entirely: the project would loop at this stage
-            # forever (current_stage never advances; the cap never increments).
-            logger.info("stage-panel kickback for %s: %s", project.id, exc)
-        except StagePanelEscalation as exc:
-            # Engine failure (spec 023 / FR-016): the panel already filed a
-            # tracked GitHub issue with the evidence. The project STAYS at
-            # its current stage — schedulable, retried on later ticks, and
-            # recovering automatically once the underlying defect is fixed.
-            # (Pre-023 this fell through to a HUMAN_INPUT_NEEDED park.)
-            logger.warning(
-                "stage-panel engine failure for %s (issue filed; project "
-                "stays schedulable): %s", project.id, exc,
+        _paper_track = agent_name == "paper_implementer"
+        _batch_cap = IMPLEMENT_TASK_BATCH if _is_implement_batch else 1
+        _deadline = time.monotonic() + IMPLEMENT_BATCH_BUDGET_SECONDS
+        _processed = 0
+        while True:
+            sk_ctx = SlashCommandContext(
+                project_id=project.id,
+                project_dir=project_dir,
+                run_id=run_id,
+                task_id=str(uuid4()),
+                inputs=[],
+                expected_outputs=[],
+                prompt_template_path=repo / entry.prompt_path,
+                default_backend=entry.default_backend,
+                fallback_backends=entry.fallback_backends,
+                default_model=entry.default_model,
+                prompt_version=entry.prompt_version,
+                agent_name=entry.name,
+            )
+            _before = (
+                _incomplete_task_count(project_dir, paper=_paper_track)
+                if _is_implement_batch else 0
             )
             try:
-                return project_store.load(project.id, repo_root=repo)
-            except FileNotFoundError:
-                return project
+                speckit_agent.run(sk_ctx)
+            except StagePanelKickback as exc:
+                # CONTROLLED non-convergence: the panel already wrote its
+                # convergence_kickback.yaml sentinel. Do NOT propagate — fall through
+                # to _decide_next_stage below, which CONSUMES that sentinel and routes
+                # the project to the content stage to auto-retry (bounded by the
+                # per-stage kickback cap → human escalation). Propagating instead
+                # would skip routing entirely: the project would loop at this stage
+                # forever (current_stage never advances; the cap never increments).
+                logger.info("stage-panel kickback for %s: %s", project.id, exc)
+                break
+            except StagePanelEscalation as exc:
+                # Engine failure (spec 023 / FR-016): the panel already filed a
+                # tracked GitHub issue with the evidence. The project STAYS at
+                # its current stage — schedulable, retried on later ticks, and
+                # recovering automatically once the underlying defect is fixed.
+                # (Pre-023 this fell through to a HUMAN_INPUT_NEEDED park.)
+                logger.warning(
+                    "stage-panel engine failure for %s (issue filed; project "
+                    "stays schedulable): %s", project.id, exc,
+                )
+                try:
+                    return project_store.load(project.id, repo_root=repo)
+                except FileNotFoundError:
+                    return project
+            _processed += 1
+            if not _is_implement_batch:
+                break
+            _after = _incomplete_task_count(project_dir, paper=_paper_track)
+            if _after <= 0:
+                break  # all tasks drained (or no tasks.md) — let the gate run
+            if _after >= _before:
+                # The pass didn't check off a task (parse loop / no-op). Stop
+                # rather than spin — the next scheduled tick retries cleanly.
+                logger.warning(
+                    "implement batch: no progress for %s (remaining=%d); "
+                    "stopping batch after %d task(s)",
+                    project.id, _after, _processed,
+                )
+                break
+            if _processed >= _batch_cap:
+                break
+            if time.monotonic() >= _deadline:
+                logger.info(
+                    "implement batch: wall-clock budget reached for %s after "
+                    "%d task(s) (remaining=%d)", project.id, _processed, _after,
+                )
+                break
+        if _is_implement_batch:
+            logger.info(
+                "implement batch: processed %d task(s) for %s this tick",
+                _processed, project.id,
+            )
     else:
         raise RuntimeError(f"no implementation registered for agent {agent_name!r}")
 

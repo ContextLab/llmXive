@@ -44,6 +44,20 @@ DEFAULTS: dict[str, float | int] = {
     # Spec 015: convergence engine per-step round cap + per-round wall-clock budget.
     "CONVERGENCE_MAX_ROUNDS": 3,
     "CONVERGENCE_PER_ROUND_BUDGET_SECONDS": 600,
+    # Implement-stage throughput: the speckit implementer checks off ONE task per
+    # run, but a research/paper project carries 50-60 tasks and the load-balanced
+    # scheduler picks any one stage only a fraction of the time — so at one
+    # task/tick NO project ever drained in_progress (the universal wall). When an
+    # implement-stage project IS picked, drain up to IMPLEMENT_TASK_BATCH tasks in
+    # that tick, bounded by IMPLEMENT_BATCH_BUDGET_SECONDS wall-clock so the cron
+    # job timeout is never threatened. Applies to every project, both tracks.
+    "IMPLEMENT_TASK_BATCH": 12,
+    # Wall-clock cap per implement tick. Kept well under the implement cron's
+    # 50-min job timeout (which commits only at job end — a timeout-kill would
+    # drop the tick's uncommitted task checkoffs), with headroom for the rare
+    # multi-in_progress-pick run. The count cap above is the primary lever; this
+    # only binds for pathologically slow tasks.
+    "IMPLEMENT_BATCH_BUDGET_SECONDS": 600,
 }
 
 # Patterns for parsing the about page. Format expected:
@@ -101,6 +115,8 @@ CITATION_TITLE_OVERLAP_THRESHOLD: float = float(get("CITATION_TITLE_OVERLAP_THRE
 STAGE_ADVANCEMENT_RATE_WINDOW_DAYS: int = int(get("STAGE_ADVANCEMENT_RATE_WINDOW_DAYS"))
 CONVERGENCE_MAX_ROUNDS: int = int(get("CONVERGENCE_MAX_ROUNDS"))
 CONVERGENCE_PER_ROUND_BUDGET_SECONDS: int = int(get("CONVERGENCE_PER_ROUND_BUDGET_SECONDS"))
+IMPLEMENT_TASK_BATCH: int = int(get("IMPLEMENT_TASK_BATCH"))
+IMPLEMENT_BATCH_BUDGET_SECONDS: int = int(get("IMPLEMENT_BATCH_BUDGET_SECONDS"))
 
 
 def unpaywall_email() -> str | None:
@@ -125,6 +141,8 @@ __all__ = [
     "CONVERGENCE_MAX_ROUNDS",
     "CONVERGENCE_PER_ROUND_BUDGET_SECONDS",
     "DEFAULTS",
+    "IMPLEMENT_BATCH_BUDGET_SECONDS",
+    "IMPLEMENT_TASK_BATCH",
     "LEAF_TASK_BUDGET_SECONDS",
     "SANDBOX_BUDGET_SECONDS",
     "STAGE_ADVANCEMENT_RATE_WINDOW_DAYS",
