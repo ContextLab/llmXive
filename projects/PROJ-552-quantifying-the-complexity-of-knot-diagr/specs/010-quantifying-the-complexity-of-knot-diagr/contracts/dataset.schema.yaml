@@ -24,9 +24,6 @@ dataset_metadata:
     - record_count
     - crossing_number_range
     - hyperbolic_knot_count
-    - null_percentage
-    - format_pass_rate
-    - duplicate_count
   properties:
     dataset_name:
       type: string
@@ -75,21 +72,6 @@ dataset_metadata:
       type: integer
       minimum: 0
       description: Count of knots with hyperbolic volume > 0 (after filtering per FR-012)
-    null_percentage:
-      type: number
-      minimum: 0
-      maximum: 100
-      description: Measured null percentage for required fields (must be ≤ 5 % per FR‑002)
-    format_pass_rate:
-      type: number
-      minimum: 0
-      maximum: 100
-      description: Measured format pass rate (must be ≥ 99 % per FR‑002)
-    duplicate_count:
-      type: integer
-      minimum: 0
-      description: Measured duplicate record count (must satisfy the no‑duplicate requirement of FR‑002)
-
     data_quality_summary:
       type: object
       required:
@@ -135,54 +117,95 @@ knot_record:
     - crossing_number
     - braid_index
     - hyperbolic_volume
-    - alternating
+    - is_alternating
     - data_quality_flags
     - missing_invariant_flags
   properties:
+    # Primary identifier
     knot_id:
       type: string
       description: Unique identifier for the knot (e.g., "8_19", "11n42")
-      pattern: "^\\d+_\\w+$"
+      pattern: "^\\d+[an]?\\d+$"
       examples:
         - "3_1"
         - "8_19"
         - "11n42"
 
+    # Core invariants (tabulated from Knot Atlas per FR-003, SC-008)
     crossing_number:
       type: integer
       minimum: 1
       maximum: 13
       description: Minimum number of crossings in any diagram of the knot
+      # Note: Core invariant - tabulated not computed (Constitution Principle VI)
 
     braid_index:
       type: integer
       minimum: 1
-      description: Minimum braid index of the knot (must satisfy braid_index ≤ crossing_number)
+      description: Minimum number of strands in any braid representation
+      # Note: Core invariant - tabulated not computed (Constitution Principle VI)
+      # Constraint: braid_index ≤ crossing_number (documented in mathematical_constraints.md)
 
     hyperbolic_volume:
       type: number
       minimum: 0
-      description: Hyperbolic volume of the knot complement; 0 for non‑hyperbolic knots
+      description: Hyperbolic volume of the knot complement
+      # Note: 0 for non-hyperbolic knots (toroidal or satellite)
+      # Filtered per FR-012: volume > 0 for final analysis
 
-    alternating:
+    # Classification
+    is_alternating:
       type: boolean
-      description: True if the knot is alternating, False otherwise
+      description: True if knot is alternating, False otherwise
+      # Ambiguous cases flagged per FR-010 and T043a
 
+    # Additional invariants (computed per SC-010, Phase 2+)
+    arc_index:
+      type: integer
+      minimum: 1
+      description: Minimum number of arcs in any knot diagram
+      nullable: true
+      # Computed in Phase 2+ per SC-010
+
+    seifert_circle_count:
+      type: integer
+      minimum: 1
+      description: Number of Seifert circles in Seifert algorithm output
+      nullable: true
+      # Computed in Phase 2+ per SC-010
+
+    bridge_number:
+      type: integer
+      minimum: 1
+      description: Minimum number of bridges in any bridge representation
+      nullable: true
+      # Computed in Phase 2+ per SC-010
+
+    # Data quality flags (per FR-002, FR-009, FR-010)
     data_quality_flags:
       $ref: '#/data_quality_flags'
 
     missing_invariant_flags:
       $ref: '#/missing_invariant_flags'
 
-    source_timestamp:
+    # Source attribution
+    source_reference:
+      type: string
+      description: Citation or reference for the invariant values
+      # Per Constitution Principle II - citation validation
+
+    # Reproducibility metadata
+    computed_at:
       type: string
       format: date-time
-      description: ISO‑8601 timestamp of the source download
+      description: ISO 8601 timestamp of when this record was processed
+      nullable: true
 
-    checksum_sha256:
-      type: string
-      pattern: "^[a-f0-9]{64}$"
-      description: SHA‑256 checksum of the raw JSON entry for this knot
+    seed_used:
+      type: integer
+      description: Random seed used for any stochastic operations
+      nullable: true
+      # Per Constitution Principle I
 
 # Data quality flags structure (per FR-002, FR-009, FR-010)
 data_quality_flags:
@@ -243,7 +266,7 @@ missing_invariant_flags:
           - crossing_number
           - braid_index
           - hyperbolic_volume
-          - alternating
+          - is_alternating
           - arc_index
           - seifert_circle_count
           - bridge_number
@@ -294,15 +317,19 @@ validation_requirements:
     null_percentage_threshold:
       type: number
       const: 5
+      description: Maximum allowed null percentage (per FR-002)
     format_pass_rate_threshold:
       type: number
       const: 99
+      description: Minimum required format pass rate (per FR-002)
     duplicate_count_threshold:
       type: integer
       const: 0
+      description: Maximum allowed duplicate records (per FR-002)
     hyperbolic_volume_match_threshold:
       type: number
       const: 90
+      description: Minimum percentage match with KnotInfo reference (per FR-013)
 
 # Schema dependencies
 dependencies:

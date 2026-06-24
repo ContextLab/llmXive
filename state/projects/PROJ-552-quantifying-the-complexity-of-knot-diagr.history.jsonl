@@ -112,4 +112,3 @@
 {"at": "2026-06-18T13:16:48.620937+00:00", "from_stage": "research_review", "last_run_id": "c160afbb-b039-4650-9960-4b960f1eb5da", "to_stage": "research_full_revision"}
 {"at": "2026-06-24T15:09:36.802210+00:00", "from_stage": "research_review", "last_run_id": "9f11db59-f7fa-4b9d-b845-2181aac17b0c", "to_stage": "research_full_revision"}
 {"at": "2026-06-24T15:19:27.243013+00:00", "from_stage": "research_full_revision", "last_run_id": "9f11db59-f7fa-4b9d-b845-2181aac17b0c", "to_stage": "clarified"}
-{"at": "2026-06-24T16:33:51.782824+00:00", "from_stage": "clarified", "last_run_id": "aaa44847-0d16-4657-9789-33d375958f6d", "to_stage": "specified"}
