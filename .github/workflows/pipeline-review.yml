@@ -22,6 +22,12 @@ jobs:
         with: { ref: main }
       - uses: actions/setup-python@v6
         with: { python-version: "3.11", cache: pip }
+      # The review-convergence lane also runs PAPER-track revision implementers,
+      # which recompile the manuscript (lualatex). Without TeX the compile would
+      # be deferred (graceful degradation) and paper_complete could never be
+      # decided here; install TeX so paper reviews fully compile + verify.
+      - run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends texlive texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra latexmk
       - run: pip install -e ".[dev]"
       - run: python -m llmxive preflight
       # Load-balanced: the scheduler advances whichever stages are most over

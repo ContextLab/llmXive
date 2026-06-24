@@ -27,6 +27,7 @@ import hashlib
 import json
 import logging
 import re
+import shutil
 import subprocess
 import time
 from collections.abc import Mapping
@@ -374,7 +375,13 @@ def apply_delete_file(file_path: Path) -> EditResult:
     before = file_path.read_bytes()
     file_path.unlink()
     rel = str(file_path)
-    return EditResult(True, [rel], {rel: _sha256(before)}, {rel: ""})
+    # A deleted file has NO after-hash — recording an empty string violates the
+    # Sha256Field pattern on ImplementerLogEntry.after_hashes and crashes the
+    # whole revision run (ValidationError), turning a LEGITIMATE deletion (e.g.
+    # "remove the redundant checksums.csv" — exactly what a data-quality reviewer
+    # asks for) into a zero-success round. The deletion is fully captured by
+    # files_modified + before_hashes; absence from after_hashes signals removal.
+    return EditResult(True, [rel], {rel: _sha256(before)}, {})
 
 
 def apply_move_file(from_path: Path, to_path: Path) -> EditResult:
@@ -978,6 +985,7 @@ class LLMXiveImplementer(Agent):
 
             # Final recompile + author add only if ≥1 task succeeded.
             final_compile_ok = False
+            compile_deferred = False  # lualatex absent in this lane (see below)
             pdf_hash: str | None = None
             pdf_bytes_n: int | None = None
             author_added = False
@@ -1014,20 +1022,37 @@ class LLMXiveImplementer(Agent):
                         backend=self.entry.default_backend.value,
                         first_contributed_at=ended,
                     )
-                # Final recompile (FR-010).
-                ok, _ = _compile_paper(source_dir)
-                final_compile_ok = ok
-                if ok:
-                    pdf = source_dir / (Path(_find_primary_tex(source_dir)).stem + ".pdf")
-                    if pdf.is_file():
-                        pdf_b = pdf.read_bytes()
-                        pdf_hash = _sha256(pdf_b)
-                        pdf_bytes_n = len(pdf_b)
-                        # Replace paper/pdf/main.pdf with the new build.
-                        out_pdf = paper_dir / "pdf" / "main.pdf"
-                        out_pdf.parent.mkdir(parents=True, exist_ok=True)
-                        out_pdf.write_bytes(pdf_b)
-                        outputs.append(str(out_pdf.relative_to(repo)))
+                # Final recompile (FR-010). Compilation needs lualatex. When it
+                # is ABSENT from THIS lane (an environment gap — vs BROKEN LaTeX),
+                # DEFER rather than crash: the edits are valid and the
+                # authoritative compile + paper_complete gate run in a
+                # TeX-equipped lane (paper-compile / paper-write / review).
+                # Letting subprocess raise FileNotFoundError here marked good
+                # revisions FAILED -> zero-success rounds -> agent_blocked (61
+                # real failures). Graceful degradation keeps the revision
+                # successful; the compile is just not verified in this lane.
+                compile_deferred = shutil.which("lualatex") is None
+                if compile_deferred:
+                    logger.warning(
+                        "%s: lualatex absent in this environment — deferring "
+                        "paper compile to a TeX-equipped lane (edits applied, "
+                        "re-review proceeds)",
+                        project.id,
+                    )
+                else:
+                    ok, _ = _compile_paper(source_dir)
+                    final_compile_ok = ok
+                    if ok:
+                        pdf = source_dir / (Path(_find_primary_tex(source_dir)).stem + ".pdf")
+                        if pdf.is_file():
+                            pdf_b = pdf.read_bytes()
+                            pdf_hash = _sha256(pdf_b)
+                            pdf_bytes_n = len(pdf_b)
+                            # Replace paper/pdf/main.pdf with the new build.
+                            out_pdf = paper_dir / "pdf" / "main.pdf"
+                            out_pdf.parent.mkdir(parents=True, exist_ok=True)
+                            out_pdf.write_bytes(pdf_b)
+                            outputs.append(str(out_pdf.relative_to(repo)))
 
             # Persist round logs.
             log = ImplementerLog(
@@ -1052,7 +1077,7 @@ class LLMXiveImplementer(Agent):
                 tasks_file_not_found=tasks_file_nf,
                 tasks_skipped=tasks_skipped,
                 tasks_needs_external_data=tasks_needs_ext,
-                final_compile_attempted=success_count > 0,
+                final_compile_attempted=success_count > 0 and not compile_deferred,
                 final_compile_succeeded=final_compile_ok,
                 final_compile_pdf_sha256=pdf_hash,
                 final_compile_pdf_bytes=pdf_bytes_n,
@@ -1129,7 +1154,12 @@ class LLMXiveImplementer(Agent):
                 error_log_text = "\n".join(
                     (e.error_reason or "") for e in log_entries if e.error_reason
                 )
-                last_command = "lualatex"  # the round's compile gate
+                # The compile gate (lualatex) is the round's LAST command only on
+                # the PAPER track. A RESEARCH round never compiles — feeding the
+                # classifier "lualatex" mis-diagnoses an edit/run failure as a
+                # LaTeX defect and (below) aims the kickback at a nonexistent
+                # paper/source/main.tex, looping the project to AGENT_BLOCKED.
+                last_command = "lualatex" if track == "paper" else None
                 classification = classify_failure(
                     error_log_text, last_command=last_command,
                 )
@@ -1197,10 +1227,23 @@ class LLMXiveImplementer(Agent):
                     # Classifiable → synthesize a Concern, write a fresh
                     # round dir, route back to the source review stage so
                     # the next implementer pass picks the diagnosis up.
-                    primary = _find_primary_tex(source_dir) if source_dir.is_dir() else "paper/source/main.tex"
-                    artifact_rel = (
-                        f"projects/{project.id}/paper/source/{primary}"
-                    )
+                    # Aim the synthesized kickback at the artifact actually under
+                    # review for THIS track: the manuscript on the paper track,
+                    # the research spec's tasks.md on the research track. A
+                    # research project has NO paper/source/main.tex — targeting
+                    # it guarantees file-not-found -> another zero round ->
+                    # AGENT_BLOCKED (the PROJ-552 doom loop).
+                    if track == "research":
+                        research_dir = (
+                            project.speckit_research_dir
+                            or f"projects/{project.id}/specs"
+                        )
+                        artifact_rel = f"{research_dir}/tasks.md"
+                    else:
+                        primary = _find_primary_tex(source_dir) if source_dir.is_dir() else "paper/source/main.tex"
+                        artifact_rel = (
+                            f"projects/{project.id}/paper/source/{primary}"
+                        )
                     next_round = round_number + 1
                     synth_kb = synth_kickback_from_failure(
                         classification,

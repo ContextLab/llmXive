@@ -74,6 +74,8 @@ from llmxive.types import (
     ReviewRecord,
     Stage,
     VerificationStatus,
+    _extract_required_changes,
+    _is_actionable_concern,
     action_items_from_text,
 )
 
@@ -359,15 +361,46 @@ def _consolidate_action_items(
             continue  # advisory (human / personality) reviewer — not a blocker
         if rec.verdict == "accept":
             continue
-        items = rec.action_items
-        if not items:
-            # A non-accept verdict with EMPTY structured action_items but prose
-            # feedback (reviews_store.read maps the body onto `feedback`) would
-            # otherwise contribute nothing — the convergence engine then finds
-            # no concerns, cannot revise, and the project no-ops forever at
-            # research_review. Reshape the reviewer's own prose into action
-            # items so its stated concerns actually drive the revision.
-            items = action_items_from_text(rec.feedback or "", verdict=rec.verdict)
+        # Source the revision tasks from the reviewer's OWN curated blocking list
+        # whenever the body carries one. Three sources, in fidelity order:
+        #   1. body has an explicit "Required Changes" / "must be addressed"
+        #      section -> re-derive from it (crisp, blocking-only, file-pointed).
+        #      This ALSO repairs stale records whose stored `action_items` were
+        #      synthesized by older reviewer code that captured section headers,
+        #      positive observations, and "(non-blocking)" recommendations
+        #      (the PROJ-552 stall: 15 noisy stored items -> non-actionable
+        #      revision tasks -> 0-success rounds -> agent_blocked, for ALL
+        #      projects whose review predates the curated-extraction reviewer).
+        #   2. stored action_items, FILTERED to the actionable ones — so a noisy
+        #      frontmatter can never again send the implementer to "fix" a
+        #      heading or a satisfied observation.
+        #   3. whole-body synthesis (the empty-action_items anti-stall path).
+        body = rec.feedback or ""
+        if _extract_required_changes(body):
+            # 1. The reviewer curated an explicit "Required Changes" / "must be
+            #    addressed" section — authoritative and blocking-only. Re-derive
+            #    from it. This REPAIRS stale records whose stored action_items
+            #    were synthesized by older reviewer code that captured section
+            #    headers, positive observations, and "(non-blocking)" recs (the
+            #    PROJ-552 stall: 15 noisy stored items -> non-actionable revision
+            #    tasks -> 0-success rounds -> agent_blocked, for ANY project whose
+            #    review predates the curated-extraction reviewer).
+            items = action_items_from_text(body, verdict=rec.verdict)
+        elif rec.action_items:
+            # 2. Explicit structured items take precedence. Drop the clearly
+            #    non-actionable (headings / satisfied observations) so a noisy
+            #    frontmatter can't send the implementer to "fix" a label — but
+            #    never drop the reviewer's WHOLE list (a terse but legitimate
+            #    item must survive), so keep them unfiltered if the filter empties.
+            items = [
+                it for it in rec.action_items if _is_actionable_concern(it.text)
+            ] or rec.action_items
+        else:
+            # 3. A non-accept verdict with EMPTY structured action_items but
+            #    prose feedback would otherwise contribute nothing — the engine
+            #    finds no concerns, cannot revise, and the project no-ops forever
+            #    at review. Reshape the prose into action items.
+            items = action_items_from_text(body, verdict=rec.verdict)
         for item in items:
             if item.id not in seen:
                 seen[item.id] = item

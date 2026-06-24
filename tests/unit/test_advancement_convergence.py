@@ -202,6 +202,61 @@ def test_consolidate_excludes_advisory_personality_reviews_when_required_given()
     assert not any("radium" in t for t in texts)
 
 
+def test_consolidate_prefers_curated_required_changes_over_noisy_stored_items() -> None:
+    """Regression for the PROJ-552 ``agent_blocked`` stall.
+
+    A review WRITTEN BY OLDER reviewer code stored noisy ``action_items`` —
+    section headers ("Provenance & Licensing"), satisfied observations
+    ("...are present", "...are generated"), and "(non-blocking)"
+    recommendations — while its body carried a crisp "Summary of Required
+    Changes" table. The old consolidation passed the 15 noisy stored items
+    straight through as revision tasks; the implementer could not map a heading
+    to a file, emitted bogus edits, scored zero successes for three rounds, and
+    the project escalated to ``agent_blocked`` — stalling EVERY project whose
+    review predates the curated-extraction reviewer. Consolidation must instead
+    re-derive from the reviewer's own curated Required-Changes section."""
+    noisy_stored = [
+        ActionItem.from_text("Provenance & Licensing", "writing"),  # section header
+        ActionItem.from_text("SHA-256 checksums are generated and documented.", "writing"),  # positive obs
+        ActionItem.from_text("Recommendation (non-blocking): consolidate provenance docs.", "writing"),
+        ActionItem.from_text("Version Control & Checksums", "writing"),  # section header
+    ]
+    body = (
+        "**Data-Quality Assessment**\n\n"
+        "1. **Version Control & Checksums**\n"
+        "   - SHA-256 checksums are generated and documented.\n"
+        "   - **Blocking defect:** three parallel manifests risk divergence.\n\n"
+        "### Summary of Required Changes (must be addressed before acceptance)\n\n"
+        "| Area | Required Action |\n"
+        "|------|-----------------|\n"
+        "| Checksum Manifest | Retain a single authoritative checksums.json; remove checksums.csv. |\n"
+        "| Duplicate-Record Check | Implement a duplicate-ID scan in code/data/validator.py. |\n"
+    )
+    rec = ReviewRecord(
+        reviewer_name="research_reviewer_data_quality_research",
+        reviewer_kind=ReviewerKind.LLM,
+        artifact_path="projects/PROJ-552-test/specs/010/tasks.md",
+        artifact_hash=_HASH_A,
+        score=0.0,
+        verdict="minor_revision",
+        feedback=body,
+        reviewed_at=_NOW,
+        prompt_version="1.0.0",  # grandfathered legacy shape
+        model_name="openai.gpt-oss-120b",
+        backend=BackendName.DARTMOUTH,
+        action_items=noisy_stored,
+    )
+    out = _consolidate_action_items([rec])
+    texts = [i.text for i in out]
+    # ONLY the two curated blocking actions survive — none of the noise.
+    assert len(out) == 2, texts
+    assert any("checksums.csv" in t for t in texts)
+    assert any("duplicate-id scan" in t.lower() for t in texts)
+    assert not any("Provenance & Licensing" == t for t in texts)
+    assert not any("non-blocking" in t.lower() for t in texts)
+    assert not any(t == "Version Control & Checksums" for t in texts)
+
+
 # --- Most-recent-per-specialist gate -----------------------------------------
 
 

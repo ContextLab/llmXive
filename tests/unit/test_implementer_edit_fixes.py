@@ -357,7 +357,24 @@ def test_apply_move_and_delete_file(tmp_path: Path) -> None:
     # delete
     f = tmp_path / "redundant.md"
     f.write_text("dup", encoding="utf-8")
-    assert apply_delete_file(f).applied and not f.exists()
+    res = apply_delete_file(f)
+    assert res.applied and not f.exists()
+    # A deleted file must carry NO after-hash. Recording an empty string there
+    # violated ImplementerLogEntry.after_hashes's Sha256Field pattern and crashed
+    # the whole revision run with a ValidationError — turning a reviewer-requested
+    # deletion ("remove the redundant checksums.csv") into a zero-success round
+    # (the PROJ-552 research-review stall). The deletion is captured by
+    # files_modified + before_hashes; absence from after_hashes signals removal.
+    assert res.after_hashes == {}
+    assert "" not in res.after_hashes.values()
+    from llmxive.types import ImplementerLogEntry
+    # Must construct without a Sha256Field ValidationError.
+    entry = ImplementerLogEntry(
+        task_id="T001", status="done", action_item_text="remove redundant.md",
+        files_modified=res.files_modified, before_hashes=res.before_hashes,
+        after_hashes=res.after_hashes, duration_s=0.1,
+    )
+    assert entry.after_hashes == {} and entry.files_modified == res.files_modified
     assert not apply_delete_file(tmp_path / "ghost.md").applied  # absent -> refused
 
     # move (creates dest parents); refuses if dest exists
