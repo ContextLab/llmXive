@@ -1,0 +1,61 @@
+% Claim:
+%   OpenRath is a milestone implementation with a precise, bounded claim
+%   status, not a roadmap or a broad benchmark result.
+% Evidence:
+%   Audited local OpenRath source snapshot inspected May 29, 2026; generated
+%   packets verify the session, backend, tool, lineage, and workflow surfaces
+%   and mark memory and optional OpenSandbox as not yet substantiated.
+% Open questions:
+%   A public archival release still needs a clean source snapshot and
+%   quantitative benchmark runs before broader empirical claims.
+
+OpenRath is a working implementation, not an architecture sketch. It is
+distributed as a Python package whose modules realize the objects of the
+preceding sections: a session core; an execution-backend layer; the flow layer
+of tools, agents, workflows, and compressors; an LLM-provider layer; and
+persistence with lineage export. This report is written against an audited
+snapshot of that codebase, which we treat as adequate for technical review
+rather than as a tagged archival release.
+Table~\ref{tab:implementation-claim-status} records which surfaces the current
+implementation substantiates and where its claims are deliberately bounded.
+
+\begin{table}[!htbp]
+\vspace{0.15em}
+\centering
+\small
+\caption{Implementation surface and claim status.}
+\label{tab:implementation-claim-status}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Surface & Status \\
+\midrule
+Session core & Implemented runtime value: ordered chunks, branching via \texttt{fork}, \texttt{detach}, and \texttt{merge}, usage accounting, and JSONL lineage export, exercised by focused tests. \\
+Backend placement & Local execution implemented and verified; OpenSandbox available as an optional backend, unconfigured in this environment. \\
+Tool layer & Implemented boundary: model-visible schemas with backend-dispatched side effects returned to the session, with custom-tool and MCP examples. \\
+Agent and workflow & Implemented composition surface over the uniform \texttt{Session -> Session} contract, including a scripted multi-stage workflow. \\
+Provider layer & Live-inference prerequisites in place; model quality and provider runs are out of scope for this report. \\
+Memory plane & Intended runtime plane, not yet substantiated by a local module with examples and tests (see below). \\
+Examples & A worked example set spanning lineage, backends, tools, streaming, usage, and multi-agent workflows. \\
+\bottomrule
+\end{tabularx}
+\vspace{0.15em}
+\end{table}
+
+The substantiated claims are deterministic and local. The session core---its
+ordered chunks, branching operations, usage accounting, and JSONL lineage
+export---is exercised by focused tests, as are local sandbox placement and the
+tool-dispatch path; tool and workflow behavior is further demonstrated by
+custom-tool, MCP, and scripted-workflow examples. The optional OpenSandbox
+backend and the LLM-provider layer are present but environment- or
+provider-dependent, and live model quality lies outside the scope of this report.
+
+What the milestone demonstrates is not any individual surface but that they
+share a single object model. \texttt{Session} is the value that flows; backends
+determine where code and tools execute; tool calls enter the session as
+structured events rather than disappearing into an executor log; agents and
+workflows transform sessions without maintaining private transcript formats; and
+persistence with lineage export renders the resulting state inspectable outside
+the running process. This is the minimum structure an agent runtime requires to
+support branching, audit, and replay without rebuilding a separate observability
+system for each application.
+

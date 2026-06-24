@@ -1,0 +1,342 @@
+{
+  "kind": "figure",
+  "tex_label": "fig:score-cost",
+  "title": "Cost-score trade-off on Lite",
+  "latex_asset": "figure.pdf",
+  "rendered_assets": [
+    "assets/figures/fig9_score_cost/figure.pdf",
+    "assets/figures/fig9_score_cost/figure.png"
+  ],
+  "generator": "assets/figures/fig9_score_cost/render_fig9_score_cost.py",
+  "source_file": "/hpc_data/jczhong/frontis-bench/outputs/report_data/merged/hard120_32combo_current/combo_summary.jsonl",
+  "score_definition": "score = primary_fail0; all failed runs receive zero, including sandbox or infrastructure failures.",
+  "fields": {
+    "x": "agent_cost_rmb",
+    "y": "score",
+    "color": "harness",
+    "marker": "model"
+  },
+  "data": [
+    {
+      "combo": "Codex + GPT-5.5",
+      "harness": "codex",
+      "model": "gpt-5.5",
+      "score": 0.6632416666666667,
+      "agent_cost_rmb": 373.598398732,
+      "total_cost_rmb": 383.685066232,
+      "elapsed_avg_min": 2.3156492075655195,
+      "rank": 1
+    },
+    {
+      "combo": "ClaudeCode + Sonnet 4.6",
+      "harness": "claudecode",
+      "model": "sonnet-4.6",
+      "score": 0.6440916666666667,
+      "agent_cost_rmb": 315.83178,
+      "total_cost_rmb": 326.233095,
+      "elapsed_avg_min": 4.583584336001994,
+      "rank": 2
+    },
+    {
+      "combo": "ClaudeCode + Opus 4.6",
+      "harness": "claudecode",
+      "model": "opus-4.6",
+      "score": 0.6351333333333334,
+      "agent_cost_rmb": 700.88200236,
+      "total_cost_rmb": 711.0415173600001,
+      "elapsed_avg_min": 4.812435664832592,
+      "rank": 3
+    },
+    {
+      "combo": "DeepAgents + Sonnet 4.6",
+      "harness": "deepagents",
+      "model": "sonnet-4.6",
+      "score": 0.6318166666666668,
+      "agent_cost_rmb": 301.56315,
+      "total_cost_rmb": 311.1637125,
+      "elapsed_avg_min": 7.895501095285106,
+      "rank": 4
+    },
+    {
+      "combo": "DeepAgents + GPT-5.5",
+      "harness": "deepagents",
+      "model": "gpt-5.5",
+      "score": 0.6289000000000001,
+      "agent_cost_rmb": 460.37297576,
+      "total_cost_rmb": 470.62098326,
+      "elapsed_avg_min": 3.3558243852213954,
+      "rank": 5
+    },
+    {
+      "combo": "OpenClaw + Sonnet 4.6",
+      "harness": "openclaw",
+      "model": "sonnet-4.6",
+      "score": 0.6230333333333334,
+      "agent_cost_rmb": 303.12108525,
+      "total_cost_rmb": 312.29028525,
+      "elapsed_avg_min": 4.543768834893466,
+      "rank": 6
+    },
+    {
+      "combo": "Hermes + GPT-5.5",
+      "harness": "hermes",
+      "model": "gpt-5.5",
+      "score": 0.6196333333333334,
+      "agent_cost_rmb": 518.787555612,
+      "total_cost_rmb": 529.250513112,
+      "elapsed_avg_min": 3.4801820310891842,
+      "rank": 7
+    },
+    {
+      "combo": "OpenClaw + GPT-5.5",
+      "harness": "openclaw",
+      "model": "gpt-5.5",
+      "score": 0.6138166666666668,
+      "agent_cost_rmb": 450.573136312,
+      "total_cost_rmb": 461.50215131199997,
+      "elapsed_avg_min": 2.86920855826345,
+      "rank": 8
+    },
+    {
+      "combo": "OpenClaw + Opus 4.6",
+      "harness": "openclaw",
+      "model": "opus-4.6",
+      "score": 0.6019583333333335,
+      "agent_cost_rmb": 495.54250623,
+      "total_cost_rmb": 504.78353373,
+      "elapsed_avg_min": 4.498543083487135,
+      "rank": 9
+    },
+    {
+      "combo": "OpenClaw + DeepSeek V4 Pro",
+      "harness": "openclaw",
+      "model": "deepseek-v4-pro",
+      "score": 0.5882000000000002,
+      "agent_cost_rmb": 25.62683152675,
+      "total_cost_rmb": 39.88268902675,
+      "elapsed_avg_min": 6.642222782243199,
+      "rank": 10
+    },
+    {
+      "combo": "Hermes + DeepSeek V4 Pro",
+      "harness": "hermes",
+      "model": "deepseek-v4-pro",
+      "score": 0.5855250000000002,
+      "agent_cost_rmb": 25.11703036225,
+      "total_cost_rmb": 32.77010536225,
+      "elapsed_avg_min": 8.045454753571086,
+      "rank": 11
+    },
+    {
+      "combo": "DeepAgents + Opus 4.6",
+      "harness": "deepagents",
+      "model": "opus-4.6",
+      "score": 0.5726833333333334,
+      "agent_cost_rmb": 465.28991704,
+      "total_cost_rmb": 474.50267704,
+      "elapsed_avg_min": 8.144012509746316,
+      "rank": 12
+    },
+    {
+      "combo": "DeepAgents + DeepSeek V4 Pro",
+      "harness": "deepagents",
+      "model": "deepseek-v4-pro",
+      "score": 0.5621416666666668,
+      "agent_cost_rmb": 19.94423657675,
+      "total_cost_rmb": 28.93345157675,
+      "elapsed_avg_min": 6.240176963011423,
+      "rank": 13
+    },
+    {
+      "combo": "Hermes + Kimi K2.6",
+      "harness": "hermes",
+      "model": "kimi-k2.6",
+      "score": 0.5613083333333334,
+      "agent_cost_rmb": 65.92628140000001,
+      "total_cost_rmb": 74.5394989,
+      "elapsed_avg_min": 14.033432957709781,
+      "rank": 14
+    },
+    {
+      "combo": "Hermes + MiniMax-M3",
+      "harness": "hermes",
+      "model": "MiniMax-M3",
+      "score": 0.5246250000000001,
+      "agent_cost_rmb": 66.338769,
+      "total_cost_rmb": 72.8587515,
+      "elapsed_avg_min": 12.224064576221101,
+      "rank": 15
+    },
+    {
+      "combo": "DeepAgents + MiniMax-M3",
+      "harness": "deepagents",
+      "model": "MiniMax-M3",
+      "score": 0.5195916666666668,
+      "agent_cost_rmb": 99.97960056,
+      "total_cost_rmb": 107.99480556,
+      "elapsed_avg_min": 8.617625771653245,
+      "rank": 16
+    },
+    {
+      "combo": "OpenClaw + Kimi K2.6",
+      "harness": "openclaw",
+      "model": "kimi-k2.6",
+      "score": 0.5192583333333335,
+      "agent_cost_rmb": 98.6598541,
+      "total_cost_rmb": 108.21758410000001,
+      "elapsed_avg_min": 7.152767477007139,
+      "rank": 17
+    },
+    {
+      "combo": "DeepAgents + Kimi K2.6",
+      "harness": "deepagents",
+      "model": "kimi-k2.6",
+      "score": 0.5148750000000001,
+      "agent_cost_rmb": 176.8007852,
+      "total_cost_rmb": 185.59585520000002,
+      "elapsed_avg_min": 11.353989687541715,
+      "rank": 18
+    },
+    {
+      "combo": "ClaudeCode + Haiku 4.5",
+      "harness": "claudecode",
+      "model": "haiku-4.5",
+      "score": 0.5132833333333334,
+      "agent_cost_rmb": 108.4092275,
+      "total_cost_rmb": 119.594975,
+      "elapsed_avg_min": 2.213214612172709,
+      "rank": 19
+    },
+    {
+      "combo": "DeepAgents + Haiku 4.5",
+      "harness": "deepagents",
+      "model": "haiku-4.5",
+      "score": 0.5066750000000001,
+      "agent_cost_rmb": 112.636555,
+      "total_cost_rmb": 127.4224525,
+      "elapsed_avg_min": 4.7812958402148755,
+      "rank": 20
+    },
+    {
+      "combo": "Hermes + Sonnet 4.6",
+      "harness": "hermes",
+      "model": "sonnet-4.6",
+      "score": 0.4575083333333334,
+      "agent_cost_rmb": 133.9867125,
+      "total_cost_rmb": 141.6686025,
+      "elapsed_avg_min": 7.673699444465044,
+      "rank": 21
+    },
+    {
+      "combo": "OpenClaw + Haiku 4.5",
+      "harness": "openclaw",
+      "model": "haiku-4.5",
+      "score": 0.4293333333333334,
+      "agent_cost_rmb": 101.13294225,
+      "total_cost_rmb": 111.32080725,
+      "elapsed_avg_min": 4.87204179584801,
+      "rank": 22
+    },
+    {
+      "combo": "Hermes + Opus 4.6",
+      "harness": "hermes",
+      "model": "opus-4.6",
+      "score": 0.42543333333333344,
+      "agent_cost_rmb": 371.70147811,
+      "total_cost_rmb": 378.84127561,
+      "elapsed_avg_min": 6.1021460998193024,
+      "rank": 23
+    },
+    {
+      "combo": "OpenClaw + MiniMax-M3",
+      "harness": "openclaw",
+      "model": "MiniMax-M3",
+      "score": 0.4209833333333334,
+      "agent_cost_rmb": 55.79698572,
+      "total_cost_rmb": 64.02446322,
+      "elapsed_avg_min": 12.676218566341676,
+      "rank": 24
+    },
+    {
+      "combo": "Hermes + Haiku 4.5",
+      "harness": "hermes",
+      "model": "haiku-4.5",
+      "score": 0.40480000000000005,
+      "agent_cost_rmb": 92.6653875,
+      "total_cost_rmb": 103.2364125,
+      "elapsed_avg_min": 2.930460264318519,
+      "rank": 25
+    },
+    {
+      "combo": "Hermes + GPT-4.1-mini",
+      "harness": "hermes",
+      "model": "gpt-4.1-mini",
+      "score": 0.28585000000000005,
+      "agent_cost_rmb": 23.117976,
+      "total_cost_rmb": 28.6482135,
+      "elapsed_avg_min": 1.6579106662008496,
+      "rank": 26
+    },
+    {
+      "combo": "Hermes + Qwen3-235B-A22B",
+      "harness": "hermes",
+      "model": "qwen3-235b-a22b",
+      "score": 0.27025000000000005,
+      "agent_cost_rmb": 19.164369280000003,
+      "total_cost_rmb": 25.653421780000002,
+      "elapsed_avg_min": 3.659350491738787,
+      "rank": 27
+    },
+    {
+      "combo": "Codex + GPT-4.1-mini",
+      "harness": "codex",
+      "model": "gpt-4.1-mini",
+      "score": 0.2623916666666667,
+      "agent_cost_rmb": 25.557512,
+      "total_cost_rmb": 31.5051845,
+      "elapsed_avg_min": 1.0085601155294313,
+      "rank": 28
+    },
+    {
+      "combo": "DeepAgents + GPT-4.1-mini",
+      "harness": "deepagents",
+      "model": "gpt-4.1-mini",
+      "score": 0.26001666666666673,
+      "agent_cost_rmb": 13.720004,
+      "total_cost_rmb": 18.820409,
+      "elapsed_avg_min": 1.5992025471003042,
+      "rank": 29
+    },
+    {
+      "combo": "OpenClaw + GPT-4.1-mini",
+      "harness": "openclaw",
+      "model": "gpt-4.1-mini",
+      "score": 0.25625000000000003,
+      "agent_cost_rmb": 19.182124,
+      "total_cost_rmb": 24.0574315,
+      "elapsed_avg_min": 1.101772786312047,
+      "rank": 30
+    },
+    {
+      "combo": "DeepAgents + Qwen3-235B-A22B",
+      "harness": "deepagents",
+      "model": "qwen3-235b-a22b",
+      "score": 0.24128333333333338,
+      "agent_cost_rmb": 16.10136096,
+      "total_cost_rmb": 22.490760960000003,
+      "elapsed_avg_min": 5.591335802464871,
+      "rank": 31
+    },
+    {
+      "combo": "OpenClaw + Qwen3-235B-A22B",
+      "harness": "openclaw",
+      "model": "qwen3-235b-a22b",
+      "score": 0.20002500000000004,
+      "agent_cost_rmb": 16.31730584,
+      "total_cost_rmb": 21.26311334,
+      "elapsed_avg_min": 2.6627835182799506,
+      "rank": 32
+    }
+  ],
+  "redraw_notes": "Use agent_cost_rmb on x, strict score on y, harness as color, and model as marker shape."
+}

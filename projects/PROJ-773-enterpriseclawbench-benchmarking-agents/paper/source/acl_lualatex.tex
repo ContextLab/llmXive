@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+
+\usepackage[review]{acl}
+
+ \usepackage{microtype}
+
+
+\usepackage[english,bidi=default]{babel} %
+\babelfont{rm}{TeXGyreTermesX} %
+\babelprovide[import]{hindi}
+\babelfont[*devanagari]{rm}{Lohit Devanagari}
+\babelprovide[import]{arabic}
+\babelfont[*arabic]{rm}{Noto Sans Arabic}
+
+
+
+
+
+\title{LuaLaTeX and XeLaTeX Template for *ACL Style Files}
+
+
+\author{First Author \\
+  Affiliation / Address line 1 \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  \texttt{email@domain} \\\And
+  Second Author \\
+  Affiliation / Address line 1 \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  \texttt{email@domain} \\}
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+This document provides an example showing how
+to use the *ACL style files with either
+LuaLaTeX or XeLaTeX.
+\end{abstract}
+
+
+\section{Introduction}
+
+Please see the general instructions
+in the file \verb|acl_latex.tex|.
+
+Here are some examples of text in various languages.
+
+Hindi: \foreignlanguage{hindi}{मानव अधिकारों की सार्वभौम घोषणा}
+
+Arabic: \foreignlanguage{arabic}{الإعلان العالمي لحقوق الإنسان}
+
+Here is an example citation:
+\citet{Gusfield:97} argues that...
+
+
+\bibliography{custom}
+
+\appendix
+
+\section{Example Appendix}
+\label{sec:appendix}
+
+This is an appendix.
+
+\end{document}

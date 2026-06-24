@@ -1,0 +1,223 @@
+
+
+
+\section{Experiments}
+
+
+% To comprehensively evaluate the effectiveness, efficiency, and downstream value of the DataClaw framework in multimodal data refinement, our experimental design aims to answer the following four core Research Questions (RQs):
+
+% \begin{itemize}[leftmargin=20pt, labelsep=4pt]
+%     \item \textbf{RQ1 (Internal Refinement Capability):} When faced with high-entropy, long-sequence multimodal inputs, can DataClaw accurately output data that meets strict structural constraints, and surpass existing state-of-the-art (SOTA) closed-source models in physical anchoring (spatiotemporal coordinates) and fuzzy intent concretization?
+%     \item \textbf{RQ2 (Downstream Application \& Efficiency, Core Validation):} Can post-training a downstream model using the ``small but precise'' data refined by DataClaw achieve better domain adaptation performance than using massive raw data, while significantly reducing training costs (computation and time)?
+%     \item \textbf{RQ3 (Scalability \& Diversity):} Does DataClaw's refinement capability exhibit strong scaling potential? Does the generated data distribution demonstrate emergent diversity exceeding that of the raw data?
+%     \item \textbf{RQ4 (Mechanism Ablation):} How much does rule-based GRPO reinforcement learning (especially format and anchor rewards) contribute to the final performance during DataClaw's training?
+% \end{itemize}
+
+\subsection{Experimental Setup}
+\textbf{Implementation Details:} We initialize $\text{DataClaw}_0$ based on an open-source multimodal large language model with 9B parameters (using the latest Qwen3.5-9B as the base). During the SFT phase, we utilize 34K strictly cleaned instruction refinement data for 1 epoch. In the GRPO reinforcement learning phase, we set the format reward weight \(\lambda_{fmt}=0.7\), the physical anchor reward weight \(\lambda_{anc}=1.0\), the reasoning efficiency penalty weight \(\lambda_{eff}=0.3\), and the learning rate to \(4\times10^{-6}\). All training is conducted on $8\times$ A100 GPUs.
+
+
+\begin{table*}[t]
+\centering
+\caption{Comparison of $\text{DataClaw}_0$ against state-of-the-art MLLM models. We evaluate models across five distinct domains and a newly introduced \textbf{Fuzzy} instruction subset. The best results in each metric per column are highlighted in \textbf{bold}.}
+\label{tab:main_results}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{Metric}} & \multicolumn{7}{c}{\textbf{Domains}} \\
+\cmidrule(lr){3-9}
+& & \textbf{GUI} & \textbf{Embodied} & \textbf{AIGC} & \textbf{Daily} & \textbf{Education} & \textbf{Fuzzy} & \textbf{Overall} \\
+\midrule
+\multirow{3}{*}{\textbf{Claude-Sonnet-4-6}} 
+& Field       & 57.50 & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & 76.35 & 88.98 \\
+& Semantic    & 50.05 & 84.83 & 74.26 & 54.46 & 54.46 & 65.72 & 63.96 \\
+& Sequence    & 54.06 & 50.11 & 33.38 & 41.07 & 41.07 & 36.48 & 42.70 \\
+\midrule
+\multirow{3}{*}{\textbf{GPT-4o (1120-global)}} 
+& Field       & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & 83.61 & 97.27 \\
+& Semantic    & 84.81 & 87.55 & 69.38 & 54.58 & \textbf{80.21} & 74.39 & \textbf{75.15} \\
+& Sequence    & 80.69 & 46.33 & \textbf{46.95} & 29.33 & \textbf{50.71}P & 42.57 & 49.43 \\
+\midrule
+\multirow{3}{*}{\textbf{Gemini-3.1-Pro-Preview}} 
+& Field       & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & \textbf{88.74} & \textbf{98.12} \\
+& Semantic    & \textbf{90.01} & \textbf{89.17} & 75.26 & 54.51 & 54.51 & \textbf{79.63} & 73.85 \\
+& Sequence    & \textbf{99.67} & 67.97 & 33.14 & \textbf{51.48} & 51.48 & 47.25 & \textbf{58.50} \\
+\midrule
+\multirow{3}{*}{\textbf{MiniMax-M2.7}} 
+& Field       & 92.50 & \textbf{100.00} & \textbf{100.00} & 97.50 & 95.00 & 73.29 & 93.05 \\
+& Semantic    & 78.93 & 79.28 & 69.07 & 44.38 & 43.52 & 61.85 & 62.84 \\
+& Sequence    & 77.86 & 51.84 & 6.83 & 32.89 & 17.54 & 32.16 & 36.52 \\
+\midrule
+\multirow{3}{*}{\textbf{Qwen3.6-plus}} 
+& Field       & 70.00 & \textbf{100.00} & 95.00 & 95.00 & 82.50 & 77.58 & 86.68 \\
+& Semantic    & 62.64 & 87.40 & 67.82 & 51.20 & 62.14 & 64.37 & 65.93 \\
+& Sequence    & 66.96 & 60.33 & 39.71 & 42.44 & 30.85 & 35.92 & 46.04 \\
+\midrule
+\multirow{3}{*}{\textbf{Qwen3.5-9B}} 
+& Field       & 94.87 & \textbf{100.00} & 95.00 & 87.50 & 90.00 & 70.46 & 89.64 \\
+& Semantic    & 72.72 & 77.48 & 65.27 & 45.66 & 43.41 & 58.24 & 60.46 \\
+& Sequence    & 72.71 & 59.35 & 3.29 & 27.70 & 24.75 & 29.63 & 36.24 \\
+\midrule
+\multirow{3}{*}{\textbf{$\text{DataClaw}_0$-O [Ours]}} 
+& Field       & \textbf{100.00} & \textbf{100.00} & 85.00 & 92.50 & 70.00 & 78.42 & 87.65 \\
+& Semantic    & 80.01 & 63.37 & 55.70 & 62.61 & 45.71 & 67.35 & 62.46 \\
+& Sequence    & 85.70 & 67.01 & 23.90 & 35.05 & 17.41 & 39.84 & 44.82 \\
+\midrule
+\multirow{3}{*}{\textbf{$\text{DataClaw}_0$-E [Ours]}} 
+& Field       & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & \textbf{100.00} & 85.17 & 97.53 \\
+& Semantic    & 89.18 & 82.93 & \textbf{75.36} & 49.72 & 76.43 & 76.28 & 74.94 \\
+& Sequence    & 96.33 & \textbf{71.60} & 15.26 & 42.59 & 19.75 & \textbf{50.31} & 48.86 \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+
+\subsection{Main Results: Specialist vs. Generalist}
+\label{subsec:main_results}
+
+Table~\ref{tab:main_results} compares $\text{DataClaw}_0$ with leading proprietary and open-source MLLMs across five representative domains and the Fuzzy instruction subset. We evaluate three aspects of structured data synthesis: \textit{Field} for schema completeness, \textit{Semantic} for content correctness, and \textit{Sequence} for ordering and structural consistency.
+
+Overall, $\text{DataClaw}_0$-E achieves strong performance among all evaluated models. In terms of schema following, it obtains an overall Field score of \(97.53\), comparable to Gemini-3.1-pro-preview (\(98.12\)) and GPT-4o (\(97.27\)). More importantly, $\text{DataClaw}_0$-E is particularly competitive on sequence-sensitive tasks. It achieves the best Sequence score on the Embodied domain (\(71.60\)) and the Fuzzy subset (\(50.31\)), and remains strong on GUI (\(96.33\)). These results show that domain-specific refinement is effective for producing well-structured and temporally consistent annotations.
+
+The comparison between $\text{DataClaw}_0$-O and $\text{DataClaw}_0$-E further validates the benefit of specialization. $\text{DataClaw}_0$-E improves over the omni variant on overall Field (\(97.53\) vs. \(87.65\)), Semantic (\(74.94\) vs. \(62.46\)), and Sequence (\(48.86\) vs. \(44.82\)), with consistent gains on the Fuzzy subset. This suggests that routing heterogeneous multimodal streams to domain-specific experts is more effective than relying on a single general-purpose annotator.
+
+Meanwhile, proprietary MLLMs still show advantages in some semantic-heavy settings, benefiting from broader pretraining and stronger open-ended reasoning. For example, GPT-4o obtains the best overall Semantic score (\(75.15\)), slightly higher than $\text{DataClaw}_0$-E (\(74.94\)). Nevertheless, $\text{DataClaw}_0$-E achieves comparable semantic performance while offering stronger controllability and competitive sequence consistency, making it an effective specialized framework for multimodal data synthesis.
+
+
+
+
+\subsection{Downstream Application: Targeted Refinement \& Efficiency }
+\label{sec:downstream_application}
+
+We evaluate whether $\text{DataClaw}_0$-generated data can effectively improve downstream multimodal models. To this end, we conduct SFT experiments on three representative tasks: long-horizon GUI navigation on AgentNet~\cite{wang2025opencua}, action video generation on Ego4D~\cite{grauman2022ego4d}, and spatio-temporal VQA on ReMoT~\cite{remot}. 
+For each task, we select strong open-weights base models that match the target modality and task format: Qwen3.5-4B for the understanding-oriented GUI and VQA tasks, and Wan2.2-I2V-5B~\cite{wan2025} for image-to-video generation. The evaluation metrics are selected according to the task focus and benchmark protocols. For GUI navigation, we report Step Success Rate (SSR) and Task Success Rate (TSR), which measure local action correctness and end-to-end task completion. For action video generation, we use the standard Fréchet Video Distance (FVD) for overall video quality, and additionally report temporal consistency and Contact mAP, since our setting emphasizes physically plausible affordance and action-object interaction. For spatio-temporal VQA, we follow the official ReMoT protocol and report Partial Accuracy and Overall Accuracy.
+To isolate data quality, we construct SFT data from the same raw streams for each task. Specifically, the identical inputs are processed by three sources: Qwen3.5-9B, Gemini-3.1-Pro-Preview, and $\text{DataClaw}_0$. We then apply the same filtering procedure and sample an equal number of valid instances from each source, ensuring that the comparison focuses on annotation quality rather than data quantity.
+
+As shown in Table~\ref{tab:downstream_results}, self-processed data brings only limited gains over the zero-shot base models, while data generated by stronger annotators substantially improves downstream performance. $\text{DataClaw}_0$ achieves performance comparable to Gemini overall, and obtains better results on several end-to-end metrics. These results indicate that $\text{DataClaw}_0$ can produce compact and task-relevant supervision that transfers effectively to downstream models under the same data budget.
+
+Overall, the downstream evaluation demonstrates that $\text{DataClaw}_0$ is not merely producing valid structured annotations, but generating high-utility training data for targeted model refinement. More detailed experimental settings and analysis are provided in Appendix~\ref{app:downstream}.
+
+% \subsection{Downstream Application: Targeted Refinement \& Efficiency (RQ2)}
+% \label{sec:downstream_application}
+
+% The ultimate testament to a data synthesis pipeline is the downstream utility of its generated assets. To rigorously validate $\text{DataClaw}_0$'s output quality, we design a downstream adaptation evaluation across three distinct multimodal tasks: long-horizon GUI \cite{agentnet}, action video generation\cite{grauman2022ego4d}, and spatio-temporal VQA\cite{remot}. For each task, we select highly capable, state-of-the-art open-weights models as baselines—specifically Qwen3.5-4B for the understanding tasks and Wan2.2-I2V-5B~\cite{wan2025} for video generation—to ensure our baseline performance is not artificially lowered. 
+
+% To guarantee a fair comparison focused strictly on data \textit{quality} rather than \textit{quantity}, we implement a standardized and aligned processing pipeline. We deliberately restrict our raw input streams to a minimal scale, such as approximately \(1,000\) short-horizon GUI trajectories and \(20\) minutes of daily-life footage. These identical streams are then processed by three different annotators: the base model itself (serving as a self-refinement baseline), Gemini-3.1-Pro-Preview, and our proposed $\text{DataClaw}_0$. After applying a coarse, rule-based heuristic filter to discard fundamentally malformed outputs, we randomly sample an equal number of valid instances from each pool. This strict volume alignment isolates the impact of annotation quality for the final Supervised Fine-Tuning (SFT) sets.
+
+% We evaluate the fine-tuned models using standard metrics for each domain, such as Step/Task Success Rates (SSR/TSR) for GUI navigation, Fréchet Video Distance (FVD) and Contact mAP for video generation, and Partial/Overall Accuracy for VQA. As demonstrated in Table \ref{tab:downstream_results}, the zero-shot base models naturally struggle with these complex tasks, and fine-tuning on self-processed data yields only marginal improvements. In contrast, leveraging advanced annotators significantly boosts performance. Overall, models fine-tuned on $\text{DataClaw}_0$ data achieve highly competitive results, performing on par with those trained on Gemini-processed data under the exact same volume constraints.
+
+% A nuanced analysis of the results reveals an interesting and consistent trade-off between the two advanced annotators. Gemini-processed data tends to hold a slight edge in partial or step-level metrics, such as achieving \(39.5\%\) versus $\text{DataClaw}_0$'s \(38.2\%\) in GUI SSR, and \(53.4\%\) versus \(52.1\%\) in VQA Partial Accuracy. We attribute this to the massive knowledge base of proprietary models, which often generate exhaustive—albeit sometimes verbose—intermediate steps that help models secure partial credit. 
+
+% However, $\text{DataClaw}_0$ consistently outperforms Gemini on the more rigorous, end-to-end metrics that dictate ultimate task success. For instance, $\text{DataClaw}_0$ achieves a higher GUI Task Success Rate (\(15.6\%\) vs. \(14.2\%\)) and VQA Overall Accuracy (\(33.2\%\) vs. \(31.5\%\)). Similarly, in the action video generation task, $\text{DataClaw}_0$ not only yields better fundamental video quality with an FVD of \(288.6\), but also produces significantly sharper physical interactions, outperforming Gemini in Contact mAP (\(51.2\) vs. \(48.5\)). 
+
+% These findings compellingly validate our design philosophy. While massive proprietary models like Gemini are excellent general-purpose annotators, $\text{DataClaw}_0$'s specialized refinement pipeline extracts strictly task-relevant, high-density structures. By preventing the learning signal from being diluted by verbosity, $\text{DataClaw}_0$ enables base models to more effectively master complex, end-to-end capabilities, proving to be a highly efficient and controllable alternative for premium data synthesis.
+
+\begin{table*}[t]
+\centering
+\caption{\textbf{Downstream Application Performance across Three Distinct Tasks.} We compare the effectiveness of SFT data generated by different sources under strict volume alignment. Best results are in \textbf{bold}.}
+\label{tab:downstream_results}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l | cc | ccc | cc}
+\toprule
+\multirow{3}{*}{\textbf{Data Source for SFT}} & \multicolumn{2}{c|}{\textbf{GUI Navigation}} & \multicolumn{3}{c|}{\textbf{Action Video Generation}} & \multicolumn{2}{c}{\textbf{Spatio-temporal VQA}} \\
+& \multicolumn{2}{c|}{(\textit{Base: Qwen3.5-4B})} & \multicolumn{3}{c|}{(\textit{Base: Wan2.2-I2V-5B})} & \multicolumn{2}{c}{(\textit{Base: Qwen3.5-4B})} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-6} \cmidrule(lr){7-8}
+& SSR (\%) \(\uparrow\) & TSR (\%) \(\uparrow\) & FVD \(\downarrow\) & Consis. (\%) \(\uparrow\) & Contact mAP \(\uparrow\) & Partial Acc. (\%) \(\uparrow\) & Overall Acc. (\%) \(\uparrow\) \\
+\midrule
+\textit{Zero-shot Base Model} & 12.4 & 1.2 & 385.2 & 68.4 & 18.5 & 28.3 & 9.8 \\
+\midrule
+Processed by Base Model & 16.8 & 3.5 & 362.1 & 69.1 & 24.2 & 33.5 & 14.2 \\
+Processed by Gemini-3.1-Pro & \textbf{39.5} & 14.2 & 295.4 & \textbf{76.2} & 48.5 & \textbf{53.4} & 31.5 \\
+\rowcolor{gray!10} \textbf{Processed by $\text{DataClaw}_0$} & 38.2 & \textbf{15.6} & \textbf{288.6} & 75.8 & \textbf{51.2} & 52.1 & \textbf{33.2} \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.91\linewidth]{figures/tsne_scaling.pdf}
+\caption{
+Overview of the $\text{DataClaw}_0$ data mixture and scaling behavior. 
+Left: domain and subtask distribution of the constructed samples. 
+% Right: scaling curves and t-SNE visualization comparing $\text{DataClaw}_0$-E, $\text{DataClaw}_0$-O, raw data, and Qwen3.5-9B.
+Right: Comparison of scaling curves for $\text{DataClaw}_0$-E and $\text{DataClaw}_0$-O, and t-SNE visualization of $\text{DataClaw}_0$-E, the raw data, and Qwen3.5-9B.
+}
+    \label{fig:scaling_omni}
+\end{figure}
+
+\subsection{Scaling Laws and Emergent Diversity }
+\label{subsec:scaling_and_diversity}
+
+We study the scaling behavior and emergent diversity of $\text{DataClaw}_0$ to evaluate the necessity of domain-decoupled expert routing. As summarized in Figure~\ref{fig:scaling_omni}, the unified $\text{DataClaw}_0$-O model shows unstable scaling under mixed-domain training, suggesting severe task interference among heterogeneous multimodal extraction tasks. By contrast, $\text{DataClaw}_0$-E mitigates this issue through expert routing, enabling each domain expert to specialize on its local data distribution.
+
+We also observe that $\text{DataClaw}_0$ improves semantic diversity rather than merely replicating training patterns. Feature-space analysis and fuzzy-intent evaluation show that $\text{DataClaw}_0$ covers a broader intent space and remains robust to ambiguous, colloquial, or incomplete requests. Full analysis is reported in Appendix~\ref{app:scaling_diversity}.
+
+
+
+\subsection{Ablation Studies}
+\label{sec:ablation}
+
+We conduct ablations on reward design and expert routing in Table~\ref{tab:ablation}.
+SFT establishes basic instruction following and structured generation, raising the Field score to 100.00 and largely improving Semantic and Sequence scores. GRPO without \(R_{anchor}\) slightly increases Semantic performance but lowers Sequence accuracy, suggesting that format- or text-oriented rewards alone may not preserve spatio-temporal fidelity. With \(R_{anchor}\), the model obtains the best Sequence score of 71.96, confirming the necessity of explicit spatial-temporal grounding.
+Ablation results of expert routing demonstrate that accurate expert selection is indispensable. The GUI and embodied experts possess strong domain-specific capabilities, with each excelling only in its own task domain and suffering severe performance degradation when applied to the other.
+
+\begin{table*}[t]
+\centering
+\caption{Ablation studies on reward design and expert routing. Reward ablation uses the 10\% SFT initialization. Routing ablation is conducted on Embodied and GUI tasks by comparing correct routing with forced wrong routing.}
+\label{tab:ablation}
+\small
+
+\begin{minipage}{0.48\textwidth}
+\centering
+\textbf{(a) Reward Design}\\[2mm]
+\begin{tabular}{lccc}
+\toprule
+\textbf{Variant} & \textbf{Field} & \textbf{Sem.} & \textbf{Seq.} \\
+\midrule
+Minimal Init. & 82.50 & 36.79 & 45.40 \\
+SFT Only & 100.00 & 82.54 & 70.83 \\
+GRPO w/o \(R_{anchor}\) & 100.00 & \textbf{83.32} & 70.11 \\
+\textbf{GRPO w/ \(R_{anchor}\)} & \textbf{100.00} & 82.36 & \textbf{71.96} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\textbf{(b) Expert Routing}\\[2mm]
+\begin{tabular}{lccc}
+\toprule
+\textbf{Domain (Expert)} & \textbf{Field} & \textbf{Sem.} & \textbf{Seq.} \\
+\midrule
+Embodied (Gui) & 0.00 & 0.00 & 50.00 \\
+Embodied (Emb) & 96.50 & 74.21 & 63.48 \\
+GUI (Gui) & \textbf{100.00} & \textbf{84.93} & \textbf{76.41} \\
+GUI (Emb) & 0.00 & 52.55 & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+
+\end{table*}
+
+
+
+\subsection{Qualitative Analysis}
+As illustrated in Figure~\ref{fig:case_study}, across both robot manipulation and GUI reconstruction scenarios, $\text{DataClaw}_0$-E outperforms baseline methods by accurately identifying key behavioral patterns, selecting temporally consistent evidence, eliminating irrelevant trajectory fragments, and establishing complete, structured task supervision; by contrast, baseline approaches suffer from clip mismatches, missing critical fields, retained distractors, and unstructured sequence outputs.      
+
+
+
+\begin{figure}[htbp]
+    \centering
+\includegraphics[width=\textwidth]{figures/case.pdf}
+\caption{
+Qualitative visualization. 
+The left panel shows robot manipulation data construction, and the right panel shows GUI task reconstruction. 
+We compare the outputs of general-purpose MLLMs with $\text{DataClaw}_0$-E, where red crosses indicate invalid or incomplete tailoring results and green checks indicate correct structured outputs.
+}   \label{fig:case_study}
+\end{figure}
+
+
+

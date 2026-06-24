@@ -1,0 +1,42 @@
+% Claim:
+%   The report contributes a session-centered runtime dataflow, a compact
+%   object vocabulary, backend-aware boundaries, and an evidence-oriented
+%   release protocol.
+% Evidence:
+%   initial-tech-report/references/OpenRath-README.md lines 22-84 and 170-241;
+%   audited local OpenRath source snapshot and generated evidence packets.
+% Open questions:
+%   Implementation Milestones and evidence packets should anchor each
+%   contribution to concrete files, commands, and artifacts.
+
+This report makes four technical contributions to the runtime-state boundary
+for agent systems.
+
+\begin{enumerate}[itemsep=0.1em, topsep=0.2em]
+  \item \textbf{A session-centered runtime dataflow.}
+  OpenRath treats \texttt{Session} as the value that moves through the agent
+  runtime, so conversation chunks, placement, lineage, usage, pending work,
+  tool evidence, and memory-boundary records are represented as one inspectable
+  flow rather than separate controller bookkeeping.
+
+  \item \textbf{A PyTorch-like object vocabulary for agent programs.}
+  The framework organizes agent programs around
+  \texttt{Session}, \texttt{Sandbox}, \texttt{Tool}, \texttt{Agent},
+  \texttt{Memory}, \texttt{Workflow}, and \texttt{Selector}. Each object has a
+  narrow runtime boundary while preserving the same \texttt{Session -> Session}
+  shape, including runtime-routed control flow.
+
+  \item \textbf{Backend-aware boundaries for tools and memory.}
+  OpenRath separates runtime state from the execution backend that runs tools
+  and the memory backend that persists recallable state. This lets local
+  execution, optional OpenSandbox placement, MCP-style tools, and memory
+  services participate in one session-centered model as their evidence packets
+  are verified.
+
+  \item \textbf{An audit-first release protocol.}
+  The report maps claims to packets: lineage export, local sandbox execution,
+  workflow transcript, focused tests, visual QA, claim ledger, and a
+  memory source audit. Broad benchmark superiority, human preference
+  results, and cross-system leaderboard claims are reserved for follow-on
+  quantitative evaluation.
+\end{enumerate}

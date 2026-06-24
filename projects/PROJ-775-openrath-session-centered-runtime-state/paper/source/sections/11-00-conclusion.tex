@@ -1,0 +1,47 @@
+% Claim:
+%   The report should close by restating the narrow, memorable thesis:
+%   OpenRath is about making agent runtime state explicit as Session.
+% Evidence:
+%   Earlier sections define the programming model, implementation milestones,
+%   ecosystem boundary, evidence protocol, and scoped limitations.
+% Open questions:
+%   The conclusion should stay stable as evidence packets mature; avoid adding
+%   claims here that are not backed elsewhere in the report.
+
+OpenRath's contribution is deliberately narrow: it makes the state that agents
+operate on explicit. A multi-agent system is not only a prompt graph, a tool
+registry, a trace stream, or a benchmark harness. It is a runtime in which
+conversation chunks, branch lineage, sandbox placement, tool effects, memory
+interactions, usage, artifacts, and replay evidence must remain connected.
+
+\texttt{Session} is OpenRath's proposed boundary for that runtime state. The
+programming model is compact because every major component either transforms a
+\texttt{Session}, annotates it, dispatches work through its placement, or emits
+evidence that can be inspected after the run. Because that evidence lives in the
+value the program already passes around rather than in a side channel
+reconstructed afterward, it stays available exactly when a reviewer needs it.
+This makes OpenRath complementary to graph runtimes, tracing SDKs, tool
+protocols, sandbox providers, and real-environment benchmarks rather than a
+replacement for them.
+
+The current technical report therefore makes a scoped claim: deterministic
+runtime behavior can be reviewed through release packets today, while broader
+quality comparisons, memory-quality evaluation, and live-provider results
+belong in follow-on benchmark artifacts. The durable thesis is that reliable
+agent systems need a first-class runtime value, and OpenRath makes
+\texttt{Session} that value.
+
+That thesis is also the practical standard for the next iteration of the
+project. New capabilities should enter the report only when they preserve the
+same boundary: they should transform a \texttt{Session}, attach evidence to a
+\texttt{Session}, or expose a backend effect through a \texttt{Session}. This
+keeps the system from becoming a collection of hidden side channels. It also
+keeps the report honest: implementation milestones, case studies, and
+evaluation claims can expand without changing the core argument that agent
+systems become easier to compose, debug, review, and evaluate when their
+runtime state is explicit.
+
+If the last decade of deep learning made the tensor the value a network is
+built around, the next generation of agent systems needs the same move: a
+single runtime value that everything reads, transforms, and explains. OpenRath
+proposes that value is the \texttt{Session}.

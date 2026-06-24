@@ -1,0 +1,106 @@
+{
+  "source_bundle": "assets/frontis_self_contained_bundle_v1.zip",
+  "regeneration_command": "python scripts/make_main_text_figures.py",
+  "figures": [
+    {
+      "tex_label": "fig:pipeline",
+      "directory": "fig1_pipeline",
+      "script": "render_fig1_pipeline.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    },
+    {
+      "tex_label": "fig:funnel",
+      "directory": "fig2_funnel",
+      "script": "render_fig2_funnel.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    },
+    {
+      "tex_label": "fig:benchmark-stats-main",
+      "directory": "fig3_benchmark_statistics",
+      "script": "render_fig3_benchmark_statistics.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    },
+    {
+      "tex_label": "fig:leaderboard",
+      "directory": "fig4_leaderboard",
+      "script": "render_fig4_leaderboard.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    },
+    {
+      "tex_label": "fig:role-class-main",
+      "directory": "fig5_role_class_heatmap",
+      "script": "render_fig5_role_class_heatmap.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    },
+    {
+      "tex_label": "fig:artifact-main",
+      "directory": "fig6_artifact_type_heatmap",
+      "script": "render_fig6_artifact_type_heatmap.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    },
+    {
+      "tex_label": "fig:radar-main",
+      "directory": "fig7_dimension_profile_heatmap",
+      "script": "render_fig7_dimension_profile_heatmap.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    },
+    {
+      "tex_label": "fig:skill-transfer-main",
+      "directory": "fig8_skill_transfer_heatmap",
+      "script": "render_fig8_skill_transfer_heatmap.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    },
+    {
+      "tex_label": "fig:score-cost",
+      "directory": "fig9_score_cost",
+      "script": "render_fig9_score_cost.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    },
+    {
+      "tex_label": "fig:judge-appendix",
+      "directory": "fig10_judge_ablation_heatmaps",
+      "script": "render_fig10_judge_ablation_heatmaps.py",
+      "data": "data.json",
+      "outputs": [
+        "figure.pdf",
+        "figure.png"
+      ]
+    }
+  ]
+}

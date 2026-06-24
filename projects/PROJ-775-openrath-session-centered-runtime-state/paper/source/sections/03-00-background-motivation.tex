@@ -1,0 +1,44 @@
+% Claim:
+%   OpenRath is motivated by the gap between loop-shaped agents and the
+%   branchable, replayable runtime state required by multi-agent systems.
+% Evidence:
+%   initial-tech-report/references/OpenRath-README.md lines 22-84 and 170-245.
+% Open questions:
+%   Later release evidence should keep distinguishing implemented runtime
+%   claims from future benchmark comparisons.
+
+Section~1 framed the gap with a single run, and the related work above situated
+OpenRath among adjacent agent systems---tool-using and acting agents, multi-agent
+frameworks, runtime/observability layers, memory and retrieval, evaluation
+environments, and provenance standards. This section states the gap that runs
+underneath all of them as a general property of multi-agent work. The loop
+boundary that suffices for one assistant becomes a weak state boundary the moment
+an application branches across roles, tools, memory, files, sandboxes, and
+resumed runs. The transcript still shows a final answer, but the runtime path
+that produced it is spread across controller code, tool logs, memory stores,
+workspace state, and provider traces.
+
+This pressure is becoming more visible as agent products move from demos to
+longer-running workflows. Once an agent edits a repository, calls external
+tools, resumes after interruption, or routes work through multiple roles, the
+state boundary becomes an engineering contract rather than an implementation
+detail. Users and reviewers need to ask ordinary runtime questions: what was
+the input state, what changed, which backend performed the change, which memory
+or artifact influenced the decision, and how can the run be resumed or
+replayed? A framework that cannot answer those questions may still produce a
+plausible response, but it cannot easily support release review, debugging,
+audit, or systematic evaluation.
+
+This hidden state is the central motivation for OpenRath. Multi-agent work is
+not merely one conversation with more roles. It naturally creates multiple
+runtime paths: one branch gathers context, another edits or tests an artifact,
+another validates evidence, and another compresses the result. If every
+intermediate step is placed into one shared transcript, later agents inherit too
+much noise. If intermediate work is hidden in controller state, reviewers cannot
+reconstruct which branch produced a claim, what memory was recalled, which
+sandbox touched a file, or what evidence was discarded during compression.
+
+OpenRath treats branchability as a property of runtime state rather than as a controller-side convention. A branch should inherit the portion of parent context required for independent work, accumulate local evidence during execution, and merge useful results back without erasing provenance. The object being branched is therefore \texttt{Session}: the runtime value that flows through agents, tools, memory-boundary operations, sandbox placement, compressors, and workflows.
+
+This boundary is the foundation for the remainder of the report. The next section makes it concrete through a compact object vocabulary centered on \texttt{Session}, the value that every other component reads, transforms, annotates, or passes forward.
+

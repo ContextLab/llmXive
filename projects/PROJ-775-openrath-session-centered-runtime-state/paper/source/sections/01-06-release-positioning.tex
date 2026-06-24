@@ -1,0 +1,29 @@
+% Claim:
+%   OpenRath should be positioned by runtime object boundary, not as a generic
+%   replacement for agent frameworks, graph runtimes, tracing SDKs, MCP, or
+%   benchmark harnesses.
+% Evidence:
+%   Developed in full by Related Work (Section 2); primary sources cited there.
+% Open questions:
+%   Before publication, pin exact source versions and access metadata in the
+%   source snapshot.
+
+The ecosystem positioning is intentionally narrow. Agent infrastructure is
+moving toward durable execution, richer tracing, standardized tool/data
+protocols, and real-environment evaluation; representative systems include
+AutoGen~\cite{autogen}, LangGraph~\cite{langgraph-persistence}, the OpenAI
+Agents SDK~\cite{openai-agents-tracing}, and MCP~\cite{mcp-docs,anthropic-mcp}.
+OpenRath complements those layers by working at a different boundary: the
+runtime value that carries their effects. A graph runtime can schedule work, a
+tracing system can observe spans, MCP can expose tools, and a sandbox can run
+commands; OpenRath asks how those effects become one branchable, inspectable,
+replayable state object that agent programs can pass between agents and
+workflows. Related Work develops this layer by layer; here it is enough to fix
+the boundary.
+
+OpenRath is neither a universal substitute for graph runtimes, tracing systems, MCP servers, sandbox providers, or benchmark harnesses, nor a thin wrapper around any one of them. The intended role is connective: a \texttt{Session} is the object that can
+be scheduled, traced, dispatched, persisted, forked, merged, compressed, and
+reviewed without forcing each layer to invent its own incompatible
+representation of agent state. The central claim is smaller and more defensible:
+multi-agent systems need a first-class runtime state, and \texttt{Session} is
+OpenRath's candidate for that state.

@@ -1,0 +1,105 @@
+\section{Method}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.99\linewidth]{figures/Overview.png}
+  \caption{
+  \textbf{Overview.}
+  The pipeline consists of two parts. First, $\text{DataClaw}_0$ constructs training data by extracting bottom-up factual anchors from raw multimodal data, including key frames, steps, actions, trajectories, and scenes, and then combining them with domain-specific intents for top-down semantic synthesis by a strong VLM. This produces large-scale structured data across daily life, education, embodied, GUI-agent, and AIGC domains. Second, the constructed data is used to train $\text{DataClaw}_0$ models under two paradigms: an omni model trained on mixed-domain data and expert models trained on per-domain subsets. During inference, user intents are handled either directly by the omni model or routed to domain experts, yielding refined structured data for downstream multimodal tasks.
+  }
+  \label{fig:overview}
+\end{figure}
+
+
+\subsection{Problem Formulation: Agentic Data Tailoring}
+
+Traditional multimodal tasks (e.g., Video Captioning or Visual Question Answering) are typically modeled as passive descriptive or question-answering processes. In contrast, $\text{DataClaw}_0$ aims to tackle the problem of \textit{Agentic Multimodal Data Tailoring}. This requires the model to act as an intelligent agent that actively filters, reasons over, and reorganizes high-value structured assets from lengthy, noisy raw multimodal streams, strictly guided by specific high-level intents.
+
+We define the input as a raw multimodal data stream:
+\begin{equation}
+X_{raw} = \{x_1, x_2, \dots, x_T\}
+\end{equation}
+where \(x_t\) represents the visual frame or multimodal segment at time step \(t\) (e.g., a sequence of frames from a long video or GUI operation screenshots). Simultaneously, an intent instruction \(I\) is provided to represent the user's high-level objective or the downstream task requirement.
+
+The goal of the tailoring agent is to generate customized, structured knowledge assets:
+\begin{equation}
+Y_{struct} = \{y_1, y_2, \dots, y_L\}
+\end{equation}
+Unlike free-form text, \(Y_{struct}\) must strictly conform to a predefined structural schema \(\Phi\) (e.g., a specific JSON format, Markdown syntax, or action code logic) tailored to the intent \(I\).
+
+Therefore, the optimization objective of the core $\text{DataClaw}_0$ tailoring agent \(F_\theta\) (parameterized by \(\theta\)) is to maximize the conditional generation probability given the raw data stream and intent, constrained by the structural schema:
+\begin{equation}
+\theta^* = \arg\max\limits_\theta \sum\limits_{(X_{raw},I,Y_{struct})\in D} \log P(Y_{struct}\mid X_{raw},I;\theta)\cdot \mathbb{I}(Y_{struct}\in\Phi)
+\end{equation}
+where \(D\) is the training dataset, and \(\mathbb{I}(\cdot)\) is an indicator function that equals 1 if the generated sequence conforms to the structural schema \(\Phi\), and 0 otherwise.
+
+This paradigm necessitates two core agentic capabilities: (1) \textit{Information Filtering and Focusing}, which involves eliminating redundant background noise from \(X_{raw}\) based on \(I\) (where \(T \gg L\)); and (2) \textit{Structural Reorganization}, ensuring that the generated \(Y_{struct}\) is not only semantically accurate but also strictly adheres to the required formatting.
+
+\subsection{Data Construction Pipeline}
+
+To train the tailoring agent \(F_\theta\), we construct large-scale triplets \((X_{raw}, I, Y_{struct})\) through a two-stage automated pipeline. First, a lightweight expert ensemble \(H\) extracts factual anchors from raw multimodal streams:
+\begin{equation}
+A = H(X_{raw}) = \{a_k=(t_k,p_k,c_k)\}_{k=1}^{K},
+\end{equation}
+where each anchor records timestamp, spatial position, and local semantic content. These anchors provide reliable grounding signals and reduce hallucinations in long-sequence annotation.
+
+Second, a strong VLM synthesis engine \(S\) generates structured supervision conditioned on the raw input, extracted anchors, and domain intent:
+\begin{equation}
+Y_{struct}=S(X_{raw}, A, I_{domain}).
+\end{equation}
+The resulting corpus covers multiple multimodal domains and serves as the foundation for subsequent SFT and RL training of $\text{DataClaw}_0$. Detailed construction procedures, expert modules, and prompting strategies are provided in Appendix~\ref{app:data_pipeline}.
+
+
+\subsection{Rule-Driven Reinforcement Learning via GRPO}
+
+After SFT, we further optimize $\text{DataClaw}_0$ with rule-driven GRPO to improve formatting reliability, reduce hallucinations, and strengthen spatio-temporal grounding. Instead of training an additional neural reward model, we use deterministic rewards tailored to structured multimodal data:
+\begin{equation}
+R(Y)=\lambda_1R_{format}(Y,\Phi)+\lambda_2R_{anchor}(Y,A)+\lambda_3R_{eff}(Y),
+\end{equation}
+where \(R_{format}\) checks schema compliance, \(R_{anchor}\) measures alignment with extracted factual anchors and trajectories, and \(R_{eff}\) discourages overly verbose reasoning.
+
+Given a group of sampled outputs, GRPO normalizes their rewards within the group to estimate relative advantages:
+\begin{equation}
+\hat{A}^{(g)}=\frac{R^{(g)}-\mu_R}{\sigma_R}.
+\end{equation}
+The policy is then updated with a clipped objective and a KL regularizer against the reference model. This SFT-initialized, rule-reward optimization enables $\text{DataClaw}_0$ to produce more valid, grounded, and concise structured outputs. Detailed reward definitions and the full GRPO objective are provided in Appendix~\ref{app:grpo}.
+
+
+
+\subsection{Inference and Deployment Paradigms}
+
+$\text{DataClaw}_0$ is deployed as a structured multimodal tailoring agent that maps raw streams \(X_{raw}\) and user intents \(I\) to schema-aligned outputs \(Y_{struct}\). 
+Its inference pipeline follows three stages: multimodal ingestion and intent parsing, schema-constrained policy inference, and post-hoc grounding verification with factual anchors \(A\). This design improves output validity and keeps the generated structured data grounded in the input stream.
+
+$\text{DataClaw}_0$ supports two deployment paradigms. \textbf{$\text{DataClaw}_0$-O} uses a unified omni model for flexible cross-domain processing, while \textbf{$\text{DataClaw}_0$-E} uses a domain-decoupled expert architecture, where each request is handled by the corresponding expert according to the target scenario or deployment configuration. The omni setting favors simplicity and generality, whereas the expert setting provides stronger domain specialization and modular scalability.
+
+Detailed inference architecture and deployment mechanisms are provided in Appendix~\ref{app:deployment}.
+
+
+% \subsection{Inference Architecture \& Deployment Paradigms}
+
+% To transform the GRPO-aligned policy model \(\pi_\theta\) into an industrial-grade tailoring agent, we design a highly robust system architecture. Furthermore, to accommodate diverse downstream applications, we propose two complementary deployment paradigms, perfectly mapping to the Omni and Expert architectures introduced earlier.
+
+% \subsubsection{Core System Architecture}
+
+% As shown in Fig.\ref{fig:overview}, $\text{DataClaw}_0$'s system architecture consists of three decoupled core modules:
+% \begin{itemize}[leftmargin=20pt, labelsep=4pt]
+%     \item \textbf{Multimodal Ingestion \& Intent Parsing:} Receives raw multimodal data streams \(X_{raw}\) and user-defined intents \(I\), converting them into a context sequence readable by the model.
+%     \item \textbf{Cognitive Inference Engine:} The core computational unit deploying \(\pi_\theta\). To guarantee absolute output validity, we integrate a lightweight \textit{Streaming Grammar Constrainer} that dynamically masks the probabilities of invalid tokens that violate the target schema \(\Phi\), physically preventing formatting collapses.
+%     \item \textbf{Structural Verification \& Grounding:} Utilizes the factual anchors \(A\) for \textit{Post-Grounding}. If \(Y_{struct}\) contains coordinates of a UI element, the system calls underlying APIs to verify their validity, ensuring the tailored data is directly usable.
+% \end{itemize}
+
+% \subsubsection{Omni vs. Expert Deployment Paradigms}
+
+% Considering the heterogeneity of multimodal data and varying computational constraints, $\text{DataClaw}_0$ supports two distinct deployment architectures:
+% \begin{itemize}[leftmargin=20pt, labelsep=4pt]
+%     \item \textbf{$\text{DataClaw}_0$-O (Omni Tailoring Agent):} A unified, monolithic model jointly trained across all five domains. It serves as a generalist agent capable of handling diverse, cross-domain intents \(I\) within a single forward pass. This paradigm is ideal for comprehensive data processing pipelines where intent flexibility is paramount.
+%     \item \textbf{$\text{DataClaw}_0$-E (Expert Tailoring System):} A decoupled architecture comprising domain-specific tailoring agents (e.g., a dedicated GUI expert, an Embodied AI expert). An upstream lightweight router dispatches \(X_{raw}\) and \(I\) to the corresponding expert. This paradigm maximizes domain-specific accuracy and allows for modular updates without catastrophic forgetting.
+% \end{itemize}
+
+
+\subsection{Benchmark Construction and Evaluation}
+
+We construct \textbf{$\text{DataClaw}_0$-val} by diversity-aware sampling 200 high-quality examples, ensuring coverage of diverse multimodal inputs, target schemas, and long-tail cases. We also introduce \textbf{$\text{DataClaw}_0$-Intent}, a fuzzy-intent stress test that evaluates whether the agent can infer underspecified user intents from colloquial, ambiguous, or incomplete requests.
+We evaluate outputs with a hierarchical metric tailored to structured multimodal data. The metric first enforces JSON validity and then measures schema-field correctness, textual semantic alignment, and trajectory-shape similarity. Full construction details and metric definitions are provided in Appendix~\ref{app:benchmark}.
+

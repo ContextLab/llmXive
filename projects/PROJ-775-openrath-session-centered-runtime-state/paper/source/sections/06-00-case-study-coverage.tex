@@ -1,0 +1,33 @@
+% Claim:
+%   The report keeps case studies as scoped runtime demonstrations rather
+%   than long product demos or unmeasured benchmark results.
+% Evidence:
+%   Existing OpenRath examples for engineering agents, research transformer,
+%   sandbox execution, workflow composition, and persistence/compression APIs.
+% Open questions:
+%   Publication should attach executable packets for any case study promoted
+%   from design coverage to measured evaluation.
+
+The case studies are used as scoped applicability arguments rather than benchmark results. Their purpose is to identify the kinds of workloads for which a \texttt{Session}-centered runtime model is intended, and to relate those workloads to the deterministic evidence already provided by the release packet suite. The current packets cover the runtime core: lineage export, local sandbox execution, scripted workflow composition, focused implementation tests, and explicit skips for evidence-gated memory and optional OpenSandbox support. The role of the case studies is therefore to connect these audited runtime claims to realistic workload patterns, without converting qualitative applicability into quantitative performance claims.
+
+\begin{table}[!htbp]
+\vspace{0.1em}
+\centering
+\small
+\caption{Case-study coverage kept in the main report. Each row states what the workload demonstrates, not a measured leaderboard result.}
+\label{tab:case-study-coverage}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+Workload & Runtime point & Current evidence status \\
+\midrule
+Repository editing & Multi-role planning, sandbox-bound tools, file artifacts, QA review, and lineage around a shared workspace. & Expressiveness coverage; promoted to a result only with a fixed repo seed and measured tests. \\
+Research synthesis & Branch-specific context, compression, verifier roles, optional visual tooling, and final style head. & Expressiveness coverage; promoted to a result only with citation-faithfulness and compression-ablation packets. \\
+Long-running coding & Persistence, resumability, budget control, context compression, sandbox continuity, and recovery after interruption. & Runtime coverage; promoted to a result only with seeded task packets and recovery measurements. \\
+Memory-assisted workflow & Recall/commit should be visible as session operations rather than hidden prompt side effects. & Evidence-gated: audited source lacks current local-memory anchors. \\
+Sandbox-isolated execution & Tool effects should carry backend placement, command/file/code logs, and cleanup status. & Local packet passes; optional OpenSandbox packet records a skip. \\
+\bottomrule
+\end{tabularx}
+\vspace{0.1em}
+\end{table}
+
+Repository editing and long-running coding provide the most direct motivation for durable and inspectable agent state. These settings include software-engineering benchmarks built from real GitHub issues~\cite{swebench}, agent-computer interfaces for navigating, editing, and testing repositories~\cite{swe-agent}, and company-style digital-worker tasks~\cite{theagentcompany}. Research synthesis motivates branch-specific context, verifier roles, and controlled compression, since different branches may collect, filter, and restyle evidence before a final synthesis is produced. Memory-assisted workflows define the intended persistent-state plane, but remain scoped because the audited source tree does not yet provide current local-memory anchors. Sandbox-isolated execution is the strongest implementation-backed case: the local packet already records command execution, file effects, code execution, and cleanup status.

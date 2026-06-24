@@ -1,0 +1,104 @@
+% Claim:
+%   OpenRath's architecture turns Session from a programming value into an
+%   auditable runtime graph with explicit branch, tool, backend, persistence,
+%   and replay paths.
+% Evidence:
+%   /Users/kk/Project/OpenRath/src/rath/session/session.py;
+%   /Users/kk/Project/OpenRath/src/rath/session/loop.py;
+%   /Users/kk/Project/OpenRath/src/rath/session/graph/export.py;
+%   /Users/kk/Project/OpenRath/src/rath/backend/.
+% Open questions:
+%   Later versions should specify semantic merge policies, remote backend trust
+%   policy, and artifact export formats.
+
+The runtime architecture answers one question: how does a \texttt{Session}
+remain inspectable as it moves through agents, tools, sandboxes, branches, and
+stored artifacts? OpenRath uses a small lifecycle rather than a separate runtime
+object for every phase. A session is created from user or agent context, placed
+on an execution backend when needed, transformed by agents or workflows,
+branched for parallel work, merged after review, persisted for replay, and
+released when sandbox resources are no longer owned.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{assets/mermaid-diagrams/session-lifecycle.png}
+\caption{Session lifecycle as a single runtime value: the same object is placed,
+transformed, branched, merged, persisted, and replayed rather than replaced by a
+separate orchestration state.}
+\label{fig:session-lifecycle}
+\end{figure}
+
+\begin{table}[!htbp]
+\vspace{0.15em}
+\centering
+\small
+\caption{Runtime path of an OpenRath session.}
+\label{tab:runtime-session-path}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+Phase & What becomes auditable \\
+\midrule
+Create & Initial user text, agent prompts, role, and ordered chunk state. \\
+Place & Backend intent from \texttt{Session.to(...)} and the workspace where tools can run. \\
+Transform & Model calls, tool requests, results, errors, compressors, workflow steps, and usage. \\
+Branch & Parent sessions, \texttt{fork}, \texttt{detach}, \texttt{merge}, branch provenance, and merge inputs. \\
+Persist & Replayable chunks, lineage JSONL rows, usage, and source evidence. \\
+Release & Sandbox handle ownership and backend lifetime. \\
+\bottomrule
+\end{tabularx}
+\vspace{0.15em}
+\end{table}
+
+Branching is the point where a transcript becomes a graph. \texttt{fork}
+duplicates state while preserving the parent relation; \texttt{detach} starts a
+new lineage root from copied content; \texttt{merge} joins compatible sessions
+and records both parents. In the current implementation, merge compatibility
+includes sandbox compatibility: sessions must share a live sandbox handle or
+target the same unbound backend. This makes placement part of the runtime graph
+rather than an external execution detail.
+
+Tool execution follows a layered path. The model sees FlowToolCall schemas. The session loop
+combines built-in and user tools, sends schemas to the provider, resolves returned tool calls by
+name, validates arguments, and invokes the selected tool with the active session. When a tool
+needs side effects, it dispatches a backend payload through the session’s sandbox. Malformed
+arguments, unknown tools, exceptions, and successful results all become tool-result chunks rather
+than disappearing into controller flow.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{assets/mermaid-diagrams/tool-execution-sequence.png}
+\caption{Tool execution boundary: schemas are visible to the model, side effects
+run through the session's sandbox and backend, and results return as session
+evidence.}
+\label{fig:tool-execution-sequence}
+\end{figure}
+
+\begin{table}[!htbp]
+\vspace{0.15em}
+\centering
+\small
+\caption{Backend boundary used by tool execution.}
+\label{tab:runtime-backend-boundary}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.25\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Boundary & Owner and role \\
+\midrule
+Placement intent & \texttt{Session} stores the backend name and opening spec before execution. \\
+Resource lifetime & A sandbox handle shares or releases live execution resources across branches. \\
+Capability claim & The backend class advertises isolation level and supported tool payloads. \\
+Concrete execution & The backend instance runs local, OpenSandbox, or future backend operations. \\
+Evidence return & The session loop appends results or errors to the session stream. \\
+\bottomrule
+\end{tabularx}
+\vspace{0.15em}
+\end{table}
+
+Persistence and replay close the loop. A running session can append rows to its
+session JSONL store; lineage export can project sessions into plain JSONL rows
+containing identifiers, parent identifiers, lineage operator, lineage kind,
+chunk count, and cumulative usage. The format is intentionally boring: it can be
+inspected with command-line tools, attached to release evidence, and converted
+into diagrams later. This is the architectural through-line of the report:
+OpenRath makes agent work easier to evaluate because conversation, tools,
+placement, lineage, usage, and replay artifacts are carried by the same
+session-centered runtime path.

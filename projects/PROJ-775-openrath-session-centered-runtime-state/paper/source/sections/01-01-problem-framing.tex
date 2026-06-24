@@ -1,0 +1,17 @@
+% Claim:
+%   Modern agent applications are no longer single conversations; they need
+%   explicit runtime state for branching, tools, memory, placement, and replay.
+% Evidence:
+%   initial-tech-report/references/OpenRath-README.md lines 50-84 and 170-241.
+% Open questions:
+%   Later evidence packets should show each pain point with deterministic
+%   artifacts rather than relying only on prose examples.
+
+Consider a long agent run: it plans, forks a branch to test an approach, calls tools, edits files inside a sandbox, recalls memory, compresses context, and eventually returns a correct answer. The natural audit questions are straightforward: which branch produced the final result, which tool modified which file, which memory item was recalled or committed, and which evidence was removed during compression? In many systems, the run cannot answer these questions. The final output may be correct, but the runtime state that produced it has been fragmented across side channels.
+
+Modern agent applications increasingly resemble runtime systems rather than isolated conversations. A simple loop that interleaves reasoning and acting~\cite{react}---appending messages, calling a model, executing tools, and appending observations---remains a useful pattern for a single assistant. Yet this loop becomes a weak state boundary once work is distributed across roles, tools, memory stores, sandboxes, branches, and resumed executions.
+
+OpenRath identifies this fragmentation as a hidden-runtime-state problem. A message list preserves the conversational surface, but it typically does not expose role provenance, abandoned branches, tool placement, workspace effects, memory recall or commit events, or evidence discarded by compression. Without lineage, tool evidence, sandbox metadata, and usage records, a final answer is difficult to audit once the model, provider, workspace, or prompt changes.
+
+OpenRath therefore starts from the runtime-state boundary rather than from the number of agents in a loop. Its goal is to make the state passed between agents explicit enough to support composition, inspection, branching, merging, persistence, and evaluation. This is why the system is organized around \texttt{Session}. A \texttt{Session} is not merely chat history; it is the first-class runtime value that carries the evidence required to continue, review, and explain agent work.
+

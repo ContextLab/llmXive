@@ -1,0 +1,50 @@
+{
+  "kind": "figure",
+  "tex_label": "fig:pipeline",
+  "title": "EnterpriseClawBench Pipeline",
+  "latex_asset": "figure.png",
+  "rendered_assets": [
+    "assets/figures/fig1_pipeline/figure.pdf",
+    "assets/figures/fig1_pipeline/figure.png"
+  ],
+  "generator": "assets/figures/fig1_pipeline/render_fig1_pipeline.py",
+  "data": {
+    "stages": [
+      {
+        "order": 1,
+        "stage": "Enterprise MetaAgent Sessions",
+        "count": 5291,
+        "unit": "raw TaskInstances"
+      },
+      {
+        "order": 2,
+        "stage": "Task Recovery and Parallel Mechanical Checks",
+        "count": 3813,
+        "unit": "mechanically usable candidates"
+      },
+      {
+        "order": 3,
+        "stage": "Benchmark Task Construction",
+        "count": 1177,
+        "unit": "self-contained candidates"
+      },
+      {
+        "order": 4,
+        "stage": "Benchmark Packaging",
+        "count": 852,
+        "unit": "benchmark tasks"
+      },
+      {
+        "order": 5,
+        "stage": "Evaluation and Analysis",
+        "count": 120,
+        "unit": "manually audited Lite subset"
+      }
+    ],
+    "notes": [
+      "This figure is a conceptual overview; Figure 2 stores the numeric funnel details.",
+      "The manuscript uses the term Lite for the manually audited 120-task subset."
+    ]
+  },
+  "redraw_notes": "Recreate the pipeline schematic from stage order, stage names, counts, units, and notes."
+}

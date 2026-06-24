@@ -1,0 +1,625 @@
+% OpenRath technical report bibliography.
+% arXiv entries: canonical BibTeX exported from arXiv (arxiv.org/bibtex/<id>).
+% Doc/spec/web entries: official pages, titles verified May 29, 2026.
+% Titles are double-braced to preserve capitalization under numeric styles.
+
+% ---------------------------------------------------------------------------
+% Project sources (local OpenRath snapshot)
+% ---------------------------------------------------------------------------
+
+@misc{openrath-readme,
+  author = {Fukang Wen and Zhijie Wang and Ruilin Xu},
+  title  = {{OpenRath README snapshot}},
+  year   = {2026},
+  note   = {Local report reference file; inspected May 29, 2026},
+}
+
+@misc{openrath-release-target,
+  author = {Fukang Wen and Zhijie Wang and Ruilin Xu},
+  title  = {{OpenRath audited local source snapshot}},
+  year   = {2026},
+  note   = {Local commit 115e13bb4d0e (\texttt{v1.1.0-2-g115e13b-dirty}), package version openrath 1.1.0; inspected May 29, 2026},
+}
+
+% ---------------------------------------------------------------------------
+% Runtime abstraction analogy
+% ---------------------------------------------------------------------------
+
+@misc{pytorch,
+  title         = {{PyTorch: An Imperative Style, High-Performance Deep Learning Library}},
+  author        = {Adam Paszke and Sam Gross and Francisco Massa and Adam Lerer and James Bradbury and Gregory Chanan and Trevor Killeen and Zeming Lin and Natalia Gimelshein and Luca Antiga and Alban Desmaison and Andreas K{\"o}pf and Edward Yang and Zach DeVito and Martin Raison and Alykhan Tejani and Sasank Chilamkurthy and Benoit Steiner and Lu Fang and Junjie Bai and Soumith Chintala},
+  year          = {2019},
+  eprint        = {1912.01703},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/1912.01703},
+}
+
+@misc{tensorflow,
+  title         = {{TensorFlow: A System for Large-Scale Machine Learning}},
+  author        = {Mart{\'\i}n Abadi and Paul Barham and Jianmin Chen and Zhifeng Chen and Andy Davis and Jeffrey Dean and Matthieu Devin and Sanjay Ghemawat and Geoffrey Irving and Michael Isard and Manjunath Kudlur and Josh Levenberg and Rajat Monga and Sherry Moore and Derek G. Murray and Benoit Steiner and Paul Tucker and Vijay Vasudevan and Pete Warden and Martin Wicke and Yuan Yu and Xiaoqiang Zheng},
+  year          = {2016},
+  eprint        = {1605.08695},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.DC},
+  url           = {https://arxiv.org/abs/1605.08695},
+}
+
+% ---------------------------------------------------------------------------
+% Reasoning, tool-using and acting agents
+% ---------------------------------------------------------------------------
+
+@misc{cot,
+  title         = {{Chain-of-Thought Prompting Elicits Reasoning in Large Language Models}},
+  author        = {Jason Wei and Xuezhi Wang and Dale Schuurmans and Maarten Bosma and Brian Ichter and Fei Xia and Ed Chi and Quoc Le and Denny Zhou},
+  year          = {2023},
+  eprint        = {2201.11903},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2201.11903},
+}
+
+@misc{selfconsistency,
+  title         = {{Self-Consistency Improves Chain of Thought Reasoning in Language Models}},
+  author        = {Xuezhi Wang and Jason Wei and Dale Schuurmans and Quoc Le and Ed Chi and Sharan Narang and Aakanksha Chowdhery and Denny Zhou},
+  year          = {2023},
+  eprint        = {2203.11171},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2203.11171},
+}
+
+@misc{react,
+  title         = {{ReAct: Synergizing Reasoning and Acting in Language Models}},
+  author        = {Shunyu Yao and Jeffrey Zhao and Dian Yu and Nan Du and Izhak Shafran and Karthik Narasimhan and Yuan Cao},
+  year          = {2023},
+  eprint        = {2210.03629},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2210.03629},
+}
+
+@misc{mrkl,
+  title         = {{MRKL Systems: A Modular, Neuro-Symbolic Architecture that Combines Large Language Models, External Knowledge Sources and Discrete Reasoning}},
+  author        = {Ehud Karpas and Omri Abend and Yonatan Belinkov and Barak Lenz and Opher Lieber and Nir Ratner and Yoav Shoham and Hofit Bata and Yoav Levine and Kevin Leyton-Brown and Dor Muhlgay and Noam Rozen and Erez Schwartz and Gal Shachaf and Shai Shalev-Shwartz and Amnon Shashua and Moshe Tenenholtz},
+  year          = {2022},
+  eprint        = {2205.00445},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2205.00445},
+}
+
+@misc{toolformer,
+  title         = {{Toolformer: Language Models Can Teach Themselves to Use Tools}},
+  author        = {Timo Schick and Jane Dwivedi-Yu and Roberto Dess{\`\i} and Roberta Raileanu and Maria Lomeli and Luke Zettlemoyer and Nicola Cancedda and Thomas Scialom},
+  year          = {2023},
+  eprint        = {2302.04761},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2302.04761},
+}
+
+@misc{pal,
+  title         = {{PAL: Program-aided Language Models}},
+  author        = {Luyu Gao and Aman Madaan and Shuyan Zhou and Uri Alon and Pengfei Liu and Yiming Yang and Jamie Callan and Graham Neubig},
+  year          = {2023},
+  eprint        = {2211.10435},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2211.10435},
+}
+
+@misc{tot,
+  title         = {{Tree of Thoughts: Deliberate Problem Solving with Large Language Models}},
+  author        = {Shunyu Yao and Dian Yu and Jeffrey Zhao and Izhak Shafran and Thomas L. Griffiths and Yuan Cao and Karthik Narasimhan},
+  year          = {2023},
+  eprint        = {2305.10601},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2305.10601},
+}
+
+@misc{hugginggpt,
+  title         = {{HuggingGPT: Solving AI Tasks with ChatGPT and its Friends in Hugging Face}},
+  author        = {Yongliang Shen and Kaitao Song and Xu Tan and Dongsheng Li and Weiming Lu and Yueting Zhuang},
+  year          = {2023},
+  eprint        = {2303.17580},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2303.17580},
+}
+
+@misc{gorilla,
+  title         = {{Gorilla: Large Language Model Connected with Massive APIs}},
+  author        = {Shishir G. Patil and Tianjun Zhang and Xin Wang and Joseph E. Gonzalez},
+  year          = {2023},
+  eprint        = {2305.15334},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2305.15334},
+}
+
+@misc{toolllm,
+  title         = {{ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs}},
+  author        = {Yujia Qin and Shihao Liang and Yining Ye and Kunlun Zhu and Lan Yan and Yaxi Lu and Yankai Lin and Xin Cong and Xiangru Tang and Bill Qian and Sihan Zhao and Lauren Hong and Runchu Tian and Ruobing Xie and Jie Zhou and Mark Gerstein and Dahai Li and Zhiyuan Liu and Maosong Sun},
+  year          = {2023},
+  eprint        = {2307.16789},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2307.16789},
+}
+
+@misc{apibank,
+  title         = {{API-Bank: A Comprehensive Benchmark for Tool-Augmented LLMs}},
+  author        = {Minghao Li and Yingxiu Zhao and Bowen Yu and Feifan Song and Hangyu Li and Haiyang Yu and Zhoujun Li and Fei Huang and Yongbin Li},
+  year          = {2023},
+  eprint        = {2304.08244},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2304.08244},
+}
+
+@misc{toolalpaca,
+  title         = {{ToolAlpaca: Generalized Tool Learning for Language Models with 3000 Simulated Cases}},
+  author        = {Qiaoyu Tang and Ziliang Deng and Hongyu Lin and Xianpei Han and Qiao Liang and Boxi Cao and Le Sun},
+  year          = {2023},
+  eprint        = {2306.05301},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2306.05301},
+}
+
+% ---------------------------------------------------------------------------
+% Multi-agent frameworks
+% ---------------------------------------------------------------------------
+
+@misc{autogen,
+  title         = {{AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation}},
+  author        = {Qingyun Wu and Gagan Bansal and Jieyu Zhang and Yiran Wu and Beibin Li and Erkang Zhu and Li Jiang and Xiaoyun Zhang and Shaokun Zhang and Jiale Liu and Ahmed Hassan Awadallah and Ryen W. White and Doug Burger and Chi Wang},
+  year          = {2023},
+  eprint        = {2308.08155},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2308.08155},
+}
+
+@misc{camel,
+  title         = {{CAMEL: Communicative Agents for ``Mind'' Exploration of Large Language Model Society}},
+  author        = {Guohao Li and Hasan Abed Al Kader Hammoud and Hani Itani and Dmitrii Khizbullin and Bernard Ghanem},
+  year          = {2023},
+  eprint        = {2303.17760},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2303.17760},
+}
+
+@misc{metagpt,
+  title         = {{MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework}},
+  author        = {Sirui Hong and Mingchen Zhuge and Jiaqi Chen and Xiawu Zheng and Yuheng Cheng and Ceyao Zhang and Jinlin Wang and Zili Wang and Steven Ka Shing Yau and Zijuan Lin and Liyang Zhou and Chenyu Ran and Lingfeng Xiao and Chenglin Wu and J{\"u}rgen Schmidhuber},
+  year          = {2024},
+  eprint        = {2308.00352},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2308.00352},
+}
+
+@misc{chatdev,
+  title         = {{ChatDev: Communicative Agents for Software Development}},
+  author        = {Chen Qian and Wei Liu and Hongzhang Liu and Nuo Chen and Yufan Dang and Jiahao Li and Cheng Yang and Weize Chen and Yusheng Su and Xin Cong and Juyuan Xu and Dahai Li and Zhiyuan Liu and Maosong Sun},
+  year          = {2024},
+  eprint        = {2307.07924},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SE},
+  url           = {https://arxiv.org/abs/2307.07924},
+}
+
+@misc{agentverse,
+  title         = {{AgentVerse: Facilitating Multi-Agent Collaboration and Exploring Emergent Behaviors}},
+  author        = {Weize Chen and Yusheng Su and Jingwei Zuo and Cheng Yang and Chenfei Yuan and Chi-Min Chan and Heyang Yu and Yaxi Lu and Yi-Hsin Hung and Chen Qian and Yujia Qin and Xin Cong and Ruobing Xie and Zhiyuan Liu and Maosong Sun and Jie Zhou},
+  year          = {2023},
+  eprint        = {2308.10848},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2308.10848},
+}
+
+% ---------------------------------------------------------------------------
+% Runtime state, protocols and observability
+% ---------------------------------------------------------------------------
+
+@misc{langgraph-persistence,
+  author = {{LangChain}},
+  title  = {{LangGraph: Persistence}},
+  year   = {2025},
+  url    = {https://docs.langchain.com/oss/python/langgraph/persistence},
+}
+
+@misc{langgraph-timetravel,
+  author = {{LangChain}},
+  title  = {{LangGraph: Use Time Travel}},
+  year   = {2025},
+  url    = {https://docs.langchain.com/oss/python/langgraph/use-time-travel},
+}
+
+@misc{openai-agents-tracing,
+  author = {{OpenAI}},
+  title  = {{OpenAI Agents SDK: Tracing}},
+  year   = {2025},
+  url    = {https://openai.github.io/openai-agents-python/tracing/},
+}
+
+@misc{openai-agents-docs,
+  author = {{OpenAI}},
+  title  = {{OpenAI Agents SDK: Agents}},
+  year   = {2025},
+  url    = {https://openai.github.io/openai-agents-python/agents/},
+}
+
+@misc{mcp-docs,
+  author = {{Model Context Protocol}},
+  title  = {{What is the Model Context Protocol (MCP)?}},
+  year   = {2025},
+  url    = {https://modelcontextprotocol.io/docs/getting-started/intro},
+}
+
+@misc{anthropic-mcp,
+  author = {{Anthropic}},
+  title  = {{Introducing the Model Context Protocol}},
+  year   = {2024},
+  url    = {https://www.anthropic.com/news/model-context-protocol},
+}
+
+@misc{opentelemetry,
+  author = {{OpenTelemetry}},
+  title  = {{Traces}},
+  year   = {2025},
+  url    = {https://opentelemetry.io/docs/concepts/signals/traces/},
+}
+
+@misc{openapi,
+  author = {{OpenAPI Initiative}},
+  title  = {{OpenAPI Specification Version 3.1.0}},
+  year   = {2021},
+  url    = {https://swagger.io/specification/},
+}
+
+% ---------------------------------------------------------------------------
+% Memory and retrieval
+% ---------------------------------------------------------------------------
+
+@misc{reflexion,
+  title         = {{Reflexion: Language Agents with Verbal Reinforcement Learning}},
+  author        = {Noah Shinn and Federico Cassano and Edward Berman and Ashwin Gopinath and Karthik Narasimhan and Shunyu Yao},
+  year          = {2023},
+  eprint        = {2303.11366},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2303.11366},
+}
+
+@misc{generative-agents,
+  title         = {{Generative Agents: Interactive Simulacra of Human Behavior}},
+  author        = {Joon Sung Park and Joseph C. O'Brien and Carrie J. Cai and Meredith Ringel Morris and Percy Liang and Michael S. Bernstein},
+  year          = {2023},
+  eprint        = {2304.03442},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.HC},
+  url           = {https://arxiv.org/abs/2304.03442},
+}
+
+@misc{memgpt,
+  title         = {{MemGPT: Towards LLMs as Operating Systems}},
+  author        = {Charles Packer and Sarah Wooders and Kevin Lin and Vivian Fang and Shishir G. Patil and Ion Stoica and Joseph E. Gonzalez},
+  year          = {2024},
+  eprint        = {2310.08560},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2310.08560},
+}
+
+@misc{voyager,
+  title         = {{Voyager: An Open-Ended Embodied Agent with Large Language Models}},
+  author        = {Guanzhi Wang and Yuqi Xie and Yunfan Jiang and Ajay Mandlekar and Chaowei Xiao and Yuke Zhu and Linxi Fan and Anima Anandkumar},
+  year          = {2023},
+  eprint        = {2305.16291},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2305.16291},
+}
+
+@misc{rag,
+  title         = {{Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks}},
+  author        = {Patrick Lewis and Ethan Perez and Aleksandra Piktus and Fabio Petroni and Vladimir Karpukhin and Naman Goyal and Heinrich K{\"u}ttler and Mike Lewis and Wen-tau Yih and Tim Rockt{\"a}schel and Sebastian Riedel and Douwe Kiela},
+  year          = {2021},
+  eprint        = {2005.11401},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2005.11401},
+}
+
+@misc{realm,
+  title         = {{REALM: Retrieval-Augmented Language Model Pre-Training}},
+  author        = {Kelvin Guu and Kenton Lee and Zora Tung and Panupong Pasupat and Ming-Wei Chang},
+  year          = {2020},
+  eprint        = {2002.08909},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2002.08909},
+}
+
+@misc{dpr,
+  title         = {{Dense Passage Retrieval for Open-Domain Question Answering}},
+  author        = {Vladimir Karpukhin and Barlas O{\u{g}}uz and Sewon Min and Patrick Lewis and Ledell Wu and Sergey Edunov and Danqi Chen and Wen-tau Yih},
+  year          = {2020},
+  eprint        = {2004.04906},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2004.04906},
+}
+
+% ---------------------------------------------------------------------------
+% Agent benchmarks and environments
+% ---------------------------------------------------------------------------
+
+@misc{agentbench,
+  title         = {{AgentBench: Evaluating LLMs as Agents}},
+  author        = {Xiao Liu and Hao Yu and Hanchen Zhang and Yifan Xu and Xuanyu Lei and Hanyu Lai and Yu Gu and Hangliang Ding and Kaiwen Men and Kejuan Yang and Shudan Zhang and Xiang Deng and Aohan Zeng and Zhengxiao Du and Chenhui Zhang and Sheng Shen and Tianjun Zhang and Yu Su and Huan Sun and Minlie Huang and Yuxiao Dong and Jie Tang},
+  year          = {2025},
+  eprint        = {2308.03688},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2308.03688},
+}
+
+@misc{taubench,
+  title         = {{$\tau$-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains}},
+  author        = {Shunyu Yao and Noah Shinn and Pedram Razavi and Karthik Narasimhan},
+  year          = {2024},
+  eprint        = {2406.12045},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2406.12045},
+}
+
+@misc{swebench,
+  title         = {{SWE-bench: Can Language Models Resolve Real-World GitHub Issues?}},
+  author        = {Carlos E. Jimenez and John Yang and Alexander Wettig and Shunyu Yao and Kexin Pei and Ofir Press and Karthik Narasimhan},
+  year          = {2024},
+  eprint        = {2310.06770},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2310.06770},
+}
+
+@misc{swe-agent,
+  title         = {{SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering}},
+  author        = {John Yang and Carlos E. Jimenez and Alexander Wettig and Kilian Lieret and Shunyu Yao and Karthik Narasimhan and Ofir Press},
+  year          = {2024},
+  eprint        = {2405.15793},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SE},
+  url           = {https://arxiv.org/abs/2405.15793},
+}
+
+@misc{swebench-verified,
+  author = {{OpenAI}},
+  title  = {{SWE-bench Verified}},
+  year   = {2024},
+  url    = {https://www.swebench.com/verified.html},
+}
+
+@misc{terminal-bench,
+  title         = {{Terminal-Bench: Benchmarking Agents on Hard, Realistic Tasks in Command Line Interfaces}},
+  author        = {Mike A. Merrill and Alexander G. Shaw and Nicholas Carlini and others},
+  year          = {2026},
+  eprint        = {2601.11868},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SE},
+  url           = {https://arxiv.org/abs/2601.11868},
+}
+
+@misc{terminalworld,
+  title         = {{TerminalWorld: Benchmarking Agents on Real-World Terminal Tasks}},
+  author        = {Zhaoyang Chu and Jiarui Hu and Xingyu Jiang and Pengyu Zou and Han Li and Chao Peng and Peter O'Hearn and Earl T. Barr and Mark Harman and Federica Sarro and He Ye},
+  year          = {2026},
+  eprint        = {2605.22535},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2605.22535},
+}
+
+@misc{tab-benchmark,
+  title         = {{No More, No Less: Task Alignment in Terminal Agents}},
+  author        = {Sina Mavali and David Pape and Jonathan Evertz and Samira Abedini and Devansh Srivastav and Thorsten Eisenhofer and Sahar Abdelnabi and Lea Sch{\"o}nherr},
+  year          = {2026},
+  eprint        = {2605.12233},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2605.12233},
+}
+
+@misc{webarena,
+  title         = {{WebArena: A Realistic Web Environment for Building Autonomous Agents}},
+  author        = {Shuyan Zhou and Frank F. Xu and Hao Zhu and Xuhui Zhou and Robert Lo and Abishek Sridhar and Xianyi Cheng and Tianyue Ou and Yonatan Bisk and Daniel Fried and Uri Alon and Graham Neubig},
+  year          = {2024},
+  eprint        = {2307.13854},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2307.13854},
+}
+
+@misc{visualwebarena,
+  title         = {{VisualWebArena: Evaluating Multimodal Agents on Realistic Visual Web Tasks}},
+  author        = {Jing Yu Koh and Robert Lo and Lawrence Jang and Vikram Duvvur and Ming Chong Lim and Po-Yu Huang and Graham Neubig and Shuyan Zhou and Ruslan Salakhutdinov and Daniel Fried},
+  year          = {2024},
+  eprint        = {2401.13649},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2401.13649},
+}
+
+@misc{workarena,
+  title         = {{WorkArena: How Capable Are Web Agents at Solving Common Knowledge Work Tasks?}},
+  author        = {Alexandre Drouin and Maxime Gasse and Massimo Caccia and Issam H. Laradji and Manuel Del Verme and Tom Marty and L{\'e}o Boisvert and Megh Thakkar and Quentin Cappart and David Vazquez and Nicolas Chapados and Alexandre Lacoste},
+  year          = {2024},
+  eprint        = {2403.07718},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2403.07718},
+}
+
+@misc{osworld,
+  title         = {{OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments}},
+  author        = {Tianbao Xie and Danyang Zhang and Jixuan Chen and Xiaochuan Li and Siheng Zhao and Ruisheng Cao and Toh Jing Hua and Zhoujun Cheng and Dongchan Shin and Fangyu Lei and Yitao Liu and Yiheng Xu and Shuyan Zhou and Silvio Savarese and Caiming Xiong and Victor Zhong and Tao Yu},
+  year          = {2024},
+  eprint        = {2404.07972},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2404.07972},
+}
+
+@misc{alfworld,
+  title         = {{ALFWorld: Aligning Text and Embodied Environments for Interactive Learning}},
+  author        = {Mohit Shridhar and Xingdi Yuan and Marc-Alexandre C{\^o}t{\'e} and Yonatan Bisk and Adam Trischler and Matthew Hausknecht},
+  year          = {2021},
+  eprint        = {2010.03768},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2010.03768},
+}
+
+@misc{webshop,
+  title         = {{WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents}},
+  author        = {Shunyu Yao and Howard Chen and John Yang and Karthik Narasimhan},
+  year          = {2023},
+  eprint        = {2207.01206},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2207.01206},
+}
+
+@misc{scienceworld,
+  title         = {{ScienceWorld: Is your Agent Smarter than a 5th Grader?}},
+  author        = {Ruoyao Wang and Peter Jansen and Marc-Alexandre C{\^o}t{\'e} and Prithviraj Ammanabrolu},
+  year          = {2022},
+  eprint        = {2203.07540},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2203.07540},
+}
+
+@misc{mind2web,
+  title         = {{Mind2Web: Towards a Generalist Agent for the Web}},
+  author        = {Xiang Deng and Yu Gu and Boyuan Zheng and Shijie Chen and Samuel Stevens and Boshi Wang and Huan Sun and Yu Su},
+  year          = {2023},
+  eprint        = {2306.06070},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2306.06070},
+}
+
+@misc{gaia,
+  title         = {{GAIA: a Benchmark for General AI Assistants}},
+  author        = {Gr{\'e}goire Mialon and Cl{\'e}mentine Fourrier and Craig Swift and Thomas Wolf and Yann LeCun and Thomas Scialom},
+  year          = {2023},
+  eprint        = {2311.12983},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2311.12983},
+}
+
+@misc{theagentcompany,
+  title         = {{TheAgentCompany: Benchmarking LLM Agents on Consequential Real World Tasks}},
+  author        = {Frank F. Xu and Yufan Song and Boxuan Li and Yuxuan Tang and Kritanjali Jain and Mengxue Bao and Zora Z. Wang and Xuhui Zhou and Zhitong Guo and Murong Cao and Mingyang Yang and Hao Yang Lu and Amaad Martin and Zhe Su and Leander Maben and Raj Mehta and Wayne Chi and Lawrence Jang and Yiqing Xie and Shuyan Zhou and Graham Neubig},
+  year          = {2025},
+  eprint        = {2412.14161},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2412.14161},
+}
+
+% ---------------------------------------------------------------------------
+% Provenance and reproducibility
+% ---------------------------------------------------------------------------
+
+@misc{prov-o,
+  author = {{W3C}},
+  title  = {{PROV-O: The PROV Ontology}},
+  year   = {2013},
+  url    = {https://www.w3.org/TR/prov-o/},
+}
+
+@misc{prov-overview,
+  author = {{W3C}},
+  title  = {{PROV-Overview: An Overview of the PROV Family of Documents}},
+  year   = {2013},
+  url    = {https://www.w3.org/TR/prov-overview/},
+}
+
+@misc{jsonschema,
+  author = {Austin Wright and Henry Andrews and Ben Hutton and Greg Dennis},
+  title  = {{JSON Schema Validation: A Vocabulary for Structural Validation of JSON}},
+  year   = {2020},
+  url    = {https://json-schema.org/draft/2020-12/json-schema-validation},
+}
+
+@article{docker,
+  author  = {Dirk Merkel},
+  title   = {{Docker: Lightweight Linux Containers for Consistent Development and Deployment}},
+  journal = {Linux Journal},
+  volume  = {2014},
+  number  = {239},
+  year    = {2014},
+  url     = {https://www.seltzer.com/margo/teaching/CS508.19/papers/merkel14.pdf},
+}
+
+@misc{acm-badging,
+  author = {{ACM}},
+  title  = {{Artifact Review and Badging Version 1.1}},
+  year   = {2020},
+  url    = {https://www.acm.org/publications/policies/artifact-review-and-badging-current},
+}
+
+% ---------------------------------------------------------------------------
+% Agent safety
+% ---------------------------------------------------------------------------
+
+@misc{indirect-prompt-injection,
+  title         = {{Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection}},
+  author        = {Kai Greshake and Sahar Abdelnabi and Shailesh Mishra and Christoph Endres and Thorsten Holz and Mario Fritz},
+  year          = {2023},
+  eprint        = {2302.12173},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CR},
+  url           = {https://arxiv.org/abs/2302.12173},
+}
+
+@misc{agent-safetybench,
+  title         = {{Agent-SafetyBench: Evaluating the Safety of LLM Agents}},
+  author        = {Zhexin Zhang and Shiyao Cui and Yida Lu and Jingzhuo Zhou and Junxiao Yang and Hongning Wang and Minlie Huang},
+  year          = {2025},
+  eprint        = {2412.14470},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2412.14470},
+}
+
+@misc{safearena,
+  title         = {{SafeArena: Evaluating the Safety of Autonomous Web Agents}},
+  author        = {Ada Defne Tur and Nicholas Meade and Xing Han L{\`u} and Alejandra Zambrano and Arkil Patel and Esin Durmus and Spandana Gella and Karolina Sta{\'n}czak and Siva Reddy},
+  year          = {2025},
+  eprint        = {2503.04957},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2503.04957},
+}
+
+@misc{safeagentbench,
+  title         = {{SafeAgentBench: A Benchmark for Safe Task Planning of Embodied LLM Agents}},
+  author        = {Sheng Yin and Xianghe Pang and Yuanzhuo Ding and Menglan Chen and Yutong Bi and Yichen Xiong and Wenhao Huang and Zhen Xiang and Jing Shao and Siheng Chen},
+  year          = {2025},
+  eprint        = {2412.13178},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CR},
+  url           = {https://arxiv.org/abs/2412.13178},
+}

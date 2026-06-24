@@ -1,0 +1,81 @@
+% Claim:
+%   Evaluation for the technical report should be a claim-to-evidence protocol,
+%   not a broad benchmark result.
+% Evidence:
+%   Generated evidence packets and release smoke suite under initial-tech-report/evidence.
+% Open questions:
+%   Broad benchmark comparisons remain follow-on work until baseline adapters,
+%   live-provider manifests, and reviewer-scored packets exist.
+
+The release evaluation is audit-first. It scopes evidence to runtime claims
+rather than leaderboard claims: whether OpenRath's runtime claims are backed
+by rebuildable evidence packets, whether each packet states its own boundary,
+and whether every visible claim is mapped into a claim ledger.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.92\linewidth]{assets/mermaid-diagrams/evidence-protocol.png}
+\caption{Claim-to-evidence protocol: report claims pass through a ledger,
+evidence packets, and a smoke suite before becoming supported text, scoped text,
+or explicit limitations.}
+\label{fig:evidence-protocol}
+\end{figure}
+
+The claim ledger is the reviewer-facing contract. It currently classifies ten
+claims: five supported by operational packets, one partially supported, one
+supported only for prerequisites, one bibliography-backed positioning claim,
+one layout smoke claim, and one evidence-gated claim. This keeps the report honest
+without making the paper read like an internal backlog: supported claims stay
+in the main thesis; evidence-gated claims stay visible and bounded, and framing claims
+are separated from empirical evidence.
+
+An evidence packet is deliberately small. It contains the command that produced
+the run, a manifest, source and environment metadata, any session JSONL or
+tool logs, the generated output artifact, and a short summary of what the
+packet does and does not prove. This shape is easier to review than an informal
+run transcript because it gives a reader a direct path from paper claim to
+reproducible artifact. It also gives maintainers a practical release gate: a
+claim can move from evidence-gated to supported only when the corresponding
+packet runs under the documented environment.
+
+\begin{table}[!htbp]
+\vspace{0.1em}
+\centering
+\small
+\caption{Current release evidence protocol.}
+\label{tab:compact-release-evidence-protocol}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+Runtime claim & Current packet & Scope boundary \\
+\midrule
+Session lineage is inspectable. & \texttt{lineage\_export}: pass, deterministic. & Proves exported branch metadata, not branching quality. \\
+Tool placement is auditable. & \texttt{local\_sandbox}: pass; \texttt{opensandbox\_optional}: skip. & Proves local placement evidence, not OpenSandbox parity. \\
+Workflows compose session state. & \texttt{workflow\_transcript}: pass, deterministic. & Proves composition shape, not live agent quality. \\
+Implementation contracts hold for the focused subset. & \texttt{pytest\_report}: pass. & Does not cover every live integration. \\
+Provider prerequisites can be disclosed safely. & \texttt{live\_provider\_manifest}: pass, redacted. & Does not execute live inference. \\
+Memory is scoped as a session-visible plane. & \texttt{memory\_local}: skip. & Evidence-gated until source anchors exist. \\
+Claim scope is tracked explicitly. & \texttt{claim\_ledger}: pass, ten claims. & One evidence-gated claim remains: \texttt{memory\_runtime\_plane}. \\
+Report layout is reviewable. & \texttt{visual\_qa} and \texttt{layout\_audit}: pass. & Visual smoke, not final human design approval. \\
+\bottomrule
+\end{tabularx}
+\vspace{0.1em}
+\end{table}
+
+This packet-first evaluation style is especially appropriate before broad
+benchmarks. Benchmarks such as curated coding suites~\cite{swebench-verified}
+and broad general-assistant evaluations~\cite{gaia} are valuable, but they
+combine runtime semantics with model choice, prompt design, environment setup,
+reviewer scoring, and task distribution. For a runtime
+report, the first question is narrower: can the system preserve and expose the
+state needed to make those later evaluations meaningful? OpenRath's current
+evidence protocol answers that narrower question before attempting comparative
+leaderboard claims.
+
+The baseline and metric design follows the same principle. Follow-on comparisons
+should be organized by runtime shape rather than brand name: single-agent loop,
+multi-agent shared transcript, workflow/DAG runner, notebook or script
+baseline, sandboxed tool agent, and memory/RAG baseline. Metrics should track
+runtime correctness, provenance coverage, replayability, backend portability,
+efficiency, task quality, and control/safety events. Those metrics become
+results only when a runner emits comparable packets for OpenRath and each
+baseline.

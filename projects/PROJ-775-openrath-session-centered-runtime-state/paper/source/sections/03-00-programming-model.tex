@@ -1,0 +1,109 @@
+% Claim:
+%   OpenRath's programming model is a compact Session-centered vocabulary, not
+%   a large taxonomy of agent framework objects.
+% Evidence:
+%   initial-tech-report/references/OpenRath-README.md lines 22-164 and 170-245.
+% Open questions:
+%   Memory remains an intended runtime plane until local source/example/test
+%   evidence passes the release smoke suite.
+
+OpenRath keeps the programming model small on purpose. The core rule is that
+runtime components transform or annotate \texttt{Session}; they should not each
+invent a private transcript, placement record, tool log, memory format, or
+workflow state. This rule is what makes the PyTorch analogy useful: the analogy
+is not about tensor math, but about one value flowing through reusable
+transformations with explicit placement and persistent state boundaries.
+
+\begin{table}[H]
+\vspace{0.15em}
+\centering
+\small
+\caption{The compact OpenRath object vocabulary.}
+\label{tab:programming-model-vocabulary}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+Object & Runtime boundary \\
+\midrule
+\texttt{Session} & Flowing runtime value for chunks, placement, lineage, usage, pending work, tool evidence, and memory evidence when enabled. \\
+\texttt{Agent} & Reusable \texttt{Session -> Session} transformation with local prompt, provider, tools, and memory policy. \\
+\texttt{Tool} & Model-visible callable operation backed by schema validation, session context, sandbox dispatch, and returned evidence. \\
+\texttt{Sandbox} & Placement boundary for file, command, code, and external tool execution. \\
+\texttt{Memory} & Intended persistent-state plane for recall and commit across runs, kept separate from prompt text. \\
+\texttt{Workflow} & Composition surface for agents, tools, branches, compression, memory, and child workflows. \\
+\texttt{Selector} & Runtime router over self-describing workflows: it reads the current session and picks the next workflow, so dynamic control flow stays explicit instead of hard-coded. \\
+\bottomrule
+\end{tabularx}
+\vspace{0.15em}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize\sffamily,
+  leftbox/.style={draw=RathBlueMorandi, fill=RathBlueMorandiSoft, minimum width=2.05cm, minimum height=0.58cm, align=center, inner sep=2pt},
+  rightbox/.style={draw=RathPinkMorandi, fill=RathPinkMorandiSoft, minimum width=2.05cm, minimum height=0.58cm, align=center, inner sep=2pt},
+  pt/.style={text=RathMuted},
+  ra/.style={->, draw=RathPinkMorandi, line width=0.5pt}
+]
+\node[draw=RathBlueMorandi, fill=RathBlueMorandiSoft, line width=0.55pt, minimum width=3.15cm, minimum height=5.95cm] at (0, -2.55) {};
+\node[draw=RathPinkMorandi, fill=RathPinkMorandiSoft, line width=0.55pt, minimum width=3.15cm, minimum height=5.95cm] at (4.1, -2.55) {};
+\foreach \i/\ptlabel/\orlabel in {
+  0/{\texttt{Tensor}}/{\texttt{Session}},
+  1/{\texttt{Device}}/{\texttt{Sandbox}},
+  2/{\texttt{Parameter}}/{\texttt{Memory}},
+  3/{Function}/{\texttt{Tool}},
+  4/{\texttt{nn.Linear}}/{\texttt{Agent}},
+  5/{\texttt{nn.Module}}/{\texttt{Workflow}},
+  6/{control flow}/{\texttt{Selector}}
+}{
+  \node[leftbox] (p\i) at (0, -\i*0.78) {\ptlabel};
+  \node[rightbox] (o\i) at (4.1, -\i*0.78) {\orlabel};
+  \draw[ra] (p\i.east) -- (o\i.west);
+}
+\node[pt, anchor=south, font=\footnotesize\sffamily\bfseries] at (0, 0.72) {PyTorch};
+\node[anchor=south, text=RathInk, font=\footnotesize\sffamily\bfseries] at (4.1, 0.72) {OpenRath};
+\end{tikzpicture}
+\caption{The PyTorch lens. Each agent-runtime concern maps onto one OpenRath
+object, with \texttt{Session} as the flowing value (the tensor of the runtime)
+and \texttt{Selector} routing control flow at run time. The mapping is a
+teaching device, not a claim that agent systems are neural networks.}
+\label{fig:pytorch-lens}
+\end{figure}
+
+The most important design choice is what each object does not own. An
+\texttt{Agent} does not own the entire conversation graph; lineage belongs to
+\texttt{Session}. A \texttt{Tool} does not own placement; it executes through
+the active sandbox. A \texttt{Workflow} does not create a separate orchestration
+state; it composes transformations over sessions. \texttt{Memory} does not
+become hidden prompt text; recall and commit should remain visible runtime
+events. These separations keep the system inspectable when a run becomes
+multi-agent, multi-branch, and multi-backend.
+
+The tool boundary illustrates the pattern. A flow-level tool exposes a name,
+description, and JSON schema to the model, while its Python call receives the
+active \texttt{Session} and validated arguments. Built-in tools can then create
+backend payloads for file, command, code, or MCP-like execution without changing
+the model-visible contract. The same principle applies to workflows: a workflow
+may fork a session, call an agent, validate in a sandbox, compress context, and
+return a new session, but the evidence remains attached to the shared runtime
+value.
+
+Control flow follows the same discipline through \texttt{Selector}. Rather than
+hard-coding which agent or workflow runs next, a \texttt{Selector} reads the
+current \texttt{Session} and routes to one of several self-describing
+workflows, returning an empty workflow when the task is done. This keeps
+branching and looping over agents as ordinary, inspectable runtime decisions:
+the routing choice becomes part of the session record instead of vanishing into
+controller code. It is also where OpenRath departs from a static workflow
+graph---the next step is decided at runtime from session state, yet every
+decision still flows through one value.
+
+Memory is described with a deliberately bounded claim. OpenRath provides local
+memory with lexical recall, optional embeddings, and an optional external
+backend, exposed through agent-level recall and commit operations so that
+remembering and recalling stay visible runtime events rather than hidden prompt
+text. What this report does not claim is retrieval \emph{quality}: how well a
+given corpus, embedding choice, and commit policy serve a task is an empirical
+question left to a follow-on evaluation. The programming model reserves the
+correct boundary---memory as a session-visible persistent plane---without
+asserting that every quality and backend trade-off has been measured.

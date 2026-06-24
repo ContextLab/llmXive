@@ -1,0 +1,51 @@
+{
+  "arxiv_id": "2606.19409",
+  "arxiv_url": "https://arxiv.org/abs/2606.19409",
+  "title": "OpenRath: Session-Centered Runtime State for Agent Systems",
+  "authors": [
+    "Fukang Wen",
+    "Zhijie Wang",
+    "Ruilin Xu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Modern agent systems often suffer from fragmented runtime state: transcripts, tool effects, memory events, workspace placement, branch provenance, and replay evidence are recorded separately and become difficult to inspect or reproduce. OpenRath addresses this issue with a PyTorch-like programming model for multi-agent, multi-session systems. The analogy concerns the role of a central first-class runtime abstraction, not tensor computation. Its core abstraction is Session, the runtime value passed between agents and workflows. A Session is branchable, inspectable, replayable, backend-aware, and composable. It records conversation chunks, sandbox placement, lineage metadata, token usage, pending work, and tool evidence, while defining where memory interactions enter the runtime record. Since this state is carried by the same value used in program execution, fork, merge, and replay become explicit runtime operations rather than states reconstructed from external traces. OpenRath further defines Sandbox, Tool, Agent, Memory, Workflow, and Selector, with Selector turning control flow into runtime-routed decisions. This report presents the programming model, architecture, audited milestones, and evidence protocol. Its claims are limited to controlled runtime properties, while broad quantitative comparisons, live-provider quality, optional-backend availability, and memory quality are left for follow-on evaluation. The central thesis is that Session provides agent systems with a first-class runtime value for auditable composition.",
+  "submitted_via": "llmXive dashboard, GitHub issue #357",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "assets",
+    "assets/fig-runtime-stack-positioning.pdf",
+    "assets/mermaid-diagrams",
+    "assets/mermaid-diagrams/evidence-protocol.png",
+    "assets/mermaid-diagrams/multi-session-to-agent-workflow-image2.png",
+    "assets/mermaid-diagrams/session-lifecycle.png",
+    "assets/mermaid-diagrams/session-runtime-boundary.png",
+    "assets/mermaid-diagrams/tool-execution-sequence.png",
+    "assets/rath-report-mark-transparent.png",
+    "main.tex",
+    "references.bib",
+    "sections",
+    "sections/00-abstract.tex",
+    "sections/01-01-problem-framing.tex",
+    "sections/01-02-central-claim.tex",
+    "sections/01-03-contributions.tex",
+    "sections/01-05-runtime-state-at-a-glance.tex",
+    "sections/01-06-release-positioning.tex",
+    "sections/02-00-related-work.tex",
+    "sections/03-00-background-motivation.tex",
+    "sections/03-00-programming-model.tex",
+    "sections/04-00-runtime-architecture.tex",
+    "sections/05-00-implementation-milestones.tex",
+    "sections/05-10-compact-multi-agent-design.tex",
+    "sections/06-00-case-study-coverage.tex",
+    "sections/07-00-compact-evidence-protocol.tex",
+    "sections/09-00-scoped-limitations.tex",
+    "sections/11-00-conclusion.tex"
+  ]
+}

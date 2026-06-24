@@ -1,0 +1,206 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[left=1.12in,right=0.92in,top=0.86in,bottom=0.95in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+
+\definecolor{RathBlue}{HTML}{2F80ED}
+\definecolor{RathPink}{HTML}{EE5B95}
+\definecolor{RathInk}{HTML}{141821}
+\definecolor{RathMuted}{HTML}{667085}
+\definecolor{RathLine}{HTML}{D9E2F0}
+\definecolor{RathSoft}{HTML}{FBFCFE}
+\definecolor{RathPinkSoft}{HTML}{FFF3F8}
+\definecolor{RathCode}{HTML}{F8FAFC}
+\definecolor{RathBlueMorandi}{HTML}{8FA6C9}
+\definecolor{RathBlueMorandiSoft}{HTML}{F5F8FC}
+\definecolor{RathPinkMorandi}{HTML}{C97A9E}
+\definecolor{RathPinkMorandiSoft}{HTML}{FFF4F8}
+\definecolor{RathMauveMorandi}{HTML}{A391B4}
+
+\newcommand{\reportlogo}{assets/rath-report-mark-transparent.png}
+\newcommand{\reporttitle}{OpenRath: Session-Centered Runtime State for Agent Systems}
+\newcommand{\reportdisplaytitle}{OpenRath: Session-Centered Runtime State\\[-0.08em]for Agent Systems}
+\newcommand{\reportheadtitle}{OpenRath: Session-Centered Runtime State}
+\newcommand{\reportauthors}{Fukang Wen\textsuperscript{*,\textdagger}, Zhijie Wang\textsuperscript{*}, Ruilin Xu\textsuperscript{\textdagger}}
+\newcommand{\reportcorrespondence}{Fukang Wen and Ruilin Xu}
+\newcommand{\reportcontact}{wfk25@mails.tsinghua.edu.cn}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=RathBlue,
+  citecolor=RathBlue,
+  urlcolor=RathBlue,
+  pdftitle={OpenRath: Session-Centered Runtime State for Agent Systems},
+  pdfauthor={Fukang Wen, Zhijie Wang, Ruilin Xu}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.52em}
+\setlength{\headheight}{24pt}
+\setlength{\headsep}{0.16in}
+\setlist[itemize]{leftmargin=1.35em, itemsep=0.18em, topsep=0.2em}
+\setlist[enumerate]{leftmargin=1.5em, itemsep=0.18em, topsep=0.2em}
+\captionsetup{font=small, labelfont=bf, skip=0.35em}
+
+\titleformat{\section}
+  {\Large\sffamily\bfseries\color{RathInk}}
+  {\textcolor{RathPink}{\thesection}}{0.65em}{}
+\titleformat{\subsection}
+  {\large\sffamily\bfseries\color{RathInk}}
+  {\textcolor{RathMuted}{\thesubsection}}{0.65em}{}
+\titlespacing*{\section}{0pt}{1.0em}{0.25em}
+\titlespacing*{\subsection}{0pt}{0.72em}{0.18em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\raisebox{-0.18\height}{\includegraphics[height=0.25in]{\reportlogo}}}
+\fancyhead[C]{\scriptsize\sffamily\bfseries\color{RathInk}\reportheadtitle}
+\fancyhead[R]{}
+\fancyfoot[C]{\small\sffamily\bfseries\color{RathBlue}\thepage}
+\renewcommand{\headrulewidth}{0.28pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\lstdefinestyle{rathpython}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{RathBlue}\bfseries,
+  commentstyle=\color{RathMuted},
+  stringstyle=\color{RathPink},
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  rulecolor=\color{RathLine},
+  backgroundcolor=\color{RathCode},
+  xleftmargin=0.5em,
+  xrightmargin=0.5em,
+  aboveskip=0.7em,
+  belowskip=0.7em
+}
+
+\newcommand{\makereportfrontmatter}{%
+  \thispagestyle{fancy}
+  \vspace*{-0.1em}
+  \begin{center}
+    {\LARGE\sffamily\bfseries\color{RathInk}\reportdisplaytitle\par}
+    \vspace{0.42em}
+    {\bfseries\reportauthors\par}
+  \end{center}
+
+  \vspace{0.28em}
+  \begin{tcolorbox}[
+    enhanced,
+    width=\linewidth,
+    colback=RathPinkSoft,
+    colframe=RathPink,
+    boxrule=0.36pt,
+    arc=7pt,
+    outer arc=7pt,
+    left=18pt,
+    right=18pt,
+    top=11pt,
+    bottom=10pt
+  ]
+    \begin{center}
+      {\sffamily\bfseries\normalsize\color{RathPink}Abstract}
+    \end{center}
+    \input{sections/00-abstract}
+
+  \end{tcolorbox}
+  \begingroup
+  \renewcommand{\thefootnote}{\fnsymbol{footnote}}
+  \footnotetext[1]{Equal contribution: Fukang Wen and Zhijie Wang.}
+  \footnotetext[2]{Corresponding authors: Fukang Wen and Ruilin Xu. Contact:
+  \href{mailto:\reportcontact}{\reportcontact}.}
+  \endgroup
+  \vspace{0.72em}
+}
+
+\begin{document}
+
+\makereportfrontmatter
+
+\section{Introduction}
+
+\subsection{Problem Framing}
+\input{sections/01-01-problem-framing}
+
+\subsection{Central Claim}
+\input{sections/01-02-central-claim}
+
+\subsection{Ecosystem Positioning}
+\input{sections/01-06-release-positioning}
+
+\subsection{Contributions}
+\input{sections/01-03-contributions}
+
+\subsection{Runtime State at a Glance}
+\input{sections/01-05-runtime-state-at-a-glance}
+
+\section{Related Work}
+\input{sections/02-00-related-work}
+
+\section{Background and Motivation}
+\input{sections/03-00-background-motivation}
+
+\section{OpenRath Programming Model}
+\input{sections/03-00-programming-model}
+
+\section{Runtime Architecture}
+\input{sections/04-00-runtime-architecture}
+
+\section{Multi-Agent Multi-Session Design}
+\input{sections/05-10-compact-multi-agent-design}
+
+\section{Implementation Milestones}
+\label{sec:milestones}
+\input{sections/05-00-implementation-milestones}
+
+\section{Release Evidence and Evaluation Protocol}
+\label{sec:release-evidence}
+\input{sections/07-00-compact-evidence-protocol}
+
+\section{Limitations}
+\input{sections/09-00-scoped-limitations}
+
+\section{Conclusion}
+\input{sections/11-00-conclusion}
+
+\clearpage
+\section*{References}
+\renewcommand{\bibsection}{}
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\clearpage
+\appendix
+\section*{Appendix}
+
+\section{Case Studies}
+\label{app:case-studies}
+\input{sections/06-00-case-study-coverage}
+
+% \section{Reproducibility}
+% \label{app:reproducibility}
+% \input{sections/10-00-compact-reproducibility}
+
+\end{document}

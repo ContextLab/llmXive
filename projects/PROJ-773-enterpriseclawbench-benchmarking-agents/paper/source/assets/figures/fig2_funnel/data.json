@@ -1,0 +1,68 @@
+{
+  "kind": "figure",
+  "tex_label": "fig:funnel",
+  "title": "Construction funnel from raw TaskInstances to final benchmark tasks",
+  "latex_asset": "figure.pdf",
+  "rendered_assets": [
+    "assets/figures/fig2_funnel/figure.pdf",
+    "assets/figures/fig2_funnel/figure.png"
+  ],
+  "generator": "assets/figures/fig2_funnel/render_fig2_funnel.py",
+  "source_asset": "assets/figures/fig2_funnel/source.pdf",
+  "source_note": "Figure 2 is rendered from the curated cropped construction-funnel PDF; the legacy script-drawn funnel is deprecated.",
+  "data": {
+    "figure": "Figure 2",
+    "title": "Construction funnel from raw TaskInstances to final benchmark tasks",
+    "note": "The first three checks are parallel early checks; later stages are serial gates/packaging steps.",
+    "stages": [
+      {
+        "stage": "Raw MetaAgent TaskInstances",
+        "count": 5291,
+        "stage_type": "input"
+      },
+      {
+        "stage": "Length filter",
+        "count": 5181,
+        "stage_type": "parallel_check",
+        "status": "passed"
+      },
+      {
+        "stage": "Fixture lookup",
+        "count": 4896,
+        "stage_type": "parallel_check",
+        "status": "passed"
+      },
+      {
+        "stage": "Redaction recovery",
+        "count": 4286,
+        "stage_type": "parallel_check",
+        "status": "high-confidence"
+      },
+      {
+        "stage": "Public-Network Gate",
+        "count": 5003,
+        "stage_type": "serial_gate",
+        "status": "passed"
+      },
+      {
+        "stage": "Mechanical Join",
+        "count": 3813,
+        "stage_type": "join",
+        "status": "usable"
+      },
+      {
+        "stage": "Self-Contained Review",
+        "count": 1177,
+        "stage_type": "serial_gate",
+        "status": "kept"
+      },
+      {
+        "stage": "Package + Preflight",
+        "count": 852,
+        "stage_type": "final_pool",
+        "status": "benchmark tasks"
+      }
+    ]
+  },
+  "redraw_notes": "Use stages in order; first three checks are parallel early checks, later stages are serial gates or packaging steps."
+}

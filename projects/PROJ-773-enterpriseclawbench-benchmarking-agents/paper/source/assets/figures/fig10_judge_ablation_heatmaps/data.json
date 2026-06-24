@@ -1,0 +1,717 @@
+{
+  "kind": "figure",
+  "tex_label": "fig:judge-appendix",
+  "title": "Judge-model ablation over existing Lite artifacts",
+  "latex_asset": "figure.pdf",
+  "rendered_assets": [
+    "assets/figures/fig10_judge_ablation_heatmaps/figure.pdf",
+    "assets/figures/fig10_judge_ablation_heatmaps/figure.png"
+  ],
+  "generator": "assets/figures/fig10_judge_ablation_heatmaps/render_fig10_judge_ablation_heatmaps.py",
+  "source_file": "/hpc_data/jczhong/frontis-bench/outputs/report_data/ablation/merged_32combo_judge_ablation_scores_20260611.csv",
+  "sort_order": "Rows are sorted by sonnet-main_avg descending.",
+  "panels": {
+    "text_judges": {
+      "data": [
+        {
+          "GPT-4o": 0.817788,
+          "GPT-5.4": 0.744404,
+          "Qwen3-235B-A22B": 0.894288,
+          "Sonnet 4.6": 0.702019,
+          "combo_label": "DeepAgents/Sonnet 4.6",
+          "harness": "open-sandbox__deepagents",
+          "model": "sonnet-4.6",
+          "rank_by_sonnet_main": 1
+        },
+        {
+          "GPT-4o": 0.770789,
+          "GPT-5.4": 0.784035,
+          "Qwen3-235B-A22B": 0.898333,
+          "Sonnet 4.6": 0.684228,
+          "combo_label": "Codex/GPT-5.5",
+          "harness": "open-sandbox__codex",
+          "model": "gpt-5.5",
+          "rank_by_sonnet_main": 2
+        },
+        {
+          "GPT-4o": 0.788462,
+          "GPT-5.4": 0.781788,
+          "Qwen3-235B-A22B": 0.872981,
+          "Sonnet 4.6": 0.709511,
+          "combo_label": "Hermes/GPT-5.5",
+          "harness": "open-sandbox__hermes",
+          "model": "gpt-5.5",
+          "rank_by_sonnet_main": 3
+        },
+        {
+          "GPT-4o": 0.839035,
+          "GPT-5.4": 0.732,
+          "Qwen3-235B-A22B": 0.901754,
+          "Sonnet 4.6": 0.680088,
+          "combo_label": "ClaudeCode/Sonnet 4.6",
+          "harness": "open-sandbox__claudecode",
+          "model": "sonnet-4.6",
+          "rank_by_sonnet_main": 4
+        },
+        {
+          "GPT-4o": 0.81,
+          "GPT-5.4": 0.732698,
+          "Qwen3-235B-A22B": 0.89783,
+          "Sonnet 4.6": 0.672415,
+          "combo_label": "OpenClaw/Opus 4.6",
+          "harness": "open-sandbox__openclaw",
+          "model": "opus-4.6",
+          "rank_by_sonnet_main": 5
+        },
+        {
+          "GPT-4o": 0.799052,
+          "GPT-5.4": 0.697707,
+          "Qwen3-235B-A22B": 0.859914,
+          "Sonnet 4.6": 0.664207,
+          "combo_label": "OpenClaw/Sonnet 4.6",
+          "harness": "open-sandbox__openclaw",
+          "model": "sonnet-4.6",
+          "rank_by_sonnet_main": 6
+        },
+        {
+          "GPT-4o": 0.810351,
+          "GPT-5.4": 0.713456,
+          "Qwen3-235B-A22B": 0.907596,
+          "Sonnet 4.6": 0.681804,
+          "combo_label": "ClaudeCode/Opus 4.6",
+          "harness": "open-sandbox__claudecode",
+          "model": "opus-4.6",
+          "rank_by_sonnet_main": 7
+        },
+        {
+          "GPT-4o": 0.680357,
+          "GPT-5.4": 0.714268,
+          "Qwen3-235B-A22B": 0.812375,
+          "Sonnet 4.6": 0.621036,
+          "combo_label": "DeepAgents/GPT-5.5",
+          "harness": "open-sandbox__deepagents",
+          "model": "gpt-5.5",
+          "rank_by_sonnet_main": 8
+        },
+        {
+          "GPT-4o": 0.8108,
+          "GPT-5.4": 0.74606,
+          "Qwen3-235B-A22B": 0.891,
+          "Sonnet 4.6": 0.69922,
+          "combo_label": "DeepAgents/Opus 4.6",
+          "harness": "open-sandbox__deepagents",
+          "model": "opus-4.6",
+          "rank_by_sonnet_main": 9
+        },
+        {
+          "GPT-4o": 0.829444,
+          "GPT-5.4": 0.750593,
+          "Qwen3-235B-A22B": 0.895833,
+          "Sonnet 4.6": 0.657574,
+          "combo_label": "Hermes/Kimi K2.6",
+          "harness": "open-sandbox__hermes",
+          "model": "kimi-k2.6",
+          "rank_by_sonnet_main": 10
+        },
+        {
+          "GPT-4o": 0.706944,
+          "GPT-5.4": 0.705074,
+          "Qwen3-235B-A22B": 0.816667,
+          "Sonnet 4.6": 0.618019,
+          "combo_label": "OpenClaw/GPT-5.5",
+          "harness": "open-sandbox__openclaw",
+          "model": "gpt-5.5",
+          "rank_by_sonnet_main": 11
+        },
+        {
+          "GPT-4o": 0.790778,
+          "GPT-5.4": 0.710622,
+          "Qwen3-235B-A22B": 0.875956,
+          "Sonnet 4.6": 0.662267,
+          "combo_label": "DeepAgents/Kimi K2.6",
+          "harness": "open-sandbox__deepagents",
+          "model": "kimi-k2.6",
+          "rank_by_sonnet_main": 12
+        },
+        {
+          "GPT-4o": 0.784074,
+          "GPT-5.4": 0.657444,
+          "Qwen3-235B-A22B": 0.871352,
+          "Sonnet 4.6": 0.660204,
+          "combo_label": "OpenClaw/DeepSeek V4 Pro",
+          "harness": "open-sandbox__openclaw",
+          "model": "deepseek-v4-pro",
+          "rank_by_sonnet_main": 13
+        },
+        {
+          "GPT-4o": 0.797414,
+          "GPT-5.4": 0.679121,
+          "Qwen3-235B-A22B": 0.903017,
+          "Sonnet 4.6": 0.691362,
+          "combo_label": "Hermes/DeepSeek V4 Pro",
+          "harness": "open-sandbox__hermes",
+          "model": "deepseek-v4-pro",
+          "rank_by_sonnet_main": 14
+        },
+        {
+          "GPT-4o": 0.876607,
+          "GPT-5.4": 0.722554,
+          "Qwen3-235B-A22B": 0.909696,
+          "Sonnet 4.6": 0.737196,
+          "combo_label": "Hermes/MiniMax-M3",
+          "harness": "open-sandbox__hermes",
+          "model": "MiniMax-M3",
+          "rank_by_sonnet_main": 15
+        },
+        {
+          "GPT-4o": 0.845818,
+          "GPT-5.4": 0.741655,
+          "Qwen3-235B-A22B": 0.892236,
+          "Sonnet 4.6": 0.721709,
+          "combo_label": "DeepAgents/MiniMax-M3",
+          "harness": "open-sandbox__deepagents",
+          "model": "MiniMax-M3",
+          "rank_by_sonnet_main": 16
+        },
+        {
+          "GPT-4o": 0.765877,
+          "GPT-5.4": 0.643456,
+          "Qwen3-235B-A22B": 0.838772,
+          "Sonnet 4.6": 0.636649,
+          "combo_label": "DeepAgents/DeepSeek V4 Pro",
+          "harness": "open-sandbox__deepagents",
+          "model": "deepseek-v4-pro",
+          "rank_by_sonnet_main": 17
+        },
+        {
+          "GPT-4o": 0.673306,
+          "GPT-5.4": 0.616597,
+          "Qwen3-235B-A22B": 0.750935,
+          "Sonnet 4.6": 0.547,
+          "combo_label": "OpenClaw/Kimi K2.6",
+          "harness": "open-sandbox__openclaw",
+          "model": "kimi-k2.6",
+          "rank_by_sonnet_main": 18
+        },
+        {
+          "GPT-4o": 0.769,
+          "GPT-5.4": 0.67726,
+          "Qwen3-235B-A22B": 0.85442,
+          "Sonnet 4.6": 0.64672,
+          "combo_label": "OpenClaw/MiniMax-M3",
+          "harness": "open-sandbox__openclaw",
+          "model": "MiniMax-M3",
+          "rank_by_sonnet_main": 19
+        },
+        {
+          "GPT-4o": 0.672203,
+          "GPT-5.4": 0.563864,
+          "Qwen3-235B-A22B": 0.777542,
+          "Sonnet 4.6": 0.500571,
+          "combo_label": "ClaudeCode/Haiku 4.5",
+          "harness": "open-sandbox__claudecode",
+          "model": "haiku-4.5",
+          "rank_by_sonnet_main": 20
+        },
+        {
+          "GPT-4o": 0.643208,
+          "GPT-5.4": 0.584358,
+          "Qwen3-235B-A22B": 0.830491,
+          "Sonnet 4.6": 0.493038,
+          "combo_label": "DeepAgents/Haiku 4.5",
+          "harness": "open-sandbox__deepagents",
+          "model": "haiku-4.5",
+          "rank_by_sonnet_main": 21
+        },
+        {
+          "GPT-4o": 0.565937,
+          "GPT-5.4": 0.477156,
+          "Qwen3-235B-A22B": 0.683125,
+          "Sonnet 4.6": 0.410016,
+          "combo_label": "OpenClaw/Haiku 4.5",
+          "harness": "open-sandbox__openclaw",
+          "model": "haiku-4.5",
+          "rank_by_sonnet_main": 22
+        },
+        {
+          "GPT-4o": 0.506802,
+          "GPT-5.4": 0.432593,
+          "Qwen3-235B-A22B": 0.539186,
+          "Sonnet 4.6": 0.4035,
+          "combo_label": "Hermes/Sonnet 4.6",
+          "harness": "open-sandbox__hermes",
+          "model": "sonnet-4.6",
+          "rank_by_sonnet_main": 23
+        },
+        {
+          "GPT-4o": 0.421506,
+          "GPT-5.4": 0.380627,
+          "Qwen3-235B-A22B": 0.455181,
+          "Sonnet 4.6": 0.3482,
+          "combo_label": "Hermes/Opus 4.6",
+          "harness": "open-sandbox__hermes",
+          "model": "opus-4.6",
+          "rank_by_sonnet_main": 24
+        },
+        {
+          "GPT-4o": 0.433117,
+          "GPT-5.4": 0.378312,
+          "Qwen3-235B-A22B": 0.515519,
+          "Sonnet 4.6": 0.311429,
+          "combo_label": "Hermes/Haiku 4.5",
+          "harness": "open-sandbox__hermes",
+          "model": "haiku-4.5",
+          "rank_by_sonnet_main": 25
+        },
+        {
+          "GPT-4o": 0.350575,
+          "GPT-5.4": 0.321184,
+          "Qwen3-235B-A22B": 0.422184,
+          "Sonnet 4.6": 0.237488,
+          "combo_label": "Hermes/GPT-4.1-mini",
+          "harness": "open-sandbox__hermes",
+          "model": "gpt-4.1-mini",
+          "rank_by_sonnet_main": 26
+        },
+        {
+          "GPT-4o": 0.444872,
+          "GPT-5.4": 0.320731,
+          "Qwen3-235B-A22B": 0.533846,
+          "Sonnet 4.6": 0.231897,
+          "combo_label": "Hermes/Qwen3-235B-A22B",
+          "harness": "open-sandbox__hermes",
+          "model": "qwen3-235b-a22b",
+          "rank_by_sonnet_main": 27
+        },
+        {
+          "GPT-4o": 0.35712,
+          "GPT-5.4": 0.304989,
+          "Qwen3-235B-A22B": 0.406413,
+          "Sonnet 4.6": 0.22388,
+          "combo_label": "OpenClaw/GPT-4.1-mini",
+          "harness": "open-sandbox__openclaw",
+          "model": "gpt-4.1-mini",
+          "rank_by_sonnet_main": 28
+        },
+        {
+          "GPT-4o": 0.282126,
+          "GPT-5.4": 0.252126,
+          "Qwen3-235B-A22B": 0.32477,
+          "Sonnet 4.6": 0.193506,
+          "combo_label": "DeepAgents/GPT-4.1-mini",
+          "harness": "open-sandbox__deepagents",
+          "model": "gpt-4.1-mini",
+          "rank_by_sonnet_main": 29
+        },
+        {
+          "GPT-4o": 0.346404,
+          "GPT-5.4": 0.298966,
+          "Qwen3-235B-A22B": 0.411461,
+          "Sonnet 4.6": 0.20882,
+          "combo_label": "Codex/GPT-4.1-mini",
+          "harness": "open-sandbox__codex",
+          "model": "gpt-4.1-mini",
+          "rank_by_sonnet_main": 30
+        },
+        {
+          "GPT-4o": 0.43379,
+          "GPT-5.4": 0.323032,
+          "Qwen3-235B-A22B": 0.498871,
+          "Sonnet 4.6": 0.214258,
+          "combo_label": "DeepAgents/Qwen3-235B-A22B",
+          "harness": "open-sandbox__deepagents",
+          "model": "qwen3-235b-a22b",
+          "rank_by_sonnet_main": 31
+        },
+        {
+          "GPT-4o": 0.417794,
+          "GPT-5.4": 0.305721,
+          "Qwen3-235B-A22B": 0.486471,
+          "Sonnet 4.6": 0.232838,
+          "combo_label": "OpenClaw/Qwen3-235B-A22B",
+          "harness": "open-sandbox__openclaw",
+          "model": "qwen3-235b-a22b",
+          "rank_by_sonnet_main": 32
+        }
+      ],
+      "fields": {
+        "row": "combo_label",
+        "sort": "rank_by_sonnet_main",
+        "judges": [
+          "Sonnet 4.6",
+          "GPT-5.4",
+          "GPT-4o",
+          "Qwen3-235B-A22B"
+        ]
+      }
+    },
+    "visual_judges": {
+      "data": [
+        {
+          "GPT-4.1-mini": 0.845738,
+          "GPT-4o": 0.773983,
+          "GPT-5.4": 0.697066,
+          "Qwen-VL-plus": 0.762951,
+          "Sonnet 4.6": 0.65818,
+          "combo_label": "DeepAgents/Sonnet 4.6",
+          "harness": "open-sandbox__deepagents",
+          "model": "sonnet-4.6",
+          "rank_by_sonnet_main": 1
+        },
+        {
+          "GPT-4.1-mini": 0.83373,
+          "GPT-4o": 0.770873,
+          "GPT-5.4": 0.691508,
+          "Qwen-VL-plus": 0.748413,
+          "Sonnet 4.6": 0.66854,
+          "combo_label": "Codex/GPT-5.5",
+          "harness": "open-sandbox__codex",
+          "model": "gpt-5.5",
+          "rank_by_sonnet_main": 2
+        },
+        {
+          "GPT-4.1-mini": 0.84709,
+          "GPT-4o": 0.760149,
+          "GPT-5.4": 0.697119,
+          "Qwen-VL-plus": 0.757836,
+          "Sonnet 4.6": 0.651836,
+          "combo_label": "Hermes/GPT-5.5",
+          "harness": "open-sandbox__hermes",
+          "model": "gpt-5.5",
+          "rank_by_sonnet_main": 3
+        },
+        {
+          "GPT-4.1-mini": 0.806639,
+          "GPT-4o": 0.772131,
+          "GPT-5.4": 0.716475,
+          "Qwen-VL-plus": 0.761885,
+          "Sonnet 4.6": 0.659721,
+          "combo_label": "ClaudeCode/Sonnet 4.6",
+          "harness": "open-sandbox__claudecode",
+          "model": "sonnet-4.6",
+          "rank_by_sonnet_main": 4
+        },
+        {
+          "GPT-4.1-mini": 0.821491,
+          "GPT-4o": 0.781875,
+          "GPT-5.4": 0.680439,
+          "Qwen-VL-plus": 0.762193,
+          "Sonnet 4.6": 0.657298,
+          "combo_label": "OpenClaw/Opus 4.6",
+          "harness": "open-sandbox__openclaw",
+          "model": "opus-4.6",
+          "rank_by_sonnet_main": 5
+        },
+        {
+          "GPT-4.1-mini": 0.8025,
+          "GPT-4o": 0.761696,
+          "GPT-5.4": 0.679375,
+          "Qwen-VL-plus": 0.739732,
+          "Sonnet 4.6": 0.663286,
+          "combo_label": "OpenClaw/Sonnet 4.6",
+          "harness": "open-sandbox__openclaw",
+          "model": "sonnet-4.6",
+          "rank_by_sonnet_main": 6
+        },
+        {
+          "GPT-4.1-mini": 0.790397,
+          "GPT-4o": 0.732177,
+          "GPT-5.4": 0.647222,
+          "Qwen-VL-plus": 0.727063,
+          "Sonnet 4.6": 0.629381,
+          "combo_label": "ClaudeCode/Opus 4.6",
+          "harness": "open-sandbox__claudecode",
+          "model": "opus-4.6",
+          "rank_by_sonnet_main": 7
+        },
+        {
+          "GPT-4.1-mini": 0.865726,
+          "GPT-4o": 0.797583,
+          "GPT-5.4": 0.713032,
+          "Qwen-VL-plus": 0.777339,
+          "Sonnet 4.6": 0.680339,
+          "combo_label": "DeepAgents/GPT-5.5",
+          "harness": "open-sandbox__deepagents",
+          "model": "gpt-5.5",
+          "rank_by_sonnet_main": 8
+        },
+        {
+          "GPT-4.1-mini": 0.774741,
+          "GPT-4o": 0.727456,
+          "GPT-5.4": 0.647483,
+          "Qwen-VL-plus": 0.717155,
+          "Sonnet 4.6": 0.610017,
+          "combo_label": "DeepAgents/Opus 4.6",
+          "harness": "open-sandbox__deepagents",
+          "model": "opus-4.6",
+          "rank_by_sonnet_main": 9
+        },
+        {
+          "GPT-4.1-mini": 0.833039,
+          "GPT-4o": 0.744804,
+          "GPT-5.4": 0.687588,
+          "Qwen-VL-plus": 0.714902,
+          "Sonnet 4.6": 0.642647,
+          "combo_label": "Hermes/Kimi K2.6",
+          "harness": "open-sandbox__hermes",
+          "model": "kimi-k2.6",
+          "rank_by_sonnet_main": 10
+        },
+        {
+          "GPT-4.1-mini": 0.839597,
+          "GPT-4o": 0.776639,
+          "GPT-5.4": 0.692839,
+          "Qwen-VL-plus": 0.771048,
+          "Sonnet 4.6": 0.663581,
+          "combo_label": "OpenClaw/GPT-5.5",
+          "harness": "open-sandbox__openclaw",
+          "model": "gpt-5.5",
+          "rank_by_sonnet_main": 11
+        },
+        {
+          "GPT-4.1-mini": 0.811415,
+          "GPT-4o": 0.795385,
+          "GPT-5.4": 0.686774,
+          "Qwen-VL-plus": 0.771604,
+          "Sonnet 4.6": 0.619925,
+          "combo_label": "DeepAgents/Kimi K2.6",
+          "harness": "open-sandbox__deepagents",
+          "model": "kimi-k2.6",
+          "rank_by_sonnet_main": 12
+        },
+        {
+          "GPT-4.1-mini": 0.743815,
+          "GPT-4o": 0.571923,
+          "GPT-5.4": 0.532015,
+          "Qwen-VL-plus": 0.702,
+          "Sonnet 4.6": 0.551262,
+          "combo_label": "OpenClaw/DeepSeek V4 Pro",
+          "harness": "open-sandbox__openclaw",
+          "model": "deepseek-v4-pro",
+          "rank_by_sonnet_main": 13
+        },
+        {
+          "GPT-4.1-mini": 0.752258,
+          "GPT-4o": 0.506452,
+          "GPT-5.4": 0.467952,
+          "Qwen-VL-plus": 0.704274,
+          "Sonnet 4.6": 0.486516,
+          "combo_label": "Hermes/DeepSeek V4 Pro",
+          "harness": "open-sandbox__hermes",
+          "model": "deepseek-v4-pro",
+          "rank_by_sonnet_main": 14
+        },
+        {
+          "GPT-4.1-mini": 0.815096,
+          "GPT-4o": 0.490192,
+          "GPT-5.4": 0.609038,
+          "Qwen-VL-plus": 0.628942,
+          "Sonnet 4.6": 0.416769,
+          "combo_label": "Hermes/MiniMax-M3",
+          "harness": "open-sandbox__hermes",
+          "model": "MiniMax-M3",
+          "rank_by_sonnet_main": 15
+        },
+        {
+          "GPT-4.1-mini": 0.824423,
+          "GPT-4o": 0.492115,
+          "GPT-5.4": 0.692596,
+          "Qwen-VL-plus": 0.679519,
+          "Sonnet 4.6": 0.435712,
+          "combo_label": "DeepAgents/MiniMax-M3",
+          "harness": "open-sandbox__deepagents",
+          "model": "MiniMax-M3",
+          "rank_by_sonnet_main": 16
+        },
+        {
+          "GPT-4.1-mini": 0.765286,
+          "GPT-4o": 0.543968,
+          "GPT-5.4": 0.479254,
+          "Qwen-VL-plus": 0.718968,
+          "Sonnet 4.6": 0.50354,
+          "combo_label": "DeepAgents/DeepSeek V4 Pro",
+          "harness": "open-sandbox__deepagents",
+          "model": "deepseek-v4-pro",
+          "rank_by_sonnet_main": 17
+        },
+        {
+          "GPT-4.1-mini": 0.7812,
+          "GPT-4o": 0.7045,
+          "GPT-5.4": 0.59786,
+          "Qwen-VL-plus": 0.664,
+          "Sonnet 4.6": 0.5853,
+          "combo_label": "OpenClaw/Kimi K2.6",
+          "harness": "open-sandbox__openclaw",
+          "model": "kimi-k2.6",
+          "rank_by_sonnet_main": 18
+        },
+        {
+          "GPT-4.1-mini": 0.834643,
+          "GPT-4o": 0.566905,
+          "GPT-5.4": 0.671238,
+          "Qwen-VL-plus": 0.657738,
+          "Sonnet 4.6": 0.432905,
+          "combo_label": "OpenClaw/MiniMax-M3",
+          "harness": "open-sandbox__openclaw",
+          "model": "MiniMax-M3",
+          "rank_by_sonnet_main": 19
+        },
+        {
+          "GPT-4.1-mini": 0.808525,
+          "GPT-4o": 0.759828,
+          "GPT-5.4": 0.595066,
+          "Qwen-VL-plus": 0.729508,
+          "Sonnet 4.6": 0.565541,
+          "combo_label": "ClaudeCode/Haiku 4.5",
+          "harness": "open-sandbox__claudecode",
+          "model": "haiku-4.5",
+          "rank_by_sonnet_main": 20
+        },
+        {
+          "GPT-4.1-mini": 0.826385,
+          "GPT-4o": 0.772538,
+          "GPT-5.4": 0.566631,
+          "Qwen-VL-plus": 0.735846,
+          "Sonnet 4.6": 0.548769,
+          "combo_label": "DeepAgents/Haiku 4.5",
+          "harness": "open-sandbox__deepagents",
+          "model": "haiku-4.5",
+          "rank_by_sonnet_main": 21
+        },
+        {
+          "GPT-4.1-mini": 0.84383,
+          "GPT-4o": 0.799255,
+          "GPT-5.4": 0.59034,
+          "Qwen-VL-plus": 0.727128,
+          "Sonnet 4.6": 0.555936,
+          "combo_label": "OpenClaw/Haiku 4.5",
+          "harness": "open-sandbox__openclaw",
+          "model": "haiku-4.5",
+          "rank_by_sonnet_main": 22
+        },
+        {
+          "GPT-4.1-mini": 0.822969,
+          "GPT-4o": 0.721129,
+          "GPT-5.4": 0.65475,
+          "Qwen-VL-plus": 0.726563,
+          "Sonnet 4.6": 0.63125,
+          "combo_label": "Hermes/Sonnet 4.6",
+          "harness": "open-sandbox__hermes",
+          "model": "sonnet-4.6",
+          "rank_by_sonnet_main": 23
+        },
+        {
+          "GPT-4.1-mini": 0.819143,
+          "GPT-4o": 0.756324,
+          "GPT-5.4": 0.669343,
+          "Qwen-VL-plus": 0.760429,
+          "Sonnet 4.6": 0.662743,
+          "combo_label": "Hermes/Opus 4.6",
+          "harness": "open-sandbox__hermes",
+          "model": "opus-4.6",
+          "rank_by_sonnet_main": 24
+        },
+        {
+          "GPT-4.1-mini": 0.816628,
+          "GPT-4o": 0.78878,
+          "GPT-5.4": 0.583791,
+          "Qwen-VL-plus": 0.745,
+          "Sonnet 4.6": 0.572,
+          "combo_label": "Hermes/Haiku 4.5",
+          "harness": "open-sandbox__hermes",
+          "model": "haiku-4.5",
+          "rank_by_sonnet_main": 25
+        },
+        {
+          "GPT-4.1-mini": 0.59,
+          "GPT-4o": 0.612581,
+          "GPT-5.4": 0.452333,
+          "Qwen-VL-plus": 0.579242,
+          "Sonnet 4.6": 0.443061,
+          "combo_label": "Hermes/GPT-4.1-mini",
+          "harness": "open-sandbox__hermes",
+          "model": "gpt-4.1-mini",
+          "rank_by_sonnet_main": 26
+        },
+        {
+          "GPT-4.1-mini": 0.466341,
+          "GPT-4o": 0.54859,
+          "GPT-5.4": 0.358415,
+          "Qwen-VL-plus": 0.557927,
+          "Sonnet 4.6": 0.364,
+          "combo_label": "Hermes/Qwen3-235B-A22B",
+          "harness": "open-sandbox__hermes",
+          "model": "qwen3-235b-a22b",
+          "rank_by_sonnet_main": 27
+        },
+        {
+          "GPT-4.1-mini": 0.623571,
+          "GPT-4o": 0.595,
+          "GPT-5.4": 0.503333,
+          "Qwen-VL-plus": 0.575476,
+          "Sonnet 4.6": 0.488714,
+          "combo_label": "OpenClaw/GPT-4.1-mini",
+          "harness": "open-sandbox__openclaw",
+          "model": "gpt-4.1-mini",
+          "rank_by_sonnet_main": 28
+        },
+        {
+          "GPT-4.1-mini": 0.676613,
+          "GPT-4o": 0.655806,
+          "GPT-5.4": 0.515387,
+          "Qwen-VL-plus": 0.684516,
+          "Sonnet 4.6": 0.487548,
+          "combo_label": "DeepAgents/GPT-4.1-mini",
+          "harness": "open-sandbox__deepagents",
+          "model": "gpt-4.1-mini",
+          "rank_by_sonnet_main": 29
+        },
+        {
+          "GPT-4.1-mini": 0.593548,
+          "GPT-4o": 0.61129,
+          "GPT-5.4": 0.431452,
+          "Qwen-VL-plus": 0.647097,
+          "Sonnet 4.6": 0.41829,
+          "combo_label": "Codex/GPT-4.1-mini",
+          "harness": "open-sandbox__codex",
+          "model": "gpt-4.1-mini",
+          "rank_by_sonnet_main": 30
+        },
+        {
+          "GPT-4.1-mini": 0.473878,
+          "GPT-4o": 0.533068,
+          "GPT-5.4": 0.34502,
+          "Qwen-VL-plus": 0.491122,
+          "Sonnet 4.6": 0.323388,
+          "combo_label": "DeepAgents/Qwen3-235B-A22B",
+          "harness": "open-sandbox__deepagents",
+          "model": "qwen3-235b-a22b",
+          "rank_by_sonnet_main": 31
+        },
+        {
+          "GPT-4.1-mini": 0.400862,
+          "GPT-4o": 0.483077,
+          "GPT-5.4": 0.301172,
+          "Qwen-VL-plus": 0.457241,
+          "Sonnet 4.6": 0.281724,
+          "combo_label": "OpenClaw/Qwen3-235B-A22B",
+          "harness": "open-sandbox__openclaw",
+          "model": "qwen3-235b-a22b",
+          "rank_by_sonnet_main": 32
+        }
+      ],
+      "fields": {
+        "row": "combo_label",
+        "sort": "rank_by_sonnet_main",
+        "judges": [
+          "Sonnet 4.6",
+          "GPT-5.4",
+          "GPT-4o",
+          "Qwen-VL-plus",
+          "GPT-4.1-mini"
+        ]
+      }
+    }
+  },
+  "redraw_notes": "Rows are sorted by rank_by_sonnet_main. Each judge column stores average score for the corresponding route."
+}

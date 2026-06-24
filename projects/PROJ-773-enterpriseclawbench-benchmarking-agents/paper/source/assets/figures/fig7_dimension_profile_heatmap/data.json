@@ -1,0 +1,124 @@
+{
+  "kind": "figure",
+  "tex_label": "fig:radar-main",
+  "title": "Five-dimension semantic diagnostic by model",
+  "latex_asset": "figure.pdf",
+  "rendered_assets": [
+    "assets/figures/fig7_dimension_profile_heatmap/figure.pdf",
+    "assets/figures/fig7_dimension_profile_heatmap/figure.png"
+  ],
+  "generator": "assets/figures/fig7_dimension_profile_heatmap/render_fig7_dimension_profile_heatmap.py",
+  "source_file": "/hpc_data/jczhong/frontis-bench/outputs/report_data/reports/emnlp_industry_delivery_failure_rubric_diagnostics.json",
+  "dimensions": {
+    "grounded_accuracy": "Accuracy",
+    "task_relevance": "Relevance",
+    "substantive_depth": "Depth",
+    "practical_utility": "Utility",
+    "communication_quality": "Quality"
+  },
+  "fields": {
+    "row": "model",
+    "row_label": "model_label",
+    "sort": "score_avg",
+    "values": [
+      "Accuracy",
+      "Relevance",
+      "Depth",
+      "Utility",
+      "Quality"
+    ]
+  },
+  "data": [
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "score_avg": 0.6353689727463314,
+      "Accuracy": 0.5563522012578612,
+      "Relevance": 0.7158071278825999,
+      "Depth": 0.6350943396226417,
+      "Utility": 0.637442348008386,
+      "Quality": 0.7079454926624735
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "score_avg": 0.5990974576271187,
+      "Accuracy": 0.5254025423728806,
+      "Relevance": 0.6716101694915249,
+      "Depth": 0.5988771186440678,
+      "Utility": 0.6006567796610168,
+      "Quality": 0.6724788135593224
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "score_avg": 0.5872791411042946,
+      "Accuracy": 0.5073312883435577,
+      "Relevance": 0.6687116564417174,
+      "Depth": 0.5858588957055212,
+      "Utility": 0.5854907975460123,
+      "Quality": 0.6706748466257665
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "score_avg": 0.5786222222222223,
+      "Accuracy": 0.500166666666666,
+      "Relevance": 0.6654999999999993,
+      "Depth": 0.5746388888888888,
+      "Utility": 0.5764444444444444,
+      "Quality": 0.6525555555555556
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "score_avg": 0.5731303418803421,
+      "Accuracy": 0.501282051282051,
+      "Relevance": 0.6485683760683754,
+      "Depth": 0.5660897435897436,
+      "Utility": 0.5785470085470091,
+      "Quality": 0.6410470085470084
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "score_avg": 0.5201893491124262,
+      "Accuracy": 0.42748520710059174,
+      "Relevance": 0.611153846153846,
+      "Depth": 0.5277514792899413,
+      "Utility": 0.5241715976331363,
+      "Quality": 0.5932840236686394
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "score_avg": 0.4654623430962344,
+      "Accuracy": 0.3878870292887033,
+      "Relevance": 0.5521548117154809,
+      "Depth": 0.4508368200836823,
+      "Utility": 0.45725941422594174,
+      "Quality": 0.5704602510460246
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "score_avg": 0.2672405857740586,
+      "Accuracy": 0.24433054393305423,
+      "Relevance": 0.3556694560669454,
+      "Depth": 0.2147907949790795,
+      "Utility": 0.21658995815899568,
+      "Quality": 0.36531380753138026
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "score_avg": 0.24257670454545457,
+      "Accuracy": 0.20238636363636342,
+      "Relevance": 0.3241193181818181,
+      "Depth": 0.19954545454545453,
+      "Utility": 0.20860795454545433,
+      "Quality": 0.35406249999999967
+    }
+  ],
+  "redraw_notes": "Rows are sorted by strict 32-combo primary_attr_fail0. score_avg and displayed dimensions use completed plus attributable-failure denominator; attributable failures and missing primary/dimension values count as zero, sandbox-infra failures are excluded."
+}

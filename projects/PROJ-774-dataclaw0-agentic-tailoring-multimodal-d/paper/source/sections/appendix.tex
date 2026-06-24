@@ -1,0 +1,1647 @@
+\appendix
+
+% For more intuitive visualizations, demo videos, and the full pipeline of our work, we refer readers to the anonymous project page: \url{https://venerable-daifuku-fc4e13.netlify.app/}.
+
+\section{$\text{DataClaw}_0$ Dataset and Benchmark}
+\label{app:dataset_benchmark}
+
+This appendix provides additional details about the $\text{DataClaw}_0$ data corpus, the data construction pipeline, the $\text{DataClaw}_0$-val benchmark, the fuzzy-intent evaluation subset, and the structured evaluation metrics used throughout the paper. The goal of this section is to make the data construction and evaluation protocols transparent and reproducible.
+
+\subsection{Dataset Overview}
+\label{app:dataset_overview}
+
+$\text{DataClaw}_0$ is constructed to cover a broad spectrum of high-entropy multimodal streams, ranging from long GUI operation logs to physical manipulation trajectories and instructional videos. We organize the corpus into five representative domains: Daily Life, Education, Embodied AI, World Models/AIGC, and GUI Agents. Each domain contains raw multimodal streams, factual anchors extracted by domain-specific tools, and intent-conditioned structured outputs synthesized and verified by our construction pipeline.
+
+
+\paragraph{Domain diversity.}
+The five domains are selected to cover different forms of multimodal entropy. GUI streams contain dense text, UI elements, and temporally ordered actions. Embodied trajectories contain object states, spatial relations, contact events, and continuous action paths. Daily Life videos emphasize procedural understanding and event segmentation. World Models/AIGC samples require extracting scene layouts, motion patterns, and generation-oriented visual structures.
+
+\paragraph{Intent diversity.}
+For each domain, we design a set of domain-specific tailoring intents. These intents specify the target downstream use case and output schema, such as GUI navigation training data, spatio-temporal VQA data, embodied action trajectory data, or video generation supervision. Table~\ref{tab:intent_categories} lists representative intent categories.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Representative intent categories in $\text{DataClaw}_0$.}
+% \label{tab:intent_categories}
+% \begin{tabular}{lll}
+% \toprule
+% Domain & Representative Intent Category & Typical Output Structure \\
+% \midrule
+% GUI Agents & UI action extraction & ordered action JSON with coordinates \\
+% Embodied AI & manipulation trajectory extraction & object states and trajectory steps \\
+% World Models / AIGC & video generation planning & prompt, motion plan, key evidence frames \\
+% Daily Life & procedural knowledge extraction & step-by-step reasoning and QA \\
+% Education & multimodal concept QA & grounded question, answer, and evidence \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Representative intent categories in $\text{DataClaw}_0$.}
+\label{tab:intent_categories}
+\begin{tabular}{lll}
+\toprule
+Domain & Representative Intent Category & Typical Output Structure \\
+\midrule
+GUI Agents & UI action extraction & ordered action JSON with coordinates \\
+Embodied AI & robot recovery reasoning & fault diagnosis, corrective trajectories \\
+World Models / AIGC & video generation planning & prompt, motion plan, key evidence frames \\
+Daily Life & procedural knowledge extraction & step-by-step reasoning and QA \\
+Education & lecture summarization & key concept, interlaced text and image \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Data splits and leakage control.}
+We ensure that validation samples are source-disjoint from training data whenever the raw source provides identifiable stream or task IDs. Specifically, raw videos, GUI sessions, and embodied trajectories used in $\text{DataClaw}_0$-val are excluded from the SFT and GRPO pools. For GUI and embodied trajectories, we also remove repeated task templates and nearly identical action sequences.
+
+
+\subsection{A Complete Data Construction Case}
+\label{app:complete_case}
+
+This subsection provides concrete examples of how $\text{DataClaw}_0$ converts raw multimodal streams into intent-conditioned structured supervision. We show three representative cases from different domains: embodied manipulation, long-horizon GUI composition, and daily-life environmental understanding. These cases illustrate that $\text{DataClaw}_0$ is not designed to merely caption raw videos or screenshots; instead, it transforms high-entropy multimodal observations into structured, task-specific data instances that can be directly used for downstream post-training.
+
+\paragraph{Case 1: embodied manipulation.}
+The first example comes from a robot manipulation trajectory. The raw input is a short robot video consisting of sampled frames from an episode in which the robot manipulates objects on a table. The user intent is to construct a \emph{Predict Next Primary Subtask} training example. This intent requires the model to infer the next high-level manipulation step from the partially observed trajectory, rather than simply describe the current frame.
+
+Given the raw video, the bottom-up extraction stage identifies manipulation-relevant anchors, such as visible objects, object states, robot arm motion, and temporal progress. In this example, the robot has already placed a bag of yellow beads into a blue bowl, and the green block remains on the table as the next salient object to be manipulated. The synthesis stage then converts these anchors into a structured question-answer instance with an explicit reasoning trace.
+
+\begin{quote}
+\small
+\textbf{Sample ID:} \texttt{120\_embodied\_30}
+
+\textbf{Raw input:} a sampled robot manipulation video from an episode involving a beauty blender and building blocks.
+
+\textbf{User intent:} Construct one \emph{Predict Next Primary Subtask} example from the robot manipulation video.
+
+\textbf{Extracted anchors:}
+\begin{verbatim}
+[
+  {
+    "type": "object_state",
+    "content": "a bag of yellow beads has been placed into the blue bowl",
+    "evidence_frames": [0, 16]
+  },
+  {
+    "type": "object_presence",
+    "content": "a green block remains on the table",
+    "evidence_frames": [0, 16]
+  },
+  {
+    "type": "robot_motion",
+    "content": "the robot arm is retreating after completing the previous
+    placement",
+    "evidence_frames": [0, 16]
+  },
+  {
+    "type": "task_progress",
+    "content": "the previous manipulation subtask appears completed;
+    the next object should be selected",
+    "evidence_frames": [0, 16]
+  }
+]
+\end{verbatim}
+
+\textbf{Structured output:}
+\begin{verbatim}
+{
+  "question": "What is the robot's next primary subtask?",
+  "answer": "Pick up the green block.",
+  "cot": "The robot has just finished placing the bag of yellow beads into
+  the blue bowl. The left arm is retreating, leaving the green block as the
+  remaining object to be manipulated on the table. Therefore, the next
+  logical step is for the robot to approach and grasp the green block.",
+  "input_video": [0, 16],
+  "input_image": null,
+  "output_video": null,
+  "output_image": null
+}
+\end{verbatim}
+\end{quote}
+
+This example demonstrates how $\text{DataClaw}_0$ turns a robot trajectory into a compact high-level planning instance. The key supervision signal is not the surface-level description of the scene, but the inferred next subtask grounded in temporal evidence and object-state transitions.
+
+\paragraph{Case 2: long-horizon GUI task composition.}
+The second example comes from the GUI domain. The raw input contains multiple short-horizon GUI trajectory fragments. Each fragment consists of screenshots, low-level actions, and textual descriptions. The user intent is to compose a plausible long-horizon task from these fragments, infer the correct fragment order, and reconstruct the original task. This is a challenging data construction setting because the model must distinguish semantically compatible fragments from unrelated distractors.
+
+In this case, the candidate fragments include spreadsheet editing, Twitter/X Spaces sharing, Trello due-date editing, and screen-time setting configuration. Only three fragments belong to the same Excel spreadsheet task. $\text{DataClaw}_0$ must identify that Fragments B, A, and C are mutually consistent, while Fragments D, E, and F are distractors from unrelated applications.
+
+\begin{quote}
+\small
+\textbf{Sample ID:} \texttt{145\_GUI\_15}
+
+\textbf{Raw input:} six short-horizon GUI trajectory fragments, each containing screenshots, low-level GUI actions, and natural-language step descriptions.
+
+\textbf{User intent:} Help compose a complex long-horizon GUI task from these short-horizon GUI trajectory fragments.
+
+\textbf{Extracted fragment-level anchors:}
+\begin{verbatim}
+[
+  {
+    "fragment": "A",
+    "domain": "spreadsheet",
+    "application": "Excel",
+    "content": "create column headers Ratings, Cost, Location,
+                Number of playerz, and enter Boggle rating",
+    "key_cells": ["B1", "B2", "C1", "D1", "E1"],
+    "key_actions": ["click", "write", "press_enter", "press_tab"]
+  },
+  {
+    "fragment": "B",
+    "domain": "spreadsheet",
+    "application": "Excel",
+    "content": "adjust column A width, undo, auto-adjust column A,
+                adjust row 5 height, and undo",
+    "key_objects": ["column A", "row 5", "Undo button"],
+    "key_actions": ["drag", "click_undo", "double_click"]
+  },
+  {
+    "fragment": "C",
+    "domain": "spreadsheet",
+    "application": "Excel",
+    "content": "correct typo in E1 by changing playerz to players",
+    "key_cells": ["E1"],
+    "key_actions": ["double_click", "press_right", "backspace", "write"]
+  },
+  {
+    "fragment": "D",
+    "domain": "social_media",
+    "application": "Twitter/X",
+    "content": "share a scheduled Space by creating a post"
+  },
+  {
+    "fragment": "E",
+    "domain": "project_management",
+    "application": "Trello",
+    "content": "set a card due date to 10/30/2025"
+  },
+  {
+    "fragment": "F",
+    "domain": "settings",
+    "application": "TikTok or mobile settings",
+    "content": "enable screen time breaks and set interval to 30 minutes"
+  }
+]
+\end{verbatim}
+
+\textbf{Composition rationale:}
+\begin{verbatim}
+Fragment B, Fragment A, and Fragment C all operate on the same Excel
+spreadsheet for a Family Game Inventory. Fragment B prepares the sheet
+layout by adjusting column and row sizes. Fragment A then enters the
+spreadsheet headers and rating data, including the typo "Number of playerz"
+in cell E1. Fragment C continues from that state and corrects the typo in
+E1 from "playerz" to "players". Fragments D, E, and F are discarded because
+they belong to unrelated applications and task contexts.
+\end{verbatim}
+
+\textbf{Structured output:}
+\begin{verbatim}
+{
+  "ordered_fragment_labels": ["B", "A", "C"],
+  "original_task": "In Excel, widen the width of column A, undo it, use
+  automatic adjustment to change the width of column A, widen the height of
+  row 5, undo it, type Ratings in B1, enter 4 as the Boggle rating and try
+  to move in different directions using the keyboard, type Cost in C1,
+  Location in D1, Number of playerz in E1, replace the information in E1 by
+  Number of playerz and change the last letter to s."
+}
+\end{verbatim}
+\end{quote}
+
+This case highlights three important capabilities of $\text{DataClaw}_0$. First, it performs cross-fragment semantic alignment by recognizing that the spreadsheet fragments share the same application, table content, and cell-level state. Second, it performs temporal ordering: formatting operations in Fragment B should happen before data entry in Fragment A, while typo correction in Fragment C must happen after the erroneous header has been created. Third, it rejects distractor fragments from unrelated domains, preventing the constructed long-horizon task from mixing incompatible applications.
+
+\paragraph{Case 3: daily-life environmental understanding.}
+The third example comes from a daily-life video. The intent is to construct a \emph{Contextual Reasoning and Environmental Understanding} instance. The raw video contains an egocentric or first-person view of an indoor scene. Unlike the GUI case, the goal is not to reconstruct executable actions, but to generate a grounded reasoning question that requires understanding the surrounding environment.
+
+\begin{quote}
+\small
+\textbf{Sample ID:} \texttt{17\_daily\_7}
+
+\textbf{Raw input:} a sampled daily-life video showing an indoor scene with a wooden table and household objects.
+
+\textbf{User intent:} Construct one contextual reasoning and environmental understanding question-answer pair from the video.
+
+\textbf{Extracted anchors:}
+\begin{verbatim}
+[
+  {
+    "type": "scene_layout",
+    "content": "an indoor room with a wooden table surface",
+    "evidence_frames": [0, 24]
+  },
+  {
+    "type": "object_presence",
+    "content": "books and household objects are visible on the table",
+    "evidence_frames": [0, 24]
+  },
+  {
+    "type": "object_presence",
+    "content": "a glass container or cup-like object appears on the table",
+    "evidence_frames": [0, 24]
+  },
+  {
+    "type": "environment_cue",
+    "content": "the objects and furniture are consistent with a living area 
+    or study space",
+    "evidence_frames": [0, 24]
+  }
+]
+\end{verbatim}
+
+\textbf{Structured output:}
+\begin{verbatim}
+{
+  "question": "What type of room am I  in at the start of the video?",
+  "answer": "I'm in a living area or study space, identified by the wooden
+  table with various items on it including books, a glass, and other 
+  household objects.",
+  "cot": "The visual scene shows a wooden table surface with
+  multiple objects
+  like a red book, glass container, and other items typical of a living or
+  study area. The flooring appears to be wooden tiles, consistent with a 
+  main living space rather than a bedroom or kitchen.",
+  "input_image": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                  16, 17, 18, 19, 20, 21, 22, 23, 24],
+  "output_image": null
+}
+\end{verbatim}
+\end{quote}
+
+
+Across these examples, $\text{DataClaw}_0$ follows the same general construction principle. First, it extracts or identifies factual anchors from the raw multimodal stream, such as object states, GUI actions, OCR text, application context, scene layout, or temporal transitions. Second, it conditions generation on a user-specified data construction intent. Third, it produces a structured output that follows the required schema and is suitable for downstream training. The embodied case emphasizes temporal prediction and object-state reasoning; the GUI case emphasizes long-horizon task composition and distractor rejection; and the daily-life case emphasizes contextual scene understanding. 
+
+\subsection{Data Construction Pipeline}
+\label{app:data_pipeline}
+
+
+
+% \subsection{Data Construction Pipeline}
+% \label{app:data_pipeline}
+% To optimize the tailoring agent \(F_\theta\), a massive amount of high-quality \((X_{raw}, I, Y_{struct})\) triplet data is required. However, manual annotation of structured data for long sequences is prohibitively expensive. To this end, we design a two-stage automated data construction pipeline: \textit{Bottom-up Extraction and Top-down Synthesis}.
+
+% % \begin{figure}[htbp]
+% % \centering
+% % \includegraphics[width=\linewidth]{figures/$\text{DataClaw}_0$_pipeline.pdf}
+% % \caption{$\text{DataClaw}_0$: Make Any Data. Overview of the data construction pipeline.}
+% % \label{fig:pipeline}
+% % \end{figure}
+
+% \subsubsection{Stage 1: Factual Anchor Extraction (Bottom-up)}
+
+% Directly employing advanced large Vision-Language Models (VLMs) to process long videos or image-text sequences often leads to severe ``physical hallucinations'' (e.g., temporal misalignment, spatial coordinate offsets, and omission of fine-grained text). To mitigate this, we introduce a lightweight ensemble of expert models \(H\) (e.g., OCR engines, object detectors, scene transition detection algorithms) in the first stage. These experts extract a set of discrete, absolutely correct ``Factual Anchors'' \(A\) from \(X_{raw}\):
+% \begin{equation}
+% A = H(X_{raw}) = \{a_1, a_2, \dots, a_K\}
+% \end{equation}
+% where each anchor \(a_k = (t_k, p_k, c_k)\) comprises a timestamp \(t_k\), spatial location \(p_k\) (e.g., bounding box), and local semantic content \(c_k\) (e.g., recognized text or object category). Although these anchors lack global context, they provide irrefutable physical facts, serving as a solid tool-like grounding foundation for the agent.
+
+% \subsubsection{Stage 2: Generative Semantic Synthesis (Top-down)}
+
+% Upon acquiring the factual anchors \(A\), we utilize a closed-source VLM with robust reasoning capabilities (e.g., Gemini3.1-pro) as the synthesis engine \(S\). We input a domain-specific intent \(I_{domain}\).
+
+% During this process, \(A\) is injected into the prompt as hard constraints. The task of the synthesis engine \(S\) is to logically connect these discrete anchors, infer short-to-long-range semantic relationships, and generate a multi-dimensional Chain-of-Thought (CoT) rationale:
+% \begin{equation}
+% Y_{struct} = S(X_{raw}, A, I_{domain})
+% \end{equation}
+% Specifically, the synthesis engine performs the following operations:
+% \begin{itemize}[leftmargin=20pt, labelsep=4pt]
+%     \item \textbf{Intent Alignment:} Determines which anchors are critical and which are noise based on \(I_{domain}\).
+%     \item \textbf{Logical Completion:} Infers causal relationships between anchors (e.g., in a GUI scenario, inferring that ``clicking button A'' leads to ``the pop-up of page B'').
+%     \item \textbf{Formatted Output:} Encapsulates the reasoning results strictly according to schema \(\Phi\) (e.g., JSON or Markdown).
+% \end{itemize}
+
+% Through this dual-stage pipeline, we successfully constructed a large-scale, high-information-density, and hallucination-free structured alignment corpus \(D\), covering five core domains (Daily Life, Education, Embodied AI, World Models, and GUI Interaction). This lays the data foundation for the subsequent Supervised Fine-Tuning (SFT) and Reinforcement Learning (RL) of the $\text{DataClaw}_0$ model.
+
+
+
+
+
+
+
+
+
+
+$\text{DataClaw}_0$ builds training data through an intent-conditioned construction pipeline. Instead of directly prompting a VLM on arbitrary raw videos or GUI trajectories, we first transform raw streams into compact, verifiable construction units, and then ask a strong multimodal model to synthesize structured samples under explicit schema constraints. This design separates deterministic preprocessing from semantic synthesis: lightweight scripts identify candidate temporal windows, event fragments, and media resources, while the VLM performs higher-level reasoning such as subtask prediction, failure diagnosis, task decomposition, and long-horizon reconstruction.
+
+At a high level, the pipeline contains five stages:
+\begin{enumerate}
+    \item \textbf{Candidate discovery}: scan raw videos or GUI trajectories to find segments that are likely to support a target data construction intent.
+    \item \textbf{Anchor and context packaging}: convert selected segments into compact requests containing sampled frames, action traces, fragment descriptions, timestamps, or frame ranges.
+    \item \textbf{Intent-conditioned VLM synthesis}: call a strong VLM with a task-specific prompt and a strict output schema.
+    \item \textbf{Validation and materialization}: parse the generated JSON, validate temporal ranges and required fields, and materialize referenced videos or images.
+    \item \textbf{Corpus export}: write normalized training samples and separate artifact mapping files for downstream training and inspection.
+\end{enumerate}
+
+This section describes the pipeline using two representative sources: RoboCOIN robot manipulation videos and GUI multi-event trajectories.
+
+\subsubsection{Robot Data Pipeline}
+\label{app:robocoin_pipeline}
+
+For robot data~\cite{agibot,robocoin}, $\text{DataClaw}_0$ processes raw robot operation videos into two types of embodied training data: robot fault diagnosis and recovery data, and robot operation understanding data. Both branches share the same general principle: first select informative video windows from long episodes, then ask the VLM to construct structured supervision from a small number of representative frames, and finally materialize the referenced video or image assets.
+
+\paragraph{Fault synthesis branch.}
+The fault synthesis branch constructs training samples for robot failure diagnosis and recovery. The goal is to synthesize examples where the input depicts a robot getting stuck or hesitating, and the output asks the model to identify the failure and infer the correct recovery behavior.
+
+The pipeline is implemented in three scripts:
+\begin{center}
+\small
+\texttt{robocoin\_fault\_candidate\_mine.py}
+$\rightarrow$
+\texttt{robocoin\_fault\_synthesis\_prepare.py}
+$\rightarrow$
+\texttt{robocoin\_fault\_synthesis\_run.py}.
+\end{center}
+
+The first stage mines candidate windows from the original RoboCOIN videos. It scans the head-camera stream, e.g., \texttt{observation.images.cam\_high\_rgb}, reads video metadata such as frame rate, duration, and total frame count, and filters invalid or too-short videos. For each valid episode, it samples anchor positions at fixed fractions of the trajectory, such as 35\%, 50\%, and 65\%. Around each anchor, the script constructs two temporal ranges: an observation range and a future range. The observation range is used to synthesize the faulty input, while the future range provides evidence of the correct continuation.
+
+The candidate mining stage produces a JSONL file of the following form:
+\begin{verbatim}
+{
+  "video_path": ".../episode_xxx.mp4",
+  "fps": 30.0,
+  "num_frames": 1800,
+  "obs_start": 540,
+  "obs_end": 600,
+  "future_start": 600,
+  "future_end": 660
+}
+\end{verbatim}
+
+The second stage prepares VLM requests. For each candidate, it samples a small number of frames from the observation and future ranges, typically eight observation frames and four future frames. These frames are encoded into the API request together with a task-specific system prompt. The prompt defines the intended fault type, such as \texttt{approach\_stall}, and requires the VLM to return a structured JSON object containing the freeze frame, the number of repeated frames, the recall frame, the recovery video range, and the natural-language question, answer, and reasoning.
+
+A simplified target schema is:
+\begin{verbatim}
+{
+  "freeze_frame": int,
+  "freeze_repeat_count": int,
+  "output_image": [int],
+  "output_video": [int, int],
+  "question": str,
+  "answer": str,
+  "cot": [str, ...]
+}
+\end{verbatim}
+
+The third stage calls the VLM API, parses the returned JSON, and materializes the actual media assets. The faulty input video is generated by repeating the selected \texttt{freeze\_frame}, thereby simulating a robot stall. The recovery output video is clipped from the original future trajectory according to \texttt{output\_video}. The recall image is extracted from the specified \texttt{output\_image} frame. The final output directory contains normalized training samples and a separate artifact file that maps sample IDs to physical video and image paths:
+\begin{verbatim}
+output_root/
++-- training_samples.jsonl
++-- training_artifacts.jsonl
++-- videos/
+|   +-- input/
+|   \-- output/
+\-- images/
+    \-- output/
+\end{verbatim}
+
+This branch therefore turns ordinary successful robot trajectories into counterfactual-style failure supervision. The synthetic input contains a plausible failure, while the output remains grounded in the original successful continuation.
+
+\paragraph{Understanding branch.}
+The understanding branch constructs robot operation understanding data. It targets tasks such as describing the current subtask, predicting the next primary subtask, and generating interleaved tutorial-style supervision. The corresponding scripts are:
+\begin{center}
+\small
+\texttt{robocoin\_understanding\_prepare.py}
+$\rightarrow$
+\texttt{robocoin\_understanding\_run.py}.
+\end{center}
+
+Unlike the fault branch, this branch does not create synthetic stalled videos. Instead, it samples global keyframes from each episode and asks the VLM to construct an understanding-oriented question-answer pair. For each episode, the preparation script uniformly samples a fixed number of frames, e.g., 20 frames, from the full trajectory. The task family determines the prompt. For example, in \texttt{predict\_next\_primary\_subtask}, the model must infer the next high-level manipulation step from the visible progress of the episode.
+
+The VLM is required to select an input video range and produce the corresponding structured sample:
+\begin{verbatim}
+{
+  "input_video": [start_frame, end_frame],
+  "input_image": null,
+  "output_video": null,
+  "output_image": null,
+  "question": "What is the robot's next primary subtask?",
+  "answer": "...",
+  "cot": ["...", "..."]
+}
+\end{verbatim}
+
+The run script validates the output, clips the selected input video range, optionally extracts referenced output images, and writes the normalized training sample. In this way, long raw robot episodes are converted into compact embodied reasoning examples with explicit temporal grounding.
+
+\subsubsection{GUI Multi-event Construction Pipeline}
+\label{app:gui_pipeline}
+
+For GUI data, $\text{DataClaw}_0$ focuses on long-horizon task structure. The goal is not only to record low-level GUI actions, but also to identify trajectories that contain multiple meaningful subgoals and transform them into data for task decomposition, fragment ordering, and long-horizon task reconstruction.
+
+The GUI pipeline is centered on a multi-event filtering and decomposition module. It processes raw GUI trajectories containing user instructions, screenshots, application or URL context, and low-level events such as clicks, typing, scrolling, keyboard shortcuts, and navigation changes. The pipeline first determines whether a trajectory is a genuine multi-event task, then decomposes it into subtask fragments, and finally constructs reconstruction-style training data by shuffling the fragments and asking a model to infer the original task order.
+
+\paragraph{Stage 1: heuristic multi-event candidate filtering.}
+The first stage uses lightweight heuristics to identify trajectories that are likely to contain multiple separable objectives. The filtering logic considers several task-level signals:
+\begin{itemize}
+    \item whether the user instruction contains multiple action goals;
+    \item whether it includes sequential markers such as ``first'', ``then'', or ``after that'';
+    \item whether the trajectory crosses multiple applications, pages, or URLs;
+    \item whether similar operations are repeated over multiple objects;
+    \item whether the visual or event stream shows clear phase changes.
+\end{itemize}
+
+Based on these signals, each trajectory is assigned a coarse event-structure label:
+\begin{itemize}
+    \item \texttt{none}: the trajectory is a single-goal task and should not be decomposed;
+    \item \texttt{sequential}: the task contains multiple stages executed in order;
+    \item \texttt{parallel}: the task applies similar operations to multiple objects;
+    \item \texttt{hybrid}: the task combines sequential stages and parallel sub-blocks.
+\end{itemize}
+
+This stage is intentionally conservative. Its purpose is to reduce the search space for later VLM processing while avoiding the over-segmentation of ordinary single-goal workflows.
+
+\paragraph{Stage 2: initial subtask proposal.}
+For trajectories predicted as multi-event, $\text{DataClaw}_0$ produces an initial subtask structure. Sequential tasks are split by stage boundaries, parallel tasks are split by object or repeated operation, and hybrid tasks are first divided into coarse sequential stages before expanding parallel blocks inside each stage. This heuristic decomposition is not treated as final supervision. Instead, it provides useful scaffolding for the subsequent LLM-based refinement.
+
+\paragraph{Stage 3: LLM-based decomposition and reconstruction.}
+The next stage sends candidate trajectories and their preliminary structure to an LLM for finer-grained judgment. The LLM is asked to decide whether the task truly merits decomposition and, if so, to output continuous, non-overlapping, and collectively complete subtask fragments. The prompt explicitly distinguishes single-task trajectories from sequential, parallel, and hybrid multi-event trajectories.
+
+After obtaining reliable subtask fragments, $\text{DataClaw}_0$ constructs long-horizon reconstruction data. The fragments are shuffled, and the model is asked to infer their correct order and reconstruct the original user task. This creates training examples that directly target long-context GUI reasoning, including fragment ordering, cross-fragment state tracking, and task-level composition.
+
+A representative output schema is:
+\begin{verbatim}
+{
+  "ordered_fragment_labels": ["B", "A", "C"],
+  "original_task": "In Excel, adjust the spreadsheet layout, enter
+  inventory headers and ratings, and correct the typo in the final header."
+}
+\end{verbatim}
+
+In the Excel example, fragments involving spreadsheet formatting, header entry, and typo correction are selected and ordered into one coherent long-horizon task, while distractor fragments from Twitter/X, Trello, or settings pages are discarded. This demonstrates that the GUI pipeline is not merely segmenting actions; it is reasoning about application context, task continuity, and whether fragments can compose a plausible original instruction.
+
+\subsubsection{Unified Output Format and Artifact Management}
+\label{app:unified_output}
+
+Although the RoboCOIN and GUI pipelines operate on different raw modalities, they share a unified output philosophy. The training sample stores semantic supervision, while large binary assets are materialized separately and referenced through artifact metadata. This keeps the training JSONL lightweight and makes it possible to relocate or regenerate media files without changing the logical sample content.
+
+A typical normalized sample has the following structure:
+\begin{verbatim}
+{
+  "id": "unique_sample_id",
+  "data_type": "embodied_robot_fault_decision_world_model",
+  "task_family": "approach_stall",
+  "input_video": [start_frame, end_frame],
+  "input_image": null,
+  "output_video": [start_frame, end_frame],
+  "output_image": [frame_index],
+  "question": "What went wrong and how should the robot recover?",
+  "answer": "The robot stalls while approaching the object. It should resume
+             the approach and continue with the successful recovery motion.
+             <video_gen>",
+  "cot": [
+    "The observation frames show the robot approaching the target.",
+    "The repeated freeze frame indicates a stall rather than normal motion.",
+    "The future segment shows the correct continuation and recovery."
+  ]
+}
+\end{verbatim}
+
+For samples that require media outputs, the corresponding artifact file stores the concrete paths:
+\begin{verbatim}
+{
+  "id": "unique_sample_id",
+  "input_video_path": "videos/input/unique_sample_id.mp4",
+  "output_video_path": "videos/output/unique_sample_id.mp4",
+  "output_image_path": "images/output/unique_sample_id.jpg"
+}
+\end{verbatim}
+
+We use placeholders such as \texttt{<video\_gen>} and \texttt{<image\_recall>} in natural-language answers to indicate where generated or recalled media should be inserted during model training or evaluation.
+
+\subsubsection{Validation and Quality Control}
+\label{app:pipeline_validation}
+
+$\text{DataClaw}_0$ applies deterministic validation after VLM synthesis. The validation procedure depends on the modality, but follows the same principles across domains.
+
+\paragraph{Schema validation.}
+Each generated response is parsed as JSON and checked against the required task schema. Samples are rejected if required fields are missing, frame ranges have invalid types, coordinates are malformed, or the output contains unparseable nested structures.
+
+\paragraph{Temporal and artifact validation.}
+For video-based samples, frame indices must fall within the original episode length. Input and output ranges must have positive duration, and extracted clips or images must be successfully materialized by \texttt{ffmpeg}. In the RoboCOIN fault branch, the selected freeze frame must lie inside the observation range, while the recovery video should lie inside the future range.
+
+\paragraph{Task-structure validation.}
+For GUI multi-event data, decomposed fragments are checked for structural consistency. The final fragments should be continuous, non-overlapping, and collectively cover the intended trajectory region. Reconstruction samples must contain a valid permutation of fragment labels, and irrelevant distractor fragments should not be included in the ordered solution.
+
+\paragraph{Resumability and auditability.}
+All run scripts support resumable processing, so interrupted API calls or media extraction failures do not require rebuilding the entire corpus. In addition, $\text{DataClaw}_0$ writes intermediate JSONL files at each major stage, such as candidate windows, API requests, training samples, and artifact mappings. These files make the construction process auditable: one can inspect how a raw episode or trajectory was selected, what evidence was sent to the VLM, what structured supervision was generated, and which media files were finally materialized.
+
+Overall, $\text{DataClaw}_0$'s data construction pipeline is designed to combine deterministic preprocessing with model-based semantic synthesis. The deterministic stages provide grounding, compactness, and reproducibility, while the VLM stage supplies the high-level reasoning needed to create diverse supervision formats from raw multimodal interaction data.
+
+\subsection{$\text{DataClaw}_0$-val}
+% \label{app:$\text{DataClaw}_0$_val}
+\label{app:benchmark}
+$\text{DataClaw}_0$-val is designed to evaluate agentic multimodal data tailoring rather than conventional captioning, VQA, or action recognition. Each example provides a high-entropy multimodal input together with an explicit data-construction intent, and asks the model to produce a structured training-data instance. The benchmark therefore measures whether a model can decide \emph{what should be extracted, selected, rewritten, or recomposed} from raw multimodal evidence for a downstream data-construction purpose.
+
+Concretely, a $\text{DataClaw}_0$-val instance consists of four components:
+\begin{enumerate}
+    \item \textbf{Multimodal input}: a video, an image sequence, GUI trajectory fragments, or interleaved visual-text educational material.
+    \item \textbf{Tailoring intent}: a natural-language instruction specifying the target data type, such as video-generation training, VLN-style navigation, robot fault recovery, multimodal tutorial construction, or long-horizon GUI task reconstruction.
+    \item \textbf{Target schema}: a required JSON format that defines the fields to be returned.
+    \item \textbf{Reference output}: a schema-valid structured output that selects the relevant frames or fragments and writes the corresponding question, answer, reasoning, or reconstructed task.
+\end{enumerate}
+
+All examples require structured JSON outputs. Depending on the domain, the output may include frame indices, selected input or output images, generated natural-language supervision, chain-of-thought reasoning, video-generation placeholders, or ordered GUI fragment labels. This design makes the benchmark closer to real data-engineering workflows: the model must not only understand the media, but also transform it into a usable data sample.
+
+In addition to $\text{DataClaw}_0$-val, we construct $\text{DataClaw}_0$-Intent, a fuzzy-intent stress test. $\text{DataClaw}_0$-Intent removes or weakens the explicit task specification and asks the model to infer a suitable data-construction objective from an underspecified user request such as ``Help me design an example for data construction.'' Unlike $\text{DataClaw}_0$-val, $\text{DataClaw}_0$-Intent does not rely on a single canonical ground-truth answer. Its final quality is evaluated through user study, because multiple valid tailoring choices may exist for the same raw input.
+
+\subsubsection{Benchmark Composition}
+\label{app:benchmark_composition}
+
+$\text{DataClaw}_0$-val contains 200 examples covering five representative multimodal data-tailoring scenarios: AIGC/World, Daily Life, Education, Embodied AI, and GUI Agents. $\text{DataClaw}_0$-Intent contains fuzzy-intent examples derived from the same general pool of multimodal sources, but with underspecified or colloquial user instructions.
+
+The five categories are designed to stress different aspects of multimodal data tailoring.
+
+\paragraph{AIGC/World.}
+AIGC/World examples evaluate whether a model can identify visually dynamic segments useful for generative-model training. The input is typically a product-promotion or open-world video represented as sampled frames. The model must locate a segment with rich motion, object manipulation, or character-object interaction, and return a concise description together with the selected frame indices. For example, in a product-promotion video, the desired output may identify the segment where a host receives a speaker with both hands and places it on a table, or where a host adjusts a handbag strap and demonstrates the crossbody pose. 
+
+\paragraph{Daily Life.}
+% Daily Life examples evaluate embodied navigation and procedural understanding in egocentric or indoor videos. The model is asked to create a VLN-style navigation sample from a video. The output must include a navigation question, an executable natural-language answer, a concise reasoning trace, and selected input/output frames. For example, one sample asks the model to construct navigation supervision from a room video where the camera moves from a desk area toward a bed; another asks for directions from a bed toward a workspace by a window. 
+Daily Life examples evaluate embodied navigation and procedural understanding in egocentric or indoor videos. For example, the model is asked to create a VLN-style navigation sample from a video. The output must include a navigation question, an executable natural-language answer, a concise reasoning trace, and selected input/output frames. For example, one sample asks the model to construct navigation supervision from a room video where the camera moves from a desk area toward a bed; another asks for directions from a bed toward a workspace by a window. 
+Beyond navigation, this category also tests a model's ability to construct world-knowledge understanding and to generate interleaved visual-text tutorial data, such as step-by-step household instruction samples or multimodal daily-task explanations.
+
+\paragraph{Education.}
+Education examples evaluate whether a model can reconstruct multimodal teaching material from instructional images or noisy original annotations. The input may be a sequence of lecture screenshots, visual derivations, or partially aligned transcript-image pairs. The model must produce an interleaved visual-text learning sample, usually in the form of a student-facing question and a step-by-step answer with image placeholders. For instance, one sample transforms calculus screenshots into a partial-fraction and substitution explanation for integrating \(1/(x^2-x)\). Another reconstructs a Law of Cosines lesson and explains how to isolate \(c\), apply the square root, use parentheses in the calculator, and ensure degree mode. 
+
+\paragraph{Embodied AI.}
+Embodied examples evaluate robot-operation data construction. We include both fault-diagnosis examples and tutorial-style manipulation examples. In the fault-diagnosis setting, the model receives robot manipulation frames and must synthesize an approach-stall recovery sample. It selects an input video range, a freeze frame, a freeze-repeat count, a recovery video range, and a recall image. The output also includes a question, answer, and reasoning trace, often with placeholders such as \texttt{<video\_gen>} and \texttt{<image\_recall>}. 
+
+
+\paragraph{GUI Agents.}
+GUI examples evaluate long-horizon task reconstruction from short GUI trajectory fragments. Each input contains several fragments, where each fragment includes an instruction-level description, low-level GUI actions, screenshots, and step descriptions. The model must determine which fragments can compose a plausible long task, infer their correct order, and write the reconstructed user goal. 
+
+\subsubsection{Reference Output Construction}
+\label{app:reference_output_construction}
+
+The reference outputs in $\text{DataClaw}_0$-val are constructed to be directly comparable with model predictions. Each reference follows the task-specific JSON schema and contains only indices or fragment labels that exist in the provided input. For video and image-sequence tasks, frame indices are numbered from zero according to the provided sampled frames. For GUI tasks, fragment labels are drawn from the candidate fragments in the prompt.
+
+The construction process follows three principles.
+
+\paragraph{Schema validity.}
+All references are valid JSON objects and conform to the required output schema in the prompt. We remove examples with missing required fields, invalid frame-index types, malformed lists, or inconsistent null values.
+
+% \paragraph{Evidence grounding.}
+% Frame selections and fragment orders must be supported by the provided multimodal evidence. For example, an AIGC/World reference should select frames that contain the described hand-object or character-object interaction. A Daily Life navigation reference should use input frames showing the starting location and output frames showing the target location or arrival segment. An Embodied fault reference should ensure that the freeze frame lies within the observed approach segment and that the recovery video corresponds to a plausible continuation. A GUI reconstruction reference should only include fragments that can be semantically connected into a coherent long-horizon task.
+
+\paragraph{Evidence grounding.}
+Frame selections and fragment orders must be supported by the provided multimodal evidence. For example, an AIGC/World reference should select frames that contain the described hand-object or character-object interaction. A Daily Life navigation reference should use input frames showing the starting location and output frames showing the target location or arrival segment. For Daily Life world-knowledge understanding and interleaved visual-text tutorial tasks, the reference should select key frames that capture object state changes or critical action moments, supporting causal inference or conceptual explanation. An Embodied fault reference should ensure that the freeze frame lies within the observed approach segment and that the recovery video corresponds to a plausible continuation. A GUI reconstruction reference should only include fragments that can be semantically connected into a coherent long-horizon task.
+
+
+\paragraph{Intent alignment.}
+The reference must satisfy the stated data-construction intent rather than merely describe the media. For instance, in AIGC/World, the output is not a generic product caption; it must identify a segment useful for video-generation training. In Education, the output is not a screenshot summary; it must become interleaved teaching material. In GUI, the output is not a list of all fragment contents; it must reconstruct a plausible original long-horizon task.
+
+We additionally ensure that the raw streams used in $\text{DataClaw}_0$-val are separated from the training corpus to avoid direct leakage.
+
+\subsubsection{$\text{DataClaw}_0$-Intent: Fuzzy-intent Stress Test}
+\label{app:fuzzy_intent}
+
+$\text{DataClaw}_0$-Intent evaluates whether a model can act as an agentic data-construction assistant when the user intent is vague. Unlike $\text{DataClaw}_0$-val, where the target task and output schema are explicitly specified, $\text{DataClaw}_0$-Intent provides underspecified instructions such as:
+\begin{quote}
+\small
+``Help me design an example for data construction.''
+\end{quote}
+The model must infer a useful data-construction objective from the raw input and produce a structured output accordingly.
+
+These fuzzy-intent examples stress a different capability from standard schema following. The model needs to decide:
+\begin{itemize}
+    \item what kind of training data the media is most suitable for;
+    \item which temporal segment or visual evidence is most informative;
+    \item what fields should be included in the output;
+    \item how to phrase the constructed question, answer, and reasoning;
+    \item whether the selected supervision is useful for downstream model training.
+\end{itemize}
+
+For example, given a game-like video of a player approaching a spear-wielding enemy, a valid model output may transform the clip into a predictive world-modeling sample. The model can select the frames where the player closes distance as input evidence and the frames where the enemy initiates a spear attack as output evidence:
+\begin{verbatim}
+{
+  "task_type": "action anticipation / predictive world modeling",
+  "question": "If the player keeps moving toward the spear-wielding enemy,
+               what action is likely to happen next?",
+  "answer": null,
+  "cot": "The media is best suited for action-anticipation data rather than
+          generic captioning because it contains a clear before-and-after
+          temporal structure. Frames 8--12 show the informative input segment:
+          the player is running down a rocky path, closing the distance to an
+          enemy who is holding a spear and preparing to react. Frames 13--18
+          show the target future segment: the enemy initiates a spear attack
+          once the player enters striking distance. The constructed question
+          turns this transition into a future-prediction task. The answer is
+          null because the supervision is provided by the selected output
+          frames. This example is useful for downstream training because it
+          teaches a model to infer future combat behavior from approach
+          direction, distance, enemy pose, and weapon state.",
+  "field_design": {
+    "task_type": "records the inferred data-construction objective",
+    "question": "phrases the supervision as a conditional future-prediction
+                 query",
+    "answer": "kept null because the expected target is visual",
+    "cot": "explains the task choice, evidence selection, and training value",
+    "input_image": "contains the pre-event visual context",
+    "output_image": "contains the future event used as supervision"
+  },
+  "input_image": [8, 9, 10, 11, 12],
+  "output_image": [13, 14, 15, 16, 17, 18]
+}
+\end{verbatim}
+
+Importantly, $\text{DataClaw}_0$-Intent does not have a unique ground-truth output. The same raw video could plausibly be converted into different useful training instances, such as future-frame prediction, action anticipation, event segmentation, or visual reasoning. Therefore, we do not score $\text{DataClaw}_0$-Intent with exact-match metrics against a single reference. Instead, the final evaluation is conducted through user study. 100 human users judge whether the model's constructed sample is useful, grounded in the media, appropriately structured, and aligned with a reasonable inferred data-construction goal.
+
+
+\subsubsection{Metrics}
+
+Structured multimodal data cannot be faithfully evaluated by conventional text-generation metrics such as BLEU or ROUGE. We therefore define a hierarchical score:
+\begin{equation}
+S_{total}=G_{json}\cdot
+(\lambda_1S_{field}+\lambda_2S_{semantic}+\lambda_3S_{traj}),
+\end{equation}
+where \(G_{json}\in\{0,1\}\) is a hard JSON-validity gate, assigning zero score to malformed outputs. We use \(\lambda_1=0.20\), \(\lambda_2=0.35\), and \(\lambda_3=0.45\).
+
+The field score measures schema integrity:
+\begin{equation}
+S_{field}=0.7C_{field}+0.3(1-R_{field}),
+\end{equation}
+where \(C_{field}\) is ground-truth field coverage and \(R_{field}\) is the truncated extraneous-field ratio, with robust key matching to tolerate minor formatting differences.
+
+The semantic score measures embedding-based cosine similarity over textual fields:
+\begin{equation}
+S_{semantic}
+=
+\frac{
+\alpha sim_{question}+\beta sim_{answer}+\gamma sim_{cot}
+}{
+\alpha+\beta+\gamma
+},
+\end{equation}
+where \(\alpha=0.40\), \(\beta=0.40\), and \(\gamma=0.20\) by default, dynamically renormalized based on field availability.
+
+% For spatio-temporal samples, the visual score combines visual embedding similarity and trajectory-shape similarity:
+% \begin{equation}
+% S_{visual}
+% =
+% \frac{1}{2}
+% \left(
+% avg\_image\_sim
+% +
+% \exp(-d_{shape}/\tau_s)
+% \right),
+% \end{equation}
+% where \(avg\_image\_sim\) averages input/output image similarity, trajectories are normalized and resampled to \(K=50\), \(d_{shape}\) is the trajectory MAE, and \(\tau_s=0.10\).
+
+For spatio-temporal samples, the visual score is defined based on trajectory-shape similarity:
+\begin{equation}
+S_{traj}
+=
+\exp(-d_{shape}/\tau_s),
+\end{equation}
+where trajectories are normalized and resampled to \(K=50\); \(d_{shape}\) denotes the trajectory Mean Absolute Error (MAE), and the temperature hyperparameter is set to \(\tau_s = 0.10\).
+% \subsection{Evaluation Metrics}
+% \label{app:evaluation_metrics}
+
+% \subsubsection{Motivation}
+% \label{app:metric_motivation}
+
+% Conventional text-generation metrics such as BLEU, ROUGE, and exact match are insufficient for evaluating agentic multimodal data tailoring. The output of $\text{DataClaw}_0$ is not merely a natural-language caption; it is a structured, executable, and intent-conditioned data asset. A valid output must satisfy several requirements simultaneously: it must follow the target schema, contain the required fields, remain semantically aligned with the reference, and be grounded in visual or spatio-temporal evidence.
+
+% Therefore, we use a hierarchical validity-gated metric. The metric first checks whether the output is structurally parseable. If the output is malformed, it is assigned zero score because it cannot be used as training data. For valid outputs, the score combines field-level completeness, semantic consistency, and visual or spatio-temporal grounding.
+
+% This design is inspired by prior observations that surface-form text similarity is often insufficient for multimodal reasoning, grounding, tool-use, and structured generation evaluation~\citep{\textcolor{red}{cite_metric_1}, \textcolor{red}{cite_metric_2}, \textcolor{red}{cite_metric_3}}. In particular, multimodal data tailoring requires evaluating both semantic content and executable structure, similar in spirit to schema-constrained generation and tool-use evaluation, while also requiring spatial and temporal grounding.
+
+% \subsubsection{Overall Score}
+% \label{app:overall_score}
+
+% For a prediction $\hat{Y}$ and reference $Y$, we compute:
+% \begin{equation}
+% S_{\mathrm{total}}
+% =
+% G_{\mathrm{json}}
+% \cdot
+% \left(
+% \lambda_1 S_{\mathrm{field}}
+% +
+% \lambda_2 S_{\mathrm{semantic}}
+% +
+% \lambda_3 S_{\mathrm{visual}}
+% \right),
+% \end{equation}
+% where $G_{\mathrm{json}}\in\{0,1\}$ is a hard validity gate. We use $\lambda_1=0.20$, $\lambda_2=0.35$, and $\lambda_3=0.45$ by default. These weights reflect the fact that the most critical failures in multimodal tailoring often come from visual or spatio-temporal misgrounding, while schema validity is already enforced by the hard gate.
+
+% \subsubsection{JSON Validity Gate}
+% \label{app:json_gate}
+
+% The validity gate is defined as:
+% \begin{equation}
+% G_{\mathrm{json}} =
+% \begin{cases}
+% 1, & \text{if } \hat{Y} \text{ is parseable and schema-valid}, \\
+% 0, & \text{otherwise}.
+% \end{cases}
+% \end{equation}
+% For JSON outputs, we require successful parsing and correct types for all required fields. For Markdown or action-code outputs, we use a deterministic grammar parser. Minor formatting wrappers, such as code fences, are removed before parsing.
+
+% \subsubsection{Field Score}
+% \label{app:field_score}
+
+% The field score measures whether required fields are present and whether the output contains unnecessary fields:
+% \begin{equation}
+% S_{\mathrm{field}}
+% =
+% 0.7 C_{\mathrm{field}}
+% +
+% 0.3 (1 - R_{\mathrm{field}}),
+% \end{equation}
+% where $C_{\mathrm{field}}$ is the required-field coverage and $R_{\mathrm{field}}$ is the truncated extraneous-field ratio. Specifically,
+% \begin{equation}
+% C_{\mathrm{field}} =
+% \frac{|\mathcal{F}_{\mathrm{req}} \cap \hat{\mathcal{F}}|}
+% {|\mathcal{F}_{\mathrm{req}}|},
+% \end{equation}
+% where $\mathcal{F}_{\mathrm{req}}$ denotes the required fields and $\hat{\mathcal{F}}$ denotes fields in the prediction. The extraneous-field ratio is:
+% \begin{equation}
+% R_{\mathrm{field}}
+% =
+% \min
+% \left(
+% 1,
+% \frac{|\hat{\mathcal{F}} \setminus \mathcal{F}_{\mathrm{allow}}|}
+% {|\hat{\mathcal{F}}| + \epsilon}
+% \right),
+% \end{equation}
+% where $\mathcal{F}_{\mathrm{allow}}$ includes required and optional fields, and $\epsilon$ is a small constant. We use robust key matching to tolerate capitalization, underscores, and minor naming differences.
+
+% \subsubsection{Semantic Score}
+% \label{app:semantic_score}
+
+% The semantic score measures embedding-based similarity over textual fields:
+% \begin{equation}
+% S_{\mathrm{semantic}}
+% =
+% \frac{
+% \alpha \cdot \mathrm{sim}_q
+% +
+% \beta \cdot \mathrm{sim}_a
+% +
+% \gamma \cdot \mathrm{sim}_{\mathrm{cot}}
+% }
+% {\alpha + \beta + \gamma},
+% \end{equation}
+% where $\mathrm{sim}_q$, $\mathrm{sim}_a$, and $\mathrm{sim}_{\mathrm{cot}}$ denote cosine similarities between predicted and reference question/task fields, answer/action fields, and reasoning fields. By default, $\alpha=0.40$, $\beta=0.40$, and $\gamma=0.20$. If a field is absent from the target schema, we renormalize the weights over available fields. We use \textcolor{red}{the embedding model name, e.g., text-embedding-3-large / BGE / E5 / Sentence-BERT}.
+
+% \subsubsection{Visual and Spatio-temporal Score}
+% \label{app:visual_score}
+
+% For samples involving visual evidence or trajectories, we compute:
+% \begin{equation}
+% S_{\mathrm{visual}}
+% =
+% \frac{1}{2}
+% \left(
+% \mathrm{avg\_image\_sim}
+% +
+% \exp(-d_{\mathrm{shape}}/\tau_s)
+% \right),
+% \end{equation}
+% where $\mathrm{avg\_image\_sim}$ is the average visual embedding similarity between predicted evidence frames and reference evidence frames, and $d_{\mathrm{shape}}$ is the normalized trajectory-shape error. We use $\tau_s = 0.10$.
+
+% For trajectory alignment, we normalize frame indices to $[0,1]$, resample both predicted and reference trajectories to $K=50$ points using linear interpolation, and compute:
+% \begin{equation}
+% d_{\mathrm{shape}}
+% =
+% \frac{1}{K}
+% \sum_{k=1}^{K}
+% \left\|
+% \hat{p}_k - p_k
+% \right\|_1,
+% \end{equation}
+% where $\hat{p}_k$ and $p_k$ are the predicted and reference 2D or normalized action points at the $k$-th resampled time step. For samples without trajectories, we compute $S_{\mathrm{visual}}$ using only visual evidence similarity or set it to \textcolor{red}{the domain-specific default rule}.
+
+% \subsubsection{Weight Robustness and Human Correlation}
+% \label{app:metric_robustness}
+
+% To verify that the metric is not overly sensitive to the chosen weights, we evaluate alternative weighting schemes and compare their model rankings with the default metric. We also compute correlation with human ratings on a subset of \textcolor{red}{XX} examples. Table~\ref{tab:metric_robustness} reports the result.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Metric robustness and correlation with human judgment.}
+% \label{tab:metric_robustness}
+% \begin{tabular}{lcc}
+% \toprule
+% Metric Variant & Spearman Correlation with Human Rating & Ranking Stable \\
+% \midrule
+% Default weights & \textcolor{red}{XX} & \textcolor{red}{Yes/No} \\
+% Equal weights & \textcolor{red}{XX} & \textcolor{red}{Yes/No} \\
+% Higher semantic weight & \textcolor{red}{XX} & \textcolor{red}{Yes/No} \\
+% Higher visual weight & \textcolor{red}{XX} & \textcolor{red}{Yes/No} \\
+% Without visual score & \textcolor{red}{XX} & \textcolor{red}{Yes/No} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+
+
+
+
+
+\section{Training and Deployment Details}
+\label{app:training_details}
+
+This section provides details about GRPO training, reward design, and the Omni/Expert deployment paradigms.
+
+
+\subsection{Rule-Driven Reinforcement Learning via GRPO}
+\label{app:grpo}
+To overcome hallucinations and formatting collapses in long-sequence multimodal tasks, we introduce reinforcement learning atop the initial policy \(\pi_{SFT}\). Traditional multimodal RLHF requires training a reward model of comparable size to the policy model, which incurs prohibitive GPU memory overhead when processing long videos or high-resolution image sequences. Therefore, $\text{DataClaw}_0$ employs Group Relative Policy Optimization (GRPO), eliminating the reliance on a Critic model through intra-group relative advantage estimation.
+
+Crucially, because $\text{DataClaw}_0$'s objective is to generate strictly structured data tailored to specific intents, we can entirely discard subjective and computationally expensive neural network reward models in favor of model-free, deterministic \textit{Rule-based Rewards}. For any trajectory \(Y\) generated by the model, we define the joint reward function \(R(Y)\):
+\begin{equation}
+R(Y) = \lambda_1 R_{format}(Y, \Phi) + \lambda_2 R_{anchor}(Y, A) + \lambda_3 R_{eff}(Y)
+\end{equation}
+
+\begin{itemize}[leftmargin=20pt, labelsep=4pt]
+    \item \textbf{Format Compliance Reward (\(R_{format}\)):} We utilize an Abstract Syntax Tree (AST) or regex parser to strictly verify whether the generated content \(Y\) is 100\% compliant with the target schema \(\Phi\). Successful parsing yields a high positive reward, whereas structural or syntactic errors result in an immediate truncation penalty.
+    
+    % \item \textbf{Spatio-Temporal Anchor Reward (\(R_{anchor}\)):} This is the core reward designed specifically for embodied intelligence and video tasks containing rich spatial-temporal dynamics. It comprehensively evaluates the alignment between visual features and action trajectories
+    % (e.g., mouse sliding tracks, robotic arm movement paths). To measure the temporal shape similarity, we first normalize the discrete frame indices to a standard interval and use interpolation algorithms to resample the trajectory into \(K=50\) standardized alignment points. We then calculate the Mean Absolute Error (MAE) between the predicted trajectory and the Ground Truth (GT) trajectory at these alignment points, denoted as \(d_{shape}\). Finally, an exponential decay function is applied to map the error into a similarity score:
+    % \begin{equation}
+    % R_{anchor} = \exp\left(-\frac{d_{shape}}{\tau_s}\right)
+    % \end{equation}
+    % where the temperature hyperparameter \(\tau_s\) is set to 0.10 to maintain a certain tolerance for minor trajectory deviations. By introducing this rigorous evaluation metric, $\text{DataClaw}_0$ receives fine-grained quantitative feedback on semantic understanding and spatio-temporal multimodal alignment.
+
+\item \textbf{Spatio-Temporal Anchor Reward (\(R_{anchor}\)):} 
+This reward is designed for embodied and video-based tasks that exhibit complex spatio-temporal dynamics. 
+It measures the \textit{temporal shape similarity} between the predicted and ground-truth trajectories—defined as the similarity of their frame-wise distributions in the constructed data sequence. 
+To ensure temporal alignment across trajectories of varying lengths, we first normalize discrete frame indices to a standardized interval and apply interpolation to resample each trajectory into \(K = 50\) uniformly distributed alignment points. 
+We then compute the Mean Absolute Error (MAE) between the predicted and ground-truth distributions of these alignment points to obtain the trajectory deviation \(d_{shape}\). 
+Finally, this deviation is converted into a similarity-based reward through an exponential mapping:
+\begin{equation}
+R_{anchor} = \exp\left(-\frac{d_{shape}}{\tau_s}\right)
+\end{equation}
+where the temperature hyperparameter \(\tau_s = 0.10\) provides tolerance to minor misalignments. 
+This design allows $\text{DataClaw}_0$ to receive fine-grained quantitative feedback reflecting both the temporal shape coherence and the overall spatio-temporal alignment quality.
+
+    
+    % \item \textbf{Reasoning Efficiency Penalty (\(R_{eff}\)):} To prevent the model from generating overly verbose or redundant Chain-of-Thought (CoT) reasoning, we introduce a length penalty acting as a regularizer. This heuristic rule penalizes excessively long CoT steps, encouraging the model to maintain concise, efficient, and logically dense reasoning pathways.
+
+\item \textbf{Reasoning Efficiency Penalty (\(R_{eff}\)):} 
+To prevent the model from producing overly verbose or trivially short Chain-of-Thought (CoT) reasoning, we introduce a dynamic length regularization mechanism. 
+Since the appropriate CoT length varies with the underlying sample complexity, an ideal reasoning trace should be sufficiently elaborate to cover key analytical steps, yet concise enough to avoid redundant self-expansion. 
+To operationalize this notion, we assess CoT length adaptively within each GRPO rollout group. 
+Specifically, we identify the rollouts whose overall reward ranks within the top 50\% of the group and treat their CoT lengths as reference standards. 
+For the remaining rollouts, CoT sequences that are significantly longer or shorter than this reference are penalized, while those falling close to the reference range receive a slight positive adjustment. 
+This relative, group-wise normalization encourages the policy to learn reasoning behaviors that are both efficient and well-calibrated to task complexity.
+    
+\end{itemize}
+
+\textbf{GRPO Optimization Objective:}
+During training, for a given input \((X_{raw}, I)\), the current policy model \(\pi_\theta\) samples a candidate group \(G\) containing \(G\) diverse outputs: \(G = \{Y^{(1)}, Y^{(2)}, \dots, Y^{(G)}\}\).
+We compute the joint reward \(R^{(g)} = R(Y^{(g)})\) for each candidate and normalize them within the group to obtain the relative advantage estimation:
+\begin{equation}
+\hat{A}^{(g)} = \frac{R^{(g)} - \mu_R}{\sigma_R}
+\end{equation}
+where \(\mu_R\) and \(\sigma_R\) are the mean and standard deviation of the \(G\) rewards in the group, respectively. Subsequently, we update the model parameters \(\theta\) by maximizing the following GRPO objective function:
+\begin{equation}
+J(\theta) = \mathbb{E}\left[\frac{1}{G}\sum\limits_{g=1}^G \left(\min\left(\rho^{(g)}(\theta)\hat{A}^{(g)}, \text{clip}(\rho^{(g)}(\theta), 1-\epsilon, 1+\epsilon)\hat{A}^{(g)}\right) - \beta D_{KL}(\pi_\theta \parallel \pi_{ref})\right)\right]
+\end{equation}
+where the importance sampling ratio is \(\rho^{(g)}(\theta) = \frac{\pi_\theta(Y^{(g)}\mid X_{raw},I)}{\pi_{old}(Y^{(g)}\mid X_{raw},I)}\), and \(\epsilon\) is the clipping hyperparameter. 
+
+Through this ``SFT Initialization + Rule-Reward Driven GRPO'' paradigm, $\text{DataClaw}_0$ significantly stimulates the model's agentic capability to proactively tailor high-value structured knowledge from complex multimodal streams, particularly excelling in spatio-temporal grounding due to the injection of \(R_{anchor}\).
+
+\subsection{Inference Architecture \& Deployment Paradigms}
+\label{app:deployment}
+
+To transform the GRPO-aligned policy model \(\pi_\theta\) into a practical structured tailoring agent, we design an inference architecture that emphasizes output validity, grounding reliability, and deployment flexibility. Given raw multimodal streams \(X_{raw}\) and user-defined intents \(I\), $\text{DataClaw}_0$ generates schema-aligned structured outputs \(Y_{struct}\).
+
+\subsubsection{Core System Architecture}
+\label{app:inf}
+$\text{DataClaw}_0$'s inference process consists of three decoupled modules:
+% \begin{itemize}[leftmargin=20pt, labelsep=4pt]
+%     \item \textbf{Multimodal Ingestion \& Intent Parsing:} This module receives raw multimodal data streams \(X_{raw}\) and user-defined intents \(I\), and converts them into a context sequence readable by the policy model.
+    
+%     \item \textbf{Schema-Constrained Inference Engine:} This module deploys the policy model \(\pi_\theta\) to generate structured outputs. To reduce formatting failures, a lightweight schema-aware constraint can be applied during decoding, suppressing invalid continuations that violate the target schema \(\Phi\).
+    
+%     \item \textbf{Structural Verification \& Grounding:} This module uses factual anchors \(A\) for post-hoc grounding verification. For example, when \(Y_{struct}\) contains UI elements, coordinates, timestamps, or action traces, the system can check their consistency with extracted anchors to improve usability.
+% \end{itemize}
+
+\begin{itemize}[leftmargin=20pt, labelsep=4pt]
+    \item \textbf{Multimodal Ingestion \& Intent Parsing:} This module receives raw multimodal data streams \(X_{raw}\) and user-defined intents \(I\), and converts them into structured context sequences readable by the policy model. 
+    In the current implementation, we employ rule-based automation scripts to segment long video trajectories into broad yet semantically coherent clips that contain key events based on raw dataset annotations. 
+    This step serves as a scalable preprocessing pipeline for multimodal grounding. 
+    In future iterations, this stage will be extended into a more intelligent pipeline using a long-video understanding model capable of adaptively identifying event boundaries and intent-relevant sub-sequences.
+    
+    \item \textbf{Schema-Constrained Inference Engine:} This module deploys the policy model \(\pi_\theta\) to generate structured outputs. To reduce formatting failures, a lightweight schema-aware constraint can be applied during decoding, suppressing invalid continuations that violate the target schema \(\Phi\).
+    
+    \item \textbf{Structural Verification \& Grounding:} 
+This module conducts post-hoc structural and semantic verification by leveraging factual anchors \(A\) together with quantitative evaluation metrics. 
+When the generated output \(Y_{struct}\) contains concrete elements such as UI components, spatial coordinates, timestamps, or action trajectories, the system cross-checks these elements against extracted anchors to ensure factual consistency and spatial grounding. 
+Furthermore, the verification process is quantitatively guided by three complementary metrics: 
+\textit{(i)} schema–field correctness for structural validity, 
+\textit{(ii)} textual semantic alignment for content faithfulness, and 
+\textit{(iii)} trajectory–shape similarity for spatio-temporal coherence. 
+Together, these mechanisms ensure that the tailored outputs are both semantically grounded and structurally reliable.
+\end{itemize}
+
+
+
+\subsubsection{Omni vs. Expert Deployment Paradigms}
+
+Considering the heterogeneity of multimodal data and varying deployment requirements, $\text{DataClaw}_0$ supports two complementary architectures:
+\begin{itemize}[leftmargin=20pt, labelsep=4pt]
+    \item \textbf{$\text{DataClaw}_0$-O (Omni Tailoring Agent):} A unified model jointly trained across all domains. It serves as a generalist agent for diverse cross-domain intents \(I\) within a single model.
+    
+    \item \textbf{$\text{DataClaw}_0$-E (Expert Tailoring System):} A decoupled architecture composed of domain-specific tailoring agents, such as GUI, embodied AI experts. In deployment, the corresponding expert is selected according to the target scenario, domain setting, or user-specified configuration. This paradigm improves domain-specific robustness and allows modular updates.
+\end{itemize}
+
+
+
+
+
+% \subsection{SFT Setup}
+% \label{app:sft_setup}
+
+% We initialize $\text{DataClaw}_0$ from \textcolor{red}{Qwen3.5-9B or the exact base model name}. The SFT stage uses \textcolor{red}{80K} cleaned instruction-refinement samples. The data mixture is balanced across the five domains to prevent the model from overfitting to GUI-like structured outputs. Table~\ref{tab:sft_hyperparams} lists the SFT hyperparameters.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{SFT hyperparameters.}
+% \label{tab:sft_hyperparams}
+% \begin{tabular}{ll}
+% \toprule
+% Hyperparameter & Value \\
+% \midrule
+% Base model & \textcolor{red}{Qwen3.5-9B} \\
+% Training samples & \textcolor{red}{80K} \\
+% Epochs & \textcolor{red}{2} \\
+% Optimizer & \textcolor{red}{AdamW} \\
+% Learning rate & \textcolor{red}{XX} \\
+% Weight decay & \textcolor{red}{XX} \\
+% Warmup ratio & \textcolor{red}{XX} \\
+% Scheduler & \textcolor{red}{cosine / linear} \\
+% Global batch size & \textcolor{red}{XX} \\
+% Max sequence length & \textcolor{red}{XX} \\
+% Max frames/images & \textcolor{red}{XX} \\
+% Precision & \textcolor{red}{bf16} \\
+% Fine-tuning type & \textcolor{red}{full fine-tuning / LoRA / QLoRA} \\
+% Hardware & \textcolor{red}{8 $\times$ A100} \\
+% Training time & \textcolor{red}{XX hours} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% \paragraph{Input formatting.}
+% The multimodal input contains sampled visual frames or screenshots, serialized factual anchors, and the intent instruction. The output is the target structured object. During SFT, we supervise only the assistant response tokens and mask the raw input and instruction tokens.
+
+% \paragraph{Frame sampling.}
+% For video-like streams, we sample frames using \textcolor{red}{uniform sampling / keyframe sampling / event-aware sampling}. For GUI and embodied trajectories, we preserve event-critical screenshots and action states. The maximum number of visual inputs per sample is \textcolor{red}{XX}.
+
+% \subsection{GRPO Setup}
+% \label{app:grpo_setup}
+
+% After SFT, we further align the policy using Group Relative Policy Optimization. GRPO is particularly suitable for $\text{DataClaw}_0$ because our task admits deterministic rule-based rewards, avoiding the need for a separate learned reward model.
+
+% Table~\ref{tab:grpo_hyperparams} lists the GRPO hyperparameters.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{GRPO hyperparameters.}
+% \label{tab:grpo_hyperparams}
+% \begin{tabular}{ll}
+% \toprule
+% Hyperparameter & Value \\
+% \midrule
+% Initial policy & SFT checkpoint \\
+% Reference policy & \textcolor{red}{frozen SFT checkpoint} \\
+% GRPO prompts & \textcolor{red}{XX} \\
+% Group size $G$ & \textcolor{red}{XX} \\
+% Sampling temperature & \textcolor{red}{XX} \\
+% Top-$p$ & \textcolor{red}{XX} \\
+% Clip range $\epsilon$ & \textcolor{red}{XX} \\
+% KL coefficient $\beta$ & \textcolor{red}{XX} \\
+% Learning rate & $1 \times 10^{-6}$ \\
+% Rollout batch size & \textcolor{red}{XX} \\
+% Max response length & \textcolor{red}{XX} \\
+% Reward normalization & group-wise normalization \\
+% Number of update steps & \textcolor{red}{XX} \\
+% Precision & \textcolor{red}{bf16} \\
+% Hardware & \textcolor{red}{8 $\times$ A100} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% For each input $(X_{\mathrm{raw}}, I)$, the current policy samples a group of outputs:
+% \begin{equation}
+% \mathcal{G} = \{Y^{(1)}, Y^{(2)}, \ldots, Y^{(G)}\}.
+% \end{equation}
+% Each candidate is scored by the deterministic reward function $R(Y)$. The relative advantage is computed as:
+% \begin{equation}
+% \hat{A}^{(g)}
+% =
+% \frac{R(Y^{(g)}) - \mu_R}{\sigma_R + \epsilon},
+% \end{equation}
+% where $\mu_R$ and $\sigma_R$ are the mean and standard deviation of rewards within the group.
+
+% \subsection{Reward Details}
+% \label{app:reward_details}
+
+% The overall reward is:
+% \begin{equation}
+% R(Y)
+% =
+% \lambda_1 R_{\mathrm{format}}(Y,\Phi)
+% +
+% \lambda_2 R_{\mathrm{anchor}}(Y,A)
+% +
+% \lambda_3 R_{\mathrm{eff}}(Y).
+% \end{equation}
+% We set $\lambda_1=\textcolor{red}{XX}$, $\lambda_2=\textcolor{red}{XX}$, and $\lambda_3=\textcolor{red}{XX}$. In the main experiments, the format reward weight is \textcolor{red}{1.0}, and the physical anchor reward weight is \textcolor{red}{0.5}.
+
+% \subsubsection{Format Reward}
+% \label{app:format_reward}
+
+% The format reward verifies whether the output follows the required schema:
+% \begin{equation}
+% R_{\mathrm{format}}(Y,\Phi)
+% =
+% \begin{cases}
+% 1, & \text{valid and fully schema-compliant}, \\
+% \textcolor{red}{r_{\mathrm{partial}}}, & \text{parseable but partially incomplete}, \\
+% \textcolor{red}{r_{\mathrm{invalid}}}, & \text{invalid or unparseable}.
+% \end{cases}
+% \end{equation}
+% A malformed JSON output receives a strong negative reward or zero reward depending on the experiment setting. This reward is designed to prevent formatting collapse in long-sequence generation.
+
+% \subsubsection{Anchor Reward}
+% \label{app:anchor_reward}
+
+% The anchor reward measures whether generated fields are supported by extracted anchors. It contains text, spatial, temporal, and trajectory components:
+% \begin{equation}
+% R_{\mathrm{anchor}}
+% =
+% w_t R_{\mathrm{text}}
+% +
+% w_b R_{\mathrm{bbox}}
+% +
+% w_\tau R_{\mathrm{time}}
+% +
+% w_p R_{\mathrm{traj}},
+% \end{equation}
+% where the weights are domain-dependent and renormalized over available anchor types.
+
+% \paragraph{Text anchor matching.}
+% Generated OCR-related text is matched against extracted OCR anchors. We use \textcolor{red}{exact matching / normalized edit distance / token F1}:
+% \begin{equation}
+% R_{\mathrm{text}}
+% =
+% \textcolor{red}{\mathrm{TextMatch}(\hat{c}, c)}.
+% \end{equation}
+
+% \paragraph{Bounding-box and point matching.}
+% For generated bounding boxes, we compute IoU with reference or extracted boxes:
+% \begin{equation}
+% R_{\mathrm{bbox}}
+% =
+% \max_{b \in A_{\mathrm{bbox}}}
+% \mathrm{IoU}(\hat{b}, b).
+% \end{equation}
+% For click points or action points, we check whether the point lies inside a target UI/object bounding box, or compute normalized distance to the closest valid target.
+
+% \paragraph{Temporal matching.}
+% For timestamps or segment boundaries, we compute a normalized temporal error:
+% \begin{equation}
+% R_{\mathrm{time}}
+% =
+% \exp(-|\hat{t}-t|/\tau_t),
+% \end{equation}
+% where $\tau_t=\textcolor{red}{XX}$.
+
+% \paragraph{Trajectory matching.}
+% For trajectory-like outputs, we normalize the predicted and reference trajectories to $[0,1]$, resample them to $K=50$ points, and compute:
+% \begin{equation}
+% R_{\mathrm{traj}}
+% =
+% \exp(-d_{\mathrm{shape}}/\tau_s),
+% \quad
+% d_{\mathrm{shape}}
+% =
+% \frac{1}{K}
+% \sum_{k=1}^{K}
+% \|\hat{p}_k - p_k\|_1.
+% \end{equation}
+% We use $\tau_s=0.10$.
+
+% \subsubsection{Efficiency Reward}
+% \label{app:efficiency_reward}
+
+% The efficiency reward discourages redundant or excessively long reasoning traces:
+% \begin{equation}
+% R_{\mathrm{eff}}(Y)
+% =
+% -\max
+% \left(
+% 0,
+% \frac{|Y| - L_{\mathrm{target}}}{L_{\mathrm{target}}}
+% \right),
+% \end{equation}
+% where $|Y|$ is the output length and $L_{\mathrm{target}}$ is a domain-specific length budget. We set $L_{\mathrm{target}}=\textcolor{red}{XX}$ for GUI, \textcolor{red}{XX} for embodied trajectories, and \textcolor{red}{XX} for other domains. This penalty is applied softly to avoid suppressing necessary reasoning.
+
+% \subsection{Omni and Expert Systems}
+% \label{app:omni_expert}
+
+% We implement two deployment paradigms.
+
+% \paragraph{$\text{DataClaw}_0$-O.}
+% $\text{DataClaw}_0$-O is a unified model trained on the mixed-domain corpus. It uses a single model to process all domains and intents. This setting maximizes flexibility and requires no routing.
+
+% \paragraph{$\text{DataClaw}_0$-E.}
+% $\text{DataClaw}_0$-E is an expert-style system. It contains domain-specific tailoring experts or adapters. An upstream router assigns each input to the corresponding domain expert. Only one expert is activated during inference.
+
+% Table~\ref{tab:omni_expert_comparison} compares the two paradigms.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Comparison between $\text{DataClaw}_0$-O and $\text{DataClaw}_0$-E.}
+% \label{tab:omni_expert_comparison}
+% \begin{tabular}{lllll}
+% \toprule
+% System & Training Data & Active Params & Total Params & Router \\
+% \midrule
+% $\text{DataClaw}_0$-O & all domains & \textcolor{red}{9B} & \textcolor{red}{9B} & none \\
+% $\text{DataClaw}_0$-E & domain-specific & \textcolor{red}{9B / adapter size} & \textcolor{red}{5$\times$9B / shared backbone + adapters} & \textcolor{red}{rule / learned} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% \paragraph{Router design.}
+% The router takes the user intent, metadata, and optionally a lightweight summary of the raw stream as input. It predicts one of the five domains. The router is implemented as \textcolor{red}{a rule-based classifier / a small language model / a fine-tuned encoder}. Its accuracy on the validation set is \textcolor{red}{XX\%}. We provide a detailed routing ablation in Appendix~\ref{app:expert_routing_ablation}.
+
+
+
+
+
+
+
+\section{Downstream Evaluation}
+\label{app:downstream_protocols}
+
+\subsection{Detailed Analysis of Downstream Application}
+\label{app:downstream}
+
+The downstream evaluation aims to verify whether the structured data generated by $\text{DataClaw}_0$ can provide effective supervision for targeted model refinement. We consider three representative multimodal tasks: long-horizon GUI navigation~\cite{wang2025opencua}, action video generation~\cite{grauman2022ego4d}, and spatio-temporal VQA~\cite{remot}. These tasks cover different output spaces and reasoning requirements, including action planning, visual dynamics generation, and fine-grained temporal understanding.
+
+For a fair comparison, all training sets are constructed from the same raw input streams. Specifically, each raw stream is processed by three different annotators: the base model itself, Gemini-3.1-Pro-Preview, and $\text{DataClaw}_0$. The base-model processing setting serves as a self-refinement baseline, while Gemini represents a strong proprietary-model annotator. To ensure that the comparison focuses on data quality rather than data quantity, we apply the same coarse rule-based filtering procedure to remove malformed samples and then randomly sample an equal number of valid instances from each processed data pool.
+
+As shown in Table~\ref{tab:downstream_results}, fine-tuning on self-processed data only provides limited improvements over the zero-shot base models, suggesting that simple self-refinement is insufficient for these challenging multimodal tasks. In contrast, both Gemini-processed and $\text{DataClaw}_0$-processed data lead to substantial gains, demonstrating that high-quality structured supervision is crucial for downstream adaptation.
+
+A closer comparison between Gemini and $\text{DataClaw}_0$ shows a consistent trade-off. Gemini achieves slightly better results on some partial or step-level metrics, such as GUI SSR and VQA Partial Accuracy. This suggests that strong proprietary models can provide rich intermediate supervision that benefits local or partially correct predictions. However, $\text{DataClaw}_0$ achieves stronger results on several end-to-end metrics that better reflect final task completion. For example, $\text{DataClaw}_0$ obtains higher GUI TSR and VQA Overall Accuracy, indicating better transfer to complete task-solving ability. In action video generation, $\text{DataClaw}_0$ also achieves lower FVD and higher Contact mAP, showing improved visual quality and stronger modeling of physical interactions.
+
+These results support the motivation of $\text{DataClaw}_0$. Instead of producing verbose general-purpose annotations, $\text{DataClaw}_0$ is optimized to extract compact, schema-aligned, and task-relevant structured supervision from multimodal streams. Under the same data budget, such targeted supervision can be more effective for improving end-to-end performance. Therefore, $\text{DataClaw}_0$ provides a practical and controllable alternative to proprietary annotators for downstream multimodal data construction.
+
+\subsection{Unified Refinement Protocol}
+\label{app:unified_downstream_protocol}
+
+For each downstream task, we use the same raw data streams and process them with different annotators: the base model itself, a strong closed-source VLM, and $\text{DataClaw}_0$. All annotators receive the same task intent and target schema. Their outputs are passed through the same coarse filtering pipeline. We then sample an equal number of valid instances for downstream fine-tuning.
+
+The protocol is:
+
+\begin{enumerate}[leftmargin=*]
+    \item Select raw multimodal streams for a downstream task.
+    \item Process the same raw streams using Self-Refinement, Gemini-3.1-Pro / Qwen3.5, and $\text{DataClaw}_0$.
+    \item Apply the same schema and quality filters.
+    \item Randomly sample the same number of valid instances from each method.
+    \item Fine-tune the same downstream base model using identical hyperparameters.
+    \item Evaluate on held-out task-specific benchmarks.
+\end{enumerate}
+
+% Table~\ref{tab:downstream_generation_stats} reports the number of generated, valid, and used samples.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Downstream data generation and filtering statistics.}
+% \label{tab:downstream_generation_stats}
+% \begin{tabular}{lllrrr}
+% \toprule
+% Task & Annotator & Raw Scale & Generated & Valid After Filter & Used for Training \\
+% \midrule
+% \multirow{3}{*}{GUI Navigation}
+% & Self & \textcolor{red}{XX trajectories} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% & Strong VLM & \textcolor{red}{XX trajectories} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% & $\text{DataClaw}_0$ & \textcolor{red}{XX trajectories} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% \midrule
+% \multirow{3}{*}{Video Generation}
+% & Self & \textcolor{red}{XX minutes/clips} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% & Strong VLM & \textcolor{red}{XX minutes/clips} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% & $\text{DataClaw}_0$ & \textcolor{red}{XX minutes/clips} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% \midrule
+% \multirow{3}{*}{Spatio-temporal VQA}
+% & Self & \textcolor{red}{XX clips} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% & Strong VLM & \textcolor{red}{XX clips} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% & $\text{DataClaw}_0$ & \textcolor{red}{XX clips} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+\subsection{GUI Navigation}
+\label{app:gui_downstream}
+
+\paragraph{Downstream model.}
+We fine-tune Qwen3.5-4B. The model predicts actions from screenshots, task instructions, and interaction history.
+
+\paragraph{Metrics.}
+We report Step Success Rate (SSR) and Task Success Rate (TSR). SSR measures the fraction of predicted steps that match the reference action or lead to the correct UI state. TSR measures whether the full task is completed successfully within a maximum number of steps. Formally,
+\begin{equation}
+\mathrm{SSR}
+=
+\frac{\#\text{successful steps}}{\#\text{total steps}},
+\quad
+\mathrm{TSR}
+=
+\frac{\#\text{successful tasks}}{\#\text{total tasks}}.
+\end{equation}
+
+
+Figure~\ref{fig:gui_visualization} visualizes a representative downstream example.
+
+\begin{figure}[h]
+\centering
+% \fbox{\parbox{0.93\linewidth}{
+% \centering
+% \textcolor{red}{Insert GUI visualization: raw trajectory, $\text{DataClaw}_0$ refined action sequence, baseline action sequence, and downstream execution result.}
+% }}
+\includegraphics[width=\linewidth]{figures/appendix_gui.png}
+\caption{Qualitative example for GUI navigation.}
+\label{fig:gui_visualization}
+\end{figure}
+
+\subsection{Action Video Generation}
+\label{app:video_downstream}
+
+\paragraph{Downstream model.}
+We fine-tune Wan2.2-I2V-5B. The model receives an input image and text prompt and generates a short video.
+
+\paragraph{Fine-tuning hyperparameters.}
+Table~\ref{tab:video_hyperparams} lists the video generation fine-tuning setup.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Video generation downstream fine-tuning hyperparameters.}
+\label{tab:video_hyperparams}
+\begin{tabular}{ll}
+\toprule
+Hyperparameter & Value \\
+\midrule
+Base model & Wan2.2-I2V-5B \\
+Training clips & 200 \\
+Resolution & $480 \times 832$ \\
+Frames per clip & 81 \\
+Epochs & 3  \\
+Learning rate & $1 \times 10^{-5}$ \\
+Batch size & 1 \\
+Hardware & 8 $\times$ NVIDIA A100 80GB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Visualization.}
+Figure~\ref{fig:video_visualization} compares videos generated by models trained with different refined datasets.
+
+\begin{figure}[h]
+\centering
+% \fbox{\parbox{0.93\linewidth}{
+% \centering
+% \textcolor{red}{Insert video generation visualization: condition, reference, self-refined, strong-VLM-refined, and $\text{DataClaw}_0$-refined results.}
+% }}
+\includegraphics[width=\linewidth]{figures/appendix_aigc.pdf}
+\caption{Qualitative comparison for action video generation.}
+\label{fig:video_visualization}
+\end{figure}
+
+\subsection{Spatio-temporal VQA}
+\label{app:vqa_downstream}
+
+\paragraph{Downstream model.}
+We fine-tune Qwen3.5-4B. The model receives video frames and a question and predicts the answer.
+
+\paragraph{Metrics.}
+We report Partial Accuracy and Overall Accuracy. Partial Accuracy gives credit for partially correct structured answers, such as correctly identifying the object but missing the temporal order. Overall Accuracy requires the full answer to match the reference. 
+
+% \paragraph{Fine-tuning hyperparameters.}
+% Table~\ref{tab:vqa_hyperparams} lists the VQA fine-tuning setup.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Spatio-temporal VQA downstream fine-tuning hyperparameters.}
+% \label{tab:vqa_hyperparams}
+% \begin{tabular}{ll}
+% \toprule
+% Hyperparameter & Value \\
+% \midrule
+% Base model & \textcolor{red}{Qwen3.5-4B} \\
+% Training instances & \textcolor{red}{XX} \\
+% Epochs & \textcolor{red}{XX} \\
+% Learning rate & \textcolor{red}{XX} \\
+% Batch size & \textcolor{red}{XX} \\
+% Max frames & \textcolor{red}{XX} \\
+% Max sequence length & \textcolor{red}{XX} \\
+% Hardware & \textcolor{red}{XX} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+\paragraph{Visualization.}
+Figure~\ref{fig:vqa_visualization} shows a representative VQA example.
+
+\begin{figure}[h]
+\centering
+% \fbox{\parbox{0.93\linewidth}{
+% \centering
+% \textcolor{red}{Insert VQA visualization: frame sequence, generated question, evidence frames, reasoning steps, and final answer.}
+% }}
+\includegraphics[width=\linewidth]{figures/appendix_remot.pdf}
+\caption{Qualitative example for spatio-temporal VQA.}
+\label{fig:vqa_visualization}
+\end{figure}
+
+
+
+\section{Additional Experiments and Ablations}
+\label{app:additional_experiments}
+
+\subsection{Scaling Laws and Emergent Diversity}
+\label{app:scaling_diversity}
+
+In this section, we investigate the training dynamics of our framework, specifically addressing why a domain-decoupled expert architecture is superior to a unified model, and verifying the emergent generalization capabilities of $\text{DataClaw}_0$.
+
+\textbf{Scaling Laws and Task Interference.} 
+We train a unified model, denoted as \textbf{$\text{DataClaw}_0$-O}. As illustrated in Figure~\ref{fig:scaling_omni}, instead of exhibiting a smooth, log-linear scaling curve, the Omni model demonstrates severe performance oscillation. For instance, the overall score starts at 53.60 with 1/15 data, drops sharply to 47.23 at 7/15, rebounds to 57.84 at 12/15, and then drops again. 
+
+We attribute this instability to severe \textbf{Task Interference} (or negative transfer) within the shared weights of the 9B-parameter base model. The multimodal extraction tasks in our benchmark span vastly different distributions. Forcing a single compact model to optimize for these divergent objectives simultaneously leads to gradient conflicts and catastrophic forgetting. In contrast, our final \textbf{$\text{DataClaw}_0$-E (Expert)} ensemble completely bypasses this interference. By routing tasks to domain-specific experts, each model perfectly fits its local data distribution, achieving a stable and superior combined score of 68.86. This fundamentally justifies the absolute necessity and scientific soundness of our ``Domain-Decoupled + Expert Agent Routing'' strategy.
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/数据分布_tsne_scaling.pdf}
+%     % \rule{\linewidth}{4cm} % 占位符
+%     \caption{Scaling curve of the unified $\text{DataClaw}_0$-O model. Mixing multi-domain data causes severe performance oscillation due to task interference, highlighting the necessity of our decoupled expert architecture.}
+%     \label{fig:scaling_omni}
+% \end{figure}
+
+% \textbf{Emergent Diversity and Intent Comprehension.}
+% To verify whether $\text{DataClaw}_0$ is merely performing simple pattern memorization or has developed true generalization, we extract the semantic features of the original Raw Data and the Novel Data refined by $\text{DataClaw}_0$, visualizing them via t-SNE dimensionality reduction (Figure~\ref{fig:scaling_omni}). The visualization reveals that the Novel Data covers a significantly broader and denser semantic space, indicating that $\text{DataClaw}_0$ successfully injects emergent diversity into the extracted trajectories rather than just replicating the training distribution.
+
+
+% To further quantify this emergent capability, we construct a \textbf{$\text{DataClaw}_0$-intent} evaluation subset consisting entirely of vague, high-level fuzzy instructions.
+% As shown in Table~\ref{tab:main_results} fuzzy
+% , $\text{DataClaw}_0$ significantly outperforms its base model (Qwen3.5-9B) and closely rivals Gemini3.1-pro-preview.
+
+
+% The visualization clearly shows that the feature distribution of Raw Data is highly dense with massive overlaps (Mode Collapse); whereas the data refined by $\text{DataClaw}_0$ presents a broader and more uniform distribution in the feature space. This indicates that $\text{DataClaw}_0$ can mine and concretize diverse, long-tail intents (Out-of-Distribution Intents) from homogenized raw inputs, thereby providing richer learning signals for downstream models.
+
+\textbf{Emergent Diversity and Intent Comprehension.}
+To examine whether $\text{DataClaw}_0$ merely memorizes surface patterns or demonstrates genuine generalization ability, 
+we extract the semantic embeddings of three data sources: the original Raw Data, 
+the data refined by the base model (Qwen3.5-9B), and the data refined by $\text{DataClaw}_0$. 
+We visualize their feature distributions using t-SNE dimensionality reduction (Figure~\ref{fig:scaling_omni}). 
+
+The visualization shows that the feature space of the base model’s outputs expands slightly beyond that of the Raw Data, 
+indicating limited diversification in its refinements. 
+In contrast, the data refined by $\text{DataClaw}_0$ exhibits a substantially broader and more evenly distributed coverage across the semantic space. 
+This suggests that $\text{DataClaw}_0$ injects stronger emergent diversity into the generated trajectories, 
+revealing new clusters and long-tail patterns that the base model fails to capture. 
+Rather than marginally shifting the training distribution, 
+$\text{DataClaw}_0$ reconstructs it into a richer and more heterogeneous semantic landscape.
+
+To further quantify this capability, we build a \textbf{$\text{DataClaw}_0$-Intent} evaluation subset composed entirely of vague, high-level instructions. 
+As shown in Table~\ref{tab:main_results}, $\text{DataClaw}_0$ significantly surpasses its base model (Qwen3.5-9B) 
+and approaches the performance of Gemini 3.1-pro-preview on this challenging fuzzy-instruction benchmark.
+
+
+% \subsection{Full Omni vs. Expert Results}
+% \label{app:omni_expert_results}
+
+% Table~\ref{tab:omni_expert_results} compares $\text{DataClaw}_0$-O and $\text{DataClaw}_0$-E across all domains. $\text{DataClaw}_0$-E typically performs better on highly structured domains such as GUI and Embodied AI, while $\text{DataClaw}_0$-O provides stronger flexibility and lower deployment complexity.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Full comparison between $\text{DataClaw}_0$-O and $\text{DataClaw}_0$-E.}
+% \label{tab:omni_expert_results}
+% \begin{tabular}{lrrrrrr}
+% \toprule
+% Model & GUI & Embodied & AIGC/World & Daily & Education & Overall \\
+% \midrule
+% $\text{DataClaw}_0$-O & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% $\text{DataClaw}_0$-E & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% \subsection{Expert Routing Ablation}
+% \label{app:expert_routing_ablation}
+
+% Since $\text{DataClaw}_0$-E relies on routing inputs to domain-specific experts, we evaluate the impact of routing quality. We compare oracle routing, learned routing, rule-based routing, random routing, and the Omni model without routing.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Expert routing ablation.}
+% \label{tab:routing_ablation}
+% \begin{tabular}{lrrrrrrr}
+% \toprule
+% Routing Strategy & Router Acc. & GUI & Embodied & AIGC/World & Daily & Education & Overall \\
+% \midrule
+% Oracle routing & 100\% & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% Learned router & \textcolor{red}{XX\%} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% Rule router & \textcolor{red}{XX\%} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% Random routing & \textcolor{red}{20\%} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% $\text{DataClaw}_0$-O & -- & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% The learned router achieves \textcolor{red}{XX\%} accuracy and remains within \textcolor{red}{XX} points of oracle routing, indicating that routing errors are not the dominant performance bottleneck. The confusion matrix is shown in Figure~\ref{fig:router_confusion}.
+
+% \begin{figure}[h]
+% \centering
+% \fbox{\parbox{0.75\linewidth}{
+% \centering
+% \textcolor{red}{Insert router confusion matrix here.}
+% }}
+% \caption{Confusion matrix of the expert router.}
+% \label{fig:router_confusion}
+% \end{figure}
+
+% \subsection{Reward Ablations}
+% \label{app:reward_ablation}
+
+% Table~\ref{tab:reward_ablation} evaluates the contribution of GRPO and each reward component. Removing the format reward mainly reduces schema validity, while removing the anchor reward hurts sequence and grounding scores.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Reward ablation results.}
+% \label{tab:reward_ablation}
+% \begin{tabular}{lrrrr}
+% \toprule
+% Variant & Field & Semantic & Sequence/Visual & Overall \\
+% \midrule
+% Base model & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% SFT only & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% SFT + GRPO & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% w/o format reward & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% w/o anchor reward & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% w/o efficiency reward & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+
+% \subsection{Data Scaling Results}
+% \label{app:data_scaling}
+
+% Table~\ref{tab:data_scaling} shows how performance scales with the amount of SFT data. The results suggest that $\text{DataClaw}_0$ benefits from additional structured refinement data and does not saturate at small data scales.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Data scaling results.}
+% \label{tab:data_scaling}
+% \begin{tabular}{lrrrr}
+% \toprule
+% SFT Data Ratio & GUI & Embodied & Fuzzy Intent & Overall \\
+% \midrule
+% 10\% & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% 25\% & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% 50\% & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% 100\% & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} & \textcolor{red}{XX} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+
+
+\section{Qualitative Analysis}
+\label{app:qualitative_limitations}
+
+\subsection{Successful Case Studies}
+\label{app:success_cases}
+
+% We provide qualitative examples across the five domains. Each example contains raw input, user intent, extracted anchors, $\text{DataClaw}_0$ output, baseline output, and an analysis of why the $\text{DataClaw}_0$ output is more useful for downstream training.
+We showcase qualitative case studies covering representative domains to exemplify $\text{DataClaw}_0$’s end-to-end process.
+Each case presents the raw input, user intent, and $\text{DataClaw}_0$ output.
+
+% \subsubsection{GUI Agent Case}
+
+% \begin{figure}[h]
+% \centering
+% \fbox{\parbox{0.93\linewidth}{
+% \centering
+% \textcolor{red}{Insert GUI success case: raw screenshots, anchors, $\text{DataClaw}_0$ output, baseline output.}
+% }}
+% \caption{Successful GUI tailoring case.}
+% \label{fig:gui_success_case}
+% \end{figure}
+
+% \paragraph{Analysis.}
+% $\text{DataClaw}_0$ correctly identifies the task-relevant UI elements and preserves the action sequence with valid coordinates. In contrast, the baseline \textcolor{red}{misses a key click / produces invalid coordinates / generates verbose but ungrounded text}. This case demonstrates $\text{DataClaw}_0$'s advantage in schema-constrained and spatially grounded data tailoring.
+
+
+
+
+
+
+\begin{figure}[h]
+\centering
+% \fbox{\parbox{0.93\linewidth}{
+% \centering
+% \textcolor{red}{Insert AIGC/world model success case.}
+% }}
+\includegraphics[width=\linewidth]{figures/D_aigc_success_case.pdf}
+\caption{Successful world-model or video-generation tailoring case.}
+\label{fig:aigc_success_case}
+\end{figure}
+
+
+
+\begin{figure}[h]
+\centering
+% \fbox{\parbox{0.93\linewidth}{
+% \centering
+% \textcolor{red}{Insert daily-life procedural tailoring case.}
+% }}
+\includegraphics[width=\linewidth]{figures/D_daily_success_case.pdf}
+\caption{Successful daily-life tailoring case.}
+\label{fig:daily_success_case}
+\end{figure}
+
+
+
+
+
+
+\subsection{Failure Cases}
+\label{app:failure_cases}
+
+Although $\text{DataClaw}_0$ improves structured multimodal data tailoring, it still fails in several scenarios. 
+As shown in Figure~\ref{fig:daily_failure_case}, the constructed sample is semantically correct---the question asks how to navigate from the workspace to the bed, 
+and the generated answer properly describes that transition. 
+However, the CoT text describes the video as starting from the workspace and then moving toward the bed, 
+while the actual input frames (\(0 \rightarrow 20\)) are temporally ordered in the opposite direction (from the bed to the workspace). 
+
+Such temporal inconsistencies are occasionally observed when large multimodal language models generate narrative-style reasoning. 
+They tend to infer a likely or contextually coherent event flow based on spatial cues rather than the exact chronological order of frames, 
+a behavior commonly referred to as \textit{temporal hallucination}. 
+This phenomenon is largely inherent to the base model’s reasoning prior.
+Although minor, these cases highlight the intrinsic difficulty of enforcing strict temporal grounding in long-horizon multimodal reasoning, 
+which remains an open challenge for current LLM-based architectures.
+\begin{figure}[h]
+\centering
+% \fbox{\parbox{0.93\linewidth}{
+% \centering
+% \textcolor{red}{Insert daily-life procedural tailoring case.}
+% }}
+\includegraphics[width=\linewidth]{figures/D_daily_fail_case.pdf}
+\caption{Failed daily-life tailoring case.}
+\label{fig:daily_failure_case}
+\end{figure}
+
+
+
+
+
+
+
+
+
+% Table~\ref{tab:failure_cases} summarizes common failure modes.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \caption{Common failure modes.}
+% \label{tab:failure_cases}
+% \begin{tabular}{llll}
+% \toprule
+% Failure Type & Cause & Impact & Possible Mitigation \\
+% \midrule
+% Anchor error & OCR or detector mistake & wrong target/action grounding & stronger extractors or human check \\
+% Intent ambiguity & user request too vague & wrong schema selection & interactive clarification \\
+% Long-range dependency & key event missed & incomplete reasoning chain & memory or hierarchical summarization \\
+% Open-semantic weakness & limited 9B world knowledge & shallow semantic output & larger backbone or retrieval \\
+% Multi-object association & ambiguous tracking & trajectory mismatch & object tracking and identity consistency \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+
+\section{Limitations and Future Work}
+\label{app:limitations}
+Despite its effectiveness, $\text{DataClaw}_0$ still has several limitations. First, the current data scale remains moderate compared with large-scale pretraining corpora. Although our pipeline demonstrates promising data-refinement capability, future work should extend the construction process to million-scale multimodal supervision data to further improve coverage and robustness.
+
+Second, $\text{DataClaw}_0$ currently relies on user-provided raw streams as the input source. In other words, the system mainly performs refinement, filtering, and annotation over existing multimodal trajectories or interaction records. It does not yet support fully autonomous data creation from user intent alone. A more ambitious direction is to allow the agent to enter embodied, game, or GUI simulation environments, actively explore, collect interactions, and construct supervision data based only on high-level user intent. This would move $\text{DataClaw}_0$ from raw-stream refinement toward autonomous data synthesis and self-improving data generation.
+
+

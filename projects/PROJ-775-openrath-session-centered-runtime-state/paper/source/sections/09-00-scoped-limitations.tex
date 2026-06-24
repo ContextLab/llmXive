@@ -1,0 +1,46 @@
+% Claim:
+%   The report should state release boundaries compactly: current evidence
+%   supports runtime-claim smoke tests, not broad benchmark superiority.
+% Evidence:
+%   Generated packets for source snapshot, backend matrix, lineage export,
+%   local sandbox, workflow transcript, pytest, reviewer rubric, claim ledger,
+%   visual QA, layout audit, and explicit skips for memory and OpenSandbox.
+% Open questions:
+%   Public archival release still needs a clean source snapshot, restored memory
+%   evidence, broad benchmark runner, and reviewed live-provider artifacts.
+
+The limitations are stated as scope boundaries rather than apologies: they
+delimit what the report does and does not claim. The report substantiates a
+\texttt{Session}-centered runtime object with deterministic evidence for a
+narrow set of runtime claims. It does not claim broad benchmark superiority, a
+verified local-memory implementation, OpenSandbox availability, fully
+reproducible live-model outputs, or any safety property.
+Table~\ref{tab:scoped-limitations} records each boundary, the current posture,
+and what a stronger claim would require.
+
+\begin{table}[H]
+\vspace{0.1em}
+\centering
+\small
+\caption{Scoped limitations for the current technical report.}
+\label{tab:scoped-limitations}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.18\linewidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+Boundary & Current posture & Required before a stronger claim \\
+\midrule
+Benchmarking & A deterministic smoke runner and evidence packets, not a broad baseline/metric benchmark. & Pinned workloads, baseline adapters, metrics, live-provider runs, and reviewer-scored artifacts. \\
+Backend parity & Local-backend evidence passes; OpenSandbox is an explicit optional skip in this environment. & A backend capability matrix, a configured OpenSandbox packet, and documented mount, export, and failure behavior. \\
+Memory & Memory remains an intended runtime plane; \texttt{memory\_local} is evidence-gated because source anchors are absent. & Restored local-memory APIs, examples, and tests, then recall/commit quality evaluated separately from implementation existence. \\
+Multi-agent control & Sessions expose branch, merge, tool, and lineage evidence, but do not constitute a policy layer. & Role permissions, tool authority, memory-commit gates, merge policy, and human-review requirements. \\
+Safety & No safety property is claimed; tool use and interactive environments enlarge the attack surface, including the data/instruction confusion exploited by indirect prompt injection~\cite{indirect-prompt-injection}. & Evaluation against agent-, web-, and embodied-safety benchmarks~\cite{agent-safetybench,safearena,safeagentbench}, plus tool-authority limits and human-review gates. \\
+Reproducibility & Packets support inspection and no-key replay for deterministic claims; live outputs remain provider- and environment-dependent. & Pinned source snapshots, provider manifests, sandbox images, cached external payloads, and disclosure of missing artifacts. \\
+\bottomrule
+\end{tabularx}
+\vspace{0.1em}
+\end{table}
+
+These boundaries are part of the release argument: they separate implemented
+runtime semantics from optional integrations, follow-on evaluation, and risks
+the report does not address. An item should leave this table only when a
+supporting evidence packet exists and the claim ledger maps the corresponding
+text to that artifact.

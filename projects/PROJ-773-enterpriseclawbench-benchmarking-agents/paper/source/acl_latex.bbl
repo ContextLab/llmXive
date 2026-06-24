@@ -1,0 +1,69 @@
+\begin{thebibliography}{13}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Cao et~al.(2026)Cao, Zheng, Song, and Hu}]{agenticvbench2026}
+Zongheng Cao, Yi~Zheng, Rui Song, and Xinyu Hu. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2605.27705} {{AgenticVBench}: Can {AI} agents complete real world post-production tasks?}
+\newblock \emph{arXiv preprint arXiv:2605.27705}.
+
+\bibitem[{Ding et~al.(2026)Ding, Dai, Xing, Ding, Liu, {Yang JingYi}, Yang, Zhang, Wei, Fang, Ma, Duan, Shao, Wang, Lin, Chen, and Zang}]{wildclawbench2026}
+Shuangrui Ding, Xuanlang Dai, Long Xing, Shengyuan Ding, Ziyu Liu, {Yang JingYi}, Penghui Yang, Zhixiong Zhang, Xilin Wei, Xinyu Fang, Yubo Ma, Haodong Duan, Jing Shao, Jiaqi Wang, Dahua Lin, Kai Chen, and Yuhang Zang. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2605.10912} {{WildClawBench}: A benchmark for real-world, long-horizon agent evaluation}.
+\newblock \emph{arXiv preprint arXiv:2605.10912}.
+
+\bibitem[{Drouin et~al.(2024)Drouin, Gasse, Caccia, Laradji, Del~Verme, Marty, Boisvert, Thakkar, Cappart, Vazquez, Chapados, and Lacoste}]{workarena2024}
+Alexandre Drouin, Maxime Gasse, Massimo Caccia, Issam~H. Laradji, Manuel Del~Verme, Tom Marty, L{\'e}o Boisvert, Megh Thakkar, Quentin Cappart, David Vazquez, Nicolas Chapados, and Alexandre Lacoste. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2403.07718} {{WorkArena}: How capable are web agents at solving common knowledge work tasks?}
+\newblock \emph{arXiv preprint arXiv:2403.07718}.
+
+\bibitem[{Es et~al.(2023)Es, James, Espinosa-Anke, and Schockaert}]{ragas2023}
+Shahul Es, Jithin James, Luis Espinosa-Anke, and Steven Schockaert. 2023.
+\newblock \href {https://doi.org/10.48550/arXiv.2309.15217} {{RAGAS}: Automated evaluation of retrieval augmented generation}.
+\newblock \emph{arXiv preprint arXiv:2309.15217}.
+
+\bibitem[{Li et~al.(2026)Li, Liu, Chen, You, Di, He, Zheng, Choe, Sun, Wang, Tao, Li, Zhao, Geng, Wu, Zhou, Chen, Xing, Li, Zeng, Wang, Wang, Ben~Chaim, Jiang, Shen, Kong, Liu, Wang, Liu, Li, Lan, Lin, Ye, He, Li, Zhang, Gao, Li, Ma, Jing, Wang, Li, Xue, Lyu, He, Tian, Wu, Wang, Gao, Chen, Liu, Cheng, Bao, Tong, Xu, Zhuo, Ye, Qi, Li, Liao, Tan, Shi, Tang, Tankasala, Yuan, Qian, Tu, Wang, Sun, Wang, Taylor, Yang, Guan, Dong, Zhang, Dillmann, Lee, and Song}]{skillsbench2026}
+Xiangyi Li, Yimin Liu, Wenbo Chen, Bingran You, Zonglin Di, Yifeng He, Shenghan Zheng, Kyoung~Whan Choe, Jiankai Sun, Shuyi Wang, Chujun Tao, Binxu Li, Xuandong Zhao, Hejia Geng, Xiaojun Wu, Junwei Zhou, Xiaokun Chen, Hanwen Xing, Yubo Li, and 59 others. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2602.12670} {{SkillsBench}: Benchmarking how well agent skills work across diverse tasks}.
+\newblock \emph{arXiv preprint arXiv:2602.12670}.
+
+\bibitem[{Liang et~al.(2022)Liang, Bommasani, Lee, Tsipras, Soylu, Yasunaga, Zhang, Narayanan, Wu, Kumar, Newman, Yuan, Yan, Zhang, Cosgrove, Manning, R{\'e}, Acosta-Navas, Hudson, Zelikman, Durmus, Ladhak, Rong, Ren, Yao, Wang, Santhanam, Orr, Zheng, Yuksekgonul, Suzgun, Kim, Guha, Chatterji, Khattab, Henderson, Huang, Chi, Xie, Santurkar, Ganguli, Hashimoto, Icard, Zhang, Chaudhary, Wang, Li, Mai, Zhang, and Koreeda}]{helm2022}
+Percy Liang, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihiro Yasunaga, Yian Zhang, Deepak Narayanan, Yuhuai Wu, Ananya Kumar, Benjamin Newman, Binhang Yuan, Bobby Yan, Ce~Zhang, Christian Cosgrove, Christopher~D. Manning, Christopher R{\'e}, Diana Acosta-Navas, Drew~A. Hudson, and 31 others. 2022.
+\newblock \href {https://doi.org/10.48550/arXiv.2211.09110} {Holistic evaluation of language models}.
+\newblock \emph{arXiv preprint arXiv:2211.09110}.
+
+\bibitem[{Liu et~al.(2023)Liu, Iter, Xu, Wang, Xu, and Zhu}]{geval2023}
+Yang Liu, Dan Iter, Yichong Xu, Shuohang Wang, Ruochen Xu, and Chenguang Zhu. 2023.
+\newblock \href {https://doi.org/10.48550/arXiv.2303.16634} {{G-Eval}: {NLG} evaluation using {GPT-4} with better human alignment}.
+\newblock \emph{arXiv preprint arXiv:2303.16634}.
+
+\bibitem[{Mo et~al.(2026)Mo, Bai, Sun, Shi, Miao, Chen, and Li}]{entworld2026}
+Ying Mo, Yu~Bai, Dapeng Sun, Yuqian Shi, Yukai Miao, Li~Chen, and Dan Li. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2601.17722} {{EntWorld}: A holistic environment and benchmark for verifiable enterprise {GUI} agents}.
+\newblock \emph{arXiv preprint arXiv:2601.17722}.
+
+\bibitem[{Tang et~al.(2026)Tang, Zhou, Liu, Li, Wu, Wang, Huang, Zhou, Zhou, Song, Yu, Wang, Zhou, Zhou, Lv, Li, Liu, Chen, Liu, Li, Kang, and Wu}]{workspacebench2026}
+Zirui Tang, Xuanhe Zhou, Yumou Liu, Linchun Li, Yukai Wu, Weizheng Wang, Hongzhang Huang, Wei Zhou, Jun Zhou, Jiachen Song, Shaoli Yu, Jinqi Wang, Zihang Zhou, Hongyi Zhou, Yuting Lv, Jinyang Li, Jiashuo Liu, Ruoyu Chen, Chunwei Liu, and 3 others. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2605.03596} {{Workspace-Bench} 1.0: Benchmarking {AI} agents on workspace tasks with large-scale file dependencies}.
+\newblock \emph{arXiv preprint arXiv:2605.03596}.
+
+\bibitem[{Vishwakarma et~al.(2025)Vishwakarma, Agarwal, Patil, Devaguptapu, and Chandran}]{enterprisebench2025}
+Harsh Vishwakarma, Ankush Agarwal, Ojas Patil, Chaitanya Devaguptapu, and Mahesh Chandran. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2510.27287} {Can {LLM}s help you at work? a sandbox for evaluating {LLM} agents in enterprise environments}.
+\newblock \emph{arXiv preprint arXiv:2510.27287}.
+
+\bibitem[{Xu et~al.(2024)Xu, Song, Li, Tang, Jain, Bao, Wang, Zhou, Guo, Cao, Yang, Lu, Martin, Su, Maben, Mehta, Chi, Jang, Xie, Zhou, and Neubig}]{theagentcompany2025}
+Frank~F. Xu, Yufan Song, Boxuan Li, Yuxuan Tang, Kritanjali Jain, Mengxue Bao, Zora~Z. Wang, Xuhui Zhou, Zhitong Guo, Murong Cao, Mingyang Yang, Hao~Yang Lu, Amaad Martin, Zhe Su, Leander Maben, Raj Mehta, Wayne Chi, Lawrence Jang, Yiqing Xie, and 2 others. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2412.14161} {{TheAgentCompany}: Benchmarking {LLM} agents on consequential real world tasks}.
+\newblock \emph{arXiv preprint arXiv:2412.14161}.
+
+\bibitem[{Zhang et~al.(2026)Zhang, Wang, Zhu, Du, Miao, Lu, Xu, Hao, Cai, Wang, Zhang, Wu, Lu, Lei, Zou, Yin, Nie, Chen, Jiang, Chen, and Allen}]{clawbench2026}
+Yuxuan Zhang, Yubo Wang, Yipeng Zhu, Penghui Du, Junwen Miao, Xuan Lu, Wendong Xu, Yunzhuo Hao, Songcheng Cai, Xiaochen Wang, Huaisong Zhang, Xian Wu, Yi~Lu, Minyi Lei, Kai Zou, Huifeng Yin, Ping Nie, Liang Chen, Dongfu Jiang, and 2 others. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2604.08523} {{ClawBench}: Can {AI} agents complete everyday online tasks?}
+\newblock \emph{arXiv preprint arXiv:2604.08523}.
+
+\bibitem[{Zheng et~al.(2026)Zheng, Han, Li, Xu, Tian, He, Zhou, Guo, Hu, Ma, Xu, Dai, Xia, Wei, Wang, and Wang}]{clawswebench2026}
+Mengyu Zheng, Kai Han, Boxun Li, Haiyang Xu, Yuchuan Tian, Wei He, Hang Zhou, Jianyuan Guo, Hailin Hu, Lin Ma, Chao Xu, Guohao Dai, Lixue Xia, Yunchao Wei, Yunhe Wang, and Yu~Wang. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2606.12344} {{Claw-SWE-Bench}: A benchmark for evaluating {OpenClaw}-style agent harnesses on coding tasks}.
+\newblock \emph{arXiv preprint arXiv:2606.12344}.
+
+\end{thebibliography}

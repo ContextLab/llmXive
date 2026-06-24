@@ -1,0 +1,456 @@
+{
+  "kind": "figure",
+  "tex_label": "fig:benchmark-stats-main",
+  "title": "Benchmark statistics for the 852-task set",
+  "latex_asset": "figure.pdf",
+  "rendered_assets": [
+    "assets/figures/fig3_benchmark_statistics/figure.pdf",
+    "assets/figures/fig3_benchmark_statistics/figure.png"
+  ],
+  "generator": "assets/figures/fig3_benchmark_statistics/render_fig3_benchmark_statistics.py",
+  "source_files": {
+    "tasks": "/hpc_data/jczhong/frontis-bench/data/eval_tasks/eval_tasks.semantic_rubric.minimal852.jsonl",
+    "role_skill_summary": "/hpc_data/jczhong/frontis-bench/outputs/instance_cleaning_v1/16_role_function_multimodal_taxonomy_v1/role_skill_subclass_summary.json"
+  },
+  "notes": [
+    "Role class counts sum to 852 tasks.",
+    "Skill-subclass panel excludes the 38 tasks assigned to Others.",
+    "Input fixture types are counted at the deduplicated file level: 719 files from 447 tasks with fixtures.",
+    "122 tasks have two or more deduplicated input fixture files; these tasks are split into concrete file types rather than a Multi-file bucket.",
+    "Expected deliverable counts sum to 887 because one task can require multiple files or output types.",
+    "The display CSV files mirror the full concrete type distributions used in the main figure."
+  ],
+  "panels": {
+    "A_role_classes": {
+      "data": [
+        {
+          "role_class": "Product / project",
+          "task_count": 220
+        },
+        {
+          "role_class": "Engineering / IT",
+          "task_count": 174
+        },
+        {
+          "role_class": "HR / admin",
+          "task_count": 102
+        },
+        {
+          "role_class": "Executive",
+          "task_count": 89
+        },
+        {
+          "role_class": "Sales / customer",
+          "task_count": 88
+        },
+        {
+          "role_class": "Marketing",
+          "task_count": 77
+        },
+        {
+          "role_class": "Finance / ops",
+          "task_count": 64
+        },
+        {
+          "role_class": "Others",
+          "task_count": 38
+        }
+      ],
+      "fields": {
+        "label": "role_class",
+        "value": "task_count"
+      },
+      "unit": "tasks"
+    },
+    "B_skill_subclasses": {
+      "data": [
+        {
+          "role_class": "Product / project",
+          "subclass_count": 6,
+          "instance_counts_by_subclass_json": [
+            24,
+            24,
+            28,
+            29,
+            54,
+            61
+          ],
+          "total_instances": 220
+        },
+        {
+          "role_class": "Engineering / IT",
+          "subclass_count": 9,
+          "instance_counts_by_subclass_json": [
+            8,
+            9,
+            14,
+            14,
+            16,
+            17,
+            24,
+            34,
+            38
+          ],
+          "total_instances": 174
+        },
+        {
+          "role_class": "HR / admin",
+          "subclass_count": 6,
+          "instance_counts_by_subclass_json": [
+            8,
+            8,
+            16,
+            18,
+            26,
+            26
+          ],
+          "total_instances": 102
+        },
+        {
+          "role_class": "Executive",
+          "subclass_count": 6,
+          "instance_counts_by_subclass_json": [
+            10,
+            10,
+            11,
+            11,
+            18,
+            29
+          ],
+          "total_instances": 89
+        },
+        {
+          "role_class": "Sales / customer",
+          "subclass_count": 6,
+          "instance_counts_by_subclass_json": [
+            12,
+            12,
+            14,
+            14,
+            14,
+            22
+          ],
+          "total_instances": 88
+        },
+        {
+          "role_class": "Marketing",
+          "subclass_count": 6,
+          "instance_counts_by_subclass_json": [
+            7,
+            9,
+            10,
+            13,
+            19,
+            19
+          ],
+          "total_instances": 77
+        },
+        {
+          "role_class": "Finance / ops",
+          "subclass_count": 6,
+          "instance_counts_by_subclass_json": [
+            6,
+            6,
+            8,
+            12,
+            13,
+            19
+          ],
+          "total_instances": 64
+        }
+      ],
+      "fields": {
+        "role": "role_class",
+        "subclass_count": "subclass_count",
+        "distribution": "instance_counts_by_subclass_json",
+        "total": "total_instances"
+      },
+      "unit": "tasks"
+    },
+    "C_input_fixture_files": {
+      "data": [
+        {
+          "fixture_type": "MD",
+          "file_count": 209
+        },
+        {
+          "fixture_type": "DOC/DOCX",
+          "file_count": 131
+        },
+        {
+          "fixture_type": "Image",
+          "file_count": 114
+        },
+        {
+          "fixture_type": "PDF",
+          "file_count": 60
+        },
+        {
+          "fixture_type": "Sheet",
+          "file_count": 49
+        },
+        {
+          "fixture_type": "Code",
+          "file_count": 46
+        },
+        {
+          "fixture_type": "HTML",
+          "file_count": 31
+        },
+        {
+          "fixture_type": "Other",
+          "file_count": 23
+        },
+        {
+          "fixture_type": "Slides",
+          "file_count": 19
+        },
+        {
+          "fixture_type": "Archive/package",
+          "file_count": 18
+        },
+        {
+          "fixture_type": "TXT",
+          "file_count": 10
+        },
+        {
+          "fixture_type": "Skill/package",
+          "file_count": 8
+        },
+        {
+          "fixture_type": "JSON",
+          "file_count": 1
+        }
+      ],
+      "task_coverage": [
+        {
+          "fixture_type": "MD",
+          "task_count": 145
+        },
+        {
+          "fixture_type": "DOC/DOCX",
+          "task_count": 106
+        },
+        {
+          "fixture_type": "Image",
+          "task_count": 73
+        },
+        {
+          "fixture_type": "PDF",
+          "task_count": 58
+        },
+        {
+          "fixture_type": "Sheet",
+          "task_count": 35
+        },
+        {
+          "fixture_type": "HTML",
+          "task_count": 25
+        },
+        {
+          "fixture_type": "Slides",
+          "task_count": 19
+        },
+        {
+          "fixture_type": "Archive/package",
+          "task_count": 17
+        },
+        {
+          "fixture_type": "Other",
+          "task_count": 13
+        },
+        {
+          "fixture_type": "TXT",
+          "task_count": 10
+        },
+        {
+          "fixture_type": "Skill/package",
+          "task_count": 7
+        },
+        {
+          "fixture_type": "Code",
+          "task_count": 7
+        },
+        {
+          "fixture_type": "JSON",
+          "task_count": 1
+        }
+      ],
+      "display_data": [
+        {
+          "fixture_type": "MD",
+          "file_count": 209
+        },
+        {
+          "fixture_type": "DOC/DOCX",
+          "file_count": 131
+        },
+        {
+          "fixture_type": "Image",
+          "file_count": 114
+        },
+        {
+          "fixture_type": "PDF",
+          "file_count": 60
+        },
+        {
+          "fixture_type": "Sheet",
+          "file_count": 49
+        },
+        {
+          "fixture_type": "Code",
+          "file_count": 46
+        },
+        {
+          "fixture_type": "HTML",
+          "file_count": 31
+        },
+        {
+          "fixture_type": "Other",
+          "file_count": 23
+        },
+        {
+          "fixture_type": "Slides",
+          "file_count": 19
+        },
+        {
+          "fixture_type": "Archive/package",
+          "file_count": 18
+        },
+        {
+          "fixture_type": "TXT",
+          "file_count": 10
+        },
+        {
+          "fixture_type": "Skill/package",
+          "file_count": 8
+        },
+        {
+          "fixture_type": "JSON",
+          "file_count": 1
+        }
+      ],
+      "fields": {
+        "label": "fixture_type",
+        "value": "file_count"
+      },
+      "unit": "deduplicated input files"
+    },
+    "D_expected_deliverables": {
+      "data": [
+        {
+          "deliverable_type": "MD",
+          "requirement_count": 350
+        },
+        {
+          "deliverable_type": "TXT",
+          "requirement_count": 283
+        },
+        {
+          "deliverable_type": "HTML",
+          "requirement_count": 79
+        },
+        {
+          "deliverable_type": "DOC/DOCX",
+          "requirement_count": 54
+        },
+        {
+          "deliverable_type": "Sheet",
+          "requirement_count": 38
+        },
+        {
+          "deliverable_type": "Slides",
+          "requirement_count": 29
+        },
+        {
+          "deliverable_type": "Other files",
+          "requirement_count": 20
+        },
+        {
+          "deliverable_type": "Image",
+          "requirement_count": 11
+        },
+        {
+          "deliverable_type": "PDF",
+          "requirement_count": 6
+        },
+        {
+          "deliverable_type": "JSON",
+          "requirement_count": 6
+        },
+        {
+          "deliverable_type": "Skill/package",
+          "requirement_count": 5
+        },
+        {
+          "deliverable_type": "Code",
+          "requirement_count": 4
+        },
+        {
+          "deliverable_type": "Archive/package",
+          "requirement_count": 2
+        }
+      ],
+      "display_data": [
+        {
+          "deliverable_type": "MD",
+          "requirement_count": 350
+        },
+        {
+          "deliverable_type": "TXT",
+          "requirement_count": 283
+        },
+        {
+          "deliverable_type": "HTML",
+          "requirement_count": 79
+        },
+        {
+          "deliverable_type": "DOC/DOCX",
+          "requirement_count": 54
+        },
+        {
+          "deliverable_type": "Sheet",
+          "requirement_count": 38
+        },
+        {
+          "deliverable_type": "Slides",
+          "requirement_count": 29
+        },
+        {
+          "deliverable_type": "Other files",
+          "requirement_count": 20
+        },
+        {
+          "deliverable_type": "Image",
+          "requirement_count": 11
+        },
+        {
+          "deliverable_type": "PDF",
+          "requirement_count": 6
+        },
+        {
+          "deliverable_type": "JSON",
+          "requirement_count": 6
+        },
+        {
+          "deliverable_type": "Skill/package",
+          "requirement_count": 5
+        },
+        {
+          "deliverable_type": "Code",
+          "requirement_count": 4
+        },
+        {
+          "deliverable_type": "Archive/package",
+          "requirement_count": 2
+        }
+      ],
+      "fields": {
+        "label": "deliverable_type",
+        "value": "requirement_count"
+      },
+      "unit": "requirements"
+    }
+  },
+  "redraw_notes": "Each panel is self-contained. Panel C file counts are deduplicated file-level counts; task_coverage provides task-level coverage."
+}

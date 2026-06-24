@@ -1,0 +1,40 @@
+% Claim:
+%   OpenRath's release thesis is that agent systems need a first-class runtime
+%   state, and Session is that value.
+% Evidence:
+%   initial-tech-report/references/OpenRath-README.md; audited local OpenRath
+%   source snapshot inspection on May 29, 2026.
+% Open questions:
+%   Broad quantitative comparisons remain follow-on evaluation; this report should
+%   scope current evidence to runtime claims.
+
+% Modern agent systems fail not only from weak prompts, but from hidden runtime
+% state: transcripts, tool effects, memory-boundary events, workspace placement,
+% branch provenance, and replay evidence drift apart. OpenRath is a PyTorch-like
+% runtime for multi-agent, multi-session systems that makes \texttt{Session} the
+% first-class value agents operate on. A \texttt{Session} is branchable,
+% inspectable, replayable, backend-aware, and composable; it carries
+% conversation chunks, sandbox placement, lineage, token usage, pending work,
+% and tool evidence, while defining where memory interactions should enter the
+% runtime record. Because this is the value the program already passes between
+% agents---not a trace written beside it---fork, merge, and replay are
+% first-class operations rather than state reconstructed after the fact. Around this value, OpenRath defines a compact vocabulary:
+% \texttt{Sandbox}, \texttt{Tool}, \texttt{Agent}, \texttt{Memory},
+% \texttt{Workflow}, and \texttt{Selector}, the last turning agent control
+% flow into a runtime-routed decision rather than hard-coded branching. This report presents the programming model, runtime
+% architecture, audited implementation milestones, and an audit-first evidence
+% protocol. Current evidence is scoped to runtime claims: source snapshot,
+% lineage export, local sandbox execution, deterministic workflow composition,
+% focused tests, claim ledger, and layout review. Instead of presenting a
+% leaderboard, the report makes the release boundary explicit: deterministic
+% runtime claims are backed by packets, while broad quantitative comparisons,
+% live-provider quality, optional-backend availability, and memory quality are
+% reserved for follow-on evidence. The thesis is simple: agent systems need a
+% first-class runtime value the way networks need tensors, and \texttt{Session}
+% is that value.
+
+Modern agent systems often suffer from fragmented runtime state: transcripts, tool effects, memory events, workspace placement, branch provenance, and replay evidence are recorded separately and become difficult to inspect or reproduce. OpenRath addresses this issue with a PyTorch-like programming model for multi-agent, multi-session systems. The analogy concerns the role of a central first-class runtime abstraction, not tensor computation. Its core abstraction is \texttt{Session}, the runtime value passed between agents and workflows.
+
+A \texttt{Session} is branchable, inspectable, replayable, backend-aware, and composable. It records conversation chunks, sandbox placement, lineage metadata, token usage, pending work, and tool evidence, while defining where memory interactions enter the runtime record. Since this state is carried by the same value used in program execution, fork, merge, and replay become explicit runtime operations rather than states reconstructed from external traces.
+
+OpenRath further defines \texttt{Sandbox}, \texttt{Tool}, \texttt{Agent}, \texttt{Memory}, \texttt{Workflow}, and \texttt{Selector}, with \texttt{Selector} turning control flow into runtime-routed decisions. This report presents the programming model, architecture, audited milestones, and evidence protocol. Its claims are limited to controlled runtime properties, while broad quantitative comparisons, live-provider quality, optional-backend availability, and memory quality are left for follow-on evaluation. The central thesis is that \texttt{Session} provides agent systems with a first-class runtime value for auditable composition.

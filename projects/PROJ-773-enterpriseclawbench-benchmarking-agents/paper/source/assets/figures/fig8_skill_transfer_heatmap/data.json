@@ -1,0 +1,40 @@
+{
+  "kind": "table_figure",
+  "tex_label": "fig:skill-transfer-main",
+  "title": "Task-class skill injection matrix",
+  "generator": "assets/figures/fig8_skill_transfer_heatmap/render_fig8_skill_transfer_heatmap.py",
+  "outputs": [
+    "assets/figures/fig8_skill_transfer_heatmap/figure.pdf",
+    "assets/figures/fig8_skill_transfer_heatmap/figure.png"
+  ],
+  "consumers": [
+    "Hermes/Kimi K2.6",
+    "Codex/GPT-5.5",
+    "OpenClaw/Kimi K2.6",
+    "DeepAgents/Haiku 4.5"
+  ],
+  "creators": [
+    "GPT-5.5",
+    "Kimi K2.6",
+    "Haiku 4.5",
+    "All avg"
+  ],
+  "baseline": [
+    0.7348,
+    0.7694,
+    0.6616,
+    0.5936
+  ],
+  "post": [
+    [0.7646, 0.7564, 0.6008, 0.7073],
+    [0.7884, 0.8394, 0.8194, 0.8157],
+    [0.7066, 0.7764, 0.3384, 0.6071],
+    [0.7720, 0.5944, 0.6246, 0.6637]
+  ],
+  "mean_delta": [
+    0.0681,
+    0.0518,
+    -0.0941,
+    0.0086
+  ]
+}

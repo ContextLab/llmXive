@@ -1,0 +1,217 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "acl_latex.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "AGENTS.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "README.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "acl.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "acl_latex.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "acl_lualatex.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "acl_natbib.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "anthology.bib.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/case_studies/skill_transfer/composites/negative_transfer_evidence.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/case_studies/skill_transfer/composites/positive_transfer_evidence.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/README.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig10_judge_ablation_heatmaps/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig10_judge_ablation_heatmaps/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig10_judge_ablation_heatmaps/render_fig10_judge_ablation_heatmaps.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig1_pipeline/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig1_pipeline/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig1_pipeline/render_fig1_pipeline.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig2_funnel/construction-funnel-official.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig2_funnel/construction-funnel_1_.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig2_funnel/construction-funnel_1__cropped__2_.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig2_funnel/construction-funnel_cropped-2.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig2_funnel/construction-funnel_cropped-3.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig2_funnel/construction-funnel_cropped-4.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig2_funnel/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig2_funnel/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig2_funnel/render_fig2_funnel.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig3_benchmark_statistics/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig3_benchmark_statistics/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig3_benchmark_statistics/render_fig3_benchmark_statistics.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig4_leaderboard/README_tuning.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig4_leaderboard/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig4_leaderboard/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig4_leaderboard/render_fig4_leaderboard.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig5_role_class_heatmap/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig5_role_class_heatmap/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig5_role_class_heatmap/render_fig5_role_class_heatmap.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig6_artifact_type_heatmap/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig6_artifact_type_heatmap/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig6_artifact_type_heatmap/render_fig6_artifact_type_heatmap.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig7_dimension_profile_heatmap/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig7_dimension_profile_heatmap/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig7_dimension_profile_heatmap/render_fig7_dimension_profile_heatmap.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig8_skill_transfer_heatmap/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig8_skill_transfer_heatmap/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig8_skill_transfer_heatmap/render_fig8_skill_transfer_heatmap.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig9_score_cost/data.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig9_score_cost/figure.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/fig9_score_cost/render_fig9_score_cost.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/figures/index.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/github-logo.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "custom.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "formatting.md"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "xelatex"
+   }
+}

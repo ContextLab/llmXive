@@ -1,0 +1,423 @@
+{
+  "kind": "figure",
+  "tex_label": "fig:role-class-main",
+  "title": "Model performance by enterprise role class",
+  "latex_asset": "figure.pdf",
+  "rendered_assets": [
+    "assets/figures/fig5_role_class_heatmap/figure.pdf",
+    "assets/figures/fig5_role_class_heatmap/figure.png"
+  ],
+  "generator": "assets/figures/fig5_role_class_heatmap/render_fig5_role_class_heatmap.py",
+  "source_files": {
+    "routing_conclusions": "/hpc_data/jczhong/frontis-bench/outputs/report_data/reports/model_task_artifact_routing_conclusions.json",
+    "case_results": "/hpc_data/jczhong/frontis-bench/outputs/report_data/merged/hard120_32combo_current/case_results.jsonl",
+    "role_assignments": "/hpc_data/jczhong/frontis-bench/outputs/instance_cleaning_v1/16_role_function_multimodal_taxonomy_v1/role_skill_subclass_assignments.jsonl"
+  },
+  "model_order": [
+    "gpt-5.5",
+    "sonnet-4.6",
+    "kimi-k2.6",
+    "deepseek-v4-pro",
+    "opus-4.6",
+    "MiniMax-M3",
+    "haiku-4.5",
+    "gpt-4.1-mini",
+    "qwen3-235b-a22b"
+  ],
+  "column_order": [
+    "Product / project",
+    "Engineering / IT",
+    "HR / admin",
+    "Executive",
+    "Sales / customer",
+    "Marketing",
+    "Finance / ops"
+  ],
+  "fields": {
+    "row": "model",
+    "row_label": "model_label",
+    "column": "role_class",
+    "value": "score"
+  },
+  "data": [
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "role_class": "Product / project",
+      "score": 0.7234545454545457
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "role_class": "Engineering / IT",
+      "score": 0.6110845070422536
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "role_class": "HR / admin",
+      "score": 0.6973214285714288
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "role_class": "Executive",
+      "score": 0.6396250000000001
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "role_class": "Sales / customer",
+      "score": 0.5902500000000002
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "role_class": "Marketing",
+      "score": 0.5498412698412699
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "role_class": "Finance / ops",
+      "score": 0.5779843750000001
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "role_class": "Product / project",
+      "score": 0.6457175572519085
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "role_class": "Engineering / IT",
+      "score": 0.6539361702127661
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "role_class": "HR / admin",
+      "score": 0.629107142857143
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "role_class": "Executive",
+      "score": 0.5991333333333334
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "role_class": "Sales / customer",
+      "score": 0.5471785714285715
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "role_class": "Marketing",
+      "score": 0.45634426229508207
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "role_class": "Finance / ops",
+      "score": 0.5299843750000001
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "role_class": "Product / project",
+      "score": 0.6537333333333335
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "role_class": "Engineering / IT",
+      "score": 0.6586938775510205
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "role_class": "HR / admin",
+      "score": 0.4802500000000001
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "role_class": "Executive",
+      "score": 0.4343636363636364
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "role_class": "Sales / customer",
+      "score": 0.5027368421052633
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "role_class": "Marketing",
+      "score": 0.45602500000000007
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "role_class": "Finance / ops",
+      "score": 0.5250000000000001
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "role_class": "Product / project",
+      "score": 0.5855225225225226
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "role_class": "Engineering / IT",
+      "score": 0.6622
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "role_class": "HR / admin",
+      "score": 0.6415833333333335
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "role_class": "Executive",
+      "score": 0.5768666666666669
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "role_class": "Sales / customer",
+      "score": 0.5612777777777779
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "role_class": "Marketing",
+      "score": 0.45355555555555566
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "role_class": "Finance / ops",
+      "score": 0.4568235294117648
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "role_class": "Product / project",
+      "score": 0.5975692307692309
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "role_class": "Engineering / IT",
+      "score": 0.6140503597122304
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "role_class": "HR / admin",
+      "score": 0.686107142857143
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "role_class": "Executive",
+      "score": 0.5914666666666668
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "role_class": "Sales / customer",
+      "score": 0.48317857142857157
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "role_class": "Marketing",
+      "score": 0.43229508196721317
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "role_class": "Finance / ops",
+      "score": 0.5607142857142858
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "role_class": "Product / project",
+      "score": 0.536904761904762
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "role_class": "Engineering / IT",
+      "score": 0.6034950495049506
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "role_class": "HR / admin",
+      "score": 0.6021739130434784
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "role_class": "Executive",
+      "score": 0.5277333333333334
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "role_class": "Sales / customer",
+      "score": 0.3826250000000001
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "role_class": "Marketing",
+      "score": 0.250483870967742
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "role_class": "Finance / ops",
+      "score": 0.48602127659574473
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "role_class": "Product / project",
+      "score": 0.4777307692307693
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "role_class": "Engineering / IT",
+      "score": 0.5062708333333334
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "role_class": "HR / admin",
+      "score": 0.42264285714285726
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "role_class": "Executive",
+      "score": 0.32031250000000006
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "role_class": "Sales / customer",
+      "score": 0.4156428571428572
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "role_class": "Marketing",
+      "score": 0.4464375000000001
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "role_class": "Finance / ops",
+      "score": 0.4586562500000001
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "role_class": "Product / project",
+      "score": 0.28344274809160314
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "role_class": "Engineering / IT",
+      "score": 0.3184335664335665
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "role_class": "HR / admin",
+      "score": 0.19517857142857145
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "role_class": "Executive",
+      "score": 0.18950000000000003
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "role_class": "Sales / customer",
+      "score": 0.34228571428571436
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "role_class": "Marketing",
+      "score": 0.24798437500000003
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "role_class": "Finance / ops",
+      "score": 0.16245312500000003
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "role_class": "Product / project",
+      "score": 0.24760824742268045
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "role_class": "Engineering / IT",
+      "score": 0.3121574074074075
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "role_class": "HR / admin",
+      "score": 0.16305000000000003
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "role_class": "Executive",
+      "score": 0.2020833333333334
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "role_class": "Sales / customer",
+      "score": 0.27370000000000005
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "role_class": "Marketing",
+      "score": 0.1536808510638298
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "role_class": "Finance / ops",
+      "score": 0.19362222222222228
+    }
+  ],
+  "redraw_notes": "Heatmap rows follow strict 32-combo model_order; columns follow column_order; values are primary_attr_fail0: completed primary scores divided by completed plus attributable-failure rows, with attributable failures and missing primary scores counted as zero and sandbox-infra failures excluded."
+}

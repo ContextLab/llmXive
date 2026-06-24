@@ -1,0 +1,423 @@
+{
+  "kind": "figure",
+  "tex_label": "fig:artifact-main",
+  "title": "Model performance by expected deliverable type",
+  "latex_asset": "figure.pdf",
+  "rendered_assets": [
+    "assets/figures/fig6_artifact_type_heatmap/figure.pdf",
+    "assets/figures/fig6_artifact_type_heatmap/figure.png"
+  ],
+  "generator": "assets/figures/fig6_artifact_type_heatmap/render_fig6_artifact_type_heatmap.py",
+  "source_files": {
+    "routing_conclusions": "/hpc_data/jczhong/frontis-bench/outputs/report_data/reports/model_task_artifact_routing_conclusions.json",
+    "case_results": "/hpc_data/jczhong/frontis-bench/outputs/report_data/merged/hard120_32combo_current/case_results.jsonl",
+    "role_assignments": "/hpc_data/jczhong/frontis-bench/outputs/instance_cleaning_v1/16_role_function_multimodal_taxonomy_v1/role_skill_subclass_assignments.jsonl"
+  },
+  "model_order": [
+    "gpt-5.5",
+    "sonnet-4.6",
+    "kimi-k2.6",
+    "deepseek-v4-pro",
+    "opus-4.6",
+    "MiniMax-M3",
+    "haiku-4.5",
+    "gpt-4.1-mini",
+    "qwen3-235b-a22b"
+  ],
+  "column_order": [
+    "code_json_other",
+    "final_response_only",
+    "html",
+    "md",
+    "pptx",
+    "xlsx"
+  ],
+  "fields": {
+    "row": "model",
+    "row_label": "model_label",
+    "column": "artifact_type_bucket",
+    "column_label": "artifact_label",
+    "value": "score"
+  },
+  "data": [
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "artifact_type_bucket": "code_json_other",
+      "artifact_label": "Code/JSON",
+      "score": 0.6522758620689657
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "artifact_type_bucket": "final_response_only",
+      "artifact_label": "TXT",
+      "score": 0.5746718750000002
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "artifact_type_bucket": "html",
+      "artifact_label": "HTML",
+      "score": 0.6651406250000002
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "artifact_type_bucket": "md",
+      "artifact_label": "Markdown",
+      "score": 0.6404222222222223
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "artifact_type_bucket": "pptx",
+      "artifact_label": "Slides",
+      "score": 0.5463250000000002
+    },
+    {
+      "model": "gpt-5.5",
+      "model_label": "GPT-5.5",
+      "artifact_type_bucket": "xlsx",
+      "artifact_label": "Sheet",
+      "score": 0.6059062500000001
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "artifact_type_bucket": "code_json_other",
+      "artifact_label": "Code/JSON",
+      "score": 0.5154827586206897
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "artifact_type_bucket": "final_response_only",
+      "artifact_label": "TXT",
+      "score": 0.7370000000000002
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "artifact_type_bucket": "html",
+      "artifact_label": "HTML",
+      "score": 0.48847619047619056
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "artifact_type_bucket": "md",
+      "artifact_label": "Markdown",
+      "score": 0.6438358208955225
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "artifact_type_bucket": "pptx",
+      "artifact_label": "Slides",
+      "score": 0.46597368421052643
+    },
+    {
+      "model": "sonnet-4.6",
+      "model_label": "Sonnet 4.6",
+      "artifact_type_bucket": "xlsx",
+      "artifact_label": "Sheet",
+      "score": 0.6016406250000002
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "artifact_type_bucket": "code_json_other",
+      "artifact_label": "Code/JSON",
+      "score": 0.596949152542373
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "artifact_type_bucket": "final_response_only",
+      "artifact_label": "TXT",
+      "score": 0.624413043478261
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "artifact_type_bucket": "html",
+      "artifact_label": "HTML",
+      "score": 0.5211702127659575
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "artifact_type_bucket": "md",
+      "artifact_label": "Markdown",
+      "score": 0.6211304347826089
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "artifact_type_bucket": "pptx",
+      "artifact_label": "Slides",
+      "score": 0.4597826086956523
+    },
+    {
+      "model": "kimi-k2.6",
+      "model_label": "Kimi K2.6",
+      "artifact_type_bucket": "xlsx",
+      "artifact_label": "Sheet",
+      "score": 0.5785227272727274
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "artifact_type_bucket": "code_json_other",
+      "artifact_label": "Code/JSON",
+      "score": 0.45891666666666675
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "artifact_type_bucket": "final_response_only",
+      "artifact_label": "TXT",
+      "score": 0.7336153846153847
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "artifact_type_bucket": "html",
+      "artifact_label": "HTML",
+      "score": 0.5918235294117647
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "artifact_type_bucket": "md",
+      "artifact_label": "Markdown",
+      "score": 0.6693333333333334
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "artifact_type_bucket": "pptx",
+      "artifact_label": "Slides",
+      "score": 0.2684
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "model_label": "DeepSeek V4 Pro",
+      "artifact_type_bucket": "xlsx",
+      "artifact_label": "Sheet",
+      "score": 0.5383703703703705
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "artifact_type_bucket": "code_json_other",
+      "artifact_label": "Code/JSON",
+      "score": 0.5087816091954024
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "artifact_type_bucket": "final_response_only",
+      "artifact_label": "TXT",
+      "score": 0.6916507936507937
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "artifact_type_bucket": "html",
+      "artifact_label": "HTML",
+      "score": 0.47212903225806463
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "artifact_type_bucket": "md",
+      "artifact_label": "Markdown",
+      "score": 0.6082923076923078
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "artifact_type_bucket": "pptx",
+      "artifact_label": "Slides",
+      "score": 0.38715384615384624
+    },
+    {
+      "model": "opus-4.6",
+      "model_label": "Opus 4.6",
+      "artifact_type_bucket": "xlsx",
+      "artifact_label": "Sheet",
+      "score": 0.6221269841269843
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "artifact_type_bucket": "code_json_other",
+      "artifact_label": "Code/JSON",
+      "score": 0.3208275862068966
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "artifact_type_bucket": "final_response_only",
+      "artifact_label": "TXT",
+      "score": 0.7656666666666668
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "artifact_type_bucket": "html",
+      "artifact_label": "HTML",
+      "score": 0.4409166666666668
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "artifact_type_bucket": "md",
+      "artifact_label": "Markdown",
+      "score": 0.6781111111111113
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "artifact_type_bucket": "pptx",
+      "artifact_label": "Slides",
+      "score": 0.06625000000000002
+    },
+    {
+      "model": "MiniMax-M3",
+      "model_label": "MiniMax-M3",
+      "artifact_type_bucket": "xlsx",
+      "artifact_label": "Sheet",
+      "score": 0.5156600000000001
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "artifact_type_bucket": "code_json_other",
+      "artifact_label": "Code/JSON",
+      "score": 0.4011609195402299
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "artifact_type_bucket": "final_response_only",
+      "artifact_label": "TXT",
+      "score": 0.5590000000000002
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "artifact_type_bucket": "html",
+      "artifact_label": "HTML",
+      "score": 0.4831250000000001
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "artifact_type_bucket": "md",
+      "artifact_label": "Markdown",
+      "score": 0.409725925925926
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "artifact_type_bucket": "pptx",
+      "artifact_label": "Slides",
+      "score": 0.42605000000000004
+    },
+    {
+      "model": "haiku-4.5",
+      "model_label": "Haiku 4.5",
+      "artifact_type_bucket": "xlsx",
+      "artifact_label": "Sheet",
+      "score": 0.5405937500000001
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "artifact_type_bucket": "code_json_other",
+      "artifact_label": "Code/JSON",
+      "score": 0.24897701149425294
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "artifact_type_bucket": "final_response_only",
+      "artifact_label": "TXT",
+      "score": 0.38309523809523816
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "artifact_type_bucket": "html",
+      "artifact_label": "HTML",
+      "score": 0.3990468750000001
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "artifact_type_bucket": "md",
+      "artifact_label": "Markdown",
+      "score": 0.25611764705882356
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "artifact_type_bucket": "pptx",
+      "artifact_label": "Slides",
+      "score": 0.12115000000000002
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "model_label": "GPT-4.1-mini",
+      "artifact_type_bucket": "xlsx",
+      "artifact_label": "Sheet",
+      "score": 0.16331250000000003
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "artifact_type_bucket": "code_json_other",
+      "artifact_label": "Code/JSON",
+      "score": 0.26651562500000003
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "artifact_type_bucket": "final_response_only",
+      "artifact_label": "TXT",
+      "score": 0.341
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "artifact_type_bucket": "html",
+      "artifact_label": "HTML",
+      "score": 0.29323913043478267
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "artifact_type_bucket": "md",
+      "artifact_label": "Markdown",
+      "score": 0.21552525252525256
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "artifact_type_bucket": "pptx",
+      "artifact_label": "Slides",
+      "score": 0.1025666666666667
+    },
+    {
+      "model": "qwen3-235b-a22b",
+      "model_label": "Qwen3-235B-A22B",
+      "artifact_type_bucket": "xlsx",
+      "artifact_label": "Sheet",
+      "score": 0.23700000000000007
+    }
+  ],
+  "redraw_notes": "Heatmap rows follow strict 32-combo model_order; columns follow column_order; values are primary_attr_fail0 by artifact type, with attributable failures and missing primary scores counted as zero and sandbox-infra failures excluded. Image bucket removed from the manuscript heatmap because it contains only five unique tasks in the Lite subset and is treated as low-n exploratory evidence."
+}

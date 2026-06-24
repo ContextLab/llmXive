@@ -1,0 +1,51 @@
+{
+  "arxiv_id": "2606.21337",
+  "arxiv_url": "https://arxiv.org/abs/2606.21337",
+  "title": "DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams",
+  "authors": [
+    "Cong Wan",
+    "Zeyu Guo",
+    "Zijian Cai",
+    "Jiangyang Li",
+    "SongLin Dong",
+    "Lin Peng",
+    "Xiangyang Luo",
+    "Zhiheng Ma",
+    "Yihong Gong"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Massive unstructured multimodal streams suffer from high \"data entropy,\" impeding both efficient human knowledge acquisition and high-quality AI post-training. Existing passive annotation paradigms, heavily reliant on heuristic rules or general VLMs, are costly, monotonous, and fail to unlock the deep procedural logic embedded in raw data. We elevate data processing to a learnable capability, proposing a paradigm shift towards Agentic Data Tailoring, which actively refining and structuring data to align with diverse user and downstream intents. To overcome the data scarcity bottleneck in training such high-order capabilities, we design a two-stage pipeline grounding generative semantic synthesis in deterministic Factual Anchors, yielding a large-scale dataset spanning five core physical and digital domains. Building upon this, $\\text{DataClaw}_0$-9B model synergizes Supervised Fine-Tuning (SFT) with Group Relative Policy Optimization (GRPO), achieving robust alignment with complex refinement and tailoring intents. To systematically quantify this capability, we construct $\\text{DataClaw}_0$-val, the first benchmark dedicated to data refinement. Crucially, we adopt downstream post-training as the ultimate validation touchstone. Evaluations on video generation, real-world VQA, and GUI navigation confirm that $\\text{DataClaw}_0$ delivers high-information-density tailored data, facilitating efficient model adaptation to new tasks under limited training data regimes. Project page: https://czjdsg.github.io/MakeAnyData",
+  "submitted_via": "llmXive dashboard, GitHub issue #358",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "main_data.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figures",
+    "figures/D_aigc_success_case.pdf",
+    "figures/D_daily_fail_case.pdf",
+    "figures/D_daily_success_case.pdf",
+    "figures/Overview.png",
+    "figures/appendix_aigc.pdf",
+    "figures/appendix_gui.png",
+    "figures/appendix_remot.pdf",
+    "figures/case.pdf",
+    "figures/fig1v2.png",
+    "figures/tsne_scaling.pdf",
+    "main.bib",
+    "main_data.tex",
+    "neurips_2026.sty",
+    "sections",
+    "sections/abstract.tex",
+    "sections/appendix.tex",
+    "sections/sec1.tex",
+    "sections/sec2.tex",
+    "sections/sec3.tex",
+    "sections/sec4.tex",
+    "sections/sec5.tex"
+  ]
+}
