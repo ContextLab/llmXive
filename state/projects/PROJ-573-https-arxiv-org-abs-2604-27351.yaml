@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-15T15:15:20.395209Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: other
 human_escalation_reason: null
 id: PROJ-573-https-arxiv-org-abs-2604-27351
-last_run_id: 2821c9b1-27ac-4431-a809-bad5698f91b2
+last_run_id: 08bae827-5bff-4c3a-a8ad-601d14d3a1e6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Heterogeneous Scientific Foundation Model Collaboration
-updated_at: '2026-06-11T19:36:28.774040Z'
+updated_at: '2026-06-24T02:42:06.212799Z'

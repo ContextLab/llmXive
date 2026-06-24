@@ -4,13 +4,13 @@ submitter: github-actions[bot]
 github_issue: https://github.com/ContextLab/llmXive/issues/278
 ---
 
-# Where Do Deep-Research Agents Go Wrong? Span‑Level Error Localization in Agent Trajectories  
+# Where Do Deep‑Research Agents Go Wrong? Span‑Level Error Localization in Agent Trajectories  
 
 **Field**: computer science  
 
 ## Research question  
 
-What categories of reasoning errors occur at specific span positions within the execution traces of deep‑research agents, and can a lightweight sequence‑labeling model reliably localize those error spans using features that are independent of the human‑annotated error labels?  
+What categories of reasoning errors occur at specific span positions within deep‑research agent execution traces, and which automatically computable trace features enable reliable localization of those error spans?  
 
 ## Motivation  
 
@@ -18,87 +18,85 @@ Current evaluations of deep‑research agents focus on final answer correctness,
 
 ## Related work  
 
-- [Where Do Deep‑Research Agents Go Wrong? Span‑Level Error Localization in Agent Trajectories (2026)](https://arxiv.org/abs/2606.02060) — Introduces the TELBench dataset and the DRIFT auditing framework, highlighting the need for span‑level error analysis but does not provide a systematic taxonomy or automated localization baseline.  
-- [Neural Architectures for Fine‑Grained Propaganda Detection in News (2019)](https://arxiv.org/abs/1909.06162) — Presents a sentence‑ and fragment‑level classification task and a neural architecture for detecting fine‑grained textual anomalies, offering methodological inspiration for span‑level error detection in agent logs.  
-- [Fine‑grained Hallucination Detection and Editing for Language Models (2024)](https://arxiv.org/abs/2401.06855) — Provides a taxonomy of hallucination types and a sequence‑labeling approach to locate them, directly relevant for defining error categories and modeling techniques for agent trajectory spans.  
+- [Where Do Deep‑Research Agents Go Wrong? Span‑Level Error Localization in Agent Trajectories (2026)](https://arxiv.org/abs/2606.02060) — Introduces the TELBench dataset and the DRIFT auditing framework, highlighting the need for span‑level error analysis but does not provide a systematic taxonomy or an automated localization baseline.  
+- [Neural Architectures for Fine‑Grained Propaganda Detection in News (2019)](https://arxiv.org/abs/1909.06162) — Proposes a sentence‑ and fragment‑level classification task with a BiLSTM‑CRF architecture, offering methodological inspiration for span‑level error detection in agent logs.  
+- [Fine‑grained Hallucination Detection and Editing for Language Models (2024)](https://arxiv.org/abs/2401.06855) — Presents a taxonomy of hallucination types and a sequence‑labeling approach to locate them, directly relevant for defining error categories and feature‑based modeling of agent‑trace spans.  
 
 ## Expected results  
 
-1. A publicly released taxonomy of error types (e.g., tool‑selection error, evidence‑misinterpretation, premature termination) covering ≥80 % of observed span‑level failures on the TELBench corpus.  
+1. A publicly released taxonomy of error types (e.g., tool‑selection error, evidence‑misinterpretation, premature termination) covering ≥ 80 % of observed span‑level failures on the TELBench corpus.  
 2. An annotated benchmark of at least 1 000 error spans with inter‑annotator agreement κ ≥ 0.70, establishing a reliable ground‑truth resource.  
 3. A baseline sequence‑labeling model that achieves span‑level F1 ≥ 0.55 and statistically significant improvement (bootstrap‑p < 0.05) over a random‑span baseline, demonstrating that error localization is feasible with modest features.  
 
 ## Methodology sketch  
 
 - **Data acquisition**  
-  - Download the TELBench trajectory collection (≈2 800 trajectories) from the repository linked in the 2026 arXiv paper.  
-  - Retrieve the associated raw logs (tool calls, model outputs) via the provided Zenodo DOI.  
+  - Download the TELBench trajectory collection (≈ 2 800 trajectories) from the repository linked in the 2026 arXiv paper.  
+  - Retrieve the associated raw logs (tool calls, model outputs) via the Zenodo DOI provided in the same repository.  
 
 - **Human annotation**  
-  - Define error‑span guidelines based on the DRIFT framework and the hallucination taxonomy (2024 paper).  
-  - Use Amazon Mechanical Turk (or an equivalent crowd platform) to label error spans in 1 000 randomly sampled trajectories.  
-  - Compute inter‑annotator agreement (Cohen’s κ) and resolve disagreements through a senior reviewer.  
+  - Draft span‑level error‑annotation guidelines based on the DRIFT framework and the hallucination taxonomy (2024).  
+  - Use a crowd‑sourcing platform (e.g., Amazon Mechanical Turk) to label error spans in 1 000 randomly sampled trajectories.  
+  - Compute Cohen’s κ for inter‑annotator agreement; resolve disagreements through a senior reviewer panel.  
 
-- **Feature engineering (predictors)**  
-  - Token‑level metadata: tool name, confidence score, token count, position index.  
-  - Linguistic cues: presence of negation, modality verbs, citation markers.  
-  - Model‑output signals: log‑probability, top‑k entropy, length of generated snippet.  
+- **Feature engineering (predictors)** – all features are automatically computable from the raw trace, independent of the human‑annotated labels.  
+  - Token‑level metadata: tool name, confidence score, token position index, token length.  
+  - Linguistic cues: presence of negation, modality verbs, citation markers, cue phrases (“according to”, “we hypothesize”).  
+  - Model‑output signals: log‑probability, top‑k entropy, generation length, repetition score.  
 
 - **Model training**  
-  - Implement a BiLSTM‑CRF sequence labeler using PyTorch (CPU‑only).  
-  - Perform 5‑fold cross‑validation on the annotated set; hyper‑parameter search limited to ≤30 min per fold.  
+  - Implement a BiLSTM‑CRF sequence‑labeling model in PyTorch (CPU‑only).  
+  - Perform 5‑fold cross‑validation on the annotated set; hyper‑parameter search limited to ≤ 30 min per fold using a small grid (hidden size, learning rate).  
 
 - **Evaluation**  
-  - Compute precision, recall, and F1 for span‑level detection against the held‑out annotation set.  
+  - Compute precision, recall, and F1 for span‑level detection against a held‑out annotation set (20 % of the 1 000 spans).  
   - Conduct paired bootstrap resampling (10 000 samples) to test significance against a random‑span baseline.  
-  - Report per‑category performance to assess which error types are easiest/hardest to locate.  
+  - Report per‑category performance to identify which error types are easiest/hardest to locate.  
 
-- **Reproducibility**  
-  - All scripts, environment file (`requirements.txt`), and dataset download commands are version‑controlled in a GitHub repository tagged `v1.0`.  
-  - Provide a single command (`bash run_all.sh`) that executes the full pipeline within a 6‑hour GitHub Actions job (≈2 GB RAM, ≤2 CPU cores).  
+- **Reproducibility & runtime constraints**  
+  - All scripts, `requirements.txt`, and dataset download commands are version‑controlled in a public GitHub repository tagged `v1.0`.  
+  - Provide a single command (`bash run_all.sh`) that executes the full pipeline within a ≤ 6‑hour GitHub Actions job (≈ 2 GB RAM, ≤ 2 CPU cores).  
 
 ## Duplicate-check  
 
 - Reviewed existing ideas: *none identified as overlapping*.  
-- Closest match: *“Span‑Level Error Localization in Agent Trajectories (2026)”* – shares domain but lacks the systematic taxonomy, human‑annotated benchmark, and automated baseline proposed here.  
+- Closest match: *“Where Do Deep‑Research Agents Go Wrong? Span‑Level Error Localization in Agent Trajectories (2026)”* – shares domain but lacks the systematic taxonomy, human‑annotated benchmark, and automated baseline proposed here.  
 - Verdict: **NOT a duplicate**.
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-16T16:05:54Z
-**Outcome**: exhausted
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T02:40:34Z
+**Outcome**: failed
 **Original term**: Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories computer science
-**Verified citation count**: 3
+**Verified citation count**: 0
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories computer science | 0 |
-| 1 | fine-grained failure detection in autonomous research agents | 5 |
-| 2 | token‑level error attribution for LLM‑based agents | 0 |
-| 3 | segment‑level error analysis of AI agent execution traces | 0 |
-| 4 | trajectory error pinpointing in autonomous reasoning systems | 0 |
-| 5 | debugging chain‑of‑thought failures in large language model agents | 0 |
-| 6 | hallucinatory source identification in research‑oriented AI agents | 0 |
-| 7 | action‑sequence failure diagnostics for autonomous agents | 0 |
-| 8 | interpretability of agent planning errors | 0 |
-| 9 | error propagation analysis in multi‑step AI agents | 0 |
-| 10 | failure mode localization in autonomous research assistants | 0 |
-| 11 | execution trace debugging for deep learning agents | 0 |
-| 12 | misstep detection in AI‑driven research workflows | 0 |
-| 13 | agent behavior anomaly localization | 0 |
-| 14 | span‑wise error tracing in language model agents | 0 |
-| 15 | AI agent performance debugging techniques | 0 |
-| 16 | coarse‑to‑fine error mapping in autonomous systems | 0 |
-| 17 | failure analysis of sequential decision‑making agents | 0 |
-| 18 | systematic error diagnosis in research‑focused AI agents | 0 |
-| 19 | hierarchical error localization in agent trajectories | 0 |
-| 20 | robustness assessment of deep research agents. | 0 |
+| 1 | fine-grained error detection in autonomous research agents | 0 |
+| 2 | step-level failure analysis of AI research assistants | 0 |
+| 3 | trajectory error attribution for large language model agents | 0 |
+| 4 | action-level debugging of tool‑using agents | 0 |
+| 5 | fault localization in multi‑step reasoning agents | 0 |
+| 6 | error pinpointing in agent execution traces | 0 |
+| 7 | span‑based failure identification in policy rollouts | 0 |
+| 8 | debugging chain‑of‑thought errors in reasoning agents | 0 |
+| 9 | analysis of missteps in autonomous scientific agents | 0 |
+| 10 | LLM planning error localization in sequential tasks | 0 |
+| 11 | failure diagnosis in reinforcement learning research agents | 0 |
+| 12 | granular error localization in AI agent trajectories | 0 |
+| 13 | error tracing in hierarchical agent planning | 0 |
+| 14 | detection of reasoning breakdowns in multi‑hop agents | 0 |
+| 15 | behavior trace analysis for AI research bots | 0 |
+| 16 | systematic error analysis of autonomous agents | 0 |
+| 17 | pinpointing failures in tool‑use sequences of LLM agents | 0 |
+| 18 | error localization techniques for agent rollouts | 0 |
+| 19 | debugging multi‑step AI pipelines | 0 |
+| 20 | general agent error analysis methods | 0 |
 
 ### Verified citations
 
-1. **Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories** (2026). Jiaming Wang, Ziteng Feng, Jiangtao Wu, Ruihao Li, Qianqian Xie, et al.. arXiv. [2606.02060](https://arxiv.org/abs/2606.02060). PDF-sampled: No.
-2. **Neural Architectures for Fine-Grained Propaganda Detection in News** (2019). Pankaj Gupta, Khushbu Saxena, Usama Yaseen, Thomas Runkler, Hinrich Schütze. arXiv. [1909.06162](https://arxiv.org/abs/1909.06162). PDF-sampled: No.
-3. **Fine-grained Hallucination Detection and Editing for Language Models** (2024). Abhika Mishra, Akari Asai, Vidhisha Balachandran, Yizhong Wang, Graham Neubig, et al.. arXiv. [2401.06855](https://arxiv.org/abs/2401.06855). PDF-sampled: No.
+(none)
