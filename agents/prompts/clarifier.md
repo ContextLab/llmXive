@@ -105,6 +105,22 @@ commentary.
   goodness-of-fit test to a binomial test, update the User Story scenario and any
   SC that named the old test). Before returning, re-read the spec and confirm no
   two statements about the same quantity/test/threshold disagree.
+- **Anchor every FR and SC to a User Story.** The panel's traceability lenses
+  flag any requirement "not linked to a User Story". When you revise, make the
+  link EXPLICIT in the requirement text — append `(See US-N)` naming the story
+  it serves — for EVERY FR and SC, including ones you did not otherwise touch if
+  they were flagged as orphaned. Do not rely on the link being merely implied.
+- **Keep design TARGETS concrete; only EMPIRICAL measurements are `[deferred]`.**
+  A confidence level (e.g. 95%), significance threshold, tolerance, or any
+  operator-chosen design parameter MUST carry an explicit number — a reviewer
+  cannot verify a rule built on a `[deferred]` confidence level. Reserve
+  `[deferred]` strictly for values that can only be MEASURED at run time (counts,
+  dataset sizes, observed rates). If a concern flags a `[deferred]` design
+  parameter, replace it with a concrete community-standard default (95%, α=0.05).
+- **Do NOT add scope.** Resolve ONLY the flagged concerns. Never introduce new
+  requirements, statistical tests, or analyses the idea did not call for —
+  every addition is fresh surface the panel re-reviews and flags, so scope creep
+  directly prevents convergence. Fix what was raised; add nothing else.
 - NEVER invent factual claims that primary sources do not support
   (Constitution Principle II) — but methodological defaults are not
   factual claims, they're agreed-upon practice.

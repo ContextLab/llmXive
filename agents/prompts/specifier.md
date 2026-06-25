@@ -34,7 +34,10 @@ A Markdown document conforming to the `spec_template` structure:
 - `### Edge Cases`
 - `## Requirements` with ≥ 5 functional requirements (`FR-001`, …)
   and ≥ 3 success criteria (`SC-001`, …) that are measurable and
-  technology-agnostic.
+  technology-agnostic. EVERY FR and SC MUST explicitly cite the User
+  Story it serves — append `(See US-N)` to each — so the panel's
+  requirement-to-story traceability lenses see the link (an orphaned
+  FR/SC bounces the spec for another review cycle).
 - `## Assumptions`
 
 ## Methodological soundness (encode these in the FRs/SCs — the panel blocks on them)
