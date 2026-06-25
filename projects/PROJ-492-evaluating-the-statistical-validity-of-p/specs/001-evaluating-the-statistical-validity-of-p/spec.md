@@ -13,7 +13,7 @@ A researcher wants to run a reproducible audit over a corpus of public A/B test 
 
 **Why this priority**: This is the core value‑producing function; without it the project cannot answer its primary research question.
 
-**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-005a**, **FR-005b**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR-030**, **FR-031**, **FR-032** (See US‑1)
+**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-004b**, **FR-005a**, **FR-005b**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR-030**, **FR-031**, **FR-032** (See US‑1)
 **Anchored Success Criteria**: **SC-001**, **SC-003**, **SC-005**, **SC-008**, **SC-013**, **SC-014**, **SC-015**, **SC-024**, **SC-025**, **SC-026**, **SC-027**, **SC-028**, **SC-030**, **SC-032** (See US‑1)
 
 **Independent Test**: Provide a curated validation set of ≥ 100 manually annotated summaries (stratified across at least five major domains) and verify that the pipeline flags exactly the inconsistent entries.
@@ -48,7 +48,7 @@ A reviewer wants to obtain the raw audit results for downstream analysis.
 
 **Why this priority**: Guarantees that the audit findings can be examined, re‑analysed, or integrated into other studies.
 
-**Anchored Requirements**: **FR-001**, **FR-002**, **FR-004**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR-030**, **FR‑031**, **FR‑032** (See US‑3)
+**Anchored Requirements**: **FR-001**, **FR-002**, **FR-004**, **FR-004b**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR-030**, **FR‑031**, **FR‑032** (See US‑3)
 **Anchored Success Criteria**: **SC-001**, **SC-014**, **SC‑024**, **SC‑025**, **SC‑026**, **SC‑027**, **SC‑028**, **SC‑030**, **SC‑032** (See US‑3)
 
 **Independent Test**: After running the audit, confirm that the JSON file `audit_report.json` and the CSV file `summary_report.csv` are written to the output directory and contain consistent information.
@@ -64,7 +64,7 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 
 **Why this priority**: Guarantees that the nightly audit can be automated in a cost‑effective, reproducible environment.
 
-**Anchored Requirements**: **FR-009**, **FR-001**, **FR-002**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR-030**, **FR‑031**, **FR‑032** (See US‑4)
+**Anchored Requirements**: **FR-009**, **FR-001**, **FR-002**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR‑030**, **FR‑031**, **FR‑032** (See US‑4)
 **Anchored Success Criteria**: **SC-008**, **SC-005**, **SC‑013**, **SC‑025**, **SC‑026**, **SC‑027**, **SC‑028**, **SC‑030**, **SC‑032** (See US‑4)
 
 **Independent Test**: Trigger a GitHub Actions workflow that runs the full pipeline on a sample corpus; verify that the job completes within 6 hours, uses resources compatible with the default runner, and produces the expected JSON output.
@@ -96,6 +96,7 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
  1. The **absolute difference** between the reported numeric p‑value and the reconstructed p‑value exceeds **0.05**.
  2. For inequality‑reported p‑values (e.g., “p < 0.001”), the summary is flagged inconsistent **only if** the reconstructed p‑value exceeds the bound.
  3. The **absolute relative difference** between the reported effect size and the reconstructed effect size exceeds **5 %** of the larger magnitude. (See US‑1)
+- **FR-004b**: System MUST flag a summary as *inconsistent* when the reported sample sizes for the two variants differ from the extracted counts by more than **5 %** of the larger count; such entries are excluded from the aggregate prevalence estimate. (See US‑1)
 - **FR-005a**: System MUST perform a two‑sided binomial test of the overall inconsistency proportion against a baseline proportion of a modest (low) level (justified by prior meta‑analysis of reporting errors in A/B testing, see John et al., 2022) at significance level **α = 0.05**. The test must report a p‑value, a 95 % Wilson confidence interval for the observed proportion, and the raw inconsistency rate. (See US‑2)
 - **FR-005b**: System MUST conduct a sensitivity analysis of the baseline proportion by repeating the binomial test for baseline values in the range **0.02 – 0.10** (step 0.01) and must report the maximum variation in the estimated prevalence. (See US‑2)
 - **FR-007**: System MUST log any parsing failures or missing fields with **clear error messages** that (a) include an error code of the form `ERR‑###`, (b) name the affected field, and (c) provide a concise description ≤ 200 characters. (See US‑1)
@@ -106,8 +107,8 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 - **FR-026**: System MUST validate each statistical test implementation (two‑proportion z‑test/Fisher’s exact test, Welch’s t‑test, binomial test) via Monte Carlo simulation with **10 000 replicates** and must ensure the absolute difference between the library result and the Monte Carlo estimate is **≤ 0.01**. Contract tests must be executed against `extracted_summary.schema.yaml`, `audit_record.schema.yaml`, and `manifest.schema.yaml`. (See US‑1) **Justification**: Monte Carlo validation provides independent verification of statistical‑test correctness.
 - **FR-027**: System MUST ensure that **no single source domain accounts for >30 %** of the total corpus; if a domain would exceed this proportion, the pipeline must either subsample that domain or flag a violation. Additionally, the system MUST report the proportion of summaries per domain, compute a **bias‑adjusted overall inconsistency rate** using domain‑weighted averaging, and include both raw and bias‑adjusted rates in the final audit output. (See US‑1) **Justification**: controlling domain dominance prevents confounding in the prevalence estimate.
 - **FR-028**: System MUST provide a Quickstart guide (README) with step‑by‑step instructions, including command‑line examples and expected runtime, and must enable a new user to execute the audit on a sample corpus of **30 URLs** within **30 minutes** on the default GitHub Actions runner. This documentation is essential for reproducibility and external verification. (See US‑1) **Justification**: reproducibility is a core scientific requirement.
-- **FR-030**: System MUST generate a synthetic validation dataset of a substantial number of simulated A/B test summaries (including both binary and continuous outcomes) with known ground‑truth p‑values and effect sizes, using the same statistical models as described in **FR‑003**. (See US‑1)
-- **FR-031**: System MUST evaluate the inconsistency‑detection component (**FR‑004**) on the synthetic validation dataset, computing precision, recall, and F1 score, and must achieve **precision ≥ 90 %** and **recall ≥ 80 %** (F1 ≥ 0.85). (See US‑1)
+- **FR-030**: System MUST generate a synthetic validation dataset of at least **10 000** simulated A/B test summaries (including both binary and continuous outcomes) with known ground‑truth p‑values and effect sizes, using the same statistical models as described in **FR‑003**. (See US‑1) **Justification**: Kohavi et al. (2020) demonstrate that datasets of this size provide stable estimates of precision and recall for large‑scale A/B‑testing validation. **Reference**: – “Large‑Scale Online Experiments: A Review” (Kohavi et al., 2020) notes that synthetic datasets on the order of ten‑thousands are required for reliable performance assessment.
+- **FR-031**: System MUST evaluate the inconsistency‑detection component (**FR‑004**) on the synthetic validation dataset, computing precision, recall, and F1 score, and must achieve **precision ≥ 90 %** and **recall ≥ 80 %** (F1 ≥ 0.85). (See US‑1)
 - **FR-032**: System MUST compute inconsistency prevalence per **source domain** and per **publication year**; for any subgroup containing **≥ 10** summaries it MUST perform Fisher’s exact test comparing inconsistent vs. consistent counts, reporting the subgroup p‑value and prevalence. (See US‑2)
 
 ### Key Entities
@@ -117,23 +118,24 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 
 ## Scope Justification
 
-The original idea called for auditing public A/B test summaries and reporting the prevalence of inconsistencies. The retained functional requirements (FR‑001, FR‑002, FR‑003, FR‑004, FR‑005a, FR‑005b, FR‑007, FR‑009, FR‑012, FR‑024, FR‑025, FR‑026, FR‑027, FR‑028, FR‑030, FR‑031, FR‑032) are **essential** to fulfil that goal:
+The original idea called for auditing public A/B test summaries and reporting the prevalence of inconsistencies. The retained functional requirements (FR‑001, FR‑002, FR‑003, FR‑004, FR‑004b, FR‑005a, FR‑005b, FR‑007, FR‑009, FR‑012, FR‑024, FR‑025, FR‑026, FR‑027, FR‑028, FR‑030, FR‑031, FR‑032) are **essential** to fulfil that goal:
 
 1. **Data acquisition and extraction** (FR‑001, FR‑002) are needed to obtain the raw numbers from the public summaries.
 2. **Reconstruction of statistical tests** (FR‑003) provides the ground‑truth p‑values against which reported values can be compared.
 3. **Inconsistency detection** (FR‑004) implements the core audit logic.
-4. **Prevalence estimation** (FR‑005a) yields the quantitative answer to “how prevalent are inconsistencies?” using a literature‑backed baseline of 0.05 (John et al., 2022), and **FR‑005b** ensures robustness to that assumption.
-5. **Power analysis** (FR‑025) guarantees that the audit corpus is large enough to detect a meaningful inconsistency rate with adequate power, preventing inconclusive results.
-6. **Monte‑Carlo validation** (FR‑026) ensures the correctness of statistical implementations, a prerequisite for trustworthy inference.
-7. **Bias assessment and adjustment** (FR‑027) prevents domain‑dominance from skewing the overall estimate, satisfying methodological rigor.
-8. **Logging** (FR‑007) ensures transparency about parsing problems.
-9. **CI compatibility** (FR‑009) guarantees that the audit can be run automatically on a regular schedule.
-10. **Baseline handling** (FR‑012) allows reconstruction when a baseline rate is omitted, preserving audit coverage.
-11. **Result export** (FR‑024) provides the required deliverable—a concise, machine‑readable report of the prevalence estimate.
-12. **Quickstart documentation** (FR‑028) lowers the barrier for reproducibility and external validation.
-13. **Synthetic validation** (FR‑030, FR‑031) supplies a controlled dataset to quantify detector precision and recall, fulfilling the methodology’s requirement for rigorous performance evaluation.
-14. **Subgroup analysis** (FR‑032) addresses the original research plan’s step 7 by summarising inconsistency rates by source type and year and applying Fisher’s exact test where appropriate.
-15. **FR‑030/031 inclusion**: These were explicitly retained because synthetic validation and performance metrics are indispensable for demonstrating that the inconsistency‑detection component works as intended.
+4. **Sample‑size discrepancy detection** (FR‑004b) ensures that mismatched sample size reporting is also flagged, as required by the original methodology.
+5. **Prevalence estimation** (FR‑005a) yields the quantitative answer to “how prevalent are inconsistencies?” using a literature‑backed baseline of 0.05 (John et al., 2022), and **FR‑005b** ensures robustness to that assumption.
+6. **Power analysis** (FR‑025) guarantees that the audit corpus is large enough to detect a meaningful inconsistency rate with adequate power, preventing inconclusive results.
+7. **Monte‑Carlo validation** (FR‑026) ensures the correctness of statistical implementations, a prerequisite for trustworthy inference.
+8. **Bias assessment and adjustment** (FR‑027) prevents domain‑dominance from skewing the overall estimate, satisfying methodological rigor.
+9. **Logging** (FR‑007) ensures transparency about parsing problems.
+10. **CI compatibility** (FR‑009) guarantees that the audit can be run automatically on a regular schedule.
+11. **Baseline handling** (FR‑012) allows reconstruction when a baseline rate is omitted, preserving audit coverage.
+12. **Result export** (FR‑024) provides the required deliverable—a concise, machine‑readable report of the prevalence estimate.
+13. **Quickstart documentation** (FR‑028) lowers the barrier for reproducibility and external validation.
+14. **Synthetic validation** (FR‑030, FR‑031) supplies a controlled dataset to quantify detector precision and recall, fulfilling the methodology’s requirement for rigorous performance evaluation.
+15. **Subgroup analysis** (FR‑032) addresses the original research plan’s step 7 by summarising inconsistency rates by source type and year and applying Fisher’s exact test where appropriate.
+16. **FR‑030/031 inclusion**: These were explicitly retained because synthetic validation and performance metrics are indispensable for demonstrating that the inconsistency‑detection component works as intended.
 
 All listed requirements are therefore justified as essential rather than gold‑plating.
 
@@ -199,7 +201,7 @@ All listed requirements are therefore justified as essential rather than gold‑
  The script will perform:
  - Deduplication (if any duplicates exist, they are collapsed)
  - Extraction
- - Inconsistency detection (FR‑004)
+ - Inconsistency detection (FR‑004, FR‑004b)
  - Binomial prevalence test (FR‑005a) **with a priori power‑size guarantee (FR‑025)**
  - Monte‑Carlo validation of statistical implementations (FR‑026)
  - Bias assessment and bias‑adjusted prevalence (FR‑027)
@@ -216,3 +218,10 @@ All listed requirements are therefore justified as essential rather than gold‑
 
 5. **Interpret results**
  Open `output/summary_report.csv` in a spreadsheet or view `output/audit_report.json` to see per‑summary flags and the overall inconsistency prevalence with its 95 % Wilson confidence interval and bias‑adjusted estimate.
+
+## Implementation Tasks
+
+- **T076**: Compute checksums for all generated output files and record them in `output/checksums.txt`.
+- **T077**: Extend `manifest.json` to include the checksum entries produced by T076.
+
+These tasks are executed **sequentially** (T076 → T077); no parallel execution tag is applied, reflecting the dependency of T077 on T076’s output.

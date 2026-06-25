@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Audit Record"
-type: object
+title: "AuditRecord"
+type: "object"
 required:
   - url
   - reported_p
@@ -12,41 +12,51 @@ required:
   - diff_abs_p
   - diff_abs_effect
   - flag_inconsistent
+  - category
   - notes
 properties:
   url:
-    type: string
-    format: uri
+    type: "string"
+    format: "uri"
     description: "URL of the audited summary."
   reported_p:
-    type: number
-    description: "Numeric representation of the reported p‑value (bound applied for inequalities)."
+    type: ["number", "null"]
+    minimum: 0
+    maximum: 1
+    description: "Reported p‑value (null if not provided)."
   reported_effect_size:
-    type: number
-    description: "Reported effect size extracted from the summary."
+    type: "number"
+    description: "Effect size as extracted from the summary."
   reported_sample_size_a:
-    type: integer
-    minimum: 0
-    description: "Sample size for variant A as extracted."
+    type: "integer"
+    minimum: 1
+    description: "Reported sample size for variant A."
   reported_sample_size_b:
-    type: integer
-    minimum: 0
-    description: "Sample size for variant B as extracted."
+    type: "integer"
+    minimum: 1
+    description: "Reported sample size for variant B."
   reconstructed_p:
-    type: number
-    description: "P‑value computed from the reconstructed statistical test."
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "p‑value computed from raw numbers."
   reconstructed_effect_size:
-    type: number
-    description: "Effect size recomputed from raw numbers."
+    type: "number"
+    description: "Effect size computed from raw numbers."
   diff_abs_p:
-    type: number
-    description: "Absolute difference between reported and reconstructed p‑values."
+    type: "number"
+    description: "Absolute difference |reported − reconstructed| (p)."
   diff_abs_effect:
-    type: number
-    description: "Absolute difference between reported and reconstructed effect sizes."
+    type: "number"
+    description: "Absolute difference in effect size."
   flag_inconsistent:
-    type: boolean
-    description: "True if any FR‑004 inconsistency condition is met."
+    type: "boolean"
+    description: "True if any inconsistency condition (FR‑004/FR‑004b) triggered."
+  category:
+    type: "string"
+    enum: ["inconsistent", "size_mismatch", "missing_metric", "consistent"]
+    description: "High‑level classification of the record."
   notes:
-    type: string
-    description: "Human‑readable notes, including error codes (e.g., ERR-002)."
+    type: "string"
+    maxLength: 200
+    description: "Brief explanation of the flag or any parsing issue."

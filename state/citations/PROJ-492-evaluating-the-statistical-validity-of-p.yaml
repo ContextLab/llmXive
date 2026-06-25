@@ -1,26 +1,37 @@
-- artifact_hash: a42c7c0c45dfc22900e7e1cfeefc4fb60c457f637fbd30bc0de5560d9652ce46
+- artifact_hash: dcfa8efd88b937fbbcac7eaff94afbb4f0f0043a83376301a5c52563107d8d56
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/yourorg/ab-test-audit.git
+  value: https://doi.org/10.1145/3318464.3380615
   verification_status: mismatch
-  verified_against_url: https://github.com/yourorg/ab-test-audit
-  verified_at: '2026-06-25T09:51:13.416070Z'
-- artifact_hash: abe5da21270bf0917c79cc1d87e8f32c9d7cbd63853b7c57bf09ea9cb28450c4
+  verified_against_url: https://doi.org/10.1145/3318464.3380615
+  verified_at: '2026-06-25T10:58:24.994402Z'
+- artifact_hash: dcfa8efd88b937fbbcac7eaff94afbb4f0f0043a83376301a5c52563107d8d56
+  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1145/3318464.3380615
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1145/3318464.3380615
+  verified_at: '2026-06-25T10:58:24.994402Z'
+- artifact_hash: 7112faf51799801cff80d205c159950d7df5fb4ac7d297d8520ca12f819d2e01
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/yourorg/ab-test-audit.git
+  value: https://github.com/your-org/ab-test-audit.git
   verification_status: mismatch
-  verified_against_url: https://github.com/yourorg/ab-test-audit
-  verified_at: '2026-06-25T10:07:25.525908Z'
-- artifact_hash: abe5da21270bf0917c79cc1d87e8f32c9d7cbd63853b7c57bf09ea9cb28450c4
+  verified_against_url: https://github.com/your-org/ab-test-audit
+  verified_at: '2026-06-25T11:12:59.921983Z'
+- artifact_hash: 7112faf51799801cff80d205c159950d7df5fb4ac7d297d8520ca12f819d2e01
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/quickstart.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +41,15 @@
   value: https://example.com/ab-test-1
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-1
-  verified_at: '2026-06-25T10:07:25.525908Z'
+  verified_at: '2026-06-25T11:12:59.921983Z'
+- artifact_hash: 7112faf51799801cff80d205c159950d7df5fb4ac7d297d8520ca12f819d2e01
+  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/quickstart.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://blog.anotherco.com/experiment/2023/07/15
+  verification_status: unreachable
+  verified_against_url: https://blog.anotherco.com/experiment/2023/07/15
+  verified_at: '2026-06-25T11:12:59.921983Z'

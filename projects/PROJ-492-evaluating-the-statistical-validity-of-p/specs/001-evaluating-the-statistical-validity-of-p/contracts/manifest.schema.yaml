@@ -1,25 +1,19 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Run Manifest"
-type: object
+title: "Manifest"
+type: "object"
 required:
+  - artifact_path
+  - sha256
   - generated_at
-  - artifacts
-  - git_commit
-  - random_seed
 properties:
+  artifact_path:
+    type: "string"
+    description: "Relative path to the artefact under the output directory."
+  sha256:
+    type: "string"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA‑256 checksum of the file."
   generated_at:
-    type: string
-    format: date-time
-    description: "Timestamp when the manifest was created."
-  artifacts:
-    type: object
-    additionalProperties:
-      type: string
-      pattern: "^[a-f0-9]{64}$"
-    description: "Mapping of relative file paths to SHA‑256 hashes."
-  git_commit:
-    type: string
-    description: "Full SHA‑1 of the git commit used for this run."
-  random_seed:
-    type: integer
-    description: "Seed value used for all stochastic operations."
+    type: "string"
+    format: "date-time"
+    description: "Timestamp when the artefact was written."

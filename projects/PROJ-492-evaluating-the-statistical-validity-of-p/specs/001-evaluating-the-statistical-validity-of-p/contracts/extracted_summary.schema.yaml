@@ -1,44 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Extracted AB Summary"
-type: object
+title: "ABSummary"
+type: "object"
 required:
   - url
-  - source_domain
+  - domain
+  - outcome_type
   - variant_a_n
   - variant_b_n
-  - effect_size
-  - reported_p
-  - outcome_type
+  - reported_effect_size
 properties:
   url:
-    type: string
-    format: uri
-    description: "Original URL of the public A/B test summary."
-  source_domain:
-    type: string
-    description: "Domain extracted from the URL (e.g., example.com)."
+    type: "string"
+    format: "uri"
+    description: "Original URL of the A/B test summary."
+  domain:
+    type: "string"
+    description: "Top-level domain extracted from the URL."
+  year:
+    type: ["integer", "null"]
+    description: "Publication year if inferable; otherwise null."
+  outcome_type:
+    type: "string"
+    enum: ["binary", "continuous"]
+    description: "Metric type of the experiment."
   variant_a_n:
-    type: integer
-    minimum: 0
+    type: "integer"
+    minimum: 1
     description: "Sample size for variant A."
   variant_b_n:
-    type: integer
-    minimum: 0
+    type: "integer"
+    minimum: 1
     description: "Sample size for variant B."
-  effect_size:
-    type: number
-    description: "Reported effect size (absolute difference or mean difference)."
+  variant_a_rate:
+    type: ["number", "null"]
+    description: "Conversion rate or mean for variant A (null if not reported)."
+  variant_b_rate:
+    type: ["number", "null"]
+    description: "Conversion rate or mean for variant B (null if not reported)."
+  reported_effect_size:
+    type: "number"
+    description: "Reported absolute effect size (or lift % converted to absolute)."
   reported_p:
-    type: string
-    description: "Reported p‑value; may be numeric (\"0.043\") or inequality (\"p<0.001\")."
-  confidence_interval:
-    type: [string, "null"]
-    description: "Optional reported confidence interval."
-  outcome_type:
-    type: string
-    enum: ["binary", "continuous"]
-    description: "Nature of the outcome metric."
+    type: ["number", "null"]
+    minimum: 0
+    maximum: 1
+    description: "Reported two‑sided p‑value; null if only CI provided."
+  reported_ci_lower:
+    type: ["number", "null"]
+    description: "Lower bound of reported confidence interval (optional)."
+  reported_ci_upper:
+    type: ["number", "null"]
+    description: "Upper bound of reported confidence interval (optional)."
   timestamp:
-    type: [string, "null"]
-    format: date-time
-    description: "Publication timestamp of the summary (optional)."
+    type: ["string", "null"]
+    format: "date-time"
+    description: "Publication timestamp if available."

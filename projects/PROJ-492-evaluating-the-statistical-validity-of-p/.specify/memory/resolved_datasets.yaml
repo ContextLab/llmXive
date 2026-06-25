@@ -1,29 +1,32 @@
-resolved_at: '2026-06-25T09:56:40.162732+00:00'
+resolved_at: '2026-06-25T11:03:39.840596+00:00'
 datasets:
 - intent: FR-030
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_maker_Inspecting_the_Drying_Masks/32617254
+  - url: https://ore.exeter.ac.uk/articles/report/History_as_a_partner_in_public_health_A_report_of_the_Foresight_Think_Tank_on_the_history_of_epidemics/32788584
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Close_up_of_Loaves_of_Soil/32617248
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Climate-driven_habitat_shifts_reveal_contrasting_climate_association_of_four_Stipa_species_in_Central_Asia_docx/32789946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Resting_and_Displaying_the_Loaves_of_Soil_in_Various_Stages_of_Preparation/32617245
+  - url: https://figshare.com/articles/media/World_Brain_Tumour_Day_2026_Awareness_Prevention_and_Symptoms/32789940
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/The_initial_god_soil_dyoch_after_it_has_dried_and_ready_for_pulverising/32617233
+  - url: https://figshare.com/articles/dataset/Geospatial_distribution_data_of_ancient_bridges_in_Quanzhou/32789931
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/The_soil_halfway_through_the_plasticity_building_process/32617230
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Spring_Term_2022/32177523
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Spring_Term_2022/32177523
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/10297880
     source: zenodo
     status: wrong_format
@@ -52,16 +55,15 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
-    source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
-  - url: https://doi.org/10.5281/zenodo.20469943
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://doi.org/10.5281/zenodo.20453648
     source: datacite
     status: unreachable
@@ -93,23 +95,29 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://drs.britishmuseum.org/articles/figure/Pink_is_Next_Here_Shown_on_Simha/32618013
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2024/32177604
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2024/32177604
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/thesis/Investigating_biomarkers_of_fruit_and_vegetable_intake_in_humans/32483940
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_of_Kuma_ri_with_Blue_Green_and_Orange_Colour_Blocking_Completed/32618010
+  - url: https://repository.rcsi.com/articles/journal_contribution/A_motor_learning_based_intervention_for_lower_extremities_MOBILE_to_target_walking_performance_in_ambulant_children_with_cerebral_palsy_a_feasibility_study_version_1_peer_review_2_approved_with_reservations_/32335749
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/A_motor_learning_based_intervention_for_lower_extremities_MOBILE_to_target_walking_performance_in_ambulant_children_with_cerebral_palsy_a_feasibility_study_version_1_peer_review_2_approved_with_reservations_/32335749
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Global_stomach_cancer_burden_from_high-sodium_diet_and_smoking_1990_2021_findings_2040_projections_docx/32789955
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Va_ra_hi_gets_Orange_Colour_Blocking/32618007
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_of_Va_ra_hi_Gets_Green_Colour_Blocking/32618001
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Black_Colour_Blocking_on_Bhairava/32617998
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Global_stomach_cancer_burden_from_high-sodium_diet_and_smoking_1990_2021_findings_2040_projections_docx/32789958
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -121,35 +129,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18961168
+  - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/The_Sanctified_Soil_from_Gatha_maga_Charhe_is_Ready_to_be_Added_to_the_Prepared_Soil/32617140
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20844905
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Glue-Adjusting_Consistency/32617107/1
+  - url: https://zenodo.org/records/18985604
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/The_Soil_Makers_Pound_the_Dry_Chunks/32617074
+  - url: https://zenodo.org/records/20055046
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20843608
+  - url: https://zenodo.org/records/20055046
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20843608
+  - url: https://zenodo.org/records/20844080
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -157,26 +165,35 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_maker_Paints_Fine_Dots_into_Va_ra_hi_s_Eyebrows/32618118
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Antibodies_against_interleukin-10_receptor_reduce_IL-6_and_TNF-_levels_and_increase_TGF_levels_in_patients_with_severe_fever_with_thrombocytopenia_syndrome_virus_and_SARS-CoV-2_infection_docx/32789964
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Precious_m_n_which_is_first_used_at_this_stage_of_creating_initial_details/32618115
+  - url: https://repository.rcsi.com/articles/journal_contribution/A_motor_learning_based_intervention_for_lower_extremities_MOBILE_to_target_walking_performance_in_ambulant_children_with_cerebral_palsy_a_feasibility_study_version_2_peer_review_1_approved_2_approved_with_reservations_/32335755
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/A_motor_learning_based_intervention_for_lower_extremities_MOBILE_to_target_walking_performance_in_ambulant_children_with_cerebral_palsy_a_feasibility_study_version_2_peer_review_1_approved_2_approved_with_reservations_/32335755
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2024/32177604
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2024/32177604
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/thesis/Investigating_biomarkers_of_fruit_and_vegetable_intake_in_humans/32483940
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Masks_with_Initial_Details_and_Patterns_Developing_Stand_in_the_Studio/32618109
+  - url: https://repository.rcsi.com/articles/journal_contribution/A_motor_learning_based_intervention_for_lower_extremities_MOBILE_to_target_walking_performance_in_ambulant_children_with_cerebral_palsy_a_feasibility_study_version_1_peer_review_2_approved_with_reservations_/32335749
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_Maker_Continues_with_Further_Details_on_the_Crown_of_Bhairava/32618106
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_Maker_s_Son_Paints_a_Wavy_Pattern_on_the_Chin_of_Bhairava/32618103
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/A_motor_learning_based_intervention_for_lower_extremities_MOBILE_to_target_walking_performance_in_ambulant_children_with_cerebral_palsy_a_feasibility_study_version_1_peer_review_2_approved_with_reservations_/32335749
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/10238430
     source: zenodo
     status: wrong_format
@@ -209,36 +226,43 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: SC-030
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://drs.britishmuseum.org/articles/figure/Simha_Mouth/32620617
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_systematic_review_of_indirect_treatment_comparisons_among_recently_approved_chimeric_antigen_receptor_T-cell_and_bispecific_antibody_therapies_for_triple-class_exposed_relapsed_refractory_multiple_myeloma/32789967
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Simha_Completed_Mask/32620614
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Antibodies_against_interleukin-10_receptor_reduce_IL-6_and_TNF-_levels_and_increase_TGF_levels_in_patients_with_severe_fever_with_thrombocytopenia_syndrome_virus_and_SARS-CoV-2_infection_docx/32789964
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Bhairava_s_Crown/32620611
+  - url: https://repository.rcsi.com/articles/journal_contribution/A_motor_learning_based_intervention_for_lower_extremities_MOBILE_to_target_walking_performance_in_ambulant_children_with_cerebral_palsy_a_feasibility_study_version_2_peer_review_1_approved_2_approved_with_reservations_/32335755
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Bhairava-_Image_of_Brahma_at_Centre_of_Crown_Ridge/32620608
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/A_motor_learning_based_intervention_for_lower_extremities_MOBILE_to_target_walking_performance_in_ambulant_children_with_cerebral_palsy_a_feasibility_study_version_2_peer_review_1_approved_2_approved_with_reservations_/32335755
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2024/32177604
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Bhairava-_Crown_Ridge/32620602
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2024/32177604
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/thesis/Investigating_biomarkers_of_fruit_and_vegetable_intake_in_humans/32483940
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -256,5 +280,29 @@ datasets:
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10298172
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10332095
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20653280
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20653280
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20653276
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20653276
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
