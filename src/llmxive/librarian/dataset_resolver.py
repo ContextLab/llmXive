@@ -16,6 +16,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import requests  # type: ignore[import-untyped]  # no stub package available
+import urllib3  # bundled with requests; ``r.raw.read`` raises RAW urllib3 errors
 import yaml
 
 from llmxive.librarian import dataset_sources as _sources
@@ -130,7 +131,13 @@ def sniff_format(url: str) -> FormatReport:
             if r.status_code >= 400:
                 return FormatReport(False, None, 0, f"HTTP {r.status_code}")
             sample = r.raw.read(_SAMPLE_BYTES, decode_content=True) or b""
-    except (requests.RequestException, OSError) as exc:
+    # ``r.raw.read`` reads the RAW urllib3 stream, so a read-timeout there raises
+    # a urllib3 error (ReadTimeoutError / ProtocolError) that is NOT a
+    # requests.RequestException NOR an OSError — the live PROJ-492 run-22 crash
+    # (`us.aws.cdn.hf.co Read timed out` while verifying a cited HF dataset took
+    # down the whole pipeline run). Verifying a dataset URL is best-effort: a
+    # transient network failure must yield "couldn't verify", never crash the run.
+    except (requests.RequestException, OSError, urllib3.exceptions.HTTPError) as exc:
         return FormatReport(False, None, 0, str(exc))
     ok, fmt = _detect_and_parse(sample, url)
     return FormatReport(ok, fmt, len(sample), None if ok else "unrecognized/non-dataset content")
