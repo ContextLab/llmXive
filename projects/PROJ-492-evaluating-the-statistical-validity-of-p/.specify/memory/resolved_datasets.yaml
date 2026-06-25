@@ -1,2 +1,260 @@
-resolved_at: '2026-06-25T09:05:10.178647+00:00'
-datasets: []
+resolved_at: '2026-06-25T09:56:40.162732+00:00'
+datasets:
+- intent: FR-030
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_maker_Inspecting_the_Drying_Masks/32617254
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Close_up_of_Loaves_of_Soil/32617248
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Resting_and_Displaying_the_Loaves_of_Soil_in_Various_Stages_of_Preparation/32617245
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/The_initial_god_soil_dyoch_after_it_has_dried_and_ready_for_pulverising/32617233
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/The_soil_halfway_through_the_plasticity_building_process/32617230
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10297880
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10598561
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10274814
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10235525
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10298172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://doi.org/10.5281/zenodo.20469943
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20453648
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://drs.britishmuseum.org/articles/figure/Pink_is_Next_Here_Shown_on_Simha/32618013
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_of_Kuma_ri_with_Blue_Green_and_Orange_Colour_Blocking_Completed/32618010
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Va_ra_hi_gets_Orange_Colour_Blocking/32618007
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_of_Va_ra_hi_Gets_Green_Colour_Blocking/32618001
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Black_Colour_Blocking_on_Bhairava/32617998
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18961168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/The_Sanctified_Soil_from_Gatha_maga_Charhe_is_Ready_to_be_Added_to_the_Prepared_Soil/32617140
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Glue-Adjusting_Consistency/32617107/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/The_Soil_Makers_Pound_the_Dry_Chunks/32617074
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20843608
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20843608
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-031
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_maker_Paints_Fine_Dots_into_Va_ra_hi_s_Eyebrows/32618118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Precious_m_n_which_is_first_used_at_this_stage_of_creating_initial_details/32618115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Masks_with_Initial_Details_and_Patterns_Developing_Stand_in_the_Studio/32618109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_Maker_Continues_with_Further_Details_on_the_Crown_of_Bhairava/32618106
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/The_Mask_Maker_s_Son_Paints_a_Wavy_Pattern_on_the_Chin_of_Bhairava/32618103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10238430
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10598521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10344963
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10217711
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10381038
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-030
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://drs.britishmuseum.org/articles/figure/Simha_Mouth/32620617
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Simha_Completed_Mask/32620614
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Bhairava_s_Crown/32620611
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Bhairava-_Image_of_Brahma_at_Centre_of_Crown_Ridge/32620608
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Bhairava-_Crown_Ridge/32620602
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10598561
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10274814
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10235525
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10298172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,89 +1,42 @@
-# Quickstart: Evaluating the Statistical Validity of Public A/B Test Summaries
+# Quickstart: Auditing Public A/B Test Summaries
+
+This guide walks a new user through a **complete end‑to‑end run** of the audit pipeline on a small sample corpus (30 URLs) using the default GitHub Actions runner.
 
 ## Prerequisites
-- **Docker** (recommended) or a local Python 3.11 environment.  
-- GitHub account with permission to trigger the repository workflow.  
+- GitHub account with permission to run Actions on the repository.
+- A CSV file `input/urls.csv` containing a header `url` and a list of public A/B test summary URLs (at least 30 rows).
 
 ## Step‑by‑Step
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/yourorg/ab-test-audit.git
-cd ab-test-audit
-```
+| Step | Command | Expected Outcome |
+|------|---------|------------------|
+| 1️⃣ Clone the repository | `git clone && cd ab-test-audit` | Repository files appear locally. |
+| 2️⃣ Install dependencies (locally) | `python -m venv.venv && source.venv/bin/activate && pip install -r requirements.txt` | All Python packages installed; versions pinned. |
+| 3️⃣ Prepare a tiny URL list | Create `input/urls.csv` with a set of reachable URLs. Example: <br>`url<br><br>…` | File ready for the pipeline. |
+| 4️⃣ Run the audit locally (optional) | `python -m src.run_audit input/urls.csv output/` | Generates `output/audit_report.json`, `output/summary_report.csv`, `output/bias_report.json`, `output/subgroup_report.json`. |
+| 5️⃣ Trigger CI (recommended) | Push a branch containing `input/urls.csv` and open a PR. The workflow `.github/workflows/audit.yml` runs automatically. | CI logs show the pipeline completing within 30 minutes, exit status 0, and artifacts uploaded as CI artifacts. |
+| 6️⃣ Inspect results | Download `summary_report.csv` from the CI artifacts or open `output/summary_report.csv` locally. | Columns: `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`. |
+| 7️⃣ Verify reproducibility | Re‑run the same command (or re‑trigger CI). The `manifest.json` hash values should be identical. | Confirms reproducibility (Constitution I). |
 
-### 2. Build the Docker Image (optional but ensures reproducibility)
-```bash
-docker build -t ab-audit:latest .
-```
+## Runtime Expectations
+- **Wall‑clock time**: ≤ 30 minutes for 30 URLs on the default runner (≈ 2 vCPU, 2 GB RAM).
+- **Memory usage**: ≤ 1 GB (well under the 2 GB limit).
+- **CPU**: No GPU; all libraries are pure‑CPU.
 
-### 3. Prepare the Input URL List
-Create `input/urls.csv` with a header `url` and one URL per line, e.g.:
+## Troubleshooting
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| `ERR-001` logged, many URLs missing | Network timeouts or dead URLs | Verify URLs are reachable; remove or replace dead links. |
+| Parsing error rate > 5 % | Unexpected HTML structure | Extend `extractor.py` regexes or report to developers. |
+| CI job exceeds multiple hours | Corpus too large (> 5 000 URLs) | Subsample or increase `MAX_URLS` in `config.py`. |
 
-```csv
-url
-https://example.com/blog/2023/ab-test-1
-https://another.com/engineering/ab-test-42
-...
-```
+## Additional Validation Guarantees
+- **Schema Validation**: The CI workflow automatically runs `jsonschema` validation on `output/audit_report.json` (against `audit_record.schema.yaml`) and `output/manifest.json` (against `manifest.schema.yaml`). Any schema violation causes the job to fail, ensuring contract compliance.
+- **Contract Checks**: After each major pipeline stage (extraction, audit, manifest creation) the code invokes `jsonschema.validate` to catch structural issues early.
 
-> **Tip:** The file can be as large as you like; the pipeline will process it in parallel while respecting the 2‑CPU limit of the GitHub Actions runner. The realistic target is up to **[deferred]** URLs to stay within the 6‑hour CI window (see performance notes in `plan.md`).
-
-### 4. Run the Audit Pipeline
-
-#### Using Docker (recommended)
-```bash
-docker run --rm \
-  -v "$(pwd)/input:/app/input" \
-  -v "$(pwd)/output:/app/output" \
-  -v "$(pwd)/data:/app/data" \
-  ab-audit:latest \
-  ./run_audit.sh input/urls.csv output/
-```
-
-#### Using Local Python (if you prefer)
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-./run_audit.sh input/urls.csv output/
-```
-
-The script will:
-1. Download each URL (checksums stored under `data/raw/`).  
-2. Extract required metrics into `data/processed/extracted.csv`.  
-3. Reconstruct p‑values/effect sizes.  
-4. Flag inconsistencies per **FR‑004**.  
-5. Perform the binomial prevalence test (**FR‑005a**) with post‑hoc power assessment.  
-6. Conduct a sensitivity analysis on the FR‑004 thresholds.  
-7. Write `output/audit_report.json` (the **Single Source of Truth** for per‑summary results) and `output/summary_report.csv` (aggregate summary).
-
-### 5. Inspect the Results
-- **Detailed per‑summary audit**: `output/audit_report.json` – each entry follows `audit_record.schema.yaml`.  
-- **Aggregate summary**: `output/summary_report.csv` – columns:  
-  `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `wilson_ci_lower`, `wilson_ci_upper`.  
-
-Open the CSV in any spreadsheet program or view it directly:
-
-```bash
-head output/summary_report.csv
-```
-
-### 6. Verify Compliance (Automated Tests)
-Run the contract‑based test suite to ensure outputs match schemas and success criteria:
-
-```bash
-pytest -q
-```
-
-All tests should pass, confirming:
-- Extraction accuracy ≥ 95 % on the **≥ 100**‑item validation set (`SC‑001`).  
-- Inconsistency‑detection precision ≥ 90 % (`SC‑014`).  
-- Parsing‑error rate ≤ 5 % (`SC‑005`).  
-- CI‑compatible runtime ≤ 6 h (`SC‑008`).  
-
-### 7. CI Execution (Optional)
-The repository includes a GitHub Actions workflow (`.github/workflows/audit.yml`). Push a branch with an updated `input/urls.csv` and the workflow will automatically run the full pipeline, producing the same artifacts under the `artifact/` section of the workflow run.
+For a complete reference of all command‑line options, see `README.md` in the repository root.
 
 ---
+
+
 

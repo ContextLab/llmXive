@@ -1,25 +1,25 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Reproducibility Manifest"
+title: "Run Manifest"
 type: object
 required:
-  - docker_image_sha256
-  - audit_json_md5
-  - dashboard_html_md5
   - generated_at
+  - artifacts
+  - git_commit
+  - random_seed
 properties:
-  docker_image_sha256:
-    type: string
-    pattern: "^[a-fA-F0-9]{64}$"
-    description: "SHA‑256 hash of the Docker image built for the run."
-  audit_json_md5:
-    type: string
-    pattern: "^[a-fA-F0-9]{32}$"
-    description: "MD5 checksum of the generated audit JSON report."
-  dashboard_html_md5:
-    type: string
-    pattern: "^[a-fA-F0-9]{32}$"
-    description: "MD5 checksum of the generated dashboard HTML file."
   generated_at:
     type: string
     format: date-time
-    description: "ISO‑8601 timestamp when the manifest was created."
+    description: "Timestamp when the manifest was created."
+  artifacts:
+    type: object
+    additionalProperties:
+      type: string
+      pattern: "^[a-f0-9]{64}$"
+    description: "Mapping of relative file paths to SHA‑256 hashes."
+  git_commit:
+    type: string
+    description: "Full SHA‑1 of the git commit used for this run."
+  random_seed:
+    type: integer
+    description: "Seed value used for all stochastic operations."

@@ -3,23 +3,41 @@ title: "Audit Record"
 type: object
 required:
   - url
+  - reported_p
+  - reported_effect_size
+  - reported_sample_size_a
+  - reported_sample_size_b
   - reconstructed_p
   - reconstructed_effect_size
   - diff_abs_p
   - diff_abs_effect
   - flag_inconsistent
-  - category
+  - notes
 properties:
   url:
     type: string
     format: uri
     description: "URL of the audited summary."
+  reported_p:
+    type: number
+    description: "Numeric representation of the reported p‑value (bound applied for inequalities)."
+  reported_effect_size:
+    type: number
+    description: "Reported effect size extracted from the summary."
+  reported_sample_size_a:
+    type: integer
+    minimum: 0
+    description: "Sample size for variant A as extracted."
+  reported_sample_size_b:
+    type: integer
+    minimum: 0
+    description: "Sample size for variant B as extracted."
   reconstructed_p:
     type: number
-    description: "Two‑sided p‑value computed from the reconstructed statistical test."
+    description: "P‑value computed from the reconstructed statistical test."
   reconstructed_effect_size:
     type: number
-    description: "Effect size derived from raw counts (absolute difference)."
+    description: "Effect size recomputed from raw numbers."
   diff_abs_p:
     type: number
     description: "Absolute difference between reported and reconstructed p‑values."
@@ -28,11 +46,7 @@ properties:
     description: "Absolute difference between reported and reconstructed effect sizes."
   flag_inconsistent:
     type: boolean
-    description: "True if any inconsistency rule from FR‑004 is triggered."
-  category:
-    type: string
-    enum: ["p_value", "effect_size", "sample_size", "missing_metric", "size_mismatch", "ci_violation", "inequality_p", "none"]
-    description: "Primary reason for inconsistency, or \"none\" if consistent."
+    description: "True if any FR‑004 inconsistency condition is met."
   notes:
     type: string
-    description: "Human‑readable explanation of the flag or any parsing issues."
+    description: "Human‑readable notes, including error codes (e.g., ERR-002)."

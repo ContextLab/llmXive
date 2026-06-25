@@ -1,17 +1,6 @@
-- artifact_hash: ef82736b1d894bb26b85319c7457c2b5bd8173c22df9a5bb66ea677176abef04
+- artifact_hash: a42c7c0c45dfc22900e7e1cfeefc4fb60c457f637fbd30bc0de5560d9652ce46
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/spec.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://example.com/ab-test-1
-  verification_status: mismatch
-  verified_against_url: https://example.com/ab-test-1
-  verified_at: '2026-06-25T09:04:47.627675Z'
-- artifact_hash: ef82736b1d894bb26b85319c7457c2b5bd8173c22df9a5bb66ea677176abef04
-  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/spec.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -19,4 +8,26 @@
   value: https://github.com/yourorg/ab-test-audit.git
   verification_status: mismatch
   verified_against_url: https://github.com/yourorg/ab-test-audit
-  verified_at: '2026-06-25T09:04:47.627675Z'
+  verified_at: '2026-06-25T09:51:13.416070Z'
+- artifact_hash: abe5da21270bf0917c79cc1d87e8f32c9d7cbd63853b7c57bf09ea9cb28450c4
+  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/yourorg/ab-test-audit.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/yourorg/ab-test-audit
+  verified_at: '2026-06-25T10:07:25.525908Z'
+- artifact_hash: abe5da21270bf0917c79cc1d87e8f32c9d7cbd63853b7c57bf09ea9cb28450c4
+  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/ab-test-1
+  verification_status: mismatch
+  verified_against_url: https://example.com/ab-test-1
+  verified_at: '2026-06-25T10:07:25.525908Z'

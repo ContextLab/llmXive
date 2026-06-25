@@ -1,12 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Extracted A/B Summary"
+title: "Extracted AB Summary"
 type: object
 required:
   - url
+  - source_domain
   - variant_a_n
   - variant_b_n
   - effect_size
-  - effect_size_type
   - reported_p
   - outcome_type
 properties:
@@ -14,40 +14,31 @@ properties:
     type: string
     format: uri
     description: "Original URL of the public A/B test summary."
+  source_domain:
+    type: string
+    description: "Domain extracted from the URL (e.g., example.com)."
   variant_a_n:
     type: integer
-    minimum: 1
+    minimum: 0
     description: "Sample size for variant A."
   variant_b_n:
     type: integer
-    minimum: 1
+    minimum: 0
     description: "Sample size for variant B."
   effect_size:
     type: number
-    description: "Reported effect size (absolute difference for binary outcomes, mean difference for continuous)."
-  effect_size_type:
-    type: string
-    enum: ["absolute", "lift_percent"]
-    description: "Units of the reported effect size."
+    description: "Reported effect size (absolute difference or mean difference)."
   reported_p:
     type: string
-    description: "Reported p‑value; may be a numeric string (e.g., \"0.032\") or an inequality (e.g., \"p<0.001\")."
+    description: "Reported p‑value; may be numeric (\"0.043\") or inequality (\"p<0.001\")."
   confidence_interval:
-    type: object
-    required:
-      - lower
-      - upper
-    properties:
-      lower:
-        type: number
-      upper:
-        type: number
-    description: "Optional 95 % confidence interval for the effect size."
+    type: [string, "null"]
+    description: "Optional reported confidence interval."
   outcome_type:
     type: string
     enum: ["binary", "continuous"]
-    description: "Whether the metric is a conversion rate (binary) or a continuous measure."
+    description: "Nature of the outcome metric."
   timestamp:
-    type: string
+    type: [string, "null"]
     format: date-time
-    description: "Optional publication timestamp extracted from the source."
+    description: "Publication timestamp of the summary (optional)."
