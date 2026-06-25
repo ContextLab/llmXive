@@ -138,3 +138,45 @@ GNN ≤50 epochs on a subset; heavy but within 330 min) → if ok → research_c
 (FIRST in_progress crossing). 262's analysis is compute-heavy; if it stalls on
 QM9/GNN, a lighter project is the better goal candidate (the now-unblocked
 pipeline will surface one). Commits this session: ~27.
+
+## UPDATE 2 — the crossing's REAL limit: analysis-code quality, not a platform bug
+
+After #23 (deps) + #24 (DATA-contract ground-truth) + #25 (regression flagging)
++ a fix-round budget RESET, PROJ-262 STILL does not converge execute_and_gate.
+Errors evolve but whack-a-mole across LAYERED cross-file data contracts:
+- train_rf.py: "Processed data must contain a 'dipole' column" (preprocess↔train
+  contract)
+- generate_performance_plots / generate_significance: "Metrics CSV missing
+  columns {model, rmse, mae}" (evaluate↔plots contract)
+- generate_summary: cascade (results/significance.csv absent)
+The implementer fixes one stage's columns and another stage's break resurfaces.
+
+DIAGNOSIS: 262's analysis (GNN + RandomForest + ~10 interdependent scripts) was
+generated task-by-task with INCONSISTENT column/path contracts between stages.
+The bounded auto-fix loop — even with the improved feedback — can't converge a
+deeply-tangled multi-file analysis; it correctly heads toward escalation rather
+than thrashing forever. This is a project CODE-QUALITY limit, NOT a general
+platform bug. 262 is NOT a viable goal candidate.
+
+### The path to the goal from here
+The STRUCTURAL blockers (the reason NO project ever crossed in_progress) are all
+removed + validated: batching (#19), robust push (#22), resilient deps (#23),
+DATA-contract + regression fix-loop feedback (#24, #25). A SIMPLER project (fewer
+analysis stages → fewer cross-file contracts) will converge and cross via the
+now-unblocked natural crons. Candidates: 261 (code-duplication, lighter analysis,
+at 15/55 tasks) or fresh projects flowing brainstorm→...→in_progress.
+
+### NEXT GENERAL LEVER (for a future session) — generation-quality, not a bug
+Complex analyses fail to converge because the implementer writes each stage's
+script with its OWN column/path names, with no enforced SHARED SCHEMA. The
+speckit pipeline already produces data-model.md; the lever is to make the
+implementer (and the execution feedback) treat data-model.md's column/artifact
+schema as the CANONICAL contract every script must adhere to — so intermediate
+CSV columns are consistent producer↔consumer by construction. This is a
+generation-quality effort (planner/implementer prompts + schema enforcement),
+larger than a bug fix; deferred deliberately rather than rushed.
+
+### STOP forcing 262
+Do NOT keep throwing CI runs / fix-loop tweaks at 262 (diminishing returns on a
+code-quality-limited project). Let the population flow; drive/observe a simpler
+project for the first crossing. Commits this session: ~33.
