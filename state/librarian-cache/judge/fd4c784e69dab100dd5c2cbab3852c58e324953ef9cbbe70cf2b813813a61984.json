@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1306.0458",
+  "judged_at": "2026-06-25T09:27:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the relationship between prime gaps and the riemann hypothesis mathematics",
+  "rationale": "The paper investigates properties of the nontrivial zeros of the Riemann zeta function, which is the central mechanism underlying the Riemann Hypothesis; any study of prime gaps in relation to RH would cite work on the nature of zeta zeros (acceptance category (a)).",
+  "relevant": true
+}

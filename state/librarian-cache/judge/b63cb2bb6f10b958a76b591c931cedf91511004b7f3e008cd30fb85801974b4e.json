@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1611.07251",
+  "judged_at": "2026-06-25T09:27:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the relationship between prime gaps and the riemann hypothesis mathematics",
+  "rationale": "The paper studies explicit bounds on prime gaps (primes in short intervals) and derives results assuming the Riemann Hypothesis, directly addressing the link between prime gaps and RH (acceptance category (a): same‑mechanism evidence).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1408.2362",
+  "judged_at": "2026-06-25T09:27:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the relationship between prime gaps and the riemann hypothesis mathematics",
+  "rationale": "The paper focuses on algorithmic computation of the Riemann zeta function’s values and their complexity, without discussing prime gaps or any connection to the Riemann Hypothesis. It does not address the mechanism, variables, or empirical setting of the user’s question, so it is irrelevant to the literature review.",
+  "relevant": false
+}

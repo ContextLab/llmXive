@@ -1,0 +1,630 @@
+{
+  "fetched_at": "2026-06-25T09:27:58Z",
+  "field": "mathematics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "mathematics",
+      "idea_body_excerpt": "Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis",
+      "target_n": 5
+    },
+    "duration_seconds": 109.718,
+    "ended_at": "2026-06-25T09:27:58Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "prime gap distribution and Riemann zeta zeros"
+        ],
+        [
+          2,
+          "connections between prime gaps and nontrivial zeta zeros"
+        ],
+        [
+          3,
+          "impact of the Riemann hypothesis on maximal prime gaps"
+        ],
+        [
+          4,
+          "explicit formulas for prime gaps assuming RH"
+        ],
+        [
+          5,
+          "Cramér conjecture in the context of the Riemann hypothesis"
+        ],
+        [
+          6,
+          "Montgomery pair correlation and prime gap statistics"
+        ],
+        [
+          7,
+          "gaps between consecutive primes under the Riemann hypothesis"
+        ],
+        [
+          8,
+          "zero spacing of ζ(s) and its relation to prime gap behavior"
+        ],
+        [
+          9,
+          "bounds on prime gaps derived from the Riemann hypothesis"
+        ],
+        [
+          10,
+          "Hardy–Littlewood prime k‑tuple conjecture conditional on RH"
+        ],
+        [
+          11,
+          "Selberg’s theorem on prime gaps assuming the Riemann hypothesis"
+        ],
+        [
+          12,
+          "distribution of prime gaps conditional on the Riemann hypothesis"
+        ],
+        [
+          13,
+          "average prime gap asymptotics and the Riemann hypothesis"
+        ],
+        [
+          14,
+          "relationship between the prime‑counting error term and prime gaps"
+        ],
+        [
+          15,
+          "Maier’s matrix method and RH implications for prime gaps"
+        ],
+        [
+          16,
+          "logarithmic density of prime gaps assuming RH"
+        ],
+        [
+          17,
+          "extremal prime gaps and zeros of the Riemann zeta function"
+        ],
+        [
+          18,
+          "explicit error bounds for π(x) and consequent prime‑gap estimates under RH"
+        ],
+        [
+          19,
+          "connections between Landau’s problems and prime gap phenomena"
+        ],
+        [
+          20,
+          "probabilistic models of prime gaps linked to the Riemann hypothesis"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathematics": 0,
+        "prime gap distribution and Riemann zeta zeros": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "prime gap distribution",
+      "Odlyzko zeta zeros dataset",
+      "Montgomery pair correlation zeros",
+      "Cramér conjecture prime gaps",
+      "explicit formula prime counting"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "math/0311029"
+      ]
+    },
+    "per_query_hit_count": {
+      "Cramér conjecture prime gaps": 2,
+      "Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathematics": 3,
+      "Montgomery pair correlation zeros": 3,
+      "Odlyzko zeta zeros dataset": 3,
+      "explicit formula prime counting": 3,
+      "prime gap distribution": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1408.2362",
+          "rationale": "The paper focuses on algorithmic computation of the Riemann zeta function’s values and their complexity, without discussing prime gaps or any connection to the Riemann Hypothesis. It does not address the mechanism, variables, or empirical setting of the user’s question, so it is irrelevant to the literature review.",
+          "title": "FP//LINSPACE computability of Riemann zeta function in Ko-Friedman model"
+        },
+        {
+          "primary_pointer": "1712.05169",
+          "rationale": "The paper studies zeros and functional equations of a quadrilateral zeta function and an analogue of the Riemann hypothesis for that function, but it does not address prime gaps nor the classical Riemann hypothesis; therefore it lacks any direct relevance to the user's question about the relationship between prime gaps and the Riemann hypothesis.",
+          "title": "Zeros and the functional equation of the quadrilateral zeta function"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T09:26:09Z",
+    "term_input": {
+      "normalized": "exploring the relationship between prime gaps and the riemann hypothesis mathematics",
+      "raw": "Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathematics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A strategy for proving (not a proof of, as was the first over-optimistic belief) the Riemann hypothesis is suggested. The vanishing of Riemann Zeta reduces to an orthogonality condition for the eigenfunctions of a non-Hermitian operator D^+ having the zeros of Riemann Zeta as its eigenvalues. The construction of D^+ is inspired by the conviction that Riemann Zeta is associated with a physical system allowing superconformal transformations as its symmetries and second quantization in terms of the representations of superconformal algebra. The eigenfunctions of D^+ are analogous to the so called coherent states and in general not orthogonal to each other. The states orthogonal to a vacuum state (having a negative norm squared) correspond to the zeros of Riemann Zeta. The physical states having a positive norm squared correspond to the zeros of Riemann Zeta at the critical line. Riemann hypothesis follows by reductio ad absurdum from the hypothesis that ordinary superconformal algebra acts as gauge symmetries for all coherent states orthogonal to the vacuum state, including also the non-physical coherent states that might exist off from the critical line.",
+          "claimed_authors": [
+            "Matti Pitkanen"
+          ],
+          "claimed_title": "Riemann hypothesis and super-conformal invariance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "math/0102031"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Riemann hypothesis and super-conformal invariance')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A strategy for proving Riemann hypothesis is suggested. The vanishing of the Rieman Zeta reduces to an orthogonality condition for the eigenfunctions of a non-Hermitian operator $D^+$ having the zeros of Riemann Zeta as its eigenvalues. The construction of $D^+$ is inspired by the conviction that Riemann Zeta is associated with a physical system allowing conformal transformations as its symmetries. The eigenfunctions of $D^+$ are analogous to the so called coherent states and in general not orthogonal to each other. The states orthogonal to a vacuum state (which has a negative norm squared) correspond to the zeros of the Riemann Zeta. The induced metric in the space ${\\cal{V}}$ of states which correspond to the zeros of the Riemann Zeta at the critical line $Re[s]=1/2$ is hermitian and both hermiticity and positive definiteness properties imply Riemann hypothesis. Conformal invariance in the sense of gauge invariance allows only the states belonging to ${\\cal{V}}$. Riemann hypothesis follows also from a restricted form of a dynamical conformal invariance in ${\\cal{V}}$ and one can reduce the proof to a standard analytic argument used in Lie group theory.",
+          "claimed_authors": [
+            "Matti Pitkanen"
+          ],
+          "claimed_title": "A Strategy for Proving Riemann Hypothesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "math/0111262"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='A Strategy for Proving Riemann Hypothesis')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This note presents a result on the maximal prime gap of the form p_(n+1) - p_n <= C(log p_n)^(1+e), where C > 0 is a constant, for any arbitrarily small real number e > 0, and all sufficiently large integer n > n_0. Equivalently, the result shows that any short interval [x, x + y], y => C(log x)^(1+e), contains prime numbers for all sufficiently large real numbers x => x_0 unconditionally. An application demonstrates that a prime p => x > 2 can be determined in deterministic polynomial time O(log(x)^8).",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "Note On The Maximal Primes Gaps",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.2481"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Note On The Maximal Primes Gaps')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove unconditionally that for each $\\ell \\geq 1$, the difference $φ(p-\\ell) - φ(p+\\ell)$ is positive for $50\\%$ of odd primes $p$ and negative for $50\\%$.",
+          "claimed_authors": [
+            "Stephan Ramon Garcia",
+            "Florian Luca"
+          ],
+          "claimed_title": "On the difference in values of the Euler totient function near prime arguments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.00392"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='On the difference in values of the Euler totient function near prime arguments')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Firoozbakht, Nicholoson, and Farhadian conjectures can be phrased in terms of increasingly powerful conjectured bounds on the prime gaps $g_n := p_{n+1}-p_n$. \\[ g_n \\leq p_n \\left(p_n^{1/n} -1 \\right)\\qquad\\qquad\\qquad (n \\geq 1; \\; Firoozbakht). \\] \\[ g_n \\leq p_n \\left((n\\ln n)^{1/n} -1 \\right)\\qquad\\qquad (n>4; \\; Nicholson). \\] \\[ g_n \\leq p_n \\left( \\left(p_n {\\ln n\\over\\ln p_n}\\right)^{1/n} -1 \\right)\\qquad (n>4; \\; Farhadian). \\] While a general proof of any of these conjectures is far out of reach I shall show that all three of these conjectures are unconditionally and explicitly verified for all primes below the location of the 81$^{st}$ maximal prime gap, certainly for all primes $p <2^{64}$. For the Firoozbakht conjecture this is a very minor improvement on currently known results, for the Nicholson and Farhadian conjectures this may be more interesting.",
+          "claimed_authors": [
+            "Matt Visser"
+          ],
+          "claimed_title": "Verifying the Firoozbakht, Nicholson, and Farhadian conjectures up to the 81st maximal prime gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.00499"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Verifying the Firoozbakht, Nicholson, and Farhadian conjectures up to the 81st maximal prime gap')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This note studies the Laurent series of the inverse zeta function $1/ζ(s)$ at any fixed nontrivial zero $ρ$ of the zeta function $ζ(s)$, and its connection to the simplicity of the nontrivial zeros.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "Simple Zeros Of The Zeta Function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.0458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Simple Zeros Of The Zeta Function')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we show that all real zeros of the bilateral Hurwitz zeta function $Z(s,a):=ζ(s,a) + ζ(s,1-a)$ with $1/4 \\le a \\le 1/2$ are on only the non-positive even integers exactly same as in the case of $(2^s-1) ζ(s)$. We also prove that all real zeros of the bilateral periodic zeta function $P(s,a):={\\rm{Li}}_s (e^{2πia}) + {\\rm{Li}}_s (e^{2πi(1-a)})$ with $1/4 \\le a \\le 1/2$ are on only the negative even integers just like $ζ(s)$. Moreover, we show that all real zeros of the quadrilateral zeta function $Q(s,a):=Z(s,a) + P(s,a)$ with $1/4 \\le a \\le 1/2$ are on only the negative even integers. On the other hand, we prove that $Z(s,a)$, $P(s,a)$ and $Q(s,a)$ have at least one real zero in $(0,1)$ when $0<a<1/2$ is sufficiently small. The complex zeros of these zeta functions are also discussed when $1/4 \\le a \\le 1/2$ is rational or transcendental. As a corollary, we show that $Q(s,a)$ with rational $1/4 < a < 1/3$ or $1/3 < a < 1/2$ does not satisfy the analogue of the Riemann hypothesis even though $Q(s,a)$ satisfies the functional equation that appeared in Hamburger's or Hecke's theorem and all real zeros of $Q(s,a)$ are located at only the negative even integers again as in the case of $ζ(s)$.",
+          "claimed_authors": [
+            "Takashi Nakamura"
+          ],
+          "claimed_title": "Zeros and the functional equation of the quadrilateral zeta function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.05169"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Zeros and the functional equation of the quadrilateral zeta function')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe in detail three distinct families of generalized zeta functions built over the (nontrivial) zeros of a rather general arithmetic zeta or L-function, extending the scope of two earlier works that treated the Riemann zeros only. Explicit properties are also displayed more clearly than before. Several tables of formulae cover the simplest concrete cases: L-functions for real primitive Dirichlet characters, and Dedekind zeta functions.",
+          "claimed_authors": [
+            "A. Voros"
+          ],
+          "claimed_title": "Zeta functions over zeros of general zeta and $L$-functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "math/0311029"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Zeta functions over zeros of general zeta and $L$-functions')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We give a survey on the concept of Poissonian pair correlation (PPC) of sequences in the unit interval, on existing and recent results and we state a list of open problems. Moreover, we present and discuss a quite recent multi-dimensional version of PPC.",
+          "claimed_authors": [
+            "Gerhard Larcher",
+            "Wolfgang Stockinger"
+          ],
+          "claimed_title": "On Pair Correlation of Sequences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.09978"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='On Pair Correlation of Sequences')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assuming the Riemann Hypothesis (RH), Montgomery proved a theorem concerning pair correlation of zeros of the Riemann zeta-function. One consequence of this theorem is that, assuming RH, at least $67.9\\%$ of the nontrivial zeros are simple. Here we obtain an unconditional form of Montgomery's theorem and show how to apply it to prove the following result on simple zeros: Assuming all the zeros $ρ=β+iγ$ of the Riemann zeta-function such that $T^{3/8}<γ\\le T$ satisfy $|β-1/2|<1/(2\\log T)$, %lie in the thin box $\\{s=σ+it: |σ-1/2|<1/(2\\log T),\\ T^{3/8}<t\\le T\\}$, then, as $T$ tends to infinity, at least $61.7\\%$ of these zeros are simple. The method of proof neither requires nor provides any information on whether any of these zeros are on or not on the critical line where $β=1/2$. We also obtain the same result under the weaker assumption of a strong zero-density hypothesis.",
+          "claimed_authors": [
+            "Siegfred Alan C. Baluyot",
+            "Daniel Alan Goldston",
+            "Ade Irma Suriajaya",
+            "Caroline L. Turnage-Butterbaugh"
+          ],
+          "claimed_title": "An unconditional Montgomery Theorem for Pair Correlation of Zeros of the Riemann Zeta Function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04799"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='An unconditional Montgomery Theorem for Pair Correlation of Zeros of the Riemann Zeta Function')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study three integrals related to the celebrated pair correlation conjecture of H. L. Montgomery. The first is the integral of Montgomery's function $F(α, T)$ in bounded intervals, the second is an integral introduced by Selberg related to estimating the variance of primes in short intervals, and the last is the second moment of the logarithmic derivative of the Riemann zeta-function near the critical line. The conjectured asymptotic for any of these three integrals is equivalent to Montgomery's pair correlation conjecture. Assuming the Riemann hypothesis, we substantially improve the known upper and lower bounds for these integrals by introducing new connections to certain extremal problems in Fourier analysis. In an appendix, we study the intriguing problem of establishing the sharp form of an embedding between two Hilbert spaces of entire functions naturally connected to Montgomery's pair correlation conjecture.",
+          "claimed_authors": [
+            "Emanuel Carneiro",
+            "Vorrapan Chandee",
+            "Andrés Chirre",
+            "Micah B. Milinovich"
+          ],
+          "claimed_title": "On Montgomery's pair correlation conjecture: a tale of three integrals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.09258"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title=\"On Montgomery's pair correlation conjecture: a tale of three integrals\")",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The article focuses on the problems of prime gaps and zero spacings. Possible solutions of several related problems such as the greatest lower bound, the least upper bound of the zero spacings, and the least upper bound of the prime gaps are considered.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "Note on Prime Gaps and Zero Spacings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0903.0646"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Note on Prime Gaps and Zero Spacings')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article consists of three chapters.In Chapter 1, it is determined by the consecutive odd numbers, and study to the intrinsic properties of a class of matrix sequence. Through the establishment of matrix online number concept, characteristics and the online number column use mathematical induction to prove the some properties of this kind of matrix on the number of online features (Theorem 1). Finally, it is given a trial to prove the Goldbach conjecture (Theorem 6). This is the author in the years to explore prime properties in the process of research and discovery, and believe that this finding is of great significance.In Chapter 2, it is defined the concepts of matrix master characteristic number and the Matrix Master Characteristic Sequence (Definition 1). Firstly, we prove that any even number can be expressed as for the difference of two odd prime numbers at least two groups (Theorem 4). Secondly, we prove that there are infinitely many odd prime numbers separated by four (Theorem 9). Finally, we prove that if there is greater than 1 in the intersection by S(3) and s(2m+3) for any natural number m, so that there are infinitely many odd prime numbers separated by 2m(Theorem11). The results will undoubtedly promote the research for Polignac conjecture.In Chapter 3, mainly as a result of any odd natural number a, the intersection by S(a) and s(a+2) is not empty number set, and there are far more than 1 number in the set, where S(a)={k,If 2k+a be prime as k be natural number},and P is a prime number set, N is natural number set. we prove that there are an infinite number of twin prime, and then solve the problem of the twin primes in number theory.",
+          "claimed_authors": [
+            "Baoshan Zhang"
+          ],
+          "claimed_title": "Matrix Online Characteristic Number and Its applications in Goldbach Conjecture,Polignac Conjecture,the Twin Prime Conjecture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.0795"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Matrix Online Characteristic Number and Its applications in Goldbach Conjecture,Polignac Conjecture,the Twin Prime Conjecture')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The recent technique for estimating lower bounds of the prime counting function $π(x)=#\\{p \\leq x: p\\text{ prime}\\}$ by means of the irrationality measures $μ(ζ(s)) \\geq 2$ of special values of the zeta function claims that $π(x) \\gg \\log \\log x/\\log \\log \\log x$. This note improves the lower bound to $π(x) \\gg \\log x$, and extends the analysis to the irrationality measures $μ(ζ(s)) \\geq 1$ for rational ratios of zeta functions.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "Counting Primes Rationally And Irrationally",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.12979"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Counting Primes Rationally And Irrationally')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Using inequalities of Rosser and Schoenfeld, we prove formulas for pi(n) and the n-th prime that involve only the elementary operations +,-,/ on integers, together with the floor function. Pascal Sebah has pointed out that the formula for pi(n) operates in O(n^(3/2)) time. Similar formulas were proven using Bertrand's Postulate by Stephen Regimbal, An explicit formula for the k-th prime number, Mathematics Magazine, 48 (1975), 230-23",
+          "claimed_authors": [
+            "Sebastian Martin Ruiz",
+            "Jonathan Sondow"
+          ],
+          "claimed_title": "Formulas for pi(n) and the n-th prime",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "math/0210312"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Formulas for pi(n) and the n-th prime')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The details for the construction of an explicit formula for the divisors function d(n) = #{d | n} are formalized in this article. This formula facilitates a unified approach to the investigation of the error terms of the divisor problem and circle problem.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "An Explicit Formula For The Divisor Function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1405.4784"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='An Explicit Formula For The Divisor Function')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The gap between what we can explicitly prove regarding the distribution of primes and what we suspect regarding the distribution of primes is enormous. It is (reasonably) well-known that the Riemann hypothesis is not sufficient to prove Andrica's conjecture: $\\forall n\\geq 1$, is $\\sqrt{p_{n+1}}-\\sqrt{p_n} \\leq 1$? But can one at least get tolerably close? I shall first show that with a logarithmic modification, provided one assumes the Riemann hypothesis, one has \\[ {\\sqrt{p_{n+1}}\\over\\ln p_{n+1}} -{\\sqrt{p_n}\\over\\ln p_n} < {11\\over25}; \\qquad (n\\geq1). \\] Then, by considering more general $m^{th}$ roots, again assuming the Riemann hypothesis, I shall show that \\[ {\\sqrt[m]{p_{n+1}}} -{\\sqrt[m]{p_n}} < {44\\over25 \\,e\\, (m-2)}; \\qquad (n\\geq 3;\\; m >2). \\] In counterpoint, if we limit ourselves to what we can currently prove unconditionally, then the only explicit Andrica-like results seem to be variants on the results below: \\[ \\ln^2 p_{n+1} - \\ln^2 p_n < 9; \\qquad (n\\geq1). \\] \\[ \\ln^3 p_{n+1} - \\ln^3 p_n < 52; \\qquad (n\\geq1). \\] \\[ \\ln^4 p_{n+1} - \\ln^4 p_n < 991; \\qquad (n\\geq1). \\] I shall also slightly update the region on which Andrica's conjecture is unconditionally verified.",
+          "claimed_authors": [
+            "Matt Visser"
+          ],
+          "claimed_title": "Variants on Andrica's conjecture with and without the Riemann hypothesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.02500"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title=\"Variants on Andrica's conjecture with and without the Riemann hypothesis\")",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this article, we will use elementary number theory techniques to investigate a sequence of integers defined by a sifting process called the lucky numbers. Ulam introduced lucky numbers as a sieve-based analogue of prime numbers. We derive an exact formula for the $n$th lucky number, providing a new tool for quantitative analysis. We formulate and prove a version of the Fundamental Theorem of Arithmetic for lucky numbers. This theorem provides an entirely new viewpoint on number theory. Building on the fundamental theorem, we introduce foundational definitions and analogues of arithmetical functions. Additionally, we prove an analogue of Bertrand's postulate for lucky numbers. Finally, we use the formula for the $n$th lucky number to prove a new result on the order of magnitude of the gaps between consecutive lucky numbers. We obtain an asymptotic bound that is much stronger than the best known bound for primes, and therefore obtain the first result that is known for lucky numbers but still conjectured to be true for primes. Together, these results establish a foundation for the arithmetic theory of lucky numbers and contribute to a broader understanding of sieve-generated sequences.",
+          "claimed_authors": [
+            "Marthinus Michael Dreeckmeier"
+          ],
+          "claimed_title": "On the Fundamental Arithmetical Structure and Distribution of Lucky Numbers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.11657"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='On the Fundamental Arithmetical Structure and Distribution of Lucky Numbers')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We survey some past conditional results on the distribution of large differences between consecutive primes and examine how the Hardy-Littlewood prime k-tuples conjecture can be applied to this question.",
+          "claimed_authors": [
+            "Scott Funkhouser",
+            "Daniel A. Goldston",
+            "Andrew H. Ledoan"
+          ],
+          "claimed_title": "Distribution of Large Gaps Between Primes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.07609"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='Distribution of Large Gaps Between Primes')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider the function $G(n)=\\frac{σ(n)}{n\\log\\log n}$ (where $σ(n)=\\sum_{d|n}d$) and set an imposed condition on its argument $n$, the fulfillment of which is sufficient for the existence of a prime $p$, at which $G(np)>G(n)$. This inequality is of interest in connection with the Robin's inequality. The paper also presents the results of numerical experiment conducted with superabundant numbers.",
+          "claimed_authors": [
+            "Aleksandr Morkotun"
+          ],
+          "claimed_title": "On the increase of Grönwall function value at the multiplication of its argument by a prime",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1307.0083"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathema', candidate_title='On the increase of Grönwall function value at the multiplication of its argument by a prime')",
+        "failed_at": "2026-06-25T09:27:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tatenda Kubalalika"
+          ],
+          "title": "On the prime zeta function and the Riemann hypothesis",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1910.02954",
+        "summary": "By considering the prime zeta function, the author intended to demonstrate in that the Riemann zeta function zeta(s) does not vanish for Re(s)>1/2, which would have proven the Riemann hypothesis. However, he later realised that the proof of \"Theorem 3\" is fundamentally flawed. The main tools of our argument are: bounds and oscillation theorems for the prime counting function, classical properties of Dirichlet series and the identity theorem for real-analytic functions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1910.02954",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T09:27:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adrian Dudek"
+          ],
+          "title": "Explicit Estimates in the Theory of Prime Numbers",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1611.07251",
+        "summary": "It is the purpose of this thesis to enunciate and prove a collection of explicit results in the theory of prime numbers.\n  First, the problem of primes in short intervals is considered. We prove that there is a prime between consecutive cubes $n^3$ and $(n+1)^3$ for all $n \\geq \\exp(\\exp(33.3))$. To prove this, we first derive an explicit version of the Riemann--von Mangoldt explicit formula. We then assume the Riemann hypothesis and show that there will be a prime in the interval $(x-4/ π\\sqrt{x} \\log x, x]$ for all $x > 2$. Moreover, we show that the constant $4/π$ can be reduced to $(1+ε)$ for all sufficiently large values of $x$.\n  Using explicit results on primes in arithmetic progressions, we prove two new results in additive number theory. First, we prove that every integer greater than 2 can be written as the sum of a prime and a square-free number. We then work similarly to prove that every integer greater than 10 and not congruent to $1$ modulo $4$ can be written as the sum of the square of a prime and a square-free number.\n  Finally, we provide new explicit results on an arcane inequality of Ramanujan.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1611.07251",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T09:27:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Péter L. Erdős",
+            "Gergely Harcos",
+            "Shubha R. Kharel",
+            "Péter Maga",
+            "Tamás R. Mezei",
+            "Zoltán Toroczkai"
+          ],
+          "title": "The sequence of prime gaps is graphic",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.00580",
+        "summary": "Let us call a simple graph on $n\\geq 2$ vertices a prime gap graph if its vertex degrees are $1$ and the first $n-1$ prime gaps. We show that such a graph exists for every large $n$, and in fact for every $n\\geq 2$ if we assume the Riemann hypothesis. Moreover, an infinite sequence of prime gap graphs can be generated by the so-called degree preserving growth process. This is the first time a naturally occurring infinite sequence of positive integers is identified as graphic. That is, we show the existence of an interesting, and so far unique, infinite combinatorial object.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2205.00580",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T09:27:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "N. A. Carella"
+          ],
+          "title": "Simple Zeros Of The Zeta Function",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1306.0458",
+        "summary": "This note studies the Laurent series of the inverse zeta function $1/ζ(s)$ at any fixed nontrivial zero $ρ$ of the zeta function $ζ(s)$, and its connection to the simplicity of the nontrivial zeros.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1306.0458",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T09:27:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. Voros"
+          ],
+          "title": "Zeta functions over zeros of general zeta and $L$-functions",
+          "venue": "arXiv",
+          "year": 2003
+        },
+        "primary_pointer": "math/0311029",
+        "summary": "We describe in detail three distinct families of generalized zeta functions built over the (nontrivial) zeros of a rather general arithmetic zeta or L-function, extending the scope of two earlier works that treated the Riemann zeros only. Explicit properties are also displayed more clearly than before. Several tables of formulae cover the simplest concrete cases: L-functions for real primitive Dirichlet characters, and Dedekind zeta functions.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/math/0311029",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T09:27:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "exploring the relationship between prime gaps and the riemann hypothesis mathematics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -548,11 +548,7 @@
     "verdict": false
   },
   "PROJ-777-analyzing-the-trade-off-between-prompt-s::1.6.0": {
-    "classified_at": "2026-06-25T09:21:02Z",
-    "verdict": false
-  },
-  "PROJ-779-cross-modal-comparison-of-neural-predict::1.6.0": {
-    "classified_at": "2026-06-25T09:21:56Z",
+    "classified_at": "2026-06-25T09:29:20Z",
     "verdict": false
   }
 }

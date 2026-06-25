@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "math/0311029",
+  "judged_at": "2026-06-25T09:27:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the relationship between prime gaps and the riemann hypothesis mathematics",
+  "rationale": "The paper studies the zeros of the Riemann zeta and related L‑functions, which are the central objects of the Riemann Hypothesis (one of the two variables in the user’s question). Even though it does not address prime gaps, it provides canonical empirical/theoretical work on the RH side of the relationship, satisfying criterion (b).",
+  "relevant": true
+}

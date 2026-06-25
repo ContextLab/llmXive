@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1712.05169",
+  "judged_at": "2026-06-25T09:27:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the relationship between prime gaps and the riemann hypothesis mathematics",
+  "rationale": "The paper studies zeros and functional equations of a quadrilateral zeta function and an analogue of the Riemann hypothesis for that function, but it does not address prime gaps nor the classical Riemann hypothesis; therefore it lacks any direct relevance to the user's question about the relationship between prime gaps and the Riemann hypothesis.",
+  "relevant": false
+}
