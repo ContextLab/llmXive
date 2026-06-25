@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.04767",
+  "judged_at": "2026-06-25T01:33:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material stability using machine learning and dft calculations chemistry",
+  "rationale": "The paper focuses on sensor pixel control, computer‑vision neural networks, and energy‑delay trade‑offs, which are unrelated to material stability prediction, machine‑learning models for chemistry, or DFT calculations. It does not address any of the mechanisms, variables, or domain of the user's question.",
+  "relevant": false
+}

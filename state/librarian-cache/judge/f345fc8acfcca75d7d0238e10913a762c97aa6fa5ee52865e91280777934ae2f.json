@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1706.01619",
+  "judged_at": "2026-06-25T01:33:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material stability using machine learning and dft calculations chemistry",
+  "rationale": "The paper studies nonequilibrium phase transitions in an XY ferromagnet using Monte Carlo simulations, with no focus on material stability, machine‑learning models, or density‑functional theory in chemistry; it is off‑domain and lacks any relevant mechanism, variable, or empirical setting for the user's question.",
+  "relevant": false
+}

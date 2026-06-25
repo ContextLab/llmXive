@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-06-25T01:33:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material stability using machine learning and dft calculations chemistry",
+  "rationale": "The paper surveys learning‑curve models for supervised machine learning decision making and does not address material stability, chemistry, or DFT calculations; it lacks any of the mechanisms, variables, or domain relevance required by criteria (a)–(f). Hence it is not appropriate for the literature review on predicting material stability with ML and DFT.",
+  "relevant": false
+}

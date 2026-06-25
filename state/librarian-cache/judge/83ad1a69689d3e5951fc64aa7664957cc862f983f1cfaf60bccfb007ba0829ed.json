@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1203.2370",
+  "judged_at": "2026-06-25T01:33:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material stability using machine learning and dft calculations chemistry",
+  "rationale": "The paper provides a first‑principles DFT analysis of thermodynamic stability and phase transitions in HgTiO₃, directly measuring material stability (a dependent variable) using DFT in the same chemistry domain (category b). It serves as a canonical DFT baseline that would be cited in a review of ML‑augmented stability predictions.",
+  "relevant": true
+}

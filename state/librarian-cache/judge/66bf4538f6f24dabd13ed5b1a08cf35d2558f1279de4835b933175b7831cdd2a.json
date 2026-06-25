@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.06415",
+  "judged_at": "2026-06-25T01:33:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material stability using machine learning and dft calculations chemistry",
+  "rationale": "The paper introduces a graph‑convolutional neural network for predicting material properties, a core ML methodology relevant to forecasting material stability (e.g., formation energies) and thus matches the same‑mechanism evidence criterion (a) and also serves as a foundational method reference (d) for the user's topic.",
+  "relevant": true
+}

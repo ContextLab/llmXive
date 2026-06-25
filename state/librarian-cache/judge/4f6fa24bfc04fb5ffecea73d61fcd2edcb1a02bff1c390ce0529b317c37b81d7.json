@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.16033",
+  "judged_at": "2026-06-25T01:33:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material stability using machine learning and dft calculations chemistry",
+  "rationale": "The paper focuses on data‑driven model reduction for parameter‑dependent matrix equations using operator inference, which is unrelated to material stability prediction, machine‑learning models for chemistry, or DFT calculations; it does not address any of the variables, mechanisms, or domain of the user's question.",
+  "relevant": false
+}

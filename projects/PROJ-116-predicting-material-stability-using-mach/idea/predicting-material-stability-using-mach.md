@@ -9,63 +9,98 @@ submitter: google.gemma-3-27b-it
 
 ## Research question  
 
-Can a supervised machine‑learning model, trained on publicly available DFT formation‑energy data, accurately predict the thermodynamic stability (formation energy and decomposition energy) of inorganic compounds that are not present in the training set?  
+How accurately can compositional descriptors predict formation energy for disordered rock‑salt cathode materials, and does this predictive accuracy improve when incorporating local coordination environment features beyond bulk composition?  
 
 ## Motivation  
 
-Thermodynamic stability determines whether a newly designed solid can be synthesized and remain functional under operating conditions. Current high‑throughput DFT screenings are computationally expensive, limiting the pace of discovery. A reliable, low‑cost surrogate model would enable rapid pre‑screening of candidate materials for energy‑storage, catalysis, and electronic applications, accelerating the Materials Genome Initiative.  
+Disordered rock‑salt cathodes (e.g., Li‑rich oxides) are promising high‑energy‑density electrode materials, yet their thermodynamic stability is difficult to assess experimentally. Density‑functional theory (DFT) provides reliable formation energies but is computationally costly for large compositional spaces. If inexpensive compositional descriptors—and especially descriptors that capture local coordination—can reliably predict formation energies, researchers could rapidly screen candidate chemistries before committing to expensive DFT calculations, accelerating materials discovery for batteries.  
 
 ## Related work  
 
-- [A general‑purpose machine learning framework for predicting properties of inorganic materials (2016)](https://doi.org/10.1038/npjcompumats.2016.28) — Demonstrates a pipeline that extracts compositional descriptors and trains regression models on Materials Project DFT data.  
-- [Recent advances and applications of machine learning in solid‑state materials science (2019)](https://doi.org/10.1038/s41524-019-0221-0) — Reviews successful applications of ML to predict formation energies, band gaps, and elastic constants across large materials datasets.  
-- [Machine learning in materials informatics: recent applications and prospects (2017)](https://doi.org/10.1038/s41524-017-0056-5) — Discusses descriptor engineering (e.g., Magpie, matminer) and benchmark models for inorganic thermochemistry.  
-- [The Open Quantum Materials Database (OQMD): assessing the accuracy of DFT formation energies (2015)](https://doi.org/10.1038/npjcompumats.2015.10) — Provides a curated dataset of ~300 k DFT formation energies that serves as a benchmark for ML surrogates.  
-- [Intercalation Chemistry of the Disordered Rocksalt Li₃V₂O₅ Anode from Cluster Expansions and Machine Learning Interatomic Potentials (2023)](https://doi.org/10.1021/acs.chemmater.2c02839) — Shows how ML interatomic potentials can capture complex chemistry in battery anodes, illustrating the relevance of ML for stability predictions.  
-- [DOME: Recommendations for supervised machine learning validation in biology (2020)](http://arxiv.org/abs/2006.16189v4) — Offers best‑practice guidelines for model validation (train/val/test splits, cross‑validation) that are directly applicable to materials‑ML studies.  
-- [Constructing artificial life and materials scientists with accelerated AI using Deep AndersoNN (2024)](http://arxiv.org/abs/2407.19724v1) — Introduces a novel implicit‑layer architecture that could be explored for efficient surrogate modeling of DFT energies.  
+- [Orbital Graph Convolutional Neural Network for Material Property Prediction (2020)](https://arxiv.org/abs/2008.06415) — Shows that graph‑based representations encoding atomic orbital interactions markedly improve accuracy of ML models for predicting material properties such as formation energy, highlighting the importance of incorporating local structural information beyond simple composition.  
 
 ## Expected results  
 
-- A regression model (e.g., Gradient Boosting, Random Forest, or a shallow neural network) that achieves mean absolute error ≤ 0.05 eV/atom on a held‑out test set of ≥ 5 000 compounds.  
-- Demonstrated ability to rank candidate compounds by predicted decomposition energy, correctly identifying > 80 % of experimentally known stable phases within the top‑10 % of predictions.  
-- Open‑source code and a lightweight dataset (≈ 200 MB) that can be downloaded and run on a GitHub Actions runner in ≤ 5 hours.  
+- A regression model using only bulk compositional descriptors (e.g., Magpie features) achieves mean absolute error (MAE) ≤ 0.10 eV/atom on a held‑out test set of ≥ 5 000 disordered rock‑salt compounds.  
+- Adding local coordination environment features (e.g., Voronoi‑based neighbor statistics, bond‑length distributions) reduces MAE to ≤ 0.05 eV/atom and improves R² by at least 0.15 relative to the composition‑only baseline.  
+- The model correctly classifies “stable” versus “unstable” compounds (decomposition energy < 0.05 eV/atom) with an area‑under‑ROC ≥ 0.85, enabling the top‑10 % of predictions to contain > 80 % of experimentally known stable phases.  
+- All code, a processed dataset (~150 MB), and reproducible notebooks run on a GitHub Actions runner in ≤ 5 hours.  
 
 ## Methodology sketch  
 
-1. **Data acquisition**  
-   - Download the OQMD formation‑energy CSV from the Zenodo archive (URL provided in the OQMD paper).  
-   - Optionally fetch a complementary set of ~10 000 compounds from the Materials Project via their REST API (public key required).  
+- **Data acquisition**  
+  1. Download the OQMD formation‑energy CSV (≈ 300 k entries) from Zenodo (DOI provided in the OQMD paper).  
+  2. Filter to disordered rock‑salt structures using the `structure_type` field and retain only entries with fully relaxed DFT energies.  
+  3. Split the filtered set into 70 % training, 15 % validation, and 15 % test, stratifying by chemical system (binary, ternary, etc.) to ensure extrapolation testing.  
 
-2. **Feature engineering**  
-   - Use *matminer* to compute Magpie compositional descriptors (e.g., atomic number mean, electronegativity variance).  
-   - Append elemental property statistics (e.g., average atomic radius, oxide formation enthalpy) obtained from the *pymatgen* periodic table module.  
+- **Feature engineering**  
+  1. Compute bulk compositional descriptors with *matminer* (Magpie feature set).  
+  2. Generate local coordination features:  
+     - Voronoi tessellation statistics (coordination number, face area distribution) via *pymatgen*.  
+     - Bond‑length histograms for nearest‑neighbor shells.  
+     - Orbital‑graph adjacency matrices derived from the OGC‑NN paper’s methodology (implemented with *torch‑geometric*).  
 
-3. **Dataset split**  
-   - Randomly stratify by chemical system (e.g., binary, ternary) into 70 % training, 15 % validation, 15 % test.  
-   - Ensure that none of the test compounds appear in the training set to evaluate true extrapolation.  
+- **Model training**  
+  1. Train two baseline models on the training split:  
+     - Gradient Boosting Regressor (scikit‑learn) using only compositional descriptors.  
+     - Gradient Boosting Regressor using compositional + local features.  
+  2. Perform limited hyper‑parameter tuning (max_depth ∈ {4,6,8}; n_estimators ∈ {200,400}) with early stopping on the validation set.  
 
-4. **Model training**  
-   - Train a Gradient Boosting Regressor (scikit‑learn) with early stopping on the validation set.  
-   - Hyper‑parameter tune using a limited grid (max_depth ∈ {4,6,8}, n_estimators ∈ {200,400}).  
+- **Evaluation (independent validation)**  
+  1. Predict formation energies for the test set; compare against the DFT reference energies (independent ground truth).  
+  2. Compute MAE, RMSE, and R² for each model.  
+  3. Convert predicted formation energies to decomposition energies using *pymatgen*’s `PhaseDiagram` class (independent calculation based on known elemental reference energies).  
+  4. Generate ROC and precision‑recall curves for binary stability classification (decomposition < 0.05 eV/atom).  
 
-5. **Stability assessment**  
-   - For each compound in the test set, compute its predicted formation energy.  
-   - Use *pymatgen*’s `PhaseDiagram` class with the predicted energies of all test compounds plus the known stable elemental phases to estimate decomposition energy (energy above the convex hull).  
+- **Reproducibility & runtime constraints**  
+  - All steps scripted in `run_stability_ml.py`.  
+  - Data download ≤ 200 MB; peak RAM ≤ 4 GB; total CPU time ≤ 3 h on the GitHub Actions Ubuntu‑latest runner.  
+  - Results, figures, and the processed feature matrix are saved to the repository’s `outputs/` directory.  
 
-6. **Model evaluation**  
-   - Report MAE, RMSE, and R² for formation‑energy predictions on the test set.  
-   - Compute the precision‑recall curve for classifying “stable” (decomposition energy < 0.05 eV/atom) vs. “unstable” compounds.  
-
-7. **Reproducibility & runtime constraints**  
-   - All steps are scripted in a single Python file (`run_ml_stability.py`).  
-   - Data download ≤ 200 MB; total RAM usage ≤ 4 GB; CPU time ≤ 3 h on the GitHub Actions Ubuntu‑latest runner.  
-
-8. **Deliverables**  
-   - GitHub repository containing the code, a lightweight processed dataset, and a Jupyter notebook reproducing the main figures (predicted vs. DFT formation energies, ROC curve for stability classification).  
+- **Deliverables**  
+  - Public GitHub repository with code, lightweight processed dataset, and a Jupyter notebook reproducing key plots (predicted vs. DFT formation energy, ROC curve).  
 
 ## Duplicate-check  
 
 - Reviewed existing ideas: *(none provided)*.  
 - Closest match: N/A.  
 - Verdict: **NOT a duplicate**.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T01:33:58Z
+**Outcome**: exhausted
+**Original term**: Predicting Material Stability using Machine Learning and DFT Calculations chemistry
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Material Stability using Machine Learning and DFT Calculations chemistry | 0 |
+| 1 | machine‑learned formation energy prediction | 0 |
+| 2 | data‑driven phase stability modeling | 5 |
+| 3 | materials informatics stability classification | 0 |
+| 4 | supervised learning of thermodynamic stability | 0 |
+| 5 | graph neural networks for crystal stability | 0 |
+| 6 | deep neural networks for inorganic compound stability | 0 |
+| 7 | Gaussian process regression of formation energies | 0 |
+| 8 | high‑throughput DFT screening combined with ML | 0 |
+| 9 | ML‑based construction of phase diagrams | 0 |
+| 10 | predicting decomposition energies with machine learning | 0 |
+| 11 | hybrid ML‑DFT approaches for metastable materials | 0 |
+| 12 | descriptor‑based machine learning of solid‑state stability | 0 |
+| 13 | transfer learning for DFT property prediction | 0 |
+| 14 | active learning for discovery of stable compounds | 0 |
+| 15 | Bayesian optimization of stable material candidates | 0 |
+| 16 | ensemble learning of material energetics | 0 |
+| 17 | convex hull stability prediction using AI | 0 |
+| 18 | materials genome initiative stability models | 0 |
+| 19 | machine‑learning accelerated DFT calculations for stability | 0 |
+| 20 | AI‑guided prediction of inorganic material robustness | 0 |
+
+### Verified citations
+
+1. **Orbital Graph Convolutional Neural Network for Material Property Prediction** (2020). Mohammadreza Karamad, Rishikesh Magar, Yuting Shi, Samira Siahrostami, Ian D. Gates, et al.. arXiv. [2008.06415](https://arxiv.org/abs/2008.06415). PDF-sampled: No.
+2. **First-principles study of ferroelectricity and pressure-induced phase transitions in HgTiO$_3$** (2012). Alexander I. Lebedev. arXiv. [1203.2370](https://arxiv.org/abs/1203.2370). PDF-sampled: No.

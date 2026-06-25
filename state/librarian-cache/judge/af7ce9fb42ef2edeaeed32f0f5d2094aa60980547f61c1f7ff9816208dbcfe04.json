@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2204.01150",
+  "judged_at": "2026-06-25T01:33:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material stability using machine learning and dft calculations chemistry",
+  "rationale": "The paper focuses on theoretical guarantees for a data‑driven nonlinear predictive control scheme in control systems engineering, which bears no relevance to predicting material stability, machine learning models for materials, or DFT calculations in chemistry. It is off‑domain and does not address any of the variables or mechanisms of the user's question.",
+  "relevant": false
+}
