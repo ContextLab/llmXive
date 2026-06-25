@@ -45,9 +45,14 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
 - Each reviewable stage runs an identify → revise → re-review convergence
   cycle with its LLM panel; advancement requires **unanimous panel
   acceptance** within the 3-round per-step cap, else adaptive kickback to the
-  prior stage (spec 015 / Constitution VI). There is NO accumulated point
-  system; do not re-introduce one. Human and simulated-personality reviews
-  are advisory inputs routed through stage-aware triage.
+  prior stage (spec 015 / Constitution VI). The bar is **two-tier**
+  (Constitution 1.2.0): review stages (`research_review`/`paper_review`)
+  require zero open concerns, while doc-authoring stages
+  (`specified`/`planned`/`tasked`) may advance on writing-level-only residue
+  (a `requirement`-or-worse concern always kicks back — the science gate is
+  never relaxed). There is NO accumulated point system; do not re-introduce
+  one. Human and simulated-personality reviews are advisory inputs routed
+  through stage-aware triage.
 - Review records are written under `projects/<id>/reviews/` (research) and
   `projects/<id>/paper/reviews/` (paper) as
   `<reviewer_name>__<YYYY-MM-DD>__<stage>.md` with YAML frontmatter validated

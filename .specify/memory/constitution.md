@@ -1,11 +1,18 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (uninitialized template) → 1.0.0 → 1.1.0
+Version change: (uninitialized template) → 1.0.0 → 1.1.0 → 1.2.0
 Rationale: 1.0.0 = initial ratification (MAJOR bump from template-only state).
 1.1.0 (2026-05-27, spec 015 / issue #239) = MINOR — added Principle VI
 (Convergent Review, NON-NEGOTIABLE) and replaced the point-based "Review
 thresholds" quality gate with unanimous-panel convergence + advisory triage.
+1.2.0 (2026-06-25, spec 023) = MINOR — codified the TWO-TIER acceptance bar
+already implemented in convergence/engine.py: review stages
+(research_review/paper_review) keep STRICT unanimous acceptance, while
+doc-authoring stages (spec/plan/tasks) advance on writing-level-only residue so
+prose-polish nits cannot escalate a sound project (the PROJ-552 doc-panel
+cap-exhaustion). The scientific-quality gate is unchanged — this only documents
+the existing, science-preserving relief valve so the constitution matches code.
 
 Modified principles:
   - [PRINCIPLE_1_NAME] → I. Single Source of Truth (NON-NEGOTIABLE)
@@ -183,6 +190,21 @@ A step's gate is **unanimous acceptance by its LLM review panel** within a
 appropriate prior stage carrying full provenance (the unresolved concerns +
 links to all artifacts/reviews + a plain-language "why it failed to converge").
 
+**Two-tier acceptance bar** (spec 023): the **REVIEW** stages — `research_review`
+and `paper_review`, which gate scientific quality — require STRICT unanimous
+acceptance: zero open concerns of any severity. The **DOC-AUTHORING** stages —
+`specified`/`planned`/`tasked` (spec, plan, tasks) — advance on unanimous
+acceptance OR when the ONLY residue is writing-level (`trivial`/`code`/`writing`
+severity — prose/formatting polish); a `requirement`-or-worse concern
+(`requirement`/`methodology`/`science`/`fatal`) ALWAYS kicks back. This keeps the
+scientific-quality gate absolutely strict while preventing pure-polish
+oscillation from burning the kickback cap and escalating an otherwise-sound
+project on prose nits (the PROJ-552 doc-panel cap-exhaustion). Honest reporting
+still holds: any residual writing-level concern is recorded and carried forward
+as advisory — never erased — and the downstream panel + the implementer still
+catch anything substantive. The science bar is never lowered; only intermediate
+doc-polish is permitted to advance.
+
 There is NO accumulated point system: a panel either unanimously accepts, or
 the work is revised and re-reviewed (kickbacks allowed, with no global cap —
 each cycle is expected to improve the artifact until it converges). Human and
@@ -252,10 +274,12 @@ released:
 - **Convergence gate (review model)**: Status advancement (Backlog → Ready →
   In Progress → Done) is governed by the convergence protocol (Principle VI),
   NOT a point system. A reviewable step advances iff its LLM review panel
-  unanimously accepts within the 3-round per-step cap; otherwise the project is
-  kicked back with full provenance. Human and simulated-personality reviews are
-  advisory inputs via stage-aware triage, never points. (Supersedes the prior
-  0.5/1.0-point thresholds — spec 015 / #239.)
+  unanimously accepts within the 3-round per-step cap — under the two-tier bar:
+  review stages (research_review/paper_review) require zero open concerns, while
+  doc-authoring stages (spec/plan/tasks) may advance on writing-level-only
+  residue. Otherwise the project is kicked back with full provenance. Human and
+  simulated-personality reviews are advisory inputs via stage-aware triage, never
+  points. (Supersedes the prior 0.5/1.0-point thresholds — spec 015 / #239.)
 
 ## Governance
 
@@ -293,4 +317,4 @@ reasons. Unjustified violations block merge.
 here, contributors should consult the project `README.md` and the
 repository-level `CLAUDE.md`.
 
-**Version**: 1.1.0 | **Ratified**: 2026-04-28 | **Last Amended**: 2026-05-27
+**Version**: 1.2.0 | **Ratified**: 2026-04-28 | **Last Amended**: 2026-06-25
