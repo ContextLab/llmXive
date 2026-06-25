@@ -139,6 +139,34 @@ commentary.
   anchors, renames requirements, and reintroduces already-fixed defects, so the
   concern count oscillates instead of falling to zero. A near-clean spec must
   come back nearly identical plus the few concrete fixes — never reworded.
+- **Comply with the project constitution — it GOVERNS the spec.** The project's
+  constitution (shown in your context) states non-negotiable principles, and
+  some encode a concrete methodological mandate. Before returning, verify EVERY
+  FR/SC complies. If a requirement is LOOSER than or conflicts with a
+  constitutional mandate, REVISE the requirement so it satisfies the constitution
+  — the constitution wins. Worked example (the live PROJ-492 loop): the
+  constitution says "any discrepancy greater than an absolute 0.05 MUST be
+  flagged", but FR-004's tolerance `max(0.01, 0.2 × reconstructed_p)` permits
+  discrepancies above 0.05 for large p (p=0.8 → 0.16 allowed). Tighten FR-004 so
+  it ALSO flags any absolute discrepancy > 0.05 (e.g. flag when the difference
+  exceeds `min(0.05, max(0.01, 0.2 × reconstructed_p))`, or state the absolute
+  0.05 bound explicitly). A constitution-violating requirement is re-flagged by
+  every downstream panel forever — reconciling it is mandatory, not scope creep.
+- **Translate DOWNSTREAM kickback feedback into spec requirements.** The
+  "Unresolved panel concerns" block may carry feedback from a LATER stage (the
+  plan/methodology panel) about something MISSING downstream — "the plan provides
+  no power/sample-size justification", "no validation of extraction-selector
+  coverage", "no adjustment for source clustering/confounding". You edit
+  `spec.md`, not the plan, so you cannot fix the plan directly — but you CAN and
+  MUST add the corresponding REQUIREMENT here so the re-planned plan delivers it:
+  add an FR or SC that REQUIRES the missing capability (e.g. "SC-0NN: report a
+  power / margin-of-error analysis for the prevalence estimate", "FR-0NN:
+  validate extraction-selector coverage against a labelled sample", "FR-0NN:
+  adjust the inconsistency-rate test for source clustering"). Anchor each new
+  FR/SC to a User Story `(See US-N)` and keep its targets concrete. This is
+  reviewer-requested rigor (see "add what they demand"), the ONLY way the
+  downstream concern ever clears — ignoring it loops the project to the kickback
+  cap.
 - NEVER invent factual claims that primary sources do not support
   (Constitution Principle II) — but methodological defaults are not
   factual claims, they're agreed-upon practice.
