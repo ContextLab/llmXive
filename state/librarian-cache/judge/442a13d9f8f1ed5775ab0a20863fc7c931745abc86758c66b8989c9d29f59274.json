@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1704.07635",
+  "judged_at": "2026-06-25T14:40:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of network centrality on neural synchrony in resting-state fmri neuroscience",
+  "rationale": "This paper qualifies under criterion (e) as it studies the same empirical population (resting-state fMRI) that the user's question refers to, and under criterion (b) as it measures network connectivity/functional relationships in the same domain, which is directly related to neural synchrony. While it doesn't address network centrality specifically, it provides foundational methodological context for fMRI network analysis that would be expected in a literature review on this topic.",
+  "relevant": true
+}

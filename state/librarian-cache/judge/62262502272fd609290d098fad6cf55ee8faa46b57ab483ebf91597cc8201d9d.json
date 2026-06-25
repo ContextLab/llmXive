@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1202.4751",
+  "judged_at": "2026-06-25T14:41:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of network centrality on neural synchrony in resting-state fmri neuroscience",
+  "rationale": "This paper satisfies criterion (b) as it measures functional connectivity (a proxy for neural synchrony) in resting-state fMRI, which is the user's dependent variable domain, even though it does not address network centrality. For a literature review, establishing the measurement of neural synchrony/functional connectivity in the resting-state fMRI domain provides relevant background on the dependent variable being studied.",
+  "relevant": true
+}

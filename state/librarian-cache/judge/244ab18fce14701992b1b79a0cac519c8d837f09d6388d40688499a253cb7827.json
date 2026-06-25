@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.5840",
+  "judged_at": "2026-06-25T14:42:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of network centrality on neural synchrony in resting-state fmri neuroscience",
+  "rationale": "The paper is off-domain regarding the specified imaging modality (fNIRS instead of Resting-State fMRI) and measures a distinct construct (clinical group differences in connectivity) rather than the user's independent variable (Network Centrality).",
+  "relevant": false
+}

@@ -1,0 +1,533 @@
+{
+  "fetched_at": "2026-06-25T14:43:01Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI",
+      "target_n": 5
+    },
+    "duration_seconds": 337.893,
+    "ended_at": "2026-06-25T14:43:01Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "functional connectivity and graph theory metrics"
+        ],
+        [
+          2,
+          "resting-state network hub identification"
+        ],
+        [
+          3,
+          "graph theoretical analysis of rs-fMRI"
+        ],
+        [
+          4,
+          "nodal centrality in functional brain networks"
+        ],
+        [
+          5,
+          "betweenness centrality functional connectivity"
+        ],
+        [
+          6,
+          "degree centrality resting-state networks"
+        ],
+        [
+          7,
+          "intrinsic connectivity networks topology"
+        ],
+        [
+          8,
+          "brain network hubs and functional coupling"
+        ],
+        [
+          9,
+          "BOLD signal correlation network metrics"
+        ],
+        [
+          10,
+          "functional connectivity strength and node centrality"
+        ],
+        [
+          11,
+          "default mode network centrality analysis"
+        ],
+        [
+          12,
+          "network neuroscience resting-state fMRI"
+        ],
+        [
+          13,
+          "spontaneous brain activity topological properties"
+        ],
+        [
+          14,
+          "functional brain network architecture"
+        ],
+        [
+          15,
+          "nodal efficiency and functional coupling"
+        ],
+        [
+          16,
+          "connectome centrality measures"
+        ],
+        [
+          17,
+          "large-scale brain network topology"
+        ],
+        [
+          18,
+          "resting-state functional connectivity hubs"
+        ],
+        [
+          19,
+          "graph metrics of functional connectivity"
+        ],
+        [
+          20,
+          "topological organization of rs-fMRI networks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuroscience": 0,
+        "functional connectivity and graph theory metrics": 2
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "graph metrics neural synchronization BOLD signal",
+      "HCP resting state fMRI dataset",
+      "rich club hub regions network topology",
+      "temporal correlation functional connectivity matrix",
+      "integration segregation brain network dynamics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1208.0924"
+      ]
+    },
+    "per_query_hit_count": {
+      "HCP resting state fMRI dataset": 2,
+      "The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuroscience": 3,
+      "graph metrics neural synchronization BOLD signal": 3,
+      "integration segregation brain network dynamics": 3,
+      "rich club hub regions network topology": 3,
+      "temporal correlation functional connectivity matrix": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1309.5840",
+          "rationale": "The paper is off-domain regarding the specified imaging modality (fNIRS instead of Resting-State fMRI) and measures a distinct construct (clinical group differences in connectivity) rather than the user's independent variable (Network Centrality).",
+          "title": "Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies"
+        },
+        {
+          "primary_pointer": "hep-th/9707234",
+          "rationale": "This paper is off-domain entirely, as it addresses theoretical quantum field theory rather than neuroscience, fMRI, or neural network analysis. It does not measure network centrality, neural synchrony, or any variables relevant to the user's research question.",
+          "title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It"
+        },
+        {
+          "primary_pointer": "1903.10570",
+          "rationale": "This paper is theoretical mathematics about random graph limit theorems and clique counts, not applied network neuroscience. It does not measure network centrality, neural synchrony, or fMRI data, and is not a foundational reference for centrality measures in brain networks—this falls under the rejection rule for distinct constructs sharing only homonym keywords (\"graph\" in pure math vs. \"network\" in neuroscience).",
+          "title": "A limit theorem for small cliques in inhomogeneous random graphs"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T14:37:24Z",
+    "term_input": {
+      "normalized": "the impact of network centrality on neural synchrony in resting-state fmri neuroscience",
+      "raw": "The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-25T14:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose an interpretable denoising method for graph signals using regularization by denoising (RED). RED is a technique developed for image restoration that uses an efficient (and sometimes black-box) denoiser in the regularization term of the optimization problem. By using RED, optimization problems can be designed with the explicit use of the denoiser, and the gradient of the regularization term can be easily computed under mild conditions. We adapt RED for denoising of graph signals beyond image processing. We show that many graph signal denoisers, including graph neural networks, theoretically or practically satisfy the conditions for RED. We also study the effectiveness of RED from a graph filter perspective. Furthermore, we propose supervised and unsupervised parameter estimation methods based on deep algorithm unrolling. These methods aim to enhance the algorithm applicability, particularly in the unsupervised setting. Denoising experiments for synthetic and real-world datasets show that our proposed method improves signal denoising accuracy in mean squared error compared to existing graph signal denoising methods.",
+          "claimed_authors": [
+            "Hayate Kojima",
+            "Hiroshi Higashi",
+            "Yuichi Tanaka"
+          ],
+          "claimed_title": "Graph Signal Denoising Using Regularization by Denoising and Its Parameter Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.14213"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Graph Signal Denoising Using Regularization by Denoising and Its Parameter Estimation')",
+        "failed_at": "2026-06-25T14:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a graph-signal generalisation of Sample Entropy, denoted SampEn$_{G}$, to quantify irregularity of graph signals on a continuous state space, complementing existing methods on symbolic dynamics. Our approach replaces the temporal delay embedding of classical SampEn with a multi-hop graph-based embedding: for each node, we aggregate patterns from local walk-weighted neighbourhood averages computed via powers of the graph shift operator. We show empirically that SampEn$_{G}$ reduces to classical 1D SampEn on directed path graphs, and validate its nonlinear sensitivity using the logistic map. Experiments on directed Erdős--Rényi graph signals further characterise its behaviour with connectivity and pattern length $m$, with practical runtimes on the order of thousands of nodes. We expect SampEn$_{G}$ to open up new ways to analyse graph signals, generalising SampEn and the concept of conditional entropy to extending nonlinear analysis to a wide variety of network data.",
+          "claimed_authors": [
+            "Mei-San Maggie Lei",
+            "John Stewart Fabila Carrasco",
+            "Javier Escudero"
+          ],
+          "claimed_title": "Sample entropy for graph signals: An approach to nonlinear analysis of graph signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.20655"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Sample entropy for graph signals: An approach to nonlinear analysis of graph signals')",
+        "failed_at": "2026-06-25T14:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper provides an overview of the current landscape of signal processing (SP) on directed graphs (digraphs). Directionality is inherent to many real-world (information, transportation, biological) networks and it should play an integral role in processing and learning from network data. We thus lay out a comprehensive review of recent advances in SP on digraphs, offering insights through comparisons with results available for undirected graphs, discussing emerging directions, establishing links with related areas in machine learning and causal inference in statistics, as well as illustrating their practical relevance to timely applications. To this end, we begin by surveying (orthonormal) signal representations and their graph frequency interpretations based on novel measures of signal variation for digraphs. We then move on to filtering, a central component in deriving a comprehensive theory of SP on digraphs. Indeed, through the lens of filter-based generative signal models, we explore a unified framework to study inverse problems (e.g., sampling and deconvolution on networks), statistical analysis of random signals, and topology inference of digraphs from nodal observations.",
+          "claimed_authors": [
+            "Antonio G. Marques",
+            "Santiago Segarra",
+            "Gonzalo Mateos"
+          ],
+          "claimed_title": "Signal Processing on Directed Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.00586"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Signal Processing on Directed Graphs')",
+        "failed_at": "2026-06-25T14:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-25T14:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-06-25T14:39:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We attempt to identify the different node hubs of a road network using PageRank for preparation for possible random terrorist attacks. The robustness of a road network against such attack is crucial to be studied because it may cripple its connectivity by simply shutting down these hubs. We show the important hubs in a road network based on network structure and propose a model for robustness analysis. By identifying important hubs in a road network, possible preparation schemes may be done earlier to mitigate random terrorist attacks, including defense reinforcement and transportation security. A case study of the Metro Manila road network is also presented. The case study shows that the most important hubs in the Metro Manila road network are near airports, piers, major highways and expressways",
+          "claimed_authors": [
+            "Jacob Chan",
+            "Kardi Teknomo"
+          ],
+          "claimed_title": "Hub Identification of the Metro Manila Road Network Using PageRank",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.01464"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Hub Identification of the Metro Manila Road Network Using PageRank')",
+        "failed_at": "2026-06-25T14:39:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spatial networks are widely used in various fields to represent and analyze interactions or relationships between locations or spatially distributed entities.There is a network science concept known as the 'rich club' phenomenon, which describes the tendency of 'rich' nodes to form densely interconnected sub-networks. Although there are established methods to quantify topological, weighted, and temporal rich clubs individually, there is limited research on measuring the rich club effect in spatially-weighted temporal networks, which could be particularly useful for studying dynamic spatial interaction networks. To address this gap, we introduce the spatially-weighted temporal rich club (WTRC), a metric that quantifies the strength and consistency of connections between rich nodes in a spatiotemporal network. Additionally, we present a unified rich club framework that distinguishes the WTRC effect from other rich club effects, providing a way to measure topological, weighted, and temporal rich club effects together. Through two case studies of human mobility networks at different spatial scales, we demonstrate how the WTRC is able to identify significant weighted temporal rich club effects, whereas the unweighted equivalent in the same network either fails to detect a rich club effect or inaccurately estimates its significance. In each case study, we explore the spatial layout and temporal variations revealed by the WTRC analysis, showcasing its particular value in studying spatiotemporal interaction networks. This research offers new insights into the study of spatiotemporal networks, with critical implications for applications such as transportation, redistricting, and epidemiology.",
+          "claimed_authors": [
+            "Jacob Kruse",
+            "Song Gao",
+            "Yuhan Ji",
+            "Keith Levin",
+            "Qunying Huang",
+            "Kenneth R. Mayer"
+          ],
+          "claimed_title": "Identifying rich clubs in spatiotemporal interaction networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.05636"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Identifying rich clubs in spatiotemporal interaction networks')",
+        "failed_at": "2026-06-25T14:39:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has been shown that, if a model displays long-range (power-law) spatial correlations, its equal-time correlation matrix of this model will also have a power law tail in the distribution of its high-lying eigenvalues. The purpose of this letter is to show that the converse is generally incorrect: a power-law tail in the high-lying eigenvalues of the correlation matrix may exist even in the absence of equal-time power law correlations in the original model. We may therefore view the study of the eigenvalue distribution of the correlation matrix as a more powerful tool than the study of correlations, one which may in fact uncover structure, that would otherwise not be apparent. Specifically, we show that in the Totally Asymmetric Simple Exclusion Process, whereas there are no clearly visible correlations in the steady state, the eigenvalues of its correlation matrix exhibit a rich structure which we describe in detail.",
+          "claimed_authors": [
+            "Soham Biswas",
+            "Francois Leyvraz",
+            "Paulino Monroy Castillero",
+            "Thomas H Seligman"
+          ],
+          "claimed_title": "Correlation Matrix Spectra: A Tool for Detecting Non-apparent Correlations?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.08577"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Correlation Matrix Spectra: A Tool for Detecting Non-apparent Correlations?')",
+        "failed_at": "2026-06-25T14:39:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A spherical target irradiated by laser beams located at 49o and 131o with respect to the polar axis has been considered. The illumination model has been used to evaluate the irradiation non-uniformity assuming circular and elliptical super-gaussian laser intensity profiles and the irradiation scheme has been optimized by means of the Polar Direct Drive technique. A parametric study has been performed providing the irradiation non-uniformity as a function of the Polar Direct Drive displacement and of the laser intensity profile parameters. Moreover, two-dimensional axis-symmetric hydrodynamic simulations have been performed for a plastic sphere irradiated by laser beams characterized by a constant flat temporal power pulse. In these simulations the front of the inward shock wave has been tracked providing the time-evolution of any non-uniformity. The results provided by the two methods - illumination model and hydrodynamic data - have been compared and it is found that the illumination model reproduces the main behaviour exhibited by the hydrodynamic data. The two models provide compatible values for the optimum Polar Direct Drive parameter and similar optimal super-gaussian profiles.",
+          "claimed_authors": [
+            "M. Temporal",
+            "B. Canaud",
+            "W. J. Garbett",
+            "R. Ramis"
+          ],
+          "claimed_title": "Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.7762"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target')",
+        "failed_at": "2026-06-25T14:39:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessing centrality in network systems is critical for understanding node importance and guiding decision-making processes. In dynamic networks, incorporating a controllability perspective is essential for identifying key nodes. In this paper, we study two control theoretic centrality measures -- the Volumetric Controllability Score (VCS) and Average Energy Controllability Score (AECS) -- to quantify node importance in linear time-invariant network systems. We prove the uniqueness of VCS and AECS for almost all specified terminal times, thereby enhancing their applicability beyond previously recognized cases. This ensures their interpretability, comparability, and reproducibility. Our analysis reveals substantial differences between VCS and AECS in linear systems with symmetric and skew-symmetric transition matrices. We also investigate the dependence of VCS and AECS on the terminal time and prove that when this parameter is extremely small, both scores become essentially uniform. Additionally, we prove that a sequence generated by a projected gradient method for computing VCS and AECS converges linearly to both measures under several assumptions. Finally, evaluations on brain networks modeled via Laplacian dynamics using real data reveal contrasting evaluation tendencies and correlations for VCS and AECS, with AECS favoring brain regions associated with cognitive and motor functions, while VCS emphasizes sensory and emotional regions.",
+          "claimed_authors": [
+            "Kazuhiro Sato",
+            "Ryohei Kawamura"
+          ],
+          "claimed_title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.03023"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks')",
+        "failed_at": "2026-06-25T14:39:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The characterisation of CMB polarisation is one of the next challenge in observationnal cosmology. This is especially true for the so-called B-modes that are at least 3 order of magnitude lower than CMB temperature fluctuations. A precise measurement of the angular power spectrum of these B-modes will give important constraints on inflation parameters. In this talk, I will describe two complementary experiments, BRAIN and CLOVER, dedicated to CMB polarisation measurement. These experiments are proposed to be installed in Dome-C, Antarctica, to take advantage of the extreme dryness of the atmosphere and to allow long integration time.",
+          "claimed_authors": [
+            "M. Piat",
+            "C. Rosset",
+            "the BRAIN",
+            "CLOVER Collaboration"
+          ],
+          "claimed_title": "Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0412590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments')",
+        "failed_at": "2026-06-25T14:39:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "3D medical image processing with deep learning greatly suffers from a lack of data. Thus, studies carried out in this field are limited compared to works related to 2D natural image analysis, where very large datasets exist. As a result, powerful and efficient 2D convolutional neural networks have been developed and trained. In this paper, we investigate a way to transfer the performance of a two-dimensional classiffication network for the purpose of three-dimensional semantic segmentation of brain tumors. We propose an asymmetric U-Net network by incorporating the EfficientNet model as part of the encoding branch. As the input data is in 3D, the first layers of the encoder are devoted to the reduction of the third dimension in order to fit the input of the EfficientNet network. Experimental results on validation and test data from the BraTS 2020 challenge demonstrate that the proposed method achieve promising performance.",
+          "claimed_authors": [
+            "Hicham Messaoudi",
+            "Ahror Belaid",
+            "Mohamed Lamine Allaoui",
+            "Ahcene Zetout",
+            "Mohand Said Allili",
+            "Souhil Tliba",
+            "Douraied Ben Salem",
+            "Pierre-Henri Conze"
+          ],
+          "claimed_title": "Efficient embedding network for 3D brain tumor segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.11052"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Network Centrality on Neural Synchrony in Resting-State fMRI neuro', candidate_title='Efficient embedding network for 3D brain tumor segmentation')",
+        "failed_at": "2026-06-25T14:39:18Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.0924",
+        "summary": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+        "summary_grounded_pdf": true,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.0924",
+          "http_status": 200,
+          "pdf_sample_score": 0.5018,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T14:39:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Onerva Korhonen",
+            "Heini Saarimäki",
+            "Enrico Glerean",
+            "Mikko Sams",
+            "Jari Saramäki"
+          ],
+          "title": "Consistency of Regions of Interest as nodes of functional brain networks measured by fMRI",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1704.07635",
+        "summary": "The functional network approach, where fMRI BOLD time series are mapped to networks depicting functional relationships between brain areas, has opened new insights into the function of the human brain. In this approach, the choice of network nodes is of crucial importance. One option is to consider fMRI voxels as nodes. This results in a large number of nodes, making network analysis and interpretation of results challenging. A common alternative is to use pre-defined clusters of anatomically close voxels, Regions of Interest (ROIs). This approach assumes that voxels within ROIs are functionally similar. Because these two approaches result in different network structures, it is crucial to understand what happens to network connectivity when moving from the voxel level to the ROI level. We show that the consistency of ROIs, defined as the mean Pearson correlation coefficient between the time series of their voxels, varies widely in resting-state experimental data. Therefore the assumption of similar voxel dynamics within each ROI does not generally hold. Further, the time series of low-consistency ROIs may be highly correlated, resulting in spurious links in ROI-level networks. Based on these results, we recommend that averaging BOLD signals over anatomically defined ROIs should be carefully considered.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1704.07635",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T14:39:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1202.4751",
+        "summary": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1202.4751",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T14:39:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of network centrality on neural synchrony in resting-state fmri neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

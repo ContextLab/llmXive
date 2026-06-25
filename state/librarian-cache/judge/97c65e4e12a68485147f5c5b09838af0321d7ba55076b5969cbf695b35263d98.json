@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1903.10570",
+  "judged_at": "2026-06-25T14:43:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of network centrality on neural synchrony in resting-state fmri neuroscience",
+  "rationale": "This paper is theoretical mathematics about random graph limit theorems and clique counts, not applied network neuroscience. It does not measure network centrality, neural synchrony, or fMRI data, and is not a foundational reference for centrality measures in brain networks—this falls under the rejection rule for distinct constructs sharing only homonym keywords (\"graph\" in pure math vs. \"network\" in neuroscience).",
+  "relevant": false
+}
