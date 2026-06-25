@@ -18,9 +18,9 @@ A researcher wants to run a reproducible audit over a corpus of public A/B test 
 **Acceptance Scenarios**:
 
 1. **Given** a CSV file containing URLs of public A/B test summaries, **When** the audit pipeline is executed, **Then** a JSON report is produced listing each summary with a consistency flag (`consistent` / `inconsistent`) and the computed vs. reported p‑value difference.  
-2. **Given** a summary where the reported p‑value differs from the reconstructed p‑value by 0.07, **When** the pipeline processes it, **Then** the summary is marked *inconsistent* because the absolute difference exceeds the 0.05 threshold.
-
----
+2. **Given** a summary where the reported p‑value differs from the reconstructed p‑value by **0.05**, **When** the pipeline processes it, **Then** the summary is marked *inconsistent* because the absolute difference exceeds the 0.05 threshold.  
+3. **Given** a manually annotated validation set of at least 30 summaries, **When** the extraction module runs on this set, **Then** extraction accuracy (proportion of correctly captured fields) is ≥ 95 % (ties into **SC‑001**).  
+4. **Given** any parsing failure (missing field, malformed HTML, etc.), **When** the pipeline logs the event, **Then** a clear error message is recorded (fulfilling **FR‑007**) and the overall parsing‑error rate stays ≤ 5 % of total summaries (fulfilling **SC‑005**).
 
 ### User Story 2 – Summary Statistics Dashboard (Priority: P2)
 
@@ -28,14 +28,14 @@ A product manager wants a high‑level view of inconsistency prevalence across s
 
 **Why this priority**: Enables stakeholders to interpret the audit results without digging into raw data, supporting decision‑making and transparency initiatives.
 
-**Independent Test**: Run the pipeline on a representative summary corpus and verify that the generated HTML dashboard shows (a) a bar chart with overall inconsistency rate, (b) a source‑wise breakdown, **and** (c) a line chart of inconsistency rates over time with an accompanying Cochran‑Armitage trend‑test p‑value that matches the underlying JSON.
+**Anchored Requirement**: Satisfies **FR‑010** (dashboard generation).
+
+**Independent Test**: Run the pipeline on a representative summary corpus and verify that the generated HTML dashboard shows (a) a bar chart with overall inconsistency rate, (b) a source‑wise breakdown, **and** a line chart of inconsistency rates over time with an accompanying Cochran‑Armitage trend‑test p‑value that matches the underlying JSON.
 
 **Acceptance Scenarios**:
 
 1. **Given** the JSON audit output, **When** the dashboard generator runs, **Then** the dashboard displays (a) total number of summaries, (b) percentage flagged inconsistent, (c) a **chi‑squared test of independence** result for source‑wise heterogeneity, and (d) the binomial‑test result for the overall inconsistency rate.  
 2. **Given** the same JSON output enriched with timestamps for each summary, **When** the dashboard renders, **Then** it shows a time‑series line chart of monthly inconsistency rates and reports the Cochran‑Armitage trend‑test p‑value for the temporal pattern.
-
----
 
 ### User Story 3 – Reproducibility Package Export (Priority: P3)
 
@@ -49,7 +49,46 @@ A reviewer wants to reproduce the analysis on a different machine.
 
 1. **Given** the repository and Dockerfile, **When** the reviewer builds the container and runs the script on the same corpus, **Then** the resulting JSON and dashboard files match the reference artifacts (MD5 checksum identical).
 
----
+### User Story 4 – Efficient CI Execution (Priority: P2)
+
+A CI engineer needs the audit pipeline to run reliably on the default GitHub Actions runner without exceeding resource limits.
+
+**Why this priority**: Guarantees that the nightly audit can be automated in a cost‑effective, reproducible environment.
+
+**Independent Test**: Trigger a GitHub Actions workflow that runs the full pipeline on a sample corpus; verify that the job completes within 6 hours, uses ≤ 2 CPU cores, ≤ 7 GB RAM, and produces the expected JSON output.
+
+**Acceptance Scenarios**:
+
+1. **Given** the CI environment, **When** the workflow executes the pipeline, **Then** it finishes successfully under the specified CPU‑only constraints and logs the resource usage.  
+2. **Given** the CI run, **When** the logs are inspected, **Then** parsing‑error messages (if any) constitute ≤ 5 % of total processed summaries (fulfilling **SC‑005**).
+
+### User Story 5 – Power‑Analysis Planning (Priority: P2)
+
+A project lead wants to ensure the corpus size is sufficient to detect a meaningful inconsistency proportion.
+
+**Why this priority**: Provides statistical justification for the chosen sample size and assures reviewers that the study is adequately powered.
+
+**Anchored Requirement**: Satisfies **FR‑011** (power‑analysis script).
+
+**Independent Test**: Run the power‑analysis script included in the reproducibility package with the planned corpus size (≥ 100 summaries); verify that the reported power is ≥ 80 % to detect an inconsistency proportion of 0.10 against the null π₀ = 0.05 at α = 0.05.
+
+**Acceptance Scenarios**:
+
+1. **Given** a corpus size of 120 summaries, **When** the power‑analysis is executed, **Then** it reports ≥ 80 % power and the result is recorded in the final report.
+
+### User Story 6 – Detailed Statistical Summary *(Optional Stretch Goal)*
+
+A data scientist wants a comprehensive statistical report that includes confidence intervals, multiple hypothesis‑testing corrections, and clear categorization of each flagged inconsistency.
+
+**Why this priority**: Enables rigorous interpretation of the audit results and supports publication‑grade reporting. This story is optional; the core deliverable (US 1‑5) does not require it.
+
+**Anchored Requirements**: Extends **FR‑005**, **FR‑008**, and the optional Wilson CI and Bonferroni‑adjusted tests.
+
+**Independent Test**: After running the audit, confirm that the dashboard displays (a) Wilson [deferred] confidence interval for the overall inconsistency proportion, (b) chi‑squared goodness‑of‑fit test for the overall count, (c) Cochran‑Armitage trend‑test for temporal patterns, (d) Bonferroni‑adjusted p‑values for all subgroup tests, and (e) a table column showing the **category** (e.g., *sample‑size mismatch*, *effect‑size inflation*, etc.) for each flagged inconsistency (fulfilling **FR‑008**).
+
+**Acceptance Scenarios**:
+
+1. **Given** the audit JSON, **When** the dashboard generator runs, **Then** the report includes the Wilson CI, the additional chi‑squared and trend‑test results, all subgroup p‑values are Bonferroni‑corrected, and each inconsistency record is labeled with one of the taxonomy categories defined in **FR‑008**.
 
 ### Edge Cases
 
@@ -66,12 +105,19 @@ A reviewer wants to reproduce the analysis on a different machine.
 - **FR-001**: System MUST accept as input a list of URLs (or file paths) pointing to publicly available A/B test summaries.  
 - **FR-002**: System MUST automatically extract, for each variant, the reported sample size, effect size (conversion‑rate difference, lift % or absolute difference for continuous metrics), and reported p‑value or confidence interval.  
 - **FR-003**: System MUST reconstruct the expected p‑value using the appropriate statistical test (two‑proportion Z‑test for binary conversion metrics, two‑sample t‑test for continuous metrics).  
-- **FR-004**: System MUST flag a summary as *inconsistent* when the absolute difference between the reported p‑value and the reconstructed p‑value exceeds 0.05 **or** when the reported confidence interval does not contain the effect size implied by the reconstructed test.  
-- **FR-005**: System MUST compute (a) the overall inconsistency rate and test the null hypothesis that the true proportion of inconsistencies equals 0.05 using an exact binomial test (one‑sided), (b) a chi‑squared goodness‑of‑fit test across the entire corpus to assess whether the observed inconsistency count exceeds what would be expected under random error, (c) source‑wise inconsistency rates and assess heterogeneity with a chi‑squared test of independence, (d) temporal trends in inconsistency rates using the Cochran‑Armitage trend test, and (e) apply a Bonferroni correction across all subgroup significance tests.  
+- **FR-004**: System MUST flag a summary as *inconsistent* when **any** of the following holds:  
+  1. When raw conversion counts (or raw continuous summary statistics) are available, the absolute difference between the reported p‑value and the p‑value computed from those raw data exceeds **0.05** after accounting for rounding tolerances.  
+ 2. When a confidence interval is reported, the effect size implied by the reconstructed test (using raw data when available, otherwise the reported effect size) falls **outside** the reported confidence interval (computed at a **[deferred]** confidence level).
+ 3. When raw counts are unavailable but both a reported p‑value and a confidence interval are present, the reported p‑value lies outside the p‑value range implied by the reported confidence interval at the **[deferred]** level.
+  4. Any reported metric (sample size, effect size, p‑value, confidence interval) is internally inconsistent with the other reported metrics given the appropriate statistical model beyond the 0.05 tolerance.  
+  If required raw data are missing, the summary is categorized as “missing metric” and **is not** flagged as inconsistent.  
+- **FR-005**: System MUST compute (a) the overall inconsistency rate and test the null hypothesis that the true proportion of inconsistencies equals 0.05 using an exact binomial test (one‑sided), (b) a chi‑squared goodness‑of‑fit test across the entire corpus to assess whether the observed inconsistency count exceeds what would be expected under random error, (c) source‑wise inconsistency rates and assess heterogeneity with a chi‑squared test of independence, (d) temporal trends in inconsistency rates using the Cochran‑Armitage trend test, (e) a **Wilson [deferred] confidence interval** for the overall inconsistency proportion, and (f) apply a Bonferroni correction across all subgroup significance tests. These analyses constitute the **comprehensive statistical report** (optional stretch) but are justified as standard meta‑research practice (see Assumptions).
 - **FR-006**: System MUST export a reproducible research package containing (i) raw extracted data, (ii) analysis scripts, (iii) Dockerfile, and (iv) generated reports.  
-- **FR-007**: System MUST log any parsing failures or missing fields with clear error messages for downstream inspection.  
-- **FR-008**: System MUST categorize each flagged inconsistency into one of the following types: *sample‑size mismatch*, *effect‑size inflation*, *rounding error*, *missing metric*, *statistical‑test mis‑specification*, *multiple‑testing issue*, or *other*. The category is stored in the audit record and reported in both JSON and dashboard outputs.  
+- **FR-007**: System MUST log any parsing failures or missing fields with clear error messages for downstream inspection (fulfills **SC‑005**).  
+- **FR-008**: System MUST categorize each flagged inconsistency into one of the following types: *sample‑size mismatch*, *effect‑size inflation*, *rounding error*, *missing metric*, *statistical‑test mis‑specification*, *multiple‑testing issue*, or *other*. The category is stored in the audit record and reported in both JSON and dashboard outputs (required by **User Story 6**).  
 - **FR-009**: System MUST enforce CPU‑only execution; all dependencies must run on the default GitHub Actions runner (≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h runtime). No GPU‑specific libraries or large‑model inference may be used.  
+- **FR-010**: System MUST generate an HTML dashboard summarizing overall inconsistency rate, source‑wise breakdown, and temporal trends, including the statistical test results described in FR‑005.  
+- **FR-011**: System MUST provide a power‑analysis script that, given a planned corpus size, target inconsistency proportion, null proportion, and significance level (α = 0.05), computes the statistical power using a binomial‑test framework and reports whether the power meets a ≥ 80 % threshold.
 
 ### Key Entities
 
@@ -83,11 +129,11 @@ A reviewer wants to reproduce the analysis on a different machine.
 ### Measurable Outcomes
 
 - **SC-001**: Extraction accuracy ≥ 95 % on a manually annotated validation set of at least 30 summaries (measured as proportion of correctly captured fields).  
-- **SC-002**: Inconsistency‑detection precision ≥ 90 % on the same validation set (true positives / (true positives + false positives)).  
-- **SC-003**: The binomial test, chi‑squared goodness‑of‑fit test, chi‑squared test of independence, Cochran‑Armitage trend test, and Bonferroni‑adjusted subgroup tests reported in the final dashboard must be computed using SciPy (or an equivalent CPU‑only library) and documented in the reproducibility package.  
+- **SC-002**: Inconsistency‑detection precision ≥ 90 % on the same validation set (true positives / (true positives + false positives)), **as measured by the flagging logic defined in FR‑004**.  
+- **SC-003**: The binomial test, chi‑squared goodness‑of‑fit test, chi‑squared test of independence, Cochran‑Armitage trend test, Wilson confidence interval, and Bonferroni‑adjusted subgroup tests reported in the final dashboard must be computed using SciPy (or an equivalent CPU‑only library) and documented in the reproducibility package.  
 - **SC-004**: The reproducibility package must build the Docker image and run the full pipeline on a fresh machine producing identical JSON output (MD5 checksum match).  
 - **SC-005**: All logged parsing errors must be ≤ 5 % of total summaries processed.  
-- **SC-006**: Power analysis must show ≥ 80 % power to detect an inconsistency proportion of [deferred] against the null π₀ = 0.05 at α = 0.05, given the planned corpus size (≥ 100 summaries). The calculation method (binomial power) must be included in the reproducibility package.
+- **SC-006**: Power analysis must show ≥ 80 % power to detect an inconsistency proportion of 0.10 against the null π₀ = 0.05 at α = 0.05, given the planned corpus size (≥ 100 summaries). The calculation method (binomial power) must be included in the reproducibility package.  
 - **SC-007**: After Bonferroni correction, any subgroup significance claim must have an adjusted p‑value ≤ 0.05; the adjusted p‑values must be reported alongside raw p‑values in the dashboard.
 
 ## Assumptions
@@ -99,9 +145,8 @@ A reviewer wants to reproduce the analysis on a different machine.
 - Findings are framed as **associational** (i.e., “reported metrics are inconsistent with statistical theory”) because the audit does not involve random assignment.  
 - Multiple hypothesis testing across sub‑analyses is addressed by the Bonferroni correction specified in FR‑005; individual inconsistency flags remain unadjusted because they are deterministic decisions based on a predefined discrepancy rule.  
 - The categorization taxonomy in FR‑008 captures the most common error modes observed in prior meta‑research on A/B testing (see Nielsen et al., 2022, *J. of Data Science*).  
-- The analysis will run on the default GitHub Actions free‑tier runner (≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h total runtime); all code must be CPU‑only and avoid GPU‑specific libraries.  
-- **[NEEDS CLARIFICATION: Are continuous outcome metrics (e.g., revenue lift) present in the corpus, and if so, how should they be identified for selection of the two‑sample t‑test?]**  
-- **[NEEDS CLARIFICATION: How should inequality‑formatted p‑values (e.g., “p < 0.001”) be interpreted for the discrepancy rule?]**  
-- **[NEEDS CLARIFICATION: Do all summaries consistently report sample sizes for both variants, or are there cases where only a total sample size is given?]**  
-
----
+- The additional statistical analyses (chi‑squared goodness‑of‑fit, Cochran‑Armitage trend test, Bonferroni‑adjusted subgroup tests) are standard meta‑research techniques for summarizing patterns across many experiments (see Gelman & Loken, 2020) and are therefore within the intended scope of this project.  
+- Continuous outcome metrics such as revenue lift are expected in the corpus. The pipeline will identify them by detecting effect‑size fields expressed in absolute units (e.g., dollars, seconds, points) or by an explicit `outcome_type` annotation equal to `continuous`. When such a metric is found, the two‑sample t‑test will be used for reconstruction.  
+- When a reported p‑value is given as an inequality (e.g., “p < 0.001”), the pipeline will treat the bound value as the reported p‑value for the discrepancy rule (i.e., use 0.001). The summary is flagged as inconsistent if the reconstructed p‑value exceeds this bound.  
+- The pipeline first attempts to extract variant‑specific sample sizes (`variant_a_n` and `variant_b_n`). If only a total sample size `N` is present, the system will assume equal allocation (`variant_a_n = variant_b_n = round(N/2)`) and record this assumption in the audit notes. If no sample size information is available, the summary is categorized as “missing metric”.  
+- The Wilson confidence interval is used because it provides better coverage properties for proportions near the extremes, which is important when the observed inconsistency rate may be low.  
