@@ -78,3 +78,30 @@ def test_best_so_far_converges_through_a_regressing_round() -> None:
     # Round 1 fix regresses (BROKE) -> 2 concerns; best-so-far reverts to the
     # pre-regression base and the next revise produces a clean fix -> converged.
     assert res.converged, f"expected convergence via best-so-far; got {res!r}"
+
+
+def test_provably_false_orphan_concerns_are_dropped() -> None:
+    """A reviewer that flags an FR as "not anchored to any user story" when the
+    FR's line explicitly says "(See US-1)" is provably WRONG; the engine drops it
+    so the panel isn't blocked by a false positive the reviser cannot fix (the
+    PROJ-492 spec stall). Genuinely orphaned FRs and non-traceability concerns
+    are kept — this makes review RELIABLE, it does not lower the bar."""
+    from llmxive.convergence.engine import _drop_false_orphan_concerns
+    from llmxive.convergence.types import Concern, Severity
+
+    arts = {"spec.md": "**FR-001**: accept URLs (See US-1)\n**FR-007**: no anchor here\n"}
+
+    def C(t):
+        return Concern(id="x", reviewer="scope", severity=Severity.REQUIREMENT,
+                       artifact="spec.md", text=t)
+
+    cons = [
+        C("FR-001 is not anchored to any user story, breaking traceability."),  # false
+        C("FR-007 is orphaned; no user story references it."),                   # true
+        C("FR-001 uses a vague threshold that is untestable."),                  # not orphan
+    ]
+    kept = _drop_false_orphan_concerns(cons, arts)
+    texts = [c.text for c in kept]
+    assert not any("not anchored" in t for t in texts)   # the false one is gone
+    assert any("FR-007 is orphaned" in t for t in texts)  # the real one stays
+    assert any("untestable" in t for t in texts)          # non-traceability stays

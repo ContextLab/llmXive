@@ -267,6 +267,66 @@ def _spec_quality_concerns(
     return concerns
 
 
+# A requirement id (FR-007 / SC-012), tolerant of the non-breaking hyphen the
+# LLM emits (FR‑007) and an optional leading zero-pad.
+_REQ_ID_RE = re.compile(r"\b((?:FR|SC)[-‑]?\d{1,3})\b", re.IGNORECASE)
+# A line that ESTABLISHES a story anchor for the id(s) on it.
+_ANCHOR_HINT_RE = re.compile(r"see\s+us|\bus[-‑\s]?\d|anchored\s+requirement", re.IGNORECASE)
+# A concern that CLAIMS an FR/SC has no user-story anchor (traceability).
+_ORPHAN_CLAIM_RE = re.compile(
+    r"orphan|not\s+(?:anchored|linked|tied|cited|referenced|connected)\b|"
+    r"no\s+user\s+stor|not\s+.*to\s+any\s+user\s+stor|breaking\s+.*traceab",
+    re.IGNORECASE,
+)
+
+
+def _norm_req_id(raw: str) -> str:
+    raw = raw.replace("‑", "-").upper().replace("FR", "FR-").replace("SC", "SC-")
+    raw = raw.replace("FR--", "FR-").replace("SC--", "SC-")
+    pre, _, num = raw.partition("-")
+    return f"{pre}-{int(num):03d}" if num.isdigit() else raw
+
+
+def _anchored_req_ids(artifacts: dict[str, str]) -> set[str]:
+    """FR/SC ids that EXPLICITLY carry a story anchor in the artifacts (a line
+    that names them AND a `See US-N` / `US-N` / `Anchored Requirement` hint)."""
+    out: set[str] = set()
+    for text in artifacts.values():
+        for line in (text or "").splitlines():
+            if _ANCHOR_HINT_RE.search(line):
+                for m in _REQ_ID_RE.finditer(line):
+                    out.add(_norm_req_id(m.group(1)))
+    return out
+
+
+def _drop_false_orphan_concerns(
+    concerns: list[Concern], artifacts: dict[str, str]
+) -> list[Concern]:
+    """Deterministically drop traceability concerns that are PROVABLY FALSE.
+
+    LLM reviewers (esp. the internal_consistency / scope lenses) keep flagging
+    "FR-001 is not anchored to any user story" even when FR-001's line explicitly
+    reads "... (See US-1)" — a false positive that the reviser cannot "fix"
+    (the anchor already exists), so the panel never converges (the live PROJ-492
+    spec stall: every round re-raised orphan claims about already-anchored FRs).
+    Dropping a concern whose named FR/SC DEMONSTRABLY carries an anchor makes the
+    review RELIABLE without lowering the bar — there is no real defect to fix. A
+    genuinely orphaned id (no anchor) is never in ``anchored`` and is kept."""
+    anchored = _anchored_req_ids(artifacts)
+    if not anchored:
+        return list(concerns)
+    kept: list[Concern] = []
+    for c in concerns:
+        t = c.text or ""
+        if _ORPHAN_CLAIM_RE.search(t):
+            ids = {_norm_req_id(m.group(1)) for m in _REQ_ID_RE.finditer(t)}
+            if ids and ids <= anchored:
+                logger.info("dropping provably-false orphan concern (anchored): %s", t[:80])
+                continue
+        kept.append(c)
+    return kept
+
+
 def run_convergence(
     spec: ReviewSpec,
     artifacts: dict[str, str],
@@ -341,6 +401,7 @@ def run_convergence(
     for concerns in r1_results:
         for c in concerns:
             open_concerns.append(c)
+    open_concerns = _drop_false_orphan_concerns(open_concerns, artifacts)
     concern_history.extend(open_concerns)
     if on_round is not None:
         on_round(1, list(open_concerns), [], [])
@@ -489,7 +550,7 @@ def run_convergence(
         for c in deduped:
             if c.id not in {h.id for h in concern_history}:
                 concern_history.append(c)
-        open_concerns = deduped
+        open_concerns = _drop_false_orphan_concerns(deduped, artifacts)
         # Record this round as the new best iff it left strictly fewer open
         # concerns (so a regressing round is discarded, not refined-from).
         if len(open_concerns) < len(best_open):
