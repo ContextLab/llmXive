@@ -176,3 +176,28 @@ def test_data_artifact_ground_truth_surfaces_real_csv_headers(tmp_path) -> None:
     assert "reconcile consumers against THESE" in fb
     # Empty / absent project dir → no block (best-effort, never crashes).
     assert _actual_data_artifacts_feedback(tmp_path / "nope") == ""
+
+
+def test_execution_feedback_flags_regressions(tmp_path) -> None:
+    """A command failing now that was NOT failing last round = the implementer's
+    last fix broke working code (the PROJ-262 train_rf regression). The feedback
+    must call it out prominently so the loop reverts the breakage instead of
+    oscillating toward the fix-round cap."""
+    from types import SimpleNamespace
+    from llmxive.execution.stage import _write_execution_feedback, _FEEDBACK_FILENAME
+
+    mem = tmp_path / ".specify" / "memory"
+    res = SimpleNamespace(reason="2 command(s) failed", declared_missing=[], artifacts_produced=[])
+    _write_execution_feedback(
+        mem, res,
+        failures=["python code/train_rf.py -> rc=1\n    Traceback ..."],
+        contract_issues=None,
+        regressions=["python code/train_rf.py"],
+    )
+    fb = (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")
+    assert "REGRESSIONS" in fb
+    assert "python code/train_rf.py" in fb
+    assert "passed before" in fb
+    # No regressions → no regression block.
+    _write_execution_feedback(mem, res, failures=["x -> rc=1"], regressions=[])
+    assert "REGRESSIONS" not in (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")

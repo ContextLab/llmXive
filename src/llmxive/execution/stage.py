@@ -223,6 +223,22 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
         + (f"\n    {r.tail.strip()[-400:]}" if not r.ok and r.tail else "")
         for r in res.commands if not r.ok
     ]
+
+    # REGRESSION detection: a command FAILING now that was NOT failing in the
+    # previous round means the implementer's last fix BROKE working code (the
+    # live PROJ-262 thrash: a metrics-CSV fix re-broke train_rf.py, so the loop
+    # oscillated toward the fix-round cap instead of converging). Surfacing these
+    # explicitly — "revert what broke this" — is the convergence guard the
+    # fix-one-break-another loop was missing. Computed BEFORE record() overwrites
+    # the prior status.
+    def _cmd(failure_line: str) -> str:
+        return failure_line.split(" -> rc=", 1)[0].strip()
+
+    prev = execution_status.load(project_id, repo_root=repo)
+    prev_failing = {_cmd(f) for f in (prev or {}).get("failures", [])}
+    regressions = sorted(
+        _cmd(f) for f in failures if _cmd(f) not in prev_failing
+    ) if prev_failing else []
     # Self-heal a venv missing third-party deps: the implementer sometimes
     # regenerates requirements.txt incompletely (e.g. dropping pandas/numpy when
     # it adds the data-source package), so run-book scripts die with
@@ -271,7 +287,7 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
     except Exception as exc:
         logger.warning("shared-contract analysis skipped: %s", exc)
         contract_issues = []
-    _write_execution_feedback(mem, res, failures, contract_issues)
+    _write_execution_feedback(mem, res, failures, contract_issues, regressions)
     reopened = _reopen_failing_tasks(project_dir, res, contract_issues)
     logger.info("re-opened %d task(s) for the auto-fix loop", reopened)
     return False
@@ -280,11 +296,27 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
 def _write_execution_feedback(
     mem_dir: Path, res: AnalysisRunResult, failures: list[str],
     contract_issues: list | None = None,
+    regressions: list[str] | None = None,
 ) -> None:
     mem_dir.mkdir(parents=True, exist_ok=True)
     lines = [
         "# Execution failures — fix these before the analysis can run",
         "",
+    ]
+    if regressions:
+        lines += [
+            "## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)",
+            "",
+            "These commands were NOT failing in the previous round and ARE failing "
+            "now — your last edit broke previously-working code. REVERT or correct "
+            "whatever change broke each one BEFORE touching anything else; do not "
+            "trade one passing script for another (that oscillation is what burns "
+            "the fix-round budget toward escalation):",
+            "",
+            *(f"- `{c}`" for c in regressions),
+            "",
+        ]
+    lines += [
         "The analysis code was EXECUTED end-to-end (per quickstart.md) and "
         "FAILED. The project cannot reach research_complete until the "
         "run-book runs cleanly AND produces its declared data/figure "
