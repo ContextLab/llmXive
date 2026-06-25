@@ -117,10 +117,28 @@ commentary.
   `[deferred]` strictly for values that can only be MEASURED at run time (counts,
   dataset sizes, observed rates). If a concern flags a `[deferred]` design
   parameter, replace it with a concrete community-standard default (95%, α=0.05).
-- **Do NOT add scope.** Resolve ONLY the flagged concerns. Never introduce new
-  requirements, statistical tests, or analyses the idea did not call for —
-  every addition is fresh surface the panel re-reviews and flags, so scope creep
-  directly prevents convergence. Fix what was raised; add nothing else.
+- **Add exactly what the concerns demand — invent nothing they didn't.** Resolve
+  EVERY flagged concern, even when the fix means ADDING a requirement,
+  justification, robustness check, or analysis that a reviewer EXPLICITLY asked
+  for. A reviewer-requested addition is NOT scope creep — it IS the resolution.
+  Example: when the scope or soundness lens says a threshold is "introduced
+  without justification or sensitivity analysis", you MUST either add a concrete
+  justification (cite the community-standard basis) AND/OR add an FR/SC for a
+  sensitivity analysis that sweeps the cutoff over a small concrete set (e.g.
+  absolute diff ∈ {0.01, 0.05, 0.1}) and reports how false-positive/false-
+  negative rates vary. Refusing the addition guarantees the SAME concern recurs
+  every round and the spec NEVER converges. What stays forbidden is UNPROMPTED
+  scope: do not invent requirements, tests, or analyses that NO concern raised
+  and the idea did not call for. Net rule: address exactly the concerns raised —
+  add what they demand, add nothing they didn't.
+- **Edit minimally; preserve the rest verbatim.** You are revising an existing
+  `spec.md`, not rewriting it. Reproduce every section, requirement, scenario,
+  and sentence the concerns do NOT touch EXACTLY as-is (same wording, same FR/SC
+  ids, same `(See US-N)` anchors). Change ONLY the spans a concern requires.
+  Wholesale regeneration is the #1 cause of non-convergence: it silently drops
+  anchors, renames requirements, and reintroduces already-fixed defects, so the
+  concern count oscillates instead of falling to zero. A near-clean spec must
+  come back nearly identical plus the few concrete fixes — never reworded.
 - NEVER invent factual claims that primary sources do not support
   (Constitution Principle II) — but methodological defaults are not
   factual claims, they're agreed-upon practice.

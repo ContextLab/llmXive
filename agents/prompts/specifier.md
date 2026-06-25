@@ -60,6 +60,16 @@ methodology panel raises and that no later stage can paper over:
   multiple-comparison / family-wise-error correction. Include a sample-size /
   power consideration (state the method; the number may be `[deferred]`), or an
   explicit acknowledgement of the power limitation.
+- **Threshold justification & sensitivity.** Any decision cutoff the design
+  introduces (an inconsistency tolerance, a discrepancy threshold, a
+  classification boundary) MUST carry BOTH (a) a one-line justification naming
+  its community-standard basis or rationale, AND (b) an FR/SC requiring a
+  sensitivity analysis that sweeps the cutoff over a small concrete set (e.g.
+  absolute diff ∈ {0.01, 0.05, 0.1}) and reports how the headline rates
+  (false-positive / false-negative, or inconsistency rate) vary across it. The
+  scope/soundness panel blocks any threshold "introduced without justification
+  or sensitivity analysis" — bake both in so the concern never arises. A
+  threshold sweep is CPU-trivial, so this never threatens free-CPU feasibility.
 - **Measurement validity.** When using questionnaires/instruments, require that
   validated instruments (with citable validation) be used.
 - **Predictor collinearity.** If two predictors are definitionally related (one
