@@ -167,3 +167,22 @@ def test_planning_smooth_preserves_design_target(
     # The concrete ≥ 95% survives verbatim; no vague paraphrase introduced.
     assert "≥ 95%" in out
     assert report.blocked is False
+
+
+def test_confidence_level_is_a_design_parameter_not_deferred() -> None:
+    """A confidence level / CI width is a statistical DESIGN parameter (like a
+    bound-led target or alpha), NOT an empirical claim. Deferring it yields
+    "[deferred] confidence level", which the testability/soundness panels re-flag
+    as unverifiable forever (the PROJ-492 spec non-convergence loop). Keep it."""
+    from llmxive.claims.planning_scan import strip_empirical_values
+
+    for text, val in [
+        ("evaluated at a 95% confidence level", "95%"),
+        ("a Wilson 95% CI for the proportion", "95%"),
+        ("the confidence level of 99% must hold", "99%"),
+        ("report a 90% credible interval", "90%"),
+    ]:
+        assert val in strip_empirical_values(text), text
+    # A genuine empirical value with NO statistical-design context is still deferred.
+    assert "27,635" not in strip_empirical_values("approximately 27,635 papers were found")
+    assert "[deferred]" in strip_empirical_values("the inconsistency rate was 30% overall")

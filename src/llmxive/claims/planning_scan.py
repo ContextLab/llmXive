@@ -79,6 +79,19 @@ _LEAD = re.compile(
     re.IGNORECASE,
 )
 
+# A value sitting in a CONFIDENCE / significance context (``95% confidence``,
+# ``Wilson 95% CI``, ``confidence level of 95%``) is a statistical DESIGN
+# PARAMETER — the operator's chosen confidence level / interval, exactly like a
+# bound-led target or ``α = 0.05`` — NOT an empirical claim about the world.
+# Deferring it produces ``[deferred] confidence level``, which the
+# testability/soundness panels (correctly) re-flag as unverifiable forever: the
+# reviser sets 95%, the strip re-defers it next render — the live PROJ-492 spec
+# non-convergence loop. KEEP these concrete.
+_STAT_DESIGN_CONTEXT = re.compile(
+    r"confidence|\bCIs?\b|credible\s+interval|significance\s+level|\balpha\b|α",
+    re.IGNORECASE,
+)
+
 
 def has_empirical_value(text: str) -> bool:
     """True iff ``text`` contains a high-confidence empirical value (count/%/time)."""
@@ -195,6 +208,12 @@ def strip_empirical_values(
                 # restored — an unwinnable reviewer-vs-strip war observed
                 # live on PROJ-552's spec panel. Bounded targets are KEPT;
                 # bare/approximated empirical assertions are deferred.
+                pos = m.end()
+                continue
+            if _STAT_DESIGN_CONTEXT.search(new[max(0, start - 30):m.end() + 30]):
+                # A confidence level / CI width is a statistical DESIGN
+                # parameter (the PROJ-492 "[deferred] confidence level" loop) —
+                # keep it concrete, do not defer.
                 pos = m.end()
                 continue
             lead = _LEAD.search(new[:start])
