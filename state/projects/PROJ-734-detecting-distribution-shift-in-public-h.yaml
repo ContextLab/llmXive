@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-18T13:27:09.876195Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-734-detecting-distribution-shift-in-public-h
-last_run_id: 91ca7aff-065d-406b-8bf1-b5950ca1c6f6
+last_run_id: b5d9d9c9-8aa2-449c-b3cd-1a190634f712
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-734-detecting-distribution-shift-in-public-h/specs/001-detecting-distribution-shift-in-public-h
 title: "Detecting Distribution Shift in Public Health Surveillance Data via Kernel\
   \ Two\u2011Sample Tests"
-updated_at: '2026-06-24T20:22:24.100492Z'
+updated_at: '2026-06-25T09:54:07.046400Z'
