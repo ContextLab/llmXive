@@ -1,0 +1,551 @@
+{
+  "fetched_at": "2026-06-25T05:45:13Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets",
+      "target_n": 5
+    },
+    "duration_seconds": 56.493,
+    "ended_at": "2026-06-25T05:45:13Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning models for fatigue life prediction from residual stress data"
+        ],
+        [
+          2,
+          "data‑driven fatigue crack growth modeling using open material databases"
+        ],
+        [
+          3,
+          "statistical analysis of internal stress effects on high‑cycle fatigue"
+        ],
+        [
+          4,
+          "AI‑based estimation of fatigue limit incorporating pre‑stress measurements"
+        ],
+        [
+          5,
+          "open repository of residual stress and fatigue performance datasets"
+        ],
+        [
+          6,
+          "physics‑informed neural networks for stress‑induced fatigue degradation"
+        ],
+        [
+          7,
+          "X‑ray diffraction residual stress inputs for fatigue life forecasting"
+        ],
+        [
+          8,
+          "Bayesian inference of fatigue life under residual stress fields"
+        ],
+        [
+          9,
+          "deep learning of S‑N curves from publicly available material datasets"
+        ],
+        [
+          10,
+          "multiscale modeling of fatigue damage with measured stress fields"
+        ],
+        [
+          11,
+          "additive manufacturing residual stress impact on low‑cycle fatigue"
+        ],
+        [
+          12,
+          "data mining of public fatigue test archives for stress‑life correlations"
+        ],
+        [
+          13,
+          "stress intensity factor prediction for fatigue using machine‑learned models"
+        ],
+        [
+          14,
+          "fatigue life assessment with hole‑drilling residual stress data"
+        ],
+        [
+          15,
+          "open‑source fatigue data platforms for predictive analytics"
+        ],
+        [
+          16,
+          "transfer learning for fatigue life prediction across material systems"
+        ],
+        [
+          17,
+          "ensemble methods for residual stress‑fatigue relationship discovery"
+        ],
+        [
+          18,
+          "probabilistic fatigue life estimation from shared stress datasets"
+        ],
+        [
+          19,
+          "machine‑learning‑augmented Paris law parameters derived from public data"
+        ],
+        [
+          20,
+          "comparative study of residual stress measurement techniques for fatigue modeling"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets materials science": 0,
+        "machine learning models for fatigue life prediction from residual stress data": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "eigenstress fatigue endurance",
+      "Materials Project fatigue dataset",
+      "machine learning fatigue life",
+      "S‑N curve prediction error",
+      "residual stress crack initiation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2012.07583"
+      ]
+    },
+    "per_query_hit_count": {
+      "Materials Project fatigue dataset": 2,
+      "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets materials science": 3,
+      "S‑N curve prediction error": 3,
+      "eigenstress fatigue endurance": 2,
+      "machine learning fatigue life": 2,
+      "residual stress crack initiation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "cond-mat/9710182",
+          "rationale": "The paper investigates how surface stress influences dislocation emission and fracture toughness in f.c.c. metals via atomistic simulations, without addressing residual stress effects on fatigue life or employing public datasets. Its focus on surface‑stress‑driven crack tip behavior is a distinct construct from the user's interest in residual‑stress impact on fatigue performance.",
+          "title": "The influence of surface stress on dislocation emission from sharp and blunt cracks in f.c.c. metals"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on data source changes and risks in machine‑learning‑driven official statistics, with no connection to residual stress, fatigue life, or materials‑science datasets, so it does not address any of the variables or mechanisms of the user's question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper discusses machine‑learning validation recommendations for biology and does not address residual stress, fatigue life, materials‑science datasets, or related predictive modeling, so it lacks any relevant mechanism, variable, or domain connection to the user's question.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper surveys online active‑learning methods for data streams and does not address residual stress, fatigue life, or materials‑science datasets, nor does it measure any of the variables relevant to the user's question. It is off‑domain and unrelated to the required mechanism or empirical population.",
+          "title": "Active learning for data streams: a survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T05:44:17Z",
+    "term_input": {
+      "normalized": "predicting the impact of residual stress on fatigue life using public datasets materials science",
+      "raw": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aims: Optical interferometry from space for the purpose of detecting and characterising exoplanets is seeing a revival, specifically from missions such as the proposed Large Interferometer For Exoplanets (LIFE). A default assumption since the design studies of Darwin and TPF-I has been that the Emma X-array configuration is the optimal architecture for this goal. Here, we examine whether new advances in the field of nulling interferometry, such as the concept of kernel nulling, challenge this assumption.\n  Methods: We develop a tool designed to derive the photon-limited signal to noise ratio of a large sample of simulated planets for different architecture configurations and beam combination schemes. We simulate four basic configurations: the double Bracewell/X-array, and kernel nullers with three, four and five telescopes respectively.\n  Results: We find that a configuration of five telescopes in a pentagonal shape, using a five aperture kernel nulling scheme, outperforms the X-array design in both search (finding more planets) and characterisation (obtaining better signal, faster) when total collecting area is conserved. This is especially the case when trying to detect Earth twins (temperate, rocky planets in the habitable zone), showing a 23% yield increase over the X-array. On average, we find that a five telescope design receives 1.2 times the signal over the X-array design.\n  Conclusions: With the results of this simulation, we conclude that the Emma X-array configuration may not be the best architecture choice for the upcoming LIFE mission, and that a five telescope design utilising kernel nulling concepts will likely provide better scientific return for the same collecting area, provided that technical solutions for the required achromatic phase shifts can be implemented.",
+          "claimed_authors": [
+            "Jonah T. Hansen",
+            "Michael J. Ireland",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.04891"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer')",
+        "failed_at": "2026-06-25T05:44:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Large Interferometer For Exoplanets (LIFE) initiative aims to develop a space based mid-infrared (MIR) nulling interferometer to measure the thermal emission spectra of temperate terrestrial exoplanets.\n  We investigate how well LIFE could characterize a cloudy Venus-twin exoplanet to: (1) test our retrieval routine on a realistic non-Earth-like MIR spectrum of a known planet, (2) investigate how clouds impact retrievals, (3) refine the LIFE requirements derived in previous Earth-centered studies.\n  We run retrievals for simulated LIFE observations of a Venus-twin exoplanet orbiting a Sun-like star located 10 pc from the observer. By assuming different models (cloudy and cloud-free) we analyze the performance as a function of the quality of the LIFE observation. This allows us to determine how well atmosphere and clouds are characterizable depending on the quality of the spectrum.\n  Our study shows that the current minimal resolution ($R=50$) and signal-to-noise ($S/N=10$ at $11.2μ$m) requirements for LIFE suffice to characterize the structure and composition of a Venus-like atmosphere above the cloud deck if an adequate model is chosen. However, we cannot infer cloud properties. The accuracy of the retrieved planet radius ($R_{pl}$), equilibrium temperature ($T_{eq}$), and Bond albedo ($A_B$) depend on the choice of model. Generally, a cloud-free model performs best and thus the presence of clouds cannot be inferred. This model dependence of retrieval results emphasizes the importance of developing a community-wide best-practice for atmospheric retrieval studies. If we consider higher quality spectra (especially $S/N=20$), we can infer the presence of clouds and pose first constraints on their structure.",
+          "claimed_authors": [
+            "B. S. Konrad",
+            "E. Alei",
+            "S. P. Quanz",
+            "P. Mollière",
+            "D. Angerhausen",
+            "J. J. Fortney",
+            "K. Hakim",
+            "S. Jordan",
+            "D. Kitzmann",
+            "S. Rugheimer",
+            "O. Shorttle",
+            "R. Wordsworth",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): IX. Assessing the Impact of Clouds on Atmospheric Retrievals at Mid-Infrared Wavelengths with a Venus-Twin Exoplanet",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.04727"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='Large Interferometer For Exoplanets (LIFE): IX. Assessing the Impact of Clouds on Atmospheric Retrievals at Mid-Infrared Wavelengths with a Venus-Twin Exoplanet')",
+        "failed_at": "2026-06-25T05:44:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a new theoretical and numerical phase field-based formulation for predicting hydrogen-assisted fatigue. The coupled deformation-diffusion-damage model presented enables predicting fatigue crack nucleation and growth for arbitrary loading patterns and specimen geometries. The role of hydrogen in increasing fatigue crack growth rates and decreasing the number of cycles to failure is investigated. Our numerical experiments enable mapping the three loading frequency regimes and naturally recover Paris law behaviour for various hydrogen concentrations. In addition, Virtual S-N curves are obtained for both notched and smooth samples, exhibiting a good agreement with experiments.",
+          "claimed_authors": [
+            "Alireza Golahmar",
+            "Philip K. Kristensen",
+            "Christian F. Niordson",
+            "Emilio Martínez-Pañeda"
+          ],
+          "claimed_title": "A phase field model for hydrogen-assisted fatigue",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.14447"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='A phase field model for hydrogen-assisted fatigue')",
+        "failed_at": "2026-06-25T05:44:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-25T05:44:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-25T05:44:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-25T05:44:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-25T05:44:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents the hierarchical generalized linear model (HGLM) for loss reserving in a non-life insurance company. Because in this case the error of prediction is expressed by a complex analytical formula, the error bootstrap estimator is proposed instead. Moreover, the bootstrap procedure is used to obtain full information about the error by applying quantiles of the absolute prediction error. The full R code is available on the Github https://github.com/woali/BootErrorLossReserveHGLM.",
+          "claimed_authors": [
+            "Alicja Wolny-Dominiak"
+          ],
+          "claimed_title": "The hierarchical generalized linear model and the bootstrap estimator of the error of prediction of loss reserves in a non-life insurance company",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.04126"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='The hierarchical generalized linear model and the bootstrap estimator of the error of prediction of loss reserves in a non-life insurance company')",
+        "failed_at": "2026-06-25T05:44:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In rectangular-target pointing, movement angles towards targets are known to affect error rates. When designers determine target sizes, however, they would not know the frequencies of cursor-approaching directions for each target. Thus, assuming that there are unbiasedly various angles, we derived models to predict error rates depending only on the target width and height. We conducted two crowdsourced experiments: a cyclic pointing task with a predefined movement angle and a multi-directional pointing task. The shuffle-split cross-validation with 60% training data showed R^2 > 0.81, MAE < 1.3%, and RMSE < 2.1%, suggesting good prediction accuracy even for predicting untested target sizes when designers newly set UI elements.",
+          "claimed_authors": [
+            "Shota Yamanaka"
+          ],
+          "claimed_title": "Error-rate Prediction for Mouse-based Rectangular-target Pointing with no Knowledge of Movement Angles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.03103"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='Error-rate Prediction for Mouse-based Rectangular-target Pointing with no Knowledge of Movement Angles')",
+        "failed_at": "2026-06-25T05:44:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outcome prediction is crucial for head and neck cancer patients as it can provide prognostic information for early treatment planning. Radiomics methods have been widely used for outcome prediction from medical images. However, these methods are limited by their reliance on intractable manual segmentation of tumor regions. Recently, deep learning methods have been proposed to perform end-to-end outcome prediction so as to remove the reliance on manual segmentation. Unfortunately, without segmentation masks, these methods will take the whole image as input, such that makes them difficult to focus on tumor regions and potentially unable to fully leverage the prognostic information within the tumor regions. In this study, we propose a radiomics-enhanced deep multi-task framework for outcome prediction from PET/CT images, in the context of HEad and neCK TumOR segmentation and outcome prediction challenge (HECKTOR 2022). In our framework, our novelty is to incorporate radiomics as an enhancement to our recently proposed Deep Multi-task Survival model (DeepMTS). The DeepMTS jointly learns to predict the survival risk scores of patients and the segmentation masks of tumor regions. Radiomics features are extracted from the predicted tumor regions and combined with the predicted survival risk scores for final outcome prediction, through which the prognostic information in tumor regions can be further leveraged. Our method achieved a C-index of 0.681 on the testing set, placing the 2nd on the leaderboard with only 0.00068 lower in C-index than the 1st place.",
+          "claimed_authors": [
+            "Mingyuan Meng",
+            "Lei Bi",
+            "Dagan Feng",
+            "Jinman Kim"
+          ],
+          "claimed_title": "Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.05409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer')",
+        "failed_at": "2026-06-25T05:44:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The present study provides the consideration of a mode III interface crack in one-dimentional (1D) piezoelectric quasicrystal under antiplane phonon and phason loading and inplane electric field. Due to complex function approach all required electromechanical parameters are presented through vector-functions analytic in the whole complex plane except the crack region. The cases of electrically impermeable (insulated) and electrically limited permeable conditions on the crack faces are considered. In the first case a vector Hilbert problem in the complex plane is formulated and solved exactly and in the second one the quadratic equation with respect to the electric flux through the crack region is obtained additionally. Its solution permits to find phonon and phason stresses, displacement jumps (sliding) and also electric characteristics along the material interface. Analytical formulas are also obtained for the corresponding stress intensity factors related to each field. The numerical computations for three selected variants of the loading conditions was conducted and the resulting field distributions are visualised on the crack continuation beyond the crack and also inside of the crack region.",
+          "claimed_authors": [
+            "Mohammed Altoumaimi",
+            "V. V. Loboda"
+          ],
+          "claimed_title": "An interface crack in 1d piezoelectric quasicrystal under antiplane mechanical loading and electric field",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.17981"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='An interface crack in 1d piezoelectric quasicrystal under antiplane mechanical loading and electric field')",
+        "failed_at": "2026-06-25T05:44:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The joining of ceramics with metals have been extensively used in applications requiring high strength and excellent heat insulation. However, evaluating the residual stress generated inevitably due to the mismatch in coefficients of thermal expansion of ceramic and metal is challenging, which is very important for fabrication and characterization of layered inhomogeneous material. A simplified analytical model considering the overall deformation compatibility is established to compute the interlaminar residual stresses of the ZrO2/(ZrO2+Ni) sandwich ceramics, which agrees well with the results obtained by the commercial finite element package. The effects of the thickness ratio of the transitional layer to the middle layer, and the number of transitional layers on the properties of the ZrO2/(ZrO2+Ni) sandwich ceramics are researched to obtain the optimal structure.",
+          "claimed_authors": [
+            "Wenbin Zhou",
+            "Rubing Zhang",
+            "Shigang Ai",
+            "Yongmao Pei",
+            "Daining Fang"
+          ],
+          "claimed_title": "Analytical modelling of thermal residual stresses and optimal design of ZrO2/(ZrO2+Ni) sandwich ceramics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.09259"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets m', candidate_title='Analytical modelling of thermal residual stresses and optimal design of ZrO2/(ZrO2+Ni) sandwich ceramics')",
+        "failed_at": "2026-06-25T05:44:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chandrashekhar M. Pilgar",
+            "Ana Fernandez",
+            "Javier Segurado"
+          ],
+          "title": "Microstructure sensitive fatigue life prediction model for SLM fabricated Hastelloy-X",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2211.08305",
+        "summary": "A microstructure-sensitive fatigue life prediction framework based on CP-FFT is proposed to study SLM fabricated Hastelloy-X. The microstructure enters in the model through the shape, size and orientation distributions of grains in the RVEs, which are generated from experimental EBSD data. The framework has been applied to specimens built in two different directions with different polycrystalline microstructures and is able to accurately predict their fatigue life, using just two experiments for calibration. The model reproduces the better fatigue performance found experimentally at high stresses for samples built in transverse direction, identifying the origin of this anisotropy in grain aspect ratios.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2211.08305",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T05:44:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Matias Lasen",
+            "Dario Di Maio",
+            "Damaso De Bono",
+            "Michelle Peluzzo"
+          ],
+          "title": "An investigation of fatigue damage growth in composites materials using the vibration response phase decay",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.14834",
+        "summary": "The increasing use of polymer composites in industry asks for the creation of better, faster and cost-effective methods to detect the damage state of such materials. This work presents the investigation of the phase decay , $ΔΦ$, as a new parameter to characterise crack growth in composites materials utilising an experimental framework of High Frequency Fatigue Testing (HFFT), a framework where the excitation occurs at vibration resonance. The proposed methodology empirically relates the crack growth measurements, from interrupted testing, with the structural phase decay response, distinctive of material strength degradation",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.14834",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T05:44:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Baldur Steingrimsson",
+            "Xuesong Fan",
+            "Anand Kulkarni",
+            "Michael C. Gao",
+            "Peter K. Liaw"
+          ],
+          "title": "Machine Learning and Data Analytics for Design and Manufacturing of High-Entropy Materials Exhibiting Mechanical or Fatigue Properties of Interest",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.07583",
+        "summary": "This chapter presents an innovative framework for the application of machine learning and data analytics for the identification of alloys or composites exhibiting certain desired properties of interest. The main focus is on alloys and composites with large composition spaces for structural materials. Such alloys or composites are referred to as high-entropy materials (HEMs) and are here presented primarily in context of structural applications. For each output property of interest, the corresponding driving (input) factors are identified. These input factors may include the material composition, heat treatment, manufacturing process, microstructure, temperature, strain rate, environment, or testing mode. The framework assumes the selection of an optimization technique suitable for the application at hand and the data available. Physics-based models are presented, such as for predicting the ultimate tensile strength (UTS) or fatigue resistance. We devise models capable of accounting for physics-based dependencies. We factor such dependencies into the models as a priori information. In case that an artificial neural network (ANN) is deemed suitable for the applications at hand, it is suggested to employ custom kernel functions consistent with the underlying physics, for the purpose of attaining tighter coupling, better prediction, and for extracting the most out of the - usually limited - input data available.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.07583",
+          "http_status": 200,
+          "pdf_sample_score": 0.3171,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T05:44:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of residual stress on fatigue life using public datasets materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

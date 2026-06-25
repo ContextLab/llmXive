@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.14834",
+  "judged_at": "2026-06-25T05:45:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of residual stress on fatigue life using public datasets materials science",
+  "rationale": "The paper measures a key dependent variable of the user's question—fatigue damage growth (crack growth/fatigue life) in composite materials—fulfilling criterion (b) by providing empirical data on fatigue life within the same materials‑science domain, even though it does not address residual stress or public datasets.",
+  "relevant": true
+}

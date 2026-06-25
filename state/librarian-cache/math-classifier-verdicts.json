@@ -103,6 +103,10 @@
     "classified_at": "2026-06-19T18:39:16Z",
     "verdict": false
   },
+  "PROJ-291-predicting-the-impact-of-residual-stress::1.6.0": {
+    "classified_at": "2026-06-25T05:44:46Z",
+    "verdict": false
+  },
   "PROJ-307-machine-learning-prediction-of-crack-pro::1.6.0": {
     "classified_at": "2026-06-24T18:58:07Z",
     "verdict": false

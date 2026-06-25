@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-25T05:45:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of residual stress on fatigue life using public datasets materials science",
+  "rationale": "The paper focuses on data source changes and risks in machine‑learning‑driven official statistics, with no connection to residual stress, fatigue life, or materials‑science datasets, so it does not address any of the variables or mechanisms of the user's question.",
+  "relevant": false
+}

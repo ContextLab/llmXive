@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/9710182",
+  "judged_at": "2026-06-25T05:45:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of residual stress on fatigue life using public datasets materials science",
+  "rationale": "The paper investigates how surface stress influences dislocation emission and fracture toughness in f.c.c. metals via atomistic simulations, without addressing residual stress effects on fatigue life or employing public datasets. Its focus on surface‑stress‑driven crack tip behavior is a distinct construct from the user's interest in residual‑stress impact on fatigue performance.",
+  "relevant": false
+}

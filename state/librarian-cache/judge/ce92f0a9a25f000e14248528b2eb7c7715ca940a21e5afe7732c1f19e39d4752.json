@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-25T05:45:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of residual stress on fatigue life using public datasets materials science",
+  "rationale": "The paper discusses machine‑learning validation recommendations for biology and does not address residual stress, fatigue life, materials‑science datasets, or related predictive modeling, so it lacks any relevant mechanism, variable, or domain connection to the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.08305",
+  "judged_at": "2026-06-25T05:44:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of residual stress on fatigue life using public datasets materials science",
+  "rationale": "The paper provides empirical data on fatigue life (a dependent variable) for a material system, satisfying criterion (b): it measures one of the user's variables (fatigue life) within the same domain (materials science), even though it does not address residual stress or public datasets.",
+  "relevant": true
+}

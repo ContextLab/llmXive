@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.07583",
+  "judged_at": "2026-06-25T05:45:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of residual stress on fatigue life using public datasets materials science",
+  "rationale": "The paper provides machine‑learning models for predicting fatigue‑related properties of alloys/composites, thereby covering one of the user’s key variables (fatigue life/resistance) in the materials‑science domain (acceptance category (b) and also (d) as a methodological reference).",
+  "relevant": true
+}

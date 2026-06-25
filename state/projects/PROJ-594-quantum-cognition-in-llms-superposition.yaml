@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:35:08.618445Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-594-quantum-cognition-in-llms-superposition
-last_run_id: c92372c1-16be-4558-bd29-32843694ef1c
+last_run_id: ce0539ed-a9c9-435b-978c-6e8ec53a4d9b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning'
-updated_at: '2026-06-25T04:06:37.252206Z'
+updated_at: '2026-06-25T05:43:18.225437Z'

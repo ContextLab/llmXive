@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-22T09:07:41.192955Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-612-a-survey-of-large-audio-language-models
-last_run_id: 1aa8063b-1e3d-43a2-beb8-e31d5304de6c
+last_run_id: c035d239-9906-479b-8897-fae0e07bbd2d
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-612-a-survey-of-large-audio-language-models/specs/001-a-survey-of-large-audio-language-models
 title: 'A Survey of Large Audio Language Models: Generalization, Trustworthiness,
   and Outlook'
-updated_at: '2026-06-25T01:35:11.102967Z'
+updated_at: '2026-06-25T05:44:06.024225Z'

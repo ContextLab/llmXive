@@ -1,14 +1,8 @@
-# Core dependencies for the QM9 pipeline and downstream analysis
-pandas
-pyarrow
+# Core dependencies for the dipole moment prediction project
 numpy
-requests
-# The primary source uses the HuggingFace datasets library
-datasets
-# Fallback source (DeepChem NumPy archive) does not require additional
-# packages beyond those listed above, but the libraries are kept here for
-# completeness and future extensions.
-# torch and torch_geometric are optional – not required for the current
-# fallback implementation.
-# torch
-# torch_geometric
+pandas
+scikit-learn
+joblib
+# Added to satisfy analysis scripts that generate plots
+matplotlib
+# Existing dependencies (if any) should be retained; they are listed above.
