@@ -41,19 +41,35 @@ def make_backend(name: str) -> BaseBackend:
 # pipeline runs alive when one Dartmouth-hosted model has a vLLM
 # outage but other models on the same backend are healthy.
 MODEL_FALLBACKS: dict[str, list[str]] = {
-    # gpt-oss-120b is the capable free reasoning model on the Dartmouth catalog
-    # (the qwen.* and gemma.* families were retired/down 2026-06). If its vLLM is
-    # out, fall through to:
-    #   1. claude-haiku-4.5 — a CAPABLE *paid* model (cost ~29 credits/call,
-    #      ~$0.029), tried FIRST so a gpt-oss outage degrades to a real model
-    #      rather than weak llama. It is GUARDED: dartmouth.chat() raises
-    #      PermanentBackendError unless LLMXIVE_PAID_OPT_IN is set AND the daily
-    #      credit budget has headroom; the router treats that peer-permanent as
-    #      "skip to next peer", so with opt-in OFF this entry is a silent no-op.
-    #   2. llama-3.2-11b — the free last resort (always available, but weak).
-    "openai.gpt-oss-120b": [
+    # qwen3.5-122b is the primary free reasoning model (back up 2026-06-25). When
+    # one model's vLLM flaps (gpt-oss has been hanging — the "tons of job
+    # failures"), the router walks the SAME-backend peers in order before falling
+    # through to the next backend, keeping runs alive. Free peers first, then the
+    # guarded paid model last:
+    #   1. gemma-3-27b — free, FAST, non-reasoning (degrades a qwen flap to a
+    #      sub-second model instead of a 360s deadline wait).
+    #   2. gpt-oss-120b — free, capable reasoning (often up; flaps).
+    #   3. claude-haiku-4.5 — a CAPABLE *paid* last resort (~29 credits ≈ $0.029).
+    #      GUARDED: dartmouth.chat() raises PermanentBackendError unless
+    #      LLMXIVE_PAID_OPT_IN is set AND the daily credit budget has headroom;
+    #      the router treats that peer-permanent as "skip to next peer", so with
+    #      opt-in OFF this entry is a silent no-op.
+    "qwen.qwen3.5-122b": [
+        "google.gemma-3-27b-it",
+        "openai.gpt-oss-120b",
         "anthropic.claude-haiku-4-5-20251001",
-        "meta.llama-3.2-11b-vision-instruct",
+    ],
+    # gpt-oss as primary (a few modules still pin it) degrades the same way.
+    "openai.gpt-oss-120b": [
+        "qwen.qwen3.5-122b",
+        "google.gemma-3-27b-it",
+        "anthropic.claude-haiku-4-5-20251001",
+    ],
+    # gemma as primary (fast default for cheap calls) → reasoning peers → paid.
+    "google.gemma-3-27b-it": [
+        "qwen.qwen3.5-122b",
+        "openai.gpt-oss-120b",
+        "anthropic.claude-haiku-4-5-20251001",
     ],
 }
 

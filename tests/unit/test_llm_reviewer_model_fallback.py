@@ -97,7 +97,7 @@ def test_primary_transient_walks_to_peer():
     backend = _ModelRoutingBackend(
         replies={
             "openai.gpt-oss-120b": _VALID_PRIMARY,  # never reached (transient)
-            "meta.llama-3.2-11b-vision-instruct": _VALID_PEER,
+            "qwen.qwen3.5-122b": _VALID_PEER,       # first free peer in the chain
         },
         transient_models={"openai.gpt-oss-120b"},
     )
@@ -106,7 +106,7 @@ def test_primary_transient_walks_to_peer():
     # proving the fallback chain was walked instead of stalling on the dead model.
     assert concerns == []
     models = [c["model"] for c in backend.calls]
-    assert models[-1] == "meta.llama-3.2-11b-vision-instruct"
+    assert models[-1] == "qwen.qwen3.5-122b"
     assert "openai.gpt-oss-120b" in models
     # The reasoning-safe budget reached the PEER too.
     assert backend.calls[-1]["max_tokens"] == 32_768

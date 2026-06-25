@@ -340,10 +340,18 @@ def _ensure_api_key_env() -> None:
 # Synced 2026-06 with ChatDartmouth.list(): the qwen.* and google.gemma-*
 # families were RETIRED from the Dartmouth catalog, so every agent that named
 # them silently fell through to the weak `local` fallback. The only capable
-# free model now is openai.gpt-oss-120b (reasoning + tool calling); the llama
-# / codellama models remain free but small.
+# Free capable models on the Dartmouth catalog (verified live 2026-06-25 by real
+# call — all responding): qwen3.5-122b (reasoning) is the primary default, gemma
+# (fast, non-reasoning) and gpt-oss-120b (reasoning) are fallbacks. qwen + gemma
+# were transiently retired/down 2026-06 (why the registry had moved to gpt-oss)
+# and are back. llama / codellama stay free but small (last resort). Paid models
+# (claude/gpt-5/gemini/voyage) are NEVER listed here — they route through
+# PAID_FALLBACK_MODELS + the daily credit guard.
 KNOWN_FREE_MODELS: frozenset[str] = frozenset(
     {
+        "qwen.qwen3.5-122b",
+        "google.gemma-3-27b-it",
+        "google.gemma-4-31B-it",
         "openai.gpt-oss-120b",
         "meta.llama-3.2-11b-vision-instruct",
         "meta.llama-3-2-3b-instruct",

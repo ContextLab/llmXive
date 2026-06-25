@@ -22,7 +22,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: flesh_out
@@ -36,7 +36,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools:
   - lit_search
   wall_clock_budget_seconds: 600
@@ -54,7 +54,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: idea_selector
@@ -68,7 +68,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: project_initializer
@@ -82,7 +82,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: librarian
@@ -98,7 +98,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 1800
   paid_opt_in: false
 - name: specifier
@@ -112,7 +112,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: clarifier
@@ -126,7 +126,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: planner
@@ -141,7 +141,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: tasker
@@ -155,7 +155,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: implementer
@@ -171,7 +171,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: research_reviewer
@@ -188,7 +188,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: reference_validator
@@ -206,7 +206,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools:
   - citation_fetcher
   wall_clock_budget_seconds: 300
@@ -225,7 +225,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: paper_specifier
@@ -242,7 +242,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: paper_clarifier
@@ -257,7 +257,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: paper_planner
@@ -272,7 +272,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: paper_tasker
@@ -287,7 +287,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: paper_implementer
@@ -302,7 +302,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: paper_writing
@@ -316,7 +316,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools:
   - lit_search
   wall_clock_budget_seconds: 900
@@ -334,7 +334,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools:
   - code_sandbox
   wall_clock_budget_seconds: 900
@@ -352,7 +352,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools:
   - code_sandbox
   wall_clock_budget_seconds: 900
@@ -369,7 +369,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: latex_build
@@ -384,7 +384,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: latex_fix
@@ -399,7 +399,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: paper_reviewer
@@ -413,7 +413,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: status_reporter
@@ -429,7 +429,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: repository_hygiene
@@ -444,7 +444,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: task_atomizer
@@ -461,7 +461,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: task_joiner
@@ -478,7 +478,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: paper_reviewer_writing_quality
@@ -493,7 +493,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -509,7 +509,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -525,7 +525,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -541,7 +541,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -557,7 +557,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -573,7 +573,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -589,7 +589,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -605,7 +605,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -621,7 +621,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -637,7 +637,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -653,7 +653,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -669,7 +669,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -685,7 +685,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -701,7 +701,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -717,7 +717,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -733,7 +733,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -749,7 +749,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -765,7 +765,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -781,7 +781,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -799,7 +799,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 300
   paid_opt_in: false
@@ -817,7 +817,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -834,7 +834,7 @@ agents:
   default_backend: dartmouth
   fallback_backends:
   - local
-  default_model: openai.gpt-oss-120b
+  default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 1800
   paid_opt_in: false

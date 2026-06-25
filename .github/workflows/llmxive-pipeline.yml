@@ -86,6 +86,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_ID: ${{ github.event.inputs.project_id }}
           STAGE: ${{ github.event.inputs.stage }}
+          # Allow the guarded paid fallback (claude-haiku-4.5) when ALL free
+          # models flap — gpt-oss has been hanging and qwen/gemma can too. The
+          # credit guard in backends/credits.py caps spend at the budget fraction
+          # of the daily 2000-credit (~$2/day) allowance and renews daily, so this
+          # stays within the maintainer-sanctioned $2/day and Constitution IV
+          # (free-first: free models are still tried first; paid is last resort).
+          LLMXIVE_PAID_OPT_IN: "1"
+          LLMXIVE_PAID_BUDGET_FRACTION: "0.9"
         run: |
           ARGS=(run --max-tasks 5)
           if [[ -n "${PROJECT_ID:-}" ]]; then ARGS+=(--project "$PROJECT_ID"); fi

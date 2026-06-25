@@ -466,7 +466,7 @@ def test_invoke_reviser_backend_uses_fallback():
             self._model = "openai.gpt-oss-120b"
 
     backend = _ModelFallbackBackend(
-        replies={"openai.gpt-oss-120b": "x", "meta.llama-3.2-11b-vision-instruct": "peer revision"},
+        replies={"openai.gpt-oss-120b": "x", "qwen.qwen3.5-122b": "peer revision"},
         transient_models={"openai.gpt-oss-120b"},
     )
     text = invoke_reviser_backend(_Reviser(backend), [])
