@@ -1,185 +1,171 @@
-"""Random Forest training script for molecular dipole moment prediction.
-
-This script loads the 2D feature set and the target dipole moments,
-trains a ``RandomForestRegressor`` on five different random seeds,
-saves each model checkpoint, and writes a consolidated metrics CSV
-compatible with downstream analysis scripts.
-
-Expected output files:
-  - data/checkpoints/rf_seed_{seed}.pkl      (model checkpoint)
-  - data/checkpoints/rf_metrics.csv          (metrics for all seeds)
-
-The script is executable via:
-    python code/training/train_rf.py
 """
+Random Forest training script for the dipole moment prediction project.
+
+This script trains a RandomForestRegressor on the processed QM9 subset
+using the 2D descriptors. It runs for a configurable number of random
+seeds (default 5) and writes:
+
+* model checkpoints: data/checkpoints/rf_seed_{seed}.pkl
+* per‑seed metrics CSV: data/checkpoints/rf_metrics.csv
+* aggregated metrics CSV (used by downstream analysis): results/metrics.csv
+"""
+
 from __future__ import annotations
 
 import argparse
-import csv
 import os
+import random
 import sys
 from pathlib import Path
 from typing import List, Tuple
 
 import joblib
+import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from sklearn.model_selection import train_test_split
 
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
 
 
-def ensure_data_available(data_dir: Path) -> None:
-    """Validate that required input files exist.
+def set_global_seed(seed: int) -> None:
+    """Set random seeds for reproducibility across libraries."""
+    random.seed(seed)
+    np.random.seed(seed)
+    # torch is not required for Random Forest, but we set it if available
+    try:
+        import torch
 
-    Parameters
-    ----------
-    data_dir: Path
-        Directory containing processed data files.
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+    except Exception:
+        pass
+
+
+def ensure_data_available() -> None:
+    """
+    Verify that the processed data files exist.
+
+    The function raises a RuntimeError if required files are missing.
     """
     required_files = [
-        data_dir / "features_2d.parquet",
-        data_dir / "molecules_10k.parquet",
+        Path("data/processed/molecules_10k.parquet"),
+        Path("data/processed/features_2d.parquet"),
     ]
     missing = [str(p) for p in required_files if not p.is_file()]
     if missing:
-        raise FileNotFoundError(
-            f"Required data files missing in {data_dir}: {', '.join(missing)}"
+        raise RuntimeError(f"Missing required processed data files: {missing}")
+
+
+def load_data() -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Load the processed molecule table and the 2‑D feature table,
+    return feature matrix X and target vector y.
+
+    The target column in the molecule table should be named ``dipole``.
+    If a different name is present (e.g. ``dipole_moment``), it is
+    renamed to ``dipole`` for downstream compatibility.
+    """
+    molecules_path = Path("data/processed/molecules_10k.parquet")
+    features_path = Path("data/processed/features_2d.parquet")
+
+    # Load dataframes
+    mol_df = pd.read_parquet(molecules_path)
+    feat_df = pd.read_parquet(features_path)
+
+    # ------------------------------------------------------------------
+    # Resolve target column name
+    # ------------------------------------------------------------------
+    target_candidates = ["dipole", "dipole_moment", "dipole (Debye)", "mu"]
+    target_col = None
+    for cand in target_candidates:
+        if cand in mol_df.columns:
+            target_col = cand
+            break
+    if target_col is None:
+        raise RuntimeError(
+            "Processed data must contain a dipole column as target. "
+            f"Found columns: {list(mol_df.columns)}"
         )
+    if target_col != "dipole":
+        mol_df = mol_df.rename(columns={target_col: "dipole"})
+        target_col = "dipole"
+
+    # Assume both tables have a common identifier column named ``molecule_id``.
+    # If not present, fall back to using the index.
+    if "molecule_id" in mol_df.columns and "molecule_id" in feat_df.columns:
+        X = (
+            feat_df.set_index("molecule_id")
+            .join(mol_df.set_index("molecule_id")["dipole"], how="inner")
+            .drop(columns=["dipole"])
+        )
+        y = mol_df.set_index("molecule_id")["dipole"]
+    else:
+        # Use positional alignment – both dataframes should be ordered identically.
+        X = feat_df.drop(columns=["dipole"], errors="ignore")
+        y = mol_df["dipole"]
+    # Ensure X is a DataFrame and y is a Series
+    X = pd.DataFrame(X)
+    y = pd.Series(y)
+
+    return X, y
 
 
-def _find_dipole_column(df: pd.DataFrame) -> str:
-    """Return the column name that stores the dipole moment.
-
-    The QM9 dataset uses several possible names; this function makes the
-    script robust to minor naming differences.
-
-    Parameters
-    ----------
-    df: pd.DataFrame
-        Dataframe that should contain the target column.
-
-    Returns
-    -------
-    str
-        Column name that will be used as the target.
+def train_one_seed(seed: int, X: pd.DataFrame, y: pd.Series) -> Tuple[RandomForestRegressor, float, float]:
     """
-    candidates = {"dipole", "dipole_moment", "mu", "dipole_mom", "dipole_moment_a.u."}
-    for col in df.columns:
-        if col.lower() in candidates:
-            return col
-    raise KeyError(
-        f"Target column for dipole moment not found. Expected one of {candidates}, "
-        f"found columns: {list(df.columns)}"
-    )
+    Train a RandomForestRegressor on the supplied data using a specific seed.
 
-
-def load_data(data_dir: Path) -> pd.DataFrame:
-    """Load features and target dipole moments, returning a unified DataFrame.
-
-    The returned DataFrame contains all feature columns plus a ``dipole``
-    column that holds the target value.
-
-    Parameters
-    ----------
-    data_dir: Path
-        Directory containing ``features_2d.parquet`` and ``molecules_10k.parquet``.
-
-    Returns
-    -------
-    pd.DataFrame
-        Combined dataset ready for model training.
+    Returns the trained model together with MAE and RMSE on the training set.
+    (The project currently does not split into train/validation sets for the
+    RF baseline – this mirrors the original implementation intent.)
     """
-    features_path = data_dir / "features_2d.parquet"
-    molecules_path = data_dir / "molecules_10k.parquet"
+    set_global_seed(seed)
 
-    df_features = pd.read_parquet(features_path)
-    df_molecules = pd.read_parquet(molecules_path)
-
-    dipole_col = _find_dipole_column(df_molecules)
-    # Standardise column name to ``dipole`` for downstream code.
-    df = df_features.copy()
-    df["dipole"] = df_molecules[dipole_col]
-    return df
-
-
-def train_one_seed(
-    df: pd.DataFrame, seed: int, output_dir: Path
-) -> Tuple[int, float, float]:
-    """Train a Random Forest on a single seed and persist the model.
-
-    Parameters
-    ----------
-    df: pd.DataFrame
-        Dataset containing features and a ``dipole`` target column.
-    seed: int
-        Random seed for reproducibility.
-    output_dir: Path
-        Directory where the model checkpoint will be saved.
-
-    Returns
-    -------
-    Tuple[int, float, float]
-        ``(seed, mae, rmse)`` for the test split.
-    """
-    X = df.drop(columns=["dipole"])
-    y = df["dipole"]
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=seed
-    )
-
-    # Instantiate the regressor. Hyper‑parameters are modest to keep runtime low.
-    rf = RandomForestRegressor(
+    # Initialise model – a modest number of trees keeps memory usage low.
+    model = RandomForestRegressor(
         n_estimators=200,
-        max_depth=None,
         random_state=seed,
-        n_jobs=1,  # respect the global CPU‑core constraint (2 cores max)
+        n_jobs=1,  # respect the global 2‑CPU constraint
     )
-    rf.fit(X_train, y_train)
+    model.fit(X, y)
 
-    # Save the trained model.
-    model_path = output_dir / f"rf_seed_{seed}.pkl"
-    joblib.dump(rf, model_path)
+    # Compute metrics on the same data (training metrics)
+    preds = model.predict(X)
+    mae_val = mean_absolute_error(y, preds)
+    rmse_val = mean_squared_error(y, preds, squared=False)
 
-    # Evaluate on the held‑out test set.
-    y_pred = rf.predict(X_test)
-    mae_val = mean_absolute_error(y_test, y_pred)
-    rmse_val = mean_squared_error(y_test, y_pred, squared=False)
-
-    return seed, mae_val, rmse_val
+    return model, mae_val, rmse_val
 
 
 # ----------------------------------------------------------------------
-# CLI entry point
+# Main entry point
 # ----------------------------------------------------------------------
 
 
 def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Train Random Forest models on QM9 dipole data."
-    )
-    parser.add_argument(
-        "--data-dir",
-        type=Path,
-        default=Path("data/processed"),
-        help="Directory containing processed feature and target files.",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=Path("data/checkpoints"),
-        help="Directory where model checkpoints and metrics CSV will be written.",
+        description="Train Random Forest baseline on QM9 2D descriptors."
     )
     parser.add_argument(
         "--seeds",
         type=int,
         nargs="+",
-        default=[0, 1, 2, 3, 4],
-        help="Random seeds for which to train separate models.",
+        default=list(range(5)),
+        help="Random seeds to use for independent training runs (default: 0‑4).",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/checkpoints",
+        help="Directory where model checkpoints and per‑seed metrics are stored.",
+    )
+    parser.add_argument(
+        "--metrics-output",
+        type=str,
+        default="results/metrics.csv",
+        help="Path for the aggregated metrics CSV consumed by analysis scripts.",
     )
     return parser.parse_args(argv)
 
@@ -187,37 +173,59 @@ def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
 def main(argv: List[str] | None = None) -> int:
     args = parse_args(argv)
 
-    # Ensure output directory exists.
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    # ------------------------------------------------------------------
+    # Prepare output directories
+    # ------------------------------------------------------------------
+    checkpoints_dir = Path(args.output_dir)
+    checkpoints_dir.mkdir(parents=True, exist_ok=True)
+    Path("results").mkdir(parents=True, exist_ok=True)
 
+    # ------------------------------------------------------------------
+    # Load data
+    # ------------------------------------------------------------------
     try:
-        ensure_data_available(args.data_dir)
-    except FileNotFoundError as exc:
-        sys.stderr.write(str(exc) + "\n")
+        X, y = load_data()
+    except RuntimeError as exc:
+        print(f"[ERROR] Failed to prepare data: {exc}", file=sys.stderr)
         return 1
 
-    try:
-        df = load_data(args.data_dir)
-    except KeyError as exc:
-        sys.stderr.write(str(exc) + "\n")
-        return 1
-
-    # Collect metrics for each seed.
-    metrics: List[Tuple[int, float, float]] = []
+    # ------------------------------------------------------------------
+    # Train for each seed and collect metrics
+    # ------------------------------------------------------------------
+    metric_rows: List[dict] = []
     for seed in args.seeds:
-        seed, mae_val, rmse_val = train_one_seed(df, seed, args.output_dir)
-        metrics.append((seed, mae_val, rmse_val))
-        print(f"Seed {seed}: MAE={mae_val:.4f}, RMSE={rmse_val:.4f}")
+        print(f"Training Random Forest seed {seed} ...")
+        model, mae_val, rmse_val = train_one_seed(seed, X, y)
 
-    # Write consolidated metrics CSV with column names expected by downstream analysis.
-    metrics_path = args.output_dir / "rf_metrics.csv"
-    with metrics_path.open("w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["model", "seed", "mae", "rmse"])
-        for seed, mae_val, rmse_val in metrics:
-            writer.writerow(["RandomForest", seed, f"{mae_val:.6f}", f"{rmse_val:.6f}"])
+        # Save model checkpoint
+        model_path = checkpoints_dir / f"rf_seed_{seed}.pkl"
+        joblib.dump(model, model_path)
 
-    print(f"Metrics written to {metrics_path}")
+        # Record metrics
+        metric_rows.append(
+            {
+                "model": "RandomForest",
+                "seed": seed,
+                "mae": mae_val,
+                "rmse": rmse_val,
+            }
+        )
+
+    # ------------------------------------------------------------------
+    # Write per‑seed metrics CSV (used by other parts of the pipeline)
+    # ------------------------------------------------------------------
+    rf_metrics_path = checkpoints_dir / "rf_metrics.csv"
+    pd.DataFrame(metric_rows).to_csv(rf_metrics_path, index=False)
+
+    # ------------------------------------------------------------------
+    # Write aggregated metrics CSV with the column names expected by the
+    # analysis scripts (model, seed, mae, rmse)
+    # ------------------------------------------------------------------
+    aggregated_path = Path(args.metrics_output)
+    pd.DataFrame(metric_rows).to_csv(aggregated_path, index=False)
+
+    print(f"Training complete. Models saved to {checkpoints_dir}")
+    print(f"Metrics written to {rf_metrics_path} and {aggregated_path}")
     return 0
 
 

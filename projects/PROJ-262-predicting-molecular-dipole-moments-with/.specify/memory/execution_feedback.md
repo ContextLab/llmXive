@@ -7,20 +7,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/training/train_rf.py -> rc=1
-    "Target column for dipole moment not found. Expected one of {'dipole', 'dipole_moment', 'mu', 'dipole_moment_a.u.', 'dipole_mom'}, found columns: ['molecule_id', 'smiles']"
+    [ERROR] Failed to prepare data: Processed data must contain a 'dipole' column as target.
 - python code/analysis/generate_performance_plots.py -> rc=1
      line 138, in generate_plots
     df = load_metrics(metrics_csv)
          ^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py", line 51, in load_metrics
     raise ValueError(f"Metrics CSV missing columns: {missing}")
-ValueError: Metrics CSV missing columns: {'mae', 'rmse', 'model'}
+ValueError: Metrics CSV missing columns: {'rmse', 'mae', 'model'}
 - python code/analysis/generate_significance.py -> rc=1
     ric_data = _load_metrics(metrics_path)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py", line 54, in _load_metrics
     raise ValueError(f"Metrics CSV missing required columns: {missing}")
-ValueError: Metrics CSV missing required columns: {'mae', 'model', 'rmse'}
+ValueError: Metrics CSV missing required columns: {'model', 'mae', 'rmse'}
 - python code/generate_summary.py -> rc=1
     ary
     significance = load_csv_as_dicts(significance_path)
@@ -44,7 +44,7 @@ A `missing columns` / `KeyError` / `FileNotFoundError: <file>` failure above is 
 - `data/checkpoints/rf_seed_2.pkl` (337617 bytes)
 - `data/checkpoints/rf_seed_3.pkl` (337617 bytes)
 - `data/checkpoints/rf_seed_4.pkl` (337617 bytes)
-- `data/processed/features_2d.parquet` (1039608 bytes)
-- `data/processed/features_3d.parquet` (353132 bytes)
-- `data/processed/molecules_10k.parquet` (114813 bytes)
+- `data/processed/features_2d.parquet` (175837 bytes)
+- `data/processed/features_3d.parquet` (353541 bytes)
+- `data/processed/molecules_10k.parquet` (64836 bytes)
 - `results/metrics.csv` — actual CSV header: `seed,model_type,MAE,RMSE`

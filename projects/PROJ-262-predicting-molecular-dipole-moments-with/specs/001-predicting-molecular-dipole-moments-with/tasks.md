@@ -99,7 +99,7 @@ description: "Task list template for feature implementation"
 - [X] T026 [P] [US2] Implement SchNet-style GNN architecture in `projects/001-predicting-molecular-dipole-moments/code/models/schnet_gnn.py` (FR-004, CPU-only mode)
 - [X] T027 [P] [US2] Implement Random Forest baseline in `projects/001-predicting-molecular-dipole-moments/code/models/random_forest_baseline.py` (FR-005)
 - [X] T028 [US2] Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10) in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py` (FR-005)
-- [ ] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
+- [X] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/001-predicting-molecular-dipole-moments/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
 - [X] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
@@ -142,9 +142,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Align tasks with spec requirements and ensure all FRs are implemented
 
-- [X] T049 [US1+US2+US3] Implement global 6h CPU time limit enforcement wrapper wrapper in `projects/001-predicting-molecular-dipole-moments/code/utils/pipeline_time_limit.py` (FR-010, SC-003, applies to entire pipeline not just training)
+- [X] T049 [US1+US2+US3] Implement {{claim:c_0f9c05be}} wrapper in `projects/001-predicting-molecular-dipole-moments/code/utils/pipeline_time_limit.py` (FR-010, SC-003, applies to entire pipeline not just training)
 - [X] T050 [US1+US2+US3] Enforce 2 CPU cores constraint across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/cpu_constraint.py` (FR-010, SC-003)
-- [X] T051 [US1+US2+US3] Validate RMSE variance < 10% threshold across 5 seeds [UNRESOLVED-CLAIM: c_d6b47489 — status=not_enough_info] in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_variance.py` (SC-005)
+- [X] T051 [US1+US2+US3] Validate RMSE variance < 10% threshold across 5 seeds in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_variance.py` (SC-005)
 - [X] T052 [US1+US2+US3] Enforce memory constraint (< 8GB) across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/memory_constraint.py` (FR-013)
 - [X] T053 [US1+US2+US3] {{claim:c_0ecfde8e}} in `projects/001-predicting-molecular-dipole-moments/code/utils/validate_urls.py` (spec.md Assumptions)
 

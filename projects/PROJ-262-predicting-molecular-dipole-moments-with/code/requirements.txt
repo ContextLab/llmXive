@@ -1,13 +1,6 @@
-# Core dependencies for the molecular dipole prediction project
 pandas
 pyarrow
-scikit-learn>=1.3.0
+scikit-learn
 joblib
 numpy
-tqdm
-# Existing dependencies (if any) should be retained; added scikit-learn for RF training.
-matplotlib  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
+# Existing project requirements (if any) should be retained above.
