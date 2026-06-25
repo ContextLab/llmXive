@@ -13,7 +13,7 @@ A researcher wants to run a reproducible audit over a corpus of public A/B test 
 
 **Why this priority**: This is the core value‑producing function; without it the project cannot answer its primary research question.
 
-**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-005**, **FR-006**, **FR-007**, **FR-008**, **FR-009**, **FR-010**, **FR-011**, **FR-012**, **FR-013**, **FR-014**, **FR-016** (all See US‑1)  
+**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-004a**, **FR-005a**, **FR-005**, **FR-006**, **FR-007**, **FR-008**, **FR-009**, **FR-010**, **FR-011**, **FR-012**, **FR-013**, **FR-014**, **FR-016** (all See US‑1)  
 **Anchored Success Criteria**: **SC-001**, **SC-002**, **SC-003**, **SC-004**, **SC-005**, **SC-008**, **SC-009**, **SC-010**, **SC-011**, **SC-012**, **SC-013** (all See US‑1)
 
 **Independent Test**: Provide a curated validation set of ≥ 30 manually annotated summaries and verify that the pipeline flags exactly the inconsistent entries.
@@ -32,7 +32,7 @@ A product manager wants a high‑level view of inconsistency prevalence across s
 
 **Why this priority**: Enables stakeholders to interpret the audit results without digging into raw data, supporting transparency and decision‑making.
 
-**Anchored Requirements**: **FR-005**, **FR-010**, **FR-014**, **FR-016** (both See US‑2)  
+**Anchored Requirements**: **FR-005a**, **FR-005**, **FR-010**, **FR-014**, **FR-016** (both See US‑2)  
 **Anchored Success Criteria**: **SC-010**, **SC-013**, **SC-008** (both See US‑2)
 
 **Independent Test**: Run the pipeline on a representative corpus and verify that the generated HTML dashboard shows (a) overall inconsistency rate, (b) source‑wise breakdown, (c) monthly trend line, and (d) the cluster‑adjusted proportion‑test result with Wilson 95 % CI.
@@ -97,7 +97,10 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
   3. The **absolute relative difference** between the reported effect size and the reconstructed effect size exceeds **5 %** of the larger magnitude.  
   4. The **absolute relative difference** between the reported sample size (per variant) and the reconstructed sample size exceeds **5 %** of the larger count.  
   5. When a confidence interval is reported, the reported effect size falls outside the **95 %** confidence interval derived from the reconstructed test.  
-  **Justification & Sensitivity**: These tolerances follow standard A/B‑testing practice (Kohavi et al., 2020) and balance sensitivity with typical reporting noise. A sensitivity analysis will be performed varying the p‑value tolerance by ±0.02 and the effect‑size tolerance by ±2 % to quantify impact on false‑positive and false‑negative rates (reported in supplemental material).  
+  **Justification**: These tolerances follow standard A/B‑testing practice (Kohavi et al., 2020) where typical reporting rounding and small‑sample variability lead to p‑value differences up to 0.05 and effect‑size differences up to 5 % without indicating substantive error.  
+  **Further Requirement**: The pipeline must also report the resulting false‑positive and false‑negative rates on the synthetic validation dataset (see **FR‑004a**).  
+- **FR-004a**: System MUST perform a sensitivity analysis on the thresholds in FR‑004 by varying the p‑value tolerance by ±0.02 and the effect‑size tolerance by ±2 % of the larger magnitude, and must report the resulting false‑positive and false‑negative rates on the synthetic validation dataset. (See US‑1)  
+- **FR-005a**: System MUST perform a simple two‑sided binomial test of the overall inconsistency proportion against a baseline proportion of **5 %** at significance level **α = 0.05**. The test must report a p‑value and a 95 % Wilson confidence interval for the observed proportion. (See US‑1)  
 - **FR-005**: System MUST compute aggregate analyses **using cluster‑robust variance estimation** to account for intra‑source and intra‑month correlation:  
   a. Estimate the overall inconsistency proportion with a **mixed‑effects logistic regression** (random intercepts for source and month) and test the null hypothesis **H₀: π = 0.05** using a Rao‑Scott χ² test (α = 0.05).  
   b. Provide a **Wilson 95 % confidence interval** for the overall inconsistency proportion (derived from the mixed‑effects model).  
@@ -106,14 +109,14 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
   e. Prior to any aggregate test, verify that the corpus meets the **minimum sample size** derived from the power analysis (see FR‑011).  
 - **FR-006**: System MUST export a reproducible research package containing (i) raw extracted data, (ii) analysis scripts, (iii) a Dockerfile, and (iv) generated reports (JSON audit, HTML dashboard). (See US‑3)  
 - **FR-007**: System MUST log any parsing failures or missing fields with clear error messages for downstream inspection. (See US‑1)  
-- **FR-008**: System MUST generate a synthetic validation dataset (with known ground‑truth effect sizes, sample sizes, and p‑values) that **mirrors real‑world reporting quirks**: rounded p‑values, inequality bounds, missing confidence intervals, mixed effect‑size units (lift %, absolute difference, odds ratios), and occasional absent baseline rates. (See US‑1)  
+- **FR-008**: System MUST generate a synthetic validation dataset of **at least 200 summaries** that **mirrors real‑world reporting quirks** with the following minimum proportions: rounded p‑values **≥ 20 %**, inequality bounds **≥ 10 %**, missing confidence intervals **≥ 15 %**, mixed effect‑size units (lift % or odds ratios) **≥ 25 %**, and absent baseline rates **≥ 10 %**. The marginal distribution of each attribute must match that observed in a reference corpus of 500 real‑world summaries within a **Jensen‑Shannon divergence ≤ 0.1**. The dataset must be accompanied by a validation report documenting these metrics. (See US‑1)  
 - **FR-009**: System MUST enforce CPU‑only execution; all dependencies must run on the default GitHub Actions runner (≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h runtime). No GPU‑specific libraries or large‑model inference may be used. (See US‑1, US‑3, US‑4)  
-- **FR-010**: System MUST generate an HTML dashboard summarizing overall inconsistency rate, source‑wise breakdown, and temporal trends, including the statistical test results described in **FR‑005**. (See US‑2)  
+- **FR-010**: System MUST generate an HTML dashboard summarizing overall inconsistency rate, source‑wise breakdown, and temporal trends, including the statistical test results described in **FR‑005** and **FR‑005a**. (See US‑2)  
 - **FR-011**: System MUST perform an a priori power analysis to determine the required corpus size to detect an increase in inconsistency proportion from 5 % to 10 % with 80 % power at α = 0.05 **using the mixed‑effects logistic regression model with cluster‑robust variance**; the analysis yields a minimum of **300 summaries**. The pipeline shall refuse to run if the supplied corpus is smaller than this threshold, aborting with a clear error message. (See US‑1)  
 - **FR-012**: System MUST convert reported lift % to absolute conversion‑rate difference using the reported baseline conversion rate (if provided) **or, when absent, the average of the two variant rates**; conversion follows the formula  
   `abs_diff = lift_percent / 100 * baseline_rate`.  
   Unsupported effect‑size representations (odds ratios, relative risk) are treated as missing metrics and flagged accordingly. (See US‑1)  
-- **FR-013**: System MUST ensure that the synthetic validation dataset includes a realistic mix of reporting styles (rounded, inequality, missing CI, mixed units) to enable external‑validity assessment of detector performance. (See US‑1)  
+- **FR-013**: System MUST ensure that the synthetic validation dataset includes the realistic mix of reporting styles specified in **FR‑008** (i.e., the same proportion targets for rounded p‑values, inequality bounds, missing confidence intervals, mixed effect‑size units, and absent baseline rates). (See US‑1)  
 - **FR-014**: System MUST compute SHA‑256 hashes of the Docker image, JSON audit report, and dashboard HTML after each run and store them in a `manifest.json` file **committed to the repository as part of the CI workflow**, satisfying Principle V versioning discipline. (See US‑4)  
 - **FR-015**: System MUST ensure that all extracted summaries conform to `extracted_summary.schema.yaml` and all audit records conform to `audit_record.schema.yaml` via `jsonschema` validation during the pipeline run. (See US‑1)  
 - **FR-016**: System MUST validate the contracts mentioned in FR‑015 using `pytest`‑based test suites that load the schemas and assert compliance for every record. (See US‑1)  
@@ -138,6 +141,7 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 - **SC-011**: On the synthetic validation dataset (FR‑008), the detector must achieve recall ≥ 85 % and precision ≥ 90 % (measured against the known ground‑truth). (See US‑1)  
 - **SC-012**: The corpus size used in any run must be ≥ 300 summaries (as dictated by FR‑011); otherwise the pipeline aborts with a clear error message. (See US‑1)  
 - **SC-013**: Cluster‑robust variance estimates must be reported alongside all proportion‑based test results, and the corresponding intra‑source and intra‑month ICC values must be logged for transparency. (See US‑4)  
+- **SC-014**: The simple binomial test defined in **FR‑005a** must report a p‑value and a 95 % Wilson confidence interval; when the observed inconsistency proportion exceeds the [deferred] baseline, the p‑value must be ≤ 0.05. (See US‑1)
 
 ## Assumptions
 
@@ -146,9 +150,11 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 - Reported p‑values are two‑sided unless explicitly indicated otherwise.  
 - The corpus of **≥ 300** summaries is sufficiently diverse to approximate industry‑wide reporting practices and satisfies the power analysis requirement (FR‑011).  
 - Findings are framed as **associational** (i.e., “reported metrics are inconsistent with statistical theory”) because the audit does not involve random assignment.  
-- Multiple hypothesis testing across sub‑analyses is limited to the explicit tests listed in **FR‑005**; no additional corrections are applied beyond the Wilson CI and the cluster‑robust adjustments.  
+- Multiple hypothesis testing across sub‑analyses is limited to the explicit tests listed in **FR‑005** and **FR‑005a**; no additional corrections are applied beyond the Wilson CI and the cluster‑robust adjustments.  
 - When a reported p‑value is given as an inequality (e.g., “p < 0.001”), the pipeline treats the bound value as an upper limit; the summary is flagged inconsistent only if the reconstructed p‑value exceeds this bound (see **FR‑004**).  
 - If only a total sample size `N` is present and per‑variant counts are absent, the pipeline **does not impute** equal allocation. Instead, the entry is flagged as “missing metric” and recorded in the audit notes.  
 - All computation is performed on CPU‑only resources; no GPU‑specific libraries or large‑model inference are required, satisfying the GitHub Actions free‑tier constraints.  
 - Validation‑set ground‑truth p‑values are computed using analytical formulas (or an independent library such as **statsmodels**) to ensure independence from the pipeline implementation.  
 - The synthetic validation dataset (FR‑008) explicitly models real‑world reporting quirks—including rounded p‑values, inequality bounds, missing confidence intervals, mixed effect‑size units, and occasional absent baselines—to ensure external validity of detector performance claims.  
+
+
