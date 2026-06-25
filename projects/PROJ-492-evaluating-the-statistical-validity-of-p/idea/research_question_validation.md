@@ -1,31 +1,31 @@
 ## Research-question validation
 
-### Phenomenon-vs-method check
+### Phenomenon‑vs‑method check
 
-**Verdict**: pass
+**Verdict**: pass  
 
-The question investigates the integrity of industry reporting practices (the phenomenon), using standard statistical formulas as the audit tool rather than the subject of study. It asks whether external summaries align with mathematical truth, not whether a specific algorithm performs well.
+The question asks about the prevalence of internally inconsistent statistical reports in publicly shared A/B test summaries. It concerns a substantive reproducibility phenomenon rather than the performance of any particular analysis method or computational resource.
 
 ### Circularity check
 
-**Verdict**: pass
+**Verdict**: pass  
 
-The check compares reported p-values against those reconstructed from reported sample sizes and effect sizes within the same document. This is an internal consistency audit rather than an empirical prediction where two derived variables are mechanically coupled.
+The predictor (the reported p‑value, effect size, and sample sizes) and the predicted variable (a recomputed p‑value or confidence interval derived from those same numbers) are not independent measurements, but the relationship is not mechanically guaranteed; discrepancies can arise from rounding, mis‑specification, or reporting errors, making the consistency assessment informative rather than tautological.
 
 ### Triviality check
 
-**Verdict**: pass
+**Verdict**: pass  
 
-A high inconsistency rate would reveal systemic negligence in industry reporting, while a low rate would validate current transparency efforts; both outcomes inform reproducibility standards. The prevalence of errors is not predetermined by existing literature.
+Both a high inconsistency rate and a low one would be scientifically interesting: a high rate would signal a widespread reliability problem, while a low rate would suggest current informal reporting practices are generally trustworthy. Neither outcome is predetermined by existing domain knowledge.
 
-### Question-narrowing check
+### Question‑narrowing check
 
-**Verdict**: pass
+**Verdict**: pass  
 
-Names a domain relationship (reported metrics vs. statistical consistency) rather than a constraint on the implementation (e.g., specific tool or compute budget).
+The research question names a domain‑level relationship (“statistical consistency of reported results”) rather than imposing constraints on a specific algorithm, hardware, or runtime budget.
 
 ### Overall verdict
 
-**Verdict**: validated
+**Verdict**: validated  
 
-All checks pass. The project addresses a genuine gap in meta-scientific auditing of industry experiments without relying on method-specific performance or circular logic.
+All four checks either pass or present no substantive concern, indicating that the research question is well‑posed, non‑circular, non‑trivial, and focused on a genuine statistical phenomenon.

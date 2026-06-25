@@ -1,0 +1,225 @@
+{
+  "fetched_at": "2026-06-25T03:48:53Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Evaluating the Statistical Validity of Publicly Available A/B Test Summaries",
+      "target_n": 5
+    },
+    "duration_seconds": 264.651,
+    "ended_at": "2026-06-25T03:48:53Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "statistical validity of online experiment results"
+        ],
+        [
+          2,
+          "reliability assessment of A/B test metrics"
+        ],
+        [
+          3,
+          "inference methods for digital split‑testing data"
+        ],
+        [
+          4,
+          "bias detection in web‑based A/B experiments"
+        ],
+        [
+          5,
+          "confidence interval coverage in online controlled trials"
+        ],
+        [
+          6,
+          "robustness analysis of publicly posted experiment summaries"
+        ],
+        [
+          7,
+          "meta‑analysis of A/B test outcomes across platforms"
+        ],
+        [
+          8,
+          "evaluation of effect size estimation in split tests"
+        ],
+        [
+          9,
+          "false discovery rate control in large‑scale A/B testing"
+        ],
+        [
+          10,
+          "reproducibility of publicly available experiment reports"
+        ],
+        [
+          11,
+          "statistical power analysis for internet A/B studies"
+        ],
+        [
+          12,
+          "calibration of p‑values in digital experiment dashboards"
+        ],
+        [
+          13,
+          "quality assessment of crowdsourced A/B test data"
+        ],
+        [
+          14,
+          "methodological auditing of online experiment publications"
+        ],
+        [
+          15,
+          "uncertainty quantification in web experiment summaries"
+        ],
+        [
+          16,
+          "comparative review of A/B testing statistical practices"
+        ],
+        [
+          17,
+          "validity checks for aggregated A/B test statistics"
+        ],
+        [
+          18,
+          "statistical diagnostics for public experiment repositories"
+        ],
+        [
+          19,
+          "assessment of sampling bias in publicly shared A/B results"
+        ],
+        [
+          20,
+          "hierarchical modeling of multi‑site A/B test data"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Evaluating the Statistical Validity of Publicly Available A/B Test Summaries statistics": 0,
+        "assessment of sampling bias in publicly shared A/B results": 0,
+        "bias detection in web‑based A/B experiments": 0,
+        "calibration of p‑values in digital experiment dashboards": 0,
+        "comparative review of A/B testing statistical practices": 0,
+        "confidence interval coverage in online controlled trials": 0,
+        "evaluation of effect size estimation in split tests": 0,
+        "false discovery rate control in large‑scale A/B testing": 0,
+        "hierarchical modeling of multi‑site A/B test data": 0,
+        "inference methods for digital split‑testing data": 0,
+        "meta‑analysis of A/B test outcomes across platforms": 0,
+        "methodological auditing of online experiment publications": 0,
+        "quality assessment of crowdsourced A/B test data": 0,
+        "reliability assessment of A/B test metrics": 0,
+        "reproducibility of publicly available experiment reports": 0,
+        "robustness analysis of publicly posted experiment summaries": 0,
+        "statistical diagnostics for public experiment repositories": 0,
+        "statistical power analysis for internet A/B studies": 0,
+        "statistical validity of online experiment results": 0,
+        "uncertainty quantification in web experiment summaries": 0,
+        "validity checks for aggregated A/B test statistics": 0
+      },
+      "total_queries_issued": 20
+    },
+    "extracted_queries": [
+      "split test false positive",
+      "e-commerce A/B test dataset",
+      "sequential monitoring bandit",
+      "conversion lift confidence interval",
+      "optional stopping bias"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 0,
+      "sampled_count": 0,
+      "sampled_pointers": []
+    },
+    "per_query_hit_count": {
+      "Evaluating the Statistical Validity of Publicly Available A/B Test Summaries statistics": 3,
+      "conversion lift confidence interval": 0,
+      "e-commerce A/B test dataset": 0,
+      "optional stopping bias": 0,
+      "sequential monitoring bandit": 0,
+      "split test false positive": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T03:44:29Z",
+    "term_input": {
+      "normalized": "evaluating the statistical validity of publicly available a/b test summaries statistics",
+      "raw": "Evaluating the Statistical Validity of Publicly Available A/B Test Summaries statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Statistics has moved beyond the frequentist-Bayesian controversies of the past. Where does this leave our ability to interpret results? I suggest that a philosophy compatible with statistical practice, labeled here statistical pragmatism, serves as a foundation for inference. Statistical pragmatism is inclusive and emphasizes the assumptions that connect statistical models with observed data. I argue that introductory courses often mischaracterize the process of statistical inference and I propose an alternative \"big picture\" depiction.",
+          "claimed_authors": [
+            "Robert E. Kass"
+          ],
+          "claimed_title": "Statistical Inference: The Big Picture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.2895"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Statistical Validity of Publicly Available A/B Test Summaries sta', candidate_title='Statistical Inference: The Big Picture')",
+        "failed_at": "2026-06-25T03:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bell's [Physics 1 (1964) 195-200] theorem is popularly supposed to establish the nonlocality of quantum physics. Violation of Bell's inequality in experiments such as that of Aspect, Dalibard and Roger [Phys. Rev. Lett. 49 (1982) 1804-1807] provides empirical proof of nonlocality in the real world. This paper reviews recent work on Bell's theorem, linking it to issues in causality as understood by statisticians. The paper starts with a proof of a strong, finite sample, version of Bell's inequality and thereby also of Bell's theorem, which states that quantum theory is incompatible with the conjunction of three formerly uncontroversial physical principles, here referred to as locality, realism and freedom. Locality is the principle that the direction of causality matches the direction of time, and that causal influences need time to propagate spatially. Realism and freedom are directly connected to statistical thinking on causality: they relate to counterfactual reasoning, and to randomisation, respectively. Experimental loopholes in state-of-the-art Bell type experiments are related to statistical issues of post-selection in observational studies, and the missing at random assumption. They can be avoided by properly matching the statistical analysis to the actual experimental design, instead of by making untestable assumptions of independence between observed and unobserved variables. Methodological and statistical issues in the design of quantum Randi challenges (QRC) are discussed. The paper argues that Bell's theorem (and its experimental confirmation) should lead us to relinquish not locality, but realism.",
+          "claimed_authors": [
+            "Richard D. Gill"
+          ],
+          "claimed_title": "Statistics, Causality and Bell's Theorem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.5103"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Statistical Validity of Publicly Available A/B Test Summaries sta', candidate_title=\"Statistics, Causality and Bell's Theorem\")",
+        "failed_at": "2026-06-25T03:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide a unifying framework linking two classes of statistics used in two-sample and independence testing: on the one hand, the energy distances and distance covariances from the statistics literature; on the other, maximum mean discrepancies (MMD), that is, distances between embeddings of distributions to reproducing kernel Hilbert spaces (RKHS), as established in machine learning. In the case where the energy distance is computed with a semimetric of negative type, a positive definite kernel, termed distance kernel, may be defined such that the MMD corresponds exactly to the energy distance. Conversely, for any positive definite kernel, we can interpret the MMD as energy distance with respect to some negative-type semimetric. This equivalence readily extends to distance covariance using kernels on the product space. We determine the class of probability distributions for which the test statistics are consistent against all alternatives. Finally, we investigate the performance of the family of distance kernels in two-sample and independence tests: we show in particular that the energy distance most commonly employed in statistics is just one member of a parametric family of kernels, and that other choices from this family can yield more powerful tests.",
+          "claimed_authors": [
+            "Dino Sejdinovic",
+            "Bharath Sriperumbudur",
+            "Arthur Gretton",
+            "Kenji Fukumizu"
+          ],
+          "claimed_title": "Equivalence of distance-based and RKHS-based statistics in hypothesis testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.6076"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Statistical Validity of Publicly Available A/B Test Summaries sta', candidate_title='Equivalence of distance-based and RKHS-based statistics in hypothesis testing')",
+        "failed_at": "2026-06-25T03:48:49Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": []
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the statistical validity of publicly available a/b test summaries statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

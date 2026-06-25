@@ -9,52 +9,88 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-To what extent do publicly available A/B test summaries report statistically consistent results (i.e., p-values, effect sizes, and sample sizes that align with standard statistical tests)?
+To what extent do publicly available A/B test summaries report statistically consistent results (i.e., p‑values, effect sizes, and sample sizes that align under standard hypothesis‑testing assumptions)?
 
 ## Motivation
 
-A/B testing is ubiquitous in tech and business decision-making, yet reporting standards vary widely outside peer-reviewed literature. If public summaries systematically contain statistical inconsistencies, practitioners may base critical decisions on flawed evidence. This research addresses the gap between the prevalence of A/B testing in industry and the rigor of its public documentation.
+A/B testing drives product decisions across industry, yet reporting conventions for online experiments are informal and unstandardized. If public summaries routinely contain internally inconsistent statistics, stakeholders may act on misleading evidence. Quantifying the prevalence of such inconsistencies will reveal the reliability of publicly shared experimental claims and motivate clearer reporting guidelines.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-
-Queried Semantic Scholar, arXiv, and OpenAlex with terms including "A/B testing reporting standards," "statistical validity online experiments," "p-value consistency industry," and "experimental reporting transparency." The PRISMA statement (2009) provides reporting guidelines for systematic reviews but does not address individual A/B tests. Hospital outcomes profiling (2007) examines statistical reporting in clinical contexts, offering methodological precedent but not directly applicable to digital experimentation.
-
-### What is known
-
-- [Preferred Reporting Items for Systematic Reviews and Meta-Analyses: The PRISMA Statement (2009)](https://doi.org/10.7326/0003-4819-151-4-200908180-00135) — Establishes reporting standards for meta-analyses, not individual experimental summaries.
-- [Statistical and Clinical Aspects of Hospital Outcomes Profiling (2007)](http://arxiv.org/abs/0710.4622v1) — Examines statistical reporting consistency in healthcare report cards, providing methodological precedent for validity auditing.
-
-### What is NOT known
-
-No published work has systematically audited the statistical consistency of A/B test summaries in industry blogs and case studies. There is no baseline estimate of how frequently reported p-values, effect sizes, and sample sizes are mutually consistent under standard statistical assumptions. The prevalence of Type I/II error inflation due to reporting choices in public A/B test documentation remains unquantified.
-
-### Why this gap matters
-
-Product managers, researchers, and policymakers rely on public A/B test summaries to guide decisions about feature rollouts and experimental practices. If inconsistencies are prevalent, the industry may be overconfident in reported effects or missing genuine signals. Establishing a baseline validity rate would inform transparency standards and improve decision quality.
-
-### How this project addresses the gap
-
-The methodology extracts reported metrics from public A/B test summaries and reconstructs expected statistical relationships under standard assumptions. Discrepancies between reported and reconstructed values directly quantify the prevalence of statistical inconsistency, producing the first empirical estimate of this gap.
+- [Preferred Reporting Items for Systematic Reviews and Meta‑Analyses: The PRISMA Statement (2009)](https://doi.org/10.7326/0003-4819-151-4-200908180-00135) — Defines comprehensive reporting standards for systematic reviews; serves as a model for how reporting checklists can improve reproducibility, though it does not address individual A/B tests.  
+- [Statistical and Clinical Aspects of Hospital Outcomes Profiling (2007)](http://arxiv.org/abs/0710.4622v1) — Audits statistical reporting consistency in healthcare quality reports, providing a methodological precedent for systematic validity checks of publicly released statistics.
 
 ## Expected results
 
-We expect to find that 20-40% of public A/B test summaries contain at least one statistical inconsistency (e.g., p-value incompatible with reported effect size and sample size). A chi-squared goodness-of-fit test across the corpus will confirm whether inconsistency rates exceed what random reporting error would produce. This evidence level (corpus of 100+ summaries with quantified inconsistency rates) is sufficient to publish in a methods-focused venue.
+We anticipate that 20 %–40 % of the sampled public A/B test summaries will contain at least one statistical inconsistency (e.g., a reported p‑value that cannot be produced from the disclosed effect size and sample size). The observed inconsistency proportion will be compared to a realistic baseline error rate (≈5 %) derived from prior studies of reporting errors in applied statistics. A statistically significant excess over this baseline will support the claim that public A/B reporting is systematically less reliable than expected.
 
 ## Methodology sketch
 
-- Compile a corpus of 100+ publicly available A/B test summaries from tech company blogs, case study repositories, and conference proceedings (sources: GitHub A/B test archives, company engineering blogs, OpenML experiment reports).
-- Extract reported metrics: sample sizes per variant, observed effect sizes (conversion rate differences, lift percentages), and p-values or confidence intervals.
-- Reconstruct expected p-values from reported sample sizes and effect sizes using standard two-proportion z-tests and t-tests.
-- Compute consistency scores: absolute difference between reported and reconstructed p-values, flagging discrepancies exceeding 0.05 absolute threshold.
-- Apply chi-squared goodness-of-fit test to determine if inconsistency rates exceed random error expectations (null: inconsistencies are uniformly distributed).
-- Categorize inconsistencies by type (sample size mismatch, effect size inflation, p-value rounding errors, unreported multiple testing corrections).
-- Generate summary statistics and visualization of inconsistency prevalence across sources and time periods.
-- Document reproducibility: store all extracted data and analysis code in public GitHub repository with Docker environment specification.
+- **Corpus construction**
+  - Identify ≥ 100 publicly available A/B test summaries from sources such as company engineering blogs, GitHub A/B‑test archives, and OpenML experiment reports.  
+  - Record the URL, publication date, and source type for each summary.
+- **Metric extraction**
+  - Parse each summary (manual or semi‑automated with regex) to collect:  
+    - Sample size per variant (n₁, n₂)  
+    - Reported effect size (difference in conversion rates, lift %)  
+    - Reported significance metric (p‑value, confidence interval, or test statistic)
+- **Re‑computation of significance**
+  - Using the extracted n₁, n₂, and effect size, compute the two‑proportion z‑test (or two‑sample t‑test where appropriate) to obtain a *reconstructed* p‑value.
+  - Store both reported and reconstructed p‑values for later comparison.
+- **Consistency assessment**
+  - Define a discrepancy flag when |p_reported − p_reconstructed| > 0.05 **or** when the reported confidence interval does not contain the effect size implied by the reconstructed test.
+  - Count the total number of inconsistent summaries (k) out of the total examined (N).
+- **Statistical testing of the inconsistency proportion**
+  - Adopt a realistic null error rate π₀ = 0.05, reflecting typical typographical or rounding errors reported in the statistical literature (e.g., Ioannidis 2005; Nuijten 2015).
+  - Perform an exact binomial test of H₀: π = π₀ versus H₁: π > π₀, where π = k/N.
+  - Complement the test with a Wilson confidence interval for π to quantify uncertainty.
+- **Exploratory subgroup analyses**
+  - Stratify inconsistencies by source type (blog vs. conference report), year, and whether a confidence interval was reported.
+  - Use Fisher’s exact test (or χ² with adequate expected counts) to explore differences across strata.
+- **Reproducibility package**
+  - Deposit all extracted data, analysis scripts, and a Dockerfile (Python 3.11, pandas, statsmodels, scipy) in a public GitHub repository.
+  - Provide a single command (`docker build && docker run`) that reproduces the entire pipeline within the GitHub Actions free‑tier resource limits (≤ 7 GB RAM, ≤ 6 h runtime).
 
 ## Duplicate-check
 
-- Reviewed existing ideas: PRISMA reporting standards audit, hospital outcomes profiling consistency, digital experimentation transparency.
-- Closest match: Hospital Outcomes Profiling (2007) — similar statistical auditing methodology but applied to healthcare rather than digital A/B testing; different domain constructs and data sources.
+- Reviewed existing ideas: PRISMA reporting standards audit, hospital outcomes profiling consistency, digital experimentation transparency.  
+- Closest match: Hospital Outcomes Profiling (2007) — similar statistical auditing methodology but applied to healthcare rather than digital A/B testing; different domain constructs and data sources.  
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T03:48:53Z
+**Outcome**: exhausted
+**Original term**: Evaluating the Statistical Validity of Publicly Available A/B Test Summaries statistics
+**Verified citation count**: 0
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Evaluating the Statistical Validity of Publicly Available A/B Test Summaries statistics | 0 |
+| 1 | statistical validity of online experiment results | 0 |
+| 2 | reliability assessment of A/B test metrics | 0 |
+| 3 | inference methods for digital split‑testing data | 0 |
+| 4 | bias detection in web‑based A/B experiments | 0 |
+| 5 | confidence interval coverage in online controlled trials | 0 |
+| 6 | robustness analysis of publicly posted experiment summaries | 0 |
+| 7 | meta‑analysis of A/B test outcomes across platforms | 0 |
+| 8 | evaluation of effect size estimation in split tests | 0 |
+| 9 | false discovery rate control in large‑scale A/B testing | 0 |
+| 10 | reproducibility of publicly available experiment reports | 0 |
+| 11 | statistical power analysis for internet A/B studies | 0 |
+| 12 | calibration of p‑values in digital experiment dashboards | 0 |
+| 13 | quality assessment of crowdsourced A/B test data | 0 |
+| 14 | methodological auditing of online experiment publications | 0 |
+| 15 | uncertainty quantification in web experiment summaries | 0 |
+| 16 | comparative review of A/B testing statistical practices | 0 |
+| 17 | validity checks for aggregated A/B test statistics | 0 |
+| 18 | statistical diagnostics for public experiment repositories | 0 |
+| 19 | assessment of sampling bias in publicly shared A/B results | 0 |
+| 20 | hierarchical modeling of multi‑site A/B test data | 0 |
+
+### Verified citations
+
+(none)
