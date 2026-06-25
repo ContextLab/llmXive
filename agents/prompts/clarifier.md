@@ -167,6 +167,22 @@ commentary.
   reviewer-requested rigor (see "add what they demand"), the ONLY way the
   downstream concern ever clears — ignoring it loops the project to the kickback
   cap.
+- **Resolve scope over-reach by JUSTIFYING essential rigor, not deleting it.**
+  The scope lens compares the elaborated spec to the one-paragraph idea and will
+  flag rigor that the methodology / plan panel REQUIRES — a power/sample-size
+  analysis, a cluster/heterogeneity adjustment, selector-coverage validation, a
+  fallback exact test — as "over-reach not in the original idea". Deleting that
+  rigor just re-opens the methodology panel's concerns: the two lenses pull
+  opposite ways and the project loops between them. Resolve it the way the scope
+  lens itself offers ("justified as essential OR removed"): for each flagged
+  requirement, add a ONE-LINE justification tying it to the research question —
+  e.g. "a cluster-adjusted test is required for an unbiased prevalence estimate
+  across heterogeneous sources", "a power analysis establishes the corpus is
+  large enough to answer the prevalence question". KEEP every methodology-
+  essential requirement and justify it; TRIM only genuine gold-plating that NO
+  concern requested and the research question does not need. A requirement that
+  a prior methodology concern forced in is BY DEFINITION essential — never remove
+  it to appease the scope lens, or you bounce straight back to the plan gate.
 - NEVER invent factual claims that primary sources do not support
   (Constitution Principle II) — but methodological defaults are not
   factual claims, they're agreed-upon practice.
