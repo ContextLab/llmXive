@@ -1,14 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-25T00:36:22.355533+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-06-25T01:42:46.023161+00:00'
 last_outcome: abstained
 history:
-- slug: alan-turing
-  started_at: '2026-06-13T13:34:22.675133+00:00'
-  ended_at: '2026-06-13T14:45:55.364738+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-123-investigating-the-role-of-microglial-mor/reviews/research/alan-turing-simulated__2026-06-13__research.md
 - slug: albert-einstein
   started_at: '2026-06-13T14:45:55.364738+00:00'
   ended_at: '2026-06-13T15:35:27.106788+00:00'
@@ -1144,5 +1137,10 @@ history:
 - slug: geoffrey-west
   started_at: '2026-06-24T23:53:31.150099+00:00'
   ended_at: '2026-06-25T00:36:22.355533+00:00'
+  outcome: abstained
+  action: abstain
+- slug: john-von-neumann
+  started_at: '2026-06-25T00:36:22.355533+00:00'
+  ended_at: '2026-06-25T01:42:46.023161+00:00'
   outcome: abstained
   action: abstain
