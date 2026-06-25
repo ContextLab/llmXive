@@ -204,3 +204,25 @@ def test_tolerance_threshold_margin_are_design_parameters_not_deferred() -> None
         assert val in strip_empirical_values(text), text
     # Still deferred: an OBSERVED quantity with no design-parameter context.
     assert "[deferred]" in strip_empirical_values("the dataset contained 1,234 experiments")
+
+
+def test_relative_of_reference_tolerance_not_deferred() -> None:
+    """A relative tolerance written as a fraction OF a reference quantity
+    ("0.1 of the reported p-value", "[N] of the larger count") is a design
+    parameter even when the word "tolerance" is not adjacent to the fraction —
+    the live FR-004 PROJ-492 residual: max(0.01, 0.1 of the reported p) kept
+    re-deferring the 0.1 to "[deferred] of the reported p-value", the last
+    concern blocking the spec gate. The "of the <reference>" construction is the
+    design signal. Keep the fraction concrete."""
+    from llmxive.claims.planning_scan import strip_empirical_values
+
+    for text, vals in [
+        ("exceeds the larger of 0.01 or 0.1 of the reported p-value", ["0.1", "0.01"]),
+        ("disagree by more than 0.2 of the larger count", ["0.2"]),
+        ("within 0.05 of the reconstructed estimate", ["0.05"]),
+    ]:
+        out = strip_empirical_values(text)
+        assert all(v in out for v in vals), (text, out)
+        assert "[deferred]" not in out, (text, out)
+    # "of the <number>" is NOT a reference-noun construction → unaffected/deferred.
+    assert "[deferred]" in strip_empirical_values("we collected 5,000 of the available reports")

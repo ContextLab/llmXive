@@ -87,14 +87,22 @@ _LEAD = re.compile(
 #   * tolerance / threshold / margin — ``relative tolerance of 0.05``,
 #     ``discrepancy threshold of 0.1``, ``margin of 0.02`` — the cutoff a rule
 #     compares against, which the operator picks, not measures.
-# Deferring any of these produces e.g. ``[deferred] relative tolerance``, which
-# the testability/soundness panels (correctly) re-flag as unverifiable forever:
-# the reviser sets 0.05, the strip re-defers it next render — the live PROJ-492
-# spec non-convergence loop (first seen on the confidence level, then the FR-004
-# tolerance). KEEP these concrete.
+#   * relative-of-reference — ``0.1 of the reported p-value``, ``[N] of the
+#     larger count`` — a RELATIVE tolerance written as a fraction of a reference
+#     quantity (reported / reconstructed / expected / larger / …). The
+#     design-context word ("tolerance") is often NOT adjacent to the fraction
+#     (``max(0.01, 0.1 of the reported p)``), so the ``of the <reference>``
+#     construction itself is the design signal.
+# Deferring any of these produces e.g. ``[deferred] of the reported p-value``,
+# which the testability/soundness panels (correctly) re-flag as unverifiable
+# forever: the reviser sets 0.1, the strip re-defers it next render — the live
+# PROJ-492 spec non-convergence loop (confidence level → ``tolerance`` →
+# ``max(.., 0.1 of the reported p)``). KEEP these concrete.
 _STAT_DESIGN_CONTEXT = re.compile(
     r"confidence|\bCIs?\b|credible\s+interval|significance\s+level|\balpha\b|α"
-    r"|toleranc|threshold|\bmargin\b",
+    r"|toleranc|threshold|\bmargin\b"
+    r"|of\s+the\s+(?:reported|reconstructed|expected|observed|nominal|larger"
+    r"|smaller|total|reference|baseline|true|actual|predicted)",
     re.IGNORECASE,
 )
 
