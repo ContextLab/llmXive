@@ -13,8 +13,8 @@ A researcher wants to run a reproducible audit over a corpus of public A/B test 
 
 **Why this priority**: This is the core value‑producing function; without it the project cannot answer its primary research question.
 
-**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-007** (See US‑1)  
-**Anchored Success Criteria**: **SC-001**, **SC-002**, **SC-005**, **SC-008** (See US‑1)
+**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-007** (all See US‑1)  
+**Anchored Success Criteria**: **SC-001**, **SC-002**, **SC-005**, **SC-008** (all See US‑1)
 
 **Independent Test**: Provide a curated validation set of ≥ 30 manually annotated summaries and verify that the pipeline flags exactly the inconsistent entries.
 
@@ -34,15 +34,15 @@ A product manager wants a high‑level view of inconsistency prevalence across s
 
 **Why this priority**: Enables stakeholders to interpret the audit results without digging into raw data, supporting transparency and decision‑making.
 
-**Anchored Requirements**: **FR-005**, **FR-010**, **FR-011** (See US‑2)  
-**Anchored Success Criteria**: **SC-003**, **SC-010**, **SC-006**, **SC-008** (See US‑2)
+**Anchored Requirements**: **FR-005**, **FR-010** (both See US‑2)  
+**Anchored Success Criteria**: **SC-010**, **SC-008** (both See US‑2)
 
 **Independent Test**: Run the pipeline on a representative corpus and verify that the generated HTML dashboard shows (a) overall inconsistency rate, (b) source‑wise breakdown, (c) monthly trend line, and (d) the binomial‑test result with Wilson 95 % CI.
 
 **Acceptance Scenarios**:
 
 1. **Given** the JSON audit output, **When** the dashboard generator runs, **Then** the dashboard displays (a) total number of summaries, (b) percentage flagged inconsistent, (c) a bar chart of source‑wise inconsistency rates, (d) a time‑series line chart of monthly inconsistency rates, and (e) the exact binomial‑test p‑value and Wilson 95 % CI.  
-2. **Given** the same JSON output enriched with timestamps, **When** the dashboard renders, **Then** the temporal chart correctly reflects the month‑wise rates and the statistical annotations match the calculations performed with SciPy (**SC‑003**).
+2. **Given** the same JSON output enriched with timestamps, **When** the dashboard renders, **Then** the temporal chart correctly reflects the month‑wise rates and the statistical annotations match the calculations performed with SciPy (**SC‑010**).
 
 ---
 
@@ -52,8 +52,8 @@ A reviewer wants to reproduce the analysis on a different machine.
 
 **Why this priority**: Guarantees scientific rigor and satisfies open‑science requirements; less critical for day‑to‑day use but essential for publication.
 
-**Anchored Requirements**: **FR-006**, **FR-009** (See US‑3)  
-**Anchored Success Criteria**: **SC-004**, **SC‑009**, **SC‑008** (See US‑3)
+**Anchored Requirements**: **FR-006**, **FR-009** (both See US‑3)  
+**Anchored Success Criteria**: **SC-004**, **SC-009**, **SC-008** (all See US‑3)
 
 **Independent Test**: Clone the GitHub repository, build the Docker image, and execute the provided `run_audit.sh` script; the output must be bit‑wise identical to the reference results (MD5 checksum match).
 
@@ -71,7 +71,7 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 **Why this priority**: Guarantees that the nightly audit can be automated in a cost‑effective, reproducible environment.
 
 **Anchored Requirements**: **FR-009** (See US‑4)  
-**Anchored Success Criteria**: **SC‑008**, **SC‑005** (See US‑4)
+**Anchored Success Criteria**: **SC-008**, **SC-005** (both See US‑4)
 
 **Independent Test**: Trigger a GitHub Actions workflow that runs the full pipeline on a sample corpus; verify that the job completes within 6 hours, uses ≤ 2 CPU cores, ≤ 7 GB RAM, and produces the expected JSON output.
 
@@ -87,7 +87,7 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 - **Missing Metric**: When a summary omits one of the required metrics (e.g., reports effect size but no p‑value or confidence interval), the pipeline flags the entry as “missing metric” and records the omission in the audit notes.  
 - **Non‑binary Outcomes**: For continuous outcomes (e.g., revenue lift) where a two‑proportion test is inappropriate, the pipeline uses Welch’s two‑sample t‑test as defined in **FR‑003**.  
 - **Rounded or Inequality p‑values**: When p‑values are reported as “p < 0.001” or rounded to two decimals, the pipeline treats the bound (0.001) as an upper limit; a summary is flagged inconsistent only if the reconstructed p‑value exceeds this bound (see **FR‑004**).  
-- **Conflicting Sample Sizes**: If narrative text and tabular data disagree on sample sizes by more than [deferred] of the larger count, the entry is flagged “size mismatch” and excluded from aggregate calculations.
+- **Conflicting Sample Sizes**: If narrative text and tabular data disagree on sample sizes by more than **[deferred]** of the larger count, the entry is flagged “size mismatch” and excluded from aggregate calculations.
 - **Dead or Non‑HTML URLs**: URLs that are unreachable, return non‑HTML payloads, or redirect repeatedly are recorded as parsing failures (fulfilling **FR‑007**) and excluded from statistical aggregates, contributing to the parsing‑error rate (**SC‑005**).  
 
 ## Requirements *(mandatory)*
@@ -100,9 +100,9 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
   1. For binary conversion metrics, use a **two‑proportion z‑test** (or Fisher’s exact test when any cell count ≤ 5).  
   2. For continuous metrics, use **Welch’s two‑sample t‑test** (unequal variances). (See US‑1)  
 - **FR-004**: System MUST flag a summary as *inconsistent* when **any** of the following holds (evaluated at a **95 % confidence level (α = 0.05)**):  
-  1. The absolute difference between the reported p‑value and the reconstructed p‑value exceeds **0.05** (allowing for typical two‑decimal rounding).  
+  1. The **absolute difference** between the reported p‑value and the reconstructed p‑value exceeds **0.05**.  
   2. When a confidence interval is reported, the reported effect size falls outside the **95 %** confidence interval derived from the reconstructed test.  
-  3. Any reported metric (sample size, effect size, p‑value, confidence interval) is internally inconsistent with the other reported metrics beyond the 0.05 tolerance. (See US‑1)  
+ 3. Any reported metric (sample size, effect size, p‑value, confidence interval) is internally inconsistent with the other reported metrics beyond a **[deferred]** relative tolerance of the larger count. (See US‑1)
 - **FR-005**: System MUST compute the following aggregate analyses:  
   a. The overall inconsistency rate and an exact one‑sided binomial test of **H₀: π = 0.05** vs **H₁: π > 0.05** (α = 0.05).  
   b. A **Wilson 95 % confidence interval** for the overall inconsistency proportion.  
@@ -110,9 +110,8 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
   d. Temporal trends in inconsistency rates (month‑wise proportions) using a simple proportion‑difference test at α = 0.05. (See US‑2)  
 - **FR-006**: System MUST export a reproducible research package containing (i) raw extracted data, (ii) analysis scripts, (iii) a Dockerfile, and (iv) generated reports (JSON audit, HTML dashboard). (See US‑3)  
 - **FR-007**: System MUST log any parsing failures or missing fields with clear error messages for downstream inspection. (See US‑1)  
-- **FR-009**: System MUST enforce CPU‑only execution; all dependencies must run on the default GitHub Actions runner (≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h runtime). No GPU‑specific libraries or large‑model inference may be used. (See US‑4)  
+- **FR-009**: System MUST enforce CPU‑only execution; all dependencies must run on the default GitHub Actions runner (≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h runtime). No GPU‑specific libraries or large‑model inference may be used. (See US‑3 and US‑4)  
 - **FR-010**: System MUST generate an HTML dashboard summarizing overall inconsistency rate, source‑wise breakdown, and temporal trends, including the statistical test results described in **FR‑005**. (See US‑2)  
-- **FR-011**: System MUST provide a power‑analysis script that, given a planned corpus size, target inconsistency proportion, null proportion, and significance level (α = 0.05), computes statistical power using a binomial‑test framework and reports whether the power meets a ≥ 80 % threshold. (See US‑5)
 
 ### Key Entities
 
@@ -125,11 +124,10 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 
 - **SC-001**: Extraction accuracy ≥ 95 % on a manually annotated validation set of at least 30 summaries (measured as proportion of correctly captured fields). (See US‑1)  
 - **SC-002**: Inconsistency‑detection precision ≥ 90 % on the same validation set (true positives / (true positives + false positives)), using ground‑truth labels generated by two independent domain experts. (See US‑1)  
-- **SC-003**: All statistical tests (binomial, Fisher’s exact, Welch’s t, Wilson CI, proportion‑difference test) must be computed using **SciPy** (v1.14+) or an equivalent CPU‑only library and documented in the reproducibility package. (See US‑1)  
+- **SC-003**: All statistical tests (binomial, Wilson CI, proportion‑difference test, two‑proportion z, Fisher’s exact, Welch’s t) must be computed using **SciPy** (v1.14+) or an equivalent CPU‑only library and documented in the reproducibility package. (See US‑1)  
 - **SC-004**: The reproducibility package must build the Docker image and run the full pipeline on a fresh machine producing identical JSON output, dashboard HTML, and extracted data files (MD5 checksum match). (See US‑3)  
 - **SC-005**: All logged parsing errors must be ≤ 5 % of total summaries processed. (See US‑1)  
-- **SC-006**: Power analysis must show ≥ 80 % power to detect an inconsistency proportion of 0.10 against the null π₀ = 0.05 at α = 0.05, given the planned corpus size (≥ 100 summaries). The calculation method (binomial power) must be included in the reproducibility package. (See US‑5)  
-- **SC-008**: CI execution must complete within **6 hours**, using **≤ 2 CPU cores**, and consuming **≤ 7 GB RAM**; resource usage is logged and must meet these limits. (See US‑4)  
+- **SC-008**: CI execution must complete within **6 hours**, using **≤ 2 CPU cores**, and consuming **≤ 7 GB RAM**; resource usage is logged and must meet these limits. (See US‑1, US‑3, US‑4)  
 - **SC-009**: Exported reproducibility artifacts (JSON report, dashboard HTML, Docker image) must have matching MD5 checksums when regenerated from the same source data and seed, confirming bit‑wise reproducibility. (See US‑3)  
 - **SC-010**: The generated HTML dashboard must contain (a) a bar chart of overall inconsistency rate, (b) a source‑wise breakdown chart, (c) a time‑series line chart of monthly inconsistency rates, and (d) the statistical test results (binomial‑test p‑value, Wilson 95 % CI, proportion‑difference test p‑values). Visual components must render without errors in a modern browser. (See US‑2)
 
@@ -143,4 +141,5 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 - Multiple hypothesis testing across sub‑analyses is limited to the explicit tests listed in **FR‑005**; no additional corrections are applied.  
 - When a reported p‑value is given as an inequality (e.g., “p < 0.001”), the pipeline treats the bound value as an upper limit; the summary is flagged as inconsistent only if the reconstructed p‑value exceeds this bound.  
 - If only a total sample size `N` is present and per‑variant counts are absent, the pipeline **does not impute** equal allocation. Instead, the entry is flagged as “missing metric” and recorded in the audit notes.  
-- All computation is performed on CPU‑only resources; no GPU‑specific libraries or large‑model inference are required, satisfying the GitHub Actions free‑tier constraints.
+- All computation is performed on CPU‑only resources; no GPU‑specific libraries or large‑model inference are required, satisfying the GitHub Actions free‑tier constraints.  
+- **Validation‑set ground‑truth p‑values are computed using analytical formulas (or an independent library such as statsmodels) to ensure independence from the pipeline implementation.**
