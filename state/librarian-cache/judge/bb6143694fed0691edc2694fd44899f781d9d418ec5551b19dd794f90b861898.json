@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.11092",
+  "judged_at": "2026-06-25T21:30:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular descriptors from quantum chemical calculations with machine learning chemistry",
+  "rationale": "This paper focuses on Quantum Machine Learning (using quantum hardware/circuits to run ML algorithms), whereas the user's question concerns Machine Learning applied to Quantum Chemical Calculations (predicting molecular properties from chemistry data). This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"Quantum\" in computing vs. \"Quantum\" in chemistry).",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1808.08306",
+  "judged_at": "2026-06-25T21:43:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of mindfulness in improving social skills among children with autism psychology",
+  "rationale": "The paper measures HRV biomarkers for diagnosis rather than mindfulness interventions or social skills outcomes, meaning it has no measurable connection to the user's independent or dependent variables. This falls under the rejection rule for papers with no measurable connection to the user's mechanism, domain, variables, or empirical setting.",
+  "relevant": false
+}

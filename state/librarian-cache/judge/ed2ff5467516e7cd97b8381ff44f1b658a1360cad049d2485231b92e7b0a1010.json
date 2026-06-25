@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2106.15983",
+  "judged_at": "2026-06-25T21:39:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of mindfulness in improving social skills among children with autism psychology",
+  "rationale": "This paper addresses the user's dependent variable (social skills/socio-emotional abilities) and population domain (autism spectrum), satisfying inclusion criterion (b) by measuring at least one of the user's variables on the user's domain, even though the intervention mechanism (XR vs. Mindfulness) differs.",
+  "relevant": true
+}

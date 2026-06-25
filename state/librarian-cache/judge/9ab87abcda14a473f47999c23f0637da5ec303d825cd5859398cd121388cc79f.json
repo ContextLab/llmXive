@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.08900",
+  "judged_at": "2026-06-25T21:32:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular descriptors from quantum chemical calculations with machine learning chemistry",
+  "rationale": "This paper satisfies criterion (b) as it measures molecular properties (equivalent to molecular descriptors) in the chemistry domain using machine learning, which covers the dependent variable and methodology of the user's question. It also satisfies criterion (f) as \"molecular property prediction\" is canonical alternative vocabulary for \"predicting molecular descriptors\" in the ML-chemistry literature.",
+  "relevant": true
+}

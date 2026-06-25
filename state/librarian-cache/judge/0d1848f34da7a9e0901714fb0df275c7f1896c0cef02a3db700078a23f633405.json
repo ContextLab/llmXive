@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.5840",
+  "judged_at": "2026-06-25T21:40:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of mindfulness in improving social skills among children with autism psychology",
+  "rationale": "The paper characterizes neural connectivity deficits in autism but does not measure the user's independent variable (mindfulness) or dependent variable (social skills), failing to meet the variable or mechanism inclusion criteria (a) and (b). While it shares the population (children with autism), it does not study the specific intervention or outcome relationship required for the literature review, nor does it serve as a canonical study for the \"mindfulness\" condition (criterion e).",
+  "relevant": false
+}

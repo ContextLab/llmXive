@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.13113",
+  "judged_at": "2026-06-25T21:31:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular descriptors from quantum chemical calculations with machine learning chemistry",
+  "rationale": "This paper is off-domain entirely: it focuses on quantum hardware simulation (parametric oscillators, tunnel Josephson junctions) for studying chemical reaction dynamics and tunneling rates, not on machine learning prediction of molecular descriptors from quantum chemical calculations. While both touch on \"quantum chemistry,\" the paper addresses quantum simulation hardware rather than the ML-based descriptor prediction pipeline the user is researching.",
+  "relevant": false
+}

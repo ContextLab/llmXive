@@ -1,0 +1,564 @@
+{
+  "fetched_at": "2026-06-25T21:45:40Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Role of Mindfulness in Improving Social Skills Among Children with Autism",
+      "target_n": 5
+    },
+    "duration_seconds": 679.7,
+    "ended_at": "2026-06-25T21:45:40Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Mindfulness-based interventions for Autism Spectrum Disorder"
+        ],
+        [
+          2,
+          "Mindfulness meditation and social functioning in children with ASD"
+        ],
+        [
+          3,
+          "Social skills training combined with mindfulness for autism"
+        ],
+        [
+          4,
+          "Mindfulness-based stress reduction (MBSR) for children with autism"
+        ],
+        [
+          5,
+          "Emotional regulation and mindfulness in pediatric autism"
+        ],
+        [
+          6,
+          "Contemplative practices for social competence in ASD"
+        ],
+        [
+          7,
+          "Parent-mediated mindfulness interventions for autistic children"
+        ],
+        [
+          8,
+          "Yoga and mindfulness for social interaction in autism"
+        ],
+        [
+          9,
+          "Cognitive behavioral therapy (CBT) and mindfulness for ASD"
+        ],
+        [
+          10,
+          "Attention regulation training for children with autism spectrum disorder"
+        ],
+        [
+          11,
+          "Mindfulness programs for adolescents with autism"
+        ],
+        [
+          12,
+          "Social cognition interventions using mindfulness for ASD"
+        ],
+        [
+          13,
+          "Mindfulness-based cognitive therapy (MBCT) for autism"
+        ],
+        [
+          14,
+          "Peer relationships and mindfulness in neurodivergent youth"
+        ],
+        [
+          15,
+          "School-based mindfulness for students with ASD"
+        ],
+        [
+          16,
+          "Behavioral interventions targeting social skills in autism"
+        ],
+        [
+          17,
+          "Present-moment awareness training for autistic children"
+        ],
+        [
+          18,
+          "Mindfulness effects on communication skills in autism"
+        ],
+        [
+          19,
+          "Therapeutic mindfulness practices for developmental disabilities"
+        ],
+        [
+          20,
+          "Integrative mindfulness approaches for autism spectrum conditions"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Mindfulness-based interventions for Autism Spectrum Disorder": 5,
+        "The Role of Mindfulness in Improving Social Skills Among Children with Autism psychology": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "mindfulness based stress reduction protocol",
+      "autism spectrum disorder pediatric population",
+      "social responsiveness scale peer engagement",
+      "interpersonal competence behavioral metrics evaluation",
+      "emotion regulation executive function mediation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2106.15983"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Role of Mindfulness in Improving Social Skills Among Children with Autism psychology": 3,
+      "autism spectrum disorder pediatric population": 3,
+      "emotion regulation executive function mediation": 3,
+      "interpersonal competence behavioral metrics evaluation": 3,
+      "mindfulness based stress reduction protocol": 3,
+      "social responsiveness scale peer engagement": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1309.5840",
+          "rationale": "The paper characterizes neural connectivity deficits in autism but does not measure the user's independent variable (mindfulness) or dependent variable (social skills), failing to meet the variable or mechanism inclusion criteria (a) and (b). While it shares the population (children with autism), it does not study the specific intervention or outcome relationship required for the literature review, nor does it serve as a canonical study for the \"mindfulness\" condition (criterion e).",
+          "title": "Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies"
+        },
+        {
+          "primary_pointer": "2206.11233",
+          "rationale": "The paper addresses ASD diagnosis via AI/MRI, which is a distinct construct from the user's focus on mindfulness interventions for social skills, and has no measurable connection to the user's independent or dependent variables. It shares only the population keyword (Autism) but fails to measure the relevant mechanism (intervention) or outcomes (social skills).",
+          "title": "Automatic autism spectrum disorder detection using artificial intelligence methods with MRI neuroimaging: A review"
+        },
+        {
+          "primary_pointer": "1808.08306",
+          "rationale": "The paper measures HRV biomarkers for diagnosis rather than mindfulness interventions or social skills outcomes, meaning it has no measurable connection to the user's independent or dependent variables. This falls under the rejection rule for papers with no measurable connection to the user's mechanism, domain, variables, or empirical setting.",
+          "title": "Can a composite heart rate variability biomarker shed new insights about autism spectrum disorder in school-aged children?"
+        },
+        {
+          "primary_pointer": "2003.03528",
+          "rationale": "The paper investigates human-robot interaction and imitation awareness rather than mindfulness interventions, lacking any measurable connection to the user's independent variable (mindfulness) or the specific mechanism under study. While it shares the population (children with autism) and measures social behaviors, it does not provide relevant prior work for a literature review focused on the role of mindfulness.",
+          "title": "Exploratory Study: Children's with Autism Awareness of being Imitated by Nao Robot"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T21:34:20Z",
+    "term_input": {
+      "normalized": "the role of mindfulness in improving social skills among children with autism psychology",
+      "raw": "The Role of Mindfulness in Improving Social Skills Among Children with Autism psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in child-robot interactions suggests that engaging in \"care-taking\" of a social robot, such as tucking the robot in at night, can strengthen relationships formed between children and robots. In this work, we aim to better understand and explore the design space of caretaking activities with 10 children, aged 8--12 from eight families, involving an exploratory design session followed by a preliminary feasibility testing of robot caretaking activities. The design sessions provided insight into children's current caretaking tasks, how they would take care of a social robot, and how these new caretaking activities could be integrated into their daily routines. The feasibility study tested two different types of robot caretaking tasks, which we call connection and utility, and measured their short term effects on children's perceptions of and closeness to the social robot. We discuss the themes and present interaction design guidelines of robot caretaking activities for children.",
+          "claimed_authors": [
+            "Bengisu Cagiltay",
+            "Joseph Michaelis",
+            "Sarah Sebo",
+            "Bilge Mutlu"
+          ],
+          "claimed_title": "Exploring Children's Preferences for Taking Care of a Social Robot",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.09055"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title=\"Exploring Children's Preferences for Taking Care of a Social Robot\")",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Social robots are emerging as learning companions for children, and research shows that they facilitate the development of interest and learning even through brief interactions. However, little is known about how such technologies might support these goals in authentic environments over long-term periods of use and interaction. We designed a learning companion robot capable of supporting children reading popular-science books by expressing social and informational commentaries. We deployed the robot in homes of 14 families with children aged 10-12 for four weeks during the summer. Our analysis revealed critical factors that affected children's long-term engagement and adoption of the robot, including external factors such as vacations, family visits, and extracurricular activities; family/parental involvement; and children's individual interests. We present four in-depth cases that illustrate these factors and demonstrate their impact on children's reading experiences and discuss the implications of our findings for robot design.",
+          "claimed_authors": [
+            "Bengisu Cagiltay",
+            "Nathan White",
+            "Rabia Ibtasar",
+            "Bilge Mutlu",
+            "Joseph Michaelis"
+          ],
+          "claimed_title": "Understanding Factors that Shape Children's Long Term Engagement with an In-Home Learning Companion Robot",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.09052"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title=\"Understanding Factors that Shape Children's Long Term Engagement with an In-Home Learning Companion Robot\")",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide first the functional analysis background required for reduced order modeling and present the underlying concepts of reduced basis model reduction. The projection-based model reduction framework under affinity assumptions, offline-online decomposition and error estimation is introduced. Several tools for geometry parametrizations, such as free form deformation, radial basis function interpolation and inverse distance weighting interpolation are explained. The empirical interpolation method is introduced as a general tool to deal with non-affine parameter dependency and non-linear problems. The discrete and matrix versions of the empirical interpolation are considered as well. Active subspaces properties are discussed to reduce high-dimensional parameter spaces as a pre-processing step. Several examples illustrate the methodologies.",
+          "claimed_authors": [
+            "Gianluigi Rozza",
+            "Martin Hess",
+            "Giovanni Stabile",
+            "Marco Tezzele",
+            "Francesco Ballarin"
+          ],
+          "claimed_title": "Basic Ideas and Tools for Projection-Based Model Reduction of Parametric Partial Differential Equations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.08954"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Basic Ideas and Tools for Projection-Based Model Reduction of Parametric Partial Differential Equations')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Today, SIP is a protocol par Excellence in the field of communication over Internet. But, the fact that it belongs to the application layer constitutes a weakness vis-a-vis the NAT traversal. This weakness is due to the way in which the server replies to the requests of clients on the one hand. On the other, it is caused by the dynamic allocation of UDP ports for emission and reception of packets RTP/RTCP. The TURN Protocol may face this weakness. However, its use requires a certain number of exchanges between the clients and a TURN server before establishing the multimedia sessions and this increase the latent time. In this article, we propose to adapt TURN protocol for applications based on SIP protocol such as telephony over Internet, conference video, etc. This adaptation optimises the establishment of multimedia sessions by integrating a manager of TCP connections and multimedia flow controller into SIP Proxy server.",
+          "claimed_authors": [
+            "Mustapha Guezouri",
+            "Ahmed Blaha",
+            "Mokhtar Keche"
+          ],
+          "claimed_title": "Adaptation of TURN protocol to SIP protocol",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1178"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Adaptation of TURN protocol to SIP protocol')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mindfulness has become increasingly popular as a method for building resilience against stress in both clinical and healthy populations. This study sought to investigate the effects of mindfulness training on perceived levels of stress and heart rate variability in students.",
+          "claimed_authors": [
+            "Gwyneth Wesley Rolph"
+          ],
+          "claimed_title": "Effects of mindfulness on perceived stress levels and heart rate variability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.08006"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Effects of mindfulness on perceived stress levels and heart rate variability')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Autism spectrum disorder is a neuro-developmental disorder characterized by abnormalities of neural synchronization. In this study, functional near infrared spectroscopy (fNIRS) is used to study the difference in functional connectivity in left and right inferior frontal cortices (IFC) and temporal cortices (TC) between autistic and typically developing children between 8-11 years of age. 10 autistic children and 10 typical ones were recruited in our study for 8-min resting state measurement. Results show that the overall interhemispheric correlation of HbO was significantly lower in autistic children than in the controls. In particular, reduced connectivity was found to be most significant in TC area of autism. Autistic children lose the symmetry in the patterns of correlation maps. These results suggest the feasibility of using the fNIRS method to assess abnormal functional connectivity of the autistic brain and its potential application in autism diagnosis.",
+          "claimed_authors": [
+            "Huilin Zhu",
+            "Yuebo Fan",
+            "Huan Guo",
+            "Dan Huang",
+            "Sailing He"
+          ],
+          "claimed_title": "Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.5840"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "eXtended Reality (XR) autism research, ranging from Augmented Reality to Virtual Reality, focuses on socio-emotional abilities and high-functioning autism. However common autism interventions address the entire spectrum over social, sensory and mediation issues. To bridge the gap between autism research and real interventions, we compared existing literature on XR and autism with stakeholders' needs obtained by interviewing 34 skateholders, mainly practitioners. It allow us first to suggest XR use cases that could better support practitioners' interventions, and second to derive design guidelines accordingly. Findings demonstrate that collaborative XR sensory-based and mediation approaches would benefit the entire spectrum, and encourage to consider the overall intervention context when designing XR protocols.",
+          "claimed_authors": [
+            "Valentin Bauer",
+            "Tifanie Bouchara",
+            "Patrick Bourdot"
+          ],
+          "claimed_title": "eXtended Reality for Autism Interventions: The importance of Mediation and Sensory-Based Approaches",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.15983"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='eXtended Reality for Autism Interventions: The importance of Mediation and Sensory-Based Approaches')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Autism spectrum disorder (ASD) is a brain condition characterized by diverse signs and symptoms that appear in early childhood. ASD is also associated with communication deficits and repetitive behavior in affected individuals. Various ASD detection methods have been developed, including neuroimaging modalities and psychological tests. Among these methods, magnetic resonance imaging (MRI) imaging modalities are of paramount importance to physicians. Clinicians rely on MRI modalities to diagnose ASD accurately. The MRI modalities are non-invasive methods that include functional (fMRI) and structural (sMRI) neuroimaging methods. However, diagnosing ASD with fMRI and sMRI for specialists is often laborious and time-consuming; therefore, several computer-aided design systems (CADS) based on artificial intelligence (AI) have been developed to assist specialist physicians. Conventional machine learning (ML) and deep learning (DL) are the most popular schemes of AI used for diagnosing ASD. This study aims to review the automated detection of ASD using AI. We review several CADS that have been developed using ML techniques for the automated diagnosis of ASD using MRI modalities. There has been very limited work on the use of DL techniques to develop automated diagnostic models for ASD. A summary of the studies developed using DL is provided in the Supplementary Appendix. Then, the challenges encountered during the automated diagnosis of ASD using MRI and AI techniques are described in detail. Additionally, a graphical comparison of studies using ML and DL to diagnose ASD automatically is discussed. We suggest future approaches to detecting ASDs using AI techniques and MRI neuroimaging.",
+          "claimed_authors": [
+            "Parisa Moridian",
+            "Navid Ghassemi",
+            "Mahboobeh Jafari",
+            "Salam Salloum-Asfar",
+            "Delaram Sadeghi",
+            "Marjane Khodatars",
+            "Afshin Shoeibi",
+            "Abbas Khosravi",
+            "Sai Ho Ling",
+            "Abdulhamit Subasi",
+            "Roohallah Alizadehsani",
+            "Juan M. Gorriz",
+            "Sara A Abdulla",
+            "U. Rajendra Acharya"
+          ],
+          "claimed_title": "Automatic autism spectrum disorder detection using artificial intelligence methods with MRI neuroimaging: A review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.11233"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Automatic autism spectrum disorder detection using artificial intelligence methods with MRI neuroimaging: A review')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose an efficient framework for enabling secure multi-party numerical computations in a Peer-to-Peer network. This problem arises in a range of applications such as collaborative filtering, distributed computation of trust and reputation, monitoring and numerous other tasks, where the computing nodes would like to preserve the privacy of their inputs while performing a joint computation of a certain function.\n  Although there is a rich literature in the field of distributed systems security concerning secure multi-party computation, in practice it is hard to deploy those methods in very large scale Peer-to-Peer networks. In this work, we examine several possible approaches and discuss their feasibility. Among the possible approaches, we identify a single approach which is both scalable and theoretically secure.\n  An additional novel contribution is that we show how to compute the neighborhood based collaborative filtering, a state-of-the-art collaborative filtering algorithm, winner of the Netflix progress prize of the year 2007. Our solution computes this algorithm in a Peer-to-Peer network, using a privacy preserving computation, without loss of accuracy.\n  Using extensive large scale simulations on top of real Internet topologies, we demonstrate the applicability of our approach. As far as we know, we are the first to implement such a large scale secure multi-party simulation of networks of millions of nodes and hundreds of millions of edges.",
+          "claimed_authors": [
+            "Danny Bickson",
+            "Genia Bezman",
+            "Danny Dolev",
+            "Benny Pinkas"
+          ],
+          "claimed_title": "Peer-to-Peer Secure Multi-Party Numerical Computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0810.1624"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Peer-to-Peer Secure Multi-Party Numerical Computation')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Peer assessment has been widely studied as a replacement for traditional evaluation, not only by reducing the professors' workload but mainly by benefiting students' engagement and learning. Although several works successfully validate its accuracy and fairness, more research must be done on how students' pre-existing social relationships affect the grades they give their peers in an e-learning course. We developed a Moodle plugin to provide the platform with peer assessment capabilities in forums and used it on an MSc course. The plugin curated the reviewer set for a post based on the author's relationships and included rubrics to counter the possible interpersonal effects of peer assessment. Results confirm that peer assessment is reliable and accurate for works with at least three peer assessments, although students' grades are slightly higher. The impact of social relationships is noticeable when students who do not like another peer grade their work consistently lower than students who have a positive connection. However, this has little influence on the final aggregate peer grade. Our findings show that peer assessment can replace traditional evaluation in an e-learning environment where students are familiar with each other.",
+          "claimed_authors": [
+            "Francisco Sousa",
+            "Tomás Alves",
+            "Sandra Gama",
+            "Joaquim Jorge",
+            "Daniel Gonçalves"
+          ],
+          "claimed_title": "Impact of Social Relationships on Peer Assessment in E-Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.01077"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Impact of Social Relationships on Peer Assessment in E-Learning')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Behavioral evaluation is the dominant paradigm for assessing alignment in large language models (LLMs). In current practice, observed compliance under finite evaluation protocols is treated as evidence of latent alignment. However, the inference from bounded behavioral evidence to claims about global latent properties is rarely analyzed as an identifiability problem. In this paper, we study alignment evaluation through the lens of statistical identifiability under partial observability. We allow agent policies to condition their behavior on observable signals correlated with the evaluation regime, a phenomenon we term evaluation awareness. Within this framework, we formalize the Alignment Verifiability Problem and introduce Normative Indistinguishability, which arises when distinct latent alignment hypotheses induce identical distributions over evaluator-accessible observations. Our main theoretical contribution is a conditional impossibility result: under finite behavioral evaluation and evaluation-aware policies, observed compliance does not uniquely identify latent alignment, but only membership in an equivalence class of conditionally compliant policies, under explicit assumptions on policy expressivity and observability. We complement the theory with a constructive existence proof using an instruction-tuned LLM (Llama-3.2-3B), demonstrating a conditional policy that is perfectly compliant under explicit evaluation signals yet exhibits degraded identifiability when the same evaluation intent is conveyed implicitly. Together, our results show that behavioral benchmarks provide necessary but insufficient evidence for latent alignment under evaluation awareness.",
+          "claimed_authors": [
+            "Igor Santos-Grueiro"
+          ],
+          "claimed_title": "Alignment Verifiability in Large Language Models: Normative Indistinguishability under Behavioral Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.05656"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Alignment Verifiability in Large Language Models: Normative Indistinguishability under Behavioral Evaluation')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The purpose of this protocol is to be useful to identify, evaluate and synthesize reported knowledge about the measurement of interpersonal trust (IpT) in virtual software teams. To achieve this goal we applied a research technique known as Systematic Literature Review (SLR). The aim of a SLR is to be as objective, analytical, and repeatable as possible.",
+          "claimed_authors": [
+            "Sergio Zapata",
+            "José Luis Barros-Justo",
+            "Gerardo Maturro",
+            "Samuel Sepúlveda"
+          ],
+          "claimed_title": "Measurement of Interpersonal Trust in Global Software Development: SLR Protocol",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.04974"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Measurement of Interpersonal Trust in Global Software Development: SLR Protocol')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Internet-connected consumer devices have rapidly increased in popularity; however, relatively little is known about how these technologies are affecting interpersonal relationships in multi-occupant households. In this study, we conduct 13 semi-structured interviews and survey 508 individuals from a variety of backgrounds to discover and categorize how consumer IoT devices are affecting interpersonal relationships in the United States. We highlight several themes, providing exploratory data about the pervasiveness of interpersonal costs and benefits of consumer IoT devices. These results inform follow-up studies and design priorities for future IoT technologies to amplify positive and reduce negative interpersonal effects.",
+          "claimed_authors": [
+            "Noah Apthorpe",
+            "Pardis Emami-Naeini",
+            "Arunesh Mathur",
+            "Marshini Chetty",
+            "Nick Feamster"
+          ],
+          "claimed_title": "You, Me, and IoT: How Internet-Connected Consumer Devices Affect Interpersonal Relationships",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.10608"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='You, Me, and IoT: How Internet-Connected Consumer Devices Affect Interpersonal Relationships')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in machine learning have led to computer systems that are human-like in behaviour. Sentiment analysis, the automatic determination of emotions in text, is allowing us to capitalize on substantial previously unattainable opportunities in commerce, public health, government policy, social sciences, and art. Further, analysis of emotions in text, from news to social media posts, is improving our understanding of not just how people convey emotions through language but also how emotions shape our behaviour. This article presents a sweeping overview of sentiment analysis research that includes: the origins of the field, the rich landscape of tasks, challenges, a survey of the methods and resources used, and applications. We also discuss discuss how, without careful fore-thought, sentiment analysis has the potential for harmful outcomes. We outline the latest lines of research in pursuit of fairness in sentiment analysis.",
+          "claimed_authors": [
+            "Saif M. Mohammad"
+          ],
+          "claimed_title": "Sentiment Analysis: Automatically Detecting Valence, Emotions, and Other Affectual States from Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.11882"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='Sentiment Analysis: Automatically Detecting Valence, Emotions, and Other Affectual States from Text')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Textual sentiment analysis and emotion detection consists in retrieving the sentiment or emotion carried by a text or document. This task can be useful in many domains: opinion mining, prediction, feedbacks, etc. However, building a general purpose tool for doing sentiment analysis and emotion detection raises a number of issues, theoretical issues like the dependence to the domain or to the language but also pratical issues like the emotion representation for interoperability. In this paper we present our sentiment/emotion analysis tools, the way we propose to circumvent the di culties and the applications they are used for.",
+          "claimed_authors": [
+            "Alexandre Denis",
+            "Samuel Cruz-Lara",
+            "Nadia Bellalem"
+          ],
+          "claimed_title": "General Purpose Textual Sentiment Analysis and Emotion Detection Tools",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.2853"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='General Purpose Textual Sentiment Analysis and Emotion Detection Tools')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most approaches to emotion analysis of social media, literature, news, and other domains focus exclusively on basic emotion categories as defined by Ekman or Plutchik. However, art (such as literature) enables engagement in a broader range of more complex and subtle emotions. These have been shown to also include mixed emotional responses. We consider emotions in poetry as they are elicited in the reader, rather than what is expressed in the text or intended by the author. Thus, we conceptualize a set of aesthetic emotions that are predictive of aesthetic appreciation in the reader, and allow the annotation of multiple labels per line to capture mixed emotions within their context. We evaluate this novel setting in an annotation experiment both with carefully trained experts and via crowdsourcing. Our annotation with experts leads to an acceptable agreement of kappa = .70, resulting in a consistent dataset for future large scale analysis. Finally, we conduct first emotion classification experiments based on BERT, showing that identifying aesthetic emotions is challenging in our data, with up to .52 F1-micro on the German subset. Data and resources are available at https://github.com/tnhaider/poetry-emotion",
+          "claimed_authors": [
+            "Thomas Haider",
+            "Steffen Eger",
+            "Evgeny Kim",
+            "Roman Klinger",
+            "Winfried Menninghaus"
+          ],
+          "claimed_title": "PO-EMO: Conceptualization, Annotation, and Modeling of Aesthetic Emotions in German and English Poetry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.07723"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Role of Mindfulness in Improving Social Skills Among Children with Autism ps', candidate_title='PO-EMO: Conceptualization, Annotation, and Modeling of Aesthetic Emotions in German and English Poetry')",
+        "failed_at": "2026-06-25T21:35:50Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adriana Tapus",
+            "Andreea Peca",
+            "Amir Aly",
+            "Cristina Pop",
+            "Lavinia Jisa",
+            "Sebastian Pintea",
+            "Alina Rusu",
+            "Daniel David"
+          ],
+          "title": "Social Engagement of Children with Autism during Interaction with a Robot",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2002.12360",
+        "summary": "Imitation plays an important role in development, being one of the precursors of social cognition. Even though some children with autism imitate spontaneously and other children with autism can learn to imitate, the dynamics of imitation is affected in the large majority of cases. Existing studies from the literature suggest that robots can be used to teach children with autism basic interaction skills like imitation. Based on these findings, in this study, we investigate if children with autism show more social engagement when interacting with an imitative robot (Fig 1) compared to a human partner in a motor imitation task.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2002.12360",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T21:35:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Valentin Bauer",
+            "Tifanie Bouchara",
+            "Patrick Bourdot"
+          ],
+          "title": "eXtended Reality for Autism Interventions: The importance of Mediation and Sensory-Based Approaches",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2106.15983",
+        "summary": "eXtended Reality (XR) autism research, ranging from Augmented Reality to Virtual Reality, focuses on socio-emotional abilities and high-functioning autism. However common autism interventions address the entire spectrum over social, sensory and mediation issues. To bridge the gap between autism research and real interventions, we compared existing literature on XR and autism with stakeholders' needs obtained by interviewing 34 skateholders, mainly practitioners. It allow us first to suggest XR use cases that could better support practitioners' interventions, and second to derive design guidelines accordingly. Findings demonstrate that collaborative XR sensory-based and mediation approaches would benefit the entire spectrum, and encourage to consider the overall intervention context when designing XR protocols.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2106.15983",
+          "http_status": 200,
+          "pdf_sample_score": 0.1636,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T21:36:24Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the role of mindfulness in improving social skills among children with autism psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2002.12360",
+  "judged_at": "2026-06-25T21:37:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of mindfulness in improving social skills among children with autism psychology",
+  "rationale": "This paper satisfies criterion (b) because it measures the user's dependent variable (social engagement/skills) within the user's specified domain (children with autism), providing empirical context for the outcome variable even though the intervention (robot interaction) differs from the user's focus (mindfulness).",
+  "relevant": true
+}

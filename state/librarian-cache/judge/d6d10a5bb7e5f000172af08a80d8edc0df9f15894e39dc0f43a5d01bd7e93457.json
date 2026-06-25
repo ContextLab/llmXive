@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2206.11233",
+  "judged_at": "2026-06-25T21:41:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of mindfulness in improving social skills among children with autism psychology",
+  "rationale": "The paper addresses ASD diagnosis via AI/MRI, which is a distinct construct from the user's focus on mindfulness interventions for social skills, and has no measurable connection to the user's independent or dependent variables. It shares only the population keyword (Autism) but fails to measure the relevant mechanism (intervention) or outcomes (social skills).",
+  "relevant": false
+}

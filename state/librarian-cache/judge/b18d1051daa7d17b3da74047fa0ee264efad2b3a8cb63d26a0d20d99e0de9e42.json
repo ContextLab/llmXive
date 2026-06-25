@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-06-25T21:33:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular descriptors from quantum chemical calculations with machine learning chemistry",
+  "rationale": "This paper focuses on ML model interpretability/explainability using energy landscape methods, not on predicting molecular descriptors from quantum chemical calculations. While it mentions molecular sciences as an analogy for coordinate invariants, it does not measure molecular descriptors, quantum chemical calculations, or the prediction task itself—failing to satisfy any acceptance criteria (a-f) and representing a distinct research problem (interpretability vs. descriptor prediction).",
+  "relevant": false
+}

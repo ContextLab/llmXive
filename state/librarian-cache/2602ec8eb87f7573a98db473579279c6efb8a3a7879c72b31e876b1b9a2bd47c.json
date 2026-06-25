@@ -1,0 +1,470 @@
+{
+  "fetched_at": "2026-06-25T21:33:51Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 491.182,
+    "ended_at": "2026-06-25T21:33:51Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Machine learning molecular property prediction"
+        ],
+        [
+          2,
+          "Quantum chemistry surrogate models"
+        ],
+        [
+          3,
+          "Deep learning quantum mechanical properties"
+        ],
+        [
+          4,
+          "ML potentials from density functional theory"
+        ],
+        [
+          5,
+          "Graph neural networks for molecular descriptors"
+        ],
+        [
+          6,
+          "Accelerating quantum chemistry with AI"
+        ],
+        [
+          7,
+          "Data-driven molecular property estimation"
+        ],
+        [
+          8,
+          "Kernel ridge regression molecular energies"
+        ],
+        [
+          9,
+          "Quantum machine learning chemistry"
+        ],
+        [
+          10,
+          "Computational chemistry property prediction"
+        ],
+        [
+          11,
+          "Neural networks for ab initio properties"
+        ],
+        [
+          12,
+          "Molecular fingerprints from quantum calculations"
+        ],
+        [
+          13,
+          "High-throughput quantum chemistry machine learning"
+        ],
+        [
+          14,
+          "Structure-property relationships quantum mechanics"
+        ],
+        [
+          15,
+          "Gaussian process regression molecular descriptors"
+        ],
+        [
+          16,
+          "AI-assisted density functional theory"
+        ],
+        [
+          17,
+          "Learning representations of quantum states"
+        ],
+        [
+          18,
+          "Virtual screening quantum chemical descriptors"
+        ],
+        [
+          19,
+          "Regression models for electronic structure properties"
+        ],
+        [
+          20,
+          "Cheminformatics quantum mechanical features"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Machine learning molecular property prediction": 5,
+        "Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning chemistry": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "physicochemical properties quantum chemical",
+      "QM9 dataset DFT machine learning",
+      "graph neural networks molecular representations",
+      "potential energy surface prediction accuracy",
+      "density functional theory surrogate models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.08900"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning chemistry": 3,
+      "QM9 dataset DFT machine learning": 1,
+      "density functional theory surrogate models": 3,
+      "graph neural networks molecular representations": 3,
+      "physicochemical properties quantum chemical": 3,
+      "potential energy surface prediction accuracy": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2602.11092",
+          "rationale": "This paper focuses on Quantum Machine Learning (using quantum hardware/circuits to run ML algorithms), whereas the user's question concerns Machine Learning applied to Quantum Chemical Calculations (predicting molecular properties from chemistry data). This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"Quantum\" in computing vs. \"Quantum\" in chemistry).",
+          "title": "MerLin: A Discovery Engine for Photonic and Hybrid Quantum Machine Learning"
+        },
+        {
+          "primary_pointer": "2409.13113",
+          "rationale": "This paper is off-domain entirely: it focuses on quantum hardware simulation (parametric oscillators, tunnel Josephson junctions) for studying chemical reaction dynamics and tunneling rates, not on machine learning prediction of molecular descriptors from quantum chemical calculations. While both touch on \"quantum chemistry,\" the paper addresses quantum simulation hardware rather than the ML-based descriptor prediction pipeline the user is researching.",
+          "title": "Asymmetry Control in a Parametric Oscillator for the Quantum Simulation of Chemical Activation"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "This paper is off-domain entirely, focusing on machine learning reliability in official statistics and policy-making rather than molecular descriptors or quantum chemical calculations in chemistry. It shares only the general term \"machine learning\" without any connection to the specific scientific domain, variables, or empirical setting required for the user's research question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "This paper is about general machine learning validation recommendations in biology, not about predicting molecular descriptors from quantum chemical calculations in chemistry. It does not measure molecular descriptors, quantum chemical properties, or establish baselines for chemistry-specific ML prediction tasks—only the shared keyword \"machine learning\" connects it to the user's question, which falls under the \"distinct construct sharing only homonym keywords\" rejection rule.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "This paper is a general survey on machine learning learning curves and does not address the specific domain of chemistry, molecular descriptors, or quantum calculations required by the user's question. It fits the rejection rule for distinct constructs sharing only homonym keywords (machine learning) without domain relevance.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "This paper focuses on ML model interpretability/explainability using energy landscape methods, not on predicting molecular descriptors from quantum chemical calculations. While it mentions molecular sciences as an analogy for coordinate invariants, it does not measure molecular descriptors, quantum chemical calculations, or the prediction task itself—failing to satisfy any acceptance criteria (a-f) and representing a distinct research problem (interpretability vs. descriptor prediction).",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T21:25:40Z",
+    "term_input": {
+      "normalized": "predicting molecular descriptors from quantum chemical calculations with machine learning chemistry",
+      "raw": "Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tianyan Quantum Cloud Platform offers cloud services demonstrating quantum advantage capabilities with a Zuchongzhi 3.0-like superconducting quantum processor. This cloud-accessible superconducting quantum prototype, named Tianyan-287, features 105 qubits and achieves high operational fidelities, with single-qubit gates, two-qubit gates, and readout fidelity at 99.90%, 99.56%, 98.7%, respectively. For a specific benchmark task involving random circuit sampling on a 74-qubit system over 24 cycles, the platform completes one million samples in just 18.4 minutes. In contrast, state-of-the-art classical supercomputers would require approximately 16,000 years to complete the equivalent calculation. To facilitate this, the platform provides access via Cqlib, an open-source SDK designed for working with quantum systems at the level of extended quantum circuits, operators, and primitives. The cloud service aims to democratize access to high-performance quantum hardware, enabling the community to validate and explore practical quantum advantages.",
+          "claimed_authors": [
+            " Tianyan Quantum Group"
+          ],
+          "claimed_title": "Tianyan: Cloud services with quantum advantage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.10504"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='Tianyan: Cloud services with quantum advantage')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper has two goals:\n  It presents basic ideas, notions, and methods for reduction of reaction kinetics models: quasi-steady-state, quasi-equilibrium, slow invariant manifolds, and limiting steps.\n  It describes briefly the current state of the art and some latest achievements in the broad area of model reduction in chemical and biochemical kinetics, including new results in methods of invariant manifolds, computation singular perturbation, bottleneck methods, asymptotology, tropical equilibration, and reaction mechanism skeletonisation.",
+          "claimed_authors": [
+            "A. N. Gorban"
+          ],
+          "claimed_title": "Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.05745"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Heterogeneous graph neural networks (HGNNs) were proposed for representation learning on structural data with multiple types of nodes and edges. To deal with the performance degradation issue when HGNNs become deep, researchers combine metapaths into HGNNs to associate nodes closely related in semantics but far apart in the graph. However, existing metapath-based models suffer from either information loss or high computation costs. To address these problems, we present a novel Metapath Context Convolution-based Heterogeneous Graph Neural Network (MECCH). MECCH leverages metapath contexts, a new kind of graph structure that facilitates lossless node information aggregation while avoiding any redundancy. Specifically, MECCH applies three novel components after feature preprocessing to extract comprehensive information from the input graph efficiently: (1) metapath context construction, (2) metapath context encoder, and (3) convolutional metapath fusion. Experiments on five real-world heterogeneous graph datasets for node classification and link prediction show that MECCH achieves superior prediction accuracy compared with state-of-the-art baselines with improved computational efficiency.",
+          "claimed_authors": [
+            "Xinyu Fu",
+            "Irwin King"
+          ],
+          "claimed_title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.12792"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Document classification is a challenging task with important applications. The deep learning approaches to the problem have gained much attention recently. Despite the progress, the proposed models do not incorporate the knowledge of the document structure in the architecture efficiently and not take into account the contexting importance of words and sentences. In this paper, we propose a new approach based on a combination of convolutional neural networks, gated recurrent units, and attention mechanisms for document classification tasks. The main contribution of this work is the use of convolution layers to extract more meaningful, generalizable and abstract features by the hierarchical representation. The proposed method in this paper improves the results of the current attention-based approaches for document classification.",
+          "claimed_authors": [
+            "Jader Abreu",
+            "Luis Fred",
+            "David Macêdo",
+            "Cleber Zanchettin"
+          ],
+          "claimed_title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.06610"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='Hierarchical Attentional Hybrid Neural Networks for Document Classification')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We apply the Green's function based full-potential screened Korringa-Kohn-Rostoker method in conjunction with the local density approximation to study the surface energies of the noble and the fcc transition and $sp$ metals. The orientation dependence of the transition metal surface energies can be well described taking into account only the broken bonds between first neighbors, quite analogous to the behavior we recently found for the noble metals [see cond-mat/0105207]. The (111) and (100) surfaces of the $sp$ metals show a jellium like behavior but for the more open surfaces we find again the noble metals behavior but with larger deviation from the broken-bond rule compared to the transition metals. Finally we show that the use of the full potential is crucial to obtain accurate surface energy anisotropy ratios for the vicinal surfaces.",
+          "claimed_authors": [
+            "I. Galanakis",
+            "N. Papanikolaou",
+            "P. H. Dederichs"
+          ],
+          "claimed_title": "Applicability of the Broken-Bond Rule to the Surface Energy of the fcc Metals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "cond-mat/0110236"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='Applicability of the Broken-Bond Rule to the Surface Energy of the fcc Metals')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fundamentals of energy density functional in nuclear physics are presented. Much attention is paid to a mathematically rigorous treatment of deriving the energy density functional. The specific features of the density functional used in studying many-nucleon systems, which is quite different from that used in many-electron systems, are also shown. The intended audience are physicists, chemists and mathematicians. In particular those who will start to study the density functional theory are intended.",
+          "claimed_authors": [
+            "Yoritaka Iwata",
+            "Joachim A. Maruhn"
+          ],
+          "claimed_title": "Energy density functional in nuclear physics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.2355"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='Energy density functional in nuclear physics')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This is a comprehensive review of the strong-interaction limit of density functional theory. It covers the derivation of the limiting strictly correlated electrons (SCE) functional from exact Hohenberg-Kohn DFT, basic aspects of SCE physics such as the nonlocal dependence of the SCE potential on the density, equivalent formulations and the mathematical interpretation as optimal transport with Coulomb cost, rigorous results (including exactly soluble cases), approximations, numerical methods, integration into Kohn-Sham DFT (KS SCE), and applications to molecular systems, an example being that KS SCE, unlike the local density approximation or generalized gradient approximations, dissociates H$_2$ correctly. We have made an effort to make this review accessible to a broad audience of physicists, chemists, and mathematicians.",
+          "claimed_authors": [
+            "Gero Friesecke",
+            "Augusto Gerolin",
+            "Paola Gori-Giorgi"
+          ],
+          "claimed_title": "The strong-interaction limit of density functional theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09760"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='The strong-interaction limit of density functional theory')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this chapter, we provide a review of ground-state Kohn-Sham density-functional theory of electronic systems and some of its extensions, we present exact expressions and constraints for the exchange and correlation density functionals, and we discuss the main families of approximations for the exchange-correlation energy: semilocal approximations, single-determinant hybrid approximations, multideterminant hybrid approximations, dispersion-corrected approximations, as well as orbital-dependent exchange-correlation density functionals. The chapter aims at providing both a consistent bird's-eye view of the field and a detailed description of some of the most used approximations. It is intended to be readable by chemists/physicists and applied mathematicians.",
+          "claimed_authors": [
+            "Julien Toulouse"
+          ],
+          "claimed_title": "Review of approximations for the exchange-correlation energy in density-functional theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.02645"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine', candidate_title='Review of approximations for the exchange-correlation energy in density-functional theory')",
+        "failed_at": "2026-06-25T21:29:49Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "title": "Few-shot Molecular Property Prediction: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.08900",
+        "summary": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.08900",
+          "http_status": 200,
+          "pdf_sample_score": 0.3622,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T21:30:23Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular descriptors from quantum chemical calculations with machine learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

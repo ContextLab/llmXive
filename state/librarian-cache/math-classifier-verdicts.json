@@ -3,6 +3,10 @@
     "classified_at": "2026-06-24T22:40:35Z",
     "verdict": false
   },
+  "PROJ-008-psychology-research::1.6.0": {
+    "classified_at": "2026-06-25T21:35:50Z",
+    "verdict": false
+  },
   "PROJ-024-bayesian-nonparametrics-for-anomaly-dete::1.6.0": {
     "classified_at": "2026-06-24T18:40:18Z",
     "verdict": false
@@ -117,6 +121,10 @@
   },
   "PROJ-291-predicting-the-impact-of-residual-stress::1.6.0": {
     "classified_at": "2026-06-25T05:44:46Z",
+    "verdict": false
+  },
+  "PROJ-301-predicting-molecular-descriptors-from-qu::1.6.0": {
+    "classified_at": "2026-06-25T21:29:39Z",
     "verdict": false
   },
   "PROJ-307-machine-learning-prediction-of-crack-pro::1.6.0": {

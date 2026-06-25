@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.03528",
+  "judged_at": "2026-06-25T21:45:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of mindfulness in improving social skills among children with autism psychology",
+  "rationale": "The paper investigates human-robot interaction and imitation awareness rather than mindfulness interventions, lacking any measurable connection to the user's independent variable (mindfulness) or the specific mechanism under study. While it shares the population (children with autism) and measures social behaviors, it does not provide relevant prior work for a literature review focused on the role of mindfulness.",
+  "relevant": false
+}

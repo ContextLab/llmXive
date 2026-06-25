@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-25T21:31:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular descriptors from quantum chemical calculations with machine learning chemistry",
+  "rationale": "This paper is off-domain entirely, focusing on machine learning reliability in official statistics and policy-making rather than molecular descriptors or quantum chemical calculations in chemistry. It shares only the general term \"machine learning\" without any connection to the specific scientific domain, variables, or empirical setting required for the user's research question.",
+  "relevant": false
+}
