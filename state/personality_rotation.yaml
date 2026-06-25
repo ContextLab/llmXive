@@ -1,14 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-25T11:26:51.118388+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: alan-turing
+last_used_at: '2026-06-25T12:19:56.820319+00:00'
+last_outcome: committed
 history:
-- slug: john-von-neumann
-  started_at: '2026-06-13T19:35:30.642566+00:00'
-  ended_at: '2026-06-13T20:29:58.830393+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-367-the-influence-of-algorithmic-recommendat/reviews/research/john-von-neumann-simulated__2026-06-13__research.md
 - slug: linus-pauling
   started_at: '2026-06-13T20:29:58.830393+00:00'
   ended_at: '2026-06-13T20:58:21.223054+00:00'
@@ -1146,3 +1139,10 @@ history:
   ended_at: '2026-06-25T11:26:51.118388+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: alan-turing
+  started_at: '2026-06-25T11:26:51.118388+00:00'
+  ended_at: '2026-06-25T12:19:56.820319+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-691-role-agent-bootstrapping-llm-agents-via/paper/reviews/alan-turing-simulated__2026-06-25__paper.md
