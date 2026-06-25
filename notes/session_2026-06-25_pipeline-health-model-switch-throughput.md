@@ -77,3 +77,44 @@ Sub-agents return TERSE sign-offs ("done") not their findings — read the full
 report from `~/.claude/projects/-Users-jmanning-llmXive/<session>/subagents/agent-<id>.jsonl`
 (longest assistant text). VERIFY agent claims against direct evidence before
 acting (several "still broken" claims were already-fixed/stale).
+
+---
+
+## LATER THIS SESSION (continued) — model/throughput/doc work + 492 crosses spec+plan
+
+Additional general fixes shipped (all pushed, tested):
+- **#46** keep synthetic/procedure DESIGN COUNTS concrete (replicates / simulated
+  summaries / synthetic dataset size / bootstrap / monte-carlo) — FR-026's 10,000
+  replicates etc. no longer deferred → fixes the spec↔task count mismatch that
+  was looping 492's plan gate (planning_scan._STAT_DESIGN_CONTEXT).
+- **#47** catch raw urllib3 read-timeouts in dataset_resolver.sniff_format
+  (`r.raw.read` raises urllib3.ReadTimeoutError ∉ RequestException/OSError) — a
+  transient HF CDN timeout while verifying a cited dataset no longer crashes the run.
+- **#48** template_vs_real: a bracket naming a concrete task id ("[DEPENDS ON: T011]")
+  is a FILLED dependency annotation, NOT an unfilled placeholder — exclude
+  `\bT\d{2,4}\b` brackets from the density rule. The tasker resolved [P]-on-dependent
+  concerns by switching to explicit [DEPENDS ON: T0NN] and the template guard was
+  falsely refusing the whole tasks.md.
+
+**GPU research → GitHub issue #367** (3 agents, ~30 verified sources): viable free
+CI-automatable paths EXIST (Kaggle kernels API; Modal $30/mo) but documented-not-
+implemented (not goal-critical, CPU re-scoping is strategy, 262 fabricated, ToS gaps).
+Discovery=Duo-VPN+AUP blocked; cloud k8s over-engineered → future only.
+
+**Documentation audit (3 agents traced to code; each fix re-verified directly) +
+fixes pushed**: README 50→53 agents + hourly→3h/16h crons + install .[dev] +
+two-tier bar + claims/results layout; about page 23:59→08:00 UTC + two-tier bar +
+sign-off gate; CLAUDE.md reviews/→reviews/research/; constitution project-layout→spec-kit.
+Bulk of all docs verified ACCURATE (incl. constitution↔code on the 1.2.0 two-tier bar).
+
+### *** MILESTONE: PROJ-492 CROSSED THE SPEC + PLAN GATES *** (run 23, plan-012 → 0 concerns)
+#46 + the reviser resolved the plan-gate oscillation (deferred counts, [P] markers,
+wrong dataset). 492 advanced to `planned`. The tasker then hit the #48 false-positive
+(now fixed). Run 24 (id 28208096133, has #48) is driving 492 planned→tasked→analyze→
+in_progress — INTO THE UNTESTED FRONTIER (execute_and_gate runs the real CPU stats).
+
+### RESUME: check run 24 (28208096133). The frontier (research_complete→…→posted) is
+UNTESTED by any genuine project; execute_and_gate (in_progress) is the wall. 492's
+SciPy stats are CPU-tractable, so it's the vehicle. Fix REAL bugs as 492 hits each
+new gate (implementer code must actually RUN; research_review/paper stages unproven).
+Reset 492 kickback ONLY after a real fix. qwen runs ~5h; #45 commits before timeout.
