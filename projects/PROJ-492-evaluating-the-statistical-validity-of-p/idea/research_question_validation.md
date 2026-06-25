@@ -1,28 +1,30 @@
 ## Research-question validation
 
-### Phenomenon-vs-method check
+### Phenomenon‑vs‑method check
 
-**Verdict**: pass
+**Verdict**: pass  
 
-The question asks whether publicly posted A/B test summaries are statistically self‑consistent (i.e., whether reported p‑values, effect sizes, and sample sizes line up under standard hypothesis‑testing assumptions). It does not hinge on the performance of any particular extraction or analysis method, but on the underlying phenomenon of reporting reliability.
+The question asks about the empirical phenomenon of reporting consistency in publicly shared A/B test summaries, not about the performance of a particular statistical or computational method. The use of standard hypothesis‑testing to recompute statistics is a means of measurement, not the focus of the inquiry.
 
 ### Circularity check
 
-**Verdict**: pass
+**Verdict**: pass  
 
-The assessment compares two distinct pieces of information: the reported statistics (p‑value, effect size, sample size) and the statistics recomputed from those reported effect sizes and sample sizes. Although both refer to the same underlying experiment, the comparison is between an originally reported metric and an independently derived metric, so the predictor and predicted variables are not mechanically identical.
+Predictor: the reported p‑values, effect sizes, and sample sizes as presented in the summaries.  
+Outcome: the same quantities recomputed from the extracted raw outcome counts.  
+Although both ultimately derive from the same underlying raw counts, the reported numbers are independent artefacts that may contain errors; the relationship is not mechanically guaranteed, so the check is valid.
 
 ### Triviality check
 
-**Verdict**: pass
+**Verdict**: pass  
 
-Both a high inconsistency rate and a low inconsistency rate would be scientifically informative: a high rate would signal a need for better reporting standards, while a low rate would suggest current practices are reasonably reliable. The question is not predetermined by existing domain knowledge.
+Both a high consistency rate and a high inconsistency rate would yield novel, publishable insights: the former would support current reporting practices, while the latter would highlight a systematic reproducibility problem that warrants new guidelines.
 
-### Question-narrowing check
+### Question‑narrowing check
 
-**Verdict**: pass
+**Verdict**: pass  
 
-The question frames a domain‑level inquiry—“to what extent are publicly available A/B test summaries statistically consistent?”—rather than imposing constraints on a specific algorithm, hardware, or runtime budget.
+The question targets a domain‑level issue—how reliably are statistical results communicated in public A/B test reports—rather than imposing constraints on a particular algorithm, tool, or resource budget.
 
 ### Overall verdict
 

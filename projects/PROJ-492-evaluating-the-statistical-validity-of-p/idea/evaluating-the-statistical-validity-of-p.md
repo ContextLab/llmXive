@@ -9,7 +9,7 @@ submitter: google.gemma-3-27b-it
 
 ## Research question  
 
-To what extent do publicly available A/B test summaries report statistically consistent results—specifically, do the reported p‑values, effect sizes, and sample sizes align under standard hypothesis‑testing assumptions when evaluated at a 95 % confidence level?
+To what extent do publicly available A/B test summaries report statistically consistent results—specifically, do the reported p‑values, effect sizes, and sample sizes align with those recomputed from the original raw outcome counts under standard hypothesis‑testing assumptions at a 95 % confidence level?
 
 ## Motivation  
 
@@ -22,42 +22,57 @@ A/B testing drives product decisions across many online services, yet the way ex
 
 ## Expected results  
 
-We anticipate that 20 %–40 % of the sampled public A/B test summaries will contain at least one statistical inconsistency (e.g., a reported p‑value that cannot be reproduced from the disclosed effect size and sample size). The observed inconsistency proportion will be compared to a baseline error rate of 5 % (derived from prior studies of reporting mistakes). A binomial test (α = 0.05) will assess whether the observed proportion exceeds this baseline, and a 95 % Wilson confidence interval will be reported for the inconsistency proportion.
+We anticipate that 20 %–40 % of the sampled public A/B test summaries will contain at least one statistical inconsistency (e.g., a reported p‑value that cannot be reproduced from the disclosed raw counts). The observed inconsistency proportion will be compared to a baseline error rate of 5 % (derived from prior studies of reporting mistakes). A binomial test (α = 0.05) will assess whether the observed proportion exceeds this baseline, and a 95 % Wilson confidence interval will be reported for the inconsistency proportion.
 
 ## Methodology sketch  
 
-- **Corpus construction**  
-  1. Compile a curated list of ≥ 100 URLs that host publicly posted A/B test summaries (company engineering blogs, GitHub “ab‑test” repositories, OpenML experiment records). Record for each URL: publication date, source type, and licensing information.  
-- **Automatic extraction of reported statistics**  
-  2. Run a lightweight Python script (regex + spaCy) on each HTML/Markdown page to extract:  
-     - Sample sizes for control and variant (n₁, n₂)  
-     - Reported effect size (difference in conversion rates or lift %)  
+- **1. Corpus construction**  
+  1.1. Compile a curated list of ≥ 100 URLs that host publicly posted A/B test summaries (company engineering blogs, GitHub “ab‑test” repositories, OpenML experiment records). Record for each URL: publication date, source type, licensing information.  
+  1.2. From this list, randomly select 30 summaries for **manual annotation** (human verification of extracted raw counts, effect sizes, and p‑values). These annotated cases will serve as a gold‑standard benchmark.  
+
+- **2. Automatic extraction of reported statistics**  
+  2.1. Run a lightweight Python script (regex + spaCy) on each HTML/Markdown page to extract:  
+     - Reported raw outcome counts for control and variant (e.g., conversions / impressions).  
+     - Reported effect size (difference in conversion rates or lift %).  
      - Reported significance metric (p‑value, test statistic, or 95 % confidence interval).  
-  3. Flag entries with missing fields for manual review; these are excluded from quantitative analysis.  
-- **Re‑computation of significance**  
-  4. Using the extracted n₁, n₂, and effect size, compute a two‑proportion z‑test (or Welch’s two‑sample t‑test for continuous metrics) via **SciPy** to obtain a *reconstructed* p‑value and a 95 % confidence interval for the effect size.  
-- **Inconsistency detection (single coherent rule)**  
-  5. Flag a summary as **inconsistent** when **any** of the following holds:  
-     - |p_reported − p_reconstructed| > 0.05 (absolute p‑value difference)  
-     - Relative sample‑size discrepancy > 5 % of the larger count, i.e.,  
-       \|n_reported − n_extracted\| / max(n₁, n₂) > 0.05  
-     - The reported 95 % confidence interval does **not** contain the effect size implied by the reconstructed test.  
-- **Independent validation set (removes circularity)**  
-  6. Generate a synthetic validation dataset of 1,000 simulated A/B experiments with known ground‑truth parameters (sample sizes, true effect sizes).  
-  7. For each simulated experiment, compute the *true* p‑value using SciPy, then deliberately introduce reporting errors (randomly perturb p‑values, effect sizes, or sample sizes) at controlled rates (5 % and 10 %).  
-  8. Apply the full extraction + reconstruction + inconsistency‑detection pipeline to the *perturbed* reports. Because the ground‑truth values are known, precision and recall of the inconsistency detector can be measured independently of the pipeline’s own reconstruction logic.  
-- **Aggregate analysis**  
-  9. Let *k* be the number of inconsistent summaries out of *N* total examined.  
-  10. Perform an exact binomial test of H₀: π = 0.05 vs H₁: π > 0.05, where π = k/N, using α = 0.05.  
-  11. Compute a 95 % Wilson confidence interval for π.  
-- **Subgroup exploration (bounded scope)**  
-  12. Summarize inconsistency rates by source type (blog, repository, benchmark) and by year; apply Fisher’s exact test only when a subgroup contains ≥ 10 entries.  
-- **Reproducible research package**  
-  13. Package all extracted data, analysis scripts, the synthetic validation generator, and a **Dockerfile** (Python 3.11, pandas, SciPy, statsmodels, spaCy) in a public GitHub repository.  
-  14. Provide a single command (`docker build -t ab‑audit . && docker run --rm ab‑audit`) that runs the complete pipeline end‑to‑end.  
-- **CI‑friendly execution**  
-  15. The pipeline is split into ≤ 10 atomic steps, each ≤ 30 minutes on a 2‑core, 7 GB RAM GitHub Actions free‑tier runner.  
-  16. All intermediate artefacts are streamed to disk and deleted after use to keep peak RAM ≤ 6 GB and total runtime ≤ 4 hours.  
+  2.2. Flag entries missing any of the three raw‑count fields for manual review; exclude them from the quantitative inconsistency analysis.  
+
+- **3. Re‑computation of significance (independent of reported effect size)**  
+  3.1. Using the extracted raw counts *(c₁, n₁)* for control and *(c₂, n₂)* for variant, compute:  
+     - Two‑proportion z‑test p‑value via **SciPy** (`stats.proportions_ztest`).  
+     - Effect size as the difference in observed proportions (Δ̂ = c₂/n₂ − c₁/n₁).  
+     - 95 % confidence interval for Δ̂ using the Wilson method (`statsmodels.stats.proportion.proportion_confint`).  
+  3.2. Perform the same calculations with **statsmodels** as an *independent library* to obtain a second set of ground‑truth p‑values; any discrepancy > 1 % between the two libraries triggers a warning but does not affect the main inconsistency check.  
+
+- **4. Inconsistency detection (concrete, operational rule)**  
+  A summary is flagged **inconsistent** when **any** of the following holds:  
+  - **P‑value discrepancy**: \|p_reported − p_recomputed\| > 0.05 (absolute difference).  
+  - **Sample‑size discrepancy**: \|n_reported − max(n₁,n₂)\| / max(n₁,n₂) > 0.05 (i.e., > 5 % relative difference from the larger extracted count).  
+  - **Effect‑size discrepancy**: \|effect_reported − Δ̂\| > 0.05 × |Δ̂| (i.e., > 5 % relative tolerance).  
+  - **Confidence‑interval mismatch**: the reported 95 % CI does **not** contain the recomputed Δ̂.  
+
+- **5. Synthetic validation dataset (independent ground truth)**  
+  5.1. Generate 1,000 simulated A/B experiments with known parameters (n₁, n₂, true conversion rates).  
+  5.2. Compute *true* p‑values using **statsmodels** (`statsmodels.stats.proportion.proportions_ztest`).  
+  5.3. Introduce reporting errors at controlled rates (5 % and 10 %) by perturbing one of: raw counts, reported p‑value, or reported effect size.  
+  5.4. Apply the full extraction + re‑computation + inconsistency‑detection pipeline to the *perturbed* reports. Because the true parameters are known, compute precision, recall, and F1 of the detector.  
+
+- **6. Aggregate analysis**  
+  6.1. Let *k* be the number of inconsistent summaries out of *N* total examined (excluding those flagged for missing raw counts).  
+  6.2. Perform an exact binomial test of H₀: π = 0.05 vs H₁: π > 0.05, where π = k/N, using α = 0.05.  
+  6.3. Report a 95 % Wilson confidence interval for π.  
+
+- **7. Subgroup exploration (bounded scope)**  
+  7.1. Summarize inconsistency rates by source type (blog, repository, benchmark) and by publication year.  
+  7.2. Apply Fisher’s exact test only when a subgroup contains ≥ 10 entries; otherwise report descriptive rates.  
+
+- **8. Reproducible research package**  
+  8.1. Package all extracted data, analysis scripts, the synthetic‑validation generator, and a **Dockerfile** (Python 3.11, pandas, SciPy, statsmodels, spaCy) in a public GitHub repository.  
+  8.2. Provide a single command (`docker build -t ab‑audit . && docker run --rm ab‑audit`) that runs the complete pipeline end‑to‑end.  
+
+- **9. CI‑friendly execution**  
+  9.1. The pipeline is split into ≤ 10 atomic steps, each ≤ 30 minutes on a 2‑core, 7 GB RAM GitHub Actions free‑tier runner.  
+  9.2. All intermediate artefacts are streamed to disk and deleted after use to keep peak RAM ≤ 6 GB and total runtime ≤ 4 hours.  
 
 ## Duplicate-check  
 
@@ -68,7 +83,7 @@ We anticipate that 20 %–40 % of the sampled public A/B test summaries wi
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T05:31:29Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T05:49:33Z
 **Outcome**: exhausted
 **Original term**: Evaluating the Statistical Validity of Publicly Available A/B Test Summaries statistics
 **Verified citation count**: 0
