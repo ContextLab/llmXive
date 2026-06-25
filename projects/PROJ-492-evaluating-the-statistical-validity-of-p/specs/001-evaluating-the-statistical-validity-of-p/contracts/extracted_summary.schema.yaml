@@ -1,48 +1,65 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ABSummary"
+title: "Extracted A/B Summary"
 type: object
 required:
   - url
-  - source_domain
-  - retrieved_at
-  - outcome_type
   - variant_a_n
   - variant_b_n
   - effect_size
+  - effect_size_unit
+  - reported_p
+  - outcome_type
+  - source
+  - retrieval_ts
 properties:
   url:
     type: string
     format: uri
     description: "Original URL of the public A/B test summary."
-  source_domain:
+  variant_a_n:
+    type: ["integer", "null"]
+    minimum: 0
+    description: "Sample size for variant A (null if missing)."
+  variant_b_n:
+    type: ["integer", "null"]
+    minimum: 0
+    description: "Sample size for variant B (null if missing)."
+  effect_size:
+    type: ["number", "null"]
+    description: "Reported effect size (raw value)."
+  effect_size_unit:
     type: string
-    description: "Domain part of the "
-  retrieved_at:
+    enum: ["abs_diff", "lift_percent", "mean_diff", "odds_ratio", "relative_risk"]
+    description: "Unit of the reported effect size."
+  reported_p:
     type: string
+    description: "Reported p‑value as string (e.g., \"0.032\" or \"p<0.001\")."
+  confidence_interval:
+    type: ["object", "null"]
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+    required: ["lower", "upper"]
+    description: "Reported confidence interval (null if not provided)."
+  timestamp:
+    type: ["string", "null"]
     format: date-time
-    description: " "
+    description: "Publication timestamp of the summary (optional)."
   outcome_type:
     type: string
-    enum: [binary, continuous]
-    description: " "
-  variant_a_n:
-    type: integer
+    enum: ["binary", "continuous"]
+    description: "Type of outcome measured."
+  baseline_rate:
+    type: ["number", "null"]
     minimum: 0
-    description: " "
-  variant_b_n:
-    type: integer
-    minimum: 0
-    description: " "
-  effect_size:
-    type: number
-    description: " "
-  reported_p:
-    type: number
-    description: " "
-  p_upper_bound:
-    type: description: " "
-  confidence_interval:
-    null:
-    null
-
-
+    maximum: 1
+    description: "Baseline conversion rate for lift conversion (optional)."
+  source:
+    type: string
+    description: "Extracted host or organization name."
+  retrieval_ts:
+    type: string
+    format: date-time
+    description: "Timestamp when the page was fetched."

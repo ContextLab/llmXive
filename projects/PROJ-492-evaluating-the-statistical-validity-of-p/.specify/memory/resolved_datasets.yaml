@@ -1,26 +1,156 @@
-resolved_at: '2026-06-25T06:28:06.755443+00:00'
+resolved_at: '2026-06-25T07:24:56.133122+00:00'
 datasets:
+- intent: FR-004a
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/journal_contribution/Immuno-regulatory_effects_of_hydroxychloroquine_in_experimental_autoimmune_thyroiditis/32788497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Revealing_the_Biological_Effect_of_the_N_glycosylation_of_High-Mobility_Group_Box_1_HMGB1_Facilitated_by_Chemical_Protein_Synthesis/32788494
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/book/A_reliable_energy-efficient_routing_algorithm_for_WBAN_using_centrality_measure/32725314
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Reconfigured_D_M_Model_Short_Communication/32788479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/journal_contribution/Machining_Accurate_Deep_Curved_Forms_on_Tungsten_Carbide_Cobalt_WC-Co_Eliminating_Tool_Wear_in_the_Electrical_Discharge_Turning_Operation/32725923
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6373741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19081781105
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19051690308
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://link.springer.com/article/10.1007/BF01334853
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Immuno-regulatory_effects_of_hydroxychloroquine_in_experimental_autoimmune_thyroiditis/32788497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Revealing_the_Biological_Effect_of_the_N_glycosylation_of_High-Mobility_Group_Box_1_HMGB1_Facilitated_by_Chemical_Protein_Synthesis/32788494
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/book/A_reliable_energy-efficient_routing_algorithm_for_WBAN_using_centrality_measure/32725314
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Reconfigured_D_M_Model_Short_Communication/32788479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/journal_contribution/Machining_Accurate_Deep_Curved_Forms_on_Tungsten_Carbide_Cobalt_WC-Co_Eliminating_Tool_Wear_in_the_Electrical_Discharge_Turning_Operation/32725923
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18961168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20705527
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20705527
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20840997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20840997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20840922
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: FR-008
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/Microwave_hyperthermia_enhances_radiosensitivity_of_highly_invasive_non-small_cell_lung_cancer_cells_via_inhibiting_Sonic_Hedgehog_signaling_pathway/32788408
+  - url: https://tandf.figshare.com/articles/journal_contribution/Immuno-regulatory_effects_of_hydroxychloroquine_in_experimental_autoimmune_thyroiditis/32788497
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/The_role_of_RNA_modifications_in_cancer_translational_control/32788436
+  - url: https://acs.figshare.com/articles/journal_contribution/Revealing_the_Biological_Effect_of_the_N_glycosylation_of_High-Mobility_Group_Box_1_HMGB1_Facilitated_by_Chemical_Protein_Synthesis/32788494
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/journal_contribution/Synthesis_and_characterisation_of_homemade_potassium_chlorate_from_consumer_products/32653608
+  - url: https://manara.qnl.qa/articles/book/A_reliable_energy-efficient_routing_algorithm_for_WBAN_using_centrality_measure/32725314
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/thesis/Ultrasound_Assessment_of_the_Placental_Cord_Insertion_An_Investigation_of_Clinical_Practice_and_Sonographer_Education/32788386
+  - url: https://figshare.com/articles/dataset/Dataset_for_Reconfigured_D_M_Model_Short_Communication/32788479
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Influence_of_neuro-architecture_strategies_in_childhood_learning_docx/32788425
+  - url: https://manara.qnl.qa/articles/journal_contribution/Machining_Accurate_Deep_Curved_Forms_on_Tungsten_Carbide_Cobalt_WC-Co_Eliminating_Tool_Wear_in_the_Electrical_Discharge_Turning_Operation/32725923
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -61,94 +191,73 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.20469943
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+- intent: FR-013
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/journal_contribution/Immuno-regulatory_effects_of_hydroxychloroquine_in_experimental_autoimmune_thyroiditis/32788497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Revealing_the_Biological_Effect_of_the_N_glycosylation_of_High-Mobility_Group_Box_1_HMGB1_Facilitated_by_Chemical_Protein_Synthesis/32788494
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/book/A_reliable_energy-efficient_routing_algorithm_for_WBAN_using_centrality_measure/32725314
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Reconfigured_D_M_Model_Short_Communication/32788479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/journal_contribution/Machining_Accurate_Deep_Curved_Forms_on_Tungsten_Carbide_Cobalt_WC-Co_Eliminating_Tool_Wear_in_the_Electrical_Discharge_Turning_Operation/32725923
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118243
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10338631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10382148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10290773
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10343605
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-- intent: MUST
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 190547
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/dataset/Authentic_Learning_Scenarios_in_Online_and_Blended_Environments_Across_European_Universities_-_Scenario_Descriptions/32788440
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Microwave_hyperthermia_enhances_radiosensitivity_of_highly_invasive_non-small_cell_lung_cancer_cells_via_inhibiting_Sonic_Hedgehog_signaling_pathway/32788408
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/The_role_of_RNA_modifications_in_cancer_translational_control/32788436
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/journal_contribution/Synthesis_and_characterisation_of_homemade_potassium_chlorate_from_consumer_products/32653608
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/thesis/Ultrasound_Assessment_of_the_Placental_Cord_Insertion_An_Investigation_of_Clinical_Practice_and_Sonographer_Education/32788386
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5746416
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16954306
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19980220
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20824722
+  - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20824722
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20272009
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20272009
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20840330
+  - url: https://zenodo.org/records/20453648
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -156,23 +265,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/Integrated_docking_molecular_dynamics_and_Markov_state_modelling_reveal_epigenetic_target_engagement_by_anti-obesity_drugs/32788446
+  - url: https://tandf.figshare.com/articles/journal_contribution/Immuno-regulatory_effects_of_hydroxychloroquine_in_experimental_autoimmune_thyroiditis/32788497
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Authentic_Learning_Scenarios_in_Online_and_Blended_Environments_Across_European_Universities_-_Scenario_Descriptions/32788440
+  - url: https://acs.figshare.com/articles/journal_contribution/Revealing_the_Biological_Effect_of_the_N_glycosylation_of_High-Mobility_Group_Box_1_HMGB1_Facilitated_by_Chemical_Protein_Synthesis/32788494
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Microwave_hyperthermia_enhances_radiosensitivity_of_highly_invasive_non-small_cell_lung_cancer_cells_via_inhibiting_Sonic_Hedgehog_signaling_pathway/32788408
+  - url: https://manara.qnl.qa/articles/book/A_reliable_energy-efficient_routing_algorithm_for_WBAN_using_centrality_measure/32725314
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/The_role_of_RNA_modifications_in_cancer_translational_control/32788436
+  - url: https://figshare.com/articles/dataset/Dataset_for_Reconfigured_D_M_Model_Short_Communication/32788479
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/journal_contribution/Synthesis_and_characterisation_of_homemade_potassium_chlorate_from_consumer_products/32653608
+  - url: https://manara.qnl.qa/articles/journal_contribution/Machining_Accurate_Deep_Curved_Forms_on_Tungsten_Carbide_Cobalt_WC-Co_Eliminating_Tool_Wear_in_the_Electrical_Discharge_Turning_Operation/32725923
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -192,94 +301,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16898125
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20806255
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20806255
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635092
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20512108
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
 - intent: SC-011
   status: unresolved
   candidates: []
-  candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/Predictors_of_poor_medication_adherence_in_patients_undergoing_peritoneal_dialysis_a_LASSO-based_risk_model_from_a_cross-sectional_study_in_Xinjiang_China/32788449
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Integrated_docking_molecular_dynamics_and_Markov_state_modelling_reveal_epigenetic_target_engagement_by_anti-obesity_drugs/32788446
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Authentic_Learning_Scenarios_in_Online_and_Blended_Environments_Across_European_Universities_-_Scenario_Descriptions/32788440
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Microwave_hyperthermia_enhances_radiosensitivity_of_highly_invasive_non-small_cell_lung_cancer_cells_via_inhibiting_Sonic_Hedgehog_signaling_pathway/32788408
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/The_role_of_RNA_modifications_in_cancer_translational_control/32788436
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6962265
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6963614
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/843489
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10118403
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/11168428
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635092
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20512108
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20453648
-    source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+  candidates_tried: []

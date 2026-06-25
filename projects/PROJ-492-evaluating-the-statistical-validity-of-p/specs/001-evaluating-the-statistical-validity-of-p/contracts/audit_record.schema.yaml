@@ -1,63 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AuditRecord"
+title: "Audit Record"
 type: object
 required:
-  - summary_url
+  - url
   - reconstructed_p
-  - reconstructed_effect_size
-  - reconstructed_variant_a_n
-  - reconstructed_variant_b_n
   - diff_abs_p
-  - diff_rel_effect
-  - diff_rel_n
+  - reconstructed_effect_size
+  - diff_abs_effect
+  - reconstructed_n_a
+  - reconstructed_n_b
+  - diff_abs_n
   - flag_inconsistent
   - category
-  - audit_timestamp
+  - notes
 properties:
-  summary_url:
+  url:
     type: string
     format: uri
     description: "URL of the audited A/B test summary."
   reconstructed_p:
     type: number
-    description: "P‑value computed from the reconstructed statistical test."
-  reconstructed_effect_size:
-    type: number
-    description: "Effect size computed from raw counts or means."
-  reconstructed_variant_a_n:
-    type: integer
     minimum: 0
-    description: "Reconstructed sample size for variant A."
-  reconstructed_variant_b_n:
-    type: integer
-    minimum: 0
-    description: "Reconstructed sample size for variant B."
+    maximum: 1
+    description: "P‑value recomputed from raw numbers."
   diff_abs_p:
     type: number
     description: "Absolute difference between reported and reconstructed p‑values."
-  diff_rel_effect:
+  reconstructed_effect_size:
     type: number
-    description: "Relative difference of effect sizes (absolute diff / larger magnitude)."
-  diff_rel_n:
+    description: "Effect size recomputed (absolute difference)."
+  diff_abs_effect:
     type: number
-    description: "Relative difference of sample sizes (absolute diff / larger count."
+    description: "Relative absolute difference between reported and reconstructed effect size."
+  reconstructed_n_a:
+    type: integer
+    minimum: 0
+    description: "Sample size for variant A used in reconstruction."
+  reconstructed_n_b:
+    type: integer
+    minimum: 0
+    description: "Sample size for variant B used in reconstruction."
+  diff_abs_n:
+    type: number
+    description: "Relative absolute difference between reported and reconstructed sample sizes."
   flag_inconsistent:
     type: boolean
-    description: "True if any FR‑004 inconsistency rule is triggered."
+    description: "True if any FR‑004 sub‑criterion is violated."
   category:
     type: string
-    enum:
-      - p_value
-      - effect_size
-      - sample_size
-      - ci_mismatch
-      - missing_metric
-      - size_mismatch
-    description: "Primary "
+    enum: ["p_value_mismatch", "effect_size_mismatch", "sample_size_mismatch", "ci_violation", "missing_metric"]
+    description: "Reason for inconsistency flag."
   notes:
     type: string
-    description: "Free‑form "
-  audit_timestamp:
-    type: string
-    format: date-time
-    description: "When "
+    description: "Human‑readable explanation of the flag."

@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reproducibility Manifest"
+type: object
+required:
+  - docker_image_sha256
+  - audit_json_md5
+  - dashboard_html_md5
+  - generated_at
+properties:
+  docker_image_sha256:
+    type: string
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: "SHA‑256 hash of the Docker image built for the run."
+  audit_json_md5:
+    type: string
+    pattern: "^[a-fA-F0-9]{32}$"
+    description: "MD5 checksum of the generated audit JSON report."
+  dashboard_html_md5:
+    type: string
+    pattern: "^[a-fA-F0-9]{32}$"
+    description: "MD5 checksum of the generated dashboard HTML file."
+  generated_at:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp when the manifest was created."
