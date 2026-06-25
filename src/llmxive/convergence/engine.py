@@ -268,10 +268,15 @@ def _spec_quality_concerns(
 
 
 # A requirement id (FR-007 / SC-012), tolerant of the non-breaking hyphen the
-# LLM emits (FR‑007) and an optional leading zero-pad.
-_REQ_ID_RE = re.compile(r"\b((?:FR|SC)[-‑]?\d{1,3})\b", re.IGNORECASE)
+# LLM emits (FR‑007), an optional leading zero-pad, AND a sub-letter suffix
+# (FR-004a / SC-010b) — the reviser creates these when it splits a requirement
+# to add a sibling (e.g. FR-004a for FR-004's sensitivity analysis). Without the
+# ``[a-z]?`` the id never matches (the ``a`` blocks the ``\b``), so the anchored
+# set silently omits it and a PROVABLY-anchored FR-004a is kept as a false
+# orphan — the live PROJ-492 spec residual.
+_REQ_ID_RE = re.compile(r"\b((?:FR|SC)[-‑]?\d{1,3}[a-z]?)\b", re.IGNORECASE)
 # A line that ESTABLISHES a story anchor for the id(s) on it.
-_ANCHOR_HINT_RE = re.compile(r"see\s+us|\bus[-‑\s]?\d|anchored\s+requirement", re.IGNORECASE)
+_ANCHOR_HINT_RE = re.compile(r"see\s+us|\bus[-‑\s]?\d|\banchored\s+requirement", re.IGNORECASE)
 # A concern that CLAIMS an FR/SC has no user-story anchor (traceability).
 _ORPHAN_CLAIM_RE = re.compile(
     r"orphan|not\s+(?:anchored|linked|tied|cited|referenced|connected)\b|"
@@ -284,7 +289,12 @@ def _norm_req_id(raw: str) -> str:
     raw = raw.replace("‑", "-").upper().replace("FR", "FR-").replace("SC", "SC-")
     raw = raw.replace("FR--", "FR-").replace("SC--", "SC-")
     pre, _, num = raw.partition("-")
-    return f"{pre}-{int(num):03d}" if num.isdigit() else raw
+    # Zero-pad the numeric part; preserve any sub-letter suffix (004A) so
+    # "FR-004a" in a concern matches "FR-004a" in an anchor line.
+    m = re.match(r"(\d+)([A-Z]?)$", num)
+    if m:
+        return f"{pre}-{int(m.group(1)):03d}{m.group(2)}"
+    return raw
 
 
 def _anchored_req_ids(artifacts: dict[str, str]) -> set[str]:

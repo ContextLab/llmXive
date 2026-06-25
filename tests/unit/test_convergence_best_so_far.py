@@ -105,3 +105,38 @@ def test_provably_false_orphan_concerns_are_dropped() -> None:
     assert not any("not anchored" in t for t in texts)   # the false one is gone
     assert any("FR-007 is orphaned" in t for t in texts)  # the real one stays
     assert any("untestable" in t for t in texts)          # non-traceability stays
+
+
+def test_sub_lettered_requirement_orphan_is_recognised() -> None:
+    """A reviser that SPLITS a requirement (FR-004 -> adds FR-004a for the
+    sensitivity analysis) and lists FR-004a in a story's Anchored Requirements
+    must not then be blocked by a "FR-004a is orphaned" false positive. The id
+    regex must match the sub-letter ('FR-004a'), else the anchored set omits it
+    and the false orphan survives — the live PROJ-492 run-11 spec residual.
+    Genuine sub-lettered orphans (no anchor) are still kept."""
+    from llmxive.convergence.engine import _drop_false_orphan_concerns
+    from llmxive.convergence.types import Concern, Severity
+
+    arts = {
+        "spec.md": (
+            "**Anchored Requirements**: **FR-004**, **FR-004a**, **FR-005a** (all See US‑1)\n"
+            "**FR-009b**: a sub-lettered requirement with no story link\n"
+        )
+    }
+
+    def C(t):
+        return Concern(id="x", reviewer="requirements_coverage",
+                       severity=Severity.WRITING, artifact="spec.md", text=t)
+
+    kept = _drop_false_orphan_concerns(
+        [
+            C("FR-004a is not anchored to any user story, leaving it orphaned."),  # false
+            C("FR-005a is orphaned; no story references it."),                     # false
+            C("FR-009b is orphaned; no user story references it."),                # true
+        ],
+        arts,
+    )
+    texts = [c.text for c in kept]
+    assert not any("FR-004a" in t for t in texts)   # anchored sub-letter → dropped
+    assert not any("FR-005a" in t for t in texts)   # anchored sub-letter → dropped
+    assert any("FR-009b" in t for t in texts)        # genuinely orphaned → kept
