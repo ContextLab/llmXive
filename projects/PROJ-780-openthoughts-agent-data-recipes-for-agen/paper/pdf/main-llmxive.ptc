@@ -1,0 +1,50 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Related Work}{3}{section.2}%
+\contentsline {section}{\numberline {3}SFT Data Pipeline}{4}{section.3}%
+\contentsline {paragraph}{Pipeline}{4}{paragraph*.2}%
+\contentsline {paragraph}{Training}{5}{paragraph*.4}%
+\contentsline {paragraph}{Evaluation Setup}{5}{paragraph*.5}%
+\contentsline {subsection}{\numberline {3.1}Sourcing Tasks}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Mixing Tasks}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Task Augmentation Strategies}{7}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Filtering Tasks}{7}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Teacher Model}{7}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Filtering Agent Rollouts}{8}{subsection.3.6}%
+\contentsline {section}{\numberline {4}Scaling Up SFT Data}{8}{section.4}%
+\contentsline {paragraph}{OpenThoughts-Agent-v2}{10}{paragraph*.9}%
+\contentsline {section}{\numberline {5}Reinforcement Learning}{10}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Experimental Details}{11}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Sourcing Tasks in RL}{12}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Results}{13}{subsection.5.3}%
+\contentsline {section}{\numberline {6}Conclusion}{13}{section.6}%
+\contentsline {paragraph}{Broader Impacts}{13}{paragraph*.11}%
+\ttl@starttoc {sections@1}
+\contentsline {section}{\numberline {A}Full SFT Pipeline Ablation Tables}{20}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Task Generation Strategies (Full Ranking)}{21}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Mixing Strategies (Full Results)}{23}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Filtering for Longer Episodes: A Compute-Controlled Ablation}{23}{subsection.A.3}%
+\contentsline {section}{\numberline {B}Scaling at 8B}{24}{appendix.B}%
+\contentsline {section}{\numberline {C}SFT Hyperparameters}{26}{appendix.C}%
+\contentsline {section}{\numberline {D}RL Hyperparameters and Infrastructure}{26}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}Hardware}{26}{subsection.D.1}%
+\contentsline {subsection}{\numberline {D.2}Algorithm and optimizer}{26}{subsection.D.2}%
+\contentsline {subsection}{\numberline {D.3}Training schedule}{26}{subsection.D.3}%
+\contentsline {subsection}{\numberline {D.4}Distributed strategy}{27}{subsection.D.4}%
+\contentsline {subsection}{\numberline {D.5}Generation (vLLM)}{27}{subsection.D.5}%
+\contentsline {subsection}{\numberline {D.6}Rollout environment (Harbor / terminus-2)}{27}{subsection.D.6}%
+\contentsline {subsection}{\numberline {D.7}Headline metrics at step 48}{27}{subsection.D.7}%
+\contentsline {subsection}{\numberline {D.8}Reproducibility Artifacts}{28}{subsection.D.8}%
+\contentsline {section}{\numberline {E}RL Run-to-Run Reproducibility}{28}{appendix.E}%
+\contentsline {section}{\numberline {F}What RL Learns: Emergent Behavior Behind the {\ttfamily \color {llmxGreenDeep}pymethods2test} Result}{29}{appendix.F}%
+\contentsline {subsection}{\numberline {F.1}Legitimate exploration, not reward hacking}{29}{subsection.F.1}%
+\contentsline {paragraph}{Why this data source pushed the policy to explore.}{30}{paragraph*.16}%
+\contentsline {subsection}{\numberline {F.2}The contrast: the LLM-verifier run compacts instead of explores}{30}{subsection.F.2}%
+\contentsline {subsection}{\numberline {F.3}Connecting behavior to downstream evals}{30}{subsection.F.3}%
+\contentsline {section}{\numberline {G}Eval Setup}{31}{appendix.G}%
+\contentsline {paragraph}{Evaluation Stack Overview}{31}{paragraph*.20}%
+\contentsline {paragraph}{Evaluation Setup}{31}{paragraph*.21}%
+\contentsline {paragraph}{Timeout-aware Evaluation}{32}{paragraph*.22}%
+\contentsline {paragraph}{Coderforge-Preview}{32}{paragraph*.23}%
+\contentsline {paragraph}{Reproducing OpenSWE}{32}{paragraph*.24}%
+\contentsline {paragraph}{Evaluation on Terminal-Bench 2.1.}{32}{paragraph*.25}%
+\contentsfinish 

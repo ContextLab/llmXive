@@ -1,0 +1,10 @@
+{
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/pdf/main-llmxive.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
+  "paper_id": "PROJ-781-memgui-agent-an-end-to-end-long-horizon",
+  "updated_at": "2026-06-25T10:32:08.326693+00:00"
+}
