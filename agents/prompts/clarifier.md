@@ -95,6 +95,16 @@ commentary.
   applies when you revise `spec.md` to resolve panel concerns: replace
   each vague phrase with a concrete bound-led value plus a one-line
   rationale, and leave the rest of the document intact.
+- **Preserve cross-reference consistency when you revise.** A revision that
+  fixes one concern but INTRODUCES a contradiction elsewhere is re-flagged and
+  the document bounces for another full cycle — the #1 cause of non-convergence
+  (you trade one concern for another and never reach unanimous accept). So when
+  you change what an FR/SC tests or asserts, propagate it: update EVERY User
+  Story acceptance scenario, Success Criterion, and other FR that references the
+  same behaviour so they all agree (e.g. if you change FR-005 from a
+  goodness-of-fit test to a binomial test, update the User Story scenario and any
+  SC that named the old test). Before returning, re-read the spec and confirm no
+  two statements about the same quantity/test/threshold disagree.
 - NEVER invent factual claims that primary sources do not support
   (Constitution Principle II) — but methodological defaults are not
   factual claims, they're agreed-upon practice.
