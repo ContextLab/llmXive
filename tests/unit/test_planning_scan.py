@@ -186,3 +186,21 @@ def test_confidence_level_is_a_design_parameter_not_deferred() -> None:
     # A genuine empirical value with NO statistical-design context is still deferred.
     assert "27,635" not in strip_empirical_values("approximately 27,635 papers were found")
     assert "[deferred]" in strip_empirical_values("the inconsistency rate was 30% overall")
+
+
+def test_tolerance_threshold_margin_are_design_parameters_not_deferred() -> None:
+    """A tolerance / threshold / margin is the operator-CHOSEN cutoff a rule
+    compares against — a design parameter, exactly like a confidence level. The
+    live FR-004 loop on PROJ-492: the reviser sets a concrete "relative tolerance
+    of 0.05", the strip re-defers it to "[deferred] relative tolerance", the
+    testability/soundness panels re-flag it forever. Keep these concrete."""
+    from llmxive.claims.planning_scan import strip_empirical_values
+
+    for text, val in [
+        ("flag inconsistent when the relative tolerance of 0.05 is exceeded", "0.05"),
+        ("a discrepancy threshold of 0.1 between reported and reconstructed p", "0.1"),
+        ("agree to within a margin of 0.02", "0.02"),
+    ]:
+        assert val in strip_empirical_values(text), text
+    # Still deferred: an OBSERVED quantity with no design-parameter context.
+    assert "[deferred]" in strip_empirical_values("the dataset contained 1,234 experiments")

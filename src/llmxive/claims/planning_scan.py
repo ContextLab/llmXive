@@ -79,16 +79,22 @@ _LEAD = re.compile(
     re.IGNORECASE,
 )
 
-# A value sitting in a CONFIDENCE / significance context (``95% confidence``,
-# ``Wilson 95% CI``, ``confidence level of 95%``) is a statistical DESIGN
-# PARAMETER — the operator's chosen confidence level / interval, exactly like a
-# bound-led target or ``α = 0.05`` — NOT an empirical claim about the world.
-# Deferring it produces ``[deferred] confidence level``, which the
-# testability/soundness panels (correctly) re-flag as unverifiable forever: the
-# reviser sets 95%, the strip re-defers it next render — the live PROJ-492 spec
-# non-convergence loop. KEEP these concrete.
+# A value sitting in a statistical / numeric DESIGN-PARAMETER context is the
+# operator's CHOSEN setting, not an empirical claim about the world, and must
+# stay concrete — exactly like a bound-led target or ``α = 0.05``:
+#   * confidence / significance — ``95% confidence``, ``Wilson 95% CI``,
+#     ``significance level of 0.05``, ``α = 0.05``;
+#   * tolerance / threshold / margin — ``relative tolerance of 0.05``,
+#     ``discrepancy threshold of 0.1``, ``margin of 0.02`` — the cutoff a rule
+#     compares against, which the operator picks, not measures.
+# Deferring any of these produces e.g. ``[deferred] relative tolerance``, which
+# the testability/soundness panels (correctly) re-flag as unverifiable forever:
+# the reviser sets 0.05, the strip re-defers it next render — the live PROJ-492
+# spec non-convergence loop (first seen on the confidence level, then the FR-004
+# tolerance). KEEP these concrete.
 _STAT_DESIGN_CONTEXT = re.compile(
-    r"confidence|\bCIs?\b|credible\s+interval|significance\s+level|\balpha\b|α",
+    r"confidence|\bCIs?\b|credible\s+interval|significance\s+level|\balpha\b|α"
+    r"|toleranc|threshold|\bmargin\b",
     re.IGNORECASE,
 )
 
