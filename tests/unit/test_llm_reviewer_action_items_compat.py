@@ -93,6 +93,44 @@ def test_concerns_wins_when_both_keys_present():
     assert "SSoT concern" in concerns[0].text
 
 
+def test_generic_severity_word_is_coerced_not_crashed():
+    """Live PROJ-492 tasks-gate engine failure: the constraint_preservation lens
+    emitted ``severity: low`` (a generic word, not an llmXive domain class), and
+    the parser raised ``unknown severity 'low'`` — crashing the whole stage panel
+    and blocking every project at the tasks stage. The parser must COERCE common
+    generic vocabulary onto the canonical enum instead of crashing, and a generic
+    word must never escalate to an idea-stage (methodology/science/fatal) class."""
+    from llmxive.convergence.types import Severity
+
+    resp = (
+        "---\n"
+        "verdict: minor_revision\n"
+        "concerns:\n"
+        "  - text: Task T076 has no corresponding functional requirement.\n"
+        "    severity: low\n"
+        "  - text: The mapping table references an undefined FR.\n"
+        "    severity: critical\n"
+        "  - text: A nitpick about wording.\n"
+        "    severity: nit\n"
+        "---\n"
+        "Body\n"
+    )
+    verdict, concerns = _parse_response(
+        resp, lens="constraint_preservation", stage="tasked", default_artifact="tasks.md",
+    )
+    assert verdict == "minor_revision"
+    assert len(concerns) == 3  # nothing dropped, nothing crashed
+    # 'low' -> writing, 'critical' -> requirement (safe band), 'nit' -> trivial.
+    assert concerns[0].severity == Severity.WRITING
+    assert concerns[1].severity == Severity.REQUIREMENT
+    assert concerns[2].severity == Severity.TRIVIAL
+    # No generic word escalates to the drastic idea-stage routing classes.
+    assert all(
+        c.severity not in (Severity.METHODOLOGY, Severity.SCIENCE, Severity.FATAL)
+        for c in concerns
+    )
+
+
 def test_empty_concerns_falls_through_to_action_items():
     """If ``concerns:`` is explicitly empty (not just missing), fall
     through to ``action_items``. This handles the common case where the

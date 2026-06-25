@@ -42,7 +42,7 @@ from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_model_fallback
 
 from . import review_cache
-from .types import Concern, Severity, Verdict
+from .types import Concern, Severity, Verdict, coerce_severity
 
 # --- prompt loading -------------------------------------------------------
 
@@ -582,14 +582,15 @@ def _parse_response(
     for i, c in enumerate(raw_concerns):
         if not isinstance(c, dict):
             continue
+        # Robust parse: panels routinely emit a generic severity word
+        # (low/medium/high/minor/critical) instead of llmXive's domain classes.
+        # ``coerce_severity`` maps those onto the canonical enum (generic words
+        # stay inside the safe in-place-revision band) and defaults a genuinely
+        # unknown token to ``writing`` with a warning — a single odd severity must
+        # not crash the whole stage panel (the PROJ-492 tasks-gate engine failure
+        # on severity 'low' that blocked every project here).
         sev_raw = str(c.get("severity", "writing")).strip().lower()
-        try:
-            sev = Severity(sev_raw)
-        except ValueError as exc:
-            raise RuntimeError(
-                f"LLMReviewer[{lens}]: concern {i} has unknown severity "
-                f"{sev_raw!r}; expected one of {[s.value for s in Severity]!r}"
-            ) from exc
+        sev = coerce_severity(sev_raw, lens=lens)
         # Reject empty / whitespace-only / non-string `text` BEFORE we
         # construct the Concern. The model-layer validator (Concern.text:
         # min_length=1) catches it too, but raising RuntimeError here

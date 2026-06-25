@@ -8,6 +8,7 @@ Pydantic v2 models for the identify -> revise -> re-review protocol plus the
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -69,6 +70,56 @@ def from_legacy_severity(value: str) -> Severity:
     if key in _LEGACY_SEVERITY:
         return _LEGACY_SEVERITY[key]
     return Severity(key)  # raises ValueError on an unknown value (fail fast)
+
+
+logger = logging.getLogger(__name__)
+
+# LLM panels frequently emit a GENERIC severity word (low/medium/high/minor/
+# major/critical) instead of llmXive's domain classes. A hard ``Severity(raw)``
+# ValueError on those crashed the whole stage panel — the live PROJ-492 tasks
+# gate "unknown severity 'low'" engine failure that blocks EVERY project at the
+# tasks stage. Map the common generic vocabulary onto the canonical enum by
+# RANK, and — crucially — keep every generic mapping inside the in-place
+# doc-revision band (trivial..requirement): a generic word must NEVER trigger the
+# drastic idea-stage re-routing reserved for an EXPLICIT methodology/science/
+# fatal class (which the panel prompts still name verbatim when they mean it).
+_SEVERITY_SYNONYMS: dict[str, Severity] = {
+    "trivial": Severity.TRIVIAL, "nit": Severity.TRIVIAL, "nitpick": Severity.TRIVIAL,
+    "info": Severity.TRIVIAL, "informational": Severity.TRIVIAL, "cosmetic": Severity.TRIVIAL,
+    "suggestion": Severity.TRIVIAL, "optional": Severity.TRIVIAL,
+    "low": Severity.WRITING, "minor": Severity.WRITING, "small": Severity.WRITING,
+    "style": Severity.WRITING, "note": Severity.WRITING, "polish": Severity.WRITING,
+    "medium": Severity.REQUIREMENT, "moderate": Severity.REQUIREMENT,
+    "normal": Severity.REQUIREMENT, "default": Severity.REQUIREMENT,
+    "high": Severity.REQUIREMENT, "major": Severity.REQUIREMENT, "important": Severity.REQUIREMENT,
+    "critical": Severity.REQUIREMENT, "blocker": Severity.REQUIREMENT, "blocking": Severity.REQUIREMENT,
+    "severe": Severity.REQUIREMENT, "serious": Severity.REQUIREMENT,
+}
+
+
+def coerce_severity(value: str, *, lens: str = "") -> Severity:
+    """Best-effort map an LLM-emitted severity string onto :class:`Severity`.
+
+    Canonical values pass through unchanged; common GENERIC vocabulary
+    (low/medium/high/minor/major/critical/...) maps by rank into the in-place
+    doc-revision band; a genuinely unrecognised value defaults to ``writing``
+    with a warning rather than crashing the stage panel. This is robust parsing,
+    not silent papering-over — the unexpected token is logged loudly, and the
+    canonical methodology/science/fatal classes (which alone trigger idea-stage
+    routing) are NEVER produced from a generic word.
+    """
+    key = (value or "").strip().lower()
+    try:
+        return Severity(key)
+    except ValueError:
+        pass
+    if key in _SEVERITY_SYNONYMS:
+        return _SEVERITY_SYNONYMS[key]
+    logger.warning(
+        "coerce_severity: unrecognised severity %r%s; defaulting to 'writing'",
+        value, f" (lens={lens})" if lens else "",
+    )
+    return Severity.WRITING
 
 
 # --- Records (persisted; strict) ------------------------------------------
