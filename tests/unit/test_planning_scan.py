@@ -226,3 +226,25 @@ def test_relative_of_reference_tolerance_not_deferred() -> None:
         assert "[deferred]" not in out, (text, out)
     # "of the <number>" is NOT a reference-noun construction → unaffected/deferred.
     assert "[deferred]" in strip_empirical_values("we collected 5,000 of the available reports")
+
+
+def test_stale_deferred_marker_beside_concrete_value_is_collapsed() -> None:
+    """A reviser that fills in a value but leaves the old marker beside it
+    ("the baseline of 0.05 ([deferred])", the live PROJ-492 SC-014 residual)
+    must not keep tripping the testability lens — the value IS present, so the
+    marker is noise. Collapse it. A GENUINE deferral (marker with no adjacent
+    value) and an explanatory parenthetical are untouched."""
+    from llmxive.claims.planning_scan import strip_empirical_values
+
+    out = strip_empirical_values(
+        "when the proportion exceeds the baseline of 0.05 ([deferred]), the "
+        "p-value must be ≤ 0.05"
+    )
+    assert "[deferred]" not in out
+    assert "0.05" in out
+    # Bare-marker variant.
+    assert strip_empirical_values("a discrepancy threshold 5 % [deferred].").count("[deferred]") == 0
+    # A genuine deferral (no concrete value beside the marker) still defers.
+    assert "[deferred]" in strip_empirical_values("the corpus held 12,345 abstracts")
+    # An explanatory parenthetical must NOT be eaten.
+    assert "because" in strip_empirical_values("baseline 0.05 ([deferred] because unmeasured)")

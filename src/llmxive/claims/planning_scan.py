@@ -156,6 +156,29 @@ def _tidy(line: str) -> str:
 #: not flag it.
 DEFERRED_MARKER = "[deferred]"
 
+# A reviser sometimes fills in a concrete value but leaves the STALE [deferred]
+# marker beside it — e.g. "the baseline of 0.05 ([deferred])" (PROJ-492 SC-014).
+# The value IS present, so the marker is pure noise that the testability lens
+# (correctly) re-flags every round, blocking convergence. Collapse a [deferred]
+# marker that sits immediately next to a concrete numeric value. This is SAFE:
+# the strip itself REPLACES a value WITH the marker, so it never leaves a
+# concrete number adjacent to a genuine deferral — only a reviser's stray marker
+# matches here.
+_NUM_FRAG = r"\d[\d.,]*(?:\s?%)?"
+_REDUNDANT_DEFERRED_RE = re.compile(
+    rf"(?P<a>{_NUM_FRAG})\s*\(\[deferred\]\)"               # 0.05 ([deferred])
+    rf"|(?P<b>{_NUM_FRAG})\s+\[deferred\](?=[\s,.;:)\]]|$)"  # 0.05 [deferred]
+    rf"|\(\[deferred\]\)\s*(?P<c>{_NUM_FRAG})",            # ([deferred]) 0.05
+    re.IGNORECASE,
+)
+
+
+def _collapse_redundant_deferred(text: str) -> str:
+    """Drop a ``[deferred]`` marker left adjacent to an already-concrete value."""
+    return _REDUNDANT_DEFERRED_RE.sub(
+        lambda m: m.group("a") or m.group("b") or m.group("c") or "", text
+    )
+
 
 def _normalize_value(token: str) -> str:
     """Canonical form for exempt-value comparison: digits/percent only."""
@@ -236,7 +259,7 @@ def strip_empirical_values(
             new = new[:start] + DEFERRED_MARKER + new[m.end():]
             pos = start + len(DEFERRED_MARKER)
         out.append(_tidy(new) if new != line else line)
-    return "\n".join(out)
+    return _collapse_redundant_deferred("\n".join(out))
 
 
 __all__ = [
