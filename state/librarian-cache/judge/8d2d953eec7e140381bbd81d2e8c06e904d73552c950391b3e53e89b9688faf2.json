@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.04365",
+  "judged_at": "2026-06-25T10:02:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying calibration drift of machine learning classifiers over time statistics",
+  "rationale": "The paper proposes a general error framework for machine learning in official statistics and does not specifically address calibration drift of classifiers over time, nor does it measure or provide methodology for that phenomenon. It falls outside the relevant mechanism, variables, or canonical studies for the user's question.",
+  "relevant": false
+}

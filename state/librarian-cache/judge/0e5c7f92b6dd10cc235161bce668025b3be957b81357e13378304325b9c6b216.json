@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-25T10:02:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying calibration drift of machine learning classifiers over time statistics",
+  "rationale": "The paper discusses general concept drift and risks of changing data sources in official statistics, but it does not measure or quantify calibration drift of classifiers over time, nor does it provide methodology or baseline specifically for calibration error. Hence it does not satisfy any inclusion criteria (a‑f).",
+  "relevant": false
+}

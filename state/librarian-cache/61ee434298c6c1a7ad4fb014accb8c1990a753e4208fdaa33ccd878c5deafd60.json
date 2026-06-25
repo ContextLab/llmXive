@@ -1,0 +1,550 @@
+{
+  "fetched_at": "2026-06-25T10:02:20Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Quantifying Calibration Drift of Machine Learning Classifiers Over Time",
+      "target_n": 5
+    },
+    "duration_seconds": 107.496,
+    "ended_at": "2026-06-25T10:02:19Z",
+    "expansion": null,
+    "extracted_queries": [
+      "probability calibration shift",
+      "concept drift streaming classification",
+      "expected calibration error temporal",
+      "timewise Brier score",
+      "distribution shift impact calibration"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2504.15582"
+      ]
+    },
+    "per_query_hit_count": {
+      "Quantifying Calibration Drift of Machine Learning Classifiers Over Time statistics": 3,
+      "concept drift streaming classification": 3,
+      "distribution shift impact calibration": 3,
+      "expected calibration error temporal": 3,
+      "probability calibration shift": 3,
+      "timewise Brier score": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper discusses general concept drift and risks of changing data sources in official statistics, but it does not measure or quantify calibration drift of classifiers over time, nor does it provide methodology or baseline specifically for calibration error. Hence it does not satisfy any inclusion criteria (a‑f).",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2409.04365",
+          "rationale": "The paper proposes a general error framework for machine learning in official statistics and does not specifically address calibration drift of classifiers over time, nor does it measure or provide methodology for that phenomenon. It falls outside the relevant mechanism, variables, or canonical studies for the user's question.",
+          "title": "Leveraging Machine Learning for Official Statistics: A Statistical Manifesto"
+        },
+        {
+          "primary_pointer": "2404.02572",
+          "rationale": "The paper focuses on detecting and adapting to concept drift in graph stream classification using prototype embeddings, without measuring or quantifying calibration error or calibration drift of classifiers over time, so it does not address the specific construct of calibration drift required by the user's question.",
+          "title": "Incremental Learning with Concept Drift Detection and Prototype-based Embeddings for Graph Stream Classification"
+        },
+        {
+          "primary_pointer": "2307.14758",
+          "rationale": "The paper focuses on detecting sequential distribution shifts rather than measuring or quantifying calibration drift of classifiers over time, so it does not address the same mechanism or variable required for the user's question.",
+          "title": "Towards Practicable Sequential Shift Detectors"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T10:00:32Z",
+    "term_input": {
+      "normalized": "quantifying calibration drift of machine learning classifiers over time statistics",
+      "raw": "Quantifying Calibration Drift of Machine Learning Classifiers Over Time statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Obtaining accurate and well calibrated probability estimates from classifiers is useful in many applications, for example, when minimising the expected cost of classifications. Existing methods of calibrating probability estimates are applied globally, ignoring the potential for improvements by applying a more fine-grained model. We propose probability calibration trees, a modification of logistic model trees that identifies regions of the input space in which different probability calibration models are learned to improve performance. We compare probability calibration trees to two widely used calibration methods---isotonic regression and Platt scaling---and show that our method results in lower root mean squared error on average than both methods, for estimates produced by a variety of base learners.",
+          "claimed_authors": [
+            "Tim Leathart",
+            "Eibe Frank",
+            "Geoffrey Holmes",
+            "Bernhard Pfahringer"
+          ],
+          "claimed_title": "Probability Calibration Trees",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.00111"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Probability Calibration Trees')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove that if (X,\\mathfrakA,P) is an arbitrary probability space with countably generated σ-algebra \\mathfrakA, (Y,\\mathfrakB,Q) is an arbitrary complete probability space with a lifting ρand \\hat R is a complete probability measure on \\mathfrakA \\hat \\otimes_R \\mathfrakB determined by a regular conditional probability {S_y:y\\in Y} on \\mathfrakA with respect to \\mathfrakB, then there exist a lifting πon (X\\times Y,\\mathfrakA \\hat \\otimes_R \\mathfrakB,\\hat R) and liftings σ_y on (X,\\hat \\mathfrakA_y,\\hat S_y), y\\in Y, such that, for every E\\in\\mathfrakA \\hat \\otimes_R \\mathfrakB and every y\\in Y, [π(E)]^y=σ_y\\bigl([π(E)]^y\\bigr). Assuming the absolute continuity of R with respect to P\\otimes Q, we prove the existence of a regular conditional probability {T_y:y\\in Y} and liftings \\varpi on (X\\times Y,\\mathfrakA \\hat \\otimes_R \\mathfrakB,\\hat R), ρ' on (Y,\\mathfrakB,\\hat Q) and σ_y on (X,\\hat \\mathfrakA_y,\\hat S_y), y\\in Y, such that, for every E\\in\\mathfrakA \\hat \\otimes_R \\mathfrakB and every y\\in Y, [\\varpi(E)]^y=σ_y\\bigl([\\varpi(E)]^y\\bigr) and \\varpi(A\\times B)=\\bigcup_{y\\inρ'(B)}σ_y(A)\\times{y}\\qquadif A\\times B\\in\\mathfrakA\\times\\mathfrakB. Both results are generalizations of Musiał, Strauss and Macheras [Fund. Math. 166 (2000) 281-303] to the case of measures which are not necessarily products of marginal measures. We prove also that liftings obtained in this paper always convert \\hat R-measurable stochastic processes into their \\hat R-measurable modifications.",
+          "claimed_authors": [
+            "W. Strauss",
+            "N. D. Macheras",
+            "K. Musial"
+          ],
+          "claimed_title": "Splitting of liftings in products of probability spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0509010"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Splitting of liftings in products of probability spaces')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, with the increasing popularity of \"Smart Technology\", the number of Internet of Things (IoT) devices and systems have surged significantly. Various IoT services and functionalities are based on the analytics of IoT streaming data. However, IoT data analytics faces concept drift challenges due to the dynamic nature of IoT systems and the ever-changing patterns of IoT data streams. In this article, we propose an adaptive IoT streaming data analytics framework for anomaly detection use cases based on optimized LightGBM and concept drift adaptation. A novel drift adaptation method named Optimized Adaptive and Sliding Windowing (OASW) is proposed to adapt to the pattern changes of online IoT data streams. Experiments on two public datasets show the high accuracy and efficiency of our proposed adaptive LightGBM model compared against other state-of-the-art approaches. The proposed adaptive LightGBM model can perform continuous learning and drift adaptation on IoT data streams without human intervention.",
+          "claimed_authors": [
+            "Li Yang",
+            "Abdallah Shami"
+          ],
+          "claimed_title": "A Lightweight Concept Drift Detection and Adaptation Framework for IoT Data Streams",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.10529"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='A Lightweight Concept Drift Detection and Adaptation Framework for IoT Data Streams')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As the number of Internet of Things (IoT) devices and systems have surged, IoT data analytics techniques have been developed to detect malicious cyber-attacks and secure IoT systems; however, concept drift issues often occur in IoT data analytics, as IoT data is often dynamic data streams that change over time, causing model degradation and attack detection failure. This is because traditional data analytics models are static models that cannot adapt to data distribution changes. In this paper, we propose a Performance Weighted Probability Averaging Ensemble (PWPAE) framework for drift adaptive IoT anomaly detection through IoT data stream analytics. Experiments on two public datasets show the effectiveness of our proposed PWPAE method compared against state-of-the-art methods.",
+          "claimed_authors": [
+            "Li Yang",
+            "Dimitrios Michael Manias",
+            "Abdallah Shami"
+          ],
+          "claimed_title": "PWPAE: An Ensemble Framework for Concept Drift Adaptation in IoT Data Streams",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.05013"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='PWPAE: An Ensemble Framework for Concept Drift Adaptation in IoT Data Streams')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The study of temporal networks is motivated by the simple and important observation that just as network structure can affect dynamics, so can structure in time. Just as network topology can teach us about the system in question, so can its temporal characteristics. In many cases, leaving out either one of these components would lead to an incomplete understanding of the system or poor predictions. We argue that including time into network modeling inevitably leads researchers away from the trodden paths of network science. Temporal network theory requires something different -- new methods, new concepts, new questions -- compared to static networks. In this introductory chapter, we overview the ideas that the field of temporal networks has brought forward in the last decade. We also place the contributions to the current volume on this map of temporal-network approaches.",
+          "claimed_authors": [
+            "Petter Holme",
+            "Jari Saramäki"
+          ],
+          "claimed_title": "A map of approaches to temporal networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.13615"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='A map of approaches to temporal networks')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A spherical target irradiated by laser beams located at 49o and 131o with respect to the polar axis has been considered. The illumination model has been used to evaluate the irradiation non-uniformity assuming circular and elliptical super-gaussian laser intensity profiles and the irradiation scheme has been optimized by means of the Polar Direct Drive technique. A parametric study has been performed providing the irradiation non-uniformity as a function of the Polar Direct Drive displacement and of the laser intensity profile parameters. Moreover, two-dimensional axis-symmetric hydrodynamic simulations have been performed for a plastic sphere irradiated by laser beams characterized by a constant flat temporal power pulse. In these simulations the front of the inward shock wave has been tracked providing the time-evolution of any non-uniformity. The results provided by the two methods - illumination model and hydrodynamic data - have been compared and it is found that the illumination model reproduces the main behaviour exhibited by the hydrodynamic data. The two models provide compatible values for the optimum Polar Direct Drive parameter and similar optimal super-gaussian profiles.",
+          "claimed_authors": [
+            "M. Temporal",
+            "B. Canaud",
+            "W. J. Garbett",
+            "R. Ramis"
+          ],
+          "claimed_title": "Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.7762"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To be considered reliable, a model must be calibrated so that its confidence in each decision closely reflects its true outcome. In this blogpost we'll take a look at the most commonly used definition for calibration and then dive into a frequently used evaluation measure for model calibration. We'll then cover some of the drawbacks of this measure and how these surfaced the need for additional notions of calibration, which require their own new evaluation measures. This post is not intended to be an in-depth dissection of all works on calibration, nor does it focus on how to calibrate models. Instead, it is meant to provide a gentle introduction to the different notions and their evaluation measures as well as to re-highlight some issues with a measure that is still widely used to evaluate calibration.",
+          "claimed_authors": [
+            "Maja Pavlovic"
+          ],
+          "claimed_title": "Understanding Model Calibration -- A gentle introduction and visual exploration of calibration and the expected calibration error (ECE)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.19047"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Understanding Model Calibration -- A gentle introduction and visual exploration of calibration and the expected calibration error (ECE)')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Brier score is a widely used metric evaluating overall performance of probabilistic predictions for binary outcomes in clinical research. However, its interpretation can be complex, as it does not align with commonly taught concepts in medical statistics. Consequently, the Brier score is often misinterpreted, sometimes to a significant extent, a fact that has not been adequately addressed in the literature. We aim to explore prevalent misconceptions surrounding the Brier score and elucidate the understanding and interpretation of Brier scores for practitioners.",
+          "claimed_authors": [
+            "Linard Hoessly"
+          ],
+          "claimed_title": "On misconceptions about the Brier score in binary prediction models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.04906"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='On misconceptions about the Brier score in binary prediction models')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Brier score is frequently used by meteorologists to measure the skill of binary probabilistic forecasts. We show, however, that in simple idealised cases it gives counterintuitive results. We advocate the use of an alternative measure that has a more compelling intuitive justification.",
+          "claimed_authors": [
+            "Stephen Jewson"
+          ],
+          "claimed_title": "The problem with the Brier score",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "physics/0401046"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='The problem with the Brier score')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Brier score is commonly used for evaluating probability predictions. In survival analysis, with right-censored observations of the event times, this score can be weighted by the inverse probability of censoring (IPCW) to retain its original interpretation. It is common practice to estimate the censoring distribution with the Kaplan-Meier estimator, even though it assumes that the censoring distribution is independent of the covariates. This paper discusses the general impact of the censoring estimates on the Brier score and shows that the estimation of the censoring distribution can be problematic. In particular, when the censoring times can be identified from the covariates, the IPCW score is no longer valid. For administratively censored data, where the potential censoring times are known for all individuals, we propose an alternative version of the Brier score. This administrative Brier score does not require estimation of the censoring distribution and is valid even if the censoring times can be identified from the covariates.",
+          "claimed_authors": [
+            "Håvard Kvamme",
+            "Ørnulf Borgan"
+          ],
+          "claimed_title": "The Brier Score under Administrative Censoring: Problems and Solutions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.08581"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='The Brier Score under Administrative Censoring: Problems and Solutions')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time series prediction is often complicated by distribution shift which demands adaptive models to accommodate time-varying distributions. We frame time series prediction under distribution shift as a weighted empirical risk minimisation problem. The weighting of previous observations in the empirical risk is determined by a forgetting mechanism which controls the trade-off between the relevancy and effective sample size that is used for the estimation of the predictive model. In contrast to previous work, we propose a gradient-based learning method for the parameters of the forgetting mechanism. This speeds up optimisation and therefore allows more expressive forgetting mechanisms.",
+          "claimed_authors": [
+            "Stefanos Bennett",
+            "Jase Clarkson"
+          ],
+          "claimed_title": "Time Series Prediction under Distribution Shift using Differentiable Forgetting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.11486"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Time Series Prediction under Distribution Shift using Differentiable Forgetting')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Estimating the test performance of software AI-based medical devices under distribution shifts is crucial for evaluating the safety, efficiency, and usability prior to clinical deployment. Due to the nature of regulated medical device software and the difficulty in acquiring large amounts of labeled medical datasets, we consider the task of predicting the test accuracy of an arbitrary black-box model on an unlabeled target domain without modification to the original training process or any distributional assumptions of the original source data (i.e. we treat the model as a \"black-box\" and only use the predicted output responses). We propose a \"black-box\" test estimation technique based on conformal prediction and evaluate it against other methods on three medical imaging datasets (mammography, dermatology, and histopathology) under several clinically relevant types of distribution shift (institution, hardware scanner, atlas, hospital). We hope that by promoting practical and effective estimation techniques for black-box models, manufacturers of medical devices will develop more standardized and realistic evaluation procedures to improve the robustness and trustworthiness of clinical AI tools.",
+          "claimed_authors": [
+            "Charles Lu",
+            "Syed Rakin Ahmed",
+            "Praveer Singh",
+            "Jayashree Kalpathy-Cramer"
+          ],
+          "claimed_title": "Estimating Test Performance for AI Medical Devices under Distribution Shift with Conformal Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.05796"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Estimating Test Performance for AI Medical Devices under Distribution Shift with Conformal Prediction')",
+        "failed_at": "2026-06-25T10:01:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Weak supervision is a popular method for building machine learning models without relying on ground truth annotations. Instead, it generates probabilistic training labels by estimating the accuracies of multiple noisy labeling sources (e.g., heuristics, crowd workers). Existing approaches use latent variable estimation to model the noisy sources, but these methods can be computationally expensive, scaling superlinearly in the data. In this work, we show that, for a class of latent variable models highly applicable to weak supervision, we can find a closed-form solution to model parameters, obviating the need for iterative solutions like stochastic gradient descent (SGD). We use this insight to build FlyingSquid, a weak supervision framework that runs orders of magnitude faster than previous weak supervision approaches and requires fewer assumptions. In particular, we prove bounds on generalization error without assuming that the latent variable model can exactly parameterize the underlying data distribution. Empirically, we validate FlyingSquid on benchmark weak supervision datasets and find that it achieves the same or higher quality compared to previous approaches without the need to tune an SGD procedure, recovers model parameters 170 times faster on average, and enables new video analysis and online learning applications.",
+          "claimed_authors": [
+            "Daniel Y. Fu",
+            "Mayee F. Chen",
+            "Frederic Sala",
+            "Sarah M. Hooper",
+            "Kayvon Fatahalian",
+            "Christopher Ré"
+          ],
+          "claimed_title": "Fast and Three-rious: Speeding Up Weak Supervision with Triplet Methods",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.11955"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Fast and Three-rious: Speeding Up Weak Supervision with Triplet Methods')",
+        "failed_at": "2026-06-25T10:01:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We address the problem of active learning under label shift: when the class proportions of source and target domains differ. We introduce a \"medial distribution\" to incorporate a tradeoff between importance weighting and class-balanced sampling and propose their combined usage in active learning. Our method is known as Mediated Active Learning under Label Shift (MALLS). It balances the bias from class-balanced sampling and the variance from importance weighting. We prove sample complexity and generalization guarantees for MALLS which show active learning reduces asymptotic sample complexity even under arbitrary label shift. We empirically demonstrate MALLS scales to high-dimensional datasets and can reduce the sample complexity of active learning by 60% in deep active learning tasks.",
+          "claimed_authors": [
+            "Eric Zhao",
+            "Anqi Liu",
+            "Animashree Anandkumar",
+            "Yisong Yue"
+          ],
+          "claimed_title": "Active Learning under Label Shift",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.08479"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Active Learning under Label Shift')",
+        "failed_at": "2026-06-25T10:01:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We prove new fast learning rates for the one-vs-all multiclass plug-in classifiers trained either from exponentially strongly mixing data or from data generated by a converging drifting distribution. These are two typical scenarios where training data are not iid. The learning rates are obtained under a multiclass version of Tsybakov's margin assumption, a type of low-noise assumption, and do not depend on the number of classes. Our results are general and include a previous result for binary-class plug-in classifiers with iid data as a special case. In contrast to previous works for least squares SVMs under the binary-class setting, our results retain the optimal learning rate in the iid case.",
+          "claimed_authors": [
+            "Vu Dinh",
+            "Lam Si Tung Ho",
+            "Nguyen Viet Cuong",
+            "Duy Nguyen",
+            "Binh T. Nguyen"
+          ],
+          "claimed_title": "Learning From Non-iid Data: Fast Rates for the One-vs-All Multiclass Plug-in Classifiers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1408.2714"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Learning From Non-iid Data: Fast Rates for the One-vs-All Multiclass Plug-in Classifiers')",
+        "failed_at": "2026-06-25T10:01:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study the minimax rates of the label shift problem in non-parametric classification. In addition to the unsupervised setting in which the learner only has access to unlabeled examples from the target domain, we also consider the setting in which a small number of labeled examples from the target domain is available to the learner. Our study reveals a difference in the difficulty of the label shift problem in the two settings, and we attribute this difference to the availability of data from the target domain to estimate the class conditional distributions in the latter setting. We also show that a class proportion estimation approach is minimax rate-optimal in the unsupervised setting.",
+          "claimed_authors": [
+            "Subha Maity",
+            "Yuekai Sun",
+            "Moulinath Banerjee"
+          ],
+          "claimed_title": "Minimax optimal approaches to the label shift problem in non-parametric settings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.10443"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Minimax optimal approaches to the label shift problem in non-parametric settings')",
+        "failed_at": "2026-06-25T10:01:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "A probabilistic model is said to be calibrated if its predicted probabilities match the corresponding empirical frequencies. Calibration is important for uncertainty quantification and decision making in safety-critical applications. While calibration of classifiers has been widely studied, we find that calibration is brittle and can be easily lost under minimal covariate shifts. Existing techniques, including domain adaptation ones, primarily focus on prediction accuracy and do not guarantee calibration neither in theory nor in practice. In this work, we formally introduce the problem of calibration under domain shift, and propose an importance sampling based approach to address it. We evaluate and discuss the efficacy of our method on both real-world datasets and synthetic datasets.",
+          "claimed_authors": [
+            "Anusri Pampari",
+            "Stefano Ermon"
+          ],
+          "claimed_title": "Unsupervised Calibration under Covariate Shift",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16405"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Unsupervised Calibration under Covariate Shift')",
+        "failed_at": "2026-06-25T10:01:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Calibration allows predictions to be reliably interpreted as probabilities by decision makers. We propose a decision-theoretic calibration error, the Calibration Decision Loss (CDL), defined as the maximum improvement in decision payoff obtained by calibrating the predictions, where the maximum is over all payoff-bounded decision tasks. Vanishing CDL guarantees the payoff loss from miscalibration vanishes simultaneously for all downstream decision tasks. We show separations between CDL and existing calibration error metrics, including the most well-studied metric Expected Calibration Error (ECE). Our main technical contribution is a new efficient algorithm for online calibration that achieves near-optimal $O(\\frac{\\log T}{\\sqrt{T}})$ expected CDL, bypassing the $Ω(T^{-0.472})$ lower bound for ECE by Qiao and Valiant (2021).",
+          "claimed_authors": [
+            "Lunjia Hu",
+            "Yifan Wu"
+          ],
+          "claimed_title": "Calibration Error for Decision Making",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.13503"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Calibration Error for Decision Making')",
+        "failed_at": "2026-06-25T10:01:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we study oracle-efficient algorithms for beyond worst-case analysis of online learning. We focus on two settings. First, the smoothed analysis setting of [RST11,HRS22] where an adversary is constrained to generating samples from distributions whose density is upper bounded by $1/σ$ times the uniform density. Second, the setting of $K$-hint transductive learning, where the learner is given access to $K$ hints per time step that are guaranteed to include the true instance. We give the first known oracle-efficient algorithms for both settings that depend only on the pseudo (or VC) dimension of the class and parameters $σ$ and $K$ that capture the power of the adversary. In particular, we achieve oracle-efficient regret bounds of $ \\widetilde{O} ( \\sqrt{T dσ^{-1}} ) $ and $ \\widetilde{O} ( \\sqrt{T dK} ) $ for learning real-valued functions and $ O ( \\sqrt{T dσ^{-\\frac{1}{2}} } )$ for learning binary-valued functions. For the smoothed analysis setting, our results give the first oracle-efficient algorithm for online learning with smoothed adversaries [HRS22]. This contrasts the computational separation between online learning with worst-case adversaries and offline learning established by [HK16]. Our algorithms also achieve improved bounds for worst-case setting with small domains. In particular, we give an oracle-efficient algorithm with regret of $O ( \\sqrt{T(d |\\mathcal{X}|)^{1/2} })$, which is a refinement of the earlier $O ( \\sqrt{T|\\mathcal{X}|})$ bound by [DS16].",
+          "claimed_authors": [
+            "Nika Haghtalab",
+            "Yanjun Han",
+            "Abhishek Shetty",
+            "Kunhe Yang"
+          ],
+          "claimed_title": "Oracle-Efficient Online Learning for Beyond Worst-Case Adversaries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.08549"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='Oracle-Efficient Online Learning for Beyond Worst-Case Adversaries')",
+        "failed_at": "2026-06-25T10:01:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider a semi-supervised classification problem with non-stationary label-shift in which we observe a labelled data set followed by a sequence of unlabelled covariate vectors in which the marginal probabilities of the class labels may change over time. Our objective is to predict the corresponding class-label for each covariate vector, without ever observing the ground-truth labels, beyond the initial labelled data set. Previous work has demonstrated the potential of sophisticated variants of online gradient descent to perform competitively with the optimal dynamic strategy (Bai et al. 2022). In this work we explore an alternative approach grounded in statistical methods for adaptive transfer learning. We demonstrate the merits of this alternative methodology by establishing a high-probability regret bound on the test error at any given individual test-time, which adapt automatically to the unknown dynamics of the marginal label probabilities. Further more, we give bounds on the average dynamic regret which match the average guarantees of the online learning perspective for any given time interval.",
+          "claimed_authors": [
+            "Henry W J Reeve"
+          ],
+          "claimed_title": "An adaptive transfer learning perspective on classification in non-stationary environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.18091"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Calibration Drift of Machine Learning Classifiers Over Time statisti', candidate_title='An adaptive transfer learning perspective on classification in non-stationary environments')",
+        "failed_at": "2026-06-25T10:01:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pedro G. Fonseca",
+            "Hugo D. Lopes"
+          ],
+          "title": "Calibration of Machine Learning Classifiers for Probability of Default Modelling",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1710.08901",
+        "summary": "Binary classification is highly used in credit scoring in the estimation of probability of default. The validation of such predictive models is based both on rank ability, and also on calibration (i.e. how accurately the probabilities output by the model map to the observed probabilities). In this study we cover the current best practices regarding calibration for binary classification, and explore how different approaches yield different results on real world credit scoring data. The limitations of evaluating credit scoring models using only rank ability metrics are explored. A benchmark is run on 18 real world datasets, and results compared. The calibration techniques used are Platt Scaling and Isotonic Regression. Also, different machine learning models are used: Logistic Regression, Random Forest Classifiers, and Gradient Boosting Classifiers. Results show that when the dataset is treated as a time series, the use of re-calibration with Isotonic Regression is able to improve the long term calibration better than the alternative methods. Using re-calibration, the non-parametric models are able to outperform the Logistic Regression on Brier Score Loss.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1710.08901",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T10:01:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Leon Chlon",
+            "Maggie Chlon",
+            "MarcAntonio M. Awada"
+          ],
+          "title": "Robust Multimodal Learning via Entropy-Gated Contrastive Fusion",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.15417",
+        "summary": "Real-world multimodal systems routinely face missing-input scenarios, and in reality, robots lose audio in a factory or a clinical record omits lab tests at inference time. Standard fusion layers either preserve robustness or calibration but never both. We introduce Adaptive Entropy-Gated Contrastive Fusion (AECF), a single light-weight layer that (i) adapts its entropy coefficient per instance, (ii) enforces monotone calibration across all modality subsets, and (iii) drives a curriculum mask directly from training-time entropy. On AV-MNIST and MS-COCO, AECF improves masked-input mAP by +18 pp at a 50% drop rate while reducing ECE by up to 200%, yet adds 1% run-time. All back-bones remain frozen, making AECF an easy drop-in layer for robust, calibrated multimodal inference.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2505.15417",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T10:01:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jason Hartline",
+            "Yifan Wu",
+            "Yunran Yang"
+          ],
+          "title": "Smooth Calibration and Decision Making",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.15582",
+        "summary": "Calibration requires predictor outputs to be consistent with their Bayesian posteriors. For machine learning predictors that do not distinguish between small perturbations, calibration errors are continuous in predictions, e.g., smooth calibration error (Foster and Hart, 2018), Distance to Calibration (Blasiok et al., 2023a). On the contrary, decision-makers who use predictions make optimal decisions discontinuously in probabilistic space, experiencing loss from miscalibration discontinuously. Calibration errors for decision-making are thus discontinuous, e.g., Expected Calibration Error (Foster and Vohra, 1997), and Calibration Decision Loss (Hu and Wu, 2024). Thus, predictors with a low calibration error for machine learning may suffer a high calibration error for decision-making, i.e., they may not be trustworthy for decision-makers optimizing assuming their predictions are correct. It is natural to ask if post-processing a predictor with a low calibration error for machine learning is without loss to achieve a low calibration error for decision-making. In our paper, we show that post-processing an online predictor with $ε$ distance to calibration achieves $O(\\sqrtε)$ ECE and CDL, which is asymptotically optimal. The post-processing algorithm adds noise to make predictions differentially private. The optimal bound from low distance to calibration predictors from post-processing is non-optimal compared with existing online calibration algorithms that directly optimize for ECE and CDL.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2504.15582",
+          "http_status": 200,
+          "pdf_sample_score": 0.3514,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T10:01:56Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantifying calibration drift of machine learning classifiers over time statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

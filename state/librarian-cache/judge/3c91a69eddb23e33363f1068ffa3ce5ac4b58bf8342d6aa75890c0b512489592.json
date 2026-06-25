@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-06-25T09:58:56Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant drought tolerance from publicly available physiological and genomic data biology",
+  "rationale": "The paper focuses on a physics‑inspired method for interpreting machine‑learning loss landscapes and does not address plant drought tolerance, physiological or genomic data, nor prediction models for that trait; it therefore lacks any of the accepted relevance categories (a‑f).",
+  "relevant": false
+}

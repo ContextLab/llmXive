@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1710.08901",
+  "judged_at": "2026-06-25T10:02:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying calibration drift of machine learning classifiers over time statistics",
+  "rationale": "The paper studies calibration of machine learning classifiers as a function of time (treating the data as a time series) and evaluates how calibration degrades and can be restored, directly addressing the mechanism of calibration drift over time (category a) and providing empirical measurements of calibration metrics across temporal splits.",
+  "relevant": true
+}

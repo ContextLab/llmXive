@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-25T09:58:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant drought tolerance from publicly available physiological and genomic data biology",
+  "rationale": "The paper discusses general recommendations for supervised machine learning validation in biology and does not address plant drought tolerance, physiological or genomic data, nor provide a foundational, domain‑specific methodology that would be a canonical reference for this specific prediction task. It therefore falls outside the relevant constructs and variables of the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-25T09:58:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant drought tolerance from publicly available physiological and genomic data biology",
+  "rationale": "The paper discusses risks of changing data sources and concept drift in machine learning for official statistics, which is unrelated to predicting plant drought tolerance using physiological or genomic data; it does not address the same mechanisms, variables, domain, or methodology relevant to the user's question.",
+  "relevant": false
+}

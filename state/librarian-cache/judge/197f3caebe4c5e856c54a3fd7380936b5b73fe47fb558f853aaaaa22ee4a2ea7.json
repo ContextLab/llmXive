@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.15417",
+  "judged_at": "2026-06-25T10:02:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying calibration drift of machine learning classifiers over time statistics",
+  "rationale": "The paper measures classifier calibration (using ECE) for machine‑learning models, which is the same dependent variable the question concerns; thus it satisfies criterion (b) by providing an empirical study of calibration on ML classifiers, even though it does not address temporal drift.",
+  "relevant": true
+}

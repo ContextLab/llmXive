@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-04T09:22:19.827616Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-660-https-arxiv-org-abs-2605-23895
-last_run_id: 79cc3cac-4d3c-40f1-8834-ca6e21de49ba
+last_run_id: 73c8e1cf-fbd5-41e7-b5af-2f15d0c45f91
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'From Activation to Causality: Discovery of Causal Visual Representations in
   the Human Brain'
-updated_at: '2026-06-16T17:29:15.371988Z'
+updated_at: '2026-06-25T10:03:02.784811Z'

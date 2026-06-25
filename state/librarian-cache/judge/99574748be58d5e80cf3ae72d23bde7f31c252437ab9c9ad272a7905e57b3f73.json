@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1709.09496",
+  "judged_at": "2026-06-25T09:58:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant drought tolerance from publicly available physiological and genomic data biology",
+  "rationale": "The paper focuses on image‑based 3D reconstruction and deep‑learning classification of drought stress, without using physiological measurements or genomic data, nor addressing prediction from publicly available datasets; it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

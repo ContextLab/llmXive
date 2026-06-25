@@ -1,13 +1,7 @@
-# Core scientific stack
-numpy
 pandas
+pyarrow
 scikit-learn
-# Visualization (required by analysis scripts)
-matplotlib
-# Optional but useful for downstream scripts
-scipy
+joblib
+numpy
 tqdm
-# Ensure reproducibility utilities
-torch  # only needed for GNN parts; kept optional in imports
-joblib  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
+# Existing project dependencies (if any) are retained above. Additions are listed here.

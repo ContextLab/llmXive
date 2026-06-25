@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.02572",
+  "judged_at": "2026-06-25T10:02:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying calibration drift of machine learning classifiers over time statistics",
+  "rationale": "The paper focuses on detecting and adapting to concept drift in graph stream classification using prototype embeddings, without measuring or quantifying calibration error or calibration drift of classifiers over time, so it does not address the specific construct of calibration drift required by the user's question.",
+  "relevant": false
+}

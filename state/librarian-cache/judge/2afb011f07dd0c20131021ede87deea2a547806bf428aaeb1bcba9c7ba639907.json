@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "q-bio/0610012",
+  "judged_at": "2026-06-25T09:58:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant drought tolerance from publicly available physiological and genomic data biology",
+  "rationale": "The paper provides mechanistic insight into ABA‑mediated stomatal closure, a core physiological pathway underlying plant drought tolerance, thus offering same‑mechanism evidence (criterion a) that would be cited in a review of predictive models of drought tolerance.",
+  "relevant": true
+}

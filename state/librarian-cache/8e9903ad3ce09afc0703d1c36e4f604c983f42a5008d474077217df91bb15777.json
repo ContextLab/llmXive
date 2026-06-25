@@ -1,0 +1,572 @@
+{
+  "fetched_at": "2026-06-25T09:59:01Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Plant Drought Tolerance from Publicly Available Physiological and Genomic Data",
+      "target_n": 5
+    },
+    "duration_seconds": 66.261,
+    "ended_at": "2026-06-25T09:59:01Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning models for plant drought tolerance prediction"
+        ],
+        [
+          2,
+          "genomic selection for drought resistance in crops"
+        ],
+        [
+          3,
+          "genotype‑phenotype association studies of drought stress"
+        ],
+        [
+          4,
+          "integrative multi‑omics analysis of drought resilience"
+        ],
+        [
+          5,
+          "predictive modeling of plant water‑use efficiency using omics data"
+        ],
+        [
+          6,
+          "deep learning approaches for abiotic stress tolerance in plants"
+        ],
+        [
+          7,
+          "GWAS of drought tolerance traits in model and crop species"
+        ],
+        [
+          8,
+          "systems genetics of plant response to water deficit"
+        ],
+        [
+          9,
+          "plant phenomics platforms for drought stress assessment"
+        ],
+        [
+          10,
+          "eQTL mapping under drought conditions for trait prediction"
+        ],
+        [
+          11,
+          "bioinformatics pipelines for drought tolerance biomarker discovery"
+        ],
+        [
+          12,
+          "multi‑omics integration frameworks for drought adaptation studies"
+        ],
+        [
+          13,
+          "statistical genomics methods for predicting drought tolerance"
+        ],
+        [
+          14,
+          "functional genomics of drought response pathways"
+        ],
+        [
+          15,
+          "public plant trait databases for drought resilience modeling"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Plant Drought Tolerance from Publicly Available Physiological and Genomic Data biology": 0,
+        "machine learning models for plant drought tolerance prediction": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "drought resistance genomic prediction",
+      "Arabidopsis drought phenotyping dataset",
+      "genomic selection drought tolerance",
+      "prediction accuracy water‑stress traits",
+      "abscisic acid signaling drought mechanism"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1906.00454"
+      ]
+    },
+    "per_query_hit_count": {
+      "Arabidopsis drought phenotyping dataset": 3,
+      "Predicting Plant Drought Tolerance from Publicly Available Physiological and Genomic Data biology": 3,
+      "abscisic acid signaling drought mechanism": 3,
+      "drought resistance genomic prediction": 2,
+      "genomic selection drought tolerance": 2,
+      "prediction accuracy water‑stress traits": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1709.09496",
+          "rationale": "The paper focuses on image‑based 3D reconstruction and deep‑learning classification of drought stress, without using physiological measurements or genomic data, nor addressing prediction from publicly available datasets; it does not meet any inclusion criteria (a‑f).",
+          "title": "Drought Stress Classification using 3D Plant Models"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper discusses risks of changing data sources and concept drift in machine learning for official statistics, which is unrelated to predicting plant drought tolerance using physiological or genomic data; it does not address the same mechanisms, variables, domain, or methodology relevant to the user's question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper discusses general recommendations for supervised machine learning validation in biology and does not address plant drought tolerance, physiological or genomic data, nor provide a foundational, domain‑specific methodology that would be a canonical reference for this specific prediction task. It therefore falls outside the relevant constructs and variables of the user's question.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper surveys learning‑curve methods for supervised machine learning and does not address plant drought tolerance, physiological or genomic predictors, nor any related biological mechanism, so it is unrelated to the user's domain and variables.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper focuses on a physics‑inspired method for interpreting machine‑learning loss landscapes and does not address plant drought tolerance, physiological or genomic data, nor prediction models for that trait; it therefore lacks any of the accepted relevance categories (a‑f).",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T09:57:54Z",
+    "term_input": {
+      "normalized": "predicting plant drought tolerance from publicly available physiological and genomic data biology",
+      "raw": "Predicting Plant Drought Tolerance from Publicly Available Physiological and Genomic Data biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the last 20 years, there has been an explosion of genomic data collected for disease association, functional analyses, and other large-scale discoveries. At the same time, there have been revolutions in cloud computing that enable computational and data science research, while making data accessible to anyone with a web browser and an internet connection. However, students at institutions with limited resources have received relatively little exposure to curricula or professional development opportunities that lead to careers in genomic data science. To broaden participation in genomics research, the scientific community needs to support students, faculty, and administrators at Underserved Institutions (UIs) including Community Colleges, Historically Black Colleges and Universities, Hispanic-Serving Institutions, and Tribal Colleges and Universities in taking advantage of these tools in local educational and research programs. We have formed the Genomic Data Science Community Network (http://www.gdscn.org/) to identify opportunities and support broadening access to cloud-enabled genomic data science. Here, we provide a summary of the priorities for faculty members at UIs, as well as administrators, funders, and R1 researchers to consider as we create a more diverse genomic data science community.",
+          "claimed_authors": [
+            "The Genomic Data Science Community Network",
+            "Rosa Alcazar",
+            "Maria Alvarez",
+            "Rachel Arnold",
+            "Mentewab Ayalew",
+            "Lyle G. Best",
+            "Michael C. Campbell",
+            "Kamal Chowdhury",
+            "Katherine E. L. Cox",
+            "Christina Daulton",
+            "Youping Deng",
+            "Carla Easter",
+            "Karla Fuller",
+            "Shazia Tabassum Hakim",
+            "Ava M. Hoffman",
+            "Natalie Kucher",
+            "Andrew Lee",
+            "Joslynn Lee",
+            "Jeffrey T. Leek",
+            "Robert Meller",
+            "Loyda B. Méndez",
+            "Miguel P. Méndez-González",
+            "Stephen Mosher",
+            "Michele Nishiguchi",
+            "Siddharth Pratap",
+            "Tiffany Rolle",
+            "Sourav Roy",
+            "Rachel Saidi",
+            "Michael C. Schatz",
+            "Shurjo Sen",
+            "James Sniezek",
+            "Edu Suarez Martinez",
+            "Frederick Tan",
+            "Jennifer Vessio",
+            "Karriem Watson",
+            "Wendy Westbroek",
+            "Joseph Wilcox",
+            "Xianfa Xie"
+          ],
+          "claimed_title": "Diversifying the Genomic Data Science Research Community",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.08443"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='Diversifying the Genomic Data Science Research Community')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Practical application of genomic-based risk stratification to clinical diagnosis is appealing yet performance varies widely depending on the disease and genomic risk score (GRS) method. Celiac disease (CD), a common immune-mediated illness, is strongly genetically determined and requires specific HLA haplotypes. HLA testing can exclude diagnosis but has low specificity, providing little information suitable for clinical risk stratification. Using six European CD cohorts, we provide a proof-of-concept that statistical learning approaches which simultaneously model all SNPs can generate robust and highly accurate predictive models based on genome-wide SNP profiles. The high predictive capacity replicated both in cross-validation within each cohort (AUC of 0.87-0.89) and in independent replication across cohorts (AUC of 0.86-0.9), despite differences in ethnicity. The models explained 30-35% of disease variance and up to $\\sim43\\%$ of heritability. The GRS's utility was assessed in different clinically relevant settings. Comparable to HLA typing, the GRS can be used to identify individuals without CD with $\\geq99.6\\%$ negative predictive value however, unlike HLA typing, patients can also be stratified into categories of higher-risk for CD who would benefit from more invasive and costly definitive testing. The GRS is flexible and its performance can be adapted to the clinical situation by adjusting the threshold cut-off. Despite explaining a minority of disease heritability, our findings indicate a predictive GRS provides clinically relevant information to improve upon current diagnostic pathways for CD, and support further studies evaluating the clinical utility of this approach in CD and other complex diseases.",
+          "claimed_authors": [
+            "Gad Abraham",
+            "Jason A. Tye-Din",
+            "Oneil G. Bhalala",
+            "Adam Kowalczyk",
+            "Justin Zobel",
+            "Michael Inouye"
+          ],
+          "claimed_title": "Accurate and robust genomic prediction of celiac disease using statistical learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.5948"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='Accurate and robust genomic prediction of celiac disease using statistical learning')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Premise of the Study: Impatiens is a commonly seen garden flower, renowned for its strong adaptability and long history of cultivation. However, seldom has any research touched on its physiological resistance mechanism. In this experiment, the impatiens is selected from those which experienced aerospace mutation and thereafter 12 years of cultivation and breeding. Therefore, it is superior to the non-mutagenized impatiens in terms of drought resistance and demonstrates tremendous differences from the normal impatiens in physiology, which intrigues scholars to search for the underlying reasons . Methods: By reference to Impatiens balsamina L,this experiment uses mutagenized impatiens seeds, processed by PEG-6000 in different solution concentration, to measure the germination rate of impatiens, its relative enzymatic activity and expression differences between gene SoS2 and gene RD29b in the drought lower reaches. Key results: Under simulated drought stress, there is no distinct difference between the mutagenized impatiens and the normal impatiens in terms of germination rate. But by measuring the root tillers and the length, the relative enzymatic activity, MDA, and the expression differences between gene SoS2 and gene RD29b in the drought lower reaches, it is verified that the mutagenized impatiens has more advantages than the normal impatiens, and it Can further cultivate become drought resistance varieties impatiens. Conclusions: In this experiment,which is a positive mutation, the mutagenized impatiens improves drought resistance through radiative mutation. The so obtained impatiens is more pleasing in sight in terms of color and shape and has higher application value in garden virescence.",
+          "claimed_authors": [
+            "Xue Lan Liao",
+            "Guo Qin Wen",
+            "Qing Lin Liu",
+            "Xue Yang Li Meng Xi Wu",
+            "Yuan Zhi Pan"
+          ],
+          "claimed_title": "The Drought-Stress Response of a Drought Resistant Impatiens Processed in PEG-6000 Solution in a Simulation Test",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.04425"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='The Drought-Stress Response of a Drought Resistant Impatiens Processed in PEG-6000 Solution in a Simulation Test')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Gene expression levels exhibit stochastic variations among genetically identical organisms under the same environmental conditions (called gene expression \"noise\" or phenotype \"fluctuation\"). In yeast and Escherichia coli, positive correlations have been found between such gene expression noise and \"plasticity\" with environmental variations. To determine the universality of such correlations in both unicellular and multicellular organisms, we focused on the relationships between gene expression \"noise\" and \"plasticity\" in Arabidopsis thaliana, a multicellular model organism. In recent studies on yeast and E. coli, only some gene groups with specific properties of promoter architecture, average expression levels, and functions exhibited strong noise-plasticity correlations. However, we found strong noise-plasticity correlations for most gene groups in Arabidopsis; additionally, promoter architecture, functional essentiality of genes, and circadian rhythm appeared to have only a weak influence on the correlation strength. The differences in the characteristics of noise-plasticity correlations may result from three-dimensional chromosomal structures and/or circadian rhythm.",
+          "claimed_authors": [
+            "Koudai Hirao",
+            "Atsushi J Nagano",
+            "Akinori Awazu"
+          ],
+          "claimed_title": "Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.03840"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Genomic selection (GS), as a critical crop breeding strategy, plays a key role in enhancing food production and addressing the global hunger crisis. The predominant approaches in GS currently revolve around employing statistical methods for prediction. However, statistical methods often come with two main limitations: strong statistical priors and linear assumptions. A recent trend is to capture the non-linear relationships between markers by deep learning. However, as crop datasets are commonly long sequences with limited samples, the robustness of deep learning models, especially Transformers, remains a challenge. In this work, to unleash the unexplored potential of attention mechanism for the task of interest, we propose a simple yet effective Transformer-based framework that enables end-to-end training of the whole sequence. Via experiments on rice3k and wheat3k datasets, we show that, with simple tricks such as k-mer tokenization and random masking, Transformer can achieve overall superior performance against seminal methods on GS tasks of interest.",
+          "claimed_authors": [
+            "Renqi Chen",
+            "Wenwei Han",
+            "Haohao Zhang",
+            "Haoyang Su",
+            "Zhefan Wang",
+            "Xiaolei Liu",
+            "Hao Jiang",
+            "Wanli Ouyang",
+            "Nanqing Dong"
+          ],
+          "claimed_title": "An Embarrassingly Simple Approach to Enhance Transformer Performance in Genomic Selection for Crop Breeding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.09585"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='An Embarrassingly Simple Approach to Enhance Transformer Performance in Genomic Selection for Crop Breeding')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Decoding the genome confers the capability to predict characteristics of the organism(phenotype) from DNA (genotype). We describe the present status and future prospects of genomic prediction of complex traits in humans. Some highly heritable complex phenotypes such as height and other quantitative traits can already be predicted with reasonable accuracy from DNA alone. For many diseases, including important common conditions such as coronary artery disease, breast cancer, type I and II diabetes, individuals with outlier polygenic scores (e.g., top few percent) have been shown to have 5 or even 10 times higher risk than average. Several psychiatric conditions such as schizophrenia and autism also fall into this category. We discuss related topics such as the genetic architecture of complex traits, sibling validation of polygenic scores, and applications to adult health, in vitro fertilization (embryo selection), and genetic engineering.",
+          "claimed_authors": [
+            "Timothy G. Raben",
+            "Louis Lello",
+            "Erik Widen",
+            "Stephen D. H. Hsu"
+          ],
+          "claimed_title": "From Genotype to Phenotype: polygenic prediction of complex human traits",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.05870"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='From Genotype to Phenotype: polygenic prediction of complex human traits')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The aim of this workshop is to give researchers from academia and industry the possibility to discuss the inter-and multi-disciplinary nature of the relationships between people and robots towards effective and long-lasting collaborations. This workshop will provide a forum for the HRI and robotics communities to explore successful human-robot interaction (HRI) to analyse the different aspects of HRI that impact its success. Particular focus are the AI algorithms required to implement autonomous interactions, and the factors that enhance, undermine, or recover humans' trust in robots. Finally, potential ethical and legal concerns, and how they can be addressed will be considered. Website: https://sites.google.com/view/traits-hri",
+          "claimed_authors": [
+            "Antonio Andriella",
+            "Alessandra Rossi",
+            "Silvia Rossi",
+            "Anouk van Maris"
+          ],
+          "claimed_title": "The Road to a Successful HRI: AI, Trust and ethicS-TRAITS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.12679"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='The Road to a Successful HRI: AI, Trust and ethicS-TRAITS')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The aim of this workshop is to foster the exchange of insights on past and ongoing research towards effective and long-lasting collaborations between humans and robots. This workshop will provide a forum for representatives from academia and industry communities to analyse the different aspects of HRI that impact on its success. We particularly focus on AI techniques required to implement autonomous and proactive interactions, on the factors that enhance, undermine, or recover humans' acceptance and trust in robots, and on the potential ethical and legal concerns related to the deployment of such robots in human-centred environments.\n  Website: https://sites.google.com/view/traits-hri-2022",
+          "claimed_authors": [
+            "Alessandra Rossi",
+            "Antonio Andriella",
+            "Silvia Rossi",
+            "Anouk van Maris"
+          ],
+          "claimed_title": "The Road to a Successful HRI: AI, Trust and ethicS-TRAITS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.08270"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='The Road to a Successful HRI: AI, Trust and ethicS-TRAITS')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The spread of pandemic viruses and invasive species can be catastrophic for human societies and natural ecosystems. SARS-CoV-2 demonstrated that the speed of our response is critical, as each day of delay permitted exponential growth and dispersion of the virus. Here we propose a global Nucleic Acid Observatory (NAO) to monitor the relative frequency of everything biological through comprehensive metagenomic sequencing of waterways and wastewater. By searching for divergences from historical baseline frequencies at sites throughout the world, NAO could detect any virus or invasive organism undergoing exponential growth whose nucleic acids end up in the water, even those previously unknown to science. Continuously monitoring nucleic acid diversity would provide us with universal early warning, obviate subtle bioweapons, and generate a wealth of sequence data sufficient to transform ecology, microbiology, and conservation. We call for the immediate construction of a global NAO to defend and illuminate planetary health.",
+          "claimed_authors": [
+            "The Nucleic Acid Observatory Consortium"
+          ],
+          "claimed_title": "A Global Nucleic Acid Observatory for Biodefense and Planetary Health",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.02678"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='A Global Nucleic Acid Observatory for Biodefense and Planetary Health')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Abscisic acid (ABA) is a central plant hormone for coordinating responses to drought, salinity, cold stress, pathogen attack, wounding, and developmental aging. This paper reviews the biological stimuli that increase ABA biosynthesis, the main production sites and pathways, and the long-distance movement of ABA through plant vascular tissues. It then discusses experimental quantification approaches, including gas-liquid chromatography with electron-capture detection and high-performance liquid chromatography with ultraviolet detection. Finally, the paper presents a molecular-communication-inspired model of ABA transport in which root-side ABA release is represented as a transmitter, the xylem pathway as a bounded channel, and soybean tissue as a receiver. MATLAB Brownian-motion simulations are used to evaluate the effects of released molecule quantity and receiver radius on the detected ABA signal. The results show that higher release quantities produce smoother and stronger reception trends, while larger receivers increase molecule-capture probability.",
+          "claimed_authors": [
+            "Necati Kagan Erkek",
+            "Hani Ballouz",
+            "Radin Monshian Motlagh"
+          ],
+          "claimed_title": "Communication Modeling of Long-Distance Abscisic Acid Signaling in Plant Vascular Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.17333"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Drought Tolerance from Publicly Available Physiological and Gen', candidate_title='Communication Modeling of Long-Distance Abscisic Acid Signaling in Plant Vascular Systems')",
+        "failed_at": "2026-06-25T09:58:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Saeed Khaki",
+            "Zahra Khalilzadeh",
+            "Lizhi Wang"
+          ],
+          "title": "Classification of Crop Tolerance to Heat and Drought: A Deep Convolutional Neural Networks Approach",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1906.00454",
+        "summary": "Environmental stresses such as drought and heat can cause substantial yield loss in agriculture. As such, hybrid crops that are tolerant to drought and heat stress would produce more consistent yields compared to the hybrids that are not tolerant to these stresses. In the 2019 Syngenta Crop Challenge, Syngenta released several large datasets that recorded the yield performances of 2,452 corn hybrids planted in 1,560 locations between 2008 and 2017 and asked participants to classify the corn hybrids as either tolerant or susceptible to drought stress, heat stress, and combined drought and heat stress. However, no data was provided that classified any set of hybrids as tolerant or susceptible to any type of stress. In this paper, we present an unsupervised approach to solving this problem, which was recognized as one of the winners in the 2019 Syngenta Crop Challenge. Our results labeled 121 hybrids as drought tolerant, 193 as heat tolerant, and 29 as tolerant to both stresses.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1906.00454",
+          "http_status": 200,
+          "pdf_sample_score": 0.2039,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T09:58:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Song Li",
+            "Sarah M. Assmann",
+            "Reka Albert"
+          ],
+          "title": "Predicting essential components of signal transduction networks: a dynamic model of guard cell abscisic acid signaling",
+          "venue": "arXiv",
+          "year": 2006
+        },
+        "primary_pointer": "q-bio/0610012",
+        "summary": "Plants both lose water and take in carbon dioxide through microscopic stomatal pores, each of which is regulated by a surrounding pair of guard cells. During drought, the plant hormone abscisic acid (ABA) inhibits stomatal opening and promotes stomatal closure, thereby promoting water conservation. Here we synthesize experimental results into a consistent guard cell signal transduction network for ABA-induced stomatal closure, and develop a dynamic model of this process. Our model captures the regulation of more than forty identified network components, and accords well with previous experimental results at both the pathway and whole cell physiological level. Our analysis reveals the novel predictions that the disruption of membrane depolarizability, anion efflux, actin cytoskeleton reorganization, cytosolic pH increase, the phosphatidic acid pathway or of K+ efflux through slowly activating K+ channels at the plasma membrane lead to the strongest reduction in ABA responsiveness. Initial experimental analysis assessing ABA-induced stomatal closure in the presence of cytosolic pH clamp imposed by the weak acid butyrate is consistent with model prediction. Our method can be readily applied to other biological signaling networks to identify key regulatory components in systems where quantitative information is limited.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/q-bio/0610012",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T09:58:26Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting plant drought tolerance from publicly available physiological and genomic data biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

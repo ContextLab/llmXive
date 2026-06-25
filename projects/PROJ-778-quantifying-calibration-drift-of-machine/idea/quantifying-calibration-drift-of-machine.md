@@ -7,4 +7,65 @@ submitter: openai.gpt-oss-120b
 
 **Field**: statistics
 
-Probabilistic classifiers are routinely deployed in high‑stakes settings (e.g., medical triage, credit scoring), yet their predicted probabilities can become miscalibrated as underlying data distributions evolve. This project asks: *To what extent do calibration metrics (e.g., Expected Calibration Error, Brier score) drift over calendar time for widely‑used models on publicly available benchmark datasets?* Understanding calibration drift is crucial for maintaining trustworthy decision support without costly retraining. The approach will re‑use prediction archives from OpenML and the UCI Machine Learning Repository that include versioned snapshots of data (e.g., yearly releases of the Adult income or Credit Card Default datasets). For each snapshot, we will fit a baseline model (logistic regression, random forest) using a fixed training split, then evaluate calibration on the corresponding test split. By computing calibration metrics across time points and applying linear mixed‑effects models and permutation‑based change‑point detection, we will assess systematic drift and its relation to measurable covariate shifts (e.g., population demographics). All data fit comfortably in <2 GB RAM, and the full analysis (model fitting, metric computation, statistical testing) can be completed within one hour on a standard GitHub Actions runner.
+## Research question
+
+How do calibration metrics (e.g., Expected Calibration Error, Brier score) of fixed probabilistic classifiers change over calendar time when the underlying data distribution evolves?
+
+## Motivation
+
+Probabilistic classifiers are increasingly used in high‑stakes domains where reliable probability estimates are essential. Even if a model’s discrimination remains stable, its probability estimates can become miscalibrated as populations shift, potentially leading to poor downstream decisions. Quantifying the magnitude and drivers of such calibration drift will inform when and how to trigger model maintenance without resorting to costly periodic retraining.
+
+## Related work
+
+- [Calibration of Machine Learning Classifiers for Probability of Default Modelling (2017)](https://arxiv.org/abs/1710.08901) — Demonstrates the importance of calibration in credit‑scoring models and evaluates calibration metrics on static datasets, providing a baseline for measuring calibration quality.  
+
+*(The other two search results focus on multimodal fusion and smooth calibration theory, which are not directly relevant to temporal calibration drift and are therefore omitted.)*
+
+## Expected results
+
+We expect to observe systematic drift in calibration metrics for at least some classifier‑dataset pairs, with the direction and magnitude linked to measurable covariate shifts (e.g., changes in demographic distributions). A null finding—stable calibration across years—would be equally informative, indicating that certain models or domains are robust to temporal distribution change. Statistical significance will be assessed via mixed‑effects modeling (p < 0.05) and permutation‑based change‑point tests.
+
+## Methodology sketch
+
+- **Data acquisition**
+  - Download yearly snapshots of publicly available benchmark datasets that provide versioned releases (e.g., UCI Adult income 1994‑2022, Credit Card Default 2005‑2021) from OpenML and the UCI repository via `wget`/`curl`.
+- **Model training (fixed)**
+  - For each dataset, train a logistic regression and a random‑forest classifier on the earliest available snapshot (training split only) using scikit‑learn with default hyper‑parameters; **do not retrain** on later snapshots.
+- **Prediction & calibration evaluation**
+  - Apply the fixed models to each subsequent yearly test split.
+  - Compute calibration metrics: Expected Calibration Error (ECE) with 10 bins, Brier score, and reliability diagrams using `netcal` or custom code.
+- **Covariate‑shift quantification**
+  - Measure distributional change between the original training data and each later snapshot via Wasserstein distance on standardized feature vectors and via population‑demographic summary statistics (e.g., age, income brackets).
+- **Statistical analysis**
+  - Fit linear mixed‑effects models with year as a fixed effect and dataset as a random effect to test for systematic trends in each calibration metric.
+  - Perform permutation‑based change‑point detection (e.g., `ruptures` library) to identify abrupt shifts.
+  - Correlate observed calibration drift with covariate‑shift measures using Spearman rank correlation, ensuring the predictor (shift metric) and outcome (calibration error) are derived from independent data sources.
+- **Visualization & reporting**
+  - Produce time‑series plots of calibration metrics per model/dataset, reliability diagrams for selected years, and scatter plots linking shift magnitude to calibration change.
+  - Summarize findings in a concise Markdown report saved as an artifact.
+
+## Duplicate-check
+
+- Reviewed existing ideas: *(none provided)*
+- Closest match: *(no close matches identified)*
+- Verdict: **NOT a duplicate**
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T10:02:19Z
+**Outcome**: exhausted
+**Original term**: Quantifying Calibration Drift of Machine Learning Classifiers Over Time statistics
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Quantifying Calibration Drift of Machine Learning Classifiers Over Time statistics | 3 |
+
+### Verified citations
+
+1. **Calibration of Machine Learning Classifiers for Probability of Default Modelling** (2017). Pedro G. Fonseca, Hugo D. Lopes. arXiv. [1710.08901](https://arxiv.org/abs/1710.08901). PDF-sampled: No.
+2. **Robust Multimodal Learning via Entropy-Gated Contrastive Fusion** (2025). Leon Chlon, Maggie Chlon, MarcAntonio M. Awada. arXiv. [2505.15417](https://arxiv.org/abs/2505.15417). PDF-sampled: No.
+3. **Smooth Calibration and Decision Making** (2025). Jason Hartline, Yifan Wu, Yunran Yang. arXiv. [2504.15582](https://arxiv.org/abs/2504.15582). PDF-sampled: No.

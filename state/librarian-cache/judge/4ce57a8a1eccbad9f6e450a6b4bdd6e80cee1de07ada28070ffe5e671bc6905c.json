@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1906.00454",
+  "judged_at": "2026-06-25T09:58:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant drought tolerance from publicly available physiological and genomic data biology",
+  "rationale": "The paper predicts drought (and heat) tolerance of corn hybrids from a large, publicly released dataset, thereby measuring the same dependent variable (drought tolerance) in the same domain (crop plants) as the user's question, satisfying criterion (b).",
+  "relevant": true
+}

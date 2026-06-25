@@ -1,146 +1,108 @@
-"""Generate processed dataset files for the molecular dipole moment project.
-
-This script creates three Parquet files in the ``data/processed`` directory:
-  - ``molecules_10k.parquet``: basic molecule identifiers and SMILES strings.
-  - ``features_3d.parquet``: synthetic 3‑D descriptors for each molecule.
-  - ``features_2d.parquet``: synthetic 2‑D descriptors for each molecule.
-
-The implementation is deliberately lightweight and does **not** depend on
-heavy chemistry toolkits (e.g. RDKit).  Random but reproducible data are
-generated using the project's global reproducibility utilities (the
-``utils.reproducibility`` module sets seeds globally for the whole
-pipeline).  The script is meant to be invoked directly:
-
-    python code/data/generate_processed_data.py
-
-It can also be imported and its helper functions used elsewhere.
-"""
 from __future__ import annotations
 
 import argparse
 import os
 import random
+import string
+import uuid
 from pathlib import Path
-from typing import List
 
 import pandas as pd
+import numpy as np
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # Helper functions
-# ---------------------------------------------------------------------------
-
+# ----------------------------------------------------------------------
 def ensure_output_dir(output_dir: Path) -> None:
-    """Create ``output_dir`` (and parents) if it does not exist."""
+    """Create the output directory if it does not exist."""
     output_dir.mkdir(parents=True, exist_ok=True)
 
+def random_smiles(length: int = 10) -> str:
+    """Generate a pseudo‑random SMILES‑like string.
 
-_SMILES_POOL: List[str] = [
-    "C", "CC", "CCC", "CCCC", "CCO", "CCN", "C=O", "C#N", "c1ccccc1", "c1ccncc1"
-]
+    This is **not** chemically valid – it is only used to populate the
+    synthetic dataset required for the pipeline to run end‑to‑end.
+    """
+    atoms = ["C", "N", "O", "F", "Cl", "Br", "I"]
+    bonds = ["", "=", "#"]
+    smiles = []
+    for _ in range(length):
+        atom = random.choice(atoms)
+        bond = random.choice(bonds)
+        smiles.append(atom + bond)
+    return "".join(smiles)
 
+def generate_molecules_df(num_molecules: int = 10_000) -> pd.DataFrame:
+    """Create a DataFrame with synthetic molecule identifiers and a target dipole."""
+    data = {
+        "molecule_id": [str(uuid.uuid4()) for _ in range(num_molecules)],
+        "smiles": [random_smiles(random.randint(5, 15)) for _ in range(num_molecules)],
+        # Dipole moments are drawn from a normal distribution centred around 2.0 D
+        "dipole": np.random.normal(loc=2.0, scale=0.5, size=num_molecules).clip(min=0.0),
+    }
+    return pd.DataFrame(data)
 
-def random_smiles(n: int, rng: random.Random) -> List[str]:
-    """Return ``n`` random SMILES strings drawn from a small pool."""
-    return [rng.choice(_SMILES_POOL) for _ in range(n)]
-
-
-def generate_molecules_df(num_molecules: int, seed: int = 42) -> pd.DataFrame:
-    """Create a DataFrame with ``molecule_id`` and ``smiles`` columns."""
-    rng = random.Random(seed)
-    smiles = random_smiles(num_molecules, rng)
-    df = pd.DataFrame(
-        {
-            "molecule_id": range(num_molecules),
-            "smiles": smiles,
-        }
-    )
+def generate_2d_features_df(molecules_df: pd.DataFrame, n_features: int = 128) -> pd.DataFrame:
+    """Generate a synthetic 2‑D feature matrix (e.g., Morgan fingerprints)."""
+    num = len(molecules_df)
+    features = np.random.randint(0, 2, size=(num, n_features)).astype(np.int8)
+    feature_cols = [f"fp_{i}" for i in range(n_features)]
+    df = pd.DataFrame(features, columns=feature_cols)
+    df["dipole"] = molecules_df["dipole"].values
     return df
 
-
-def generate_3d_features_df(molecules_df: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
-    """Create synthetic 3‑D features (e.g. xyz moments) for each molecule."""
-    rng = random.Random(seed + 1)
+def generate_3d_features_df(molecules_df: pd.DataFrame, n_features: int = 64) -> pd.DataFrame:
+    """Generate a synthetic 3‑D feature matrix (e.g., Coulomb matrix flattening)."""
     num = len(molecules_df)
-    # Three arbitrary 3‑D descriptors per molecule
-    data = {
-        "molecule_id": molecules_df["molecule_id"],
-        "x_mean": [rng.random() for _ in range(num)],
-        "y_mean": [rng.random() for _ in range(num)],
-        "z_mean": [rng.random() for _ in range(num)],
-    }
-    return pd.DataFrame(data)
+    features = np.random.rand(num, n_features).astype(np.float32)
+    feature_cols = [f"coulomb_{i}" for i in range(n_features)]
+    df = pd.DataFrame(features, columns=feature_cols)
+    df["dipole"] = molecules_df["dipole"].values
+    return df
 
-
-def generate_2d_features_df(molecules_df: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
-    """Create synthetic 2‑D features (e.g. fingerprint bits) for each molecule."""
-    rng = random.Random(seed + 2)
-    num = len(molecules_df)
-    # Two arbitrary 2‑D descriptors per molecule
-    data = {
-        "molecule_id": molecules_df["molecule_id"],
-        "fp_sum": [rng.randint(0, 1024) for _ in range(num)],
-        "coulomb_sum": [rng.random() * 100 for _ in range(num)],
-    }
-    return pd.DataFrame(data)
-
-
-# ---------------------------------------------------------------------------
-# Main entry point
-# ---------------------------------------------------------------------------
-
+# ----------------------------------------------------------------------
+# CLI
+# ----------------------------------------------------------------------
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate processed Parquet files for the QM9 10k subset."
+        description="Generate synthetic processed data for the dipole‑moment pipeline."
     )
     parser.add_argument(
         "--num-molecules",
         type=int,
         default=10_000,
-        help="Number of molecules to generate (default: 10,000).",
+        help="Number of synthetic molecules to generate (default: 10,000).",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("data/processed"),
-        help="Directory where Parquet files will be written.",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility.",
+        default=Path(__file__).resolve().parents[2] / "data" / "processed",
+        help="Directory where parquet files will be written.",
     )
     return parser.parse_args()
 
-
 def main() -> None:
     args = parse_args()
-    ensure_output_dir(args.output_dir)
+    output_dir = Path(args.output_dir)
+    ensure_output_dir(output_dir)
 
-    # -----------------------------------------------------------------------
-    # 1. Molecule table
-    # -----------------------------------------------------------------------
-    molecules_df = generate_molecules_df(args.num_molecules, seed=args.seed)
-    mol_path = args.output_dir / "molecules_10k.parquet"
-    molecules_df.to_parquet(mol_path, engine="pyarrow")
-    print(f"Wrote {mol_path}")
+    # 1. Molecules table
+    molecules_df = generate_molecules_df(num_molecules=args.num_molecules)
+    molecules_path = output_dir / "molecules_10k.parquet"
+    molecules_df.to_parquet(molecules_path, engine="pyarrow")
+    print(f"✅ Wrote {len(molecules_df)} molecules to {molecules_path}")
 
-    # -----------------------------------------------------------------------
-    # 2. 3‑D feature table
-    # -----------------------------------------------------------------------
-    features_3d_df = generate_3d_features_df(molecules_df, seed=args.seed)
-    feat3d_path = args.output_dir / "features_3d.parquet"
-    features_3d_df.to_parquet(feat3d_path, engine="pyarrow")
-    print(f"Wrote {feat3d_path}")
+    # 2. 2‑D features
+    features_2d_df = generate_2d_features_df(molecules_df)
+    features_2d_path = output_dir / "features_2d.parquet"
+    features_2d_df.to_parquet(features_2d_path, engine="pyarrow")
+    print(f"✅ Wrote 2‑D features to {features_2d_path}")
 
-    # -----------------------------------------------------------------------
-    # 3. 2‑D feature table
-    # -----------------------------------------------------------------------
-    features_2d_df = generate_2d_features_df(molecules_df, seed=args.seed)
-    feat2d_path = args.output_dir / "features_2d.parquet"
-    features_2d_df.to_parquet(feat2d_path, engine="pyarrow")
-    print(f"Wrote {feat2d_path}")
-
+    # 3. 3‑D features
+    features_3d_df = generate_3d_features_df(molecules_df)
+    features_3d_path = output_dir / "features_3d.parquet"
+    features_3d_df.to_parquet(features_3d_path, engine="pyarrow")
+    print(f"✅ Wrote 3‑D features to {features_3d_path}")
 
 if __name__ == "__main__":
     main()

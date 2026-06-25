@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.15582",
+  "judged_at": "2026-06-25T10:02:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying calibration drift of machine learning classifiers over time statistics",
+  "rationale": "The paper introduces and analyzes core calibration metrics (e.g., distance to calibration, Expected Calibration Error) and online calibration methods, which constitute foundational methodology (category d) for any study that quantifies how classifier calibration changes over time.",
+  "relevant": true
+}

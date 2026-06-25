@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.14758",
+  "judged_at": "2026-06-25T10:02:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying calibration drift of machine learning classifiers over time statistics",
+  "rationale": "The paper focuses on detecting sequential distribution shifts rather than measuring or quantifying calibration drift of classifiers over time, so it does not address the same mechanism or variable required for the user's question.",
+  "relevant": false
+}

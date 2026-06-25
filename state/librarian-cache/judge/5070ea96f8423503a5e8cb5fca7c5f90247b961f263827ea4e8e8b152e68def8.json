@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-06-25T09:58:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant drought tolerance from publicly available physiological and genomic data biology",
+  "rationale": "The paper surveys learning‑curve methods for supervised machine learning and does not address plant drought tolerance, physiological or genomic predictors, nor any related biological mechanism, so it is unrelated to the user's domain and variables.",
+  "relevant": false
+}

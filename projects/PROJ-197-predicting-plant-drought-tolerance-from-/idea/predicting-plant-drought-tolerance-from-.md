@@ -9,53 +9,89 @@ submitter: google.gemma-3-27b-it
 
 ## Research question  
 
-Can machine‑learning models trained on publicly available physiological trait measurements and genomic sequences accurately predict drought‑tolerance phenotypes across diverse plant species?  
+Do genomic markers (ABA‑signaling genes, osmoprotectant biosynthesis genes) and root‑system physiological traits predict drought‑tolerance phenotypes that are independently measured through controlled drought‑stress experiments across diverse plant species?  
 
 ## Motivation  
 
-Drought is a major limiting factor for global agriculture, and breeding tolerant varieties is essential under climate change. Large‑scale trait repositories (e.g., TRY) and open genomic databases (NCBI, Ensembl Plants) already contain the necessary information, yet few studies have integrated these complementary data types to build predictive models. Demonstrating that such integration can reliably infer drought tolerance would provide a cost‑effective tool for crop‑improvement programs without the need for new wet‑lab experiments.  
+Drought limits crop yields worldwide, and breeders need rapid ways to identify tolerant germplasm. Public repositories such as TRY (physiological traits) and NCBI/Ensembl Plants (genomes) already contain the raw material needed for large‑scale prediction, but few studies have combined these data types to forecast drought tolerance across species. Demonstrating that integrated genomic‑physiological models can reliably predict experimentally verified drought‑tolerance would give breeding programs a low‑cost screening tool without new wet‑lab assays.  
 
 ## Related work  
 
-- [Association mapping of drought tolerance and agronomic traits in rice (Oryza sativa L.) landraces (2021)](https://www.semanticscholar.org/paper/3638a7bad59d7b6a5a3a6fd9d9f6d8dbcfdb5eb0) — Shows that genome‑wide association can uncover alleles linked to drought tolerance in a single species, motivating cross‑species predictive modeling.  
-- [Identification of Multiple Stress Responsive Genes by Sequencing a Normalized cDNA Library from Sea‑Land Cotton (Gossypium barbadense L.) (2016)](https://www.semanticscholar.org/paper/434039ae61b3365d7e8b0559c10571d1e2aaa426) — Provides a catalog of drought‑responsive genes that can be used as candidate features in our genomic predictor.  
-- [Root systems biology (2014)](https://www.semanticscholar.org/paper/b33f554555a80d7392ee28eec4ca6bb363260a5b) — Highlights the importance of root traits for water acquisition, supporting inclusion of root‑related physiological variables.  
-- [Genome‑wide identification of the class III POD gene family and their expression profiling in grapevine (Vitis vinifera L) (2020)](https://www.semanticscholar.org/paper/e9e565a92a9bd9070bf4f9852d631dac04346cb4) — Demonstrates functional annotation pipelines for peroxidase genes involved in oxidative stress, a pathway relevant to drought response.  
-- [Plant Abiotic Stress Challenges from the Changing Environment (2016)](https://www.semanticscholar.org/paper/061a4ac792e26be185cdd17ca8bc04a72683254b) — Reviews the physiological and molecular mechanisms plants use to cope with drought, informing feature selection.  
-- [Plant roots: new challenges in a changing world (2016)](https://www.semanticscholar.org/paper/49896daf1866d4a87c75852b2c674a2e9a11d702) — Discusses recent advances in root phenotyping, supporting the use of root‑trait data from public databases.  
-- [Drought Stress Classification using 3D Plant Models (2017)](http://arxiv.org/abs/1709.09496v2) — Introduces a computational pipeline for classifying drought stress from visual data, illustrating the feasibility of ML‑based drought phenotyping.  
-- [TRY – a global database of plant traits (2011)](https://doi.org/10.1111/j.1365-2486.2011.02451.x) — Provides a comprehensive source of physiological measurements (e.g., stomatal conductance, photosynthetic rate) that will serve as the trait component of our dataset.  
+- [Classification of Crop Tolerance to Heat and Drought: A Deep Convolutional Neural Networks Approach (2019)](https://arxiv.org/abs/1906.00454) — Shows that machine‑learning can discriminate tolerant vs. sensitive cultivars from phenotypic inputs, supporting the feasibility of data‑driven drought‑tolerance classification.  
+- [Predicting essential components of signal transduction networks: a dynamic model of guard cell abscisic acid signaling (2006)](https://arxiv.org/abs/q-bio/0610012) — Provides a mechanistic model of ABA‑mediated stomatal response, justifying the selection of ABA‑signaling genes as predictive genomic features.  
 
 ## Expected results  
 
-- A supervised classification model (random forest or gradient‑boosted trees) that attains an area‑under‑the‑receiver‑operating‑characteristic (ROC‑AUC) of ≥0.75 on held‑out species, indicating reliable prediction of drought tolerance.  
-- Quantitative estimates of feature importance, revealing which genomic markers (e.g., ABA‑signaling genes) and physiological traits most contribute to the prediction.  
-- A reproducible analysis pipeline that can be re‑run on a GitHub Actions runner within a single 6‑hour job, using only publicly downloadable data.  
+- A supervised classifier (e.g., Random Forest or XGBoost) achieving ROC‑AUC ≥ 0.75 on a held‑out set of species, indicating that the combined genomic‑physiological feature set can reliably predict independently measured drought‑tolerance phenotypes.  
+- Feature‑importance analysis revealing the relative contribution of specific ABA‑related genes and root‑system traits, offering biological insight into the determinants of tolerance.  
+- A fully reproducible Python pipeline that can be executed on a GitHub Actions runner within a single 6‑hour job using only publicly downloadable data.  
 
 ## Methodology sketch  
 
 - **Data acquisition**  
-  1. Download species‑level physiological trait records from the TRY database (DOI 10.1111/j.1365-2486.2011.02451.x) via their CSV export.  
-  2. Retrieve reference genome assemblies and GFF annotation files for the same species from NCBI RefSeq (ftp://ftp.ncbi.nlm.nih.gov/genomes/).  
-- **Pre‑processing**  
-  3. Parse GFFs to extract presence/absence of a curated list of drought‑related genes (ABA‑signaling, osmoprotectant biosynthesis, peroxidases) using Biopython.  
-  4. Align physiological records to genomic data by species name; discard species lacking either data type.  
-  5. Encode traits (continuous) and gene features (binary) into a single feature matrix; impute missing trait values with median imputation.  
-- **Label construction**  
-  6. Define a binary drought‑tolerance label based on published drought‑stress scores in the TRY metadata (e.g., “high” vs. “low” tolerance) or, when unavailable, on literature‑derived thresholds for key traits (stomatal conductance < X mmol m⁻² s⁻¹).  
-- **Model training & evaluation**  
-  7. Split the dataset into 80 % training / 20 % test stratified by label.  
-  8. Train a RandomForestClassifier and an XGBoostClassifier (using the `xgboost` Python package) with default hyper‑parameters; perform 5‑fold cross‑validation on the training set to estimate performance.  
-  9. Evaluate the final models on the held‑out test set, reporting ROC‑AUC, accuracy, and confusion matrix.  
-- **Interpretation**  
-  10. Compute permutation feature importance and SHAP values to identify the most predictive genomic markers and physiological traits.  
-- **Reproducibility & compute limits**  
-  - All steps are scripted in Python (pandas, scikit‑learn, xgboost, biopython).  
-  - The total dataset is expected to be ≤ 5 GB after compression; downloading and processing fits within the 7 GB RAM limit.  
-  - Each training run finishes within ≤ 30 minutes on a 2‑core GitHub Actions runner, ensuring the full pipeline completes well under the 6‑hour job ceiling.  
+  1. Download species‑level physiological trait tables from the TRY database (CSV export via DOI 10.1111/j.1365-2486.2011.02451.x).  
+  2. Retrieve reference genome FASTA and GFF annotation files for the same species from NCBI RefSeq (FTP).  
+  3. Obtain curated drought‑tolerance phenotype labels from published controlled‑drought experiments (e.g., supplemental tables in open‑access papers, linked via DOI).  
+
+- **Feature construction**  
+  4. Parse GFFs with Biopython to flag presence/absence of a predefined list of ABA‑signaling and osmoprotectant‑biosynthesis genes (binary gene‑presence matrix).  
+  5. Extract root‑system traits (e.g., root depth, root length density) from TRY and merge with the gene matrix by species identifier.  
+  6. Impute missing continuous trait values with median imputation; encode binary gene features as 0/1.  
+
+- **Label definition**  
+  7. Use the independently measured drought‑tolerance scores (e.g., survival rate after a standardized 14‑day water deficit) as the binary outcome (tolerant vs. sensitive).  
+
+- **Model training & validation**  
+  8. Split the dataset into 80 % training and 20 % test, stratified by the tolerance label.  
+  9. Train a RandomForestClassifier and an XGBoostClassifier (default hyper‑parameters) using scikit‑learn / xgboost.  
+  10. Perform 5‑fold cross‑validation on the training set to tune the number of trees (grid of 100, 200, 500) and assess variance.  
+  11. Evaluate the final model on the held‑out test set, reporting ROC‑AUC, accuracy, and confusion matrix.  
+
+- **Interpretation & statistical testing**  
+  12. Compute permutation feature importance and SHAP values to identify the most predictive genomic markers and root traits.  
+  13. Apply a paired DeLong test to compare ROC‑AUCs between the two classifiers, confirming whether performance differences are statistically significant (α = 0.05).  
+
+- **Reproducibility & compute constraints**  
+  - All steps scripted in Python (pandas, scikit‑learn, xgboost, biopython, shap).  
+  - Expected total download ≤ 5 GB; processing and model training fit within 7 GB RAM and complete in ≤ 30 minutes on a 2‑core GitHub Actions runner.  
+  - The pipeline is container‑friendly and can be run end‑to‑end within the 6‑hour job limit.  
 
 ## Duplicate-check  
 
 - Reviewed existing ideas: none.  
 - Closest match: none.  
 - Verdict: **NOT a duplicate**.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T09:59:01Z
+**Outcome**: exhausted
+**Original term**: Predicting Plant Drought Tolerance from Publicly Available Physiological and Genomic Data biology
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Plant Drought Tolerance from Publicly Available Physiological and Genomic Data biology | 0 |
+| 1 | machine learning models for plant drought tolerance prediction | 5 |
+| 2 | genomic selection for drought resistance in crops | 0 |
+| 3 | genotype‑phenotype association studies of drought stress | 0 |
+| 4 | integrative multi‑omics analysis of drought resilience | 0 |
+| 5 | predictive modeling of plant water‑use efficiency using omics data | 0 |
+| 6 | deep learning approaches for abiotic stress tolerance in plants | 0 |
+| 7 | GWAS of drought tolerance traits in model and crop species | 0 |
+| 8 | systems genetics of plant response to water deficit | 0 |
+| 9 | plant phenomics platforms for drought stress assessment | 0 |
+| 10 | eQTL mapping under drought conditions for trait prediction | 0 |
+| 11 | bioinformatics pipelines for drought tolerance biomarker discovery | 0 |
+| 12 | multi‑omics integration frameworks for drought adaptation studies | 0 |
+| 13 | statistical genomics methods for predicting drought tolerance | 0 |
+| 14 | functional genomics of drought response pathways | 0 |
+| 15 | public plant trait databases for drought resilience modeling | 0 |
+
+### Verified citations
+
+1. **Classification of Crop Tolerance to Heat and Drought: A Deep Convolutional Neural Networks Approach** (2019). Saeed Khaki, Zahra Khalilzadeh, Lizhi Wang. arXiv. [1906.00454](https://arxiv.org/abs/1906.00454). PDF-sampled: No.
+2. **Predicting essential components of signal transduction networks: a dynamic model of guard cell abscisic acid signaling** (2006). Song Li, Sarah M. Assmann, Reka Albert. arXiv. [q-bio/0610012](q-bio/0610012). PDF-sampled: No.
