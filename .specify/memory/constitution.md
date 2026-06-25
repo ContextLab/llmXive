@@ -239,10 +239,14 @@ The following operational standards apply to all work in this repository:
 - **Dependency tracking**: When new pip or npm packages are introduced, the
   appropriate manifest (`requirements.txt`, `package.json`) MUST be updated
   in the same change.
-- **Project structure**: Each research project MUST follow the standardized
-  directory layout (`idea/`, `technical-design/`, `implementation-plan/`,
-  `code/`, `data/`, `paper/`, `reviews/`) and carry a `.llmxive/config.json`
-  with the canonical metadata.
+- **Project structure**: Each research project MUST follow the Spec-Kit
+  directory layout under `projects/<PROJ-ID>/` — `idea/`, `specs/<feature>/`
+  (the `spec.md` / `plan.md` / `tasks.md` and supporting design artifacts,
+  replacing the legacy `technical-design/` + `implementation-plan/` dirs),
+  `code/`, `data/`, `paper/`, and `reviews/` — scaffolded by the `.specify/`
+  Spec-Kit tooling. Per-project metadata travels in the Spec-Kit artifacts
+  (and `paper/metadata.json` for the paper stage); canonical machine state
+  lives in the repo-level `state/` tree.
 - **Identifiers**: Each project MUST have a unique `PROJ-###-descriptive-name`
   identifier used consistently across `papers/`, `code/`, `data/`,
   `technical_design_documents/`, `implementation_plans/`, and `reviews/`.

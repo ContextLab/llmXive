@@ -8,7 +8,7 @@ artifact, review, and decision to git as it goes.
 - **Live dashboard:** <https://context-lab.com/llmXive>
 - **Repository:** <https://github.com/ContextLab/llmXive>
 - **Constitution:** [.specify/memory/constitution.md](.specify/memory/constitution.md)
-- **Agent registry:** [agents/registry.yaml](agents/registry.yaml) (50 agents) · prompts: [agents/prompts/](agents/prompts/)
+- **Agent registry:** [agents/registry.yaml](agents/registry.yaml) (53 agents) · prompts: [agents/prompts/](agents/prompts/)
 
 ## How it works
 
@@ -30,7 +30,12 @@ critical concerns; the implementer addresses every concern with a per-concern
 change-log; each panelist re-judges its own concerns. The gate is **unanimous
 panel acceptance** within the 3-round cap; otherwise the project is **kicked
 back** to the appropriate prior stage (adaptive by worst unresolved severity)
-carrying full provenance. There is no accumulated point system.
+carrying full provenance. There is no accumulated point system. The bar is
+**two-tier** (Constitution VI, v1.2.0): the review stages (`research_review`,
+`paper_review`) require zero open concerns, while doc-authoring stages
+(`specified`/`planned`/`tasked`) may advance on writing-level-only residue — a
+`requirement`-or-worse concern always kicks back, so the scientific-quality gate
+is never relaxed.
 
 ### The paper pipeline
 
@@ -109,7 +114,7 @@ accept-with-caveats or reject.
 
 ## The agents
 
-There are **50 agents** in [agents/registry.yaml](agents/registry.yaml) — each a
+There are **53 agents** in [agents/registry.yaml](agents/registry.yaml) — each a
 registry entry pointing at a prompt file in [agents/prompts/](agents/prompts/).
 They include the pipeline drivers (`brainstorm`, `flesh_out`,
 `research_question_validator`, `project_initializer`, `specifier`, `clarifier`,
@@ -226,6 +231,9 @@ src/llmxive/             # the Python implementation
   speckit/               # the /speckit-* command agents
   backends/              # the LLM backend router (Dartmouth / HF / local)
   librarian/             # citation verification (Semantic Scholar, arXiv, TheoremSearch)
+  convergence/           # the identify→revise→re-review engine + review panels (Principle VI)
+  claims/                # claim detection/registration/resolution (Verified Accuracy, specs 016-020)
+  results/               # harness-signed empirical-result receipts
   pipeline/              # the lifecycle graph + scheduler
   state/                 # project-state I/O, run-log, locks
   web_data.py            # builds web/data/projects.json
@@ -234,7 +242,7 @@ projects/                # one directory per project — idea/, specs/, code/, d
 state/                   # canonical state — projects/ (per-project YAML), run-log/, citations/, locks/
 web/                     # the static dashboard (synced to docs/ on deploy)
 specs/                   # Spec-Kit specs for the platform itself (this repo's own /speckit-* work)
-.github/workflows/       # the hourly pipeline crons + the submission-intake cron + Deploy Pages
+.github/workflows/       # scheduled pipeline crons (main every 3h, review every 16h, lane crons) + hourly submission-intake + Deploy Pages
 eval/promptfoo/          # prompt-regression gate (PRs touching agents/prompts/** fail on contract regressions)
 tests/                   # unit/ contract/ integration/ + real_call/ (no mocks as the primary path — Constitution III)
 ```
@@ -242,7 +250,7 @@ tests/                   # unit/ contract/ integration/ + real_call/ (no mocks a
 ## Running it
 
 ```sh
-pip install -e .
+pip install -e ".[dev]"                     # runtime + test/dev deps (drop [dev] for runtime only)
 
 python -m llmxive preflight                 # fail-fast environment check
 python -m llmxive brainstorm -n 5           # seed 5 brainstormed ideas
@@ -253,10 +261,11 @@ python -m llmxive project publish-approve PROJ-001 \
 python -m llmxive agents run --agent <name> --project <PROJ-ID>
 ```
 
-In production the pipelines run as hourly GitHub Actions
-([.github/workflows/](.github/workflows/)) — `python -m llmxive run` for the
-research/paper stages, `python -m llmxive submissions process` for the website
-intake, and `Deploy Pages` to publish `web/` → `docs/`.
+In production the pipelines run as scheduled GitHub Actions
+([.github/workflows/](.github/workflows/)) — the main `python -m llmxive run`
+pass every 3 hours (plus per-stage lane crons), research/paper review every 16
+hours, `python -m llmxive submissions process` hourly for the website intake, and
+`Deploy Pages` to publish `web/` → `docs/`.
 
 LLM calls need a Dartmouth Chat API key (`DARTMOUTH_CHAT_API_KEY`, or
 `python -m llmxive auth set`); without it the backends fall through to local

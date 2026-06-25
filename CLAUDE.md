@@ -53,8 +53,8 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
   never relaxed). There is NO accumulated point system; do not re-introduce
   one. Human and simulated-personality reviews are advisory inputs routed
   through stage-aware triage.
-- Review records are written under `projects/<id>/reviews/` (research) and
-  `projects/<id>/paper/reviews/` (paper) as
+- Review records are written under `projects/<id>/reviews/research/` (research)
+  and `projects/<id>/paper/reviews/` (paper) as
   `<reviewer_name>__<YYYY-MM-DD>__<stage>.md` with YAML frontmatter validated
   against the review-record contract.
 - Review-stage dispatch is verdict-coverage-gated (spec 023): a complete,
