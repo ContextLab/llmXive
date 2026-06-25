@@ -150,3 +150,29 @@ def test_declare_missing_imports_adds_thirdparty_skips_stdlib_and_local(tmp_path
     assert "json" not in reqs and "reproducibility" not in reqs
     # idempotent: a second pass adds nothing.
     assert _declare_missing_imports(proj, failures) == []
+
+
+def test_data_artifact_ground_truth_surfaces_real_csv_headers(tmp_path) -> None:
+    """The DATA-contract ground-truth block must surface what producers actually
+    wrote (real CSV headers), so the auto-fix loop can reconcile a consumer's
+    'missing columns {model, rmse, mae}' against the producer's true columns
+    (the PROJ-262 metrics-CSV oscillation: the failure shows only the
+    consumer's expectation, never the producer's output)."""
+    from llmxive.execution.stage import _actual_data_artifacts_feedback
+
+    proj = tmp_path / "PROJ-262-x"
+    (proj / "results").mkdir(parents=True)
+    (proj / "data").mkdir(parents=True)
+    # Producer wrote DIFFERENT column names than a consumer expects.
+    (proj / "results" / "metrics.csv").write_text(
+        "model_name,val_rmse,val_mae\ngnn,0.31,0.22\n", encoding="utf-8"
+    )
+    (proj / "data" / "processed.parquet").write_bytes(b"\x00" * 64)
+
+    fb = _actual_data_artifacts_feedback(proj)
+    # The implementer now SEES the producer's real header to align against.
+    assert "model_name,val_rmse,val_mae" in fb
+    assert "metrics.csv" in fb and "processed.parquet" in fb
+    assert "reconcile consumers against THESE" in fb
+    # Empty / absent project dir → no block (best-effort, never crashes).
+    assert _actual_data_artifacts_feedback(tmp_path / "nope") == ""
