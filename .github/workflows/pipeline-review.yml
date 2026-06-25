@@ -16,6 +16,10 @@ jobs:
     timeout-minutes: 60
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      # Guarded paid fallback (claude-haiku) for when ALL free models flap;
+      # globally hard-capped by the daily ~$2 credit budget (backends/credits.py).
+      LLMXIVE_PAID_OPT_IN: "1"
+      LLMXIVE_PAID_BUDGET_FRACTION: "0.9"
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v5
