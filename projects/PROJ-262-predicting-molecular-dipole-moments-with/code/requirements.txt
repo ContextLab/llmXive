@@ -1,12 +1,11 @@
-pandas
-pyarrow
-scikit-learn
-joblib
+# Core scientific stack
 numpy
-# Existing project requirements (if any) should be retained above.
-matplotlib  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
-tqdm  # auto-added: imported by run-book but missing from venv
+pandas
+scikit-learn
+# Visualization (required by analysis scripts)
+matplotlib
+# Optional but useful for downstream scripts
+scipy
+tqdm
+# Ensure reproducibility utilities
+torch  # only needed for GNN parts; kept optional in imports

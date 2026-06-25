@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-30T08:50:51.502217Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-645-qwen-vla-unifying-vision-language-action
-last_run_id: 9294b35d-b988-4ab5-ac78-288d61e72db8
+last_run_id: 0bde9f1e-6201-4e45-a88c-364af6798885
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action
 title: 'Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments,
   and Robot Embodiments'
-updated_at: '2026-06-25T00:55:52.713325Z'
+updated_at: '2026-06-25T05:34:36.155829Z'

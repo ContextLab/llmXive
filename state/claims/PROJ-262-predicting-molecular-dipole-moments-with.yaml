@@ -1,21 +1,5 @@
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 1
-  canonical: filter to 10000 random subset
-  claim_id: c_de9b44f3
-  context: 'Goal: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
-    and 2D descriptors for baseline comparison'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: filter to 10k random subset
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-19T18:38:46Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 1
   canonical: QM9 DFT reference data uses the B3LYP/6-31G(2df,p) method
   claim_id: c_1013b8b5
   context: T032 [US2] Validate predictions against QM9 DFT reference data (B3LYP/6-31G(2df,p))
@@ -2629,3 +2613,19 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-25T02:32:54Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: filter to 10000 random subset
+  claim_id: c_de9b44f3
+  context: 'Goal: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
+    and 2D descriptors for baseline comparison'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter to 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-25T05:35:24Z'
