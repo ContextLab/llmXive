@@ -72,8 +72,30 @@ def _cmd_run(args: argparse.Namespace) -> int:
             print(f"[run] invalid --stage {args.stage!r}", file=sys.stderr)
             return 2
 
+    # Per-run WALL-CLOCK budget: stop starting new steps once the run nears the
+    # CI job timeout, so the commit-and-push ALWAYS persists progress instead of
+    # the job being killed mid-step (losing the whole run's work). A multi-gate
+    # convergence run on the slow reasoning default (qwen3.5-122b) can otherwise
+    # accumulate past the 330-min llmxive-pipeline.yml timeout. Default 270 min
+    # leaves ~60 min margin for one in-flight step + the commit; overridable via
+    # LLMXIVE_RUN_WALL_BUDGET_S. A fast run never reaches it (pure safety net).
+    import time as _time
+
+    _run_start = _time.monotonic()
+    try:
+        _wall_budget_s = float(os.environ.get("LLMXIVE_RUN_WALL_BUDGET_S", "16200"))
+    except ValueError:
+        _wall_budget_s = 16200.0
+
     completed = 0
     for _ in range(max(1, args.max_tasks)):
+        if _time.monotonic() - _run_start > _wall_budget_s:
+            print(
+                f"[run] wall-clock budget ({_wall_budget_s:.0f}s) reached after "
+                f"{completed} step(s); stopping so progress commits before the "
+                f"CI timeout"
+            )
+            break
         from llmxive.types import Project as _Project
         project: _Project | None
         if args.project:
