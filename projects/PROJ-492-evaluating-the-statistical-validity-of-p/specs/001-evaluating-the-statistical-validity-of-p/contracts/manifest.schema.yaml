@@ -1,19 +1,98 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Manifest"
 type: "object"
+title: "Manifest Schema"
+description: "Schema for pipeline execution metadata"
 required:
-  - artifact_path
-  - sha256
-  - generated_at
+  - "run_id"
+  - "start_time"
+  - "end_time"
+  - "status"
+  - "input_url_count"
+  - "extraction_success_count"
+  - "extraction_error_count"
+  - "inconsistent_count"
+  - "consistent_count"
+  - "output_files"
+  - "resource_usage"
+  - "dependencies"
 properties:
-  artifact_path:
+  run_id:
     type: "string"
-    description: "Relative path to the artefact under the output directory."
-  sha256:
-    type: "string"
-    pattern: "^[a-f0-9]{64}$"
-    description: "SHA‑256 checksum of the file."
-  generated_at:
+    format: "uuid"
+    description: "Unique identifier for this pipeline run"
+  start_time:
     type: "string"
     format: "date-time"
-    description: "Timestamp when the artefact was written."
+    description: "ISO 8601 timestamp of pipeline start"
+  end_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of pipeline completion"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "partial"
+      - "failed"
+    description: "Pipeline execution status"
+  input_url_count:
+    type: "integer"
+    minimum: 1
+    description: "Number of URLs processed"
+  extraction_success_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of successful extractions"
+  extraction_error_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of extraction failures"
+  inconsistent_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of inconsistent summaries"
+  consistent_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of consistent summaries"
+  output_files:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "path"
+        - "checksum"
+      properties:
+        path:
+          type: "string"
+          description: "Relative path of output file"
+        checksum:
+          type: "string"
+          description: "SHA-256 checksum of output file"
+    description: "List of output files with checksums"
+  resource_usage:
+    type: "object"
+    required:
+      - "cpu_time_seconds"
+      - "memory_peak_mb"
+      - "disk_usage_mb"
+    properties:
+      cpu_time_seconds:
+        type: "number"
+        description: "Total CPU time consumed"
+      memory_peak_mb:
+        type: "number"
+        description: "Peak memory usage in MB"
+      disk_usage_mb:
+        type: "number"
+        description: "Total disk usage in MB"
+  random_seeds:
+    type: "object"
+    description: "Random seeds used for reproducibility"
+    additionalProperties:
+      type: "integer"
+  dependencies:
+    type: "object"
+    description: "Python package versions (from requirements.txt)"
+    additionalProperties:
+      type: "string"

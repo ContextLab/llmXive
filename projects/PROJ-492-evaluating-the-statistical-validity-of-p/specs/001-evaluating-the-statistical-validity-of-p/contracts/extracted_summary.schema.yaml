@@ -1,57 +1,86 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ABSummary"
 type: "object"
+title: "Extracted AB Summary Schema"
+description: "Schema for A/B test summary extracted from public web pages"
 required:
-  - url
-  - domain
-  - outcome_type
-  - variant_a_n
-  - variant_b_n
-  - reported_effect_size
+  - "url"
+  - "outcome_type"
+  - "variant_a_n"
+  - "variant_b_n"
+  - "reported_effect_size"
+  - "extraction_timestamp"
+  - "extraction_status"
 properties:
   url:
     type: "string"
+    description: "Original URL of the A/B test summary"
     format: "uri"
-    description: "Original URL of the A/B test summary."
-  domain:
-    type: "string"
-    description: "Top-level domain extracted from the URL."
-  year:
-    type: ["integer", "null"]
-    description: "Publication year if inferable; otherwise null."
   outcome_type:
     type: "string"
-    enum: ["binary", "continuous"]
-    description: "Metric type of the experiment."
+    enum:
+      - "binary"
+      - "continuous"
+    description: "Type of outcome metric"
   variant_a_n:
     type: "integer"
     minimum: 1
-    description: "Sample size for variant A."
+    description: "Sample size for variant A"
   variant_b_n:
     type: "integer"
     minimum: 1
-    description: "Sample size for variant B."
-  variant_a_rate:
-    type: ["number", "null"]
-    description: "Conversion rate or mean for variant A (null if not reported)."
-  variant_b_rate:
-    type: ["number", "null"]
-    description: "Conversion rate or mean for variant B (null if not reported)."
+    description: "Sample size for variant B"
+  variant_a_conversions:
+    type: "integer"
+    minimum: 0
+    description: "Conversion count for variant A (binary outcomes only)"
+  variant_b_conversions:
+    type: "integer"
+    minimum: 0
+    description: "Conversion count for variant B (binary outcomes only)"
+  variant_a_mean:
+    type: "number"
+    description: "Mean value for variant A (continuous outcomes only)"
+  variant_b_mean:
+    type: "number"
+    description: "Mean value for variant B (continuous outcomes only)"
+  variant_a_std:
+    type: "number"
+    description: "Standard deviation for variant A (continuous outcomes only)"
+  variant_b_std:
+    type: "number"
+    description: "Standard deviation for variant B (continuous outcomes only)"
   reported_effect_size:
     type: "number"
-    description: "Reported absolute effect size (or lift % converted to absolute)."
+    description: "Reported effect size (absolute difference, lift %, or mean difference)"
   reported_p:
-    type: ["number", "null"]
-    minimum: 0
-    maximum: 1
-    description: "Reported two‑sided p‑value; null if only CI provided."
+    type: "number"
+    description: "Reported p-value (numeric) or bound (for inequality p-values)"
   reported_ci_lower:
-    type: ["number", "null"]
-    description: "Lower bound of reported confidence interval (optional)."
+    type: "number"
+    description: "Lower bound of reported confidence interval"
   reported_ci_upper:
-    type: ["number", "null"]
-    description: "Upper bound of reported confidence interval (optional)."
-  timestamp:
-    type: ["string", "null"]
+    type: "number"
+    description: "Upper bound of reported confidence interval"
+  publication_year:
+    type: "integer"
+    minimum: 1900
+    maximum: 2100
+    description: "Year of publication (for subgroup analysis)"
+  domain:
+    type: "string"
+    description: "Source domain (e.g., \"optimizely.com\", \"airbnb.io\")"
+  extraction_timestamp:
+    type: "string"
     format: "date-time"
-    description: "Publication timestamp if available."
+    description: "ISO 8601 timestamp of extraction"
+  extraction_status:
+    type: "string"
+    enum:
+      - "success"
+      - "partial"
+      - "failed"
+    description: "Extraction status"
+  notes:
+    type: "string"
+    maxLength: 1000
+    description: "Extraction notes (e.g., \"baseline rate missing, used average\")"

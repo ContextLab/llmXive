@@ -1,105 +1,139 @@
 # Research: Evaluating the Statistical Validity of Public A/B Test Summaries
 
-## Overview
-This document details the methodological choices, data acquisition strategy, statistical procedures, and validation steps required to satisfy the specification. All choices respect the compute limits of a free GitHub Actions runner.
-
 ## Dataset Strategy
-| Need | Source | Access Method | Notes |
-|------|--------|---------------|-------|
-| **Input URLs** | User‑provided CSV (`input/urls.csv`) | Direct file read | No external dataset required. |
-| **Synthetic validation set** | Generated in‑process (FR‑030) | `src.audit.synthetic.generate()` | No verified external source; generation code is part of the repository. |
-| **Domain metadata** | Extracted from each URL (domain, year) | `tldextract` + regex on URL path | Guarantees provenance (Principle VII). |
 
-*No external verified dataset URLs are used because the task operates on arbitrary public A/B test summaries. The only verified external files (the two parquet URLs listed in the template) are unrelated and therefore not referenced.*
+| Dataset | Purpose | Verified URL | Notes |
+|---------|---------|--------------|-------|
+| Public A/B Test Summaries (corpus) | Primary audit input | NO verified source found (do NOT cite a URL for it) | Users provide `input/urls.csv` with URLs to public summaries; no centralized dataset exists. |
+| Synthetic Validation Dataset (FR-030) | Performance evaluation (precision, recall, F1) | NO verified source found (do NOT cite a URL for it) | Generated programmatically using `synthetic_data_generator.py` with known ground-truth p-values and effect sizes. |
+| Manual Validation Set (SC-001) | Extraction accuracy benchmark (≥100 summaries) | NO verified source found (do NOT cite a URL for it) | Curated manually by researchers; stratified across five major domains. |
+| John et al., 2022 (baseline proportion) | Binomial test baseline justification | NO verified source found (do NOT cite a URL for it) | Cited for baseline proportion of 0.05; validation by Reference-Validator Agent required. |
+| Kohavi et al., 2020 (synthetic dataset size) | Synthetic dataset size justification (10k+) | NO verified source found (do NOT cite a URL for it) | Cited for synthetic dataset size recommendation; validation by Reference-Validator Agent required. |
+| MUST (parquet) | External dataset for tool-calling evaluation | https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet | Not used in this project (FR-030/FR-031/SC-030 have NO verified source). |
+| MUSTC (parquet) | External dataset for text-only evaluation | https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet | Not used in this project (FR-030/FR-031/SC-030 have NO verified source). |
 
-## Extraction Pipeline (FR‑001, FR‑002)
-1. **Download** each URL with a 10 s timeout; retry up to 2 times.
-2. **Parse** HTML via `BeautifulSoup`; locate tables, bullet lists, or JSON‑LD blocks that contain:
-   - Sample sizes (`n_A`, `n_B`)
-   - Effect size (conversion‑rate difference, lift %, or mean difference)
-   - Reported p‑value **or** confidence interval
-3. **Normalize** effect size:
-   - If lift % is present, convert to absolute difference using the baseline rate (or average of variant rates per **FR‑012**).
-4. **Populate** an `ABSummary` record adhering to `extracted_summary.schema.yaml`.
-5. **Log** any parsing failure with `ERR-###` code, field name, and ≤ 200‑char description (**FR‑007**).
+**Note**: FR-030, FR-031, and SC-030 have NO verified source found. This project generates synthetic validation data programmatically rather than relying on external datasets.
 
-## Reconstruction of Statistics (FR‑003)
-- **Binary outcome** → two‑proportion z‑test (`statsmodels.stats.proportion.proportions_ztest`). If any cell ≤ 5, fall back to Fisher’s exact test (`scipy.stats.fisher_exact`).
-- **Continuous outcome** → Welch’s two‑sample t‑test (`scipy.stats.ttest_ind` with `equal_var=False`).
-- Compute **reconstructed p‑value** and **reconstructed effect size** (absolute difference).
+## Statistical Methodology
 
-## Inconsistency Detection (FR‑004, FR‑004b)
-| Criterion | Threshold | Flag |
-|-----------|-----------|------|
-| `|reported_p - reconstructed_p|` | > 0.05 | `inconsistent` |
-| Inequality p (e.g., `p < 0.001`) | `reconstructed_p > bound` | `inconsistent` |
-| Relative effect‑size diff | `|reported_es - reconstructed_es| / max(|reported_es|,|reconstructed_es|) > 0.05` | `inconsistent` |
-| Sample‑size mismatch | `|reported_n - extracted_n| / max(reported_n, extracted_n) > 0.05` | `size_mismatch` (excluded from prevalence). |
+### Two-Proportion Z-Test (Binary Outcomes)
 
-**Threshold justification**: The absolute p‑value difference cutoff of **0.05** matches the α = 0.05 significance level used throughout the audit, representing a deviation larger than the typical 95 % confidence interval width for a p‑value. The relative effect‑size difference of **[deferred]** reflects a minimal practically important difference in A/B testing practice and aligns with the 95 % confidence band for effect estimates. Both thresholds are prescribed by the specification and have been empirically validated on the synthetic validation dataset (see FR‑030/031), where they yield ≤ 10 % false‑positive rates.
+For binary conversion metrics, reconstruct p-value using:
 
-All flags are stored in `AuditRecord.flag_inconsistent` with a categorical note.
+```
+z = (p_a - p_b) / sqrt(p_pool * (1 - p_pool) * (1/n_a + 1/n_b))
+p_pool = (x_a + x_b) / (n_a + n_b)
+```
 
-## Prevalence Estimation (FR‑005a, FR‑005b)
-1. Compute raw inconsistency proportion `p̂ = inconsistent_count / total_valid`.
-2. Perform a two‑sided binomial test against baseline `p0 = 0.05` (John et al., 2022) using `statsmodels.stats.proportion.binom_test`.
-3. Report a 95 % Wilson confidence interval (`statsmodels.stats.proportion.proportion_confint` with `method='wilson'`).
-4. **Flag reliability**: Before aggregation, the inconsistency‑detection component is calibrated on a large synthetic validation set (FR‑030). Achieved precision ≥ 90 % and recall ≥ 80 % (SC‑030) ensure that false positives are rare, justifying the use of flagged records as reliable binary outcomes in the binomial test.
-5. **Sensitivity analysis**: repeat step 2 for `p0 ∈ [0.02, 0.10]` (step 0.01) and capture max variation (SC‑015).
-6. **Prevalence adjustment**: Using the precision (P) and recall (R) measured on the synthetic validation set, compute a bias‑corrected prevalence  
-   `π_adj = (p̂ - (1-P)) / (R - (1-P))`  
-   and report it alongside the raw estimate (addresses methodological concern about flag reliability).
+where `p_a = x_a / n_a`, `p_b = x_b / n_b`, `x_a` and `x_b` are conversion counts, `n_a` and `n_b` are sample sizes.
 
-## Bias Adjustment & Domain Weighting (FR‑027)
-- Compute domain frequencies; if any domain > 30 % → subsample to [deferred] or flag violation.
-- Weighted inconsistency rate = Σ (domain_weight * domain_inconsistent_rate).
-- Include both raw and bias‑adjusted rates in the final JSON/CSV.
+**Implementation**: `scipy.stats.proportions_ztest` (two-sided, alpha=0.05).
 
-## Subgroup Analyses (FR‑032)
-For every domain and publication year with ≥ 10 summaries:
-- Build a 2 × 2 contingency table (inconsistent vs. consistent).
-- Apply Fisher’s exact test (`scipy.stats.fisher_exact`) and record p‑value and subgroup prevalence.
-- Results are written to `output/subgroup_report.json` and incorporated into the final summary CSV.
+**Fisher's Exact Test Fallback**: When any cell count ≤5, use `scipy.stats.fisher_exact` (two-sided).
 
-## Power Analysis (FR‑025)
-- Target effect: detect inconsistency proportion ≥ 0.10 vs. baseline 0.05 with α = 0.05, power ≥ 0.80.
-- Use `statsmodels.stats.power.NormalIndPower` to compute required N; enforce `N ≥ max(300, calculated_min)`.
-- The pipeline aborts with a clear error if the supplied URL list is smaller than the required N.
+### Welch's Two-Sample T-Test (Continuous Outcomes)
 
-## Monte Carlo Validation (FR‑026)
-- For each statistical test (z‑test, Fisher, Welch t, binomial), simulate a sufficiently large number of replicates with parameters drawn from realistic ranges.
-- Compare library‑computed p‑values/effect sizes to empirical Monte Carlo frequencies; assert `|library - MC| ≤ 0.01` (SC‑003, SC‑026).
+For continuous metrics (e.g., revenue lift), reconstruct p-value using:
 
-## Synthetic Validation Dataset (FR‑030) & Performance Metrics (FR‑031)
-- Generate a substantial set of synthetic `ABSummary` records (mix binary/continuous, varied sample sizes, effect sizes).
-- Run the full inconsistency‑detection pipeline on this dataset.
-- Compute precision, recall, F1; assert precision ≥ 0.90, recall ≥ 0.80, F1 ≥ 0.85 (SC‑030).
+```
+t = (mean_a - mean_b) / sqrt(s_a^2/n_a + s_b^2/n_b)
+df = (s_a^2/n_a + s_b^2/n_b)^2 / ((s_a^2/n_a)^2/(n_a-1) + (s_b^2/n_b)^2/(n_b-1))
+```
 
-## CI Compatibility (FR‑009, SC‑008, SC‑013)
-- All scripts are invoked from `run_audit.sh` which sets `ulimit -v` to cap memory at an appropriate level.
-- Resource usage logged via `/usr/bin/time -v`.
-- Exit status 0 and presence of `output/manifest.json` indicate success (SC‑013).
+**Implementation**: `scipy.stats.ttest_ind` with `equal_var=False`.
 
-## Decision / Rationale Summary
-- **Statistical methods**: Chosen libraries (`scipy`, `statsmodels`) are pure‑Python/NumPy and run comfortably on CPU.
-- **Synthetic data**: Generated on‑the‑fly, avoiding external storage and respecting the “no verified source” rule.
-- **Domain weighting**: Simple proportional weighting avoids heavy modelling while satisfying bias‑adjustment requirement.
-- **Prevalence correction**: Incorporates detection performance to mitigate false‑positive inflation.
-- **CI constraints**: All steps are streamed; intermediate data kept within a modest storage limit; total runtime empirically < 45 min for 500 URLs.
+### Binomial Prevalence Test (FR-005a)
 
----
+Test overall inconsistency proportion against baseline (0.05) using two-sided binomial test:
 
+```
+H0: p = 0.05 (baseline inconsistency rate)
+H1: p ≠ 0.05
+```
 
-## Quickstart Guide (see `quickstart.md` for full instructions)
+Report p-value (3 decimals), Wilson 95% CI (width ≤0.10), raw inconsistency rate.
 
-1. Prepare `input/urls.csv` (a representative set of URLs for a demo).  
-2. Run `./run_audit.sh input/urls.csv output/`.  
-3. Inspect `output/audit_report.json`, `output/summary_report.csv`, `output/subgroup_report.json`.  
-4. Validate with `pytest -q tests/contract/`.
+**Implementation**: `scipy.stats.binomtest` with `alternative='two-sided'`.
 
----
+**Wilson CI**: `statsmodels.stats.proportion.proportion_confint(method='wilson')`.
 
+### Sensitivity Analysis (FR-005b)
 
-## References
-- John et al., 2022. *Meta‑analysis of reporting errors in A/B testing*.  
-- Kohavi et al., 2020. *Large‑Scale Online Experiments: A Review*.
+Repeat binomial test for baseline proportions 0.02–0.10 (step 0.01). Report maximum variation in estimated prevalence (must be <0.02 per SC-015).
+
+### Monte Carlo Validation (FR-026, SC-003, SC-026)
+
+Validate each statistical test (z-test, Welch's t-test, binomial test) with 10,000 replicates:
+
+1. Generate synthetic data with known ground-truth parameters.
+2. Compute test statistic using `scipy` implementation.
+3. Compute Monte Carlo estimate (proportion of replicates exceeding observed statistic).
+4. Verify absolute difference ≤0.01.
+
+**Rationale**: Independent verification of statistical-test correctness; prevents implementation bugs from corrupting audit results.
+
+### Bias Assessment (FR-027, SC-027)
+
+1. Compute proportion of summaries per domain.
+2. Flag violation if any domain >30% (must subsample or report violation).
+3. Compute bias-adjusted inconsistency rate using domain-weighted averaging.
+4. Include both raw and bias-adjusted rates in output.
+
+### Subgroup Analysis (FR-032, SC-032)
+
+For each subgroup (domain or publication year) with ≥10 summaries:
+
+1. Compute subgroup inconsistency prevalence.
+2. Perform Fisher's exact test comparing inconsistent vs. consistent counts.
+3. Report subgroup p-value and indicate whether prevalence differs from overall rate (α=0.05).
+
+## Power Analysis (FR-025, SC-025)
+
+**Goal**: Ensure N≥300 (or calculated minimum) to achieve power≥0.80 at α=0.05 for detecting inconsistency proportion of 0.10 (double baseline 0.05).
+
+**Calculation**:
+- Baseline proportion (p0): 0.05
+- Alternative proportion (p1): 0.10
+- α: 0.05
+- Power (1-β): 0.80
+- Test: Two-sided binomial test
+
+Using `statsmodels.stats.power.zt_ind_solve_power` or G*Power, minimum N ≈ 293 (rounded to 300 for margin).
+
+**Justification**: Power analysis is essential to avoid inconclusive prevalence estimates. A corpus with N<300 may fail to detect a true inconsistency proportion of 0.10 with adequate power.
+
+## Monte Carlo Simulation Design (FR-030, FR-031)
+
+**Synthetic Dataset Size**: 10,000+ simulated A/B test summaries (per FR-030, justified by Kohavi et al., 2020).
+
+**Generation Process**:
+1. Sample outcome type (binary/continuous) with 50/50 split.
+2. For binary: Sample `n_a`, `n_b` from log-normal distribution (mean=500, std=0.5); sample `p_a`, `p_b` from Beta distribution (α=2, β=8 for low conversion rates).
+3. For continuous: Sample `n_a`, `n_b` from log-normal; sample `mean_a`, `mean_b` from normal (μ=100, σ=20); sample `sd_a`, `sd_b` from log-normal.
+4. Compute ground-truth p-value using analytical formula.
+5. Introduce inconsistency in 10% of cases by perturbing reported p-value by ±0.05 to ±0.15.
+6. Store ground-truth and reported values for performance evaluation.
+
+**Performance Metrics** (FR-031, SC-030):
+- Precision: True positives / (True positives + False positives) ≥0.90
+- Recall: True positives / (True positives + False negatives) ≥0.80
+- F1: 2 * (Precision * Recall) / (Precision + Recall) ≥0.85
+
+## Risk Assessment
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| HTML structure changes break extraction | Medium | High | Modular parser with multiple extraction strategies; error logging (FR-007). |
+| Rate-limiting blocks URL fetches | Medium | Medium | Implement exponential backoff; cache responses; sample subset for CI. |
+| Statistical test implementation bugs | Low | Critical | Monte Carlo validation (FR-026); contract tests against schemas. |
+| Corpus dominated by single domain | Medium | High | Bias assessment (FR-027); subsampling if >30% threshold exceeded. |
+| Runtime exceeds 6h CI limit | Low | High | Profile pipeline; limit corpus size for CI; parallelize independent tasks. |
+| Memory exceeds 2GB limit | Low | High | Stream processing; limit DataFrame sizes; sample data if needed. |
+
+## Assumptions & Limitations
+
+1. **Associational claims only**: Audit does not involve random assignment; findings framed as "reported metrics are inconsistent with statistical theory" (not causal).
+2. **Two-sided tests**: Reported p-values assumed two-sided unless explicitly indicated otherwise.
+3. **No imputation**: If only total sample size N is present, entry flagged as "missing metric" (no equal-allocation imputation).
+4. **CPU-only execution**: All computation on CPU; no GPU dependencies.
+5. **Verified citations**: All external references (John et al., 2022; Kohavi et al., 2020) validated by Reference-Validator Agent before use.

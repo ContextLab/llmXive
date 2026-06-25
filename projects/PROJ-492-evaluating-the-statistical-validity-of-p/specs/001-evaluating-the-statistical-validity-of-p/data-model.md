@@ -1,69 +1,66 @@
 # Data Model: Evaluating the Statistical Validity of Public A/B Test Summaries
 
-## Overview
-The data model defines two core entities—`ABSummary` (extracted raw metrics) and `AuditRecord` (audit outcome). A supplemental `Manifest` records artefact hashes for reproducibility.
+## Entity: ABSummary
 
-## Entity Definitions
+Represents a single publicly posted A/B test experiment extracted from a summary.
 
-### 1. ABSummary
-Represents the information extracted from a single public A/B test summary.
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `url` | string | YES | Original URL of the A/B test summary (provenance metadata). |
+| `outcome_type` | string | YES | "binary" or "continuous" (determines statistical test). |
+| `variant_a_n` | integer | YES | Sample size for variant A. |
+| `variant_b_n` | integer | YES | Sample size for variant B. |
+| `variant_a_conversions` | integer | NO | Conversion count for variant A (binary outcomes only). |
+| `variant_b_conversions` | integer | NO | Conversion count for variant B (binary outcomes only). |
+| `variant_a_mean` | float | NO | Mean value for variant A (continuous outcomes only). |
+| `variant_b_mean` | float | NO | Mean value for variant B (continuous outcomes only). |
+| `variant_a_std` | float | NO | Standard deviation for variant A (continuous outcomes only). |
+| `variant_b_std` | float | NO | Standard deviation for variant B (continuous outcomes only). |
+| `reported_effect_size` | float | YES | Reported effect size (absolute difference, lift %, or mean difference). |
+| `reported_p` | float | NO | Reported p-value (numeric) or bound (for inequality p-values). |
+| `reported_ci_lower` | float | NO | Lower bound of reported confidence interval. |
+| `reported_ci_upper` | float | NO | Upper bound of reported confidence interval. |
+| `publication_year` | integer | NO | Year of publication (for subgroup analysis). |
+| `domain` | string | NO | Source domain (e.g., "optimizely.com", "airbnb.io") for bias assessment. |
+| `extraction_timestamp` | string | YES | ISO 8601 timestamp of extraction. |
+| `extraction_status` | string | YES | "success", "partial", or "failed". |
+| `notes` | string | NO | Extraction notes (e.g., "baseline rate missing, used average"). |
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `url` | string | Original URL of the summary (must be a valid HTTP/HTTPS URL). |
-| `domain` | string | Top‑level domain extracted from `url` (e.g., `example.com`). |
-| `year` | integer | Publication year inferred from URL or metadata; `null` if unavailable. |
-| `outcome_type` | enum[`binary`, `continuous`] | Type of metric reported. |
-| `variant_a_n` | integer | Sample size for variant A (must be ≥ 1). |
-| `variant_b_n` | integer | Sample size for variant B (must be ≥ 1). |
-| `variant_a_rate` | number | Conversion rate or mean for variant A (if binary, between 0‑1). |
-| `variant_b_rate` | number | Conversion rate or mean for variant B. |
-| `reported_effect_size` | number | Reported absolute difference (or lift % converted to absolute). |
-| `reported_p` | number \| null | Reported two‑sided p‑value (0 ≤ p ≤ 1) or `null` if only CI given. |
-| `reported_ci_lower` | number \| null | Lower bound of reported confidence interval (optional). |
-| `reported_ci_upper` | number \| null | Upper bound of reported confidence interval (optional). |
-| `timestamp` | string (ISO‑8601) | Date‑time when the summary was published (if available). |
+## Entity: AuditRecord
 
-Schema file: `contracts/extracted_summary.schema.yaml`.
+Represents the result of the consistency check for one A/B summary.
 
-### 2. AuditRecord
-Result of the consistency check for one `ABSummary`.
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `url` | string | YES | Original URL of the A/B test summary. |
+| `reported_p` | float | NO | Reported p-value (may be null for inequality). |
+| `reported_effect_size` | float | YES | Reported effect size. |
+| `reported_sample_size_a` | integer | YES | Reported sample size for variant A. |
+| `reported_sample_size_b` | integer | YES | Reported sample size for variant B. |
+| `reconstructed_p` | float | NO | Reconstructed p-value from statistical test. |
+| `reconstructed_effect_size` | float | NO | Reconstructed effect size from sample data. |
+| `diff_abs_p` | float | NO | Absolute difference between reported and reconstructed p-value. |
+| `diff_abs_effect` | float | NO | Absolute relative difference between reported and reconstructed effect size. |
+| `flag_inconsistent` | boolean | YES | True if any inconsistency condition met. |
+| `inconsistency_reasons` | list[string] | NO | List of reasons (e.g., "p-value diff >0.05", "sample size mismatch"). |
+| `notes` | string | NO | Additional audit notes (e.g., "missing baseline, used average"). |
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `url` | string | Mirrors `ABSummary.url`. |
-| `reported_p` | number \| null | Copied from extraction. |
-| `reported_effect_size` | number | Copied from extraction. |
-| `reported_sample_size_a` | integer | Copied from extraction. |
-| `reported_sample_size_b` | integer | Copied from extraction. |
-| `reconstructed_p` | number | p‑value computed by the pipeline. |
-| `reconstructed_effect_size` | number | Effect size computed from raw counts/means. |
-| `diff_abs_p` | number | `|reported_p - reconstructed_p|`. |
-| `diff_abs_effect` | number | Absolute difference in effect size. |
-| `flag_inconsistent` | boolean | `true` if any FR‑004 condition triggered. |
-| `category` | enum[`inconsistent`, `size_mismatch`, `missing_metric`, `consistent`] | High‑level classification. |
-| `notes` | string | Human‑readable explanation (≤ 200 chars). |
+## Entity: Manifest
 
-Schema file: `contracts/audit_record.schema.yaml`.
+Represents the pipeline execution metadata for reproducibility.
 
-### 3. Manifest
-Tracks hashes of all generated artefacts for reproducibility (Principle V).
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `artifact_path` | string | Relative path to file under `output/`. |
-| `sha256` | string | Hex‑encoded SHA‑256 checksum. |
-| `generated_at` | string (ISO‑8601) | Timestamp of creation. |
-
-Schema file: `contracts/manifest.schema.yaml`.
-
-## Relationships
-- Each `AuditRecord` **must** have a corresponding `ABSummary` (one‑to‑one).  
-- `Manifest` entries are created for `audit_report.json`, `summary_report.csv`, `bias_report.json`, `subgroup_report.json`, and `checksums.txt`.
-
-## Validation Strategy
-- Contract tests (pytest) load each JSON/CSV line and validate against the appropriate schema using `jsonschema`.  
-- Checksums are recomputed and compared to `manifest.json` entries.  
-- Any schema violation aborts the CI job (fulfills **SC‑013**).
-
----
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `run_id` | string | YES | Unique identifier for this pipeline run (UUID). |
+| `start_time` | string | YES | ISO 8601 timestamp of pipeline start. |
+| `end_time` | string | YES | ISO 8601 timestamp of pipeline completion. |
+| `status` | string | YES | "success", "partial", or "failed". |
+| `input_url_count` | integer | YES | Number of URLs processed. |
+| `extraction_success_count` | integer | YES | Number of successful extractions. |
+| `extraction_error_count` | integer | YES | Number of extraction failures. |
+| `inconsistent_count` | integer | YES | Number of inconsistent summaries. |
+| `consistent_count` | integer | YES | Number of consistent summaries. |
+| `output_files` | list[object] | YES | List of output files with checksums. |
+| `resource_usage` | object | YES | CPU time, memory peak, disk usage. |
+| `random_seeds` | object | NO | Random seeds used for reproducibility. |
+| `dependencies` | object | YES | Python package versions (from requirements.txt). |
