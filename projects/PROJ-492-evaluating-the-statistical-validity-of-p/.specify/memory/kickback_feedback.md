@@ -2,13 +2,12 @@
 
 The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-**Why it was kicked back**: 6 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+**Why it was kicked back**: 5 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'requirement'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
 ## Unresolved concerns
 
-- T077 still marked [P] but depends on T076's checksums output. Reviser claimed [P] removed but marker remains. Cannot run in parallel with T076.
-- T047 still marked [P] but depends on T046's resource_monitor module. Reviser claimed [P] removed but marker remains. Cannot run in parallel with T046.
-- T042 still marked [P] but depends on T040's manifest.json creation. Reviser claimed [P] removed but marker remains. Cannot run in parallel with T040.
-- Contract tests still marked [P] despite dependency notes. [P] implies no dependencies; if they run AFTER implementation, [P] is misleading. Consider removing [P] or clarifying they're parallel within their own group only.
-- Contract tests still marked [P] despite dependency notes. Same issue as US1 - [P] tag contradicts explicit 'run AFTER' dependencies.
-- Contract tests still marked [P] despite dependency notes. Same issue as above - [P] tag is inconsistent with stated dependencies.
+- SC-003 specifies Monte Carlo validation threshold ≤ 0.01, while SC-026 specifies ≤ 0.005 for the same validation. FR-026 states ≤ 0.005. These conflicting thresholds create ambiguity about which success criterion applies.
+- FR-002 references 'data-model.md' and 'extracted_summary.schema.yaml' which are external files not included in the spec. Cross-references should either be self-contained or clearly indicate external dependencies.
+- FR-030 cites 'Kohavi et al. (2020)' but the reference section only contains a brief note without full bibliographic details. Constitution Principle II requires verified citations with title-token-overlap ≥ 0.7.
+- SC-003 specifies Monte Carlo validation threshold ≤ 0.01, but FR-026 specifies ≤ 0.005. This creates an untestable contradiction — which threshold governs verification?
+- FR-026 mandates Monte Carlo validation with 10,000 replicates, but SC-003 (the corresponding success criterion) uses a different threshold (0.01 vs 0.005). SC-026 references FR-026 but does not resolve the threshold conflict.

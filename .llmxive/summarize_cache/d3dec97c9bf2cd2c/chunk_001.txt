@@ -1,0 +1,130 @@
+| D004 | Create `audit_record.schema.yaml` contract | FR-024, FR-026 | D002 |
+| D005 | Create `manifest.schema.yaml` contract | FR-024, T077 | D002 |
+| D006 | Create `synthetic_validation.schema.yaml` contract | FR-030, FR-031 | D001 |
+| D007 | Design Quickstart documentation structure | FR-028, SC-028 | None |
+
+**FR/SC Coverage**: FR-002, FR-024, FR-026, FR-028, FR-030, FR-031, SC-001, SC-024, SC-028
+
+### Phase 2: Core Pipeline Implementation (Weeks 3-4)
+
+| Task ID | Description | Anchored Requirements | Dependencies |
+|---------|-------------|----------------------|--------------|
+| I001 | Implement URL list input handler (FR-001) | FR-001 | None |
+| I002 | Implement extraction service (sample size, effect size, p-value) | FR-002, FR-007, SC-001 | I001, D003 |
+| I003 | Implement statistical reconstruction (z-test, Welch's t-test) | FR-003, FR-026 | I002, D003 |
+| I004 | Implement inconsistency detection (FR-004, FR-004b) | FR-004, FR-004b | I003, D004 |
+| I005 | Implement baseline handling (FR-012) | FR-012 | I003 |
+| I006 | Implement domain bias assessment and adjustment (FR-027) | FR-027, SC-027 | I004 |
+| I007 | Implement binomial prevalence test (FR-005a) | FR-005a, FR-014, SC-014 | I004 |
+| I008 | Implement sensitivity analysis (FR-005b) | FR-005b, SC-015 | I007 |
+| I009 | Implement subgroup analysis with Fisher's exact test (FR-032) | FR-032, SC-032 | I004 |
+| I010 | Implement synthetic dataset generation (FR-030) | FR-030 | None |
+| I011 | Implement performance evaluation on synthetic data (FR-031) | FR-031, SC-030 | I010, I004 |
+| I012 | Implement Monte Carlo validation (FR-026) | FR-026, SC-003, SC-026 | I003 |
+| I013 | Implement JSON/CSV export (FR-024) | FR-024, SC-024 | I004, I007 |
+| I014 | Implement resource monitoring (FR-009) | FR-009, SC-008 | None |
+| I015 | Implement manifest generation (T040) | T040 | I013, I014 |
+| I016 | Implement checksum generation (T076) | T076 | I015 |
+| I017 | Implement checksum recording in manifest (T077) | T077 | I016 |
+
+**FR/SC Coverage**: FR-001, FR-002, FR-003, FR-004, FR-004b, FR-005a, FR-005b, FR-007, FR-009, FR-012, FR-024, FR-026, FR-027, FR-030, FR-031, FR-032, SC-001, SC-003, SC-005, SC-008, SC-014, SC-015, SC-024, SC-026, SC-027, SC-030, SC-032
+
+### Phase 3: Testing & Validation (Week 5)
+
+| Task ID | Description | Anchored Requirements | Dependencies |
+|---------|-------------|----------------------|--------------|
+| T001 | Implement contract tests against all schemas | FR-026, SC-026 | D003, D004, D005, D006 |
+| T002 | Implement unit tests for all services | FR-002, FR-003, FR-004 | I002-I009 |
+| T003 | Implement integration tests for full pipeline | FR-024, SC-024 | I013, I014 |
+| T004 | Implement validation set test (SC-001) | SC-001, SC-014 | D001, I002 |
+| T005 | CI workflow setup (FR-009, SC-008) | FR-009, SC-008, SC-013 | I014, T003 |
+
+**FR/SC Coverage**: FR-002, FR-003, FR-004, FR-009, FR-024, FR-026, SC-001, SC-008, SC-013, SC-014, SC-024, SC-026
+
+### Phase 4: Documentation & Quickstart (Week 6)
+
+| Task ID | Description | Anchored Requirements | Dependencies |
+|---------|-------------|----------------------|--------------|
+| DOC001 | Write Quickstart guide (README_QUICKSTART.md) | FR-028, SC-028 | T005 |
+| DOC002 | Document all error codes (FR-007) | FR-007 | I002 |
+| DOC003 | Document statistical methodology | FR-003, FR-026 | I003, I012 |
+| DOC004 | Document data provenance tracking | FR-027, SC-027 | I006 |
+
+**FR/SC Coverage**: FR-007, FR-028, SC-027, SC-028
+
+## Task Parallelism Clarification
+
+The following tasks have explicit dependencies that prevent parallel execution:
+
+| Task | Depends On | Reason | Parallel Group |
+|------|------------|--------|----------------|
+| **I017** (checksum recording in manifest) | **I016** (checksum generation) | I017 requires checksum values from I016 | Sequential |
+| **I016** (checksum generation) | **I015** (manifest generation) | I016 requires manifest file from I015 | Sequential |
+| **I015** (manifest generation) | **I013, I014** (export, monitoring) | I015 requires output files from I013 and resource data from I014 | Sequential |
+| **T001** (contract tests) | **D003-D006** (schema creation) | Tests validate against schemas that must exist first | Group C (parallel within testing phase only) |
+| **I012** (Monte Carlo validation) | **I003** (statistical reconstruction) | Validation tests the reconstruction functions | Group B (parallel with other Phase 2 tasks) |
+
+**Parallel Groups** (tasks within each group can run concurrently):
+- **Group A**: R001, R003, R004, R005 (research tasks with no dependencies)
+- **Group B**: I001, I010, I014 (input handler, synthetic generation, resource monitoring)
+- **Group C**: T002, T003, T004, T005 (testing tasks with implementation complete)
+
+**Note**: Tasks marked Sequential cannot run in parallel with their dependencies. Group C tasks run in parallel ONLY after all Phase 2 dependencies complete. T001 is NOT marked [P] as it depends on D003-D006; it runs in parallel with T002-T005 only after Phase 2 schemas are complete.
+
+## FR/SC Coverage Matrix
+
+| Requirement | Phase | Task ID | Notes |
+|-------------|-------|---------|-------|
+| FR-001 | 0, 2 | R001, I001 | URL input handling |
+| FR-002 | 1, 2 | D001, I002 | ABSummary entity, extraction |
+| FR-003 | 0, 2 | R004, I003 | Statistical reconstruction |
+| FR-004 | 2 | I004 | Inconsistency detection |
+| FR-004b | 2 | I004 | Sample size discrepancy |
+| FR-005a | 2 | I007 | Binomial prevalence test |
+| FR-005b | 2 | I008 | Sensitivity analysis |
+| FR-007 | 2, 4 | I002, DOC002 | Error logging |
+| FR-009 | 2, 3 | I014, T005 | CI compatibility |
+| FR-012 | 2 | I005 | Baseline handling |
+| FR-024 | 2, 3 | I013, T003 | Export JSON/CSV |
+| FR-025 | 0 | R005 | Power analysis |
+| FR-026 | 0, 2, 3 | R004, I012, T001 | Monte Carlo validation (separate from schema tests) |
+| FR-027 | 2 | I006 | Bias assessment |
+| FR-028 | 1, 4 | D007, DOC001 | Quickstart guide |
+| FR-030 | 0, 2 | R003, I010 | Synthetic dataset |
+| FR-031 | 2 | I011 | Performance evaluation |
+| FR-032 | 2 | I009 | Subgroup analysis |
+| SC-001 | 0, 3 | R001, T004 | Extraction accuracy |
+| SC-003 | 2, 3 | I012, T001 | Monte Carlo difference ≤0.01 |
+| SC-005 | 0, 2 | R002, I002 | Parsing error rate ≤5% |
+| SC-008 | 2, 3 | I014, T005 | CI resource limits |
+| SC-013 | 3 | T005 | Manifest generation |
+| SC-014 | 2 | I007 | Binomial test output |
+| SC-015 | 2 | I008 | Sensitivity variation <0.02 |
+| SC-024 | 2, 3 | I013, T003 | JSON/CSV consistency |
+| SC-025 | 0 | R005 | N≥300 summaries |
+| SC-026 | 2, 3 | I012, T001 | Monte Carlo validation pass |
+| SC-027 | 2 | I006 | Domain dominance <30% |
+| SC-028 | 4 | DOC001 | Quickstart verification |
+| SC-030 | 2 | I011 | Precision≥90%, Recall≥80% |
+| SC-032 | 2 | I009 | Subgroup Fisher test |
+
+## FR/SC Gap Analysis
+
+**All FR and SC requirements have corresponding plan phases/tasks.** No gaps identified.
+
+## Compute Feasibility Assessment
+
+| Constraint | Plan Compliance |
+|------------|-----------------|
+| **No GPU** | ✅ All statistical tests (z-test, Welch's t-test, Fisher's exact, binomial) use scipy/numpy CPU implementations |
+| **≤2 vCPUs** | ✅ Pipeline is single-threaded; Monte Carlo (multiple replicates) uses vectorized numpy operations |
+| **≤2 GB RAM** | ✅ Data subset to a representative sample of summaries for CI; synthetic dataset (a substantial number of samples) generated in batches |
+| **≤6 hours** | ✅ Extraction [deferred] for 300 URLs; reconstruction [deferred]; Monte Carlo [deferred]; total <2 hours |
+| **No CUDA/quantization** | ✅ No deep learning or LLM inference; only statistical libraries |
+| **CPU-tractable methods** | ✅ All methods are CPU-optimized; scipy.stats for all tests |
+
+## Risk Mitigation
+
+| Risk | Mitigation |
+|------|------------|
+| **Dataset reachability** | R002 validates all URLs; dead URLs logged as parsing failures (FR-007, SC-005) |

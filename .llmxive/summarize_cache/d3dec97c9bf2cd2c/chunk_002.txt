@@ -1,0 +1,7 @@
+| **Parsing accuracy <95%** | T004 validates against manually annotated set; extraction tuned until SC-001 met |
+| **Monte Carlo validation fails** | I012 iterates until SC-026 met; scipy versions pinned in requirements.txt |
+| **Domain dominance >30%** | I006 subsamples or flags; SC-027 enforced in CI |
+| **CI timeout** | I014 monitors resources; pipeline exits early if approaching 6h limit |
+| **Statistical test mismatch** | FR-026 requires Monte Carlo validation; SC-003 enforced |
+| **Multiple testing inflation** | All hypothesis tests use Holm-Bonferroni correction (research.md) |
+| **Circular validation** | Synthetic dataset includes noise injection (±5% effect, ±0.01 p-value) |

@@ -1,34 +1,34 @@
-resolved_at: '2026-06-25T12:46:41.219761+00:00'
+resolved_at: '2026-06-25T15:50:50.582133+00:00'
 datasets:
 - intent: FR-030
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/preprint/OCM_Fixed-Modulus_Block_Drift_and_Finite_Bad_Sets_in_the_Odd_Collatz_Map/31562605
+  - url: https://publications.cispa.de/articles/preprint/Membership_Inference_Attack_Against_Masked_Image_Modeling/32791611
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Expected_lifespan_and_healthspan_among_rural_and_urban_individuals_in_Java_Indonesia/32789436
+  - url: https://publications.cispa.de/articles/conference_contribution/Learning_Formal_Models_of_Parametrized_Systems/32791605
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Recognition_acuity_follows_Bloch_s_Law_for_short-duration_flashes_-_Dataset/32790444
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Roman_military_dagger_pugio_material_from_Chester_legionary_base_Deva_UK/32566743
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Swift_elearning_services/32790534
+  - url: https://figshare.com/articles/dataset/Uniting_Bounded_Verification_and_Transformer_Based_Learning_for_Proactive_IoT_Security/30574706
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/A_spatial_analysis_of_secondary_movements_and_desertification_in_EU_asylum_governance/32790557
+  - url: https://figshare.com/articles/dataset/Data_and_codes_from_Evolutionary_drivers_of_vocal_amplitude_in_birds/31050076
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10297880
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10598561
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10297880
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -36,7 +36,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10235525
+  - url: https://zenodo.org/records/10332095
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -57,15 +57,16 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
+  - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
-  - url: https://zenodo.org/records/20453648
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20453648
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
 - intent: MUST
   status: verified
   candidates:
@@ -92,23 +93,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Transformative_sustainable_food_literacy_education_to_meet_current_and_future_needs_a_systematic_quantitative_literature_review_pdf/32790573
+  - url: https://figshare.com/articles/conference_contribution/Carcinoma_mam_rio_em_cadela_idosa_Relato_de_caso/32791617
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Local_scour_at_permeable_spur_dikes_with_different_void_size_and_position_pdf/32790567
+  - url: https://publications.cispa.de/articles/preprint/Membership_Inference_Attack_Against_Masked_Image_Modeling/32791611
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/New_100_pc_white_dwarf_luminosity_functions_from_the_Gaia_Synthetic_Photometry_Catalogue_-_White_Dwarfs/32790564
+  - url: https://publications.cispa.de/articles/conference_contribution/Learning_Formal_Models_of_Parametrized_Systems/32791605
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/OCM_Fixed-Modulus_Block_Drift_and_Finite_Bad_Sets_in_the_Odd_Collatz_Map/31562605
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Roman_military_dagger_pugio_material_from_Chester_legionary_base_Deva_UK/32566743
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Expected_lifespan_and_healthspan_among_rural_and_urban_individuals_in_Java_Indonesia/32789436
+  - url: https://figshare.com/articles/dataset/Uniting_Bounded_Verification_and_Transformer_Based_Learning_for_Proactive_IoT_Security/30574706
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -120,23 +121,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19980220
+  - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20846347
+  - url: https://zenodo.org/records/18961168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rucore.libraries.rutgers.edu/rutgers-lib/76070/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20846347
+  - url: https://zenodo.org/records/20849189
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20849189
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aisberg.unibg.it//handle/10446/32185
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -144,35 +153,27 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aisberg.unibg.it//handle/10446/30377
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/216688
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: FR-031
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Transformative_sustainable_food_literacy_education_to_meet_current_and_future_needs_a_systematic_quantitative_literature_review_pdf/32790573
+  - url: https://drs.britishmuseum.org/articles/dataset/2023SG06_Project_Metadata/32791554
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Local_scour_at_permeable_spur_dikes_with_different_void_size_and_position_pdf/32790567
+  - url: https://drs.britishmuseum.org/articles/dataset/2023SG06_Guide_to_the_Dataset/32791590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/New_100_pc_white_dwarf_luminosity_functions_from_the_Gaia_Synthetic_Photometry_Catalogue_-_White_Dwarfs/32790564
+  - url: https://figshare.com/articles/conference_contribution/Carcinoma_mam_rio_em_cadela_idosa_Relato_de_caso/32791617
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/OCM_Fixed-Modulus_Block_Drift_and_Finite_Bad_Sets_in_the_Odd_Collatz_Map/31562605
+  - url: https://publications.cispa.de/articles/preprint/Membership_Inference_Attack_Against_Masked_Image_Modeling/32791611
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Expected_lifespan_and_healthspan_among_rural_and_urban_individuals_in_Java_Indonesia/32789436
+  - url: https://publications.cispa.de/articles/conference_contribution/Learning_Formal_Models_of_Parametrized_Systems/32791605
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -184,11 +185,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10217711
+  - url: https://zenodo.org/records/10217153
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10344963
+  - url: https://zenodo.org/records/10217711
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -222,23 +223,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/Electronic_Nature_of_Open-Shell_Germylene_Complexes_of_M_sup_I_sup_Cations_M_Fe_Co_Ni_/32790578
+  - url: https://drs.britishmuseum.org/articles/dataset/2023SG06_Project_Metadata/32791554
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Electronic_Nature_of_Open-Shell_Germylene_Complexes_of_M_sup_I_sup_Cations_M_Fe_Co_Ni_/32790575
+  - url: https://drs.britishmuseum.org/articles/dataset/2023SG06_Guide_to_the_Dataset/32791590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Transformative_sustainable_food_literacy_education_to_meet_current_and_future_needs_a_systematic_quantitative_literature_review_pdf/32790573
+  - url: https://figshare.com/articles/conference_contribution/Carcinoma_mam_rio_em_cadela_idosa_Relato_de_caso/32791617
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Local_scour_at_permeable_spur_dikes_with_different_void_size_and_position_pdf/32790567
+  - url: https://publications.cispa.de/articles/preprint/Membership_Inference_Attack_Against_Masked_Image_Modeling/32791611
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/New_100_pc_white_dwarf_luminosity_functions_from_the_Gaia_Synthetic_Photometry_Catalogue_-_White_Dwarfs/32790564
+  - url: https://publications.cispa.de/articles/conference_contribution/Learning_Formal_Models_of_Parametrized_Systems/32791605
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -250,11 +251,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10235525
+  - url: https://zenodo.org/records/10332095
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10316233
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10235525
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20653280
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20653280
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20653276
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20653276
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

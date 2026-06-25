@@ -1,154 +1,163 @@
-# Quickstart: Evaluating the Statistical Validity of Public A/B Test Summaries
+# Quickstart: 001-eval-ab-test-validity
 
-**Goal**: Run the audit pipeline on a sample corpus of 30 URLs within 30 minutes on the default GitHub Actions runner (Ubuntu-latest, Python 3.11+).
+## Overview
+
+This guide enables a new user to execute the A/B test audit pipeline on a sample corpus of 30 URLs within 30 minutes on the default GitHub Actions runner (FR-028, SC-028).
 
 ## Prerequisites
 
-- Python 3.11+ installed
-- Git installed
-- Access to a GitHub repository (for CI) or local execution
-- Sample corpus of 30 public A/B test summary URLs (one per line)
+- Python 3.11+ installed locally (or use GitHub Actions runner)
+- Git repository cloned to local machine
+- Input file `input/urls.csv` with at least 30 URLs
 
-## Step 1: Clone the Repository
+## Step 1: Prepare Input URLs
 
-```bash
-git clone https://github.com/your-org/ab-test-audit.git
-cd ab-test-audit
-```
-
-## Step 2: Create Input File
-
-Create a file `input/urls.csv` with a header `url` and 30 URLs (one per line):
+Create a file `input/urls.csv` with a header `url` and one URL per line:
 
 ```csv
 url
-https://example.com/ab-test-summary-1
-https://example.com/ab-test-summary-2
+https://example-engineering-blog.com/ab-test-1
+https://another-company.com/experiment-results
 ...
 ```
 
-**Tip**: For testing, use known public A/B test summaries from engineering blogs (e.g., Optimizely, Airbnb, Netflix) or create synthetic summaries with known ground-truth values.
+**Minimum**: 30 URLs for quickstart; ≥300 URLs for full audit (FR-025).
 
-## Step 3: Install Dependencies
+## Step 2: Install Dependencies
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+cd projects/PROJ-492-evaluating-the-statistical-validity-of-p
 pip install -r requirements.txt
 ```
 
-**requirements.txt** (pinned versions for reproducibility):
-```
-scipy>=1.11.0
-pandas>=2.0.0
-beautifulsoup4>=4.12.0
-requests>=2.31.0
-pyyaml>=6.0.0
-pytest>=7.4.0
-statsmodels>=0.14.0
+**requirements.txt** (CPU-only, GitHub Actions compatible):
+
+```txt
+requests==2.31.0
+beautifulsoup4==4.12.2
+pandas==2.1.0
+scipy==1.11.3
+statsmodels==0.14.0
+pyyaml==6.0.1
+pytest==7.4.2
 ```
 
-## Step 4: Run the Audit Pipeline
+## Step 3: Run the Audit Pipeline
 
 ```bash
-python code/cli/main.py --input input/urls.csv --output output/
+python -m code.cli.main --input input/urls.csv --output output/
 ```
 
-**Expected runtime**: 15–30 minutes for 30 URLs (includes HTML fetch, extraction, statistical reconstruction, inconsistency detection, and report generation).
+**What happens**:
 
-**Output files**:
-- `output/audit_report.json` - Per-summary audit results
-- `output/summary_report.csv` - Aggregate inconsistency rates
-- `output/bias_report.json` - Domain proportions and bias-adjusted rate
-- `output/subgroup_report.json` - Subgroup prevalence and Fisher's exact test results
-- `output/manifest.json` - Pipeline execution metadata
+1. **Extraction**: Fetch each URL, extract sample sizes, effect sizes, p-values (FR-001, FR-002)
+2. **Reconstruction**: Compute expected p-values using two-proportion z-test or Welch's t-test (FR-003)
+3. **Inconsistency Detection**: Flag entries where reported vs. reconstructed metrics differ >threshold (FR-004)
+4. **Domain Bias Assessment**: Compute domain proportions and bias-adjusted rate (FR-027)
+5. **Subgroup Analysis**: Per-domain/year prevalence with Fisher's exact test (FR-032)
+6. **Export**: Generate `audit_report.json` and `summary_report.csv` (FR-024)
 
-## Step 5: Verify Results
+**Expected Runtime**: ~15-30 minutes for 30 URLs (depends on network latency)
 
-### Check Audit Report
+## Step 4: Verify Outputs
+
+Check that output files exist:
 
 ```bash
-python -c "import json; data = json.load(open('output/audit_report.json')); print(f\"Processed: {len(data)} summaries\"); print(f\"Inconsistent: {sum(1 for r in data if r['flag_inconsistent'])}\")"
+ls -la output/
+# Expected files:
+# - audit_report.json
+# - summary_report.csv
+# - bias_report.json
+# - subgroup_report.json
+# - manifest.json
+# - checksums.txt
 ```
 
-### Check Summary Report
+**Inspect Results**:
 
 ```bash
 cat output/summary_report.csv
+# Columns: total_summaries, inconsistent_count, inconsistent_rate, bias_adjusted_rate, wilson_ci_lower, wilson_ci_upper
 ```
-
-Expected columns: `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`.
-
-### Check Manifest
 
 ```bash
-python -c "import json; data = json.load(open('output/manifest.json')); print(f\"Status: {data['status']}\"); print(f\"Duration: {data['end_time']} - {data['start_time']}\")"
+cat output/audit_report.json | python -m json.tool | head -50
+# Per-summary flags and computed metrics
 ```
 
-## Step 6: Run Contract Tests
+## Step 5: Run Tests (Optional)
 
 ```bash
-pytest tests/contract/ -v
+pytest tests/ -v
 ```
 
-Expected: All contract tests pass (schema validation for `extracted_summary`, `audit_record`, `manifest`).
+**Contract Tests**: Validates schemas for `extracted_summary`, `audit_record`, `manifest` (FR-026).
 
-## Step 7: Run Unit Tests
+**Monte Carlo Validation**: Verifies statistical test implementations with [deferred] replicates (FR-026, SC-003, SC-026).
+
+## Step 6: Run on GitHub Actions
+
+Create `.github/workflows/audit.yml`:
+
+```yaml
+name: A/B Test Audit
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run audit
+        run: python -m code.cli.main --input input/urls.csv --output output/
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: output/
+```
+
+**Expected Runtime**: ≤6 hours (SC-008, FR-009)
+
+## Step 7: Validate Precision/Recall (FR-031, SC-030)
 
 ```bash
-pytest tests/unit/ -v
+# Generate synthetic dataset (sufficient records)
+python -m code.services.synthetic --output data/synthetic/synthetic_audits.csv --n 10000
+
+# Evaluate inconsistency detection
+python -m code.services.validator --input data/synthetic/synthetic_audits.csv --output output/validation_results.json
+
+# Expected: precision ≥90%, recall ≥80%, F1 ≥0.85
 ```
-
-Expected: All statistical test implementations validated (Monte Carlo difference ≤0.01).
-
-## Step 8: Run Integration Tests
-
-```bash
-pytest tests/integration/ -v
-```
-
-Expected: Full pipeline executes successfully on sample corpus.
-
-## Expected Runtime & Resource Usage
-
-| Metric | Expected Value | Limit |
-|--------|----------------|-------|
-| Runtime (30 URLs) | 15–30 minutes | ≤6 hours |
-| Memory peak | ≤500 MB | ≤2 GB |
-| CPU usage | ≤1 vCPU | ≤2 vCPUs |
-| Disk output | <10 MB | ≤14 GB |
 
 ## Troubleshooting
 
-### HTML Extraction Fails
+| Issue | Solution |
+|-------|----------|
+| URL timeout | Increase timeout in extractor.py (default: 30s) |
+| Parsing error | Check HTML structure; update extraction rules |
+| Memory error | Reduce batch size; stream data instead of loading all at once |
+| Monte Carlo validation fails | Check scipy version; ensure [deferred] replicates (FR-026) |
+| Domain exceeds [deferred] | Subsample that domain; verify bias-adjusted rate (FR-027) |
 
-**Symptom**: `extraction_status` = "failed" in audit report.
+## Expected Output Files
 
-**Solution**: Check `output/error_log.json` for error codes (ERR-###). Common causes:
-- URL unreachable (ERR-001): Verify URL is public and accessible.
-- HTML parsing error (ERR-002): Check if page structure changed; update extraction regex.
-- Missing field (ERR-003): Summary may not contain required metrics; entry flagged as "missing metric".
-
-### Statistical Test Fails
-
-**Symptom**: `reconstructed_p` = null in audit record.
-
-**Solution**: Check `notes` field for explanation. Common causes:
-- Insufficient sample size for z-test: Use Fisher's exact test fallback (cell count ≤5).
-- Continuous outcome without standard deviation: Cannot reconstruct t-test; entry flagged as "missing metric".
-
-### CI Job Exceeds Time Limit
-
-**Symptom**: GitHub Actions job times out after 6 hours.
-
-**Solution**:
-- Reduce corpus size (e.g., 30 URLs for CI, 300+ for production).
-- Implement caching for repeated URL fetches.
-- Increase timeout in workflow file (if allowed).
-
-## Next Steps
-
-1. **Scale to Production Corpus**: Increase `input/urls.csv` to 300+ URLs for statistically significant prevalence estimate (FR-025).
-2. **Customize Extraction**: Modify `code/extraction/html_parser.py` to support additional source domains.
-3. **Extend Analysis**: Add subgroup dimensions (e.g., industry, company size) to `code/analysis/subgroup_analyzer.py`.
-4. **Deploy as Service**: Wrap CLI in FastAPI for programmatic access (future enhancement).
+| File | Description |
+|------|-------------|
+| `output/audit_report.json` | Per-summary audit results (FR-024) |
+| `output/summary_report.csv` | Aggregate prevalence statistics (FR-024) |
+| `output/bias_report.json` | Domain proportions and bias-adjusted rate (FR-027) |
+| `output/subgroup_report.json` | Per-domain/year prevalence with Fisher's test (FR-032) |
+| `output/manifest.json` | Run metadata, checksums (SC-013) |
+| `output/checksums.txt` | SHA256 checksums for all output files (T076) |

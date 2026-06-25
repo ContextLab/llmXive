@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Validation Schema"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique sample identifier"
+  outcome_type:
+    type: "string"
+    enum: ["binary", "continuous"]
+    description: "Type of outcome measured"
+  variant_a_n:
+    type: "integer"
+    minimum: 1
+    description: "Sample size for variant A"
+  variant_b_n:
+    type: "integer"
+    minimum: 1
+    description: "Sample size for variant B"
+  variant_a_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Conversion rate for variant A"
+  variant_b_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Conversion rate for variant B"
+  true_effect_size:
+    type: "number"
+    description: "True effect size (absolute difference)"
+  true_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "True p-value from statistical test"
+  reported_effect_size:
+    type: "number"
+    description: "Reported effect size (may include noise)"
+  reported_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Reported p-value (may include noise)"
+  is_inconsistent:
+    type: "boolean"
+    description: "Ground truth inconsistency flag"
+required:
+  - sample_id
+  - outcome_type
+  - variant_a_n
+  - variant_b_n
+  - variant_a_rate
+  - variant_b_rate
+  - true_effect_size
+  - true_p_value
+  - reported_effect_size
+  - reported_p_value
+  - is_inconsistent
+additionalProperties: false

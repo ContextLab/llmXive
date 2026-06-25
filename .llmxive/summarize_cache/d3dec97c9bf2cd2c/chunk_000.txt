@@ -1,0 +1,138 @@
+# Implementation Plan: Evaluating the Statistical Validity of Public A/B Test Summaries
+
+**Branch**: `001-eval-ab-test-validity` | **Date**: 2026-06-24 | **Spec**: `specs/001-evaluating-the-statistical-validity-of-p/spec.md`
+**Input**: Feature specification from `specs/001-evaluating-the-statistical-validity-of-p/spec.md`
+
+## Summary
+
+This feature implements an automated audit pipeline that extracts statistical metrics (sample sizes, effect sizes, p-values) from publicly available A/B test summaries, reconstructs the underlying statistical tests, and flags inconsistencies when reported values deviate from reconstructed values beyond specified thresholds. The pipeline produces JSON audit reports and CSV summary statistics, validates statistical implementations via Monte Carlo simulation, and ensures CI compatibility with GitHub Actions free-tier resources.
+
+## Technical Context
+
+**Language/Version**: Python 3.11+
+**Primary Dependencies**: `requests`, `beautifulsoup4`, `scipy`, `numpy`, `pandas`, `pyyaml`, `pytest`
+**Storage**: Local filesystem (`data/`, `output/`)
+**Testing**: `pytest` with contract tests, unit tests, integration tests
+**Target Platform**: Ubuntu-latest GitHub Actions runner (CPU-only)
+**Project Type**: CLI/data-pipeline
+**Performance Goals**: ≤6 hours runtime, ≤2 GB RAM, ≤2 vCPUs
+**Constraints**: No GPU, no external API calls beyond verified URLs, deterministic execution with pinned random seeds
+**Scale/Scope**: Sufficient summaries for power analysis, [deferred]+ synthetic validation samples
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Constitution Principle | Compliance Status | Implementation Notes |
+|------------------------|-------------------|----------------------|
+| **I. Reproducibility (NON-NEGOTIABLE)** | ✅ PASS | Random seeds pinned in `code/`; all external datasets fetched from canonical sources; `requirements.txt` at `projects/PROJ-492/code/` |
+| **II. Verified Accuracy** | ✅ PASS | All citations validated against primary sources before contributing review points; title-token-overlap ≥0.7 enforced |
+| **III. Data Hygiene** | ✅ PASS | All `data/` files checksummed; transformations produce new files; PII scan enforced |
+| **IV. Single Source of Truth** | ✅ PASS | All figures/statistics trace to exactly one row in `data/` and one block in `code/`; no hand-typed numbers |
+| **V. Versioning Discipline** | ✅ PASS | All artifacts carry content hash; `state/` timestamps updated on artifact changes |
+| **VI. Statistical Consistency Verification (NON-NEGOTIABLE)** | ✅ PASS | All p-values/effect sizes cross-checked against reconstructed values; discrepancies >0.05 flagged and documented |
+| **VII. Source Provenance & Transparency (NON-NEGOTIABLE)** | ✅ PASS | URL, repository identifier retained as provenance metadata in `data/` |
+
+## Spec-to-Plan Task ID Mapping
+
+This table clarifies the relationship between spec task IDs and plan task IDs to resolve traceability ambiguity.
+
+| Spec Task ID | Plan Task ID | Function | Notes |
+|--------------|--------------|----------|-------|
+| T040 | I015 | Manifest generation | Generates run metadata and checksums |
+| T046 | I014 | Resource monitoring | CPU/memory logging |
+| T047 | I014 | Resource monitoring (continued) | Same module as T046 |
+| T076 | I016 | Checksum generation | Generates file checksums |
+| T077 | I017 | Checksum recording in manifest | Records checksums in manifest.json |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-eval-ab-test-validity/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── extracted_summary.schema.yaml
+│   ├── audit_record.schema.yaml
+│   ├── manifest.schema.yaml
+│   └── synthetic_validation.schema.yaml
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-492-evaluating-the-statistical-validity-of-p/
+├── code/
+│   ├── __init__.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── ab_summary.py          # ABSummary entity (FR-002)
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── extraction.py          # URL parsing, metric extraction (FR-001, FR-002)
+│   │   ├── reconstruction.py      # Statistical test reconstruction (FR-003)
+│   │   ├── inconsistency.py       # Inconsistency detection (FR-004, FR-004b)
+│   │   ├── prevalence.py          # Binomial test, Wilson CI (FR-005a, FR-005b)
+│   │   ├── bias.py                # Domain weighting, bias adjustment (FR-027)
+│   │   ├── subgroup.py            # Fisher's exact test per subgroup (FR-032)
+│   │   ├── validation.py          # Monte Carlo validation (FR-026)
+│   │   └── synthetic.py           # Synthetic dataset generation (FR-030)
+│   ├── cli/
+│   │   ├── __init__.py
+│   │   └── run_audit.py           # Main entry point (FR-028)
+│   └── lib/
+│       ├── resource_monitor.py    # CPU/memory logging (FR-009, T046)
+│       └── manifest.py            # Manifest generation (FR-024, T040)
+├── data/
+│   ├── raw/                       # Raw URLs list
+│   ├── extracted/                 # Extracted summaries
+│   ├── synthetic/                 # Synthetic validation dataset (FR-030)
+│   └── validation/                # Manually annotated validation set (SC-001)
+├── output/
+│   ├── audit_report.json          # Per-summary audit results (FR-024)
+│   ├── summary_report.csv         # Aggregate statistics (FR-024)
+│   ├── bias_report.json           # Domain proportions, adjusted rate (FR-027)
+│   ├── subgroup_report.json       # Subgroup prevalence, Fisher p-values (FR-032)
+│   ├── manifest.json              # Run metadata, checksums (T040, T077)
+│   └── checksums.txt              # File checksums (T076)
+├── tests/
+│   ├── contract/                  # Schema validation tests (FR-026)
+│   ├── unit/                      # Unit tests for services
+│   ├── integration/               # Pipeline integration tests
+│   └── contract_tests.py          # Monte Carlo validation (FR-026)
+├── docs/
+│   └── README_QUICKSTART.md       # Quickstart documentation (FR-028)
+├── requirements.txt               # Pinned dependencies (Constitution I)
+└── .github/
+    └── workflows/
+        └── audit.yml              # CI workflow (FR-009, SC-008)
+```
+
+**Structure Decision**: Single-project structure selected. All code under `code/` with clear separation of concerns (models, services, CLI, lib). This supports reproducibility (Constitution I) and allows straightforward dependency management via `requirements.txt`.
+
+## Implementation Phases
+
+### Phase 0: Research & Dataset Strategy (Week 1)
+
+| Task ID | Description | Anchored Requirements | Dependencies |
+|---------|-------------|----------------------|--------------|
+| R001 | Identify and catalog public A/B test summary sources (company blogs, GitHub archives, OpenML) | FR-001, FR-027, SC-025 | None |
+| R002 | Validate dataset reachability and format for each source | FR-007, SC-005 | R001 |
+| R003 | Design synthetic dataset generation strategy (FR-030) | FR-030, FR-031, SC-030 | None |
+| R004 | Document statistical reconstruction methodology (z-test, Welch's t-test, Fisher's exact) | FR-003, FR-026 | None |
+| R005 | Define power analysis parameters (N≥300, power≥0.80, α=0.05) | FR-025, SC-025 | None |
+
+**FR/SC Coverage**: FR-001, FR-003, FR-007, FR-025, FR-026, FR-027, FR-030, FR-031, SC-005, SC-025, SC-030
+
+### Phase 1: Data Model & Contract Design (Week 2)
+
+| Task ID | Description | Anchored Requirements | Dependencies |
+|---------|-------------|----------------------|--------------|
+| D001 | Define `ABSummary` entity with all required fields | FR-002, SC-001 | R001, R002 |
+| D002 | Define `AuditRecord` entity with all required fields | FR-024, SC-024 | D001 |
+| D003 | Create `extracted_summary.schema.yaml` contract | FR-002, FR-026 | D001 |

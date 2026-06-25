@@ -1,0 +1,69 @@
+- **SC-032**: For each subgroup (domain or year) with ≥ 10 summaries, the generated report must include the subgroup inconsistency prevalence, Fisher’s exact test p‑value, and indicate whether the subgroup prevalence is statistically different from the overall rate (α = 0.05). (See US‑2)
+
+## Assumptions
+
+- Public A/B test summaries provide **sample size**, **effect size**, and either **p‑value** or **confidence interval** for each variant.
+- Effect sizes are reported as **absolute difference in conversion rates**, **percentage lift**, or **mean difference for continuous metrics**; the reconstruction routine will convert lift to absolute difference using the baseline conversion rate (or average of variants when baseline is absent) as defined in **FR‑012**.
+- Reported p‑values are two‑sided unless explicitly indicated otherwise.
+- The corpus of summaries is sufficiently diverse to approximate industry‑wide reporting practices; no explicit minimum corpus size is mandated beyond the data actually collected for the audit.
+- Findings are framed as **associational** (i.e., “reported metrics are inconsistent with statistical theory”) because the audit does not involve random assignment.
+- Multiple hypothesis testing is limited to the explicit binomial test in **FR‑005a**; no additional corrections are applied.
+- When a reported p‑value is given as an inequality (e.g., “p < 0.001”), the pipeline treats the bound value as an upper limit; the summary is flagged inconsistent only if the reconstructed p‑value exceeds this bound (see **FR‑004**).
+- If only a total sample size `N` is present and per‑variant counts are absent, the pipeline **does not impute** equal allocation. Instead, the entry is flagged as “missing metric” and recorded in the audit notes.
+- All computation is performed on CPU‑only resources; no GPU‑specific libraries or large‑model inference are required, satisfying the GitHub Actions free‑tier constraints.
+- Validation‑set ground‑truth p‑values are computed using analytical formulas (or an independent library such as **statsmodels**) to ensure independence from the pipeline implementation.
+
+## Quickstart Guide
+
+1. **Prepare input URLs**
+ Create a file `input/urls.csv` with a header `url` and a sufficiently large collection of reachable URLs (one per line) pointing to public A/B test summaries. Example:
+
+ ```csv
+ url
+ …
+ ```
+
+2. **Clone the repository and build the Docker image** (optional; the pipeline can also run locally with Python 3.11+)
+
+ ```bash
+ git clone
+ cd ab-test-audit
+ docker build -t ab-audit:latest.
+ ```
+
+3. **Run the audit pipeline**
+
+ ```bash
+ docker run --rm \
+ -v $(pwd)/input:/app/input \
+ -v $(pwd)/output:/app/output \
+ ab-audit:latest./run_audit.sh input/urls.csv output/
+ ```
+
+ The script will perform:
+ - Deduplication (if any duplicates exist, they are collapsed)
+ - Extraction
+ - Inconsistency detection (FR‑004, FR‑004b)
+ - Binomial prevalence test (FR‑005a) **with a priori power‑size guarantee (FR‑025)**
+ - Monte‑Carlo validation of statistical implementations (FR‑026)
+ - Bias assessment and bias‑adjusted prevalence (FR‑027)
+ - Subgroup prevalence analysis with Fisher’s exact test (FR‑032)
+ - Generation of:
+ - `output/audit_report.json`
+ - `output/summary_report.csv`
+ - `output/bias_report.json` (domain proportions and adjusted rate)
+ - `output/subgroup_report.json` (per‑domain/year prevalence and Fisher p‑values)
+ - `README_QUICKSTART.md` (see FR‑028)
+
+4. **Check resource usage**
+ The pipeline logs CPU time and memory; ensure the run stays within **≤ 6 hours** and uses resources typical of the default GitHub Actions runner (see **SC‑008**).
+
+5. **Interpret results**
+ Open `output/summary_report.csv` in a spreadsheet or view `output/audit_report.json` to see per‑summary flags and the overall inconsistency prevalence with its 95 % Wilson confidence interval and bias‑adjusted estimate.
+
+## Implementation Tasks
+
+- **T076**: Compute checksums for all generated output files and record them in `output/checksums.txt`.
+- **T077**: Extend `manifest.json` to include the checksum entries produced by T076.
+
+These tasks are executed **sequentially** (T076 → T077); no parallel execution tag is applied, reflecting the dependency of T077 on T076’s output.

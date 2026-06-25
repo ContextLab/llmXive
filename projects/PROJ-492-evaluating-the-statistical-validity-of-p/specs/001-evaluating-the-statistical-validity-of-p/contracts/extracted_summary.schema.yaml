@@ -1,86 +1,81 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "ExtractedSummary"
+description: "Schema for extracted A/B test summary records (FR-002)"
 type: "object"
-title: "Extracted AB Summary Schema"
-description: "Schema for A/B test summary extracted from public web pages"
 required:
   - "url"
+  - "domain"
   - "outcome_type"
   - "variant_a_n"
   - "variant_b_n"
-  - "reported_effect_size"
-  - "extraction_timestamp"
-  - "extraction_status"
+  - "effect_size"
+  - "reported_p"
+  - "extracted_at"
 properties:
   url:
     type: "string"
-    description: "Original URL of the A/B test summary"
     format: "uri"
+    description: "Source URL (Constitution VII)"
+  domain:
+    type: "string"
+    description: "Extracted domain for bias assessment (FR-027)"
+  publication_year:
+    type: "integer"
+    minimum: 1900
+    maximum: 2100
+    description: "Year of publication (for FR-032)"
+    nullable: true
   outcome_type:
     type: "string"
     enum:
       - "binary"
       - "continuous"
-    description: "Type of outcome metric"
+    description: "Binary (conversion rate) or continuous (mean difference)"
   variant_a_n:
     type: "integer"
     minimum: 1
-    description: "Sample size for variant A"
+    description: "Sample size, variant A"
   variant_b_n:
     type: "integer"
     minimum: 1
-    description: "Sample size for variant B"
-  variant_a_conversions:
-    type: "integer"
-    minimum: 0
-    description: "Conversion count for variant A (binary outcomes only)"
-  variant_b_conversions:
-    type: "integer"
-    minimum: 0
-    description: "Conversion count for variant B (binary outcomes only)"
-  variant_a_mean:
+    description: "Sample size, variant B"
+  variant_a_rate:
     type: "number"
-    description: "Mean value for variant A (continuous outcomes only)"
-  variant_b_mean:
+    minimum: 0.0
+    maximum: 1.0
+    description: "Conversion rate, variant A (if binary)"
+    nullable: true
+  variant_b_rate:
     type: "number"
-    description: "Mean value for variant B (continuous outcomes only)"
-  variant_a_std:
+    minimum: 0.0
+    maximum: 1.0
+    description: "Conversion rate, variant B (if binary)"
+    nullable: true
+  effect_size:
     type: "number"
-    description: "Standard deviation for variant A (continuous outcomes only)"
-  variant_b_std:
-    type: "number"
-    description: "Standard deviation for variant B (continuous outcomes only)"
-  reported_effect_size:
-    type: "number"
-    description: "Reported effect size (absolute difference, lift %, or mean difference)"
+    description: "Reported effect size (difference or lift)"
   reported_p:
     type: "number"
-    description: "Reported p-value (numeric) or bound (for inequality p-values)"
-  reported_ci_lower:
-    type: "number"
-    description: "Lower bound of reported confidence interval"
-  reported_ci_upper:
-    type: "number"
-    description: "Upper bound of reported confidence interval"
-  publication_year:
-    type: "integer"
-    minimum: 1900
-    maximum: 2100
-    description: "Year of publication (for subgroup analysis)"
-  domain:
-    type: "string"
-    description: "Source domain (e.g., \"optimizely.com\", \"airbnb.io\")"
-  extraction_timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO 8601 timestamp of extraction"
-  extraction_status:
-    type: "string"
-    enum:
-      - "success"
-      - "partial"
-      - "failed"
-    description: "Extraction status"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Reported p-value (numeric or bound)"
+  reported_p_inequality:
+    type: "boolean"
+    description: "True if p-value was inequality (e.g., p<0.001)"
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "Reported confidence interval (if available)"
+    nullable: true
   notes:
     type: "string"
-    maxLength: 1000
-    description: "Extraction notes (e.g., \"baseline rate missing, used average\")"
+    maxLength: 200
+    description: "Extraction notes / warnings"
+  extracted_at:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of extraction"
+additionalProperties: false

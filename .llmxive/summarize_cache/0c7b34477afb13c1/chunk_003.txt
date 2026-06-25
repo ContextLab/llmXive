@@ -1,0 +1,26 @@
+ - Deduplication (if any duplicates exist, they are collapsed)
+ - Extraction
+ - Inconsistency detection (FR‑004, FR‑004b)
+ - Binomial prevalence test (FR‑005a) **with a priori power‑size guarantee (FR‑025)**
+ - Monte‑Carlo validation of statistical implementations (FR‑026)
+ - Bias assessment and bias‑adjusted prevalence (FR‑027)
+ - Subgroup prevalence analysis with Fisher’s exact test (FR‑032)
+ - Generation of:
+ - `output/audit_report.json`
+ - `output/summary_report.csv`
+ - `output/bias_report.json` (domain proportions and adjusted rate)
+ - `output/subgroup_report.json` (per‑domain/year prevalence and Fisher p‑values)
+ - `README_QUICKSTART.md` (see FR‑028)
+
+4. **Check resource usage**
+ The pipeline logs CPU time and memory; ensure the run stays within **≤ 6 hours** and uses resources typical of the default GitHub Actions runner (see **SC‑008**).
+
+5. **Interpret results**
+ Open `output/summary_report.csv` in a spreadsheet or view `output/audit_report.json` to see per‑summary flags and the overall inconsistency prevalence with its 95 % Wilson confidence interval and bias‑adjusted estimate.
+
+## Implementation Tasks
+
+- **T076**: Compute checksums for all generated output files and record them in `output/checksums.txt`.
+- **T077**: Extend `manifest.json` to include the checksum entries produced by T076.
+
+These tasks are executed **sequentially** (T076 → T077); no parallel execution tag is applied, reflecting the dependency of T077 on T076’s output.

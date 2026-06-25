@@ -1,0 +1,94 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticDataset"
+description: "Schema for synthetic A/B test dataset (FR-030)"
+type: "object"
+required:
+  - "records"
+  - "metadata"
+properties:
+  records:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "id"
+        - "outcome_type"
+        - "variant_a_n"
+        - "variant_b_n"
+        - "variant_a_rate"
+        - "variant_b_rate"
+        - "true_p_value"
+        - "true_effect_size"
+        - "reported_p"
+        - "reported_effect_size"
+        - "is_inconsistent"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          description: "Unique record identifier"
+        outcome_type:
+          type: "string"
+          enum:
+            - "binary"
+            - "continuous"
+          description: "Binary or continuous outcome"
+        variant_a_n:
+          type: "integer"
+          minimum: 1
+          description: "Sample size, variant A"
+        variant_b_n:
+          type: "integer"
+          minimum: 1
+          description: "Sample size, variant B"
+        variant_a_rate:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "True conversion rate, variant A"
+        variant_b_rate:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "True conversion rate, variant B"
+        true_p_value:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "Ground-truth p-value"
+        true_effect_size:
+          type: "number"
+          description: "Ground-truth effect size"
+        reported_p:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "Reported p-value (may include noise)"
+        reported_effect_size:
+          type: "number"
+          description: "Reported effect size (may include noise)"
+        is_inconsistent:
+          type: "boolean"
+          description: "Ground-truth inconsistency flag"
+    minItems: 10000
+    description: "Synthetic records (≥10,000 per FR-030)"
+  metadata:
+    type: "object"
+    properties:
+      generated_at:
+        type: "string"
+        format: "date-time"
+        description: "Generation timestamp"
+      random_seed:
+        type: "integer"
+        description: "Random seed for reproducibility"
+      total_records:
+        type: "integer"
+        minimum: 10000
+        description: "Total synthetic records"
+    required:
+      - "generated_at"
+      - "random_seed"
+      - "total_records"
+    description: "Dataset metadata"
+additionalProperties: false

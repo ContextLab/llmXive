@@ -1,0 +1,58 @@
+- **FR-005b**: System MUST conduct a sensitivity analysis of the baseline proportion by repeating the binomial test for baseline values in the range **0.02 – 0.10** (step 0.01) and must report the maximum variation in the estimated prevalence. (See US‑2)
+- **FR-007**: System MUST log any parsing failures or missing fields with **clear error messages** that (a) include an error code of the form `ERR‑###`, (b) name the affected field, and (c) provide a concise description ≤ 200 characters. (See US‑1)
+- **FR-009**: System MUST be compatible with the **Ubuntu‑latest** GitHub Actions runner, use only Python 3.11+ and pip‑installable packages, limit memory consumption to **≤ 2 GB**, CPU usage to **≤ 2 vCPUs**, avoid GPU usage and disallowed system calls, and complete within **6 hours**. (See US‑1, US‑3, US‑4)
+- **FR-012**: System MUST handle summaries lacking a baseline conversion rate by using the **average of the two variant rates** to reconstruct the absolute effect size. (See US‑1)
+- **FR-024**: System MUST export the audit results as (a) a JSON file `audit_report.json` containing a record per summary and (b) a CSV file `summary_report.csv` summarising total counts, inconsistency rate, bias‑adjusted rate, and 95 % Wilson confidence interval. The JSON records must conform to `audit_record.schema.yaml` and include the fields: `url`, `reported_p`, `reported_effect_size`, `reported_sample_size_a`, `reported_sample_size_b`, `reconstructed_p`, `reconstructed_effect_size`, `diff_abs_p`, `diff_abs_effect`, `flag_inconsistent`, `notes`. (See US‑3)
+- **FR-025**: System MUST perform an a priori power analysis for the binomial prevalence test and ensure that the number of audited summaries **N ≥ 300** (or the calculated minimum) to achieve statistical power **≥ 0.80** at **α = 0.05** for detecting an inconsistency proportion of at least **0.10** (double the baseline). This guarantees sufficient sensitivity to answer the research question. (See US‑2) **Justification**: power analysis is essential to avoid inconclusive prevalence estimates.
+- **FR-026**: System MUST validate each statistical test implementation (two‑proportion z‑test/Fisher’s exact test, Welch’s t‑test, binomial test) via Monte Carlo simulation with **10 000 replicates** and must ensure the absolute difference between the library result and the Monte Carlo estimate is **≤ 0.01**. Contract tests must be executed against `extracted_summary.schema.yaml`, `audit_record.schema.yaml`, and `manifest.schema.yaml`. (See US‑1) **Justification**: Monte Carlo validation provides independent verification of statistical‑test correctness.
+- **FR-027**: System MUST ensure that **no single source domain accounts for >30 %** of the total corpus; if a domain would exceed this proportion, the pipeline must either subsample that domain or flag a violation. Additionally, the system MUST report the proportion of summaries per domain, compute a **bias‑adjusted overall inconsistency rate** using domain‑weighted averaging, and include both raw and bias‑adjusted rates in the final audit output. (See US‑1) **Justification**: controlling domain dominance prevents confounding in the prevalence estimate.
+- **FR-028**: System MUST provide a Quickstart guide (README) with step‑by‑step instructions, including command‑line examples and expected runtime, and must enable a new user to execute the audit on a sample corpus of **30 URLs** within **30 minutes** on the default GitHub Actions runner. This documentation is essential for reproducibility and external verification. (See US‑1) **Justification**: reproducibility is a core scientific requirement.
+- **FR-030**: System MUST generate a synthetic validation dataset of at least **10 000** simulated A/B test summaries (including both binary and continuous outcomes) with known ground‑truth p‑values and effect sizes, using the same statistical models as described in **FR‑003**. (See US‑1) **Justification**: Kohavi et al. (2020) demonstrate that datasets of this size provide stable estimates of precision and recall for large‑scale A/B‑testing validation. **Reference**: – “Large‑Scale Online Experiments: A Review” (Kohavi et al., 2020) notes that synthetic datasets on the order of ten‑thousands are required for reliable performance assessment.
+- **FR-031**: System MUST evaluate the inconsistency‑detection component (**FR‑004**) on the synthetic validation dataset, computing precision, recall, and F1 score, and must achieve **precision ≥ 90 %** and **recall ≥ 80 %** (F1 ≥ 0.85). (See US‑1)
+- **FR-032**: System MUST compute inconsistency prevalence per **source domain** and per **publication year**; for any subgroup containing **≥ 10** summaries it MUST perform Fisher’s exact test comparing inconsistent vs. consistent counts, reporting the subgroup p‑value and prevalence. (See US‑2)
+
+### Key Entities
+
+- **A/B Summary**: Represents a single publicly posted experiment; key attributes include `url`, `variant_a_n`, `variant_b_n`, `effect_size`, `reported_p`, `confidence_interval`, `timestamp`, `outcome_type` (binary / continuous).
+- **Audit Record**: Result of the consistency check for one summary; attributes include `reconstructed_p`, `diff_abs`, `flag_inconsistent`, `category`, `notes`.
+
+## Scope Justification
+
+The original idea called for auditing public A/B test summaries and reporting the prevalence of inconsistencies. The retained functional requirements (FR‑001, FR‑002, FR‑003, FR‑004, FR‑004b, FR‑005a, FR‑005b, FR‑007, FR‑009, FR‑012, FR‑024, FR‑025, FR‑026, FR‑027, FR‑028, FR‑030, FR‑031, FR‑032) are **essential** to fulfil that goal:
+
+1. **Data acquisition and extraction** (FR‑001, FR‑002) are needed to obtain the raw numbers from the public summaries.
+2. **Reconstruction of statistical tests** (FR‑003) provides the ground‑truth p‑values against which reported values can be compared.
+3. **Inconsistency detection** (FR‑004) implements the core audit logic.
+4. **Sample‑size discrepancy detection** (FR‑004b) ensures that mismatched sample size reporting is also flagged, as required by the original methodology.
+5. **Prevalence estimation** (FR‑005a) yields the quantitative answer to “how prevalent are inconsistencies?” using a literature‑backed baseline of 0.05 (John et al., 2022), and **FR‑005b** ensures robustness to that assumption.
+6. **Power analysis** (FR‑025) guarantees that the audit corpus is large enough to detect a meaningful inconsistency rate with adequate power, preventing inconclusive results.
+7. **Monte‑Carlo validation** (FR‑026) ensures the correctness of statistical implementations, a prerequisite for trustworthy inference.
+8. **Bias assessment and adjustment** (FR‑027) prevents domain‑dominance from skewing the overall estimate, satisfying methodological rigor.
+9. **Logging** (FR‑007) ensures transparency about parsing problems.
+10. **CI compatibility** (FR‑009) guarantees that the audit can be run automatically on a regular schedule.
+11. **Baseline handling** (FR‑012) allows reconstruction when a baseline rate is omitted, preserving audit coverage.
+12. **Result export** (FR‑024) provides the required deliverable—a concise, machine‑readable report of the prevalence estimate.
+13. **Quickstart documentation** (FR‑028) lowers the barrier for reproducibility and external validation.
+14. **Synthetic validation** (FR‑030, FR‑031) supplies a controlled dataset to quantify detector precision and recall, fulfilling the methodology’s requirement for rigorous performance evaluation.
+15. **Subgroup analysis** (FR‑032) addresses the original research plan’s step 7 by summarising inconsistency rates by source type and year and applying Fisher’s exact test where appropriate.
+16. **FR‑030/031 inclusion**: These were explicitly retained because synthetic validation and performance metrics are indispensable for demonstrating that the inconsistency‑detection component works as intended.
+
+All listed requirements are therefore justified as essential rather than gold‑plating.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: Extraction accuracy ≥ 95 % on a manually annotated validation set of at least **100** summaries, stratified across at least five major domains (measured as proportion of correctly captured fields). (See US‑1)
+- **SC-003**: For each statistical test, the absolute difference between the SciPy result and the Monte‑Carlo estimate (10 000 replicates) must be ≤ 0.01. (See US‑1)
+- **SC-005**: All logged parsing errors must be ≤ 5 % of total summaries processed. (See US‑1)
+- **SC-008**: CI execution must complete within **6 hours**, using resources typical of the default GitHub Actions runner (≈ 2 vCPUs, ≤ 2 GB RAM); resource usage is logged and must meet these limits. (See US‑1, US‑3, US‑4)
+- **SC-013**: CI pipeline must exit with status 0 and produce a `manifest.json` file in ≥ 99 % of runs, confirming successful completion and artifact generation. (See US‑4)
+- **SC-014**: The binomial test defined in **FR‑005a** must report a p‑value rounded to three decimal places, a Wilson confidence interval whose total width ≤ 0.10, and flag significance when p ≤ 0.05. (See US‑2)
+- **SC-015**: Sensitivity analysis (FR‑005b) must show that the estimated prevalence varies by less than **0.02** across baseline proportions 0.02–0.10. (See US‑2)
+- **SC-024**: The exported CSV `summary_report.csv` must contain columns `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`; the values must exactly match those computed in the JSON `audit_report.json`. (See US‑2, US‑3)
+- **SC-025**: The audited corpus contains **N ≥ 300** summaries (or the calculated minimum) as required by the a priori power analysis (FR‑025). (See US‑2)
+- **SC-026**: Monte Carlo validation passes for all statistical tests with absolute difference ≤ 0.01 (FR‑026). (See US‑1)
+- **SC-027**: Bias‑assessment report must show that **no** single domain exceeds **30 %** of the total corpus; the report must also include both the raw inconsistency rate and the bias‑adjusted inconsistency rate. (See US‑1)
+- **SC-028**: The Quickstart guide is verified by a user test where a novice follows the instructions and completes the audit on **30 URLs** in ≤ 30 minutes on the default GitHub Actions runner. (See US‑1)
+- **SC-030**: Precision on the synthetic validation dataset must be **≥ 90 %** and recall **≥ 80 %** (F1 ≥ 0.85). (See FR‑031)
