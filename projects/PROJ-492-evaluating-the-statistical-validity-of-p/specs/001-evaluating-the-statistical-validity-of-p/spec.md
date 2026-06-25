@@ -13,7 +13,7 @@ A researcher wants to run a reproducible audit over a corpus of public A/B test 
 
 **Why this priority**: This is the core value‑producing function; without it the project cannot answer its primary research question.
 
-**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-004a**, **FR-005a**, **FR-006**, **FR-007**, **FR-008**, **FR-009**, **FR-010**, **FR-012**, **FR-019**, **FR-020**, **FR-021**, **FR-022**, **FR-022a**, **FR-023** (See US‑1)  
+**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-004a**, **FR-005a**, **FR-006**, **FR-007**, **FR-008**, **FR-009**, **FR-012**, **FR-019**, **FR-020**, **FR-021**, **FR-022**, **FR-022a**, **FR-023** (See US‑1)  
 **Anchored Success Criteria**: **SC-001**, **SC-002**, **SC-003**, **SC-004**, **SC-005**, **SC-008**, **SC-009**, **SC-010**, **SC-011**, **SC-013**, **SC-014**, **SC-018**, **SC-019**, **SC-020**, **SC-021**, **SC-022** (See US‑1)
 
 **Independent Test**: Provide a curated validation set of ≥ 30 manually annotated summaries and verify that the pipeline flags exactly the inconsistent entries.
@@ -129,7 +129,19 @@ The original idea calls for auditing public A/B test summaries and reporting the
 4. **Validate extraction robustness** – selector coverage across multiple layout categories (FR‑022a) ensures that the constructed dataset accurately reflects the underlying reports, preserving construct validity.
 5. **Enable downstream scientific scrutiny** – synthetic validation (FR‑008) and sensitivity analysis (FR‑004a) demonstrate that the detection logic behaves as expected under realistic reporting quirks.
 
-Thus, each of the additional functional requirements directly supports the core research objective while remaining within the project's scope.
+**Justifications for additional functional requirements** (showing they are essential to the core research question):
+
+- **FR‑005a** – Provides a formal hypothesis test for whether the observed inconsistency rate exceeds a minimal baseline, directly answering “how prevalent are inconsistencies?”.
+- **FR‑006** – Guarantees that the entire audit can be reproduced by external reviewers, a non‑negotiable requirement for scientific validity.
+- **FR‑008** – Supplies a controlled benchmark to evaluate detection precision/recall, ensuring that reported performance metrics are trustworthy.
+- **FR‑010** – Delivers an accessible summary of results to stakeholders, making the prevalence findings actionable without requiring raw data inspection.
+- **FR‑019** – Allows exploration of whether certain sources or product lines exhibit higher inconsistency rates, deepening the answer to the research question.
+- **FR‑020** – Computes the margin‑of‑error and confirms that the corpus is large enough to detect a meaningful deviation, preventing under‑powered conclusions.
+- **FR‑021** – Adjusts the overall prevalence estimate for clustering by source, avoiding biased over‑ or under‑estimation.
+- **FR‑022** & **FR‑022a** – Verify that the extraction selectors work across the heterogeneous web layouts actually present in the corpus, ensuring data quality for the prevalence estimate.
+- **FR‑023** – Enforces a minimum corpus size derived from the power analysis, guaranteeing that the audit has sufficient statistical power.
+
+Thus, each added requirement is **essential** for producing a rigorous, reproducible, and interpretable estimate of inconsistency prevalence, and does not constitute unwarranted scope creep.
 
 ## Success Criteria *(mandatory)*
 
@@ -212,3 +224,4 @@ Thus, each of the additional functional requirements directly supports the core 
 
 6. **Interpret results**  
    Open `output/dashboard.html` in a browser to view overall inconsistency rates, source‑wise breakdowns, temporal trends, and the statistical test results (binomial test, cluster‑adjusted GLMM, subgroup Fisher’s exact tests).  
+
