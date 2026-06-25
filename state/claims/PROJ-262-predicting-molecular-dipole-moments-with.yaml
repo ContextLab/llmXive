@@ -2682,24 +2682,6 @@
   status: verified
   updated_at: '2026-06-25T09:57:05Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 2
-  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
-  claim_id: c_2c3bf1e7
-  context: Implement QM9 download with integrity verification in projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py
-    (FR-001, QM9 dataset DOI 10.1038/sdata.2014.22)
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-    status: not_found
-  kind: citation
-  raw_text: QM9 dataset DOI 10.1038/sdata.2014.22
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-25T09:57:06Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 9
   canonical: 10k random subset of QM9 dataset
   claim_id: c_ab674af7
@@ -2715,3 +2697,37 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-25T09:57:52Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: arXiv paper 2305.18454
+  claim_id: c_23ca9312
+  context: T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)
+    in projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2305.18454, https://arxiv.org/abs/2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-25T19:15:48Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 3
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_2c3bf1e7
+  context: Implement QM9 download with integrity verification in projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py
+    (FR-001, QM9 dataset DOI 10.1038/sdata.2014.22)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: QM9 dataset DOI 10.1038/sdata.2014.22
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-25T19:16:32Z'
