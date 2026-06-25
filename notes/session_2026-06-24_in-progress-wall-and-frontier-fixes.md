@@ -96,3 +96,45 @@ knot-theory collinearity → best goal candidates.
 - Deferred general fix worth doing: PlanReviser/doc-reviser truncation
   robustness (Part-1 change-log first exhausts budget before Part-2 artifacts) —
   causes wasted convergence rounds on plan/tasks panels.
+
+## UPDATE (later same session) — validated the wall break + found 2 MORE walls
+
+The in_progress wall fix (#19) was VALIDATED end-to-end in real CI: a stage/
+project-targeted implement run drained PROJ-262 from 5/57 → 57/57 tasks (real
+analysis code, persisted). Two further GENERAL walls surfaced and were fixed:
+
+- **FIX #22 (be858b7f7) — silent work-loss on push.** All 14 cron workflows used
+  `git pull --rebase origin main && git push` in a retry loop. On the routine
+  conflict (every tick regenerates web/data/projects.json) the rebase left the
+  tree CONFLICTED, every retry died "unmerged files", the tick's work was LOST,
+  and the step STILL exited 0 (masked). Replaced by SSoT
+  `scripts/ci/commit-and-push.sh`: `git rebase -X theirs origin/main`
+  (resolve toward this tick, no markers), abort-before-each-attempt, emit
+  `pushed` for the pages gate, FAIL LOUD on total failure. 2-worker local test:
+  both workers' distinct work preserved.
+
+- **FIX #23 (this commit) — dep install aborted the whole analysis.** The
+  crossing test (262 execute_and_gate) died `ModuleNotFoundError: numpy` — NOT
+  compute. The missing-import self-heal (_declare_missing_imports) auto-added a
+  LOCAL package (`models`=code/models/) and matplotlib's `mpl_toolkits`
+  namespace submodule to requirements.txt as if PyPI packages; `pip install -r`
+  then aborted the WHOLE batch → numpy never installed. Fix: `ensure_venv` now
+  installs RESILIENTLY (batch, then per-package fallback so good deps land
+  despite a bad line); `mpl_toolkits`→matplotlib mapped. Unblocks
+  execute_and_gate for every project without touching project artifacts.
+
+### Operator capabilities added (general, for validation)
+- pipeline-implement.yml: `stage` + `project` + `max_tasks` workflow_dispatch
+  inputs (focused advance pass). llmxive-pipeline.yml ALREADY had project_id +
+  stage (330-min lane — the right lane for execute_and_gate, whose run_analysis
+  deadline is 5h; the 50-min implement cron only DRAINS tasks).
+
+### Where 262 stands / next
+262 = 57/57 tasks, stage=in_progress, execution_status ok=false fix_rounds=4/12
+(burned on the now-fixed dep issue; 8 left). NEXT: push #23, then re-trigger
+`gh workflow run llmxive-pipeline.yml -f project_id=PROJ-262-...` → fresh venv →
+resilient install lands numpy/torch/rdkit/... → analysis runs (QM9 download +
+GNN ≤50 epochs on a subset; heavy but within 330 min) → if ok → research_complete
+(FIRST in_progress crossing). 262's analysis is compute-heavy; if it stalls on
+QM9/GNN, a lighter project is the better goal candidate (the now-unblocked
+pipeline will surface one). Commits this session: ~27.
