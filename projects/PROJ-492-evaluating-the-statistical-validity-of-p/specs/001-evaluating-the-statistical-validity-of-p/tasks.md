@@ -114,7 +114,7 @@ description: "Task list template for feature implementation"
 - [ ] T031 [P] US2 Implement binomial prevalence test, Wilson CI, and sensitivity analysis (FR‑005a & FR‑005b) in `src/audit/prevalence.py` (verify JSON output contains required fields).  
 - [ ] T032 [P] US2 Unit tests for binomial test and CI width ≤ 0.10 (tests/unit/test_prevalence.py) (verify test passes).  
 - [ ] T033 [P] US2 Implement bias‑adjustment module that computes domain‑weighted prevalence using logistic‑regression weighting (FR‑027) in `src/audit/bias_adjustment.py` (verify bias‑adjusted rate is written).  
-- [ ] T034 [P] US2 Unit tests for bias‑adjustment ensuring no domain exceeds [deferred] (tests/unit/test_bias_adjustment.py) (verify test passes).  
+- [ ] T034 [P] US2 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % (tests/unit/test_bias_adjustment.py) (verify test passes).  
 - [ ] T035 [P] US2 Implement CSV summary generator in `src/audit/report_generator.py` that reads `audit_report.json` and writes `output/summary_report.csv` with required columns (plan.md) (verify CSV file exists and column headers match).  
 - [ ] T036 [P] US2 Unit test that validates CSV values exactly match JSON‑derived aggregates (tests/unit/test_report_generator.py) (verify test passes).  
 - [ ] T037 [P] US2 Add Quickstart guide `README_QUICKSTART.md` covering execution on 30 URLs within 30 minutes (FR‑028) (verify guide file exists).  
@@ -150,7 +150,7 @@ description: "Task list template for feature implementation"
 
 **Goal**: Guarantee that the full pipeline runs within GitHub Actions resource limits and logs usage.  
 
-**Independent Test**: Trigger the workflow on a sample corpus of a modest number of URLs and confirm successful completion [deferred], ≤ 2 GB RAM, ≤ 2 vCPU.
+**Independent Test**: Trigger the workflow on a sample corpus of a modest number of URLs and confirm successful completion, ≤ 2 GB RAM, ≤ 2 vCPU.
 
 ### Tests for User Story 4 (OPTIONAL) ⚠️  
 
@@ -180,7 +180,7 @@ description: "Task list template for feature implementation"
 - [ ] T087 [P] Verify SC‑024: `summary_report.csv` columns and values match `audit_report.json` (run `tests/integration/test_summary_consistency.py`).  
 - [ ] T088 [P] Verify SC‑025: Audited corpus size N ≥ 300 (check `output/power_analysis.json`).  
 - [ ] T089 [P] Verify SC‑026: Monte‑Carlo validation passes for all tests (same as T081).  
-- [ ] T090 [P] Verify SC‑027: No domain exceeds [deferred] and bias‑adjusted rate reported (run `src/audit/bias_adjustment.py` and inspect output).  
+- [ ] T090 [P] Verify SC‑027: No domain exceeds 30 % and bias‑adjusted rate reported (run `src/audit/bias_adjustment.py` and inspect output).  
 - [ ] T091 [P] Verify SC‑028: Quickstart guide enables audit of 30 URLs in ≤ 30 minutes on GH Actions (time execution of Quickstart script).  
 - [ ] T092 [P] Verify SC‑030: Synthetic validation precision ≥ 90 % and recall ≥ 80 % (run T069).  
 - [ ] T093 [P] Verify SC‑032: Subgroup analysis produces Fisher’s exact test results for groups ≥ 10 (run `src/audit/subgroup_analysis.py` and check JSON).  
@@ -194,10 +194,19 @@ description: "Task list template for feature implementation"
 
 - [ ] T051 [P] Documentation updates in `docs/` – expand API reference, data‑model description, and troubleshooting guide (verify docs build without errors).  
 - [ ] T052 [P] Code cleanup: add type hints throughout `src/`, run `mypy --strict` (verify no type errors).  
-- [ ] T053 [P] Performance optimization: replace in‑memory DataFrame joins with chunked processing in `src/audit/prevalence.py` to keep RAM ≤ 1.5 GB for Several thousand URLs. (SC‑008) (verify memory usage).  
+- [ ] T053 [P] Performance optimization: replace in‑memory DataFrame joins with chunked processing in `src/audit/prevalence.py` to keep RAM ≤ 1.5 GB for several thousand URLs. (SC‑008) (verify memory usage).  
 - [ ] T054 [P] Add additional edge‑case unit tests (missing metric, conflicting sample sizes, dead URLs) in `tests/unit/` (verify all pass).  
-- [ ] T055 [P] Run full benchmark on Several thousand synthetic URLs; record wall‑clock time in `output/benchmark.log` and ensure ≤ 6 hours (SC‑008) (verify log).  
+- [ ] T055 [P] Run full benchmark on several thousand synthetic URLs; record wall‑clock time in `output/benchmark.log` and ensure ≤ 6 hours (SC‑008) (verify log).  
 - [ ] T056 [P] Release version tag `v0.1.0` and update `CHANGELOG.md` with released features (verify tag exists).  
+
+---  
+
+## New Revision Tasks (addressing placeholder values and verification gaps)
+
+- [ ] T095 [P] US2 Update bias‑adjustment unit tests to enforce the 30 % domain‑proportion limit (replace placeholder “[deferred]” with concrete 30 %).  
+- [ ] T096 [P] US2 Amend bias‑adjustment verification task (T090) to explicitly check that no single source domain exceeds 30 % of the corpus and log the result.  
+- [ ] T097 [P] US1 Verify that the synthetic dataset generator (`src/audit/synthetic.py`) creates **at least 10,000** records and writes the count to `output/synthetic_metadata.json`.  
+- [ ] T098 [P] US4 Add a CI step that runs the Monte‑Carlo validation module (`src/audit/monte_carlo_validation.py`) and fails the workflow if any statistical‑test validation exceeds the 0.01 tolerance.  
 
 ---  
 
