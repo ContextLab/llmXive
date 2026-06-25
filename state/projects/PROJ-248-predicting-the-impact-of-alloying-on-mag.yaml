@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T09:58:37.107439Z'
-current_stage: specified
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-248-predicting-the-impact-of-alloying-on-mag
-last_run_id: 268b1fb4-a2ed-43d9-b902-0eb787dd3891
+last_run_id: 5b9f376d-118d-4c20-b0ca-678504b8d1be
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag
 title: Predicting the Impact of Alloying on Magnetic Properties via Public Data
-updated_at: '2026-06-24T20:54:48.597125Z'
+updated_at: '2026-06-25T01:36:00.306394Z'

@@ -2,7 +2,7 @@
 Random Forest training script for predicting molecular dipole moments.
 
 This script trains a scikit-learn RandomForestRegressor on the 2‑D feature
-matrix generated in the US1 pipeline.  Five random seeds are used to
+matrix generated in the US1 pipeline. Five random seeds are used to
 produce five independent models and corresponding performance metrics.
 The models are saved as ``rf_seed_{seed}.pkl`` in the ``data/checkpoints``
 directory and a CSV file summarising the MAE and RMSE for each seed is

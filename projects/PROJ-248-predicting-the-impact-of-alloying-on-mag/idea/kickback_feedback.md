@@ -1,0 +1,16 @@
+# Downstream review concerns (address in this revision)
+
+A downstream convergence panel kicked this project back to the idea stage. You MUST revise the idea — especially the `Methodology sketch` — to RESOLVE each concern below, not merely re-state the idea.
+
+**Why it was kicked back**: 8 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'methodology'. Routing to 'flesh_out_in_progress' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- Functional Requirement FR-011 ('System SHOULD aim to complete the entire pipeline within a single 6‑hour CI job…') is not anchored to any user story or success criterion, leaving it as an orphaned FR.
+- User Story 1 includes an acceptance scenario requiring the cleaned dataset to contain **≥ 3 500** alloy records, but no functional requirement or success criterion currently mandates this minimum dataset size. Add an FR (e.g., FR-016) and/or SC (e.g., SC-007) anchored to US‑1 that enforce the ≥ 3 500 record threshold.
+- FR-012 states that the prediction response must conform to a JSON schema defined in FR‑012, but the actual schema (field types, required/optional properties, enum constraints, etc.) is not provided. Without a concrete schema, automated validation of the response cannot be performed.
+- FR-013 requires evaluation on an external hold‑out set of ≥ 200 distinct alloys, yet the source, versioning, and acquisition procedure for this dataset are not specified. This makes reproducibility and verification of the external validation ambiguous.
+- The original idea explicitly calls for a paired t‑test on residuals to assess significance (p < 0.01). The specification instead mandates a Wilcoxon signed‑rank test with Bonferroni correction (FR‑008). This changes the statistical validation methodology without justification, constituting a drift from the research plan.
+- [template_placeholder] unfilled [NNN-...] branch-name template placeholder in 'projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/spec.md': '[###-feature-name]'. A converged spec must not carry this; the reviser must resolve it before the spec advances.
+- [duplicate_requirement] FR-010 and FR-014 state the same requirement (100% word overlap) — collapse or differentiate them in 'projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/spec.md': 'FR-010 ≈ FR-014: System MUST log all random seeds (`np.random.seed(42)`, `random_state=42`) and store artifacts (`data.csv`, `model.pkl`, `metrics.json`, `feature_importance.csv`) as GitHub Actions artifacts.'. A converged spec must not carry this; the reviser must resolve it before the spec advances.
+- [duplicate_requirement] FR-011 and FR-015 state the same requirement (85% word overlap) — collapse or differentiate them in 'projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/spec.md': 'FR-011 ≈ FR-015: System MUST complete the entire end‑to‑end pipeline within **6\u202fhours** on a typical CI runner (≈\u202f2\u202fGB RAM, <\u202f10\u202fGB SSD). This runtime requirement is linked to Success Criterion SC‑006.'. A converged spec must not carry this; the reviser must resolve it before the spec advances.
