@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T01:01:11.404829Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-467-investigating-the-relationship-between-b
-last_run_id: 439c30a3-5f95-4c99-9c6d-ade7d5d76de2
+last_run_id: 298a0139-9e1f-4d9a-b55f-7a60cec16456
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Relationship Between Brain Network Dynamics and Individual
   Differences in Tactile Discrimination
-updated_at: '2026-06-14T06:24:09.435805Z'
+updated_at: '2026-06-25T03:22:15.834773Z'
