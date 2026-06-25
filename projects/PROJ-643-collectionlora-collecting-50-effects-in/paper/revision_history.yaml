@@ -1,0 +1,25 @@
+schema_version: '1'
+project_id: PROJ-643-collectionlora-collecting-50-effects-in
+rounds:
+- round_number: 1
+  ran_at: '2026-06-25T20:53:53.107221Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-25)
+  tasks_done: 0
+  tasks_failed: 0
+  tasks_skipped: 2
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-643-collectionlora-collecting-50-effects-in/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00000]** (severity: writing): Rendering-audit
+      defect (section_number_gap): {"kind": "section_number_gap", "evidence": "expected
+      section 6, saw section 10", "class": "uns'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00001]** (severity: writing): Rendering-audit
+      defect (section_number_gap): {"kind": "section_number_gap", "evidence": "expected
+      section 11, saw section 50", "class": "un'

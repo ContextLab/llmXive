@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.16581",
+  "judged_at": "2026-06-25T20:38:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms to generate unit tests from api documentation computer science",
+  "rationale": "This paper is off-domain entirely, as it investigates LLMs for religious text analysis (Quranic studies) rather than software engineering tasks like unit test generation from API documentation. It shares the general tool (LLMs) but lacks any measurable connection to the specific mechanism, domain, or variables required for the user's literature review.",
+  "relevant": false
+}

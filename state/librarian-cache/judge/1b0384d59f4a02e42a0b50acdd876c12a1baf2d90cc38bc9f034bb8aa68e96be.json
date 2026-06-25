@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.09380",
+  "judged_at": "2026-06-25T20:35:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms to generate unit tests from api documentation computer science",
+  "rationale": "This paper satisfies criterion (b) as it measures the capability of LLMs on the user's independent variable domain (API Documentation understanding) within the same software engineering context, providing relevant empirical evidence on LLM performance with this input modality despite the different downstream task (misuse detection vs. test generation). It also aligns with criterion (a) by studying the same underlying mechanism of extracting semantic constraints from API documentation using LLMs.",
+  "relevant": true
+}

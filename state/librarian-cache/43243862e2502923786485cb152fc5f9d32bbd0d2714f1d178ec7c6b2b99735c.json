@@ -1,0 +1,611 @@
+{
+  "fetched_at": "2026-06-25T20:39:43Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Leveraging LLMs to Generate Unit Tests from API Documentation",
+      "target_n": 5
+    },
+    "duration_seconds": 582.403,
+    "ended_at": "2026-06-25T20:39:43Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Large Language Models for automated unit test generation"
+        ],
+        [
+          2,
+          "AI-driven test case synthesis from API specifications"
+        ],
+        [
+          3,
+          "OpenAPI specification to unit test conversion"
+        ],
+        [
+          4,
+          "Transformer models for software testing automation"
+        ],
+        [
+          5,
+          "Automated test generation from REST API documentation"
+        ],
+        [
+          6,
+          "Natural language to test code translation"
+        ],
+        [
+          7,
+          "Generative AI in software engineering testing"
+        ],
+        [
+          8,
+          "Swagger documentation based test suite creation"
+        ],
+        [
+          9,
+          "Program synthesis for unit testing"
+        ],
+        [
+          10,
+          "LLM-based API contract testing"
+        ],
+        [
+          11,
+          "Specification-driven test generation using deep learning"
+        ],
+        [
+          12,
+          "Automated test oracle generation from documentation"
+        ],
+        [
+          13,
+          "Code generation models for testing frameworks"
+        ],
+        [
+          14,
+          "Neural approaches to software test case creation"
+        ],
+        [
+          15,
+          "Prompt engineering for automated test generation"
+        ],
+        [
+          16,
+          "Semantic analysis of API interfaces for testing"
+        ],
+        [
+          17,
+          "AI-assisted software quality assurance pipelines"
+        ],
+        [
+          18,
+          "Documentation to executable test conversion"
+        ],
+        [
+          19,
+          "Language model evaluation of generated unit tests"
+        ],
+        [
+          20,
+          "Automated regression test creation from specs"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Large Language Models for automated unit test generation": 5,
+        "Leveraging LLMs to Generate Unit Tests from API Documentation computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "specification driven unit test synthesis",
+      "API documentation test dataset benchmark",
+      "natural language to code generation",
+      "test execution pass rate coverage",
+      "in-context learning retrieval augmentation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2305.04764"
+      ]
+    },
+    "per_query_hit_count": {
+      "API documentation test dataset benchmark": 3,
+      "Leveraging LLMs to Generate Unit Tests from API Documentation computer science": 3,
+      "in-context learning retrieval augmentation": 3,
+      "natural language to code generation": 3,
+      "specification driven unit test synthesis": 3,
+      "test execution pass rate coverage": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2501.16945",
+          "rationale": "This paper addresses a different task than the user's research question. While both involve LLMs processing API documentation, the user asks about generating **unit tests** (code that verifies API functionality), whereas this paper focuses on generating **AI tools/agents** (code that enables API interaction). This represents a distinct construct sharing only homonym keywords (LLM, API documentation) without addressing the same mechanism, variables, or empirical setting required for inclusion in ",
+          "title": "ToolFactory: Automating Tool Generation by Leveraging LLM to Understand REST API Documentations"
+        },
+        {
+          "primary_pointer": "2603.23611",
+          "rationale": "This paper is about testing LLMs themselves (evaluating LLM reliability using metamorphic testing), whereas the user's question is about using LLMs as tools to generate unit tests for software/APIs. This is a distinct construct sharing only homonym keywords (\"LLM\" and \"testing\") but with fundamentally different research directions - the paper tests LLMs, while the user wants to use LLMs to test other code.",
+          "title": "LLMORPH: Automated Metamorphic Testing of Large Language Models"
+        },
+        {
+          "primary_pointer": "2311.04589",
+          "rationale": "The paper focuses on multi-modal LLMs handling non-textual inputs (image/audio) rather than the software engineering task of generating unit tests from API documentation, constituting a distinct construct that does not address the user's specific variables or mechanism.",
+          "title": "TEAL: Tokenize and Embed ALL for Multi-modal Large Language Models"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on conversational coherence and emotional intelligence rather than code generation or software testing, sharing only the general keyword \"LLMs\" without addressing the specific task or variables of the user's question. This falls under the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2503.16581",
+          "rationale": "This paper is off-domain entirely, as it investigates LLMs for religious text analysis (Quranic studies) rather than software engineering tasks like unit test generation from API documentation. It shares the general tool (LLMs) but lacks any measurable connection to the specific mechanism, domain, or variables required for the user's literature review.",
+          "title": "Investigating Retrieval-Augmented Generation in Quranic Studies: A Study of 13 Open-Source Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T20:30:01Z",
+    "term_input": {
+      "normalized": "leveraging llms to generate unit tests from api documentation computer science",
+      "raw": "Leveraging LLMs to Generate Unit Tests from API Documentation computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a new framework, named GPTAid, for automatic APSRs generation by analyzing API source code with LLM and detecting API misuse caused by incorrect parameter use. To validate the correctness of the LLM-generated APSRs, we propose an execution feedback-checking approach based on the observation that security-critical API misuse is often caused by APSRs violations, and most of them result in runtime errors. Specifically, GPTAid first uses LLM to generate raw APSRs and the Right calling code, and then generates Violation code for each raw APSR by modifying the Right calling code using LLM. Subsequently, GPTAid performs dynamic execution on each piece of Violation code and further filters out the incorrect APSRs based on runtime errors. To further generate concrete APSRs, GPTAid employs a code differential analysis to refine the filtered ones. Particularly, as the programming language is more precise than natural language, GPTAid identifies the key operations within Violation code by differential analysis, and then generates the corresponding concrete APSR based on the aforementioned operations. These concrete APSRs could be precisely interpreted into applicable detection code, which proven to be effective in API misuse detection. Implementing on the dataset containing 200 randomly selected APIs from eight popular libraries, GPTAid achieves a precision of 92.3%. Moreover, it generates 6 times more APSRs than state-of-the-art detectors on a comparison dataset of previously reported bugs and APSRs. We further evaluated GPTAid on 47 applications, 210 unknown security bugs were found potentially resulting in severe security issues (e.g., system crashes), 150 of which have been confirmed by developers after our reports.",
+          "claimed_authors": [
+            "Jinghua Liu",
+            "Yi Yang",
+            "Kai Chen",
+            "Miaoqian Lin"
+          ],
+          "claimed_title": "Generating API Parameter Security Rules with LLM for API Misuse Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.09288"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Generating API Parameter Security Rules with LLM for API Misuse Detection')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
+          "claimed_authors": [
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
+          ],
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nonlinear inter-modality registration is often challenging due to the lack of objective functions that are good proxies for alignment. Here we propose a synthesis-by-registration method to convert this problem into an easier intra-modality task. We introduce a registration loss for weakly supervised image translation between domains that does not require perfectly aligned training data. This loss capitalises on a registration U-Net with frozen weights, to drive a synthesis CNN towards the desired translation. We complement this loss with a structure preserving constraint based on contrastive learning, which prevents blurring and content shifts due to overfitting. We apply this method to the registration of histological sections to MRI slices, a key step in 3D histology reconstruction. Results on two different public datasets show improvements over registration based on mutual information (13% reduction in landmark error) and synthesis-based algorithms such as CycleGAN (11% reduction), and are comparable to a registration CNN with label supervision. Code and data are publicly available at \\url{https://github.com/acasamitjana/SynthByReg}",
+          "claimed_authors": [
+            "Adrià Casamitjana",
+            "Matteo Mancini",
+            "Juan Eugenio Iglesias"
+          ],
+          "claimed_title": "Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.14449"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Comprehending natural language instructions is a charming property for both 2D and 3D layout synthesis systems. Existing methods implicitly model object joint distributions and express object relations, hindering generation's controllability. We introduce InstructLayout, a novel generative framework that integrates a semantic graph prior and a layout decoder to improve controllability and fidelity for 2D and 3D layout synthesis. The proposed semantic graph prior learns layout appearances and object distributions simultaneously, demonstrating versatility across various downstream tasks in a zero-shot manner. To facilitate the benchmarking for text-driven 2D and 3D scene synthesis, we respectively curate two high-quality datasets of layout-instruction pairs from public Internet resources with large language and multimodal models. Extensive experimental results reveal that the proposed method outperforms existing state-of-the-art approaches by a large margin in both 2D and 3D layout synthesis tasks. Thorough ablation studies confirm the efficacy of crucial design components.",
+          "claimed_authors": [
+            "Chenguo Lin",
+            "Yuchen Lin",
+            "Panwang Pan",
+            "Xuanyang Zhang",
+            "Yadong Mu"
+          ],
+          "claimed_title": "InstructLayout: Instruction-Driven 2D and 3D Layout Synthesis with Semantic Graph Prior",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.07580"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='InstructLayout: Instruction-Driven 2D and 3D Layout Synthesis with Semantic Graph Prior')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The past decade has witnessed great strides in video recovery by specialist technologies, like video inpainting, completion, and error concealment. However, they typically simulate the missing content by manual-designed error masks, thus failing to fill in the realistic video loss in video communication (e.g., telepresence, live streaming, and internet video) and multimedia forensics. To address this, we introduce the bitstream-corrupted video (BSCV) benchmark, the first benchmark dataset with more than 28,000 video clips, which can be used for bitstream-corrupted video recovery in the real world. The BSCV is a collection of 1) a proposed three-parameter corruption model for video bitstream, 2) a large-scale dataset containing rich error patterns, multiple corruption levels, and flexible dataset branches, and 3) a plug-and-play module in video recovery framework that serves as a benchmark. We evaluate state-of-the-art video inpainting methods on the BSCV dataset, demonstrating existing approaches' limitations and our framework's advantages in solving the bitstream-corrupted video recovery problem. The benchmark and dataset are released at https://github.com/LIUTIGHE/BSCV-Dataset.",
+          "claimed_authors": [
+            "Tianyi Liu",
+            "Kejun Wu",
+            "Yi Wang",
+            "Wenyang Liu",
+            "Kim-Hui Yap",
+            "Lap-Pui Chau"
+          ],
+          "claimed_title": "Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.13890"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.06371"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
+          "claimed_authors": [
+            "Chidinma A. Nwafor",
+            "Ikechukwu E. Onyenwe"
+          ],
+          "claimed_title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14757"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Speculative execution attacks leverage the speculative and out-of-order execution features in modern computer processors to access secret data or execute code that should not be executed. Secret information can then be leaked through a covert channel. While software patches can be installed for mitigation on existing hardware, these solutions can incur big performance overhead. Hardware mitigation is being studied extensively by the computer architecture community. It has the benefit of preserving software compatibility and the potential for much smaller performance overhead than software solutions.\n  This paper presents a systematization of the hardware defenses against speculative execution attacks that have been proposed. We show that speculative execution attacks consist of 6 critical attack steps. We propose defense strategies, each of which prevents a critical attack step from happening, thus preventing the attack from succeeding. We then summarize 20 hardware defenses and overhead-reducing features that have been proposed. We show that each defense proposed can be classified under one of our defense strategies, which also explains why it can thwart the attack from succeeding. We discuss the scope of the defenses, their performance overhead, and the security-performance trade-offs that can be made.",
+          "claimed_authors": [
+            "Guangyuan Hu",
+            "Zecheng He",
+            "Ruby Lee"
+          ],
+          "claimed_title": "SoK: Hardware Defenses Against Speculative Execution Attacks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.03724"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='SoK: Hardware Defenses Against Speculative Execution Attacks')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider a linear regression model with regression parameter beta=(beta_1,..., beta_p) and independent normal errors. Suppose the parameter of interest is theta = a^T beta, where a is specified. Define the s-dimensional parameter vector tau = C^T beta - t, where C and t are specified. Suppose that we carry out a preliminary F test of the null hypothesis H_0: tau = 0 against the alternative hypothesis H_1: tau not equal to 0. It is common statistical practice to then construct a confidence interval for theta with nominal coverage 1-alpha, using the same data, based on the assumption that the selected model had been given to us a priori(as the true model). We call this the naive 1-alpha confidence interval for theta. This assumption is false and it may lead to this confidence interval having minimum coverage probability far below 1-alpha, making it completely inadequate. Our aim is to compute this minimum coverage probability. It is straightforward to find an expression for the coverage probability of this confidence interval that is a multiple integral of dimension s+1. However, we derive a new elegant and computationally-convenient formula for this coverage probability. For s=2 this formula is a sum of a triple and a double integral and for all s>2 this formula is a sum of a quadruple and a double integral. This makes it easy to compute the minimum coverage probability of the naive confidence interval, irrespective of how large s is. A very important practical application of this formula is to the analysis of covariance. In this context,  tau can be defined so that H_0 expresses the hypothesis of \"parallelism\". Applied statisticians commonly recommend carrying out a preliminary F test of this hypothesis. We illustrate the application of our formula with a real-life analysis of covariance data set and a preliminary F test for \"parallelism\". We show that the naive 0.95 confidence interval has minimum coverage probability 0.0846, showing that it is completely inadequate.",
+          "claimed_authors": [
+            "Paul Kabaila",
+            "Davide Farchione"
+          ],
+          "claimed_title": "The coverage probabililty of confidence intervals in regression after a preliminary F test",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1003.2439"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='The coverage probabililty of confidence intervals in regression after a preliminary F test')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Using high-resolution spectra from the Tillinghast Reflector Echelle Spectrograph (TRES) and photometry from sector 56 of the Transiting Exoplanet Survey Satellite (TESS), we report that the nearby M dwarf G 68-34 is a double-lined eclipsing binary. The pair is spin-orbit synchronized with a period of 0.655 days. The light curve shows significant spot modulation with a larger photometric amplitude than that of the grazing eclipses. We perform a joint fit to the spectroscopic and photometric data, obtaining masses of $0.3280\\pm 0.0034$M$_\\odot$ and $0.3207\\pm 0.0036$M$_\\odot$ and radii of $0.345\\pm 0.014$R$_\\odot$ and $0.342\\pm 0.014$R$_\\odot$ after marginalizing over unknowns in the starspot distribution. This system adds to the small but growing population of fully convective M dwarfs with precisely measured masses and radii that can be used to test models of stellar structure. The pair also has a white dwarf primary at 9\" separation, with the system known to be older than 5 Gyr from the white-dwarf cooling age. The binarity of G 68-34 confirms our hypothesis from Pass et al. (2022): in that work, we noted that G 68-34 was both rapidly rotating and old, highly unusual given our understanding of the spindown of M dwarfs, and that a close binary companion may be responsible.",
+          "claimed_authors": [
+            "Emily K Pass",
+            "David Charbonneau"
+          ],
+          "claimed_title": "G 68-34: A Double-Lined M-Dwarf Eclipsing Binary in a Hierarchical Triple System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.02466"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='G 68-34: A Double-Lined M-Dwarf Eclipsing Binary in a Hierarchical Triple System')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models are able to exploit in-context learning to access external knowledge beyond their training data through retrieval-augmentation. While promising, its inner workings remain unclear. In this work, we shed light on the mechanism of in-context retrieval augmentation for question answering by viewing a prompt as a composition of informational components. We propose an attribution-based method to identify specialized attention heads, revealing in-context heads that comprehend instructions and retrieve relevant contextual information, and parametric heads that store entities' relational knowledge. To better understand their roles, we extract function vectors and modify their attention weights to show how they can influence the answer generation process. Finally, we leverage the gained insights to trace the sources of knowledge used during inference, paving the way towards more safe and transparent language models.",
+          "claimed_authors": [
+            "Patrick Kahardipraja",
+            "Reduan Achtibat",
+            "Thomas Wiegand",
+            "Wojciech Samek",
+            "Sebastian Lapuschkin"
+          ],
+          "claimed_title": "The Atlas of In-Context Learning: How Attention Heads Shape In-Context Retrieval Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.15807"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='The Atlas of In-Context Learning: How Attention Heads Shape In-Context Retrieval Augmentation')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_authors": [
+            "Sean MacAvaney",
+            "Andrew Yates",
+            "Arman Cohan",
+            "Luca Soldaini",
+            "Kai Hui",
+            "Nazli Goharian",
+            "Ophir Frieder"
+          ],
+          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.08772"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Retrieval-augmented generation (RAG) has become a transformative approach for enhancing large language models (LLMs) by grounding their outputs in external knowledge sources. Yet, a critical question persists: how can vast volumes of external knowledge be managed effectively within the input constraints of LLMs? Traditional methods address this by chunking external documents into smaller, fixed-size segments. While this approach alleviates input limitations, it often fragments context, resulting in incomplete retrieval and diminished coherence in generation. To overcome these shortcomings, two advanced techniques, late chunking and contextual retrieval, have been introduced, both aiming to preserve global context. Despite their potential, their comparative strengths and limitations remain unclear. This study presents a rigorous analysis of late chunking and contextual retrieval, evaluating their effectiveness and efficiency in optimizing RAG systems. Our results indicate that contextual retrieval preserves semantic coherence more effectively but requires greater computational resources. In contrast, late chunking offers higher efficiency but tends to sacrifice relevance and completeness.",
+          "claimed_authors": [
+            "Carlo Merola",
+            "Jaspinder Singh"
+          ],
+          "claimed_title": "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.19754"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation')",
+        "failed_at": "2026-06-25T20:32:39Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yi Yang",
+            "Jinghua Liu",
+            "Kai Chen",
+            "Miaoqian Lin"
+          ],
+          "title": "The Midas Touch: Triggering the Capability of LLMs for RM-API Misuse Detection",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.09380",
+        "summary": "In this paper, we propose an LLM-empowered RM-API misuse detection solution, ChatDetector, which fully automates LLMs for documentation understanding which helps RM-API constraints retrieval and RM-API misuse detection. To correctly retrieve the RM-API constraints, ChatDetector is inspired by the ReAct framework which is optimized based on Chain-of-Thought (CoT) to decompose the complex task into allocation APIs identification, RM-object (allocated/released by RM APIs) extraction and RM-APIs pairing (RM APIs usually exist in pairs). It first verifies the semantics of allocation APIs based on the retrieved RM sentences from API documentation through LLMs. Inspired by the LLMs' performance on various prompting methods,ChatDetector adopts a two-dimensional prompting approach for cross-validation. At the same time, an inconsistency-checking approach between the LLMs' output and the reasoning process is adopted for the allocation APIs confirmation with an off-the-shelf Natural Language Processing (NLP) tool. To accurately pair the RM-APIs, ChatDetector decomposes the task again and identifies the RM-object type first, with which it can then accurately pair the releasing APIs and further construct the RM-API constraints for misuse detection. With the diminished hallucinations, ChatDetector identifies 165 pairs of RM-APIs with a precision of 98.21% compared with the state-of-the-art API detectors. By employing a static detector CodeQL, we ethically report 115 security bugs on the applications integrating on six popular libraries to the developers, which may result in severe issues, such as Denial-of-Services (DoS) and memory corruption. Compared with the end-to-end benchmark method, the result shows that ChatDetector can retrieve at least 47% more RM sentences and 80.85% more RM-API constraints.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.09380",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T20:32:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yinghao Chen",
+            "Zehao Hu",
+            "Chen Zhi",
+            "Junxiao Han",
+            "Shuiguang Deng",
+            "Jianwei Yin"
+          ],
+          "title": "ChatUniTest: A Framework for LLM-Based Test Generation",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.04764",
+        "summary": "Unit testing is an essential yet frequently arduous task. Various automated unit test generation tools have been introduced to mitigate this challenge. Notably, methods based on large language models (LLMs) have garnered considerable attention and exhibited promising results in recent years. Nevertheless, LLM-based tools encounter limitations in generating accurate unit tests. This paper presents ChatUniTest, an LLM-based automated unit test generation framework. ChatUniTest incorporates an adaptive focal context mechanism to encompass valuable context in prompts and adheres to a generation-validation-repair mechanism to rectify errors in generated unit tests. Subsequently, we have developed ChatUniTest Core, a common library that implements core workflow, complemented by the ChatUniTest Toolchain, a suite of seamlessly integrated tools enhancing the capabilities of ChatUniTest. Our effectiveness evaluation reveals that ChatUniTest outperforms TestSpark and EvoSuite in half of the evaluated projects, achieving the highest overall line coverage. Furthermore, insights from our user study affirm that ChatUniTest delivers substantial value to various stakeholders in the software testing domain. ChatUniTest is available at https://github.com/ZJU-ACES-ISE/ChatUniTest, and the demo video is available at https://www.youtube.com/watch?v=GmfxQUqm2ZQ.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.04764",
+          "http_status": 200,
+          "pdf_sample_score": 0.2485,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T20:34:14Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "leveraging llms to generate unit tests from api documentation computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

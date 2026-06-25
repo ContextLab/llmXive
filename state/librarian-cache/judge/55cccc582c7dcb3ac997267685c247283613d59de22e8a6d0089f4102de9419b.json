@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.04764",
+  "judged_at": "2026-06-25T20:39:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms to generate unit tests from api documentation computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the same core mechanism (LLM-based unit test generation) and domain (software testing), serving as a canonical baseline for the broader task that a literature review would require even if the specific input modality (API documentation) is not explicitly detailed in the abstract.",
+  "relevant": true
+}

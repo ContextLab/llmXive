@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.23611",
+  "judged_at": "2026-06-25T20:36:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms to generate unit tests from api documentation computer science",
+  "rationale": "This paper is about testing LLMs themselves (evaluating LLM reliability using metamorphic testing), whereas the user's question is about using LLMs as tools to generate unit tests for software/APIs. This is a distinct construct sharing only homonym keywords (\"LLM\" and \"testing\") but with fundamentally different research directions - the paper tests LLMs, while the user wants to use LLMs to test other code.",
+  "relevant": false
+}

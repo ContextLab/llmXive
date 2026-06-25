@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.04589",
+  "judged_at": "2026-06-25T20:37:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms to generate unit tests from api documentation computer science",
+  "rationale": "The paper focuses on multi-modal LLMs handling non-textual inputs (image/audio) rather than the software engineering task of generating unit tests from API documentation, constituting a distinct construct that does not address the user's specific variables or mechanism.",
+  "relevant": false
+}
