@@ -9,3 +9,5 @@ scipy
 tqdm
 # Ensure reproducibility utilities
 torch  # only needed for GNN parts; kept optional in imports
+joblib  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv

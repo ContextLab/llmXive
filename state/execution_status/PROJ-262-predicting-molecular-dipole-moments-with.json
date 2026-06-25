@@ -1,23 +1,21 @@
 {
   "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
   "ok": false,
-  "reason": "4 command(s) failed: python code/training/train_rf.py (rc=1); python code/analysis/generate_performance_plots.py (rc=1); python code/analysis/generate_significance.py (rc=1)",
+  "reason": "5 command(s) failed: python code/data/generate_processed_data.py (rc=1); python code/training/train_rf.py (rc=1); python code/analysis/generate_performance_plots.py (rc=1); 1 declared deliverable(s) absent: data/processed/molecules_10k.parquet",
   "artifacts": [
     "data/checkpoints/model_seed_0.pt.npy",
     "data/checkpoints/model_seed_1.pt.npy",
     "data/checkpoints/model_seed_2.pt.npy",
     "data/checkpoints/model_seed_3.pt.npy",
-    "data/checkpoints/model_seed_4.pt.npy",
-    "data/processed/features_2d.parquet",
-    "data/processed/features_3d.parquet",
-    "data/processed/molecules_10k.parquet"
+    "data/checkpoints/model_seed_4.pt.npy"
   ],
   "failures": [
-    "python code/training/train_rf.py -> rc=1\n    [ERROR] Failed to prepare data: Processed data must contain a dipole column as target. Found columns: ['molecule_id', 'smiles']",
-    "python code/analysis/generate_performance_plots.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py\", line 28, in <module>\n    import matplotlib.pyplot as plt\nModuleNotFoundError: No module named 'matplotlib'",
-    "python code/analysis/generate_significance.py -> rc=1\n    ric_data = _load_metrics(metrics_path)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py\", line 54, in _load_metrics\n    raise ValueError(f\"Metrics CSV missing required columns: {missing}\")\nValueError: Metrics CSV missing required columns: {'mae', 'model', 'rmse'}",
+    "python code/data/generate_processed_data.py -> rc=1\n    mport_optional_dependency(\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/compat/_optional.py\", line 161, in import_optional_dependency\n    raise ImportError(msg) from err\nImportError: `Import pyarrow` failed. pyarrow is required for parquet support. Use pip or conda to install the pyarrow package.",
+    "python code/training/train_rf.py -> rc=1\n    ts-with/code/training/train_rf.py\", line 40, in <module>\n    from training.save_checkpoints import save_rf_checkpoint\nImportError: cannot import name 'save_rf_checkpoint' from partially initialized module 'training.save_checkpoints' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/save_checkpoints.py)",
+    "python code/analysis/generate_performance_plots.py -> rc=1\n     line 138, in generate_plots\n    df = load_metrics(metrics_csv)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py\", line 51, in load_metrics\n    raise ValueError(f\"Metrics CSV missing columns: {missing}\")\nValueError: Metrics CSV missing columns: {'mae', 'rmse', 'model'}",
+    "python code/analysis/generate_significance.py -> rc=1\n    ric_data = _load_metrics(metrics_path)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py\", line 54, in _load_metrics\n    raise ValueError(f\"Metrics CSV missing required columns: {missing}\")\nValueError: Metrics CSV missing required columns: {'mae', 'rmse', 'model'}",
     "python code/generate_summary.py -> rc=1\n    ary\n    significance = load_csv_as_dicts(significance_path)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 25, in load_csv_as_dicts\n    raise FileNotFoundError(f\"CSV file not found: {csv_path}\")\nFileNotFoundError: CSV file not found: results/significance.csv"
   ],
-  "fix_rounds": 3,
-  "updated_at": "2026-06-25T02:38:03Z"
+  "fix_rounds": 4,
+  "updated_at": "2026-06-25T07:30:39Z"
 }

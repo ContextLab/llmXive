@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T18:43:57.500127Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-267-exploring-the-relationship-between-atmos
-last_run_id: c38fc881-7586-4f9d-a01c-b1aa832c46a7
+last_run_id: 362c3afa-41ad-453d-9462-e3f1c528c461
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Exploring the Relationship Between Atmospheric River Intensity and Regional
   Gravity Variations
-updated_at: '2026-06-16T15:28:57.516224Z'
+updated_at: '2026-06-25T07:28:52.472574Z'
