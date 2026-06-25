@@ -1,12 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-25T12:19:56.820319+00:00'
+last_used: albert-einstein
+last_used_at: '2026-06-25T13:21:23.742443+00:00'
 last_outcome: committed
 history:
-- slug: linus-pauling
-  started_at: '2026-06-13T20:29:58.830393+00:00'
-  ended_at: '2026-06-13T20:58:21.223054+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-13T20:58:21.223054+00:00'
   ended_at: '2026-06-13T21:29:53.099962+00:00'
@@ -1146,3 +1141,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-691-role-agent-bootstrapping-llm-agents-via/paper/reviews/alan-turing-simulated__2026-06-25__paper.md
+- slug: albert-einstein
+  started_at: '2026-06-25T12:19:56.820319+00:00'
+  ended_at: '2026-06-25T13:21:23.742443+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-096-exploring-the-role-of-network-topology-o/reviews/research/albert-einstein-simulated__2026-06-25__research.md
