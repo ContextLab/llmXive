@@ -1,16 +1,13 @@
-# Core dependencies
+# Core dependencies for the molecular dipole prediction project
 pandas
-scikit-learn
+pyarrow
+scikit-learn>=1.3.0
 joblib
-
-# Optional / analysis dependencies (already present elsewhere)
 numpy
-scipy
-# The original implementation attempted to use `datasets` from HuggingFace,
-# but the rewritten data generation script no longer requires it.  If you
-# need it for other tasks, install via `pip install datasets`.
+tqdm
+# Existing dependencies (if any) should be retained; added scikit-learn for RF training.
 matplotlib  # auto-added: imported by run-book but missing from venv
 matplotlib  # auto-added: imported by run-book but missing from venv
 requests  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
 torch  # auto-added: imported by run-book but missing from venv
-tqdm  # auto-added: imported by run-book but missing from venv

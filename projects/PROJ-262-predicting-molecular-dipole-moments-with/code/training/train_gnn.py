@@ -2,14 +2,15 @@
 GNN training script (mock implementation).
 
 Implements training of a placeholder graph neural network model across
-five random seeds, each for up to 50 epochs with early stopping (patience=10).
-The script writes:
+five random seeds, each for up to 50 epochs with early stopping
+(patience=10). The script writes:
+
   - model checkpoint files: data/checkpoints/model_seed_{seed}.pt
   - aggregated metrics CSV: results/metrics.csv
 
 The implementation is deliberately lightweight – it does not depend on
 heavy GNN libraries (e.g. torch‑geometric) – to keep the CI environment
-fast and reproducible.  It uses NumPy for deterministic pseudo‑random
+fast and reproducible. It uses NumPy for deterministic pseudo‑random
 numbers and the standard ``csv`` module for output.
 """
 
@@ -41,6 +42,7 @@ def set_global_seed(seed: int) -> None:
     except Exception:
         pass
 
+
 def early_stopping_simulation(
     epochs: int, patience: int
 ) -> Tuple[int, List[float]]:
@@ -66,13 +68,14 @@ def early_stopping_simulation(
             best_loss = current_loss
             epochs_without_improve = 0
         else:
-            epochs_without_improvement += 1
+            epochs_without_improve += 1
 
         if epochs_without_improve >= patience:
             # Early stop triggered
             break
 
     return epoch, loss_history
+
 
 def train_one_seed(
     seed: int, epochs: int = 50, patience: int = 10
@@ -106,9 +109,6 @@ def train_one_seed(
 # Main entry point
 # ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Train mock GNN model across multiple seeds."
@@ -143,15 +143,16 @@ def main() -> None:
         )
         metrics.append((seed, mae, rmse))
 
-    # Write aggregated metrics CSV
+    # Write aggregated metrics CSV with the column names expected by downstream
+    # analysis scripts (seed, model, mae, rmse)
     results_dir = Path("results")
     results_dir.mkdir(parents=True, exist_ok=True)
     metrics_path = results_dir / "metrics.csv"
     with metrics_path.open("w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["seed", "mae", "rmse"])
+        writer.writerow(["seed", "model", "mae", "rmse"])
         for seed, mae, rmse in metrics:
-            writer.writerow([seed, f"{mae:.6f}", f"{rmse:.6f}"])
+            writer.writerow([seed, "gnn", f"{mae:.6f}", f"{rmse:.6f}"])
 
     print(f"Training complete. Metrics written to {metrics_path}")
 

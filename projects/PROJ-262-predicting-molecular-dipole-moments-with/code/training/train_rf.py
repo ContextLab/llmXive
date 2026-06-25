@@ -1,198 +1,225 @@
-"""
-train_rf.py
--------------
-Trains a RandomForestRegressor on the synthetic 2‑D feature matrix produced
-by ``code/data/generate_processed_data.py``. The script now:
+"""Random Forest training script for molecular dipole moment prediction.
 
-* Writes the required ``features_2d.parquet`` file if it does not exist
-  by invoking the data generation script (ensuring the training pipeline is
-  self‑contained).
-* Saves model checkpoints in ``data/checkpoints``.
-* Emits a metrics CSV with the columns required by downstream analysis
-  (``model``, ``seed``, ``mae``, ``rmse``) and also copies this file to
-  ``results/metrics.csv`` so that the performance‑plotting scripts can find
-  it.
-"""
+This script loads the 2D feature set and the target dipole moments,
+trains a ``RandomForestRegressor`` on five different random seeds,
+saves each model checkpoint, and writes a consolidated metrics CSV
+compatible with downstream analysis scripts.
 
+Expected output files:
+  - data/checkpoints/rf_seed_{seed}.pkl      (model checkpoint)
+  - data/checkpoints/rf_metrics.csv          (metrics for all seeds)
+
+The script is executable via:
+    python code/training/train_rf.py
+"""
 from __future__ import annotations
 
 import argparse
 import csv
 import os
-import subprocess
+import sys
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 
-# Re‑use utilities from the GNN training module
-from training.train_gnn import set_global_seed
-from training.evaluate import mae, rmse
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 
-# -------------------------------------------------------------------------
-# Helper functions
-# -------------------------------------------------------------------------
 
 def ensure_data_available(data_dir: Path) -> None:
-    """
-    Verify that ``features_2d.parquet`` exists. If it does not, invoke the
-    synthetic data generation script to create it.
-    """
-    feature_path = data_dir / "features_2d.parquet"
-    if not feature_path.is_file():
-        print(f"Feature file {feature_path} missing – generating synthetic data.")
-        # Call the data generation script with default arguments
-        subprocess.run(
-            ["python", "code/data/generate_processed_data.py"],
-            check=True,
-        )
-        if not feature_path.is_file():
-            raise FileNotFoundError(
-                f"Failed to generate required feature file: {feature_path}"
-            )
-
-def load_data(data_dir: Path) -> pd.DataFrame:
-    """
-    Load the 2‑D feature parquet file produced by the US1 pipeline.
+    """Validate that required input files exist.
 
     Parameters
     ----------
     data_dir: Path
-        Directory containing ``features_2d.parquet``.
+        Directory containing processed data files.
+    """
+    required_files = [
+        data_dir / "features_2d.parquet",
+        data_dir / "molecules_10k.parquet",
+    ]
+    missing = [str(p) for p in required_files if not p.is_file()]
+    if missing:
+        raise FileNotFoundError(
+            f"Required data files missing in {data_dir}: {', '.join(missing)}"
+        )
+
+
+def _find_dipole_column(df: pd.DataFrame) -> str:
+    """Return the column name that stores the dipole moment.
+
+    The QM9 dataset uses several possible names; this function makes the
+    script robust to minor naming differences.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Dataframe that should contain the target column.
+
+    Returns
+    -------
+    str
+        Column name that will be used as the target.
+    """
+    candidates = {"dipole", "dipole_moment", "mu", "dipole_mom", "dipole_moment_a.u."}
+    for col in df.columns:
+        if col.lower() in candidates:
+            return col
+    raise KeyError(
+        f"Target column for dipole moment not found. Expected one of {candidates}, "
+        f"found columns: {list(df.columns)}"
+    )
+
+
+def load_data(data_dir: Path) -> pd.DataFrame:
+    """Load features and target dipole moments, returning a unified DataFrame.
+
+    The returned DataFrame contains all feature columns plus a ``dipole``
+    column that holds the target value.
+
+    Parameters
+    ----------
+    data_dir: Path
+        Directory containing ``features_2d.parquet`` and ``molecules_10k.parquet``.
 
     Returns
     -------
     pd.DataFrame
-        Dataframe with feature columns and a ``dipole`` target column.
+        Combined dataset ready for model training.
     """
-    feature_path = data_dir / "features_2d.parquet"
-    if not feature_path.is_file():
-        raise FileNotFoundError(f"Feature file not found: {feature_path}")
-    df = pd.read_parquet(feature_path)
-    if "dipole" not in df.columns:
-        raise KeyError(
-            "Target column 'dipole' not found in the feature parquet file."
-        )
+    features_path = data_dir / "features_2d.parquet"
+    molecules_path = data_dir / "molecules_10k.parquet"
+
+    df_features = pd.read_parquet(features_path)
+    df_molecules = pd.read_parquet(molecules_path)
+
+    dipole_col = _find_dipole_column(df_molecules)
+    # Standardise column name to ``dipole`` for downstream code.
+    df = df_features.copy()
+    df["dipole"] = df_molecules[dipole_col]
     return df
 
 
 def train_one_seed(
-    seed: int,
-    X_train: pd.DataFrame,
-    y_train: pd.Series,
-    X_test: pd.DataFrame,
-    y_test: pd.Series,
-) -> tuple[float, float, RandomForestRegressor]:
-    """
-    Train a RandomForestRegressor for a single seed and evaluate it.
+    df: pd.DataFrame, seed: int, output_dir: Path
+) -> Tuple[int, float, float]:
+    """Train a Random Forest on a single seed and persist the model.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Dataset containing features and a ``dipole`` target column.
+    seed: int
+        Random seed for reproducibility.
+    output_dir: Path
+        Directory where the model checkpoint will be saved.
 
     Returns
     -------
-    tuple
-        (mae_score, rmse_score, fitted_model)
+    Tuple[int, float, float]
+        ``(seed, mae, rmse)`` for the test split.
     """
-    set_global_seed(seed)
+    X = df.drop(columns=["dipole"])
+    y = df["dipole"]
 
-    model = RandomForestRegressor(
-        n_estimators=200,
-        random_state=seed,
-        n_jobs=-1,  # honour the global CPU‑core constraint elsewhere
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=seed
     )
-    model.fit(X_train, y_train)
 
-    preds = model.predict(X_test)
-    mae_score = mae(y_test, preds)
-    rmse_score = rmse(y_test, preds)
+    # Instantiate the regressor. Hyper‑parameters are modest to keep runtime low.
+    rf = RandomForestRegressor(
+        n_estimators=200,
+        max_depth=None,
+        random_state=seed,
+        n_jobs=1,  # respect the global CPU‑core constraint (2 cores max)
+    )
+    rf.fit(X_train, y_train)
 
-    return mae_score, rmse_score, model
+    # Save the trained model.
+    model_path = output_dir / f"rf_seed_{seed}.pkl"
+    joblib.dump(rf, model_path)
+
+    # Evaluate on the held‑out test set.
+    y_pred = rf.predict(X_test)
+    mae_val = mean_absolute_error(y_test, y_pred)
+    rmse_val = mean_squared_error(y_test, y_pred, squared=False)
+
+    return seed, mae_val, rmse_val
 
 
-# -------------------------------------------------------------------------
-# Main entry point
-# -------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
 
-def main() -> None:
+
+def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Train Random Forest models on 2‑D molecular descriptors."
+        description="Train Random Forest models on QM9 dipole data."
     )
     parser.add_argument(
         "--data-dir",
         type=Path,
         default=Path("data/processed"),
-        help="Directory containing the pre‑processed feature parquet file.",
+        help="Directory containing processed feature and target files.",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path("data/checkpoints"),
-        help="Directory where model checkpoints and metrics CSV will be saved.",
+        help="Directory where model checkpoints and metrics CSV will be written.",
     )
     parser.add_argument(
         "--seeds",
         type=int,
         nargs="+",
         default=[0, 1, 2, 3, 4],
-        help="Random seeds for reproducible training runs.",
+        help="Random seeds for which to train separate models.",
     )
-    parser.add_argument(
-        "--test-size",
-        type=float,
-        default=0.2,
-        help="Proportion of the dataset to hold out for testing.",
-    )
-    args = parser.parse_args()
+    return parser.parse_args(argv)
 
-    # Ensure output directories exist
+
+def main(argv: List[str] | None = None) -> int:
+    args = parse_args(argv)
+
+    # Ensure output directory exists.
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    results_dir = Path("results")
-    results_dir.mkdir(parents=True, exist_ok=True)
 
-    # Ensure the required feature file is present
-    ensure_data_available(args.data_dir)
+    try:
+        ensure_data_available(args.data_dir)
+    except FileNotFoundError as exc:
+        sys.stderr.write(str(exc) + "\n")
+        return 1
 
-    # Load dataset
-    df = load_data(args.data_dir)
+    try:
+        df = load_data(args.data_dir)
+    except KeyError as exc:
+        sys.stderr.write(str(exc) + "\n")
+        return 1
 
-    # Separate features and target
-    y = df["dipole"]
-    X = df.drop(columns=["dipole"])
+    # Collect metrics for each seed.
+    metrics: List[Tuple[int, float, float]] = []
+    for seed in args.seeds:
+        seed, mae_val, rmse_val = train_one_seed(df, seed, args.output_dir)
+        metrics.append((seed, mae_val, rmse_val))
+        print(f"Seed {seed}: MAE={mae_val:.4f}, RMSE={rmse_val:.4f}")
 
-    # Prepare CSV writer for metrics (including required columns)
+    # Write consolidated metrics CSV with column names expected by downstream analysis.
     metrics_path = args.output_dir / "rf_metrics.csv"
     with metrics_path.open("w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["model", "seed", "mae", "rmse"])
+        for seed, mae_val, rmse_val in metrics:
+            writer.writerow(["RandomForest", seed, f"{mae_val:.6f}", f"{rmse_val:.6f}"])
 
-        for seed in args.seeds:
-            # Split data – using the same seed for reproducibility
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=args.test_size, random_state=seed
-            )
-
-            mae_score, rmse_score, model = train_one_seed(
-                seed, X_train, y_train, X_test, y_test
-            )
-
-            # Save model checkpoint
-            model_path = args.output_dir / f"rf_seed_{seed}.pkl"
-            joblib.dump(model, model_path)
-
-            # Record metrics
-            writer.writerow(["RandomForest", seed, mae_score, rmse_score])
-            print(
-                f"Seed {seed}: MAE={mae_score:.4f}, RMSE={rmse_score:.4f} – saved to {model_path}"
-            )
-
-    print(f"All metrics written to {metrics_path}")
-
-    # Copy metrics to the location expected by analysis scripts
-    analysis_metrics_path = results_dir / "metrics.csv"
-    analysis_metrics_path.write_text(metrics_path.read_text())
-    print(f"Metrics also copied to {analysis_metrics_path}")
+    print(f"Metrics written to {metrics_path}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
