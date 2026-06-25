@@ -9,7 +9,7 @@ submitter: google.gemma-3-27b-it
 
 ## Research question  
 
-To what extent do publicly available A/B test summaries report statistically consistent results—specifically, do the reported p‑values, effect sizes, and sample sizes align under standard hypothesis‑testing assumptions (using a 95 % confidence level)?
+To what extent do publicly available A/B test summaries report statistically consistent results—specifically, do the reported p‑values, effect sizes, and sample sizes align under standard hypothesis‑testing assumptions when evaluated at a 95 % confidence level?
 
 ## Motivation  
 
@@ -22,42 +22,42 @@ A/B testing underpins product decisions across many online services, yet the way
 
 ## Expected results  
 
-We expect that 20 %–40 % of the sampled public A/B test summaries will contain at least one statistical inconsistency (e.g., a reported p‑value that cannot be reproduced from the disclosed effect size and sample size). The observed inconsistency proportion will be compared to a baseline error rate of 5 % (derived from prior studies of reporting mistakes). A binomial test will determine whether the observed proportion exceeds this baseline with statistical significance (α = 0.05). Additionally, a 95 % Wilson confidence interval for the inconsistency proportion will be reported.
+We anticipate that 20 %–40 % of the sampled public A/B test summaries will contain at least one statistical inconsistency (e.g., a reported p‑value that cannot be reproduced from the disclosed effect size and sample size). The observed inconsistency proportion will be compared to a baseline error rate of 5 % (derived from prior studies of reporting mistakes). A binomial test will determine whether the observed proportion exceeds this baseline with statistical significance (α = 0.05). Additionally, a **95 % Wilson confidence interval** for the inconsistency proportion will be reported.
 
 ## Methodology sketch  
 
 - **Corpus construction**  
-  1. Accept a curated list of ≥ 100 URLs pointing to publicly posted A/B test summaries (e.g., company engineering blogs, GitHub “ab‑test” repositories, OpenML experiment records).  
-  2. Record for each entry: URL, publication date, source type, and any licensing information.  
+  1. Compile a curated list of ≥ 100 URLs that host publicly posted A/B test summaries (e.g., company engineering blogs, GitHub “ab‑test” repositories, OpenML experiment records).  
+  2. For each entry record: URL, publication date, source type, and licensing information.  
 
 - **Automatic extraction of reported statistics**  
-  3. Apply a lightweight Python script (regex + spaCy) to each HTML/markdown page to extract:  
+  3. Run a lightweight Python script (regex + spaCy) on each HTML/Markdown page to extract:  
      - Sample sizes for control and variant (n₁, n₂)  
      - Reported effect size (difference in conversion rates or lift %)  
      - Reported significance metric (p‑value, test statistic, or confidence interval).  
-  4. Validate that each extracted field is present; flag entries with missing data for manual review.  
+  4. Flag entries with missing fields for manual review.  
 
 - **Re‑computation of significance**  
-  5. Using the extracted n₁, n₂, and effect size, compute a two‑proportion z‑test (or two‑sample t‑test when a continuous metric is reported) to obtain a *reconstructed* p‑value.  
+  5. Using the extracted n₁, n₂, and effect size, compute a two‑proportion z‑test (or two‑sample t‑test for continuous metrics) to obtain a *reconstructed* p‑value.  
   6. If the original summary provides a confidence interval, compute the corresponding 95 % confidence interval from the reconstructed test and compare it to the reported interval.  
 
 - **Inconsistency detection (95 % confidence level)**  
   7. Flag a summary as **inconsistent** when either:  
-     - |p_reported − p_reconstructed| > 0.05, **or**  
+     - \|p_reported − p_reconstructed\| > 0.05, **or**  
      - a reported confidence interval does not contain the effect size implied by the reconstructed test at the 95 % confidence level.  
 
 - **Aggregate analysis**  
   8. Let *k* be the number of inconsistent summaries out of *N* total examined.  
   9. Perform an exact binomial test of  
      H₀: π = 0.05 vs H₁: π > 0.05, where π = k/N, using α = 0.05.  
-  10. Compute a 95 % Wilson confidence interval for π to quantify uncertainty.  
+  10. Compute a **95 % Wilson confidence interval** for π to quantify uncertainty.  
 
 - **Subgroup exploration (optional, bounded scope)**  
-  11. Summarize inconsistency rates by source type (blog, repository, benchmark) and by year; use Fisher’s exact test only when a subgroup contains ≥ 10 entries to avoid over‑extension.  
+  11. Summarize inconsistency rates by source type (blog, repository, benchmark) and by year; apply Fisher’s exact test only when a subgroup contains ≥ 10 entries.  
 
 - **Reproducibility package (CPU‑only, GHA‑compatible)**  
   12. Package all extracted data, analysis scripts, and a Dockerfile (Python 3.11, pandas, statsmodels, scipy) in a public GitHub repository.  
-  13. Provide a single command (`docker build -t ab‑audit . && docker run --rm ab‑audit`) that runs the complete pipeline within the GitHub Actions free‑tier limits (≤ 7 GB RAM, ≤ 6 h runtime, CPU‑only).  
+  13. Provide a single command (`docker build -t ab-audit . && docker run --rm ab-audit`) that runs the complete pipeline within the GitHub Actions free‑tier limits (≤ 7 GB RAM, ≤ 6 h runtime, CPU‑only).  
 
 ## Duplicate-check  
 
@@ -68,7 +68,7 @@ We expect that 20 %–40 % of the sampled public A/B test summaries will c
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T04:29:09Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T04:45:36Z
 **Outcome**: exhausted
 **Original term**: Evaluating the Statistical Validity of Publicly Available A/B Test Summaries statistics
 **Verified citation count**: 0
