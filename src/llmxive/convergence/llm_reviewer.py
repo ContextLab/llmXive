@@ -502,6 +502,20 @@ def _parse_response(
     missing required fields — engine treats as non-convergence.
     """
     candidate = response_text.strip()
+    # A model (notably qwen3.5, the default) wraps the WHOLE review in a
+    # ```yaml ... ``` fence — and as a reasoning model it frequently TRUNCATES
+    # before the closing ```, so `_CODE_FENCE_RE` (which needs the close) never
+    # matches and the leading ```yaml line hides the `---` frontmatter from
+    # `_extract_frontmatter`, crashing the panel ("no YAML frontmatter"; the live
+    # PROJ-492 plan-panel scientific_soundness engine failure on the qwen switch).
+    # A fence at POSITION 0 wraps the whole document — it can NEVER be a prose
+    # example (prose never starts the response) — so stripping the opening fence
+    # line (and a matching trailing close, if any) here is safe, unlike the
+    # search-anywhere fence strip below which stays a guarded fallback.
+    _lead_fence = re.match(r"```(?:yaml|yml)?[ \t]*\r?\n", candidate, re.IGNORECASE)
+    if _lead_fence is not None:
+        candidate = candidate[_lead_fence.end():]
+        candidate = re.sub(r"\r?\n```[ \t]*$", "", candidate).strip()
     # Frontmatter extraction takes PRIORITY over fence-stripping. A reviewer's
     # prose body frequently contains a ```yaml ... ``` example (or quotes a
     # fenced block from the artifact); stripping that fence FIRST would hijack

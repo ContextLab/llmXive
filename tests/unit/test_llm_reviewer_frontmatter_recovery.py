@@ -151,6 +151,34 @@ class TestParseResponseRecovery:
         assert len(concerns) == 1
         assert "27635" in concerns[0].text
 
+    def test_qwen_unclosed_yaml_fence_wraps_whole_review(self):
+        """qwen3.5 (the default model) wraps the WHOLE review in a ```yaml fence
+        and, as a reasoning model, often TRUNCATES before the closing ``` — so
+        the search-anywhere fence regex (which needs the close) never matches and
+        the leading ```yaml line hides the `---` frontmatter. Live PROJ-492
+        plan-panel scientific_soundness engine failure on the qwen switch. The
+        leading-fence strip recovers it; the genuine concern survives. (The
+        CLOSED-fence variant is test_whole_response_wrapped_in_yaml_fence.)"""
+        resp = (
+            "```yaml\n"
+            "---\n"
+            "reviewer_name: scientific_soundness\n"
+            "stage: planned\n"
+            "verdict: minor_revision\n"
+            "concerns:\n"
+            "  - severity: methodology\n"
+            "    text: the power analysis is post-hoc, not a priori\n"
+            "---\n"
+            "Prose body with NO closing fence (truncated reasoning output)"
+        )
+        verdict, concerns = _parse_response(
+            resp, lens="scientific_soundness", stage="planned",
+            default_artifact="plan.md",
+        )
+        assert verdict == "minor_revision"
+        assert len(concerns) == 1
+        assert "post-hoc" in concerns[0].text
+
 
 class TestContentlessReviewGuard:
     """False-convergence guard: a review whose frontmatter has NEITHER a
