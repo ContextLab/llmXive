@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1111.7190",
+  "judged_at": "2026-06-25T09:22:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-modal comparison of neural prediction error signals neuroscience",
+  "rationale": "The paper discusses AI embodied multisensory dialogue agents and theoretical arguments about language embodiment, without measuring or analyzing neural prediction error signals or any cross‑modal neural mechanisms, thus it is off‑domain and unrelated to the neuroscience focus of the question.",
+  "relevant": false
+}

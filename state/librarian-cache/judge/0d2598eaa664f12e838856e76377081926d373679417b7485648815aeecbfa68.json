@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.21760",
+  "judged_at": "2026-06-25T09:22:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-modal comparison of neural prediction error signals neuroscience",
+  "rationale": "The paper focuses on building a language‑aligned foundation model for fMRI data and does not investigate neural prediction error signals or their cross‑modal comparison, so it lacks relevance to the user's research question.",
+  "relevant": false
+}

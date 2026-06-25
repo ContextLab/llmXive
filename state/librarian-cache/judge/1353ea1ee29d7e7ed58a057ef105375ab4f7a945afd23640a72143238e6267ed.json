@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.03868",
+  "judged_at": "2026-06-25T09:21:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "The paper studies few-shot adaptation and prompt‑learning for medical vision‑language models, not the relationship between prompt length and code generation quality in software engineering; it is off‑domain and lacks the relevant mechanism or variables.",
+  "relevant": false
+}

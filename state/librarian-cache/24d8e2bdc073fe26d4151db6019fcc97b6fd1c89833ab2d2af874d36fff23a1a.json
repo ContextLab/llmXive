@@ -1,0 +1,460 @@
+{
+  "fetched_at": "2026-06-25T09:22:17Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Cross-Modal Comparison of Neural Prediction Error Signals",
+      "target_n": 5
+    },
+    "duration_seconds": 50.019,
+    "ended_at": "2026-06-25T09:22:17Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multisensory prediction error signaling"
+        ],
+        [
+          2,
+          "cross‑modal predictive coding mechanisms"
+        ],
+        [
+          3,
+          "multimodal mismatch negativity"
+        ],
+        [
+          4,
+          "intermodal neural prediction error comparison"
+        ],
+        [
+          5,
+          "sensory‑specific prediction error responses"
+        ],
+        [
+          6,
+          "cross‑sensory surprise and error signals"
+        ],
+        [
+          7,
+          "multimodal predictive error dynamics"
+        ],
+        [
+          8,
+          "auditory‑visual prediction error interactions"
+        ],
+        [
+          9,
+          "neural correlates of prediction error across modalities"
+        ],
+        [
+          10,
+          "intersensory prediction error processing"
+        ],
+        [
+          11,
+          "hierarchical predictive coding in multiple senses"
+        ],
+        [
+          12,
+          "cross‑modal Bayesian inference error signals"
+        ],
+        [
+          13,
+          "multimodal expectation violation responses"
+        ],
+        [
+          14,
+          "intermodal sensory prediction mechanisms"
+        ],
+        [
+          15,
+          "multisensory error‑related brain activity"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Cross-Modal Comparison of Neural Prediction Error Signals neuroscience": 0,
+        "multisensory prediction error signaling": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "surprise signal neural",
+      "oddball paradigm fMRI",
+      "temporal difference error",
+      "BOLD prediction error",
+      "predictive coding hierarchical inference"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1802.06591"
+      ]
+    },
+    "per_query_hit_count": {
+      "BOLD prediction error": 3,
+      "Cross-Modal Comparison of Neural Prediction Error Signals neuroscience": 3,
+      "oddball paradigm fMRI": 3,
+      "predictive coding hierarchical inference": 3,
+      "surprise signal neural": 3,
+      "temporal difference error": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "1909.01976",
+          "rationale": "The paper focuses on machine‑learning cross‑modal retrieval systems and evaluation metrics, not on neural prediction‑error signals or any neuroscience construct, making it off‑domain for the user's question.",
+          "title": "Do Cross Modal Systems Leverage Semantic Relationships?"
+        },
+        {
+          "primary_pointer": "1908.10432",
+          "rationale": "The paper focuses on dimensionality reduction and classification of EEG data using tensor decomposition and CNNs, without addressing neural prediction error signals or any cross‑modal comparison, which are the core constructs of the user's question. Hence it does not meet any inclusion criteria.",
+          "title": "EEG Signal Dimensionality Reduction and Classification using Tensor Decomposition and Deep Convolutional Neural Networks"
+        },
+        {
+          "primary_pointer": "2512.14213",
+          "rationale": "The paper focuses on graph signal denoising methods and algorithmic parameter estimation, which are unrelated to neural prediction error signals, cross‑modal neural comparisons, or any neuroscience domain. It does not share the relevant mechanisms, variables, or empirical setting required for inclusion.",
+          "title": "Graph Signal Denoising Using Regularization by Denoising and Its Parameter Estimation"
+        },
+        {
+          "primary_pointer": "2511.21760",
+          "rationale": "The paper focuses on building a language‑aligned foundation model for fMRI data and does not investigate neural prediction error signals or their cross‑modal comparison, so it lacks relevance to the user's research question.",
+          "title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding"
+        },
+        {
+          "primary_pointer": "1111.7190",
+          "rationale": "The paper discusses AI embodied multisensory dialogue agents and theoretical arguments about language embodiment, without measuring or analyzing neural prediction error signals or any cross‑modal neural mechanisms, thus it is off‑domain and unrelated to the neuroscience focus of the question.",
+          "title": "Developing Embodied Multisensory Dialogue Agents"
+        },
+        {
+          "primary_pointer": "1612.04126",
+          "rationale": "The paper deals with statistical modeling of insurance loss reserves and bootstrap estimation of prediction error, which is unrelated to neuroscience, neural prediction error signals, or cross‑modal comparisons. It does not share the domain, mechanism, or variables of the user's question.",
+          "title": "The hierarchical generalized linear model and the bootstrap estimator of the error of prediction of loss reserves in a non-life insurance company"
+        },
+        {
+          "primary_pointer": "2302.03103",
+          "rationale": "The paper studies UI pointing error rates in mouse tasks and does not address neural prediction error signals, cross‑modal comparisons, or any neuroscience mechanism, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "Error-rate Prediction for Mouse-based Rectangular-target Pointing with no Knowledge of Movement Angles"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T09:21:27Z",
+    "term_input": {
+      "normalized": "cross-modal comparison of neural prediction error signals neuroscience",
+      "raw": "Cross-Modal Comparison of Neural Prediction Error Signals neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper provides a perspective on applying the concepts of information thermodynamics, developed recently in non-equilibrium statistical physics, to problems in theoretical neuroscience. Historically, information and energy in neuroscience have been treated separately, in contrast to physics approaches, where the relationship of entropy production with heat is a central idea. It is argued here that also in neural systems information and energy can be considered within the same theoretical framework. Starting from basic ideas of thermodynamics and information theory on a classic Brownian particle, it is shown how noisy neural networks can infer its probabilistic motion. The decoding of the particle motion by neurons is performed with some accuracy and it has some energy cost, and both can be determined using information thermodynamics. In a similar fashion, we also discuss how neural networks in the brain can learn the particle velocity, and maintain that information in the weights of plastic synapses from a physical point of view. Generally, it is shown how the framework of stochastic and information thermodynamics can be used practically to study neural inference, learning, and information storing.",
+          "claimed_authors": [
+            "Jan Karbowski"
+          ],
+          "claimed_title": "Information thermodynamics: from physics to neuroscience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.17599"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Information thermodynamics: from physics to neuroscience')",
+        "failed_at": "2026-06-25T09:21:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Immersive virtual reality (VR) emerges as a promising research and clinical tool. However, several studies suggest that VR induced adverse symptoms and effects (VRISE) may undermine the health and safety standards, and the reliability of the scientific results. In the current literature review, the technical reasons for the adverse symptomatology are investigated to provide suggestions and technological knowledge for the implementation of VR head-mounted display (HMD) systems in cognitive neuroscience. The technological systematic literature indicated features pertinent to display, sound, motion tracking, navigation, ergonomic interactions, user experience, and computer hardware that should be considered by the researchers. Subsequently, a meta-analysis of 44 neuroscientific or neuropsychological studies involving VR HMD systems was performed. The meta-analysis of the VR studies demonstrated that new generation HMDs induced significantly less VRISE and marginally fewer dropouts.Importantly, the commercial versions of the new generation HMDs with ergonomic interactions had zero incidents of adverse symptomatology and dropouts. HMDs equivalent to or greater than the commercial versions of contemporary HMDs accompanied with ergonomic interactions are suitable for implementation in cognitive neuroscience. In conclusion, researchers technological competency, along with meticulous methods and reports pertinent to software, hardware, and VRISE, are paramount to ensure the health and safety standards and the reliability of neuroscientific results.",
+          "claimed_authors": [
+            "Panagiotis Kourtesis",
+            "Simona Collina",
+            "Leonidas A. A. Doumas",
+            "Sarah E. MacPherson"
+          ],
+          "claimed_title": "Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.08123"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis')",
+        "failed_at": "2026-06-25T09:21:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The oddball paradigm is widely applied to the investigation of multiple cognitive functions. Prior studies have explored the cortical oscillation and power spectral differing from the resting-state conduction to oddball paradigm, but whether brain networks existing the significant difference is still unclear. Our study addressed how the brain reconfigures its architecture from a resting-state condition (i.e., baseline) to P300 stimulus task in the visual oddball paradigm. In this study, electroencephalogram (EEG) datasets were collected from 24 postgraduate students, who were required to only mentally count the number of target stimulus; afterwards the functional EEG networks constructed in different frequency bands were compared between baseline and oddball task conditions to evaluate the reconfiguration of functional network in the brain. Compared to the baseline, our results showed the significantly (p < 0.05) enhanced delta/theta EEG connectivity and decreased alpha default mode network in the progress of brain reconfiguration to the P300 task. Furthermore, the reconfigured coupling strengths were demonstrated to relate to P300 amplitudes, which were then regarded as input features to train a classifier to differentiate the high and low P300 amplitudes groups with an accuracy of 77.78%. The findings of our study help us to understand the changes of functional brain connectivity from resting-state to oddball stimulus task, and the reconfigured network pattern has the potential for the selection of good subjects for P300-based brain- computer interface.",
+          "claimed_authors": [
+            "Fali Li",
+            "Chanlin Yi",
+            "Yuanyuan Liao",
+            "Yuanling Jiang",
+            "Yajing Si",
+            "Limeng Song",
+            "Tao Zhang",
+            "Dezhong Yao",
+            "Yangsong Zhang",
+            "Zehong Cao",
+            "Peng Xu"
+          ],
+          "claimed_title": "Reconfiguration of Brain Network between Resting-state and Oddball Paradigm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.06676"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Reconfiguration of Brain Network between Resting-state and Oddball Paradigm')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Brain development in the first few months of human life is a critical phase characterized by rapid structural growth and functional organization. Accurately predicting developmental outcomes during this time is crucial for identifying delays and enabling timely interventions. This study introduces the SwiFT (Swin 4D fMRI Transformer) model, designed to predict Bayley-III composite scores using neonatal fMRI from the Developing Human Connectome Project (dHCP). To enhance predictive accuracy, we apply dimensionality reduction via group independent component analysis (ICA) and pretrain SwiFT on large adult fMRI datasets to address the challenges of limited neonatal data. Our analysis shows that SwiFT significantly outperforms baseline models in predicting cognitive, motor, and language outcomes, leveraging both single-label and multi-label prediction strategies. The model's attention-based architecture processes spatiotemporal data end-to-end, delivering superior predictive performance. Additionally, we use Integrated Gradients with Smoothgrad sQuare (IG-SQ) to interpret predictions, identifying neural spatial representations linked to early cognitive and behavioral development. These findings underscore the potential of Transformer models to advance neurodevelopmental research and clinical practice.",
+          "claimed_authors": [
+            "Patrick Styll",
+            "Dowon Kim",
+            "Jiook Cha"
+          ],
+          "claimed_title": "Swin fMRI Transformer Predicts Early Neurodevelopmental Outcomes from Neonatal fMRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.07783"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Swin fMRI Transformer Predicts Early Neurodevelopmental Outcomes from Neonatal fMRI')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The study of temporal networks is motivated by the simple and important observation that just as network structure can affect dynamics, so can structure in time. Just as network topology can teach us about the system in question, so can its temporal characteristics. In many cases, leaving out either one of these components would lead to an incomplete understanding of the system or poor predictions. We argue that including time into network modeling inevitably leads researchers away from the trodden paths of network science. Temporal network theory requires something different -- new methods, new concepts, new questions -- compared to static networks. In this introductory chapter, we overview the ideas that the field of temporal networks has brought forward in the last decade. We also place the contributions to the current volume on this map of temporal-network approaches.",
+          "claimed_authors": [
+            "Petter Holme",
+            "Jari Saramäki"
+          ],
+          "claimed_title": "A map of approaches to temporal networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.13615"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='A map of approaches to temporal networks')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A spherical target irradiated by laser beams located at 49o and 131o with respect to the polar axis has been considered. The illumination model has been used to evaluate the irradiation non-uniformity assuming circular and elliptical super-gaussian laser intensity profiles and the irradiation scheme has been optimized by means of the Polar Direct Drive technique. A parametric study has been performed providing the irradiation non-uniformity as a function of the Polar Direct Drive displacement and of the laser intensity profile parameters. Moreover, two-dimensional axis-symmetric hydrodynamic simulations have been performed for a plastic sphere irradiated by laser beams characterized by a constant flat temporal power pulse. In these simulations the front of the inward shock wave has been tracked providing the time-evolution of any non-uniformity. The results provided by the two methods - illumination model and hydrodynamic data - have been compared and it is found that the illumination model reproduces the main behaviour exhibited by the hydrodynamic data. The two models provide compatible values for the optimum Polar Direct Drive parameter and similar optimal super-gaussian profiles.",
+          "claimed_authors": [
+            "M. Temporal",
+            "B. Canaud",
+            "W. J. Garbett",
+            "R. Ramis"
+          ],
+          "claimed_title": "Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.7762"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper motivates and develops source traces for temporal difference (TD) learning in the tabular setting. Source traces are like eligibility traces, but model potential histories rather than immediate ones. This allows TD errors to be propagated to potential causal states and leads to faster generalization. Source traces can be thought of as the model-based, backward view of successor representations (SR), and share many of the same benefits. This view, however, suggests several new ideas. First, a TD($λ$)-like source learning algorithm is proposed and its convergence is proven. Then, a novel algorithm for learning the source map (or SR matrix) is developed and shown to outperform the previous algorithm. Finally, various approaches to using the source/SR model are explored, and it is shown that source traces can be effectively combined with other model-based methods like Dyna and experience replay.",
+          "claimed_authors": [
+            "Silviu Pitis"
+          ],
+          "claimed_title": "Source Traces for Temporal Difference Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.02907"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Source Traces for Temporal Difference Learning')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents the hierarchical generalized linear model (HGLM) for loss reserving in a non-life insurance company. Because in this case the error of prediction is expressed by a complex analytical formula, the error bootstrap estimator is proposed instead. Moreover, the bootstrap procedure is used to obtain full information about the error by applying quantiles of the absolute prediction error. The full R code is available on the Github https://github.com/woali/BootErrorLossReserveHGLM.",
+          "claimed_authors": [
+            "Alicja Wolny-Dominiak"
+          ],
+          "claimed_title": "The hierarchical generalized linear model and the bootstrap estimator of the error of prediction of loss reserves in a non-life insurance company",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.04126"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='The hierarchical generalized linear model and the bootstrap estimator of the error of prediction of loss reserves in a non-life insurance company')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In rectangular-target pointing, movement angles towards targets are known to affect error rates. When designers determine target sizes, however, they would not know the frequencies of cursor-approaching directions for each target. Thus, assuming that there are unbiasedly various angles, we derived models to predict error rates depending only on the target width and height. We conducted two crowdsourced experiments: a cyclic pointing task with a predefined movement angle and a multi-directional pointing task. The shuffle-split cross-validation with 60% training data showed R^2 > 0.81, MAE < 1.3%, and RMSE < 2.1%, suggesting good prediction accuracy even for predicting untested target sizes when designers newly set UI elements.",
+          "claimed_authors": [
+            "Shota Yamanaka"
+          ],
+          "claimed_title": "Error-rate Prediction for Mouse-based Rectangular-target Pointing with no Knowledge of Movement Angles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.03103"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Error-rate Prediction for Mouse-based Rectangular-target Pointing with no Knowledge of Movement Angles')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outcome prediction is crucial for head and neck cancer patients as it can provide prognostic information for early treatment planning. Radiomics methods have been widely used for outcome prediction from medical images. However, these methods are limited by their reliance on intractable manual segmentation of tumor regions. Recently, deep learning methods have been proposed to perform end-to-end outcome prediction so as to remove the reliance on manual segmentation. Unfortunately, without segmentation masks, these methods will take the whole image as input, such that makes them difficult to focus on tumor regions and potentially unable to fully leverage the prognostic information within the tumor regions. In this study, we propose a radiomics-enhanced deep multi-task framework for outcome prediction from PET/CT images, in the context of HEad and neCK TumOR segmentation and outcome prediction challenge (HECKTOR 2022). In our framework, our novelty is to incorporate radiomics as an enhancement to our recently proposed Deep Multi-task Survival model (DeepMTS). The DeepMTS jointly learns to predict the survival risk scores of patients and the segmentation masks of tumor regions. Radiomics features are extracted from the predicted tumor regions and combined with the predicted survival risk scores for final outcome prediction, through which the prognostic information in tumor regions can be further leveraged. Our method achieved a C-index of 0.681 on the testing set, placing the 2nd on the leaderboard with only 0.00068 lower in C-index than the 1st place.",
+          "claimed_authors": [
+            "Mingyuan Meng",
+            "Lei Bi",
+            "Dagan Feng",
+            "Jinman Kim"
+          ],
+          "claimed_title": "Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.05409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hierarchical forecasting problems arise when time series have a natural group structure, and predictions at multiple levels of aggregation and disaggregation across the groups are needed. In such problems, it is often desired to satisfy the aggregation constraints in a given hierarchy, referred to as hierarchical coherence in the literature. Maintaining coherence while producing accurate forecasts can be a challenging problem, especially in the case of probabilistic forecasting. We present a novel method capable of accurate and coherent probabilistic forecasts for time series when reliable hierarchical information is present. We call it Deep Poisson Mixture Network (DPMN). It relies on the combination of neural networks and a statistical model for the joint distribution of the hierarchical multivariate time series structure. By construction, the model guarantees hierarchical coherence and provides simple rules for aggregation and disaggregation of the predictive distributions. We perform an extensive empirical evaluation comparing the DPMN to other state-of-the-art methods which produce hierarchically coherent probabilistic forecasts on multiple public datasets. Comparing to existing coherent probabilistic models, we obtain a relative improvement in the overall Continuous Ranked Probability Score (CRPS) of 11.8% on Australian domestic tourism data, and 8.1% on the Favorita grocery sales dataset, where time series are grouped with geographical hierarchies or travel intent hierarchies. For San Francisco Bay Area highway traffic, where the series' hierarchical structure is randomly assigned, and their correlations are less informative, our method does not show significant performance differences over statistical baselines.",
+          "claimed_authors": [
+            "Kin G. Olivares",
+            "O. Nganba Meetei",
+            "Ruijun Ma",
+            "Rohan Reddy",
+            "Mengfei Cao",
+            "Lee Dicker"
+          ],
+          "claimed_title": "Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13179"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An iterated refinement procedure for the Guruswami--Sudan list decoding algorithm for Generalised Reed--Solomon codes based on Alekhnovich's module minimisation is proposed. The method is parametrisable and allows variants of the usual list decoding approach. In particular, finding the list of \\emph{closest} codewords within an intermediate radius can be performed with improved average-case complexity while retaining the worst-case complexity.",
+          "claimed_authors": [
+            "Johan Sebastian Rosenkilde Nielsen",
+            "Alexander Zeh"
+          ],
+          "claimed_title": "Multi-Trial Guruswami--Sudan Decoding for Generalised Reed--Solomon Codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.6236"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Multi-Trial Guruswami--Sudan Decoding for Generalised Reed--Solomon Codes')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning meaningful and general representations from unannotated speech that are applicable to a wide range of tasks remains challenging. In this paper we propose to use autoregressive predictive coding (APC), a recently proposed self-supervised objective, as a generative pre-training approach for learning meaningful, non-specific, and transferable speech representations. We pre-train APC on large-scale unlabeled data and conduct transfer learning experiments on three speech applications that require different information about speech characteristics to perform well: speech recognition, speech translation, and speaker identification. Extensive experiments show that APC not only outperforms surface features (e.g., log Mel spectrograms) and other popular representation learning methods on all three tasks, but is also effective at reducing downstream labeled data size and model parameters. We also investigate the use of Transformers for modeling APC and find it superior to RNNs.",
+          "claimed_authors": [
+            "Yu-An Chung",
+            "James Glass"
+          ],
+          "claimed_title": "Generative Pre-Training for Speech with Autoregressive Predictive Coding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.12607"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Modal Comparison of Neural Prediction Error Signals neuroscience', candidate_title='Generative Pre-Training for Speech with Autoregressive Predictive Coding')",
+        "failed_at": "2026-06-25T09:21:57Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jonathan Tong",
+            "German I. Parisi",
+            "Stefan Wermter",
+            "Brigitte Röder"
+          ],
+          "title": "Closing the loop on multisensory interactions: A neural architecture for multisensory causal inference and recalibration",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1802.06591",
+        "summary": "When the brain receives input from multiple sensory systems, it is faced with the question of whether it is appropriate to process the inputs in combination, as if they originated from the same event, or separately, as if they originated from distinct events. Furthermore, it must also have a mechanism through which it can keep sensory inputs calibrated to maintain the accuracy of its internal representations. We have developed a neural network architecture capable of i) approximating optimal multisensory spatial integration, based on Bayesian causal inference, and ii) recalibrating the spatial encoding of sensory systems. The architecture is based on features of the dorsal processing hierarchy, including the spatial tuning properties of unisensory neurons and the convergence of different sensory inputs onto multisensory neurons. Furthermore, we propose that these unisensory and multisensory neurons play dual roles in i) encoding spatial location as separate or integrated estimates and ii) accumulating evidence for the independence or relatedness of multisensory stimuli. We further propose that top-down feedback connections spanning the dorsal pathway play key a role in recalibrating spatial encoding at the level of early unisensory cortices. Our proposed architecture provides possible explanations for a number of human electrophysiological and neuroimaging results and generates testable predictions linking neurophysiology with behaviour.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1802.06591",
+          "http_status": 200,
+          "pdf_sample_score": 0.2818,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T09:22:00Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "cross-modal comparison of neural prediction error signals neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

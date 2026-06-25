@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.14712",
+  "judged_at": "2026-06-25T09:21:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "The paper provides an empirical baseline for code generation quality of LLMs on a quantum‑code benchmark (Qiskit HumanEval), thereby measuring one of the user’s dependent variables (code quality) within the same domain of code generation, even though it does not study prompt size. This satisfies acceptance criterion (b) (and also (c) as a baseline study).",
+  "relevant": true
+}

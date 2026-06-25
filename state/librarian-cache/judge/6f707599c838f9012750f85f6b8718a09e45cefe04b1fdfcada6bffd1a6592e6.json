@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.03724",
+  "judged_at": "2026-06-25T09:21:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "The paper studies hardware mitigations for speculative execution attacks and their performance trade‑offs, which is unrelated to prompt length or code generation quality in language models; it shares no mechanism, variable, or domain with the user's question.",
+  "relevant": false
+}

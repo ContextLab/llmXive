@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1802.06591",
+  "judged_at": "2026-06-25T09:22:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-modal comparison of neural prediction error signals neuroscience",
+  "rationale": "The paper provides a foundational neural architecture for multisensory (cross‑modal) causal inference and recalibration, which is a core mechanism underlying prediction‑error processing across sensory modalities, making it a canonical methodological reference for studies of cross‑modal neural prediction‑error signals.",
+  "relevant": true
+}

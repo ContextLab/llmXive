@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1908.10432",
+  "judged_at": "2026-06-25T09:22:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-modal comparison of neural prediction error signals neuroscience",
+  "rationale": "The paper focuses on dimensionality reduction and classification of EEG data using tensor decomposition and CNNs, without addressing neural prediction error signals or any cross‑modal comparison, which are the core constructs of the user's question. Hence it does not meet any inclusion criteria.",
+  "relevant": false
+}

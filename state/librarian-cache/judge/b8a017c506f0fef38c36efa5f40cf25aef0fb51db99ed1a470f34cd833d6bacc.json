@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.03103",
+  "judged_at": "2026-06-25T09:22:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-modal comparison of neural prediction error signals neuroscience",
+  "rationale": "The paper studies UI pointing error rates in mouse tasks and does not address neural prediction error signals, cross‑modal comparisons, or any neuroscience mechanism, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

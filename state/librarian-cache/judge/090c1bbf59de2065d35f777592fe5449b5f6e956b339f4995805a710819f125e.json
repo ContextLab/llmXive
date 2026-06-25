@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.14449",
+  "judged_at": "2026-06-25T09:21:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "The paper studies medical image registration using contrastive learning and synthesis, which is unrelated to prompt size, code generation, or large language model performance, thus it does not meet any inclusion criteria.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.03179",
+  "judged_at": "2026-06-25T09:21:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "The paper focuses on classifying malicious‑code prompts into “weapons” vs “knowledge” and on inter‑rater reliability of that labeling, without examining prompt length or its impact on code generation quality. It does not address the prompt‑size versus code‑generation‑quality trade‑off, nor does it provide a baseline, methodology, or population relevant to that specific relationship. Hence it is not suitable for inclusion in a literature review on the user's question.",
+  "relevant": false
+}

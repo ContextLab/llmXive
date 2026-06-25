@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1612.04126",
+  "judged_at": "2026-06-25T09:22:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-modal comparison of neural prediction error signals neuroscience",
+  "rationale": "The paper deals with statistical modeling of insurance loss reserves and bootstrap estimation of prediction error, which is unrelated to neuroscience, neural prediction error signals, or cross‑modal comparisons. It does not share the domain, mechanism, or variables of the user's question.",
+  "relevant": false
+}

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-25T03:21:35.786710Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-779-cross-modal-comparison-of-neural-predict
-last_run_id: null
+last_run_id: c6bb7594-6267-4766-92fe-f4a631ddbb5d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Cross-Modal Comparison of Neural Prediction Error Signals
-updated_at: '2026-06-25T03:21:35.786710Z'
+updated_at: '2026-06-25T09:22:23.841003Z'

@@ -1,0 +1,454 @@
+{
+  "fetched_at": "2026-06-25T09:21:17Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Analyzing the Trade‑off Between Prompt Size and Code Generation Quality",
+      "target_n": 5
+    },
+    "duration_seconds": 43.983,
+    "ended_at": "2026-06-25T09:21:17Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Prompt length impact on code synthesis quality"
+        ],
+        [
+          2,
+          "Effect of prompt verbosity on generated program correctness"
+        ],
+        [
+          3,
+          "Prompt token count vs code generation performance"
+        ],
+        [
+          4,
+          "Influence of prompt size on AI code generation accuracy"
+        ],
+        [
+          5,
+          "Prompt complexity trade‑off with software generation fidelity"
+        ],
+        [
+          6,
+          "Large language model prompt length and coding task outcomes"
+        ],
+        [
+          7,
+          "Prompt detail level and generated code reliability"
+        ],
+        [
+          8,
+          "Token budget optimization for neural code generation prompts"
+        ],
+        [
+          9,
+          "Prompt compression effects on code synthesis effectiveness"
+        ],
+        [
+          10,
+          "Prompt brevity versus functional correctness of generated code"
+        ],
+        [
+          11,
+          "Prompt engineering: size versus quality in program synthesis"
+        ],
+        [
+          12,
+          "Prompt granularity impact on bug density in generated software"
+        ],
+        [
+          13,
+          "Prompt size constraints and compilation success of LLM‑produced code"
+        ],
+        [
+          14,
+          "Prompt length scaling and adherence to coding style guidelines"
+        ],
+        [
+          15,
+          "Prompt detail optimization for improving generated code robustness"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science": 0,
+        "Prompt length impact on code synthesis quality": 2
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "context length code correctness",
+      "HumanEval benchmark code generation",
+      "few-shot examples code synthesis",
+      "pass@k execution accuracy",
+      "token budget performance degradation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2406.14712"
+      ]
+    },
+    "per_query_hit_count": {
+      "Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science": 3,
+      "HumanEval benchmark code generation": 2,
+      "context length code correctness": 3,
+      "few-shot examples code synthesis": 3,
+      "pass@k execution accuracy": 3,
+      "token budget performance degradation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2409.03868",
+          "rationale": "The paper studies few-shot adaptation and prompt‑learning for medical vision‑language models, not the relationship between prompt length and code generation quality in software engineering; it is off‑domain and lacks the relevant mechanism or variables.",
+          "title": "Few-shot Adaptation of Medical Vision-Language Models"
+        },
+        {
+          "primary_pointer": "2301.03724",
+          "rationale": "The paper studies hardware mitigations for speculative execution attacks and their performance trade‑offs, which is unrelated to prompt length or code generation quality in language models; it shares no mechanism, variable, or domain with the user's question.",
+          "title": "SoK: Hardware Defenses Against Speculative Execution Attacks"
+        },
+        {
+          "primary_pointer": "2107.14449",
+          "rationale": "The paper studies medical image registration using contrastive learning and synthesis, which is unrelated to prompt size, code generation, or large language model performance, thus it does not meet any inclusion criteria.",
+          "title": "Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images"
+        },
+        {
+          "primary_pointer": "2605.03179",
+          "rationale": "The paper focuses on classifying malicious‑code prompts into “weapons” vs “knowledge” and on inter‑rater reliability of that labeling, without examining prompt length or its impact on code generation quality. It does not address the prompt‑size versus code‑generation‑quality trade‑off, nor does it provide a baseline, methodology, or population relevant to that specific relationship. Hence it is not suitable for inclusion in a literature review on the user's question.",
+          "title": "A Validated Prompt Bank for Malicious Code Generation: Separating Executable Weapons from Security Knowledge in 1,554 Consensus-Labeled Prompts"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T09:20:33Z",
+    "term_input": {
+      "normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+      "raw": "Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interpretation of natural language is inherently context-sensitive. Most words in natural language are ambiguous and their meanings are heavily dependent on the linguistic context in which they are used. The study of lexical semantics can not be separated from the notion of context. This paper takes a contextual approach to lexical semantics and studies the linguistic context of lexical atoms, or \"sticky\" phrases such as \"hot dog\". Since such lexical atoms may occur frequently in unrestricted natural language text, recognizing them is crucial for understanding naturally-occurring text. The paper proposes several heuristic approaches to exploiting the linguistic context to identify lexical atoms from arbitrary natural language text.",
+          "claimed_authors": [
+            "Chengxiang Zhai"
+          ],
+          "claimed_title": "Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "cmp-lg/9701001"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The increasingly widespread adoption of large language models has highlighted the need for improving their explainability. We present context length probing, a novel explanation technique for causal language models, based on tracking the predictions of a model as a function of the length of available context, and allowing to assign differential importance scores to different contexts. The technique is model-agnostic and does not rely on access to model internals beyond computing token-level probabilities. We apply context length probing to large pre-trained language models and offer some initial analyses and insights, including the potential for studying long-range dependencies. The source code and an interactive demo of the method are available.",
+          "claimed_authors": [
+            "Ondřej Cífka",
+            "Antoine Liutkus"
+          ],
+          "claimed_title": "Black-box language model explanation by context length probing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.14815"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Black-box language model explanation by context length probing')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The doubly shortened perfect codes of length 13 are classified utilizing the classification of perfect codes in [P.R.J. Östergård and O. Pottonen, The perfect binary one-error-correcting codes of length 15: Part I - Classification, IEEE Trans. Inform. Theory, to appear]; there are 117821 such (13,512,3) codes. By applying a switching operation to those codes, two more (13,512,3) codes are obtained, which are then not doubly shortened perfect codes.",
+          "claimed_authors": [
+            "Patric R. J. Östergård",
+            "Olli Pottonen"
+          ],
+          "claimed_title": "Two Optimal One-Error-Correcting Codes of Length 13 That Are Not Doubly Shortened Perfect Codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0909.2526"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Two Optimal One-Error-Correcting Codes of Length 13 That Are Not Doubly Shortened Perfect Codes')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding and reasoning over diagrams is a fundamental aspect of human intelligence. While Large Multimodal Models (LMMs) have demonstrated impressive capabilities across various tasks, existing benchmarks lack comprehensive evaluation of their diagram interpretation and reasoning abilities, particularly in coding contexts. We present HumanEval-V, a rigorous benchmark of human-annotated coding tasks that spans six task types and evaluates diverse visual reasoning capabilities. Each task features carefully crafted diagrams paired with function signatures and test cases, employing novel code generation tasks to thoroughly assess models' diagram comprehension. Through extensive experiments with 22 LMMs, we find that even top-performing models achieve modest success rates, with Claude 3.5 Sonnet reaching only 36.8% pass@1, highlighting substantial room for improvement. Our analysis reveals that current LMMs struggle with spatial transformations, topological relationships, and dynamic patterns that humans find intuitive. These findings provide valuable insights for advancing LMMs' visual reasoning abilities. We have open-sourced our code and benchmark at https://github.com/HumanEval-V/HumanEval-V-Benchmark.",
+          "claimed_authors": [
+            "Fengji Zhang",
+            "Linquan Wu",
+            "Huiyu Bai",
+            "Guancheng Lin",
+            "Xiao Li",
+            "Xiao Yu",
+            "Yue Wang",
+            "Bei Chen",
+            "Jacky Keung"
+          ],
+          "claimed_title": "HumanEval-V: Benchmarking High-Level Visual Reasoning with Complex Diagrams in Coding Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12381"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='HumanEval-V: Benchmarking High-Level Visual Reasoning with Complex Diagrams in Coding Tasks')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The few-shot learning ability of vision transformers (ViTs) is rarely investigated though heavily desired. In this work, we empirically find that with the same few-shot learning frameworks, \\eg~Meta-Baseline, replacing the widely used CNN feature extractor with a ViT model often severely impairs few-shot classification performance. Moreover, our empirical study shows that in the absence of inductive bias, ViTs often learn the low-qualified token dependencies under few-shot learning regime where only a few labeled training data are available, which largely contributes to the above performance degradation. To alleviate this issue, for the first time, we propose a simple yet effective few-shot training framework for ViTs, namely Self-promoted sUpervisioN (SUN). Specifically, besides the conventional global supervision for global semantic learning SUN further pretrains the ViT on the few-shot learning dataset and then uses it to generate individual location-specific supervision for guiding each patch token. This location-specific supervision tells the ViT which patch tokens are similar or dissimilar and thus accelerates token dependency learning. Moreover, it models the local semantics in each patch token to improve the object grounding and recognition capability which helps learn generalizable patterns. To improve the quality of location-specific supervision, we further propose two techniques:~1) background patch filtration to filtrate background patches out and assign them into an extra background class; and 2) spatial-consistent augmentation to introduce sufficient diversity for data augmentation while keeping the accuracy of the generated local supervisions. Experimental results show that SUN using ViTs significantly surpasses other few-shot learning frameworks with ViTs and is the first one that achieves higher performance than those CNN state-of-the-arts.",
+          "claimed_authors": [
+            "Bowen Dong",
+            "Pan Zhou",
+            "Shuicheng Yan",
+            "Wangmeng Zuo"
+          ],
+          "claimed_title": "Self-Promoted Supervision for Few-Shot Transformer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.07057"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Self-Promoted Supervision for Few-Shot Transformer')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Few-shot learning has recently attracted wide interest in image classification, but almost all the current public benchmarks are focused on natural images. The few-shot paradigm is highly relevant in medical-imaging applications due to the scarcity of labeled data, as annotations are expensive and require specialized expertise. However, in medical imaging, few-shot learning research is sparse, limited to private data sets and is at its early stage. In particular, the few-shot setting is of high interest in histology due to the diversity and fine granularity of cancer related tissue classification tasks, and the variety of data-preparation techniques. This paper introduces a highly diversified public benchmark, gathered from various public datasets, for few-shot histology data classification. We build few-shot tasks and base-training data with various tissue types, different levels of domain shifts stemming from various cancer sites, and different class-granularity levels, thereby reflecting realistic scenarios. We evaluate the performances of state-of-the-art few-shot learning methods on our benchmark, and observe that simple fine-tuning and regularization methods achieve better results than the popular meta-learning and episodic-training paradigm. Furthermore, we introduce three scenarios based on the domain shifts between the source and target histology data: near-domain, middle-domain and out-domain. Our experiments display the potential of few-shot learning in histology classification, with state-of-art few shot learning methods approaching the supervised-learning baselines in the near-domain setting. In our out-domain setting, for 5-way 5-shot, the best performing method reaches 60% accuracy. We believe that our work could help in building realistic evaluations and fair comparisons of few-shot learning methods and will further encourage research in the few-shot paradigm.",
+          "claimed_authors": [
+            "Fereshteh Shakeri",
+            "Malik Boudiaf",
+            "Sina Mohammadi",
+            "Ivaxi Sheth",
+            "Mohammad Havaei",
+            "Ismail Ben Ayed",
+            "Samira Ebrahimi Kahou"
+          ],
+          "claimed_title": "FHIST: A Benchmark for Few-shot Classification of Histological Images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.00092"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='FHIST: A Benchmark for Few-shot Classification of Histological Images')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Repeated sampling with a verifier is the standard way to allocate test-time compute for code generation, with pass@$K$ as the canonical metric. Yet the standard policy class draws $K$ independent samples from a single answer distribution, so attempts often collapse onto near-duplicate reasoning paths and waste the budget on redundant rollouts. This failure is costly in competitive programming, where many problems admit multiple distinct algorithmic strategies and pass@$K$ requires only one correct attempt. We propose Coordinated Pass@$K$ Policy Optimization (CPPO), which turns pass@$K$ generation into joint exploration over strategies: a planner emits a tuple of $K{=}4$ alternative high-level methods, and a shared solver attempts one solution per method. CPPO trains this joint policy with a multiplicative planner reward, $R_{\\mathrm{plan}} = J_ψ\\cdot R_{\\mathrm{out}}$, assigning credit only to valid strategy tuples that lead to verifier-confirmed pass@$K$ success. Across APPS, CodeContests, and LiveCodeBench-v6, CPPO improves pass@$4$ over direct sampling, planning baselines, planner-only SFT, and pass@$K$-oriented RL under the same $K{=}4$ solver-attempt budget, with statistically significant gains on six of nine model--benchmark cells. The largest single gain is $+0.16$ on Qwen3.5-9B LiveCodeBench-v6 over the strongest baseline, PKPO ($0.588 \\rightarrow 0.748$; paired bootstrap, $p < 0.05$).",
+          "claimed_authors": [
+            "Yilong Li",
+            "Suman Banerjee",
+            "Tong Che"
+          ],
+          "claimed_title": "Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27000"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning with Verifiable Rewards (RLVR) has emerged as a powerful paradigm to improve Large Language Models on reasoning tasks such as coding, math or logic. To assess the reasoning boundary (the fraction of problems a model can solve) researchers often report Pass@k at large sampling budgets. Recent results reveal a crossover phenomenon: while RLVR models outperform the base model at small k values, the base model usually outperforms them when sampling a very large number of completions. This has been interpreted as evidence that base models have a larger reasoning boundary. We argue that on tasks with discrete answer spaces, such as math with numeric outputs, Pass@k at large k reflects the increasingly higher chance of success in the limit of the number of trials rather than genuine reasoning, and can therefore be misleading. We propose Cover@tau, which measures the fraction of problems that a model can solve for which at least a tau proportion of completions are correct. Unlike Pass@k, Cover@tau captures reasoning under an explicit reliability threshold: models that rely on random guessing degrade rapidly as tau increases. We evaluate several RLVR models using Cover@tau-based metrics and illustrate how the relative rankings of popular algorithms change compared to Pass@1, offering a different perspective on reasoning boundaries.",
+          "claimed_authors": [
+            "Marius Dragoi",
+            "Ioana Pintilie",
+            "Florin Gogianu",
+            "Florin Brad"
+          ],
+          "claimed_title": "Beyond Pass@k: Breadth-Depth Metrics for Reasoning Boundaries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08325"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Beyond Pass@k: Breadth-Depth Metrics for Reasoning Boundaries')",
+        "failed_at": "2026-06-25T09:21:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the era of Explainable Artificial Intelligence, there is a renewed focus on single trees for their ease of interpretation. This paper introduces Simultaneous Latent Budget Trees, a probabilistic machine learning framework for classification trees in the presence of a stratification factor such as a temporal, spatial, or demographic variable, acting as a control variable or potential confounder. Standard tree growth procedures are not designed to optimize a conditional split rule. A model-based split rule is proposed in which child nodes are interpreted as latent components of a simultaneous mixture model, such as the Simultaneous Latent Budget Model and its constrained versions, fitted to the parent node. Mixing parameters drive the observations, differently for each group, to the child nodes whereas latent budgets parameters update the response classes profile of each level of the control variable. Parameters are estimated by least squares considering a neural network perspective of the model. An informative tree structure can be interactively visualized with interpretation aids on the node and the paths, including visual pruning and decision tree selection procedure. Suitable measures are proposed to handle an unbalanced response class distribution. The proposed methodology is applied to investigate gender-related differences in disease progression of Amyotrophic Lateral Sclerosis. The SLBT library with the various tree-based algorithms is available in the linked GitHub repository.",
+          "claimed_authors": [
+            "Simultaneous Latent Budget Trees for Stratified Classification Cristian Buoncompagni",
+            "Stefano Pellegrino",
+            "Giulia Vannucci",
+            "Raffaele Dubbioso",
+            "Roberta Siciliano"
+          ],
+          "claimed_title": "Simultaneous Latent Budget Trees for Stratified Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.13295"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Simultaneous Latent Budget Trees for Stratified Classification')",
+        "failed_at": "2026-06-25T09:21:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
+          "claimed_authors": [
+            "Vittorio Cortellessa",
+            "Daniele Di Pompeo",
+            "Michele Tucci"
+          ],
+          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13875"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
+        "failed_at": "2026-06-25T09:21:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multiprocessor task scheduling is an important and computationally difficult problem. This paper proposes a comparison study of genetic algorithm and list scheduling algorithm. Both algorithms are naturally parallelizable but have heavy data dependencies. Based on experimental results, this paper presents a detailed analysis of the scalability, advantages and disadvantages of each algorithm. Multiprocessors have emerged as a powerful computing means for running real-time applications, especially where a uni-processor system would not be sufficient enough to execute all the tasks. The high performance and reliability of multiprocessors have made them a powerful computing resource. Such computing environment requires an efficient algorithm to determine when and on which processor a given task should execute. In multiprocessor systems, an efficient scheduling of a parallel program onto the processors that minimizes the entire execution time is vital for achieving a high performance. This scheduling problem is known to be NP- Hard. In multiprocessor scheduling problem, a given program is to be scheduled in a given multiprocessor system such that the program's execution time is minimized. The last job must be completed as early as possible. Genetic algorithm (GA) is one of the widely used techniques for constrained optimization.",
+          "claimed_authors": [
+            "S. R. Vijayalakshmi",
+            "G. Padmavathi"
+          ],
+          "claimed_title": "A Performance Study of GA and LSH in Multiprocessor Job Scheduling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1149"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='A Performance Study of GA and LSH in Multiprocessor Job Scheduling')",
+        "failed_at": "2026-06-25T09:21:03Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sanjay Vishwakarma",
+            "Francis Harkins",
+            "Siddharth Golecha",
+            "Vishal Sharathchandra Bajpe",
+            "Nicolas Dupuis",
+            "Luca Buratti",
+            "David Kremer",
+            "Ismael Faro",
+            "Ruchir Puri",
+            "Juan Cruz-Benito"
+          ],
+          "title": "Qiskit HumanEval: An Evaluation Benchmark For Quantum Code Generative Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.14712",
+        "summary": "Quantum programs are typically developed using quantum Software Development Kits (SDKs). The rapid advancement of quantum computing necessitates new tools to streamline this development process, and one such tool could be Generative Artificial intelligence (GenAI). In this study, we introduce and use the Qiskit HumanEval dataset, a hand-curated collection of tasks designed to benchmark the ability of Large Language Models (LLMs) to produce quantum code using Qiskit - a quantum SDK. This dataset consists of more than 100 quantum computing tasks, each accompanied by a prompt, a canonical solution, a comprehensive test case, and a difficulty scale to evaluate the correctness of the generated solutions. We systematically assess the performance of a set of LLMs against the Qiskit HumanEval dataset's tasks and focus on the models ability in producing executable quantum code. Our findings not only demonstrate the feasibility of using LLMs for generating quantum code but also establish a new benchmark for ongoing advancements in the field and encourage further exploration and development of GenAI-driven tools for quantum code generation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.14712",
+          "http_status": 200,
+          "pdf_sample_score": 0.2187,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T09:21:02Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

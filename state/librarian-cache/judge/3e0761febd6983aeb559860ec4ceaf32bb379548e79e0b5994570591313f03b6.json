@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.14213",
+  "judged_at": "2026-06-25T09:22:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-modal comparison of neural prediction error signals neuroscience",
+  "rationale": "The paper focuses on graph signal denoising methods and algorithmic parameter estimation, which are unrelated to neural prediction error signals, cross‑modal neural comparisons, or any neuroscience domain. It does not share the relevant mechanisms, variables, or empirical setting required for inclusion.",
+  "relevant": false
+}
