@@ -140,11 +140,19 @@ class ClarifierAgent(SlashCommandAgent):
             mechanical_output.get("memory_dir") or self._memory_dir(ctx),
         )
         verdict = report.get("verdict") if isinstance(report, dict) else None
-        if verdict == "escalate":
+        unresolved_count = len(markers) - len(patches_by_index)
+        # An ``escalate`` verdict with NOTHING genuinely unresolved is spurious —
+        # the LLM picked the wrong verdict when there was nothing to clarify (no
+        # markers, or every marker already patched). Honoring it asks a human (or
+        # fails the tick) over a no-op and blocks the project for no reason (the
+        # live PROJ-492 stall: re-spec left 0 open markers, clarifier still said
+        # "escalate"). Only escalate when something is actually unresolved; an
+        # escalate-with-everything-resolved falls through to the normal advance.
+        if verdict == "escalate" and unresolved_count > 0:
             new_n = bump_attempts(memory_dir)
             reason = (
                 f"clarifier emitted verdict=escalate after {new_n} attempt(s); "
-                f"unresolved markers={len(markers) - len(patches_by_index)}"
+                f"unresolved markers={unresolved_count}"
             )
             # Spec 023 / FR-017: an LLM "escalate" verdict alone is NOT
             # exhaustion — the bounded loop must run to its cap before a
