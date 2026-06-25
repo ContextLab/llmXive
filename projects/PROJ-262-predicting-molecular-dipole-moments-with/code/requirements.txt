@@ -5,3 +5,8 @@ joblib
 numpy
 tqdm
 # Existing project dependencies (if any) are retained above. Additions are listed here.
+matplotlib  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
