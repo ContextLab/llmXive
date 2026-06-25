@@ -1,12 +1,7 @@
-last_used: linus-pauling
-last_used_at: '2026-06-25T23:01:20.280929+00:00'
-last_outcome: committed
+last_used: marie-curie
+last_used_at: '2026-06-25T23:42:54.694493+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: eric-kandel
-  started_at: '2026-06-14T08:46:37.867680+00:00'
-  ended_at: '2026-06-14T10:13:21.536057+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: freeman-dyson
   started_at: '2026-06-14T10:13:21.536057+00:00'
   ended_at: '2026-06-14T12:14:16.802741+00:00'
@@ -1138,3 +1133,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/linus-pauling-simulated__2026-06-25__research.md
+- slug: marie-curie
+  started_at: '2026-06-25T23:01:20.280929+00:00'
+  ended_at: '2026-06-25T23:42:54.694493+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
