@@ -11,6 +11,17 @@ Does the spec match the idea it was specified from?
 - **Over-reach**: does the spec add work that the idea didn't ask for?
   Sometimes legitimate (the clarifier surfaced an implied need); often
   scope creep that will slow the project.
+  - **NOT over-reach — methodologically-essential rigor.** Rigor REQUIRED to
+    answer the stated research question VALIDLY is in-scope even when the
+    one-paragraph idea did not spell it out: a power / sample-size analysis, a
+    confound or source-clustering adjustment, a coverage / validation step, a
+    standard statistical fallback (e.g. an exact test for small cell counts), or
+    a constitution-mandated bound. This is doubly true when a DOWNSTREAM
+    methodology / plan panel already REQUIRED it (the spec will say so) — flagging
+    it as over-reach forces its removal, which re-opens that panel's concern and
+    loops the project between the two lenses forever. Do NOT flag essential rigor;
+    reserve over-reach for genuinely NEW research questions, unrequested features,
+    or engineering gold-plating that does not serve the stated question.
 - **Drift**: does the spec subtly *redefine* the research question into an
   easier or different one? This is the most insidious failure mode — flag it.
 
