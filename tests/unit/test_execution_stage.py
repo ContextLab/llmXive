@@ -201,3 +201,27 @@ def test_execution_feedback_flags_regressions(tmp_path) -> None:
     # No regressions → no regression block.
     _write_execution_feedback(mem, res, failures=["x -> rc=1"], regressions=[])
     assert "REGRESSIONS" not in (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")
+
+
+def test_compute_infra_failures_flagged_distinctly(tmp_path) -> None:
+    """GPU/CUDA/8-bit/OOM failures are NOT implementer-fixable code bugs (the
+    free CPU CI lacks the hardware); they must be flagged for a METHOD re-scope,
+    not edited in place (PROJ-261 bitsandbytes / PROJ-262 GNN dead-ends)."""
+    from types import SimpleNamespace
+    from llmxive.execution.stage import (
+        _compute_infra_failures, _write_execution_feedback, _FEEDBACK_FILENAME,
+    )
+
+    fails = [
+        "python code/model_metrics.py -> rc=1\n  RuntimeError: bitsandbytes load_in_8bit requires CUDA",
+        "python code/clean.py -> rc=1\n  ValueError: Metrics CSV missing columns",
+    ]
+    infra = _compute_infra_failures(fails)
+    assert infra == ["python code/model_metrics.py"]  # only the GPU one
+
+    mem = tmp_path / ".specify" / "memory"
+    res = SimpleNamespace(reason="x", declared_missing=[], artifacts_produced=[])
+    _write_execution_feedback(mem, res, failures=fails)
+    fb = (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")
+    assert "COMPUTE-ENVIRONMENT" in fb and "RE-SCOPE" in fb
+    assert "load_in_8bit" in fb

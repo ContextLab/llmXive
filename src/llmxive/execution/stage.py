@@ -31,6 +31,30 @@ _FEEDBACK_FILENAME = "execution_feedback.md"
 
 _MODNOTFOUND_RE = re.compile(r"No module named ['\"]([A-Za-z_][A-Za-z0-9_]*)['\"]")
 
+# Signatures of a COMPUTE-ENVIRONMENT failure (GPU/CUDA/8-bit/OOM) that the free
+# CPU-only CI runner cannot satisfy — NOT an implementer-fixable code bug. These
+# need the METHOD re-scoped to run on CPU, so the fix-loop must flag them
+# distinctly rather than burn rounds editing the failing script in place.
+_COMPUTE_INFRA_RE = re.compile(
+    r"\bcuda\b|bitsandbytes|load_in_8bit|device_map|out of memory|outofmemory|"
+    r"memoryerror|torch not compiled with cuda|no gpu|gpu is required|"
+    r"cuda is not available|cuda error|requires a gpu|cudnn",
+    re.IGNORECASE,
+)
+
+
+def _compute_infra_failures(failures: list[str]) -> list[str]:
+    """Failing commands whose error signals a COMPUTE-ENVIRONMENT limit
+    (GPU/CUDA/8-bit/OOM) the free CPU CI can't satisfy. The fix is to RE-SCOPE
+    the method to run on CPU (drop 8-bit/GPU, smaller model, sampled data), not
+    to edit the failing script in place (the PROJ-261 bitsandbytes / PROJ-262
+    GNN dead-end where the implementer can't fix missing hardware)."""
+    out: list[str] = []
+    for f in failures:
+        if _COMPUTE_INFRA_RE.search(f):
+            out.append(f.split(" -> rc=", 1)[0].strip())
+    return out
+
 #: Import name → PyPI distribution name, for the common cases where they differ
 #: (a bare ``pip install <import-name>`` would 404). Unmapped names install as-is.
 _IMPORT_TO_PIP = {
@@ -314,6 +338,24 @@ def _write_execution_feedback(
             "the fix-round budget toward escalation):",
             "",
             *(f"- `{c}`" for c in regressions),
+            "",
+        ]
+    infra = _compute_infra_failures(failures)
+    if infra:
+        lines += [
+            "## ⚠ COMPUTE-ENVIRONMENT failure — RE-SCOPE the method, don't just edit the script",
+            "",
+            "These commands failed because the analysis needs hardware the FREE, "
+            "CPU-only CI runner does NOT have (a GPU/CUDA, 8-bit quantization via "
+            "bitsandbytes, or more RAM than is available). This is NOT a code bug "
+            "you can patch by tweaking the failing line — the analysis MUST run on "
+            "a CPU-only free runner (Constitution IV). RE-SCOPE the approach: drop "
+            "`load_in_8bit` / `device_map='cuda'` and load in default precision on "
+            "CPU; use a SMALLER model; REDUCE the dataset subset / sample / batch "
+            "size; prefer a CPU-tractable method. Change the METHOD, not just the "
+            "line that threw:",
+            "",
+            *(f"- `{c}`" for c in infra),
             "",
         ]
     lines += [
