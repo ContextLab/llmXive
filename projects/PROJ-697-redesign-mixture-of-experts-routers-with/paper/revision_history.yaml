@@ -1,0 +1,421 @@
+schema_version: '1'
+project_id: PROJ-697-redesign-mixture-of-experts-routers-with
+rounds:
+- round_number: 1
+  ran_at: '2026-06-25T01:36:41.493336Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (openai.gpt-oss-120b on dartmouth,
+    2026-06-25)
+  tasks_done: 27
+  tasks_failed: 0
+  tasks_skipped: 40
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-697-redesign-mixture-of-experts-routers-with/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: done
+    text: "Address action item **[4b60d74b1fcc]** (severity: writing): Clarify the\
+      \ exact experimental setup for the power\u2011iteration step (e.g., number of\
+      \ iterations, choice of expert weight matrix) and provide a"
+  - id: '002'
+    severity: writing
+    status: done
+    text: 'Address action item **[6061942822bc]** (severity: writing): Add a more
+      detailed discussion of training stability, including quantitative analysis of
+      gradient norms or loss spikes when router retractio'
+  - id: '003'
+    severity: writing
+    status: done
+    text: "Address action item **[8987d23bb487]** (severity: writing): Compare the\
+      \ proposed MPI router against at least one recent alternative router design\
+      \ (e.g., Switch Transformer, auxiliary\u2011loss\u2011free load ba"
+  - id: '004'
+    severity: writing
+    status: done
+    text: 'Address action item **[af5dd2e2f1a1]** (severity: writing): Provide a reproducibility
+      checklist (hyperparameter table, random seed, code repository link) and ensure
+      all cited references in the bibliog'
+  - id: '005'
+    severity: writing
+    status: skipped
+    text: "Address action item **[ba2ac3b39cf4]** (severity: writing): Include an\
+      \ error analysis showing cases where MPI improves or harms routing decisions,\
+      \ possibly with visualizations of router\u2011expert alignme"
+  - id: '006'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[3543fa53122d]** (severity: writing): Refactor the
+      LaTeX source into modular files (e.g., separate sections, macros, bibliography)
+      and include a build script (e.g., Makefile or l'
+  - id: '007'
+    severity: writing
+    status: done
+    text: "Address action item **[46a4204299b2]** (severity: writing): Provide a public\
+      \ code repository containing the actual implementation of the Manifold Power\u2011\
+      Iteration router (Python/PyTorch), with a clear "
+  - id: 008
+    severity: writing
+    status: skipped
+    text: 'Address action item **[63659f62d267]** (severity: writing): Add unit tests
+      for the core router logic (power iteration step, L2 retraction, scaling constant
+      C) and integration tests that verify the mod'
+  - id: 009
+    severity: writing
+    status: skipped
+    text: "Address action item **[04fed478bf80]** (severity: writing): Fix typographical\
+      \ errors in the provided pseudo\u2011code (e.g., rename `foward` to `forward`,\
+      \ ensure the variable `wg` is defined or passed, and"
+  - id: '010'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[34faa9734080]** (severity: writing): Include a reproducibility
+      checklist in the appendix that details random seed settings, hardware configuration,
+      and exact hyperparameter valu'
+  - id: '011'
+    severity: writing
+    status: done
+    text: 'Address action item **[cbb784f858ea]** (severity: writing): Document the
+      version of the underlying libraries (e.g., PyTorch, MegaBlocks, TorchTitan,
+      FSDP) used in the experiments to avoid hidden depen'
+  - id: '012'
+    severity: writing
+    status: done
+    text: "Address action item **[98a79c4da319]** (severity: writing): Add an explicit\
+      \ licensing statement for the manuscript (e.g., CC\u2011BY\u202F4.0) and for\
+      \ any third\u2011party code or data used."
+  - id: '013'
+    severity: writing
+    status: skipped
+    text: "Address action item **[5ce76953d2b0]** (severity: writing): Provide precise\
+      \ version identifiers (e.g., dataset DOI, commit hash, or release tag) for all\
+      \ external resources such as FineWeb\u2011Edu, Olmo\u202F3,"
+  - id: '014'
+    severity: writing
+    status: done
+    text: 'Address action item **[1316d4b86fd2]** (severity: writing): Archive all
+      cited URLs (arXiv, HuggingFace, project pages) using a service like Internet
+      Archive or Zenodo and include the archive links in '
+  - id: '015'
+    severity: writing
+    status: done
+    text: 'Address action item **[f90625e274fd]** (severity: writing): If code is
+      released, include a public repository URL with a specific commit hash or release
+      tag, and specify the software license.'
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[e8465109e424]** (severity: writing): Document how
+      missing or corrupted data (e.g., unavailable token streams) are handled during
+      preprocessing; add a brief description in the Ap'
+  - id: '017'
+    severity: writing
+    status: done
+    text: "Address action item **[a773eb7a5b79]** (severity: writing): Add explicit\
+      \ axis labels (including units where applicable) to all loss and performance\
+      \ plots (e.g., Fig.\u202F1, Fig.\u202F2, Fig.\u202F3, Fig.\u202F4, Fig.\u202F\
+      5)"
+  - id: 018
+    severity: writing
+    status: done
+    text: "Address action item **[dfaba5d4f03f]** (severity: writing): Replace the\
+      \ default color scheme in the plots with a color\u2011blind\u2011friendly palette\
+      \ (e.g., use colorblind\u2011safe blues/oranges or patterns) and "
+  - id: 019
+    severity: writing
+    status: skipped
+    text: "Address action item **[c80e9566197b]** (severity: writing): Provide concise\
+      \ alt\u2011text descriptions for each figure (including sub\u2011figures a/b)\
+      \ in the LaTeX source using the \\caption[...]{...} optional "
+  - id: '020'
+    severity: writing
+    status: done
+    text: "Address action item **[bb259d2a792b]** (severity: writing): Increase the\
+      \ font size of tick labels and legends in the PDF figures to guarantee legibility\
+      \ at typical conference print scales (e.g., \u22659\u202Fpt"
+  - id: '021'
+    severity: writing
+    status: done
+    text: "Address action item **[4ac8b3e0f518]** (severity: writing): For the code\u2011\
+      listing figure (Fig.\u202F1), avoid colored background highlights (blue/pink)\
+      \ that may not reproduce well in print; use a neutral gr"
+  - id: '022'
+    severity: writing
+    status: skipped
+    text: "Address action item **[ee11c8225ac3]** (severity: writing): Clarify in\
+      \ the captions which curve corresponds to which optimizer or model variant (e.g.,\
+      \ in Fig.\u202F2 and Fig.\u202F3) either by adding a legend w"
+  - id: '023'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[e44a68be869e]** (severity: writing): Ensure that
+      all figures are referenced in the text before they appear and that the figure
+      numbers match the order of appearance.'
+  - id: '024'
+    severity: writing
+    status: done
+    text: "Address action item **[0768e8fbe108]** (severity: writing): Define every\
+      \ acronym (e.g., MoE, MPI, L2) at its first occurrence and provide a brief plain\u2011\
+      English explanation."
+  - id: '025'
+    severity: writing
+    status: skipped
+    text: "Address action item **[91de4c9ccff3]** (severity: writing): Replace or\
+      \ accompany highly technical terms such as \u201Cprincipal singular direction\u201D\
+      , \u201CRayleigh quotient\u201D, \u201Cmanifold\u201D, \u201Cretraction\u201D\
+      , and \u201Cspec"
+  - id: '026'
+    severity: writing
+    status: skipped
+    text: "Address action item **[1bc678a3d471]** (severity: writing): Avoid dense\
+      \ symbol\u2011heavy sentences (e.g., Eq.\u202F(1) and Eq.\u202F(2) in Section\u202F\
+      3) without accompanying intuitive description; add a sentence that "
+  - id: '027'
+    severity: writing
+    status: skipped
+    text: "Address action item **[c03b65ca3c5c]** (severity: writing): Remove or clarify\
+      \ internal code\u2011style comments like \u201C(*\\\\bluebg*)\u201D and \u201C\
+      (*\\\\pinkbg*)\u201D in Figure\u202F1\u2019s listing; they add visual noise\
+      \ for non\u2011t"
+  - id: 028
+    severity: writing
+    status: done
+    text: "Address action item **[b35c4b117fbe]** (severity: writing): Introduce a\
+      \ short glossary or inline parenthetical definitions for mathematical objects\
+      \ (e.g.,\u202F\\( \\mathbf{R}_{[i]} \\),\u202F\\( \\mathbf{W}_g^i \\),"
+  - id: 029
+    severity: writing
+    status: skipped
+    text: "Address action item **[5a8faefcc36c]** (severity: writing): Simplify the\
+      \ description of the \u201CPower\u2011then\u2011Retract\u201D paradigm by stating\
+      \ the intuition (e.g., \u201Cfirst we nudge the router toward the expert\u2019\
+      s"
+  - id: '030'
+    severity: writing
+    status: skipped
+    text: "Address action item **[8b10079147f2]** (severity: writing): In the abstract\
+      \ and introduction, replace buzz\u2011word phrases like \u201Ccornerstone component\u201D\
+      , \u201Cprincipal singular direction\u201D, and \u201Cexpressive ma"
+  - id: '031'
+    severity: writing
+    status: skipped
+    text: "Address action item **[6d50f56dde3a]** (severity: writing): Explicitly\
+      \ discuss how the retraction step (norm normalization) may affect the load\u2011\
+      balancing loss, and separate its impact from genuine imp"
+  - id: '032'
+    severity: writing
+    status: skipped
+    text: "Address action item **[5b70c609a9cc]** (severity: writing): Re\u2011examine\
+      \ the claim that a single power\u2011iteration step per training update is sufficient\
+      \ for convergence toward the principal singular dire"
+  - id: '033'
+    severity: writing
+    status: skipped
+    text: "Address action item **[ebff08ff754e]** (severity: writing): Claims that\
+      \ MPI \u201Cconsistently facilitates faster convergence, superior downstream\
+      \ performance, and improved load balancing\u201D are based on a l"
+  - id: '034'
+    severity: writing
+    status: skipped
+    text: "Address action item **[a7fdce13db9b]** (severity: writing): The statement\
+      \ that the method incurs \u201Czero inference overhead\u201D overlooks the need\
+      \ to run a power\u2011iteration pass on the router weights at mod"
+  - id: '035'
+    severity: writing
+    status: skipped
+    text: "Address action item **[43c8232acc2d]** (severity: writing): The paper repeatedly\
+      \ describes MPI as a \u201Cprincipled\u201D and \u201Cfundamental\u201D redesign,\
+      \ yet the empirical gains are modest (\u22480.01\u20130.02\u202F% loss reduc"
+  - id: '036'
+    severity: writing
+    status: done
+    text: 'Address action item **[7a8ca99433e4]** (severity: writing): Include a brief
+      ethical considerations section that addresses data privacy (if any data is used),
+      the need for responsible deployment, and a'
+  - id: '037'
+    severity: writing
+    status: done
+    text: "Address action item **[062e962b2a3e]** (severity: writing): Verify that\
+      \ the training data (FineWeb\u2011Edu, etc.) complies with appropriate usage\
+      \ licenses and contains no personally identifiable informati"
+  - id: 038
+    severity: writing
+    status: skipped
+    text: "Address action item **[4e0e5c8c9934]** (severity: writing): Figure\u202F\
+      2 (and similar) embed a table inside a figure environment and use \\captionof{table}.\
+      \ Move the tabular to a proper \\begin{table}\u2026\\end{"
+  - id: 039
+    severity: writing
+    status: done
+    text: "Address action item **[e2b469b39bfa]** (severity: writing): The preamble\
+      \ loads tcolorbox twice (line\u202F19 and line\u202F84). Remove the duplicate\
+      \ \\usepackage{tcolorbox} to avoid unnecessary package loading."
+  - id: '040'
+    severity: writing
+    status: done
+    text: "Address action item **[84d71ac0fb2d]** (severity: writing): In the pseudo\u2011\
+      code listing, the method name is misspelled as `foward`. Correct it to `forward`\
+      \ to maintain professionalism and avoid confusi"
+  - id: '041'
+    severity: writing
+    status: done
+    text: 'Address action item **[6f3587771bb7]** (severity: writing): Citation commands
+      are mixed (e.g., \citealp, \citep) while the bibliography style is plainnat.
+      Standardise on a single citation macro (e.g.,'
+  - id: '042'
+    severity: writing
+    status: done
+    text: "Address action item **[ad77847d765d]** (severity: writing): Long lines\
+      \ in several paragraphs (e.g., the motivation paragraph in Section\u202F3.1)\
+      \ exceed typical 80\u2011character width, which can cause overfull"
+  - id: '043'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[a04e097c6312]** (severity: writing): Some figures
+      use the optional position specifier `[t]` without accompanying \centering, leading
+      to uneven vertical spacing. Add \centering i'
+  - id: '044'
+    severity: writing
+    status: done
+    text: "Address action item **[a1d004a881dd]** (severity: writing): The macro definitions\
+      \ for \\bluebg and \\pinkbg include comments in Chinese and hard\u2011coded\
+      \ horizontal offsets (\u20113.2em). Consider abstracting t"
+  - id: '045'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[5cad96b126f4]** (severity: writing): Duplicate definition
+      of \eqref macro (both as a command and as a provided shim) can cause unexpected
+      behaviour. Keep a single definition to '
+  - id: '046'
+    severity: writing
+    status: done
+    text: "Address action item **[52af49df9d2f]** (severity: writing): Clarify the\
+      \ motivation paragraph in Section\u202F1 (lines\u202F31\u201145). The current\
+      \ prose mixes several ideas without clear transitions, making it hard"
+  - id: '047'
+    severity: writing
+    status: skipped
+    text: "Address action item **[9acea5359522]** (severity: writing): Standardize\
+      \ terminology for the proposed method. The paper alternates between \u201CManifold\
+      \ Power\u2011Iteration\u201D, \u201CPower\u2011then\u2011Retract\u201D, and\
+      \ \u201CMPI\u201D (e"
+  - id: 048
+    severity: writing
+    status: done
+    text: "Address action item **[5a9fec2ceb45]** (severity: writing): Fix numerous\
+      \ grammatical errors and missing articles (e.g., \u201CRouter is the cornerstone\
+      \ component\u201D \u2192 \u201CThe router is the cornerstone component"
+  - id: 049
+    severity: writing
+    status: skipped
+    text: "Address action item **[63b6b1044345]** (severity: writing): Improve figure\
+      \ and table captions for self\u2011containment. Captions such as Figure\u202F\
+      1\u2019s lack a description of what the plotted curves represent "
+  - id: '050'
+    severity: writing
+    status: skipped
+    text: "Address action item **[5dfb2b4b12ba]** (severity: writing): Re\u2011write\
+      \ overly long sentences that hinder readability, especially in Section\u202F\
+      3.1 (lines\u202F203\u2011218) where a single sentence spans >80 words."
+  - id: '051'
+    severity: writing
+    status: skipped
+    text: "Address action item **[5f0b309c9c94]** (severity: writing): Add explicit\
+      \ paragraph breaks to separate distinct ideas in the \u201CMethodology\u201D\
+      \ section. Currently, several paragraphs contain multiple unrela"
+  - id: '052'
+    severity: writing
+    status: skipped
+    text: "Address action item **[be9b4e37d629]** (severity: writing): Correct inconsistent\
+      \ use of LaTeX commands for math notation (e.g., missing backslashes before\
+      \ \u201Ctexttt\u201D in equations on lines\u202F88\u201192)."
+  - id: '053'
+    severity: writing
+    status: done
+    text: "Address action item **[22ed862b0009]** (severity: writing): Provide a concise\
+      \ summary of contributions at the end of the Introduction (lines\u202F101\u2011\
+      115). The current list is scattered and repeats earlier"
+  - id: '054'
+    severity: writing
+    status: done
+    text: "Address action item **[22fde68c37f8]** (severity: writing): Remove duplicated\
+      \ or placeholder comments (e.g., \u201C% \u2026\u201D lines in the source) that\
+      \ appear in the compiled PDF, as they distract the reader."
+  - id: '055'
+    severity: writing
+    status: skipped
+    text: "Address action item **[910c582873c9]** (severity: writing): Ensure all\
+      \ abbreviations are defined on first use (e.g., \u201CLMO\u201D appears without\
+      \ definition in the abstract)."
+  - id: '056'
+    severity: science
+    status: skipped
+    text: "Address action item **[3cc4a76ddb0f]** (severity: science): Clarify the\
+      \ underlying assumption that token vectors are well\u2011aligned with the subspace\
+      \ spanned by expert weight matrices; provide empirical"
+  - id: '057'
+    severity: science
+    status: skipped
+    text: "Address action item **[b462b134085a]** (severity: science): The manuscript\
+      \ presents an informal argument that the power\u2011then\u2011retract update\
+      \ drives router rows toward the principal singular direction ("
+  - id: 058
+    severity: science
+    status: skipped
+    text: "Address action item **[07b658293a28]** (severity: science): Section\u202F\
+      5.2 claims compatibility with other router designs (e.g., auxiliary losses,\
+      \ sigmoid activation) based on a handful of small\u2011scale ex"
+  - id: 059
+    severity: science
+    status: skipped
+    text: "Address action item **[666c7ff6babe]** (severity: science): The theoretical\
+      \ section (Eq.\u202F10) derives an approximation for the update but does not\
+      \ quantify the approximation error or its impact on trai"
+  - id: '060'
+    severity: science
+    status: done
+    text: "Address action item **[dc7df79e603d]** (severity: science): Add an explicit\
+      \ discussion of potential dual\u2011use risks associated with more efficient\
+      \ Mixture\u2011of\u2011Experts models, including how the proposed "
+  - id: '061'
+    severity: science
+    status: skipped
+    text: 'Address action item **[ca36480658e5]** (severity: science): Run each experimental
+      configuration (e.g., 1B, 3B, 11B scales with different optimizers) with at least
+      three independent random seeds and re'
+  - id: '062'
+    severity: science
+    status: skipped
+    text: "Address action item **[b954add1d601]** (severity: science): Add statistical\
+      \ tests (e.g., paired t\u2011tests or bootstrap confidence intervals) when comparing\
+      \ MoE with and without MPI on downstream benchma"
+  - id: '063'
+    severity: science
+    status: skipped
+    text: "Address action item **[d29d9ee45943]** (severity: science): Report variance\
+      \ (e.g., standard deviation or confidence intervals) for all aggregate metrics\
+      \ (pre\u2011training loss reductions, downstream accur"
+  - id: '064'
+    severity: science
+    status: skipped
+    text: 'Address action item **[a4e4881f974c]** (severity: science): Specify the
+      number of random seeds / training runs used for each experimental configuration
+      and provide the seed values or a reproducibility'
+  - id: '065'
+    severity: science
+    status: skipped
+    text: "Address action item **[342e7fc7ff8f]** (severity: science): Address multiple\u2011\
+      comparison issues when evaluating across 25 downstream benchmarks; consider\
+      \ correcting p\u2011values (e.g., Bonferroni or Holm) "
+  - id: '066'
+    severity: science
+    status: skipped
+    text: "Address action item **[6f69fa3ef8d0]** (severity: science): Include details\
+      \ on how the load\u2011balancing metrics (MaxVio) were computed (e.g., batch\
+      \ size, number of evaluation steps) and report their var"
+  - id: '067'
+    severity: science
+    status: skipped
+    text: "Address action item **[3aa51b1845c5]** (severity: science): Provide the\
+      \ exact hyperparameter values for the constant C (including C\u2032) used in\
+      \ the large\u2011scale experiments and any sensitivity analysis r"
