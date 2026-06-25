@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-25T18:18:28.157074+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-06-25T19:19:28.066765+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: alan-turing
-  started_at: '2026-06-14T00:39:51.929582+00:00'
-  ended_at: '2026-06-14T01:50:27.155214+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/alan-turing-simulated__2026-06-14__research.md
 - slug: albert-einstein
   started_at: '2026-06-14T01:50:27.155214+00:00'
   ended_at: '2026-06-14T03:07:59.146855+00:00'
@@ -1141,5 +1134,10 @@ history:
 - slug: eric-kandel
   started_at: '2026-06-25T17:20:07.950190+00:00'
   ended_at: '2026-06-25T18:18:28.157074+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: freeman-dyson
+  started_at: '2026-06-25T18:18:28.157074+00:00'
+  ended_at: '2026-06-25T19:19:28.066765+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
