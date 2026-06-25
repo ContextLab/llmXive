@@ -31,12 +31,15 @@ Usage:
 
 from __future__ import annotations
 
+import logging
 import os
 import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -77,16 +80,61 @@ def ensure_venv(project_dir: Path) -> Path:
         )
         cur_mtime = req.stat().st_mtime
         if cur_mtime > last_synced or needs_create:
-            subprocess.run(
-                [str(py), "-m", "pip", "install", "-q", "-r", str(req)],
-                check=False,  # tolerate failures so subsequent runs surface them via stderr
-                capture_output=True,
-            )
+            _resilient_pip_install(py, req)
             try:
                 mtime_file.write_text(f"{cur_mtime}\n", encoding="utf-8")
             except OSError:
                 pass
     return py
+
+
+def _resilient_pip_install(py: Path, req: Path) -> None:
+    """Install ``requirements.txt`` tolerant of individual un-installable lines.
+
+    A SINGLE bad requirement makes a batch ``pip install -r`` abort the WHOLE
+    set, leaving even ``numpy`` uninstalled — every analysis script then dies
+    ``ModuleNotFoundError: No module named 'numpy'`` and ``execute_and_gate``
+    can NEVER pass (the live PROJ-262 stall: a run-book that imports a local
+    package ``models`` or matplotlib's ``mpl_toolkits`` namespace submodule had
+    those names auto-added to requirements.txt as if they were PyPI packages,
+    so `pip install -r` failed and the real deps never landed).
+
+    Try the fast batch install first; on failure, fall back to installing each
+    requirement INDIVIDUALLY so the GOOD deps land and only the genuinely
+    un-installable lines are skipped (logged, never fatal — a missing real dep
+    still resurfaces as a script ModuleNotFoundError for the bounded fix loop).
+    """
+    batch = subprocess.run(
+        [str(py), "-m", "pip", "install", "-q", "-r", str(req)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if batch.returncode == 0:
+        return
+    logger.warning(
+        "batch `pip install -r %s` failed (rc=%s); falling back to per-package "
+        "install so good deps still land. tail: %s",
+        req, batch.returncode, (batch.stderr or "")[-300:],
+    )
+    failed: list[str] = []
+    for raw in req.read_text(encoding="utf-8", errors="replace").splitlines():
+        pkg = raw.split("#", 1)[0].strip()
+        if not pkg:
+            continue
+        r = subprocess.run(
+            [str(py), "-m", "pip", "install", "-q", pkg],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if r.returncode != 0:
+            failed.append(pkg)
+    if failed:
+        logger.warning(
+            "pip: skipped %d un-installable requirement line(s): %s",
+            len(failed), failed,
+        )
 
 
 def run_in_venv(

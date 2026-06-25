@@ -37,6 +37,11 @@ _IMPORT_TO_PIP = {
     "yaml": "pyyaml", "sklearn": "scikit-learn", "cv2": "opencv-python",
     "PIL": "pillow", "bs4": "beautifulsoup4", "skimage": "scikit-image",
     "dateutil": "python-dateutil", "dotenv": "python-dotenv",
+    # Namespace submodules that ship WITH another distribution (no PyPI package
+    # of their own) — mapping them to the OWNING dist stops a bogus requirement
+    # line that would otherwise abort the whole install (the PROJ-262 stall:
+    # `from mpl_toolkits.mplot3d import …` → bare `mpl_toolkits` is not on PyPI).
+    "mpl_toolkits": "matplotlib",
 }
 
 

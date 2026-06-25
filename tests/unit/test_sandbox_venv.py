@@ -56,3 +56,31 @@ def test_run_in_venv_sees_venv_only_site_packages(tmp_path: Path) -> None:
     )
     assert res.ok, res.stderr
     assert "in-the-venv" in res.stdout
+
+
+def test_ensure_venv_tolerates_a_bad_requirement_line(tmp_path: Path) -> None:
+    """A single un-installable requirement (e.g. a local module or a namespace
+    submodule wrongly auto-added — the PROJ-262 stall) must NOT crash
+    ensure_venv or leave the venv unusable. The old batch-only
+    `pip install -r` aborted the WHOLE set on one bad line, so even numpy never
+    installed and every analysis script died ModuleNotFoundError. The resilient
+    fallback installs per-package so good deps land; here we assert the bad line
+    is tolerated and the venv stays functional (the 'good deps survive' invariant
+    is verified end-to-end by the real analysis re-run in CI)."""
+    proj = tmp_path / "projects" / "PROJ-BADREQ"
+    (proj / "code").mkdir(parents=True)
+    (proj / "code" / "requirements.txt").write_text(
+        "llmxive-nonexistent-package-zzz999  # bogus, must be skipped\n",
+        encoding="utf-8",
+    )
+    py = sandbox.ensure_venv(proj)  # must not raise
+    assert py.exists()
+    # The venv is still usable + its bundled pip is intact (the bad line didn't
+    # corrupt or abort the environment).
+    res = sandbox.run_in_venv(
+        project_dir=proj,
+        args=["-c", "import sys, pip; print('venv-ok')"],
+        timeout_s=120,
+    )
+    assert res.ok, res.stderr
+    assert "venv-ok" in res.stdout
