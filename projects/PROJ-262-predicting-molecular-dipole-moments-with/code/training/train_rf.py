@@ -1,17 +1,17 @@
 """
-Random Forest training script for predicting molecular dipole moments.
+train_rf.py
+-------------
+Trains a RandomForestRegressor on the synthetic 2‑D feature matrix produced
+by ``code/data/generate_processed_data.py``. The script now:
 
-This script trains a scikit-learn RandomForestRegressor on the 2‑D feature
-matrix generated in the US1 pipeline. Five random seeds are used to
-produce five independent models and corresponding performance metrics.
-The models are saved as ``rf_seed_{seed}.pkl`` in the ``data/checkpoints``
-directory and a CSV file summarising the MAE and RMSE for each seed is
-written to the same directory.
-
-The implementation mirrors the style of ``train_gnn.py`` – it re‑uses the
-``set_global_seed`` utility from that module to guarantee reproducibility
-and the ``mae``/``rmse`` helpers from ``training.evaluate`` for metric
-computation.
+* Writes the required ``features_2d.parquet`` file if it does not exist
+  by invoking the data generation script (ensuring the training pipeline is
+  self‑contained).
+* Saves model checkpoints in ``data/checkpoints``.
+* Emits a metrics CSV with the columns required by downstream analysis
+  (``model``, ``seed``, ``mae``, ``rmse``) and also copies this file to
+  ``results/metrics.csv`` so that the performance‑plotting scripts can find
+  it.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import csv
 import os
+import subprocess
 from pathlib import Path
 from typing import List
 
@@ -31,6 +32,27 @@ from sklearn.model_selection import train_test_split
 from training.train_gnn import set_global_seed
 from training.evaluate import mae, rmse
 
+# -------------------------------------------------------------------------
+# Helper functions
+# -------------------------------------------------------------------------
+
+def ensure_data_available(data_dir: Path) -> None:
+    """
+    Verify that ``features_2d.parquet`` exists. If it does not, invoke the
+    synthetic data generation script to create it.
+    """
+    feature_path = data_dir / "features_2d.parquet"
+    if not feature_path.is_file():
+        print(f"Feature file {feature_path} missing – generating synthetic data.")
+        # Call the data generation script with default arguments
+        subprocess.run(
+            ["python", "code/data/generate_processed_data.py"],
+            check=True,
+        )
+        if not feature_path.is_file():
+            raise FileNotFoundError(
+                f"Failed to generate required feature file: {feature_path}"
+            )
 
 def load_data(data_dir: Path) -> pd.DataFrame:
     """
@@ -42,7 +64,7 @@ def load_data(data_dir: Path) -> pd.DataFrame:
         Directory containing ``features_2d.parquet``.
 
     Returns
-    ----------
+    -------
     pd.DataFrame
         Dataframe with feature columns and a ``dipole`` target column.
     """
@@ -88,6 +110,10 @@ def train_one_seed(
     return mae_score, rmse_score, model
 
 
+# -------------------------------------------------------------------------
+# Main entry point
+# -------------------------------------------------------------------------
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Train Random Forest models on 2‑D molecular descriptors."
@@ -119,8 +145,13 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Ensure output directory exists
+    # Ensure output directories exist
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    results_dir = Path("results")
+    results_dir.mkdir(parents=True, exist_ok=True)
+
+    # Ensure the required feature file is present
+    ensure_data_available(args.data_dir)
 
     # Load dataset
     df = load_data(args.data_dir)
@@ -129,11 +160,11 @@ def main() -> None:
     y = df["dipole"]
     X = df.drop(columns=["dipole"])
 
-    # Prepare CSV writer for metrics
+    # Prepare CSV writer for metrics (including required columns)
     metrics_path = args.output_dir / "rf_metrics.csv"
     with metrics_path.open("w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["seed", "mae", "rmse"])
+        writer.writerow(["model", "seed", "mae", "rmse"])
 
         for seed in args.seeds:
             # Split data – using the same seed for reproducibility
@@ -150,12 +181,17 @@ def main() -> None:
             joblib.dump(model, model_path)
 
             # Record metrics
-            writer.writerow([seed, mae_score, rmse_score])
+            writer.writerow(["RandomForest", seed, mae_score, rmse_score])
             print(
                 f"Seed {seed}: MAE={mae_score:.4f}, RMSE={rmse_score:.4f} – saved to {model_path}"
             )
 
     print(f"All metrics written to {metrics_path}")
+
+    # Copy metrics to the location expected by analysis scripts
+    analysis_metrics_path = results_dir / "metrics.csv"
+    analysis_metrics_path.write_text(metrics_path.read_text())
+    print(f"Metrics also copied to {analysis_metrics_path}")
 
 
 if __name__ == "__main__":
