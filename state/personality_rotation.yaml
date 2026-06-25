@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-25T20:20:30.419593+00:00'
-last_outcome: malformed_response
+last_used: geoffrey-west
+last_used_at: '2026-06-25T21:07:47.130860+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-14T03:07:59.146855+00:00'
-  ended_at: '2026-06-14T05:12:11.382043+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-212-exploring-the-impact-of-network-structur/reviews/research/dan-rockmore-simulated__2026-06-14__research.md
 - slug: daniel-kahneman
   started_at: '2026-06-14T05:12:11.382043+00:00'
   ended_at: '2026-06-14T07:05:49.226200+00:00'
@@ -1140,3 +1133,8 @@ history:
   started_at: '2026-06-25T19:19:28.066765+00:00'
   ended_at: '2026-06-25T20:20:30.419593+00:00'
   outcome: malformed_response
+- slug: geoffrey-west
+  started_at: '2026-06-25T20:20:30.419593+00:00'
+  ended_at: '2026-06-25T21:07:47.130860+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
