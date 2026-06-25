@@ -180,3 +180,33 @@ larger than a bug fix; deferred deliberately rather than rushed.
 Do NOT keep throwing CI runs / fix-loop tweaks at 262 (diminishing returns on a
 code-quality-limited project). Let the population flow; drive/observe a simpler
 project for the first crossing. Commits this session: ~33.
+
+## UPDATE 3 — ROOT CAUSE fixed: design stages now CPU-constrained (#27)
+
+Traced the compute dead-end to its ROOT: brainstorm.md + flesh_out.md forbid GPU
+("2 CPU cores, 7GB RAM, no GPU"), but specifier.md / planner.md / tasker.md had
+ZERO compute guidance → they re-introduced GPU methods. The tasker wrote PROJ-261
+T020 as "load codegen-350M in 8-bit via bitsandbytes" (needs CUDA) and PROJ-262
+as a from-scratch GNN — neither runs on CPU CI.
+
+FIX #27 (417ec706d): added a "Compute feasibility (free CPU-only CI)" block to
+specifier.md, planner.md, tasker.md — no GPU/CUDA, no 8-bit/4-bit, no deep-net
+training/large-LLM inference, fit 7GB/14GB/6h, prefer CPU-tractable methods.
+Also #26 (execute_and_gate flags GPU/OOM failures → re-scope guidance) as the
+downstream safety net. (promptfoo eval covers reviewer prompts, not these.)
+
+### COMPLETE blocker chain now fixed (brainstorm→running analysis):
+reviewer reliability (#16) · implementer crashes (#17/#18) · in_progress wall
+(#19 batching) · work-loss (#22) · deps (#23) · fix-loop convergence (#24 data-
+contract, #25 regression) · compute-infra (#26) · generation CPU-constraint (#27)
+· methodology rigor (#14, earlier). ~35 commits, suite 2927.
+
+### Honest end-state
+Every GENERAL blocker — structural AND generation-quality root — is fixed. The
+pipeline can now generate CPU-tractable + science-sound projects and flow them
+through in_progress + a runnable analysis. EXISTING in_progress projects
+(261/262) are pre-#27 GPU-designs (dead-ends); 552 is CPU-ok but science-blocked.
+The first paper_complete will come from a FRESH (post-#27) project flowing
+brainstorm→…→paper over cron cycles — which can't be compressed into one session.
+Let the natural crons run; monitor for the first crossing; the enablers are all
+in place.
