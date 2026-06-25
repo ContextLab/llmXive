@@ -7,20 +7,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/training/train_rf.py -> rc=1
-    [ERROR] Failed to prepare data: Processed data must contain a 'dipole' column as target.
+    [ERROR] Failed to prepare data: Processed data must contain a dipole column as target. Found columns: ['molecule_id', 'smiles']
 - python code/analysis/generate_performance_plots.py -> rc=1
-     line 138, in generate_plots
-    df = load_metrics(metrics_csv)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py", line 51, in load_metrics
-    raise ValueError(f"Metrics CSV missing columns: {missing}")
-ValueError: Metrics CSV missing columns: {'rmse', 'mae', 'model'}
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py", line 28, in <module>
+    import matplotlib.pyplot as plt
+ModuleNotFoundError: No module named 'matplotlib'
 - python code/analysis/generate_significance.py -> rc=1
     ric_data = _load_metrics(metrics_path)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py", line 54, in _load_metrics
     raise ValueError(f"Metrics CSV missing required columns: {missing}")
-ValueError: Metrics CSV missing required columns: {'model', 'mae', 'rmse'}
+ValueError: Metrics CSV missing required columns: {'mae', 'model', 'rmse'}
 - python code/generate_summary.py -> rc=1
     ary
     significance = load_csv_as_dicts(significance_path)

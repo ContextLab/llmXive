@@ -4,3 +4,9 @@ scikit-learn
 joblib
 numpy
 # Existing project requirements (if any) should be retained above.
+matplotlib  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
+tqdm  # auto-added: imported by run-book but missing from venv

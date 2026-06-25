@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T18:43:57.500127Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-269-assessing-the-impact-of-data-augmentatio
-last_run_id: d7e46115-d57b-4c10-a08a-e8da2a1ac7ed
+last_run_id: 50dd2d03-65b3-427c-8b06-75a54398c1cc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Assessing the Impact of Data Augmentation on Statistical Power in Small Samples
-updated_at: '2026-06-13T21:12:33.678395Z'
+updated_at: '2026-06-25T02:39:09.410637Z'
