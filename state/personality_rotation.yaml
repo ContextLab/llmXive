@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-25T13:21:23.742443+00:00'
-last_outcome: committed
+last_used: dan-rockmore
+last_used_at: '2026-06-25T14:19:10.765967+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: marie-curie
-  started_at: '2026-06-13T20:58:21.223054+00:00'
-  ended_at: '2026-06-13T21:29:53.099962+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-448-quantifying-composition-dependent-grain-/reviews/research/marie-curie-simulated__2026-06-13__research.md
 - slug: richard-feynman
   started_at: '2026-06-13T21:29:53.099962+00:00'
   ended_at: '2026-06-13T21:56:40.668764+00:00'
@@ -1148,3 +1141,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-096-exploring-the-role-of-network-topology-o/reviews/research/albert-einstein-simulated__2026-06-25__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-25T13:21:23.742443+00:00'
+  ended_at: '2026-06-25T14:19:10.765967+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
