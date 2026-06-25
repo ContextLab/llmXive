@@ -1,0 +1,17 @@
+\begin{table}[h]
+\centering
+\paperTable
+\caption{Final-decision model ablation for \llmname{Qwen3-VL-8B} in the 200-task hint-contextualized GRPO setting. The step-description model is kept fixed. Best values are bolded and second-best values are underlined.}
+\label{tab:evaluator_model_ablation_main}
+\begin{tabular}{@{}l c c c r@{}}
+\toprule
+\textbf{Decision Model} & \textbf{Pass@1} & \textbf{Pass@2} & \textbf{Pass@3} & \textbf{MW-GUI} \\
+\midrule
+Base, no training & 47/116 & 57/116 & 64/116 & 9/117 \\
+\rowcolor{oursrowcolor}
+Gemini 2.5 Pro & \textbf{55/116} & \underline{64/116} & \textbf{71/116} & \textbf{15/117} \\
+Gemini 3.1 Pro Preview & \underline{52/116} & 62/116 & 69/116 & \underline{13/117} \\
+Qwen3-VL-8B & \underline{52/116} & \textbf{67/116} & \underline{70/116} & 11/117 \\
+\bottomrule
+\end{tabular}
+\end{table}

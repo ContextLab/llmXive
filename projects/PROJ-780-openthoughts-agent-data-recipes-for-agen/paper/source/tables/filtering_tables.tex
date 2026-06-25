@@ -1,0 +1,21 @@
+\begin{table}[!t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{rlcccccc}
+\toprule
+ & & \multicolumn{3}{c}{Benchmarks} & \multicolumn{2}{c}{Average} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Rank & Filtering Strategy & SWE-bench Verified (100) & OT-TBLite & Terminal-Bench 2.0 & Raw & Normalized \\
+\midrule
+1 & Response Length (GPT-5, longest) & \textbf{22.67}\,\subscriptval{1.53} & \textbf{19.51}\,\subscriptval{1.72} & \textbf{10.11}\,\subscriptval{1.35} & \textbf{17.43} & \textbf{+1.38} \\
+2 & Response Length (GPT-5, shortest) & \textbf{21.33}\,\subscriptval{1.67} & 16.91\,\subscriptval{1.65} & \textbf{9.74}\,\subscriptval{1.24} & 15.99 & +0.31 \\
+3 & AskLLM & \textbf{20.67}\,\subscriptval{1.63} & 15.87\,\subscriptval{1.52} & \textbf{10.86}\,\subscriptval{1.18} & 15.80 & +0.19 \\
+4 & Embedding diversity & 20.00\,\subscriptval{1.63} & 16.41\,\subscriptval{1.50} & 7.87\,\subscriptval{0.99} & 14.76 & -0.72 \\
+5 & Random (baseline) & 19.67\,\subscriptval{1.70} & 14.77\,\subscriptval{1.36} & 7.87\,\subscriptval{1.35} & 14.10 & -1.17 \\
+\bottomrule
+\end{tabular}}
+\vspace{10pt}
+\caption{\textbf{Filtering task descriptions with LLM-based difficulty signals improves performance.} Selecting tasks for which GPT-5 produces longer responses improves over random selection by $\sim$3pp on average. }
+\label{tab:task_filtering}
+\end{table}
+% \vspace{-1cm}

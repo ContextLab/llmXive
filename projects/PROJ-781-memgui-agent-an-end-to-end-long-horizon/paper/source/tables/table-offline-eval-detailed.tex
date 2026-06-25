@@ -1,0 +1,41 @@
+\begin{table}[h]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.04}
+\setlength{\tabcolsep}{3.2pt}
+\begin{adjustbox}{max width=0.78\linewidth}
+\begin{tabular}{l ccc}
+\toprule
+& \multicolumn{3}{c}{\textbf{Model}} \\
+\textbf{Metric} & \texttt{8B-Inst.} & \texttt{8B-SFT} & \texttt{235B-Th.} \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Overall Action Matching}}} \\
+\quad Type Accuracy & 52.7 & \textbf{62.6} & 58.7 \\
+\quad Match Accuracy & 28.2 & \textbf{35.6} & 33.1 \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{UI Actions}}} \\
+\quad Type Accuracy & 55.1 & \textbf{65.8} & 61.1 \\
+\quad Match Accuracy & 29.2 & \textbf{36.3} & 33.9 \\
+\quad\quad click & 18.7 & \textbf{26.7} & 24.2 \\
+\quad\quad type & 53.1 & \textbf{69.5} & 67.3 \\
+\quad\quad swipe & 41.2 & \textbf{45.4} & 44.5 \\
+\quad\quad system\_button & 63.6 & \textbf{69.0} & 65.6 \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Memory Actions}}} \\
+\quad Type Accuracy & 10.9 & \textbf{56.4} & 23.0 \\
+\quad Match Accuracy & 10.6 & \textbf{51.5} & 22.4 \\
+\quad Trigger F1 & 19.9 & \textbf{48.0} & 34.3 \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Folding}}} \\
+\quad Deep Fold Ratio$^\dagger$ & 8.8 & \textbf{26.1} & 18.7 \\
+\quad Range Acc (deep) & 45.2 & \textbf{58.9} & 56.7 \\
+\quad Range Acc (shallow) & \textbf{98.2} & 86.2 & 92.3 \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Format Compliance}}} \\
+\quad All Tags Correct & 94.9 & \textbf{99.9} & 99.2 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\caption{Detailed aggregate metrics for gold-context step-level offline evaluation on the MemGUI-3K test set (295 trajectories, 6{,}479 steps). \textbf{8B-Inst.}~=~\llmname{Qwen3-VL-8B-Instruct} (zero-shot); \textbf{8B-SFT}~=~MemGUI-8B-SFT; \textbf{235B-Th.}~=~\llmname{Qwen3-VL-235B-Thinking} (zero-shot rerun). Match accuracy follows the implementation in Appendix~\ref{sec:appendix-offline-skill}: click/long-press within 14\% of the screen diagonal, type/answer exact match or token F1 $>$ 0.5, and memory add/update matching by description or content F1 $>$ 0.5. $^\dagger$Gold deep fold ratio is 23.2\%. \textbf{Bold}: best per row.}
+\label{tab:offline-eval-detailed}
+\end{table}

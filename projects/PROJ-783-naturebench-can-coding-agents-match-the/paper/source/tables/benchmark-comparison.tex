@@ -1,0 +1,63 @@
+\providecommand{\cmark}{\textcolor{green!45!black}{\(\checkmark\)}}
+\providecommand{\xmark}{\textcolor{red!70!black}{\(\times\)}}
+
+\definecolor{catblue}{HTML}{EFF5F9}       %
+\definecolor{catbluestrong}{HTML}{D6E6F0}  %
+\definecolor{catgreen}{HTML}{F1F7F1}       %
+\definecolor{catgreenstrong}{HTML}{DCEEDD}  %
+\definecolor{catorange}{HTML}{FBF6EA}      %
+\definecolor{catorangestrong}{HTML}{F5ECCE} %
+\definecolor{catpurple}{HTML}{F5F1F9}      %
+\definecolor{catpurplestrong}{HTML}{E8DFF2} %
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Comparison with representative agent benchmarks.} \textbf{\# Tasks} reports the source-stated number of primary evaluation units. \textbf{Paper} indicates whether tasks are derived from source papers; \textbf{Science} indicates whether they address scientific domains beyond AI/ML methodology itself; and \textbf{Optimization} indicates whether agents maximize task performance rather than recover or assess known results. NatureBench uniquely combines paper-sourced tasks, scientific-domain coverage, and discovery-oriented evaluation.}
+\label{tab:benchmark-comparison}
+\footnotesize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.07}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}l l c c c c l l@{}}
+\toprule
+\textbf{Benchmark} & \textbf{Source} & \textbf{\# Tasks} & \textbf{Paper} & \textbf{Science} & \textbf{Optimization} & \textbf{Objective} & \textbf{Scoring anchor} \\
+\midrule
+\rowcolor{catbluestrong}
+\multicolumn{8}{l}{\textit{ML Paper Replication}} \\
+\rowcolor{catblue}
+PaperBench~\citep{starace2025paperbench} & ICML papers & 20 & \cmark & \xmark & \xmark & paper replication & author rubrics \\
+\rowcolor{catblue}
+AutoExperiment~\citep{kim2025autoexperiment} & ML papers & 85 & \cmark & \xmark & \xmark & masked-code reproduction & gold outputs \\
+\rowcolor{catblue}
+FIRE-Bench~\citep{wang2026firebench} & LLM analysis papers & 30 & \cmark & \xmark & \xmark & finding rediscovery & paper claims \\
+\midrule
+\rowcolor{catgreenstrong}
+\multicolumn{8}{l}{\textit{Scientific Paper Reproduction}} \\
+\rowcolor{catgreen}
+CORE-Bench~\citep{siegel2024corebench} & Code Ocean capsules & 270 & \cmark & \cmark & \xmark & result reproduction & manual outputs \\
+\rowcolor{catgreen}
+REPRO-Bench~\citep{hu2025reprobench} & social-science papers & 112 & \cmark & \cmark & \xmark & reproducibility assessment & expert labels \\
+\rowcolor{catgreen}
+ReplicationBench~\citep{ye2025replicationbench} & astrophysics papers & 111 & \cmark & \cmark & \xmark & result replication & reported values \\
+\rowcolor{catgreen}
+AutoMat~\citep{huang2026automat} & materials-science papers & 85 & \cmark & \cmark & \xmark & claim reproduction & expert annotations \\
+\rowcolor{catgreen}
+Collider-Bench~\citep{faroughy2026colliderbench} & LHC papers & 10 & \cmark & \cmark & \xmark & analysis reproduction & event yields \\
+\midrule
+\rowcolor{catorangestrong}
+\multicolumn{8}{l}{\textit{Task-Performance Optimization}} \\
+\rowcolor{catorange}
+MLE-bench~\citep{shern2024mlebench} & Kaggle competitions & 75 & \xmark & \xmark & \cmark & ML engineering & Kaggle leaderboard \\
+\rowcolor{catorange}
+PostTrainBench~\citep{rank2026posttrainbench} & model--benchmark pairs & 28 & \xmark & \xmark & \cmark & LLM post-training & official instruct models \\
+\rowcolor{catorange}
+MLS-Bench~\citep{lyu2026mlsbench} & ML research problems & 140 & \xmark & \xmark & \cmark & method invention & human baselines \\
+\rowcolor{catorange}
+AutoLab~\citep{xu2026autolab} & expert-curated problems & 36 & \xmark & \xmark & \cmark & long-horizon optimization & baseline/human metrics \\
+\midrule
+\rowcolor{catpurplestrong}
+\textbf{NatureBench (ours)} & \textbf{Nature-family papers} & \textbf{90} & \textbf{\cmark} & \textbf{\cmark} & \textbf{\cmark} & \textbf{method development} & \textbf{published SOTA} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

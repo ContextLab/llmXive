@@ -1,0 +1,38 @@
+\begin{table}[t!]
+\centering
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\resizebox{0.96\textwidth}{!}{
+\begin{tabular}{l C{4.2cm} C{4.2cm}}
+\toprule
+Axis (pre-RL $\to$ post-RL) & \texttt{pymethods2test} (hero) & \texttt{llm-verifier-freelancer} (baseline) \\
+\midrule
+RL-time reward trajectory      & $0.47 \to 0.51$ peak $\to 0.14$ collapse & $0.54 \to 0.73$ near-monotonic \\
+tail-bin agent-timeout rate    & $\approx 80\%$                  & stayed $18$--$36\%$ throughout \\
+completed-trial reward (errors excl.)\textsuperscript{$\ddagger$} & $0.652 \to 0.541$ ($-0.11$)  & $0.415 \to 0.493$ ($+0.08$)  \\
+mean turns / trace             & $+12.9$ ($+32\%$)               & $-7.8$ ($-11\%$)             \\
+mean tokens / conversation     & $+29\%$                         & $+1\%$ (flat)               \\
+tool calls / trace             & $+31\%$                         & $-8\%$                      \\
+think tokens / trace           & $+116\%$                        & $-42\%$                     \\
+self-correction phrases        & $+81\%$                         & $-59\%$                     \\
+LLM-judge post-RL win rate     & $83.3\%$ ($25/30$)              & $73.3\%$ ($22/30$)          \\
+dominant LLM-judge tag         & \texttt{more-tool-calls} ($73\%$) & \texttt{fewer-tool-calls} ($53\%$) \\
+\bottomrule
+\end{tabular}}
+\vspace{4pt}
+\caption{\textbf{Two RL runs on the same pipeline learn opposite behavioral policies.}
+The \texttt{pymethods2test} ``hero'' run and the \texttt{llm-verifier-freelancer}
+``baseline'' run share the identical pipeline (GLM-4.7-distilled SWE-Smith 8B base, RLOO
+recipe, rollout environment, $24\times$A100), differing only in the RL data source.
+On \emph{every} behavioral axis the two runs move in opposite directions: the hero policy
+\emph{expands} (more turns, tokens, tool calls, thinking, self-correction) while the
+baseline policy \emph{compacts} (fewer turns, calls, thinking, self-correction). The
+hero's expansion coincides with a non-monotonic reward curve that peaks near step $\sim$35
+and then collapses (\Cref{fig:rl_hero_reward}); the baseline's compaction coincides with a
+smooth, monotone reward rise (\Cref{fig:rl_baseline_reward}). We read this as
+exploration-purchased-at-the-cost-of-stability (hero) versus tightening-of-an-existing
+strategy (baseline). RL-time reward and behavioral deltas are from the time-binned trace
+analysis and the pre/post eval-trace deltas; LLM-judge win rates are pairwise
+\texttt{gpt-5-2025-08-07} comparisons over $30$ same-task trace pairs per run.
+\textsuperscript{$\ddagger$}\,Mean reward over trials that produced a reward (errored/timed-out trials excluded) -- a \emph{conditional} reward, distinct from the all-trial Harbor Mean accuracy (errors$=0$) reported in \Cref{tab:ot_agent_8B_table3,tab:rl_data_ablation}. The hero's conditional reward dips here while its all-trial accuracy roughly doubles ($0.19\!\to\!0.33$); see \Cref{app:rl-behavior-downstream}.}
+\label{tab:rl_behavior_hero_vs_baseline}
+\end{table}

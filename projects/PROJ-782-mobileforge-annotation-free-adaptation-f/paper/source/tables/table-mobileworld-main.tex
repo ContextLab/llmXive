@@ -1,0 +1,41 @@
+\begin{table}[H]
+\centering
+\paperTable
+\caption{Out-of-domain MobileWorld GUI-only success rate on the 117-task split. External baseline numbers follow the GUI-only reporting protocol; \ourmethod rows use AndroidWorld-derived adaptation data only. Within each method group, best values are bolded and second-best values are underlined. Relative-gain rows compare each adapted model with its corresponding 8B base agent.}
+\label{tab:mobileworld_main}
+\begin{paperFit}
+\begin{tabular}{@{}l r@{}}
+\toprule
+\textbf{Agent} & \textbf{GUI-Only SR (\%)} \\
+\midrule
+\multicolumn{2}{l}{\textit{\textbf{Open-weight GUI / VLM agents}}} \\
+\midrule
+\llmname{GUI-Owl-1.5-32B}~\citep{xu2026mobile} & \textbf{43.9} \\
+\llmname{MAI-UI-235B-A22B}~\citep{zhou2025mai} & \underline{39.7} \\
+\llmname{GUI-Owl-1.5-8B}~\citep{xu2026mobile} & 37.6 \\
+\llmname{MAI-UI-32B}~\citep{zhou2025mai} & 36.2 \\
+\llmname{GUI-Owl-1.5-2B}~\citep{xu2026mobile} & 32.2 \\
+\llmname{MAI-UI-8B}~\citep{zhou2025mai} & 27.5 \\
+\llmname{Qwen3-VL-235B-Thinking}~\citep{bai2025qwen3} & 14.5 \\
+\llmname{Qwen3-VL-235B}~\citep{bai2025qwen3} & 12.8 \\
+\llmname{Qwen3-VL-32B}~\citep{bai2025qwen3} & 11.9 \\
+\llmname{Qwen3-VL-8B}~\citep{bai2025qwen3} & 7.6 \\
+\midrule
+\multicolumn{2}{l}{\textit{\textbf{Open-data mobile GUI agents}}} \\
+\midrule
+\llmname{OpenMobile-8B}~\citep{OpenMobile2025} & \underline{17.7} \\
+\llmname{ClawGUI-2B}~\citep{tang2026clawgui} & 17.1 \\
+\llmname{OpenMobile-7B}~\citep{OpenMobile2025} & 14.8 \\
+\llmname{ScaleCUA-7B}~\citep{ScaleCUA2025} & 7.7 \\
+\rowcolor{oursrowcolor}
+\llmname{ForgeQwen3-8B} \textit{(Ours)} & 10.3 \\
+\rowcolor{baselinerowcolor}
+\multicolumn{1}{r}{\footnotesize\emph{Rel. gain over \llmname{Qwen3-VL-8B}}} & \rise{+35.5\%} \\
+\rowcolor{oursrowcolor}
+\llmname{ForgeOwl-8B} \textit{(Ours)} & \textbf{41.0} \\
+\rowcolor{baselinerowcolor}
+\multicolumn{1}{r}{\footnotesize\emph{Rel. gain over \llmname{GUI-Owl-1.5-8B}}} & \rise{+9.0\%} \\
+\bottomrule
+\end{tabular}
+\end{paperFit}
+\end{table}

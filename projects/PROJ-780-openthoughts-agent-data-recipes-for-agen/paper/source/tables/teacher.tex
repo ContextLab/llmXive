@@ -1,0 +1,20 @@
+\begin{table}[!t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{rlcccccc}
+\toprule
+ & & \multicolumn{3}{c}{Benchmarks} & \multicolumn{2}{c}{Average} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Rank & Teacher Model & SWE-bench Verified (100) & OT-TBLite & Terminal-Bench 2.0 & Raw & Normalized \\
+\midrule
+1 & GLM 4.7 (Quantized) & 28.00\,\subscriptval{1.76} & \textbf{17.86}\,\subscriptval{1.60} & \textbf{8.61}\,\subscriptval{1.40} & \textbf{18.16} & \textbf{+0.73} \\
+2 & Kimi K2.5 & \textbf{33.33}\,\subscriptval{1.83} & 14.19\,\subscriptval{1.51} & \textbf{8.24}\,\subscriptval{1.06} & \textbf{18.59} & \textbf{+0.66} \\
+3 & GLM 5 & \textbf{33.00}\,\subscriptval{1.60} & 14.30\,\subscriptval{1.78} & \textbf{7.50}\,\subscriptval{1.18} & \textbf{18.27} & \textbf{+0.66} \\
+4 & GLM 4.6 (Quantized) & 26.00\,\subscriptval{1.67} & \textbf{16.99}\,\subscriptval{1.80} & 6.37\,\subscriptval{1.24} & 16.45 & +0.08 \\
+5 & GPT-5.3-Codex & 21.67\,\subscriptval{1.33} & 10.42\,\subscriptval{1.55} & 3.75\,\subscriptval{0.99} & 11.94 & -1.47 \\
+\bottomrule
+\end{tabular}}
+\vspace{10pt}
+\caption{\textbf{Teacher model ablation: stronger model $\neq$ better teacher.} Despite GPT-5.3-Codex being the strongest model on these benchmarks, it is the weakest teacher, underperforming GLM 4.7 AWQ by $\sim$5pp on Terminal-Bench~2.0. }
+\label{tab:teacher_ablation}
+\end{table}

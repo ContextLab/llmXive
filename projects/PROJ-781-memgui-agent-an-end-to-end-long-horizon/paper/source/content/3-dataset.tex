@@ -1,0 +1,36 @@
+\section{MemGUI-3K Dataset}
+\label{sec:dataset}
+\vspace{-0.25em}
+
+\subsection{Motivation: Context Management Must Be Learned}
+\label{sec:dataset-motivation}
+
+\input{tables/table-ablation-model-size.tex}
+
+\conact provides an end-to-end interface for folding history, writing UI memory, and describing recent steps, but using it well still requires policy decisions. We therefore ask whether the protocol alone is sufficient across model scales. Table~\ref{tab:ablation-model-size} applies the same 5-part \conact protocol to \llmname{Qwen3-VL} backbones of different sizes on MemGUI-Bench-40. Gains emerge only on the strongest backbone we test, \llmname{Qwen3-VL-235B-Thinking}; on smaller open models and \llmname{Qwen3-VL-235B-Instruct}, the added protocol often reduces performance. This suggests that proactive context management is not merely a prompt-format change: models must learn when to fold history, when to write UI facts into memory, and how to produce reusable step descriptions. We therefore construct \textbf{MemGUI-3K}, a supervised dataset with full \conact annotations, to support training and analysis across model scales.
+
+\subsection{Construction Pipeline}
+\label{sec:dataset-construction}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.86\linewidth]{images/appendix/memgui_3k_pipeline/memgui_3k_pipeline.drawio.png}
+  \caption{MemGUI-3K data collection and filtering pipeline. Expanded tasks are rolled out by a \llmname{Qwen3-VL-235B-Thinking} teacher, evaluated by MemGUI-Eval, filtered at trajectory and step levels, and converted into SFT samples.}
+  \label{fig:data-pipeline}
+\end{figure}
+
+\textbf{Expanding seed tasks.}
+MemGUI-3K is built from the 128 seed tasks of MemGUI-Bench~\cite{liu2026memgui}. We expand them with three complementary strategies: \emph{entity substitution}, which preserves task structure while replacing task-specific entities; \emph{memory-operation augmentation}, which increases coverage of \memaction{memory\_update} and \memaction{memory\_delete}; and \emph{task simplification}, which decomposes complex multi-app tasks into shorter single-objective variants. This produces a 7{,}303-task pool, from which 5{,}293 tasks enter rollout. Detailed expansion statistics are provided in Appendix~\ref{sec:appendix-task-expansion}.
+
+\textbf{Collecting teacher rollouts.}
+Each task is executed once in the snapshot-based Android environment of MemGUI-Bench using \llmname{Qwen3-VL-235B-Thinking} as the teacher with the full 5-part \conact protocol. Rollouts terminate when the agent emits \texttt{terminate} or reaches the task-specific budget $2.5g+1$, where $g$ is the task's golden-step count. We evaluate trajectories with the MemGUI-Eval progressive scrutiny pipeline~\cite{liu2026memgui} and additionally annotate every step as \emph{reasonable} or \emph{unreasonable}. This filtering removes recovery loops, repeated errors, and counterproductive actions from SFT targets while preserving successful context-management behavior. Figure~\ref{fig:data-pipeline} visualizes the workflow; details and an annotated example are in Appendices~\ref{sec:appendix-rollout-filtering}--\ref{sec:appendix-training-data-example}.
+
+\textbf{Filtering into training samples.}
+After trajectory filtering and a 90/10 split, MemGUI-3K contains 2{,}956 successful trajectories across 26 apps, with verified zero overlap against the 128 MemGUI-Bench evaluation tasks. Extracting reasonable steps yields 64{,}430 SFT samples, including 57{,}951 train and 6{,}479 test samples. Each sample consists of the shared system prompt, the user message with structured context state and screenshot, and the gold 5-part \conact response. We train \textbf{MemGUI-8B-SFT} from \llmname{Qwen3-VL-8B-Instruct} using LoRA SFT with ms-swift~\cite{zhao2024swift}; dataset format and training details are provided in Appendix~\ref{sec:appendix-dataset-format} and Appendix~\ref{sec:appendix-training-setup}.
+
+\subsection{Statistics}
+\label{sec:dataset-statistics}
+
+\input{figures/fig-dataset-statistics.tex}
+
+Figure~\ref{fig:dataset-stats} summarizes MemGUI-3K. The dataset covers 26 Android apps across 7 functional categories, with productivity, shopping, and information~\&~news being the most frequent (Figure~\ref{fig:dataset-stats}(a)). Trajectories average 28.8 steps with a median of 25, about $1.9\times$ longer than GUIOdyssey~\cite{lu2025guiodyssey} (avg.\ 15.3), the previously longest mobile GUI SFT dataset (Figure~\ref{fig:dataset-stats}(b)). Step-level reasonableness analysis marks 75.7\% of steps as reasonable, yielding 21.8 trainable steps per trajectory on average. Memory actions appear in 65.1\% of trajectories (Figure~\ref{fig:dataset-stats}(c)). The teacher also performs nontrivial history abstraction: 23.8\% of folds are span-level summaries, with an average span of 6.25 steps and 88.7\% of trajectories containing at least one span-level fold (Figure~\ref{fig:dataset-stats}(d)). Additional statistics on splits, task sources, trajectory lengths, and folding granularity are reported in Appendix~\ref{sec:appendix-dataset-statistics}. These statistics show that MemGUI-3K supervises UI actions, memory writing, history compression, and reusable step descriptions.

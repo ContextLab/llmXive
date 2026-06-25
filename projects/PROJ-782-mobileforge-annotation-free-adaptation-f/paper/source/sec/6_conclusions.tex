@@ -1,0 +1,7 @@
+\section{Conclusion}
+
+We presented \ourmethod, an annotation-free adaptation system for mobile GUI agents. \ourmethod addresses two bottlenecks in annotation-free GUI learning: the lack of a unified mobile adaptation substrate and the weakness of isolated rollouts with coarse or sparse feedback for long-horizon GUI tasks. \mobilegym grounds task generation and hierarchical rollout evaluation in real target-app interaction, while \hifpo performs multi-attempt hint-guided rollout and transforms evaluated attempts, step-level process feedback, and corrective hints into step-level GRPO updates. Experiments on AndroidWorld and MobileWorld show that \ourmethod improves both an open generalist VLM and a strong GUI-specialized model, with \llmname{ForgeOwl-8B} achieving the strongest open-data mobile GUI agent result in our evaluation. Future work should extend the same feedback-guided adaptation loop to broader app ecosystems, longer multi-app workflows, and more explicit safety constraints for real user devices.
+
+\section{Limitations}
+
+\ourmethod is still bounded by the app ecosystem explored during adaptation. Our main training data comes from AndroidWorld-side apps, so broader app coverage, longer multi-app workflows, persistent user state, and unusual task rules remain challenging. The current system also relies on automatic evaluator quality; stronger or more verifiable critics may further improve safety and reliability on real user devices.

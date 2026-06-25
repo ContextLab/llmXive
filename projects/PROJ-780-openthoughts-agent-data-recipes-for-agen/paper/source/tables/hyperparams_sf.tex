@@ -1,0 +1,114 @@
+% =========================================================================
+% SFT training hyperparameters per data scale (32B + 8B).
+% Format: booktabs.
+% =========================================================================
+
+\subsection{SFT training hyperparameters per data scale}
+\label{appx:sft_hp_per_scale}
+
+\paragraph{Common to all 32B SFT runs.}
+All 32B finetunes start from \texttt{Qwen/Qwen3-32B}, use the \texttt{qwen3} (thinking)
+chat template, and share the optimization settings below; only the items in
+\Cref{tab:sft_hp_per_scale_32b} vary across data scales.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+Optimizer                          & AdamW, $\beta = (0.9,\,0.98)$, weight decay $0.04$ \\
+Learning rate                      & $4\times10^{-5}$ \\
+Schedule                           & cosine, warmup ratio $0.1$ \\
+Global batch size                  & $96$ \\
+Sequence cutoff                    & $32{,}768$ tokens \\
+Precision                          & BF16 weights \\
+Distributed strategy               & DeepSpeed ZeRO-3 (\texttt{ds\_z3\_accelerate.json}) \\
+Hardware                           & $24$ nodes (JUPITER Booster, $4\times$GH200 per node) \\
+Shuffle examples between epochs    & disabled (\texttt{disable\_shuffling=True}) \\
+Chat template                      & \texttt{qwen3} (thinking) \\
+Base model                         & \texttt{Qwen/Qwen3-32B} \\
+\bottomrule
+\end{tabular}
+\vspace{6pt}
+\caption{\textbf{Optimizer and infrastructure settings shared across all 32B SFT runs.}}
+\label{tab:sft_hp_common_32b}
+\end{table}
+
+
+\paragraph{Per-scale settings (32B).}
+The two ablation knobs that vary across data scales are the number of training
+epochs and the gradient-clip threshold: smaller scales train for more epochs
+with looser clipping, larger scales train for fewer epochs with tighter
+clipping (\Cref{tab:sft_hp_per_scale_32b}).
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{lcccl}
+\toprule
+Data scale & Epochs & Max grad norm & Recipe label & Approx.\ wall time (24 nodes) \\
+\midrule
+3.16K & 7 & $1\times10^{-4}$ & \texttt{32b\_small}  & $\sim$0.5 h \\
+10K   & 7 & $1\times10^{-4}$ & \texttt{32b\_small}  & $\sim$1.5 h \\
+31.6K & 5 & $1\times10^{-3}$ & \texttt{32b\_large}  & $\sim$3 h \\
+100K  & 5 & $1\times10^{-3}$ & \texttt{32b\_large}  & $\sim$5 h \\
+\bottomrule
+\end{tabular}
+\vspace{6pt}
+\caption{\textbf{32B per-scale SFT settings.} The smaller-scale runs (3.16K, 10K) use the
+\texttt{32b\_small} recipe (7 epochs, looser gradient clipping); the larger-scale
+runs (31.6K, 100K) use \texttt{32b\_large} (5 epochs, tighter clipping). All
+other settings (\Cref{tab:sft_hp_common_32b}) are held constant. Wall time is
+measured for the diverse-Tezos top-4 family on $24\times$H100 nodes.}
+\label{tab:sft_hp_per_scale_32b}
+\end{table}
+
+
+\paragraph{Common to all 8B SFT runs.}
+8B runs use the same optimizer and infrastructure family as the 32B runs but
+with a non-thinking chat template and a longer training horizon (7 epochs at
+all scales). The constant settings are summarized in
+\Cref{tab:sft_hp_common_8b}.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+Optimizer                          & AdamW, $\beta = (0.9,\,0.98)$, weight decay $0.04$ \\
+Learning rate                      & $4\times10^{-5}$ \\
+Schedule                           & cosine, warmup ratio $0.1$ \\
+Global batch size                  & $96$ \\
+Sequence cutoff                    & $32{,}768$ tokens (long-context variants: $131{,}072$) \\
+Precision                          & BF16 weights \\
+Distributed strategy               & DeepSpeed ZeRO-3 \\
+Hardware                           & $24$ nodes (JUPITER Booster, $4\times$GH200 per node) \\
+Shuffle examples between epochs    & disabled (\texttt{disable\_shuffling=True}) \\
+Chat template                      & \texttt{qwen3\_nothink} \\
+Base model                         & \texttt{Qwen/Qwen3-8B} \\
+\bottomrule
+\end{tabular}
+\vspace{6pt}
+\caption{\textbf{Optimizer and infrastructure settings shared across all 8B SFT runs.}}
+\label{tab:sft_hp_common_8b}
+\end{table}
+
+
+% \paragraph{Per-scale settings (8B).}
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{lccl}
+\toprule
+Data scale & Epochs & Max grad norm & Approx.\ wall time (24 nodes) \\
+\midrule
+1K    & 7 & $1.0$ & $\sim$1 h \\
+3.16K & 7 & $1.0$ & $\sim$2 h \\
+10K   & 7 & $1.0$ & $\sim$4 h \\
+31.6K & 7 & $1.0$ & $\sim$10 h \\
+100K  & 7 & $1.0$ & $\sim$30 h \\
+\bottomrule
+\end{tabular}
+\vspace{6pt}
+\caption{\textbf{8B per-scale SFT settings.} 8B runs hold all hyperparameters
+constant across data scales, with only data volume changing. All settings in
+\Cref{tab:sft_hp_common_8b} apply.}
+\label{tab:sft_hp_per_scale_8b}
+\end{table}

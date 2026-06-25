@@ -1,0 +1,22 @@
+\begin{table}[!htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{rlcccccc}
+\toprule
+ & & \multicolumn{3}{c}{Benchmarks} & \multicolumn{2}{c}{Average} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Rank & Strategy & SWE-bench Verified (100) & OT-TBLite & Terminal-Bench 2.0 & Raw & Normalized \\
+\midrule
+1 & SWESmith & \textbf{32.33}\,\subscriptval{1.83} & 17.63\,\subscriptval{1.63} & 6.37\,\subscriptval{1.18} & \textbf{18.78} & \textbf{+1.92} \\
+2 & StackExchange SuperUser & 13.33\,\subscriptval{1.41} & 16.68\,\subscriptval{1.63} & \textbf{10.86}\,\subscriptval{1.35} & 13.62 & +1.51 \\
+3 & StackExchange Tezos & 16.33\,\subscriptval{1.41} & 16.94\,\subscriptval{1.83} & 9.36\,\subscriptval{1.06} & 14.21 & +1.45 \\
+4 & IssueTasks & 24.00\,\subscriptval{1.76} & 16.44\,\subscriptval{1.49} & 6.74\,\subscriptval{1.24} & 15.73 & +1.37 \\
+\multicolumn{7}{c}{$\cdots$} \\
+95 & AgentTuning-OS & 0.00\,\subscriptval{0.00} & 5.64\,\subscriptval{1.12} & 0.37\,\subscriptval{0.37} & 2.00 & -2.31 \\
+\bottomrule
+\end{tabular}}
+\vspace{10pt}
+\caption{\textbf{Task source choice has the largest spread of any pipeline stage.} Issue-resolution tasks and human-written infrastructure questions dominate the top, but improvements are spiky across benchmarks. Full ranking in Appendix~\ref{app:task-gen-full}.}
+\label{tab:task_gen_table}
+\end{table}
+\FloatBarrier

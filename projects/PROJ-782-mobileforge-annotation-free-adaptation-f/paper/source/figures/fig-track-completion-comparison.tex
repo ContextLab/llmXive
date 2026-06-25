@@ -1,0 +1,53 @@
+\begin{figure*}[!p]
+\centering
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{images/track-completion-comparison/AndroidWorld-qwen-base.png}
+  \caption{\llmname{Qwen3-VL-8B} base: failed}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{images/track-completion-comparison/AndroidWorld-qwen-rl.png}
+  \caption{\llmname{ForgeQwen3-8B}: successful}
+\end{subfigure}
+\caption{\textbf{AndroidWorld track-completion comparison for \llmname{Qwen3-VL-8B}.}
+On the same Broccoli recipe-deletion task, the base model falls into repeated scrolling after partial progress, while \ourmethod adaptation enables \llmname{ForgeQwen3-8B} to switch to a targeted search strategy and complete the remaining deletion.}
+\label{fig:track_completion_androidworld_qwen}
+\end{figure*}
+
+\begin{figure*}[!p]
+\centering
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{images/track-completion-comparison/MobileWorld-qwen-base.png}
+  \caption{\llmname{Qwen3-VL-8B} base: failed}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{images/track-completion-comparison/MobileWorld-qwen-rl.png}
+  \caption{\llmname{ForgeQwen3-8B}: successful}
+\end{subfigure}
+\caption{\textbf{MobileWorld track-completion comparison for \llmname{Qwen3-VL-8B}.}
+On the same multi-app academic-calendar and email task, the base model selects an underspecified semester result and then skips the calendar subtask, while \llmname{ForgeQwen3-8B} verifies the Spring 2026 deadline window, creates the calendar event, and proceeds to the email workflow.}
+\label{fig:track_completion_mobileworld_qwen}
+\end{figure*}
+
+\begin{figure*}[!p]
+\centering
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{images/track-completion-comparison/MobileWorld-guiowl-base.png}
+  \caption{\llmname{GUI-Owl-1.5-8B} base: failed}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{images/track-completion-comparison/MobileWorld-guiowl-rl.png}
+  \caption{\llmname{ForgeOwl-8B}: successful}
+\end{subfigure}
+\caption{\textbf{MobileWorld track-completion comparison for \llmname{GUI-Owl-1.5-8B}.}
+On the same invoice recalculation and email task, the base model leaves the invoice context too early and sends an incorrect amount, while \llmname{ForgeOwl-8B} preserves the key invoice conditions, shares the document into Mail, and sends the correct recalculated total.}
+\label{fig:track_completion_mobileworld_guiowl}
+\end{figure*}

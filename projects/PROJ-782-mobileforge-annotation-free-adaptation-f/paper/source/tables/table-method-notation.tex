@@ -1,0 +1,32 @@
+\begin{table}[t]
+\centering
+\paperTable
+\caption{Key notation used in the method.}
+\label{tab:method_notation}
+\begin{tabular}{L{0.23\linewidth} L{0.66\linewidth}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+$\mathcal{E}$ & Target mobile app environment. \\
+$\mathcal{Z}$ & Exploration evidence collected from target apps. \\
+$\mathcal{T}$ & Generated adaptation curriculum. \\
+$x$ & A generated task in curriculum $\mathcal{T}$. \\
+$\tau_k$ & The $k$-th rollout attempt for task $x$. \\
+$\eta_{<k}$ & Corrective hint context from earlier attempts of task $x$. \\
+$\mathcal{F}_{k}$ & Hierarchical feedback for attempt $\tau_k$. \\
+$I_k^{(t)}$ & Screenshot observation at attempt $k$ and step $t$. \\
+$s_k^{(t)}$ & Decision state at attempt $k$ and step $t$. \\
+$a_k^{(t)}=(\alpha,\psi)$ & Structured GUI action with type $\alpha$ and arguments $\psi$. \\
+$z_k$ & Trajectory outcome label; $1$ means task success and $0$ means failure. \\
+$\ell_k^{(t)}$ & Step-level process label. \\
+$v_k^{(t)}$ & Binary reasonableness label for step $t$ in attempt $k$. \\
+$e_k^{(t)}$ & Natural-language rationale for the step-level label. \\
+$\chi_k^{(t)}$ & Indicator that a step is marked reasonable by \critic. \\
+$Q_k$ & Local quality score of attempt $\tau_k$. \\
+$h_k$ & Corrective hint generated after an attempt. \\
+$d_j=(s_j,a_j^\star)$ & Step-level training sample and selected action. \\
+$\tilde{s}_j$ & Hint-contextualized prompt used by step-level GRPO. \\
+$R_{j,g}$ & Adaptive GUI action reward for candidate $g$ in a GRPO group. \\
+\bottomrule
+\end{tabular}
+\end{table}

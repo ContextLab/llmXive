@@ -1,0 +1,20 @@
+\begin{table}[h]
+\centering
+\paperTable
+\caption{Training objective ablation with \llmname{Qwen3-VL-8B}. AndroidWorld numbers report Pass@1 over 116 tasks. The best result is bolded and second-best results are underlined.}
+\label{tab:training_objective_ablation_main}
+\begin{tabular}{@{}l c r@{}}
+\toprule
+\textbf{Method} & \textbf{Tasks} & \textbf{AndroidWorld Pass@1} \\
+\midrule
+Base & 0 & 47/116 (40.5\%) \\
+No-hint SFT & 200 & 40/116 (34.5\%) \\
+Hint SFT & 200 & 53/116 (45.7\%) \\
+Hint-contextualized GRPO & 200 & \underline{55/116 (47.4\%)} \\
+No-hint SFT & 900 & 51/116 (44.0\%) \\
+Hint SFT & 900 & \underline{55/116 (47.4\%)} \\
+\rowcolor{oursrowcolor}
+Hint-contextualized GRPO & 900 & \textbf{59/116 (50.9\%)} \\
+\bottomrule
+\end{tabular}
+\end{table}

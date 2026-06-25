@@ -1,0 +1,18 @@
+\begin{table}[!t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{rlcccccc}
+\toprule
+ & & \multicolumn{3}{c}{Benchmarks} & \multicolumn{2}{c}{Average} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Rank & Trajectory Filter & SWE-bench Verified (100) & OT-TBLite & Terminal-Bench 2.0 & Raw & Normalized \\
+\midrule
+1 & Min turns $\geq 5$ & \textbf{29.00}\,\subscriptval{1.56} & \textbf{19.10}\,\subscriptval{1.57} & \textbf{11.61}\,\subscriptval{1.30} & \textbf{19.90} & \textbf{+1.25} \\
+2 & Filter timeouts & 26.67\,\subscriptval{1.70} & \textbf{18.03}\,\subscriptval{1.60} & \textbf{10.49}\,\subscriptval{1.18} & 18.39 & -0.35 \\
+3 & Filter subagent traces & 23.00\,\subscriptval{1.63} & \textbf{17.31}\,\subscriptval{1.58} & \textbf{10.86}\,\subscriptval{1.35} & 17.06 & -0.90 \\
+\bottomrule
+\end{tabular}}
+\vspace{10pt}
+\caption{\textbf{Filtering agent rollouts: keeping longer trajectories helps.} The minimum-turns filter outperforms timeout and subagent filters across all three benchmarks.}
+\label{tab:answer_filtering}
+\end{table}

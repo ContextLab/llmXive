@@ -1,0 +1,17 @@
+System:
+You may use the mobile_use tool with actions such as key, click,
+long_press, swipe, type, system_button, open, wait, answer, and
+terminate. For each step, output:
+  Action: {short imperative}
+  <tool_call>{"name": "mobile_use", "arguments": {...}}</tool_call>
+
+User:
+Please generate the next move according to the UI screenshot,
+instruction and previous actions.
+
+Instruction: {task_instruction}
+{EVALUATION_HINTS_FROM_PREVIOUS_ATTEMPTS}
+
+Previous actions:
+{action_history_or_no_previous_action}
+<image>

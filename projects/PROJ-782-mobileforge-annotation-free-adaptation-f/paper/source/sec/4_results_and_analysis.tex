@@ -1,0 +1,64 @@
+\setcounter{insight}{0}
+
+\input{tables/table-androidworld-main}
+
+\subsection{Overall Performance}
+\label{sec:results}
+
+
+\paragraph{In-Domain Adaptation on AndroidWorld.}
+Table~\ref{tab:androidworld_main} combines the main AndroidWorld results with the 200/400/900-task scaling study, and Figure~\ref{fig:main-performance}(a) visualizes the same scaling trend. The headline result is that annotation-free adaptation brings the generalist \llmname{Qwen3-VL-8B} close to the closed-data GUI-specialized \llmname{GUI-Owl-1.5-8B}: the adapted model, \llmname{ForgeQwen3-8B}, reaches 67.2\% Pass@3, nearly matching the GUI-Owl base result of 69.0\%. The same loop also improves the stronger GUI-specialized agent. With 900 generated tasks, \llmname{ForgeOwl-8B} reaches 67.2\% Pass@1 and 77.6\% Pass@3. The difficulty columns show where the improvements come from: \ourmethod consistently strengthens easy and medium tasks, and \llmname{ForgeOwl-8B} also improves hard-task single-attempt success from 19.3\% to 29.8\%.
+
+
+
+\paragraph{Cross-Domain Generalization to MobileWorld.}
+Table~\ref{tab:mobileworld_main} reports out-of-domain MobileWorld GUI-only results. No MobileWorld rollout, task, or feedback is used for adaptation. \llmname{ForgeOwl-8B} reaches 41.0\% success on the 117-task split, surpassing existing open-data mobile GUI agents and approaching much larger or closed-data GUI-specialized systems. \llmname{ForgeQwen3-8B} transfers more modestly, suggesting that out-of-domain generalization still depends strongly on the base agent's mobile GUI competence.
+
+\input{tables/table-mobileworld-main}
+
+\insight{\ourmethod improves both generalist and GUI-specialized agents. Its strongest checkpoint, \llmname{ForgeOwl-8B}, achieves the strongest open-data mobile GUI agent result in our evaluation while using only AndroidWorld-side annotation-free adaptation data.}
+
+\subsection{Ablation Analysis}
+
+\input{tables/table-ablation-hint-rollout}
+
+\paragraph{Ablation on corrective rollout hints.}
+We remove the corrective hint context from repeated rollout while keeping the same 200 generated tasks. As shown in Table~\ref{tab:hint_rollout_ablation_main}, corrective hints improve overall rollout success from 52.0\% to 77.0\%, Pass@3 from 49.0\% to 72.5\%, and reduce the average steps per attempt. The ablation confirms that multi-attempt rollout becomes useful because feedback accumulates across attempts, not merely because the policy samples more attempts.
+\insight{Corrective hints are the bridge between repeated exploration and reusable experience.}
+
+\input{tables/table-ablation-training-objective}
+
+\paragraph{Ablation on the training objective.}
+We compare SFT and hint-contextualized GRPO on the same generated data, with and without corrective hints. Table~\ref{tab:training_objective_ablation_main} shows that no-hint SFT is weak and can fall below the base model. Hint SFT is better, but hint-contextualized GRPO is strongest at both 200 and 900 tasks, reaching 50.9\% Pass@1 in the 900-task setting. This isolates the value of step-level group-relative optimization after the feedback-guided filtering stage.
+\insight{Hint-contextualized GRPO is more effective than direct SFT on the same annotation-free adaptation data.}
+
+\input{tables/table-ablation-task-filter}
+
+\paragraph{Ablation on task filtering.}
+We vary the task-level success-rate range used before step extraction. Table~\ref{tab:task_filter_ablation_main} shows that keeping all-fail and mixed tasks, corresponding to the $[0.0,0.9]$ range, gives the strongest combined AndroidWorld and MobileWorld result among the tested filters. Keeping all tasks admits mastered all-success tasks, while removing all-fail tasks discards useful local progress from difficult attempts.
+\insight{The right filtering rule is not to remove failures; it is to remove mastered tasks and let step feedback recover useful local actions.}
+
+\input{tables/table-ablation-evaluator-model}
+
+\paragraph{Ablation on the evaluator model.}
+We replace the final-decision model used by \critic while keeping the step-description model fixed. Table~\ref{tab:evaluator_model_ablation_main} shows that Gemini 2.5 Pro~\citep{comanici2025gemini} gives the strongest 200-task result, but \llmname{Qwen3-VL-8B} as the decision model still improves the base policy from 40.5\% to 44.8\% Pass@1 and from 55.2\% to 60.3\% Pass@3. Thus, the improvement is not tied to a single proprietary evaluator.
+\insight{A stronger evaluator helps, but the \ourmethod feedback-to-optimization loop remains beneficial with a weaker open decision model.}
+
+\input{tables/table-curriculum-coverage}
+
+\paragraph{Ablation on curriculum grounding.}
+Table~\ref{tab:curriculum_functional_coverage_main} compares the functional coverage of tasks generated from only the landing screen against trajectory-grounded \curriculum. The landing-screen baseline over-concentrates on recipe creation, editing, and deletion, with recipe deletion alone taking 27.3\% of tasks. In contrast, \curriculum covers broader functions such as shopping lists, cooking assistant flows, meal planning, settings, and media sharing.
+\insight{Exploration grounding matters because it broadens the curriculum beyond functions visible on the first screen.}
+
+\subsection{Case Study and Error Analysis}
+\label{sec:case_study_error_analysis}
+
+\input{figures/fig-case-study-good}
+
+\paragraph{Case Study.}
+Figure~\ref{fig:case-study-good} compares \llmname{Qwen3-VL-8B} and the adapted \llmname{ForgeQwen3-8B} on AndroidWorld \texttt{ExpenseDeleteMultiple2}. The base model reaches a deletion confirmation but then loses the task flow, repeatedly opening and closing the sidebar instead of continuing through the remaining requested expenses. After \ourmethod adaptation, \llmname{ForgeQwen3-8B} follows the app-specific deletion pattern across multiple items and completes the requested removals. Additional paired trajectory comparisons in Appendix~\ref{sec:appendix_track_completion_cases} and Figures~\ref{fig:track_completion_androidworld_qwen}, \ref{fig:track_completion_mobileworld_qwen}, and~\ref{fig:track_completion_mobileworld_guiowl} show the same pattern across AndroidWorld and MobileWorld tasks. This example reflects the quantitative gains in Figure~\ref{fig:main-performance}: adaptation mainly improves the agent's ability to preserve task intent across repeated UI procedures.
+
+\input{figures/fig-error-analysis-heatmap}
+
+\paragraph{Error Analysis.}
+Figure~\ref{fig:tag_failure_heatmap} visualizes tag-wise failure-rate reduction relative to each base agent. Positive values indicate that \ourmethod reduces failures after adaptation. The largest gains are concentrated in app-grounded UI skills such as verification, search, complex UI understanding, screen reading, repetition, and information retrieval. For example, \llmname{ForgeQwen3-8B} reduces verification failures by 38.1 percentage points, and \llmname{ForgeOwl-8B} reduces search failures by 6.0 percentage points. The remaining hard cases are also clear: game-playing stays unsolved, multi-app tasks do not improve, and memorization/math-counting tasks remain brittle. These failures point to missing long-horizon state, cross-app coordination, and non-standard task-rule coverage rather than simple UI grounding.

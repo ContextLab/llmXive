@@ -1,0 +1,41 @@
+\begin{table}[!htbp]
+  \centering
+  \footnotesize
+  \renewcommand{\arraystretch}{1.06}
+  \setlength{\tabcolsep}{3.6pt}
+  \begin{adjustbox}{max width=0.88\linewidth}
+  \begin{tabular}{@{}l | cc | cc | cc | cc@{}}
+    \toprule
+    & \multicolumn{2}{c|}{\textbf{P@1 (\%)}}
+    & \multicolumn{2}{c|}{\textbf{P@2 (\%)}}
+    & \multicolumn{2}{c|}{\textbf{P@3 (\%)}}
+    & \multicolumn{2}{c}{\textbf{IRR (\%)}} \\
+    \textbf{Model Scale}
+      & \texttt{Base} & \conact
+      & \texttt{Base} & \conact
+      & \texttt{Base} & \conact
+      & \texttt{Base} & \conact \\
+    \midrule
+    Qwen3-VL-2B
+      & 10.0 & \drop{5.0}    & 12.5 & \drop{5.0}    & 17.5 & \drop{10.0}
+      & 10.8 & \drop{1.6}  \\
+    Qwen3-VL-4B
+      & 20.0 & \drop{12.5}   & 25.0 & \drop{15.0}   & 27.5 & \drop{15.0}
+      & 19.0 & \drop{10.7} \\
+    Qwen3-VL-8B
+      & 12.5 & \drop{7.5}    & 17.5 & \drop{10.0}   & 22.5 & \drop{15.0}
+      & 15.0 & \drop{10.7} \\
+    \midrule
+    Qwen3-VL-235B-Instruct
+      & 23.4 & \drop{19.5}   & 36.7 & \drop{23.4}   & 36.7 & \drop{28.9}
+      & 29.2 & \rise{32.5} \\
+    \midrule
+    \rowcolor{oursrowcolor} \textbf{Qwen3-VL-235B-Thinking}
+      & 5.0  & \rise{\textbf{40.0}}  & 20.0 & \rise{\textbf{52.5}}  & 27.5 & \rise{\textbf{62.5}}
+      & 19.5 & \rise{\textbf{51.0}} \\
+    \bottomrule
+  \end{tabular}%
+  \end{adjustbox}
+  \caption{Zero-shot \conact across \llmname{Qwen3-VL} sizes on MemGUI-Bench-40. \textbf{Base}: ReAct-style 3-part prompt; \textbf{\conact}: 5-part context-as-action prompt. \rise{Green}/\drop{red} denote improvement/regression. Only \llmname{235B-Thinking} benefits zero-shot, motivating MemGUI-3K supervision.}
+  \label{tab:ablation-model-size}
+\end{table}

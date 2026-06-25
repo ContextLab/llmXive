@@ -1,0 +1,14 @@
+\definecolor{casebenchpurplebg}{HTML}{ECE5F0}
+\definecolor{casebenchbluebg}{HTML}{EEF2F3}
+\definecolor{casefoldpurple}{HTML}{A983BD}
+\definecolor{casememoryorange}{HTML}{F0A65C}
+\newcommand{\benchbg}[2]{\begingroup\setlength{\fboxsep}{0.5pt}\colorbox{#1}{\textbf{#2}}\endgroup}
+\newcommand{\casefoldhl}[1]{\begingroup\setlength{\fboxsep}{0.5pt}\colorbox{casefoldpurple}{\textcolor{white}{\normalfont\itshape #1}}\endgroup}
+\newcommand{\casememhl}[1]{\begingroup\setlength{\fboxsep}{0.5pt}\colorbox{casememoryorange}{\textcolor{white}{\normalfont\itshape #1}}\endgroup}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.94\textwidth]{images/case-study-good/case-study-good.drawio.png}
+    \caption[Successful zero-shot trajectories of \ourmethod-235B on MemGUI-Bench and MobileWorld.]{Successful zero-shot trajectories of \ourmethod-235B on \benchbg{casebenchpurplebg}{MemGUI-Bench} and \benchbg{casebenchbluebg}{MobileWorld}. Read rows left to right: screenshots are milestones, snippets are \conact outputs, \casefoldhl{folded action history}/\casememhl{memory writes} mark compressed steps/saved facts, and dashed boxes show compact state.}
+    \label{fig:case-study}
+\end{figure*}

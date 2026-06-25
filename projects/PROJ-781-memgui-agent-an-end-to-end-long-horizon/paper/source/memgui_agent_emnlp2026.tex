@@ -1,0 +1,256 @@
+\documentclass[]{ant_tech_report}
+
+% Additional packages used by this paper and not provided by the template class.
+\usepackage{latexsym}
+\usepackage[utf8]{inputenc}
+\usepackage{inconsolata}
+\ifdefined\pdfimageresolution
+  \pdfimageresolution=300
+\fi
+\usepackage{siunitx}
+\sisetup{table-format=2.1, table-number-alignment=center}
+\usepackage{url}
+\usepackage{multicol}
+\usepackage{colortbl}
+\usepackage{wrapfig}
+\usepackage{makecell}
+\usepackage{adjustbox}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+\usepackage{soul}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\titleformat*{\paragraph}{\bfseries\itshape}
+
+% Premium typography: research-question box and key-finding style
+\definecolor{memguiblue}{HTML}{E8F1FA}
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\definecolor{memorycolor}{RGB}{216, 228, 244}
+\definecolor{foldcolor}{RGB}{229, 190, 217}
+\definecolor{stepcolor}{RGB}{232, 204, 204}
+\definecolor{memguigreen}{RGB}{71, 172, 20}
+\definecolor{memguired}{RGB}{238, 68, 51}
+\definecolor{toolblue}{HTML}{263D4A}
+\definecolor{histcolor}{HTML}{B79AD0}
+\definecolor{recentcolor}{HTML}{E46F6F}
+\definecolor{memstatecolor}{HTML}{F2A65A}
+\definecolor{codegray}{gray}{0.95}
+
+\newenvironment{paperresources}
+  {\par\noindent\begin{minipage}{0.92\textwidth}
+    \centering\footnotesize\sffamily\color{black!82}
+    \setlength{\parindent}{0pt}\setlength{\parskip}{2pt}}
+  {\end{minipage}\par\vspace{1.7mm}}
+\newcommand{\resourceprojecticon}{\textcolor{antblue}{\faGlobe}}
+\newcommand{\resourcegithubicon}{\textcolor{antblue}{\faGithub}}
+\newcommand{\resourcehficon}{%
+  \raisebox{0.3ex}{%
+    \tikz[baseline=-0.5ex,scale=0.105]{%
+      \fill[antblue] (0,0) circle (1);
+      \fill[antblue] (-0.8,0.68) circle (0.34);
+      \fill[antblue] (0.8,0.68) circle (0.34);
+      \fill[white] (-0.34,0.22) circle (0.11);
+      \fill[white] (0.34,0.22) circle (0.11);
+      \draw[white,line width=0.12pt,line cap=round] (-0.36,-0.26) .. controls (0,-0.55) .. (0.36,-0.26);
+    }%
+  }%
+}
+\newcommand{\paperresourceicon}[4]{%
+  #1\ \textbf{#2:}\ \href{#3}{{\ttfamily\fontsize{8}{9}\selectfont #4}}%
+}
+
+\newcommand{\obsbox}[1]{%
+  \begin{tcolorbox}[colframe=black!50, colback=cvprblue!8, boxrule=1.2pt, arc=2mm,
+    top=4pt, bottom=4pt, left=6pt, right=6pt, boxsep=2pt, fontupper=\itshape]
+    #1
+  \end{tcolorbox}
+}
+\newcommand{\keyfinding}[1]{\noindent\textbf{#1}\quad}
+
+\tcbset{
+  promptstyle/.style={
+    colback=codegray,
+    colframe=black,
+    fontupper=\ttfamily\scriptsize,
+    fonttitle=\ttfamily\scriptsize\raggedright,
+    coltitle=white,
+    colbacktitle=black,
+    sharp corners,
+    boxrule=0.5pt,
+    enhanced,
+    breakable,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+  }
+}
+
+% % Insight markers (UI-Copilot style)
+% \newcounter{insight}
+% \newcommand{\insight}[1]{\refstepcounter{insight}\par\noindent\textit{\textbf{Insight~\theinsight.} #1}\par}
+
+\newcounter{insight}
+\newcommand{\insight}[1]{%
+  \refstepcounter{insight}%
+  \vspace{0.30em}
+  \noindent
+  \begingroup
+  \setlength{\fboxsep}{0pt}%
+  \colorbox{histcolor!7}{%
+    \parbox{0.97\columnwidth}{%
+      \vspace{0.35em}
+      \hspace{0.65em}%
+      \textcolor{histcolor}{\rule{1.4pt}{1.05em}}%
+      \hspace{0.55em}%
+      \parbox[t]{0.89\columnwidth}{%
+        \textbf{\textsc{Insight}~\theinsight.}~\emph{#1}%
+      }%
+      \vspace{0.35em}
+    }%
+  }%
+  \endgroup
+  \vspace{0.30em}
+}
+
+% Colored inline keywords for key concepts
+\newcommand{\memaction}[1]{\textcolor{toolblue}{\texttt{#1}}}
+\newcommand{\foldop}[1]{\textcolor[HTML]{9B6BB3}{\texttt{#1}}}
+\newcommand{\foldfield}[1]{\textcolor{histcolor}{\texttt{#1}}}
+\newcommand{\toolfield}[1]{\textcolor{memstatecolor}{\texttt{#1}}}
+\newcommand{\recentfield}[1]{\textcolor{recentcolor}{\texttt{#1}}}
+\newcommand{\stepfield}[1]{\textcolor{risecolor}{\texttt{#1}}}
+
+% Component symbols (MemGen-inspired)
+\newcommand{\symmem}{$\spadesuit$\xspace}
+\newcommand{\symfold}{$\clubsuit$\xspace}
+\newcommand{\symstep}{$\diamondsuit$\xspace}
+
+% Highlighting commands - colorbox for best/second-best (MemGen style)
+\definecolor{hlbestcolor}{HTML}{CFE2FF}
+\definecolor{hlsecondcolor}{HTML}{E8F1FF}
+\definecolor{oursrowcolor}{HTML}{F4EEF8}
+\definecolor{oursrowcolorsecond}{HTML}{F9F2FB}
+\newcommand{\hlfirst}[1]{\colorbox{hlbestcolor}{#1}}
+\newcommand{\hlsecond}[1]{\colorbox{hlsecondcolor}{#1}}
+
+% Delta arrows for performance changes
+\newcommand{\deltup}[1]{$_{\textcolor{risecolor}{\uparrow\text{\scriptsize #1}}}$}
+\newcommand{\deltdn}[1]{$_{\textcolor{red!75!black}{\downarrow\text{\scriptsize #1}}}$}
+
+% Model name in monospace (MemGen-inspired)
+\newcommand{\llmname}[1]{{\fontfamily{pcr}\selectfont{#1}}}
+
+% Numbered symbols (similar to MemGen)
+\newcommand{\numone}{\ding{182}}
+\newcommand{\numtwo}{\ding{183}}
+\newcommand{\numthree}{\ding{184}}
+\newcommand{\numfour}{\ding{185}}
+
+% Common abbreviations
+\renewcommand{\ie}{\textit{i.e.}}
+\renewcommand{\eg}{\textit{e.g.}}
+\newcommand{\etc}{\textit{etc.}}
+
+% Custom commands
+\newcommand{\cmark}{\textcolor{risecolor}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{gray}{\ding{55}}}
+\newcommand{\ourmethod}{MemGUI-Agent\xspace}
+\newcommand{\conact}{\textsc{ConAct}\xspace}
+% Delta markers for ablation-by-scale table
+\definecolor{risecolor}{HTML}{159A9C}
+\newcommand{\rise}[1]{\textcolor{risecolor}{#1}}
+\newcommand{\drop}[1]{\textcolor{red!75!black}{#1}}
+\newcommand{\same}[1]{\textcolor{gray!60!black}{#1}}
+\newcommand{\ourbench}{\textbf{MemGUI-Bench}\xspace}
+% Figure placeholder when file is missing (avoids path printed in PDF)
+\newcommand{\includefig}[2][width=\linewidth]{\IfFileExists{#2}{\includegraphics[#1]{#2}}{\centering\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\centering\small [Placeholder: \texttt{#2}]}}}}
+% \newcommand{\oureval}{\textbf{MemGUI-Eval}}
+
+% Title box adjustment
+% \setlength\titlebox{5cm}
+
+\title{MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proactive Context Management}
+
+\author{%
+\parbox{\textwidth}{\centering
+Guangyi Liu$^{1,2}$,
+Gao Wu$^{1,2}$,
+Congxiao Liu$^{1,2}$,
+Pengxiang Zhao$^{1,2}$,
+Liang Liu$^{1}$,
+Mading Li$^{2,\dagger}$\\[1mm]
+Zhang Qi$^{2}$,
+Mengyan Wang$^{2}$,
+Liang Guo$^{2}$,
+Yong Liu$^{1,\S}$
+}}
+
+\affiliation{%
+\parbox{\textwidth}{\centering\small
+$^1$Zhejiang University \quad $^2$Kuaishou Technology
+}}
+
+\renewcommand{\contributionlist}{\vspace{-2mm}}
+\newcommand{\authorfootnotes}{%
+{\scriptsize
+\begin{tabular}{@{}l@{}}
+\rule{34mm}{0.4pt}\\[-0.2ex]
+$^\dagger$Project lead.\quad $^\S$Corresponding author.
+\end{tabular}}}
+\fancypagestyle{firststyle}{
+    \fancyhf{}
+    \fancyhead[R]{
+        \vskip 3mm
+    \includegraphics[height=13mm]{images/logo/zju-logo-1.png}
+    }
+    \fancyhead[L]{
+        \vskip 3mm
+    \includegraphics[height=10mm]{images/logo/kuaishou-logo.png}
+    }
+    \fancyfoot[L]{\raisebox{1.15\baselineskip}[0pt][0pt]{\authorfootnotes}}
+    \fancyfoot[C]{\thepage}
+}
+\renewcommand{\checkdatalist}{%
+\begin{paperresources}
+\paperresourceicon{\resourceprojecticon}{Project Page}{https://memgui-agent.github.io/}{memgui-agent.github.io}
+\quad\quad
+\paperresourceicon{\resourcehficon}{Dataset}{https://huggingface.co/datasets/lgy0404/MemGUI-3K}{lgy0404/MemGUI-3K}\\
+\paperresourceicon{\resourcegithubicon}{Code}{https://github.com/kwai/MemGUI-Agent}{github.com/kwai/MemGUI-Agent}
+\quad\quad
+\paperresourceicon{\resourcehficon}{Model}{https://huggingface.co/lgy0404/MemGUI-8B-SFT}{lgy0404/MemGUI-8B-SFT}
+\end{paperresources}}
+
+\abstract{\input{content/0-abstract.tex}}
+
+\begin{document}
+\maketitle
+\enlargethispage{6\baselineskip}
+\input{figures/fig-main-performance.tex}
+\clearpage
+
+
+% Main content
+\input{content/1-introduction.tex}
+
+
+
+\input{content/2-method.tex}
+
+\input{content/3-dataset.tex}
+
+\input{content/4-experiments.tex}
+
+\input{content/6-conclusion.tex}
+
+% BibTeX bibliography
+\bibliographystyle{plainnat}
+\bibliography{custom}
+
+% Appendix
+\input{content/appendix.tex}
+
+\end{document}

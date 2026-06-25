@@ -1,0 +1,18 @@
+\begin{wrapfigure}{r}{0.52\textwidth}
+  \vspace{-1.0em}
+  \centering
+  \captionsetup{font=footnotesize}
+  \includegraphics[width=\linewidth]{images/teaser/memgui-agent-teaser.drawio.png}
+  \vspace{-0.6em}
+  \caption[Context management in mobile GUI agents.]{
+    Context management in mobile GUI agents.
+    \textbf{(a)}~Previous ReAct-style methods passively append per-step records, making context grow with task length and accumulate noise.
+    \textbf{(b)}~\ourmethod proactively manages context via \conact's three structured fields:
+    \textcolor{histcolor}{Folded Action History},
+    \textcolor{memstatecolor}{Folded UI State},
+    and \textcolor{recentcolor}{Recent Step Record},
+    keeping context compact while preserving critical UI facts.
+    }
+  \label{fig:teaser}
+  \vspace{-1.2em}
+\end{wrapfigure}

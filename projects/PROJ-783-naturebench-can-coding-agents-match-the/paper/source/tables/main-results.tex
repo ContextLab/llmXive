@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\caption{\textbf{Main results on NatureBench,} sorted by overall Surpass-SOTA. Each group reports \textbf{S}\,=\,Surpass-SOTA ($g > 0.1$) and \textbf{M}\,=\,Match-SOTA ($g \ge 0$), as percentages of tasks, both overall (All) and per scientific domain. Best/second in the All columns are \textbf{bold}/\underline{underlined}.}
+\label{tab:main-results}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l cc cc cc cc cc cc cc}
+\toprule
+ & \multicolumn{2}{c}{All} & \multicolumn{2}{c}{Protein} & \multicolumn{2}{c}{Cellular} & \multicolumn{2}{c}{Physical} & \multicolumn{2}{c}{Molec.} & \multicolumn{2}{c}{Relat.} & \multicolumn{2}{c}{Biomed.} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}\cmidrule(lr){12-13}\cmidrule(lr){14-15}
+Model & S\,$\uparrow$ & M\,$\uparrow$ & S\,$\uparrow$ & M\,$\uparrow$ & S\,$\uparrow$ & M\,$\uparrow$ & S\,$\uparrow$ & M\,$\uparrow$ & S\,$\uparrow$ & M\,$\uparrow$ & S\,$\uparrow$ & M\,$\uparrow$ & S\,$\uparrow$ & M\,$\uparrow$ \\
+\midrule
+Claude Opus 4.7   & \hsb{17.8} & \hmb{47.8} & \ds{12.5} & \dm{56.2} & \ds{22.6} & \dm{54.8} & \ds{30.8} & \dm{46.2} & \ds{18.2} & \dm{45.5} & \ds{0.0} & \dm{60.0} & \ds{7.1} & \dm{21.4} \\
+Gemini 3.5 Flash  & \hsu{15.6} & \hm{37.8} & \ds{6.2} & \dm{43.8} & \ds{25.8} & \dm{51.6} & \ds{30.8} & \dm{30.8} & \ds{0.0} & \dm{18.2} & \ds{0.0} & \dm{60.0} & \ds{7.1} & \dm{14.3} \\
+GPT-5.5           & \hs{14.4} & \hmu{44.4} & \ds{6.2} & \dm{50.0} & \ds{25.8} & \dm{54.8} & \ds{23.1} & \dm{38.5} & \ds{0.0} & \dm{18.2} & \ds{0.0} & \dm{60.0} & \ds{7.1} & \dm{35.7} \\
+Claude Opus 4.6   & \hs{12.2} & \hm{36.7} & \ds{12.5} & \dm{31.2} & \ds{19.4} & \dm{41.9} & \ds{23.1} & \dm{30.8} & \ds{0.0} & \dm{36.4} & \ds{0.0} & \dm{60.0} & \ds{0.0} & \dm{28.6} \\
+Qwen 3.7 Max      & \hs{10.0} & \hm{28.9} & \ds{12.5} & \dm{37.5} & \ds{16.1} & \dm{35.5} & \ds{15.4} & \dm{23.1} & \ds{0.0} & \dm{18.2} & \ds{0.0} & \dm{40.0} & \ds{0.0} & \dm{14.3} \\
+Kimi K2.6         & \hs{8.9} & \hm{30.0} & \ds{12.5} & \dm{37.5} & \ds{12.9} & \dm{29.0} & \ds{15.4} & \dm{15.4} & \ds{0.0} & \dm{27.3} & \ds{0.0} & \dm{60.0} & \ds{0.0} & \dm{28.6} \\
+GPT-5.4           & \hs{8.9} & \hm{27.8} & \ds{6.2} & \dm{37.5} & \ds{12.9} & \dm{29.0} & \ds{23.1} & \dm{30.8} & \ds{0.0} & \dm{18.2} & \ds{0.0} & \dm{60.0} & \ds{0.0} & \dm{7.1} \\
+GLM-5.1           & \hs{7.8} & \hm{28.9} & \ds{6.2} & \dm{25.0} & \ds{12.9} & \dm{35.5} & \ds{7.7} & \dm{23.1} & \ds{0.0} & \dm{18.2} & \ds{0.0} & \dm{60.0} & \ds{7.1} & \dm{21.4} \\
+DeepSeek-V4-Pro   & \hs{4.4} & \hm{26.7} & \ds{6.2} & \dm{37.5} & \ds{9.7} & \dm{32.3} & \ds{0.0} & \dm{15.4} & \ds{0.0} & \dm{18.2} & \ds{0.0} & \dm{60.0} & \ds{0.0} & \dm{7.1} \\
+MiniMax-M2.7      & \hs{1.1} & \hm{13.3} & \ds{0.0} & \dm{18.8} & \ds{3.2} & \dm{16.1} & \ds{0.0} & \dm{7.7} & \ds{0.0} & \dm{0.0} & \ds{0.0} & \dm{20.0} & \ds{0.0} & \dm{14.3} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

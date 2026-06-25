@@ -1,0 +1,154 @@
+\section{NatureBench}
+\label{sec:naturebench}
+
+
+\input{tables/benchmark-comparison}
+
+In this section, we introduce \textbf{NatureBench}, a benchmark of 90 task packages spanning six scientific task domains, produced by applying NatureGym (\S\ref{sec:naturegym}) to Nature-family journal papers.
+We describe the source corpus and pipeline funnel (\S\ref{sec:nb:corpus}), evaluation-time quality calibration (\S\ref{sec:nb:calib}), benchmark composition (\S\ref{sec:nb:stats}), and evaluation protocol (\S\ref{sec:nb:eval}).
+
+Table~\ref{tab:benchmark-comparison} positions NatureBench relative to representative agent benchmarks. Existing work either grounds tasks in papers but targets reproduction rather than optimization (PaperBench~\citep{starace2025paperbench}, CORE-Bench~\citep{siegel2024corebench}, ReplicationBench~\citep{ye2025replicationbench}), or optimizes task performance but draws from Kaggle or ML-engineering problems rather than scientific papers (MLE-bench~\citep{shern2024mlebench}, PostTrainBench~\citep{rank2026posttrainbench}). NatureBench is the first to combine paper-sourced tasks, genuine scientific problems, and optimization-oriented evaluation scored against the published SOTA.
+
+\subsection{Source Corpus}
+\label{sec:nb:corpus}
+
+We first bound the source pool with a journal-level selection policy, then run the NatureGym pipeline (\S\ref{sec:naturegym}) to progressively narrow the crawled candidates into a construction-ready set that enters calibration.
+
+\paragraph{Journal selection.} We select source journals by three criteria.
+First, accepted papers must contain concrete algorithmic contributions with numerical SOTA claims, providing a clear competition target for each task.
+Second, the journal must include papers with available data, so that the underlying datasets are publicly recoverable without per-item manual approval.
+Third, the journal's topical scope must cover scientific machine learning, the domain where automated-agent capability is least studied.
+Accordingly, we select ten Nature-family journals: \emph{Nature Machine Intelligence}, \emph{Nature Communications}, \emph{Nature Methods}, \emph{Nature Materials}, \emph{Nature Biomedical Engineering}, \emph{Nature Energy}, \emph{Nature Biotechnology}, \emph{Nature Computational Science}, \emph{Nature Genetics}, and \emph{Nature Neuroscience}. The publication window is 2022--2025, chosen to balance corpus size against software-stack currency and data-contamination risk.
+The final 90-task set draws from six of these journals. The other four retain no tasks after filtering, data verification, task construction, and calibration.
+
+\paragraph{Pipeline funnel.} All collected papers pass through five phases: the three NatureGym stages (\S\ref{sec:naturegym}) bookended by an initial collection crawl and a final calibration step.
+\emph{Collection} crawls ${\sim}$5{,}500 initial candidates from ten Nature-family journals.
+\emph{Filtering} retains ${\sim}$2{,}500 research articles via an article-type filter, then applies three-stage filtering (\S\ref{sec:gym:filter}) to yield ${\sim}$200 papers.
+\emph{Acquisition} acquires and verifies datasets (\S\ref{sec:gym:data}), narrowing to ${\sim}$180.
+\emph{Construction} builds and verifies task packages (\S\ref{sec:gym:build}), retaining ${\sim}$160.
+\emph{Calibration} removes defective tasks via evaluation-time quality calibration (\S\ref{sec:nb:calib}), finalizing the benchmark at 90~task packages.
+Table~\ref{tab:funnel} reports counts at each step.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/benchmark_statistics/benchmark_statistics.pdf}
+\caption{\textbf{NatureBench coverage.}
+Across 90 tasks, NatureBench spans six scientific domains and diverse ML task families while varying substantially in data modality, data characteristics, and source-paper contribution type.
+}
+\label{fig:nb:benchmark-statistics}
+\end{figure}
+
+\begin{table}[!ht]
+\centering
+\caption{\textbf{NatureGym pipeline funnel,} grouped into five phases aligned with the pipeline of \S\ref{sec:naturegym}. Counts marked with ``$\sim$'' are approximate, and only the final corpus size is exact.}
+\label{tab:funnel}
+\small
+\begin{tabular}{llr}
+\toprule
+\textbf{Stage} & \textbf{Step} & \textbf{Papers retained} \\
+\midrule
+Collection    & Initial crawl from 10 Nature-family journals                 & $\sim$5{,}500 \\
+Filtering     & Article-type filter (exclude non-research)                   & $\sim$2{,}500 \\
+Filtering     & Three-level filtering~(\S\ref{sec:gym:filter})               & $\sim$200     \\
+Acquisition   & Dataset acquisition and verification~(\S\ref{sec:gym:data})    & $\sim$180     \\
+Construction  & Task construction~(\S\ref{sec:gym:build})     & $\sim$160     \\
+Calibration   & Evaluation-time quality calibration~(\S\ref{sec:nb:calib})   & $\mathbf{90}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Benchmark Quality Calibration}
+\label{sec:nb:calib}
+
+
+Build-time verification (\S\ref{sec:naturegym}) guarantees only that a task package is structurally well-formed and runnable. Some defects surface only when an agent actually attempts to solve the task.
+We therefore add an evaluation-time quality calibration before the main experiments, proceeding in three steps. Appendix~\ref{app:calibration-details} provides full details.
+
+\paragraph{First-round diagnosis and repair.} We run Claude Opus 4.6 over all tasks in base mode and diagnose each case by combining the score, the agent trajectory, and the task package. Exposed defects include ground-truth leakage, distorted task definitions, metrics that fail to distinguish shortcuts from genuine solutions, evaluator inconsistencies, pipeline or environment errors, and missing data. Locally verifiable defects receive minimal repairs. Tasks with irreparable issues are dropped. Legitimate low scores are retained.
+
+\paragraph{Reproduction-mode package audit.}
+In reproduce mode, the agent additionally receives the source paper and is instructed to faithfully reproduce its method. We run Claude Opus 4.6 and DeepSeek-V4-Pro in this mode to audit whether each package genuinely supports the paper's approach, checking task description and data, evaluator, metadata anchors, and cross-component consistency.
+After human review, 45 tasks are dropped for systematic defects and 17 receive minor repairs. The benchmark is finalized at 90 task packages.
+
+\paragraph{Reproducibility of the final set.}
+On the finalized 90 tasks, Claude Opus 4.6 reproduces 30 tasks successfully ($\gimp \ge -0.05$) and DeepSeek-V4-Pro reproduces 21 tasks. On the 16 tasks where both succeed, $\gimp$ clusters tightly around zero (median $-0.0026$, $90\%$ of deviations $\le 0.031$), confirming that the SOTA anchors are well calibrated. Remaining non-successes trace to the uniform resource budget and agent capability rather than package defects (Figure~\ref{fig:nb:benchmark-calibration}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/benchmark_calibration/benchmark_calibration.pdf}
+\caption{\textbf{Calibrating the NatureBench corpus.}
+\textbf{a}, The reproduce-mode calibration probe, from an ambiguous result to a clear attribution.
+\textbf{b}, Reproduce-mode outcomes and attributed causes for Claude Opus 4.6 and DeepSeek-V4-Pro.
+\textbf{c}, Per-task $\gimp$ in base versus reproduce mode.}
+\label{fig:nb:benchmark-calibration}
+\end{figure}
+
+
+\subsection{Benchmark Statistics}
+\label{sec:nb:stats}
+
+
+The benchmark comprises 90 tasks and 333 evaluation instances. We characterize NatureBench along two complementary themes: the breadth and representativeness of its coverage, and the heterogeneity of its evaluation design. The first theme describes how tasks are distributed across scientific domains, ML task types, and source-paper contribution types. The second characterizes each task's evaluation along three layers: what is evaluated (Scope), how the reference answer is defined (Paradigm), and what it is measured by (Metric). This heterogeneity explains why \S\ref{sec:nb:eval} requires a single cross-task-comparable metric.
+
+\paragraph{Breadth and representativeness.}
+Figure~\ref{fig:nb:benchmark-statistics} summarizes NatureBench coverage along three single-label axes (source journal, scientific domain, and ML task type) together with a multi-label view of the source papers' contribution nature.
+By provenance, the final 90 tasks concentrate in six journals, led by \emph{Nature Machine Intelligence} (36), \emph{Nature Methods} (26), and \emph{Nature Computational Science} (16). The corpus skews recent, with 11, 17, 28, and 34 tasks for 2022 through 2025.
+Across scientific domains, the tasks span six areas (cellular omics, protein biology, biomedical modeling, physical modeling, molecular design, and relational reasoning) and eight ML task types, where prediction/regression and classification dominate, followed by clustering/integration and a long tail of generation, segmentation, simulation, structure-modeling, and other specialized tasks.
+Source papers also vary in contribution type: most adapt established methods to new scientific settings, a sizable share introduce algorithmic innovations, and a few contribute a new problem formulation, with a single paper often spanning more than one category.
+\paragraph{Heterogeneous evaluation design.}
+Figure~\ref{fig:nb:benchmark-statistics} reports the design summary.
+At the \emph{Scope} layer, tasks are evaluated over multiple instances (mean 3.7, median 3, up to 19), organized under varied data-partition topologies: most use multiple independent test sets, but many use a shared training set with multiple test sets or leave-one-out cross-dataset splits, so evaluation extends beyond a single dataset to generalization conditions.
+Agent-visible data ranges from under 1~GB (about half the tasks) to over 10~GB (about a fifth).
+By primary input modality, the tasks span biological sequences, molecular and materials structures, single-cell and spatial omics, imaging and volumetric data, temporal signals and spectra, graphs and networks, and feature tables.
+At the \emph{Paradigm} layer, most tasks use a static label scored against hidden ground truth. The remaining tasks are either \emph{distribution} tasks, where the agent generates samples scored by set-level or distributional metrics, or \emph{oracle} tasks, where the agent optimizes against a provided scorer with no fixed correct answer.
+At the \emph{Metric} layer, the tasks use 81 distinct primary metrics (AUROC, RMSE, Spearman~$\rho$, ARI, F1, MAE, among others), with each task typically scored by several (mean 3.7 primary, 5.1 auxiliary), most of which are higher-is-better.
+This metric heterogeneity makes per-task raw scores incomparable, motivating the direction-normalized, scale-free relative-gap metric of \S\ref{sec:nb:eval}.
+
+
+\subsection{Evaluation Protocol}
+\label{sec:nb:eval}
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/benchmark_overview/overview_figure.pdf}
+\caption{\textbf{NatureBench task construction and evaluation pipeline.}
+Each source paper is constructed into a task package that separates the agent-visible task description and data from a hidden evaluator, ground truth, and paper-reported SOTA. An agent then solves the task inside an isolated container exposing only the task description, data, and a writable workspace, while a host-side service scores each submission. A post-hoc judge screens the run for validity.}
+\label{fig:nb:evaluation-protocol}
+\end{figure}
+
+Each agent solves its task inside an isolated NatureBench container, scored by a standardized evaluation service against the source paper's reported SOTA.
+The protocol keeps every retained score both \emph{comparable}, because heterogeneous task metrics collapse to one SOTA-normalized quantity, and \emph{trustworthy}, because the agent is sealed from the ground truth while it works and audited for shortcuts afterwards.
+
+\paragraph{SOTA-normalized relative gap.}
+To compare agents across tasks with heterogeneous metrics, each task is scored and ranked by a single normalized quantity computed on the one primary metric that each instance designates. The remaining metrics are still reported to the agent as feedback but do not enter this normalized score.
+For instance~$i$, this SOTA-normalized relative gap is
+\begin{equation}
+  \gimp_i \;=\; \mathrm{dir}_i \cdot \frac{m_i - m_i^{\mathrm{sota}}}{|m_i^{\mathrm{sota}}|},
+\end{equation}
+where $m_i$ is the agent's value on that primary metric, $m_i^{\mathrm{sota}}$ is the paper-reported SOTA for it, and $\mathrm{dir}_i \in \{+1, -1\}$ encodes the metric direction.
+$\gimp_i \geq 0$ means the agent matches or surpasses the published result.
+The task-level score averages $\gimp_i$ across instances, and instances with no valid submission receive $\gimp_i^{\mathrm{fail}} = -1.0$.
+Because $\gimp$ is scale-free and direction-normalized, it enables direct comparison across tasks whose primary metrics are heterogeneous (e.g., AUROC, RMSE, Spearman~$\rho$).
+
+\paragraph{Agent run and adjudication.}
+The agent operates inside an isolated, task-specific Docker container with read access to \texttt{problem/} (task description and data) and read/write access to \texttt{workspace/}, a 4-hour wall-clock budget, and one GPU when the task requires it. The evaluator, ground truth, and SOTA target reside in a host-side evaluation service that the agent cannot access directly.
+\emph{During} the run, the agent iteratively queries this service through three endpoints. \texttt{/evaluate} scores a submission on every instance across all reported metrics and returns raw scores, relative gaps, and the running best. \texttt{/best\_score} returns the current best without submitting. \texttt{/time\_remaining} reports the remaining budget. The wall clock pauses during scoring so that evaluation overhead does not consume the agent's budget.
+\emph{After} the run, a post-hoc Claude Sonnet 4.6 judge checks for shortcut behavior (output fabrication, rule substitution for learning, answer recovery, feedback gaming, or training bypass) and assigns flagged runs a score of \texttt{none}.
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+

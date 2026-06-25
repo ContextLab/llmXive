@@ -1,0 +1,50 @@
+\begin{table*}[t]
+\centering
+\paperCompactTable
+\caption{Comparison with annotation-free GUI agent learning and adaptation methods. We organize the comparison around two limitations addressed by \ourmethod: the lack of a unified mobile interaction and evaluation substrate, and the reliance on isolated rollout experience with coarse or sparse feedback.}
+\label{tab:related_work_comparison}
+\begin{paperFit}[\textwidth]
+\begin{tabular}{l l c c c l c l}
+\toprule
+\textbf{Method} &
+\textbf{Main Source / Setting} &
+\multicolumn{3}{c}{\textbf{Pain Point 1: Mobile Interaction and Evaluation Substrate}} &
+\multicolumn{3}{c}{\textbf{Pain Point 2: Feedback-to-Optimization}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8}
+&
+&
+\makecell{\textbf{Target Mobile}\\\textbf{Interaction}} &
+\makecell{\textbf{Auto Task /}\\\textbf{Curriculum}} &
+\makecell{\textbf{Hierarchical}\\\textbf{Rollout Eval.}} &
+\makecell{\textbf{Feedback}\\\textbf{Granularity}} &
+\makecell{\textbf{Cross-Attempt}\\\textbf{Experience}} &
+\makecell{\textbf{Policy}\\\textbf{Update}} \\
+\midrule
+TongUI & Web tutorials & \pmark & \xmark & \xmark & Tutorial-derived trajectories & \xmark & SFT \\
+MobileA3gent & User phone trajectories & \pmark & \xmark & \xmark & Auto-annotated instructions & \xmark & SFT / FL \\
+GUI-explorer & Autonomous app exploration & \cmark & \pmark & \xmark & Transition-aware knowledge & \pmark & \xmark \\
+OS-Genesis & Reverse task synthesis & \pmark & \cmark & \pmark & Trajectory reward model & \xmark & SFT \\
+ZeroGUI & Online GUI rollout & \pmark & \cmark & \pmark & Trajectory-level VLM reward & \xmark & Online RL \\
+MobileGUI-RL & Online mobile rollout & \cmark & \cmark & \pmark & Trajectory-level composite reward & \xmark & MobiGRPO \\
+SEAgent & Desktop software & \xmark & \cmark & \pmark & Step-wise assessment & \pmark & GRPO + imitation \\
+ACuRL & Computer-use environments & \xmark & \cmark & \pmark & Outcome evaluator / CUAJudge & \pmark & Curriculum RL \\
+UI-Oceanus & Synthetic GUI dynamics & \pmark & \cmark & \xmark & Transition objectives & \xmark & CPT + SFT \\
+\midrule
+\rowcolor{oursrowcolor}
+\textbf{\ourmethod} &
+\textbf{Target mobile apps} &
+\cmark &
+\cmark &
+\cmark &
+\makecell[l]{\textbf{Trajectory outcome}\\\textbf{+ step-level process}\\\textbf{+ corrective hints}} &
+\cmark &
+\textbf{\hifpo} \\
+\bottomrule
+\end{tabular}
+\end{paperFit}
+\vspace{2pt}
+\begin{flushleft}
+\footnotesize
+\cmark: explicitly supported; \pmark: partially supported or not specific to annotation-free mobile adaptation; \xmark: not supported or not the focus. \mobilegym covers the interaction and evaluation substrate, while \hifpo covers cross-attempt experience reuse and policy optimization.
+\end{flushleft}
+\end{table*}

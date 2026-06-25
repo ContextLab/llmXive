@@ -1,0 +1,27 @@
+\section{Introduction}
+\label{sec:intro}
+
+AI coding agents are rapidly moving toward autonomous scientific research~\citep{karpathy2026autoresearch,lu2026towards,gottweis2026accelerating}, from reproducing published implementations to conducting end-to-end research workflows.
+As these systems begin to target real scientific problems, rigorous evaluation becomes critical: without reliable benchmarks, it is impossible to tell whether an agent is genuinely advancing the state of the art or merely fitting familiar patterns to new data.
+
+However, existing benchmarks for evaluating agent capabilities on scientific research have several limitations.
+Paper-based benchmarks~\citep{starace2025paperbench,siegel2024corebench,wang2026firebench} measure whether an agent can re-implement a published method, but stop short of the more consequential question: can an agent \emph{discover} a competitive method on its own?
+Engineering-optimization benchmarks~\citep{shern2024mlebench,rank2026posttrainbench,nathani2025mlgym,qiang2026mle} target Kaggle competitions or post-training tasks, which do not require the domain reasoning, specialized tooling, or cross-discipline knowledge that characterize research in the natural sciences, and suffer from environment fragmentation that makes independent re-running fragile.
+Credibly evaluating whether autonomous research agents can advance the frontier of AI-for-Science requires a benchmark that is both challenging and bidirectional. It must test \emph{discovery}, whether an agent can devise methods that surpass the published state of the art, on \emph{genuine scientific problems} drawn from the natural sciences rather than on engineering proxies.
+
+We present \textbf{\benchmark}, a cross-discipline benchmark of 90 tasks distilled from peer-reviewed Nature-family publications, designed to evaluate whether AI coding agents can move beyond reproduction toward discovery.
+\benchmark simultaneously extends both axes: the \textbf{PaperBench axis} from Understanding $\to$ Coding to Discovery, and the \textbf{PostTrainBench axis} from Engineering Optimization to Science.
+It is built on \textbf{NatureGym}, an automated pipeline that converts a published paper into a containerized task package comprising a task brief, the paper's dataset, a held-out test set with hidden ground truth, and an automated evaluator, addressing the environment-fragmentation problem in prior benchmarks.
+We collect approximately $5{,}500$ papers from ten Nature-family journals published between 2022 and 2025 and apply a three-stage build-then-verify pipeline to yield the final $90$ task packages (Figure~\ref{fig:gym-pipeline}).
+An information firewall removes the source method from each package, so agents must discover solutions rather than reproduce them.
+The benchmark spans six scientific task domains (cellular omics, protein biology, biomedical modeling, physical modeling, molecular design, and relational reasoning) and uses a SOTA-normalized relative gap $g$ as the primary metric, supplemented by a post-hoc validity judge that detects shortcut behaviors such as output fabrication and feedback gaming.
+
+We evaluate ten agents spanning three coding-agent harnesses (Claude Code, Codex CLI, Gemini CLI) and ten frontier models under a strict web-search-disabled protocol as shown in Figure~\ref{fig:intro-main-results}.
+The strongest agent, Claude Opus 4.7, surpasses the published SOTA ($g > 0.1$) on only $17.8\%$ of tasks and matches it on $47.8\%$.
+Analysis of the $900$ task--agent runs reveals that success is driven primarily by methodological translation, where agents convert scientific tasks into familiar supervised-prediction problems, accounting for $45.5\%$ of validated successes, rather than by scientific invention.
+Failures are dominated by wrong method choice ($45.1\%$) and insufficient compute budget ($24.4\%$), not by task misunderstanding.
+Our contributions are as follows:
+\begin{itemize}[leftmargin=1em, itemsep=2pt, topsep=4pt]
+    \item \textbf{NatureGym}, an automated pipeline that constructs reproducible, containerized per-task environments from Nature-family papers, addressing the environment-fragmentation problem that has limited the credibility of prior agent-on-research benchmarks.
+    \item \textbf{NatureBench}, a benchmark of $90$ Nature-sourced tasks across six scientific task domains with a Discovery-oriented evaluation protocol (Surpass-SOTA, Match-SOTA, validity judge) that separates genuine algorithmic progress from engineering optimization and shortcut-taking.
+\end{itemize}

@@ -1,0 +1,125 @@
+\input{figures/fig-contextact.tex}
+
+\section{\ourmethod: End-to-End Mobile GUI Agent with \conact}
+\label{sec:method}
+\vspace{-0.25em}
+
+\conact makes context management a first-class part of the action policy in an end-to-end mobile GUI agent. Instead of treating context as a passive log outside the model's control, the agent jointly decides \emph{what UI or memory action to execute}, \emph{what history to fold}, and \emph{how to describe the current interaction}. This turns context maintenance into policy-level behavior. Figure~\ref{fig:framework} illustrates the single-step execution flow.
+
+\paragraph{Problem formulation.}
+We formulate mobile GUI automation as a sequential decision problem with a structured working context. Given task goal $G$ and screenshot $I_t$, the agent observes
+\begin{equation}
+\label{eq:state}
+\mathcal{S}_t =
+(G,\textcolor{histcolor}{H_t},
+\textcolor{memstatecolor}{M_t},
+\textcolor{recentcolor}{L_t}),
+\end{equation}
+where \textcolor{histcolor}{$H_t$}, \textcolor{memstatecolor}{$M_t$}, and \textcolor{recentcolor}{$L_t$} denote \emph{Folded Action History}, \emph{Folded UI State}, and \emph{Recent Step Record}, storing compressed trajectory summaries, persistent UI-derived facts, and latest-step details. At each step, the MLLM policy emits a joint \conact decision:
+\begin{equation}
+\label{eq:joint-output}
+\begin{aligned}
+y_t
+&= (\tau_t,\textcolor{histcolor}{\phi_t},
+\textcolor{memstatecolor}{a_t},
+\textcolor{recentcolor}{o_t},
+\textcolor{recentcolor}{\iota_t})  \\
+&\sim \pi_\theta(\cdot \mid I_t,\mathcal{S}_t),
+\end{aligned}
+\end{equation}
+where $\tau_t$ is reasoning, \textcolor{histcolor}{$\phi_t$} is a folding directive, \textcolor{memstatecolor}{$a_t$} is a UI or memory action, \textcolor{recentcolor}{$o_t$} is the UI observation, and \textcolor{recentcolor}{$\iota_t$} is the action intent. Unlike ReAct-style prompting, which appends a growing task-progress string, \conact partitions context into three fields and updates them through model-emitted context actions.
+
+\paragraph{Step output protocol.}
+At each step, the model emits a \textbf{5-part structured output}. We build on the Qwen3-VL function-calling prompt format~\cite{bai2025qwen3}, which asks for a concise thought and a JSON tool call enclosed by \texttt{<tool\_call>} tags. \conact adds context-management fields for folding and self-description, and extends the executable tool-call action space with memory operations. The fields are colored by their roles, consistent with Figure~\ref{fig:framework}:
+
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\footnotesize]
+\textcolor{black}{<thinking>} reasoning \textcolor{black}{</thinking>}
+\textcolor{histcolor}{<folding>} \{range, summary\} \textcolor{histcolor}{</folding>}
+\textcolor{memstatecolor}{<tool_call>} UI / memory action \textcolor{memstatecolor}{</tool_call>}
+\textcolor{recentcolor}{<ui_observation>} screen facts \textcolor{recentcolor}{</ui_observation>}
+\textcolor{recentcolor}{<action_intent>} next-step plan \textcolor{recentcolor}{</action_intent>}
+\end{Verbatim}
+
+The \toolfield{<tool\_call>} field executes exactly one action per step from the extended action space
+\begin{equation}
+\label{eq:action-space}
+\begin{aligned}
+\mathcal{A} &= \mathcal{A}_{ui}\cup\mathcal{A}_{mem},\\
+\mathcal{A}_{mem} &= \{\memaction{add},\memaction{update},\memaction{delete}\}.
+\end{aligned}
+\end{equation}
+Here, $\mathcal{A}_{ui}$ contains UI actions such as clicking, typing, swiping, waiting, and terminating. We use \memaction{add}, \memaction{update}, and \memaction{delete} as shorthand for \memaction{memory\_add}, \memaction{memory\_update}, and \memaction{memory\_delete}, which update \textcolor{memstatecolor}{$M_t$}. Other context fields do not act on the environment; they specify how the working context is updated for future steps.
+
+\paragraph{\symfold History folding (over \textcolor{histcolor}{$H_t$}).}
+\label{sec:method-fold}
+From step 2 onward, the agent emits a mandatory \foldop{<folding>} block. Formally, the folding directive is \textcolor{histcolor}{$\phi_t=([s_t,t],z_t)$}, where $[s_t,t]$ is the history span to compress and $z_t$ is the generated summary. \emph{Step-level distillation} corresponds to $s_t=t$ and keeps the latest step as a compact record, while \emph{span-level abstraction} uses $s_t<t$ to summarize a completed sub-task into one reusable record. The folded history is updated as
+\begin{equation}
+\label{eq:history-update}
+\textcolor{histcolor}{H_{t+1}}
+=
+\mathrm{Fold}(
+\textcolor{histcolor}{H_t},
+\textcolor{histcolor}{\phi_t}
+),
+\end{equation}
+which replaces uncontrolled \texttt{<conclusion>} accumulation with model-controlled folding, pushing context growth from linear accumulation toward sub-linear growth.
+
+\paragraph{\symmem UI memory actions (over \textcolor{memstatecolor}{$M_t$}).}
+\label{sec:method-mem}
+Each memory item is a structured triple $m=(\mathrm{id},d,c)$, where $\mathrm{id}$ is a unique identifier, $d$ is a short description, and $c$ is the complete content to preserve. Let $\mathcal{A}_{mem}=\{a^{+},a^{\circ},a^{-}\}$ denote \memaction{memory\_add}, \memaction{memory\_update}, and \memaction{memory\_delete}. A memory action induces
+\begin{equation}
+\label{eq:memory-update}
+\textcolor{memstatecolor}{M_{t+1}}=
+\begin{cases}
+\mathrm{Add}(\textcolor{memstatecolor}{M_t},m),
+& a_t=a^{+},\\
+\mathrm{Update}(\textcolor{memstatecolor}{M_t},\mathrm{id},c),
+& a_t=a^{\circ},\\
+\mathrm{Delete}(\textcolor{memstatecolor}{M_t},\mathrm{id}),
+& a_t=a^{-},\\
+\textcolor{memstatecolor}{M_t},
+& a_t\in\mathcal{A}_{ui}.
+\end{cases}
+\end{equation}
+Memory writes store complete task-relevant information rather than references or lossy summaries, e.g., a full copied price or phone number instead of ``the value seen earlier.'' This is crucial when prices, codes, contact information, or copied text must survive screen changes, long delays, and app transitions.
+
+\paragraph{\symstep Self-describing step output (fills \textcolor{recentcolor}{$L_t$}).}
+\label{sec:method-step}
+The two self-describing fields make each step reusable by future context actions. \recentfield{<ui\_observation>} provides a grounded screen description with exact visible text, numbers, names, and task-relevant UI facts. \recentfield{<action\_intent>} states what the current tool call is intended to accomplish. Together with the executed action and tool result, they form
+\begin{equation}
+\label{eq:recent-update}
+\textcolor{recentcolor}{L_{t+1}}
+=
+(
+\textcolor{recentcolor}{o_t},
+\textcolor{recentcolor}{\iota_t},
+\textcolor{memstatecolor}{a_t},
+r_t
+).
+\end{equation}
+This record supplies grounded content for memory writes into \textcolor{memstatecolor}{$M_t$} and future folding into \textcolor{histcolor}{$H_t$}. Without these fields, folding and memory actions must infer step meaning only from raw \texttt{<thinking>} and \texttt{<tool\_call>} text, which we find insufficient when context actions are layered onto the ReAct 3-part protocol (\S\ref{sec:ablation}).
+
+\paragraph{Step execution loop.}
+At step $t$, the MLLM $\pi_\theta$ takes $(I_t,\mathcal{S}_t)$ and emits $y_t=(\tau_t,\phi_t,a_t,o_t,\iota_t)$. The environment/tool result is
+\begin{equation}
+\label{eq:tool-result}
+(r_t,I_{t+1})=
+\begin{cases}
+\mathrm{Env}(I_t,a_t), & a_t\in\mathcal{A}_{ui},\\
+(\mathrm{ok},I_t), & a_t\in\mathcal{A}_{mem},
+\end{cases}
+\end{equation}
+where UI actions change the screen and memory actions update only the structured context. Combining Eq.~\ref{eq:history-update}, Eq.~\ref{eq:memory-update}, and Eq.~\ref{eq:recent-update}, the complete state transition is
+\begin{equation}
+\label{eq:state-transition}
+\begin{aligned}
+\mathcal{S}_{t+1}
+&=
+\mathcal{T}(\mathcal{S}_t,y_t,r_t)\\
+&=
+(G,\textcolor{histcolor}{H_{t+1}},
+\textcolor{memstatecolor}{M_{t+1}},
+\textcolor{recentcolor}{L_{t+1}}).
+\end{aligned}
+\end{equation}
+The next state $\mathcal{S}_{t+1}$ is fed into step $t{+}1$. Because folding, memory, and action intent are predicted by the same multimodal policy in one forward pass, compression and memorization inherit the agent's task-level reasoning rather than being delegated to a separate summarizer, retriever, or memory agent.

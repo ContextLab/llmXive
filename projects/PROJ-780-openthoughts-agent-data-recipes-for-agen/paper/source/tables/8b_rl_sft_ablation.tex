@@ -1,0 +1,27 @@
+\begin{table}[!htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{rlcccccc}
+\toprule
+& & \multicolumn{3}{c}{Benchmarks} & \multicolumn{2}{c}{Average} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Rank & Model (training recipe) & SWE-bench Verified (100) & OT-TBLite & Terminal-Bench 2.0 & Raw & Normalized \\
+\midrule
+1 & OT-Agent-ColdSFT+RL-8B & \textbf{35.7}\,\subscriptval{1.8} & \textbf{16.0}\,\subscriptval{1.6} &
+\textbf{13.5}\,\subscriptval{1.5} & \textbf{21.7} & \textbf{+1.2} \\
+
+2 & OT-Agent-SFT-8B (10K) & 24.3\,\subscriptval{1.9} & 15.6\,\subscriptval{1.5} & 7.9\,\subscriptval{1.4} & 15.9 & +0.5 \\
+
+3 & OT-Agent-ColdSFT & 23.7\,\subscriptval{1.6} & 14.8\,\subscriptval{1.4} & 6.7\,\subscriptval{1.1} & 15.1 & +0.4 \\
+4 & RL on Qwen3-8B (no SFT) & 1.0\,\subscriptval{0.5} & 7.8\,\subscriptval{1.1} & 1.9\,\subscriptval{0.7} & 3.6 & -0.9
+\\
+5 & Qwen3-8B & 5.3\,\subscriptval{1.1} & 1.3\,\subscriptval{0.3} & 1.5\,\subscriptval{0.4} & 2.7 & -1.1 \\
+\bottomrule
+\end{tabular}}
+\vspace{10pt}
+\caption{\textbf{RL on top of moderately strong SFT outperforms other strategies.} Our SFT + RL model (1), which starts
+from a medium-strength SFT base model (3), outperforms both RL from a weaker SFT base model (4) and SFT alone (3).
+Each cell reports the highest accuracy (\%) attained in the Terminus-2 harness. Normalized = mean of
+per-benchmark z-scores across 5 entries.}
+\label{tab:8b_pipeline_ablation}
+\end{table}

@@ -1,0 +1,132 @@
+\documentclass[]{ant_tech_report}
+
+% Additional packages used by this paper and not provided by the template class.
+\usepackage{latexsym}
+\usepackage[utf8]{inputenc}
+\usepackage{inconsolata}
+\ifdefined\pdfimageresolution
+  \pdfimageresolution=300
+\fi
+\usepackage{siunitx}
+\sisetup{table-format=2.1, table-number-alignment=center}
+\usepackage{url}
+\usepackage{multicol}
+\usepackage{colortbl}
+\usepackage{wrapfig}
+\usepackage{makecell}
+\usepackage{adjustbox}
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+\usepackage{soul}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\titleformat*{\paragraph}{\bfseries\itshape}
+
+\input{preamble}
+
+\newenvironment{paperresources}
+  {\par\noindent\begin{minipage}{0.92\textwidth}
+    \centering\footnotesize\sffamily\color{black!82}
+    \setlength{\parindent}{0pt}\setlength{\parskip}{2pt}}
+  {\end{minipage}\par\vspace{1.7mm}}
+\newcommand{\resourceprojecticon}{\textcolor{antblue}{\faGlobe}}
+\newcommand{\resourcegithubicon}{\textcolor{antblue}{\faGithub}}
+\newcommand{\resourcehficon}{%
+  \raisebox{0.3ex}{%
+    \tikz[baseline=-0.5ex,scale=0.105]{%
+      \fill[antblue] (0,0) circle (1);
+      \fill[antblue] (-0.8,0.68) circle (0.34);
+      \fill[antblue] (0.8,0.68) circle (0.34);
+      \fill[white] (-0.34,0.22) circle (0.11);
+      \fill[white] (0.34,0.22) circle (0.11);
+      \draw[white,line width=0.12pt,line cap=round] (-0.36,-0.26) .. controls (0,-0.55) .. (0.36,-0.26);
+    }%
+  }%
+}
+\newcommand{\paperresourceicon}[4]{%
+  #1\ \textbf{#2:}\ \href{#3}{{\ttfamily\fontsize{8}{9}\selectfont #4}}%
+}
+
+\renewcommand{\titlefont}{\fontsize{14.4}{17}\selectfont}
+\title{MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hierarchical Feedback-Guided Policy Optimization}
+
+\author{%
+\parbox{\textwidth}{\centering
+Guangyi Liu$^{1,2,*}$,
+Pengxiang Zhao$^{1,2,*}$,
+Gao Wu$^{1,2,*}$,
+Yiwen Yin$^{2,3,*}$,
+Mading Li$^{2,\dagger}$\\[1mm]
+Liang Liu$^{1}$,
+Congxiao Liu$^{1,2}$,
+Zhang Qi$^{2}$,
+Mengyan Wang$^{2}$,
+Liang Guo$^{2}$,
+Yong Liu$^{1,\S}$
+}}
+
+\affiliation{%
+\parbox{\textwidth}{\centering\small
+$^1$Zhejiang University \quad $^2$Kuaishou Technology \quad $^3$Tsinghua University
+}}
+
+\renewcommand{\contributionlist}{\vspace{-2mm}}
+\newcommand{\authorfootnotes}{%
+{\scriptsize
+\begin{tabular}{@{}l@{}}
+\rule{47mm}{0.4pt}\\[-0.2ex]
+$^*$Equal contribution.\quad $^\dagger$Project lead.\\[-0.2ex]
+$^\S$Corresponding author.
+\end{tabular}}}
+\fancypagestyle{firststyle}{
+    \fancyhf{}
+    \fancyhead[R]{
+        \raisebox{-12.5mm}[0pt][0pt]{%
+            \vbox{\vskip 3mm\hbox{%
+                \includegraphics[height=12mm]{images/logo/zju-logo-1.png}\hspace{2.5mm}%
+                \includegraphics[height=12mm]{images/logo/thu-logo.png}%
+            }}%
+        }%
+    }
+    \fancyhead[L]{
+        \raisebox{-12.5mm}[0pt][0pt]{%
+            \vbox{\vskip 3mm\hbox{\includegraphics[height=10mm]{images/logo/kuaishou-logo.png}}}%
+        }%
+    }
+    \fancyfoot[L]{\raisebox{1.15\baselineskip}[0pt][0pt]{\authorfootnotes}}
+    \fancyfoot[C]{\thepage}
+}
+\renewcommand{\checkdatalist}{%
+\begin{paperresources}
+\paperresourceicon{\resourceprojecticon}{Project Page}{https://mobile-forge.github.io/}{mobile-forge.github.io}
+\quad\quad
+\paperresourceicon{\resourcehficon}{Datasets}{https://huggingface.co/collections/lgy0404/mobileforge-datasets}{lgy0404/mobileforge-datasets}\\
+\paperresourceicon{\resourcegithubicon}{Code}{https://github.com/kwai/MobileForge}{github.com/kwai/MobileForge}
+\quad\quad
+\paperresourceicon{\resourcehficon}{Models}{https://huggingface.co/collections/lgy0404/mobileforge-models}{lgy0404/mobileforge-models}
+\end{paperresources}}
+
+\abstract{\input{sec/0_abstract.tex}}
+
+\begin{document}
+\maketitle
+\enlargethispage{6\baselineskip}
+\input{figures/main-performance}
+\clearpage
+
+\input{sec/1_intro}
+\input{sec/2_mobileforge}
+\input{sec/3_experiments}
+\input{sec/4_results_and_analysis}
+\input{sec/6_conclusions}
+
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\clearpage
+\appendix
+\input{sec/5_related_works}
+\input{sec/X_suppl}
+
+\end{document}

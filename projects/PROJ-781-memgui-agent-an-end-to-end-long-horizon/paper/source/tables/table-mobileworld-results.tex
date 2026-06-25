@@ -1,0 +1,43 @@
+\begin{table}[!htbp]
+  \centering
+  \footnotesize
+  \renewcommand{\arraystretch}{1.06}
+  \setlength{\tabcolsep}{4pt}
+  \begin{adjustbox}{max width=0.92\linewidth}
+  \begin{tabular}{@{}l l c@{}}
+    \toprule
+    \textbf{Agent} & \textbf{Memory Type} & \textbf{GUI-Only SR (\%)} \\
+    \midrule
+    \multicolumn{3}{l}{\textit{\textbf{Open-Weight Models}}} \\
+    \midrule
+    GUI-Owl-1.5-32B-Instruct~\cite{xu2026mobile} & \textit{Action-Thought} & 43.9 \\
+    MAI-UI-235B-A22B~\cite{zhou2025mai} & \textit{Action-Thought} & 39.7 \\
+    GUI-Owl-1.5-8B-Instruct~\cite{xu2026mobile} & \textit{Action-Thought} & 38.2 \\
+    MAI-UI-32B~\cite{zhou2025mai} & \textit{Action-Thought} & 36.2 \\
+    GUI-Owl-1.5-2B-Instruct~\cite{xu2026mobile} & \textit{Action-Thought} & 32.2 \\
+    MAI-UI-8B~\cite{zhou2025mai} & \textit{Action-Thought} & 27.5 \\
+    Qwen3-VL-235B-Thinking~\cite{bai2025qwen3} & \textit{Action-Thought} & 14.5 \\
+    Qwen3-VL-235B-Instruct~\cite{bai2025qwen3} & \textit{Action-Thought} & 12.8 \\
+    Qwen3-VL-32B-Instruct~\cite{bai2025qwen3} & \textit{Action-Thought} & 11.9 \\
+    Qwen3-VL-8B-Instruct~\cite{bai2025qwen3} & \textit{Action-Thought} & 9.4 \\
+    \midrule
+    \multicolumn{3}{l}{\textit{\textbf{Open-Data Models}}} \\
+    \midrule
+    OpenMobile-8B~\cite{OpenMobile2025} & \textit{Action-Thought} & 17.7 \\
+    ClawGUI-2B~\cite{tang2026clawgui} & \textit{Action-Thought} & 17.1 \\
+    OpenMobile-7B~\cite{OpenMobile2025} & \textit{Action-Thought} & 14.8 \\
+    ScaleCUA-7B~\cite{ScaleCUA2025} & \textit{Action-Thought} & 7.7 \\
+    \midrule
+    \addlinespace[2pt]
+    \rowcolor{oursrowcolor} \textbf{\ourmethod-235B} \textit{(Ours, zero-shot)} & \conact & \textbf{29.1} \\
+    \multicolumn{2}{l}{\quad\textit{\footnotesize $\Delta$ vs.\ Qwen3-VL-235B-Thinking}} & {\footnotesize\rise{+14.6}} \\
+    \addlinespace[2pt]
+    \rowcolor{oursrowcolor} \textbf{MemGUI-8B-SFT} \textit{(Ours)} & \conact & \underline{17.9} \\
+    \multicolumn{2}{l}{\quad\textit{\footnotesize $\Delta$ vs.\ Qwen3-VL-8B-Instruct}} & {\footnotesize\rise{+8.5}} \\
+    \bottomrule
+  \end{tabular}%
+  \end{adjustbox}
+  \vspace{-2mm}
+  \caption{Pass@1 success rate (\%) on MobileWorld GUI-Only (117 tasks). \textbf{Bold}/\underline{underline} = best/second-best among open-data models. $\Delta$ rows show gains over the corresponding \llmname{Qwen3-VL} backbone.}
+  \label{tab:mobileworld-results}
+\end{table}

@@ -1,0 +1,154 @@
+\documentclass{article} %
+\PassOptionsToPackage{varqu}{inconsolata}
+\usepackage{colm2024_conference}
+
+\usepackage{booktabs}
+\usepackage{arydshln}
+
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{colortbl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\newcommand{\dq}{{\fontencoding{T1}\fontfamily{cmtt}\selectfont\char34}}
+\newcommand{\sq}{{\fontencoding{T1}\fontfamily{cmtt}\selectfont\char39}}
+\definecolor{lightgray}{rgb}{0.9,0.9,0.9}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tikz}
+\usetikzlibrary{er,positioning,bayesnet}
+\usepackage{makecell}
+\usepackage{tipa}
+\usepackage{siunitx}
+\usepackage{nicefrac}
+\usepackage{tocloft}
+\usepackage{listings}
+\usepackage[raster,skins]{tcolorbox}
+\usepackage{xltabular}
+\usepackage{adjustbox}
+\usepackage{xurl}
+\usepackage{xspace}
+\input{math_commands.tex}
+
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+
+\newcommand{\method}{Qwen-AgentWorld\xspace}
+\newcommand{\bench}{AgentWorldBench\xspace}
+\colorlet{colorscale}{cyan!40!red}
+\colorlet{colorctrl}{cyan!40!black}
+\definecolor{colordecouple}{HTML}{d2e2f0}
+\definecolor{colorunify}{HTML}{dad8e8}
+\definecolor{lightblue}{RGB}{220,235,250}
+\tcbset{
+  takeawaysbox/.style={
+    title=Takeaways,
+    colback=lightblue!80,
+    colframe=black,
+    fonttitle=\bfseries\small,
+    coltitle=white,
+    colbacktitle=black,
+    enhanced,
+    attach boxed title to top left={xshift=2.5mm,yshift=-2.5mm},
+    boxed title style={rounded corners, size=small, colframe=black, colback=black},
+    width=\linewidth,
+    arc=3.5mm
+  }
+}
+
+\title{Qwen-AgentWorld:\\ Language World Models for General Agents}
+
+\author{
+\bf Qwen Team
+}
+
+
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+\newcommand{\yuxin}[1]{{\color{red}\textbf{[Yuxin]:} #1}}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+A world model predicts environment dynamics based on current observations and actions, serving as a core cognitive mechanism for reasoning and planning.
+In this work, we investigate how world modeling based on language models can further push the boundaries of general agents.
+(i) We first focus on building foundation models for agentic environment simulation.
+We introduce \textbf{\method-35B-A3B} and \textbf{\method-397B-A17B}, the first language world models capable of simulating agentic environments covering 7 domains via long chain-of-thought reasoning.
+Leveraging more than 10M environment interaction trajectories of 7 domains in real-world environments, we develop \method through a three-stage training pipeline:
+CPT injects general-purpose world modeling capabilities from the state transition dynamics and augmented professional corpora, SFT activates next-state-prediction reasoning, and RL sharpens simulation fidelity through a tailored framework with hybrid rubric-and-rule rewards.
+To evaluate language world models, we present \textbf{\bench}, a comprehensive benchmark constructed from real-world interactions of 5 frontier models on 9 established benchmarks, such as Tool Decathlon, Terminal-Bench 1.0 \& 2.0, and OSWorld-Verified, which evaluates world modeling quality through ground-truth grounded rubric judging across 5 dimensions.
+Empirical results demonstrate that \method significantly outperforms existing frontier models.
+(ii) Beyond foundation models, we further investigate two complementary paradigms through which world modeling enhances general agents.
+First, as a \emph{decoupled} environment simulator, \method supports scalable and controllable simulation of thousands of real-world environments for agentic RL, yielding gains that surpass real-environment training alone.
+Second, as a \emph{unified} agent foundation model, world-model training acts as a highly effective warm-up that improves downstream performance across 7 agentic benchmarks.
+
+
+\end{abstract}
+
+\vfill
+
+\begin{figure}[hbp]
+    \vspace{-4mm}
+    \centering
+    \includegraphics[width=.96\linewidth]{figures/teaser_fig_full_v4.2.pdf}
+    \caption{
+      Overview of \method.
+      \textbf{Top:} \method is a unified \emph{native} language world model across seven domains.
+      \textbf{Bottom:} We explore two complementary strategies for applying world modeling to enhance language agents (mainly using the 35B-A3B model as agent):
+      {\fboxsep=1.5pt\colorbox{colordecouple}{\textbf{Decouple}}} and {\fboxsep=1.5pt\colorbox{colorunify}{\textbf{Unify}}},
+      where the world model serves as the environment simulator and agent foundation model, respectively. 
+      }
+    \label{fig:teaser}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\makeatletter
+\def\addcontentsline#1#2#3{%
+  \addtocontents{#1}{\protect\contentsline{#2}{#3}{\thepage}{\@currentHref}}}
+\makeatother
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\newpage
+
+
+\input{content/intro.tex}
+\input{content/preliminaries.tex}
+\input{content/training_pipeline.tex}
+\input{content/bench.tex}
+\input{content/experiments.tex}
+\input{content/applications.tex}
+\input{content/analysis.tex}
+\input{content/related_work.tex}
+\input{content/conclusion.tex}
+\input{content/authors.tex}
+
+\bibliography{colm2024_conference}
+\bibliographystyle{colm2024_conference}
+
+\newpage
+\input{content/appendix.tex}
+
+\end{document}

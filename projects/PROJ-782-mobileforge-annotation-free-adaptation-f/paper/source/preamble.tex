@@ -1,0 +1,166 @@
+\newcommand{\red}[1]{{\color{red}#1}}
+\newcommand{\todo}[1]{{\color{red}#1}}
+\newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
+
+\renewcommand{\eg}{\textit{e.g.}}
+\renewcommand{\ie}{\textit{i.e.}}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{subcaption}
+\usepackage{xspace}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{pifont}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,listings}
+\usepackage{textcomp}
+\usepackage{upquote}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{makecell}
+\usetikzlibrary{arrows.meta,positioning,fit}
+
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\pmark}{\raisebox{0.1ex}{\scriptsize$\triangle$}}
+\newcommand{\codepath}[1]{\texttt{\detokenize{#1}}}
+
+\definecolor{forgeblue}{HTML}{E3F2FD}
+\definecolor{forgelight}{HTML}{F5F7FA}
+\definecolor{forgepurple}{HTML}{7E57C2}
+\definecolor{forgegreen}{HTML}{43A047}
+\definecolor{forgered}{HTML}{FB8C00}
+\definecolor{forgegray}{HTML}{E0E0E0}
+\definecolor{forgeprimary}{HTML}{1565C0}
+\definecolor{forgeprimarydark}{HTML}{0D47A1}
+\definecolor{forgecyan}{HTML}{00ACC1}
+\definecolor{oursrowcolor}{HTML}{E3F2FD}
+\definecolor{baselinerowcolor}{HTML}{F5F7FA}
+
+\newcommand{\ourmethod}{\textsc{MobileForge}\xspace}
+\newcommand{\mobilegym}{\textsc{MobileGym}\xspace}
+\newcommand{\curriculum}{\textsc{MobileGym-Curriculum}\xspace}
+\newcommand{\critic}{\textsc{MobileGym-Critic}\xspace}
+\newcommand{\hifpo}{HiFPO\xspace}
+\DeclareRobustCommand{\llmname}[1]{{\fontfamily{pcr}\selectfont #1}}
+\newcommand{\rise}[1]{\textcolor{forgegreen}{#1}}
+\newcommand{\drop}[1]{\textcolor{forgered}{#1}}
+\newcommand{\keyfinding}[1]{\noindent\textbf{#1}\quad}
+
+\setlist[itemize]{leftmargin=*, topsep=2pt, itemsep=1pt}
+\setlist[enumerate]{leftmargin=*, topsep=2pt, itemsep=1pt}
+
+\newcommand{\paperTable}{%
+  \small
+  \setlength{\tabcolsep}{4.5pt}%
+  \renewcommand{\arraystretch}{1.12}%
+}
+\newcommand{\paperCompactTable}{%
+  \footnotesize
+  \setlength{\tabcolsep}{3.8pt}%
+  \renewcommand{\arraystretch}{1.10}%
+}
+\newcommand{\paperDenseTable}{%
+  \scriptsize
+  \setlength{\tabcolsep}{3.2pt}%
+  \renewcommand{\arraystretch}{1.08}%
+}
+\newenvironment{paperFit}[1][\linewidth]
+  {\begin{adjustbox}{max width=#1}}
+  {\end{adjustbox}}
+\newcommand{\paperfigwide}{0.98\linewidth}
+\newcommand{\paperfigmain}{0.94\linewidth}
+\newcommand{\paperfigcompact}{0.80\linewidth}
+
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@dblfptop}{0pt}
+\makeatother
+
+\newcommand{\obsbox}[1]{%
+  \begin{tcolorbox}[colframe=black!50, colback=forgeblue!45, boxrule=1pt, arc=2mm,
+    top=4pt, bottom=4pt, left=6pt, right=6pt, boxsep=2pt, fontupper=\itshape]
+    #1
+  \end{tcolorbox}
+}
+
+\newcounter{insight}
+\newcommand{\insight}[1]{%
+  \par
+  \refstepcounter{insight}%
+  \addvspace{0.35em}%
+  \noindent
+  \begingroup
+  \setlength{\fboxsep}{0pt}%
+  \makebox[\linewidth][c]{%
+    \colorbox{forgeblue}{%
+      \parbox{0.97\linewidth}{%
+        \vspace{0.35em}
+        \hspace{0.65em}%
+        \textcolor{forgeprimary}{\rule{1.4pt}{1.05em}}%
+        \hspace{0.55em}%
+        \parbox[t]{0.88\linewidth}{%
+          \textbf{\textsc{Insight}~\theinsight.}~#1%
+        }%
+        \vspace{0.35em}
+      }%
+    }%
+  }%
+  \endgroup
+  \par\addvspace{0.35em}%
+}
+
+\newtcolorbox[auto counter]{promptbox}[1][]{
+    top=15pt,
+    bottom=15pt,
+    left=20pt,
+    right=20pt,
+    colback=gray!5,
+    colframe=black,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title=Prompt~\thetcbcounter: #1,
+    breakable,
+    fontupper=\ttfamily\small,
+}
+
+\newtcblisting[auto counter]{promptlistingbox}[1][]{
+    top=15pt,
+    bottom=15pt,
+    left=20pt,
+    right=20pt,
+    colback=gray!5,
+    colframe=black,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title=Prompt~\thetcbcounter: #1,
+    breakable,
+    listing only,
+    listing options={
+        basicstyle=\ttfamily\footnotesize,
+        breaklines=true,
+        breakatwhitespace=false,
+        columns=fullflexible,
+        keepspaces=true,
+        showstringspaces=false,
+        upquote=true,
+        literate=*{_}{\_}{1}
+    }
+}

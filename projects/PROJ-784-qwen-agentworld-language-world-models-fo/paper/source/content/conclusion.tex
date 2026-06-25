@@ -1,0 +1,18 @@
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+We presented \method, the first family of native language world models covering seven agent interaction domains within a single model at two scales (35B-A3B and 397B-A17B).
+A three-stage recipe ``CPT injects, SFT activates, RL sharpens'' progressively injects environment knowledge, activates next-state-prediction reasoning, and sharpens simulation fidelity.
+We also introduced \bench, a LWM benchmark that pairs every sample with a ground-truth observation from real environments.
+As a decoupled simulator, we validate the effectiveness of controllable simulation on 3 agentic benchmarks, surpassing both uncontrolled simulation and real-environment training.
+As a unified agent foundation model, LWM warm-up consistently improves downstream agent performance across 7 diverse tasks via cross-domain transfer, providing initial validation that LWMs can serve as a foundation for building stronger agent models.
+By enabling controllable simulation beyond real environments and establishing next-state prediction as a transferable agent foundation, language world modeling opens a new axis for scaling general agents beyond what real-environment interaction alone can provide.
+
+\paragraph{Future Work.}
+
+\begin{itemize}[leftmargin=1.5em,itemsep=2pt]
+\item \textbf{Agent--LWM Co-Evolution.} Self-play where the agent discovers novel states that push the world model boundary, while the world model generates increasingly challenging scenarios for the agent.
+\item \textbf{Multimodal Extension.} Fusing GUI screenshots with text-based state representations to unify visual and language world models for Android, Web, and OS domains.
+\item \textbf{Adaptive Sim-to-Real Routing.} Learning a router that decides per query whether to invoke the world model or the real environment, balancing cost against fidelity.
+\item \textbf{Dynamic Tool Synthesis.} Using the world model to synthesize new tools on the fly rather than relying on a predefined tool set.
+\end{itemize}

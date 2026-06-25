@@ -1,0 +1,22 @@
+\begin{table*}[!t]
+\centering
+\paperTable
+\caption{Main \hifpo training configuration for the 900-task 8B runs. The same configuration is used for both base agents unless noted otherwise.}
+\label{tab:training_details}
+\begin{tabular}{L{0.19\textwidth} L{0.73\textwidth}}
+\toprule
+\textbf{Category} & \textbf{Setting} \\
+\midrule
+Hardware and runtime & 8 x 80GB GPUs; approximately 80 hours for a 900-task 8B run. \\
+Training data & 900 generated AndroidWorld-side tasks for the main runs; held-out validation data is not used for MobileWorld adaptation. \\
+Sequence length & Maximum prompt length 2048 tokens; maximum response length 2048 tokens; overlong prompts are filtered. \\
+Filtering & Success-rate range $[0.0,0.9]$; best-trajectory filtering enabled; mastered tasks removed; corrective hints retained. \\
+GRPO rollout & 5 sampled responses per step-level prompt; temperature 1.0; top-$p$ 1.0; tensor parallel size 2. \\
+Optimization & 4 epochs; global batch size 128; rollout batch size 512; AdamW with learning rate $1.0\times10^{-6}$, weight decay $1.0\times10^{-2}$, and max gradient norm 1.0. \\
+KL regularization & GRPO advantage estimator; KL loss enabled with low-variance KL penalty and coefficient $1.0\times10^{-2}$. \\
+Model training & Vision tower is not frozen; gradient checkpointing and FSDP full-shard training are enabled; parameters and optimizer states are offloaded. \\
+Reward weights & Action-type reward weight 0.2; action-argument reward weight 0.8. \\
+Validation & Validation every 50 steps; greedy validation decoding with temperature 0 and one response per prompt. \\
+\bottomrule
+\end{tabular}
+\end{table*}

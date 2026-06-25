@@ -1,0 +1,18 @@
+\begin{table}[!t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{rlcccccc}
+\toprule
+ & & \multicolumn{3}{c}{Benchmarks} & \multicolumn{2}{c}{Average} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Rank & RL Run & SWE-bench Verified (100) & OT-TBLite & Terminal-Bench 2.0 & Raw & Normalized \\
+\midrule
+1 & \texttt{pymethods2test-45} & \textbf{35.67}\,\subscriptval{1.83} & 16.02\,\subscriptval{1.58} & \textbf{13.48}\,\subscriptval{1.50} & \textbf{21.72} & \textbf{+0.32} \\
+2 & \texttt{pymethods2test} (10-step) & \textbf{35.67}\,\subscriptval{1.83} & \textbf{19.30}\,\subscriptval{1.71} & 8.61\,\subscriptval{1.18} & 21.19 & +0.20 \\
+3 & \texttt{pymethods2test} (lr5e-6) & 31.33\,\subscriptval{1.63} & 15.36\,\subscriptval{1.57} & \textbf{12.36}\,\subscriptval{1.45} & 19.68 & -0.51 \\
+\bottomrule
+\end{tabular}}
+\vspace{10pt}
+\caption{\textbf{Run-to-run reproducibility of the 8B agentic RL pipeline.} Three near-replicate RL runs of the \texttt{pymethods2test} experiment, all starting from the same GLM-4.7-distilled SWE-Smith 8B checkpoint and trained with RLOO on 24$\times$A100, agree; the \texttt{lr5e-6} run uses a learning rate of $5\mathrm{e}{-6}$ rather than the default of the other two.}
+\label{tab:rl_reproducibility}
+\end{table}

@@ -1,0 +1,17 @@
+\begingroup
+\vspace*{-2.0em}
+\captionsetup{font=footnotesize}
+\noindent\makebox[\textwidth][c]{%
+\begin{minipage}{0.99\textwidth}
+  \centering
+  \includegraphics[width=0.99\linewidth]{images/main-performance/main-performance.drawio.png}
+  \vspace{-0.5em}
+  \captionof{figure}{
+  \textbf{Context efficiency and benchmark performance of \ourmethod.}
+  \textbf{(a)}~Pass@3 token trajectories on 128 MemGUI-Bench tasks, truncated to 150 steps. Purple/blue lines denote \conact/ReAct; translucent bands show per-step uncertainty across trajectories. \conact saves $\sim$1.5k input tokens by step 150.
+  \textbf{(b)}~Benchmark results on MemGUI-Bench and MobileWorld, where \ourmethod improves both 235B zero-shot and 8B-SFT settings, with MemGUI-8B-SFT setting the best open-data 8B performance.
+  }
+  \label{fig:main-performance}
+\end{minipage}}
+\vspace{-0.8em}
+\endgroup

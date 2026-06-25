@@ -1,0 +1,49 @@
+\section{Related Work}
+\label{sec:related}
+
+
+\subsection{AI for Science}
+\label{sec:rel:ai4sci}
+\paragraph{The first wave: AI as an accelerator within human-defined research programs.}
+AI for Science has produced strong vertical results across many disciplines. In structural biology, AlphaFold, RoseTTAFold, ESMFold, AlphaFold~3, and Boltz-1 expand atomic-level prediction from single chains to biomolecular complexes~\citep{jumper2021highly,baek2021accurate,lin2023evolutionary,abramson2024accurate,wohlwend2025boltz}, while RFdiffusion and its antibody extension close the loop with experimentally validated \emph{de novo} design~\citep{watson2023novo,bennett2026atomically}. In genomics, AlphaMissense and PheMART model variant pathogenicity and phenotype space~\citep{cheng2023accurate,wen2026phenotypic}. Geneformer, scGPT, and Evo~2 pretrain foundation models over transcriptomes or DNA~\citep{theodoris2023transfer,cui2024scgpt,brixi2026genome}. Cell2location resolves cell types in spatial transcriptomics~\citep{kleshchevnikov2022cell2location}. In materials, chemistry, mathematics, and Earth systems, GNoME and MatterGen discover or inverse-design materials~\citep{merchant2023scaling,zeni2025generative}, Coscientist automates chemical experimentation~\citep{boiko2023autonomous}, AlphaTensor and AlphaProof extend search-based reasoning to algorithms and formal mathematics~\citep{fawzi2022discovering,hubert2025olympiad}, and GraphCast, GenCast, and Aurora advance global weather and Earth-system prediction~\citep{lam2023learning,price2025probabilistic,bodnar2025foundation}.
+
+\paragraph{A structural limitation of the \emph{research-plus-AI} paradigm.}
+Powerful as these systems are, they mostly share the same methodological form: humans specify the research programme, curate the data, and fix the success criterion, while AI acts as a more capable instrument inside that programme. This makes many advances a \emph{revolution of tools} rather than a \emph{tool of revolution}~\citep{zhou2025advancing}. Large-scale publication evidence further suggests that AI-augmented science can raise individual output and impact while narrowing the collective topic frontier toward data-rich subfields~\citep{hao2026artificial}. Thus, existing AI-for-Science systems can accelerate progress along established axes, but they do not by themselves establish cross-disciplinary, paradigm-shifting problem solving.
+
+\paragraph{From AI-assisted research to AI-native problem solving.}
+The natural next step is to evaluate AI as the primary problem solver: given a scientific task, the system must choose methods, run experiments, and be judged by the final scientific outcome. General-purpose scientific agents such as The AI Scientist, the AI co-scientist, DeepScientist, and AutoSOTA move in this direction~\citep{lu2026towards,gottweis2026accelerating,weng2025deepscientist,li2026autosota}, but they are usually demonstrated on self-selected topics or within limited domains, leaving open whether AI-native problem solving generalizes across science as a whole.
+
+\paragraph{Cross-disciplinary evaluation as a test of breaking the information cocoon.}
+Contemporary scientists face an increasingly restrictive information cocoon: specialized training, literature growth, and field-specific tooling make it difficult to integrate methods, data, and concepts across disciplines~\citep{hao2026artificial,zhou2025advancing,piao2023human}. This is where an AI-native solver should have a distinctive advantage, because the same agent can combine biological representation learning, chemical search, physical simulation, and statistical modeling within one system. NatureBench therefore tests the missing horizontal capability: whether contemporary coding agents can solve 90 Nature-family tasks across six scientific task domains, using each paper's reported SOTA as a unified Discovery scoring anchor and evaluating whether agents can move beyond field-specific \emph{research-plus-AI} toward cross-disciplinary scientific problem solving.
+
+
+
+
+
+
+
+ 
+ 
+\subsection{Paper-based Benchmarks}
+\label{sec:rel:paper}
+The paper-based benchmark literature asks whether agents can read, evaluate, and operationalize scientific papers as the core artifact. One line targets paper understanding: PaperQA, PaperQA2, and OpenScholar evaluate retrieval-augmented, citation-backed answers or literature syntheses~\citep{lala2023paperqa,skarlinski2024paperqa2,asai2024openscholar}. LAB-Bench extends this to biology papers with supplementary materials, figures, tables, and protocols~\citep{laurent2024labbench}. ReviewerGPT, large-scale LLM-feedback studies, and MMReview test peer-review-style critique over text-only, multidisciplinary, or multimodal manuscripts~\citep{liu2023reviewergpt,liang2023llmfeedback,gao2025mmreview}.
+
+A second line turns papers into executable work: PaperBench asks agents to reconstruct ICML papers from scratch under author-informed rubrics~\citep{starace2025paperbench}, while AutoExperiment and LMR-Bench use progressive code masking or language-modeling research specifications to test recovery of reported experiments~\citep{kim2025autoexperiment,yan2025lmrbench}. Reproducibility benchmarks broaden this beyond ML: CORE-Bench, REPRO-Bench, and ReplicationBench cover reproduction, assessment, or replication across computer science, social science, medicine, and astrophysics~\citep{siegel2024corebench,hu2025reprobench,ye2025replicationbench}. AutoMat and Collider-Bench add materials-science and Large Hadron Collider toolchains~\citep{huang2026automat,faroughy2026colliderbench}. FIRE-Bench asks agents to rediscover established insights from high-level questions extracted from ML papers~\citep{wang2026firebench}. These benchmarks ground evaluation in papers, but their target is reading, review, reproduction, replication, reproducibility assessment, or rediscovery of known findings. NatureBench keeps paper grounding while shifting the target to independently solving the same scientific problem, using the source paper's reported SOTA as the scoring anchor to match or surpass.
+
+
+
+
+
+\subsection{AI-train-AI and Autonomous Optimization}
+\label{sec:rel:mle}
+
+Recent AI-train-AI, autonomous-optimization, and auto-research work can be organized by how it models the agent's task. Benchmark suites such as MLAgentBench, MLE-bench, MLGym, MLE-Dojo, MLS-Bench, AIRS-Bench, PostTrainBench, InferenceBench, and AutoLab evaluate agents over collections of ML experimentation, model-building, post-training, inference-optimization, or long-horizon closed-loop optimization tasks~\citep{huang2023mlagentbench,shern2024mlebench,nathani2025mlgym,qiang2026mle,lyu2026mlsbench,lupidi2026airsbench,rank2026posttrainbench,yeon2026inferencebench,xu2026autolab}. FrontierCS, ALE-Bench, and Frontier-Eng extend this suite-style evaluation to algorithm engineering and real-world engineering optimization~\citep{mang2025frontiercs,imajuku2025alebench,chi2026frontiereng}. A second line studies few-task, verifier-driven discovery, where agents repeatedly propose, execute, and evaluate programs, algorithms, or scientific candidates on specialized high-value objectives~\citep{fawzi2022alphatensor,romeraparedes2023funsearch,novikov2025alphaevolve,wang2025thetaevolve,yuksekgonul2026tttdiscover,ye2026simpletes,cemri2026adaevolve,liu2026evox,jiang2026deltaevolve,lin2026aevolve,liu2025deepevolve}. A third line frames the task as end-to-end research automation, including simulated scientific environments, autonomous paper-generation workflows, multi-agent hypothesis generation, lab-in-the-loop discovery, SOTA model discovery, and reviewer-style evaluation of generated research~\citep{jansen2024discoveryworld,lu2024aiscientist,gottweis2026coscientist,ghareeb2026robin,li2026autosota,weng2025deepscientist,zhang2026researcharena,lyu2026evoscientist,zhu2026evomaster}. These task models leave the key intersection underexplored: large-scale benchmark suites grounded in paper-level scientific research and evaluated against the paper's reported SOTA on its core scientific metric. NatureBench fills this gap with 90 Nature-family tasks that combine benchmark-suite scale, paper-sourced science, and SOTA-referenced evaluation across six scientific task domains.
+
+
+
+
+ 
+
+ 
+
+

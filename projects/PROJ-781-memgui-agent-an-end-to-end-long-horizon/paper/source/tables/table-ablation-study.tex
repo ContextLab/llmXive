@@ -1,0 +1,38 @@
+\begin{table}[!htbp]
+  \centering
+  \footnotesize
+  \renewcommand{\arraystretch}{1.06}
+  \setlength{\tabcolsep}{4pt}
+  \begin{adjustbox}{max width=0.88\linewidth}
+  \begin{tabular}{@{}l | ccc | cc@{}}
+    \toprule
+    & \multicolumn{3}{c|}{\textbf{Success Rate}} & \multicolumn{2}{c}{\textbf{Memory Metrics}} \\
+    \textbf{Variant} & \texttt{P@1} & \texttt{P@2} & \texttt{P@3} & \texttt{MTPR}$^\dagger$ & \texttt{IRR}$^\ddagger$ \\
+    \midrule
+    ReAct baseline
+      & 5.0  & 20.0 & 27.5
+      & 0.143 & 19.5 \\
+    \midrule
+    \quad + UI memory actions
+      & 17.5 & 35.0 & 42.5
+      & \underline{0.357} & \underline{39.1} \\
+    \quad + history folding
+      & 22.5 & 25.0 & 32.5
+      & 0.179 & 25.7 \\
+    \quad + self-describing step
+      & \underline{25.0} & \underline{40.0} & \underline{45.0}
+      & 0.214 & 33.1 \\
+    \midrule
+    \addlinespace[2pt]
+    \rowcolor{oursrowcolor} \textbf{Full \conact} \textit{(Ours)}
+      & \textbf{40.0} & \textbf{52.5} & \textbf{62.5}
+      & \textbf{0.429} & \textbf{51.0} \\
+    \multicolumn{1}{l}{\quad\textit{\footnotesize $\Delta$ vs.\ ReAct baseline}}
+      & {\footnotesize\rise{+35.0}} & {\footnotesize\rise{+32.5}} & {\footnotesize\rise{+35.0}}
+      & {\footnotesize\rise{+0.286}} & {\footnotesize\rise{+31.5}} \\
+    \bottomrule
+  \end{tabular}%
+  \end{adjustbox}
+  \caption{Component ablation of \conact on MemGUI-Bench-40 (\llmname{Qwen3-VL-235B-Thinking}, zero-shot). Each middle row adds one mechanism to the ReAct baseline; the last row enables all three. \textbf{Bold}/\underline{underline} = best/second-best (among single-component variants for underline). $^\dagger$MTPR: Memory-Task Proficiency Ratio. $^\ddagger$IRR: Information Retention Rate (\%).}
+  \label{tab:ablation-study}
+\end{table}

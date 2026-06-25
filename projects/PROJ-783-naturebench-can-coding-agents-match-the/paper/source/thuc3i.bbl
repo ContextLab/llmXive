@@ -1,0 +1,515 @@
+\begin{thebibliography}{99}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abramson et~al.(2024)Abramson, Adler, Dunger, Evans, Green, Pritzel, Ronneberger, Willmore, Ballard, Bambrick, et~al.]{abramson2024accurate}
+Josh Abramson, Jonas Adler, Jack Dunger, Richard Evans, Tim Green, Alexander Pritzel, Olaf Ronneberger, Lindsay Willmore, Andrew~J Ballard, Joshua Bambrick, et~al.
+\newblock Accurate structure prediction of biomolecular interactions with alphafold 3.
+\newblock \emph{Nature}, 630\penalty0 (8016):\penalty0 493--500, 2024.
+
+\bibitem[{Anthropic}(2025)]{anthropic2025claudecode}
+{Anthropic}.
+\newblock Claude code: An agentic coding tool.
+\newblock \url{https://github.com/anthropics/claude-code}, 2025.
+
+\bibitem[{Anthropic}(2026{\natexlab{a}})]{anthropic2026opus46}
+{Anthropic}.
+\newblock System card: Claude opus 4.6.
+\newblock \url{https://www.anthropic.com/claude-opus-4-6-system-card}, 2026{\natexlab{a}}.
+
+\bibitem[{Anthropic}(2026{\natexlab{b}})]{anthropic2026opus47}
+{Anthropic}.
+\newblock System card: Claude opus 4.7.
+\newblock \url{https://www.anthropic.com/claude-opus-4-7-system-card}, 2026{\natexlab{b}}.
+
+\bibitem[{Anthropic}(2026{\natexlab{c}})]{anthropic2026pricing}
+{Anthropic}.
+\newblock Claude api pricing.
+\newblock \url{https://platform.claude.com/docs/en/about-claude/pricing}, 2026{\natexlab{c}}.
+
+\bibitem[Asai et~al.(2024)Asai, He, Shao, Shi, Singh, Chang, Lo, Soldaini, Feldman, D'Arcy, Wadden, Latzke, Tian, Ji, Liu, Tong, Wu, Xiong, Zettlemoyer, Neubig, Weld, Downey, tau Yih, Koh, and Hajishirzi]{asai2024openscholar}
+Akari Asai, Jacqueline He, Rulin Shao, Weijia Shi, Amanpreet Singh, Joseph~Chee Chang, Kyle Lo, Luca Soldaini, Sergey Feldman, Mike D'Arcy, David Wadden, Matt Latzke, Minyang Tian, Pan Ji, Shengyan Liu, Hao Tong, Bohao Wu, Yanyu Xiong, Luke Zettlemoyer, Graham Neubig, Dan Weld, Doug Downey, Wen tau Yih, Pang~Wei Koh, and Hannaneh Hajishirzi.
+\newblock {OpenScholar}: Synthesizing scientific literature with retrieval-augmented {LM}s, 2024.
+\newblock URL \url{https://arxiv.org/abs/2411.14199}.
+
+\bibitem[Baek et~al.(2021)Baek, DiMaio, Anishchenko, Dauparas, Ovchinnikov, Lee, Wang, Cong, Kinch, Schaeffer, et~al.]{baek2021accurate}
+Minkyung Baek, Frank DiMaio, Ivan Anishchenko, Justas Dauparas, Sergey Ovchinnikov, Gyu~Rie Lee, Jue Wang, Qian Cong, Lisa~N Kinch, R~Dustin Schaeffer, et~al.
+\newblock Accurate prediction of protein structures and interactions using a three-track neural network.
+\newblock \emph{Science}, 373\penalty0 (6557):\penalty0 871--876, 2021.
+
+\bibitem[Bai et~al.(2025)Bai, Miljkovi{\'c}, Liu, De~Maria, Croasdale-Wood, Rackham, and Lu]{bai2025mask}
+Peizhen Bai, Filip Miljkovi{\'c}, Xianyuan Liu, Leonardo De~Maria, Rebecca Croasdale-Wood, Owen Rackham, and Haiping Lu.
+\newblock Mask-prior-guided denoising diffusion improves inverse protein folding.
+\newblock \emph{Nature Machine Intelligence}, 7\penalty0 (6):\penalty0 876--888, 2025.
+
+\bibitem[Bennett et~al.(2026)Bennett, Watson, Ragotte, Borst, See, Weidle, Biswas, Yu, Shrock, Ault, et~al.]{bennett2026atomically}
+Nathaniel~R Bennett, Joseph~L Watson, Robert~J Ragotte, Andrew~J Borst, D{\'e}Jena{\'e}~L See, Connor Weidle, Riti Biswas, Yutong Yu, Ellen~L Shrock, Russell Ault, et~al.
+\newblock Atomically accurate de novo design of antibodies with rfdiffusion.
+\newblock \emph{Nature}, 649\penalty0 (8095):\penalty0 183--193, 2026.
+
+\bibitem[Bodnar et~al.(2025)Bodnar, Bruinsma, Lucic, Stanley, Allen, Brandstetter, Garvan, Riechert, Weyn, Dong, et~al.]{bodnar2025foundation}
+Cristian Bodnar, Wessel~P Bruinsma, Ana Lucic, Megan Stanley, Anna Allen, Johannes Brandstetter, Patrick Garvan, Maik Riechert, Jonathan~A Weyn, Haiyu Dong, et~al.
+\newblock A foundation model for the earth system.
+\newblock \emph{Nature}, 641\penalty0 (8065):\penalty0 1180--1187, 2025.
+
+\bibitem[Boiko et~al.(2023)Boiko, MacKnight, Kline, and Gomes]{boiko2023autonomous}
+Daniil~A Boiko, Robert MacKnight, Ben Kline, and Gabe Gomes.
+\newblock Autonomous chemical research with large language models.
+\newblock \emph{Nature}, 624\penalty0 (7992):\penalty0 570--578, 2023.
+
+\bibitem[Brixi et~al.(2026)Brixi, Durrant, Ku, Naghipourfar, Poli, Sun, Brockman, Chang, Fanton, Gonzalez, et~al.]{brixi2026genome}
+Garyk Brixi, Matthew~G Durrant, Jerome Ku, Mohsen Naghipourfar, Michael Poli, Gwanggyu Sun, Greg Brockman, Daniel Chang, Alison Fanton, Gabriel~A Gonzalez, et~al.
+\newblock Genome modelling and design across all domains of life with evo 2.
+\newblock \emph{Nature}, 652\penalty0 (8112):\penalty0 1349--1361, 2026.
+
+\bibitem[Cemri et~al.(2026)Cemri, Agrawal, Gupta, Liu, Cheng, Mang, Naren, Erdogan, Sen, Zaharia, Dimakis, and Stoica]{cemri2026adaevolve}
+Mert Cemri, Shubham Agrawal, Akshat Gupta, Shu Liu, Audrey Cheng, Qiuyang Mang, Ashwin Naren, Lutfi~Eren Erdogan, Koushik Sen, Matei Zaharia, Alex Dimakis, and Ion Stoica.
+\newblock {AdaEvolve}: Adaptive {LLM} driven zeroth-order optimization, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.20133}.
+
+\bibitem[Chan et~al.(2025)Chan, Chowdhury, Jaffe, Aung, Sherburn, Mays, Starace, Liu, Maksin, Patwardhan, et~al.]{shern2024mlebench}
+Jun~Shern Chan, Neil Chowdhury, Oliver Jaffe, James Aung, Dane Sherburn, Evan Mays, Giulio Starace, Kevin Liu, Leon Maksin, Tejal Patwardhan, et~al.
+\newblock Mle-bench: Evaluating machine learning agents on machine learning engineering.
+\newblock In \emph{International Conference on Learning Representations}, volume 2025, pages 50466--50494, 2025.
+
+\bibitem[Chen and Jung(2022)]{chen2022localtransform}
+Shuan Chen and Yousung Jung.
+\newblock A generalized-template-based graph neural network for accurate organic reactivity prediction.
+\newblock \emph{Nature Machine Intelligence}, 4\penalty0 (9):\penalty0 772--780, 2022.
+\newblock \doi{10.1038/s42256-022-00526-z}.
+
+\bibitem[Cheng et~al.(2023)Cheng, Novati, Pan, Bycroft, {\v{Z}}emgulyt{\.e}, Applebaum, Pritzel, Wong, Zielinski, Sargeant, et~al.]{cheng2023accurate}
+Jun Cheng, Guido Novati, Joshua Pan, Clare Bycroft, Akvil{\.e} {\v{Z}}emgulyt{\.e}, Taylor Applebaum, Alexander Pritzel, Lai~Hong Wong, Michal Zielinski, Tobias Sargeant, et~al.
+\newblock Accurate proteome-wide missense variant effect prediction with alphamissense.
+\newblock \emph{Science}, 381\penalty0 (6664):\penalty0 eadg7492, 2023.
+
+\bibitem[Chi et~al.(2026)Chi, Hong, Jiang, Luo, Yang, Zhang, Cao, Fan, He, Hao, Jin, Lei, Liu, Qian, Wang, Wang, Zheng, Zhou, Xiao, Cai, and Na]{chi2026frontiereng}
+Yizhe Chi, Deyao Hong, Dapeng Jiang, Tianwei Luo, Kaisen Yang, Boshi Zhang, Zhe Cao, Xiaoyan Fan, Bingxiang He, Han Hao, Weiyang Jin, Dianqiao Lei, Qingle Liu, Houde Qian, Bowen Wang, Situ Wang, Youjie Zheng, Yifan Zhou, Calvin Xiao, Eren Cai, and Qinhuai Na.
+\newblock {Frontier-Eng}: Benchmarking self-evolving agents on real-world engineering tasks with generative optimization, 2026.
+\newblock URL \url{https://arxiv.org/abs/2604.12290}.
+
+\bibitem[Cui et~al.(2024)Cui, Wang, Maan, Pang, Luo, Duan, and Wang]{cui2024scgpt}
+Haotian Cui, Chloe Wang, Hassaan Maan, Kuan Pang, Fengning Luo, Nan Duan, and Bo~Wang.
+\newblock scgpt: toward building a foundation model for single-cell multi-omics using generative ai.
+\newblock \emph{Nature methods}, 21\penalty0 (8):\penalty0 1470--1480, 2024.
+
+\bibitem[Dalla-Torre et~al.(2025)Dalla-Torre, Gonzalez, Mendoza-Revilla, Lopez~Carranza, Grzywaczewski, Oteri, Dallago, Trop, de~Almeida, Sirelkhatim, Richard, Skwark, Beguir, Lopez, and Pierrot]{dallatorre2025nucleotide}
+Hugo Dalla-Torre, Liam Gonzalez, Javier Mendoza-Revilla, Nicolas Lopez~Carranza, Adam~Henryk Grzywaczewski, Francesco Oteri, Christian Dallago, Evan Trop, Bernardo~P. de~Almeida, Hassan Sirelkhatim, Guillaume Richard, Marcin Skwark, Karim Beguir, Marie Lopez, and Thomas Pierrot.
+\newblock Nucleotide transformer: building and evaluating robust foundation models for human genomics.
+\newblock \emph{Nature Methods}, 22:\penalty0 287--297, 2025.
+\newblock \doi{10.1038/s41592-024-02523-z}.
+
+\bibitem[{DeepSeek}(2026)]{deepseek2026v4}
+{DeepSeek}.
+\newblock Deepseek v4 preview release.
+\newblock \url{https://api-docs.deepseek.com/news/news260424}, 2026.
+
+\bibitem[Faroughy et~al.(2026)Faroughy, Schweitzer, Pang, Mishra-Sharma, and Shih]{faroughy2026colliderbench}
+Darius~A. Faroughy, Sofia~Palacios Schweitzer, Ian Pang, Siddharth Mishra-Sharma, and David Shih.
+\newblock {Collider}-bench: Benchmarking {AI} agents with particle physics analysis reproduction, 2026.
+\newblock URL \url{https://arxiv.org/abs/2605.13950}.
+
+\bibitem[Fawzi et~al.(2022{\natexlab{a}})Fawzi, Balog, Huang, Hubert, Romera-Paredes, Barekatain, Novikov, R.~Ruiz, Schrittwieser, Swirszcz, et~al.]{fawzi2022discovering}
+Alhussein Fawzi, Matej Balog, Aja Huang, Thomas Hubert, Bernardino Romera-Paredes, Mohammadamin Barekatain, Alexander Novikov, Francisco~J R.~Ruiz, Julian Schrittwieser, Grzegorz Swirszcz, et~al.
+\newblock Discovering faster matrix multiplication algorithms with reinforcement learning.
+\newblock \emph{Nature}, 610\penalty0 (7930):\penalty0 47--53, 2022{\natexlab{a}}.
+
+\bibitem[Fawzi et~al.(2022{\natexlab{b}})Fawzi, Balog, Huang, Hubert, Romera-Paredes, Barekatain, Novikov, Ruiz, Schrittwieser, Swirszcz, Silver, Hassabis, and Kohli]{fawzi2022alphatensor}
+Alhussein Fawzi, Matej Balog, Aja Huang, Thomas Hubert, Bernardino Romera-Paredes, Mohammadamin Barekatain, Alexander Novikov, Francisco J.~R. Ruiz, Julian Schrittwieser, Grzegorz Swirszcz, David Silver, Demis Hassabis, and Pushmeet Kohli.
+\newblock Discovering faster matrix multiplication algorithms with reinforcement learning.
+\newblock \emph{Nature}, 610:\penalty0 47--53, 2022{\natexlab{b}}.
+\newblock \doi{10.1038/s41586-022-05172-4}.
+\newblock URL \url{https://www.nature.com/articles/s41586-022-05172-4}.
+
+\bibitem[Gao et~al.(2025)Gao, Ruan, Zhang, Gao, Liu, and Fu]{gao2025mmreview}
+Xian Gao, Jiacheng Ruan, Zongyun Zhang, Jingsheng Gao, Ting Liu, and Yuzhuo Fu.
+\newblock {MMReview}: A multidisciplinary and multimodal benchmark for {LLM}-based peer review automation, 2025.
+\newblock URL \url{https://arxiv.org/abs/2508.14146}.
+
+\bibitem[Ghareeb et~al.(2026)Ghareeb, Chang, Mitchener, et~al.]{ghareeb2026robin}
+Ali~Essam Ghareeb, Benjamin Chang, Ludovico Mitchener, et~al.
+\newblock A multi-agent system for automating scientific discovery.
+\newblock \emph{Nature}, 2026.
+\newblock \doi{10.1038/s41586-026-10652-y}.
+\newblock URL \url{https://www.nature.com/articles/s41586-026-10652-y}.
+
+\bibitem[{Google}(2025)]{google2025geminicli}
+{Google}.
+\newblock Gemini cli: An open-source ai agent.
+\newblock \url{https://github.com/google-gemini/gemini-cli}, 2025.
+
+\bibitem[{Google DeepMind}(2026)]{google2026gemini35flash}
+{Google DeepMind}.
+\newblock Gemini 3.5 flash model card.
+\newblock \url{https://deepmind.google/models/model-cards/gemini-3-5-flash/}, 2026.
+
+\bibitem[Gottweis et~al.(2026{\natexlab{a}})Gottweis, Weng, Daryin, Tu, Sirkovic, Myaskovsky, Glowaty, Weissenberger, Orlandi, Popovici, et~al.]{gottweis2026accelerating}
+Juraj Gottweis, Wei-Hung Weng, Alexander Daryin, Tao Tu, Petar Sirkovic, Artiom Myaskovsky, Grzegorz Glowaty, Felix Weissenberger, Alessio Orlandi, Dan Popovici, et~al.
+\newblock Accelerating scientific discovery with co-scientist.
+\newblock \emph{Nature}, pages 1--3, 2026{\natexlab{a}}.
+
+\bibitem[Gottweis et~al.(2026{\natexlab{b}})]{gottweis2026coscientist}
+Juraj Gottweis et~al.
+\newblock Accelerating scientific discovery with {Co-Scientist}.
+\newblock \emph{Nature}, 2026{\natexlab{b}}.
+\newblock \doi{10.1038/s41586-026-10644-y}.
+\newblock URL \url{https://www.nature.com/articles/s41586-026-10644-y}.
+
+\bibitem[Hao et~al.(2026)Hao, Xu, Li, and Evans]{hao2026artificial}
+Qianyue Hao, Fengli Xu, Yong Li, and James Evans.
+\newblock Artificial intelligence tools expand scientists’ impact but contract science’s focus.
+\newblock \emph{Nature}, pages 1--7, 2026.
+
+\bibitem[Hasani et~al.(2022)Hasani, Lechner, Amini, Liebenwein, Ray, Tschaikowski, Teschl, and Rus]{hasani2022closed}
+Ramin Hasani, Mathias Lechner, Alexander Amini, Lucas Liebenwein, Aaron Ray, Max Tschaikowski, Gerald Teschl, and Daniela Rus.
+\newblock Closed-form continuous-time neural networks.
+\newblock \emph{Nature Machine Intelligence}, 4\penalty0 (11):\penalty0 992--1003, 2022.
+
+\bibitem[Hu et~al.(2025)Hu, Zhang, Lim, Wadhwani, Peters, and Kang]{hu2025reprobench}
+Chuxuan Hu, Liyun Zhang, Yeji Lim, Aum Wadhwani, Austin Peters, and Daniel Kang.
+\newblock {REPRO}-bench: Can agentic {AI} systems assess the reproducibility of social science research?, 2025.
+\newblock URL \url{https://arxiv.org/abs/2507.18901}.
+
+\bibitem[Huang et~al.(2023)Huang, Vora, Liang, and Leskovec]{huang2023mlagentbench}
+Qian Huang, Jian Vora, Percy Liang, and Jure Leskovec.
+\newblock {MLAgentBench}: Evaluating language agents on machine learning experimentation, 2023.
+\newblock URL \url{https://arxiv.org/abs/2310.03302}.
+
+\bibitem[Huang et~al.(2026)Huang, Cao, Shargh, Luo, Mei, Zaki, Liu, Bunstine, Jurayj, Goswami, McQueen, Shields, El-Awady, Clancy, Durme, Andrews, Walden, and Khashabi]{huang2026automat}
+Ziyang Huang, Yi~Cao, Ali~K. Shargh, Jing Luo, Ruidong Mei, Mohd Zaki, Zhan Liu, Wyatt Bunstine, William Jurayj, Somdatta Goswami, Tyrel McQueen, Michael Shields, Jaafar El-Awady, Paulette Clancy, Benjamin~Van Durme, Nicholas Andrews, William Walden, and Daniel Khashabi.
+\newblock Can coding agents reproduce findings in computational materials science?, 2026.
+\newblock URL \url{https://arxiv.org/abs/2605.00803}.
+
+\bibitem[Hubert et~al.(2025)Hubert, Mehta, Sartran, Horv{\'a}th, {\v{Z}}u{\v{z}}i{\'c}, Wieser, Huang, Schrittwieser, Schroecker, Masoom, et~al.]{hubert2025olympiad}
+Thomas Hubert, Rishi Mehta, Laurent Sartran, Mikl{\'o}s~Z Horv{\'a}th, Goran {\v{Z}}u{\v{z}}i{\'c}, Eric Wieser, Aja Huang, Julian Schrittwieser, Yannick Schroecker, Hussain Masoom, et~al.
+\newblock Olympiad-level formal mathematical reasoning with reinforcement learning.
+\newblock \emph{Nature}, pages 1--3, 2025.
+
+\bibitem[Igashov et~al.(2024)Igashov, St{\"a}rk, Vignac, Schneuing, Satorras, Frossard, Welling, Bronstein, and Correia]{igashov2024equivariant}
+Ilia Igashov, Hannes St{\"a}rk, Cl{\'e}ment Vignac, Arne Schneuing, Victor~Garcia Satorras, Pascal Frossard, Max Welling, Michael Bronstein, and Bruno Correia.
+\newblock Equivariant 3d-conditional diffusion model for molecular linker design.
+\newblock \emph{Nature Machine Intelligence}, 6\penalty0 (4):\penalty0 417--427, 2024.
+
+\bibitem[Imajuku et~al.(2025)Imajuku, Horie, Iwata, Aoki, Takahashi, and Akiba]{imajuku2025alebench}
+Yuki Imajuku, Kohki Horie, Yoichi Iwata, Kensho Aoki, Naohiro Takahashi, and Takuya Akiba.
+\newblock {ALE}-bench: A benchmark for long-horizon objective-driven algorithm engineering.
+\newblock In \emph{Advances in Neural Information Processing Systems, Datasets and Benchmarks Track}, 2025.
+\newblock URL \url{https://openreview.net/forum?id=JCjGvbsOmQ}.
+
+\bibitem[Jansen et~al.(2024)Jansen, Cote, Khot, Bransom, Dalvi~Mishra, Majumder, Tafjord, and Clark]{jansen2024discoveryworld}
+Peter Jansen, Marc-Alexandre Cote, Tushar Khot, Erin Bransom, Bhavana Dalvi~Mishra, Bodhisattwa~Prasad Majumder, Oyvind Tafjord, and Peter Clark.
+\newblock {DISCOVERYWORLD}: A virtual environment for developing and evaluating automated scientific discovery agents, 2024.
+\newblock URL \url{https://arxiv.org/abs/2406.06769}.
+
+\bibitem[Jiang et~al.(2026)Jiang, Ding, and Zhu]{jiang2026deltaevolve}
+Jiachen Jiang, Tianyu Ding, and Zhihui Zhu.
+\newblock {DeltaEvolve}: Accelerating scientific discovery through momentum-driven evolution, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.02919}.
+
+\bibitem[Jumper et~al.(2021)Jumper, Evans, Pritzel, Green, Figurnov, Ronneberger, Tunyasuvunakool, Bates, {\v{Z}}{\'\i}dek, Potapenko, et~al.]{jumper2021highly}
+John Jumper, Richard Evans, Alexander Pritzel, Tim Green, Michael Figurnov, Olaf Ronneberger, Kathryn Tunyasuvunakool, Russ Bates, Augustin {\v{Z}}{\'\i}dek, Anna Potapenko, et~al.
+\newblock Highly accurate protein structure prediction with alphafold.
+\newblock \emph{nature}, 596\penalty0 (7873):\penalty0 583--589, 2021.
+
+\bibitem[Karpathy(2026)]{karpathy2026autoresearch}
+Andrej Karpathy.
+\newblock {autoresearch}.
+\newblock \url{https://github.com/karpathy/autoresearch}, 2026.
+
+\bibitem[Kim et~al.(2025)Kim, Wilf, Morency, and Fried]{kim2025autoexperiment}
+Gyeongwon~James Kim, Alex Wilf, Louis-Philippe Morency, and Daniel Fried.
+\newblock From reproduction to replication: Evaluating research agents with progressive code masking, 2025.
+\newblock URL \url{https://arxiv.org/abs/2506.19724}.
+
+\bibitem[Kleshchevnikov et~al.(2022)Kleshchevnikov, Shmatko, Dann, Aivazidis, King, Li, Elmentaite, Lomakin, Kedlian, Gayoso, et~al.]{kleshchevnikov2022cell2location}
+Vitalii Kleshchevnikov, Artem Shmatko, Emma Dann, Alexander Aivazidis, Hamish~W King, Tong Li, Rasa Elmentaite, Artem Lomakin, Veronika Kedlian, Adam Gayoso, et~al.
+\newblock Cell2location maps fine-grained cell types in spatial transcriptomics.
+\newblock \emph{Nature biotechnology}, 40\penalty0 (5):\penalty0 661--671, 2022.
+
+\bibitem[Lala et~al.(2023)Lala, O'Donoghue, Shtedritski, Cox, Rodriques, and White]{lala2023paperqa}
+Jakub Lala, Odhran O'Donoghue, Aleksandar Shtedritski, Sam Cox, Samuel~G. Rodriques, and Andrew~D. White.
+\newblock {PaperQA}: Retrieval-augmented generative agent for scientific research, 2023.
+\newblock URL \url{https://arxiv.org/abs/2312.07559}.
+
+\bibitem[Lam et~al.(2023)Lam, Sanchez-Gonzalez, Willson, Wirnsberger, Fortunato, Alet, Ravuri, Ewalds, Eaton-Rosen, Hu, et~al.]{lam2023learning}
+Remi Lam, Alvaro Sanchez-Gonzalez, Matthew Willson, Peter Wirnsberger, Meire Fortunato, Ferran Alet, Suman Ravuri, Timo Ewalds, Zach Eaton-Rosen, Weihua Hu, et~al.
+\newblock Learning skillful medium-range global weather forecasting.
+\newblock \emph{Science}, 382\penalty0 (6677):\penalty0 1416--1421, 2023.
+
+\bibitem[Laurent et~al.(2024)Laurent, Janizek, Ruzo, Hinks, Hammerling, Narayanan, Ponnapati, White, and Rodriques]{laurent2024labbench}
+Jon~M. Laurent, Joseph~D. Janizek, Michael Ruzo, Michaela~M. Hinks, Michael~J. Hammerling, Siddharth Narayanan, Manvitha Ponnapati, Andrew~D. White, and Samuel~G. Rodriques.
+\newblock {LAB}-bench: Measuring capabilities of language models for biology research, 2024.
+\newblock URL \url{https://arxiv.org/abs/2407.10362}.
+
+\bibitem[Li et~al.(2026)Li, Shao, Liu, Zhao, Liu, Su, Chen, Yang, Xu, Fang, Zeng, Li, Xu, Xu, Li, and Liu]{li2026autosota}
+Yu~Li, Chenyang Shao, Xinyang Liu, Ruotong Zhao, Peijie Liu, Hongyuan Su, Zhibin Chen, Qinglong Yang, Anjie Xu, Yi~Fang, Qingbin Zeng, Tianxing Li, Jingbo Xu, Fengli Xu, Yong Li, and Tie-Yan Liu.
+\newblock {AutoSOTA}: An end-to-end automated research system for state-of-the-art {AI} model discovery, 2026.
+\newblock URL \url{https://arxiv.org/abs/2604.05550}.
+
+\bibitem[Liang et~al.(2023)Liang, Zhang, Cao, Wang, Ding, Yang, Vodrahalli, He, Smith, Yin, McFarland, and Zou]{liang2023llmfeedback}
+Weixin Liang, Yuhui Zhang, Hancheng Cao, Binglu Wang, Daisy Ding, Xinyu Yang, Kailas Vodrahalli, Siyu He, Daniel Smith, Yian Yin, Daniel McFarland, and James Zou.
+\newblock Can large language models provide useful feedback on research papers? a large-scale empirical analysis, 2023.
+\newblock URL \url{https://arxiv.org/abs/2310.01783}.
+
+\bibitem[Lin et~al.(2026)Lin, Lu, Shi, He, Mao, Zhang, Wu, Tang, Liu, Dai, Zhang, Wang, Dumoulin, and Pei]{lin2026aevolve}
+Minhua Lin, Hanqing Lu, Zhan Shi, Bing He, Rui Mao, Zhiwei Zhang, Zongyu Wu, Xianfeng Tang, Hui Liu, Zhenwei Dai, Xiang Zhang, Suhang Wang, Benoit Dumoulin, and Jian Pei.
+\newblock Position: Agentic evolution is the path to evolving {LLM}s, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.00359}.
+
+\bibitem[Lin et~al.(2023)Lin, Akin, Rao, Hie, Zhu, Lu, Smetanin, Verkuil, Kabeli, Shmueli, et~al.]{lin2023evolutionary}
+Zeming Lin, Halil Akin, Roshan Rao, Brian Hie, Zhongkai Zhu, Wenting Lu, Nikita Smetanin, Robert Verkuil, Ori Kabeli, Yaniv Shmueli, et~al.
+\newblock Evolutionary-scale prediction of atomic-level protein structure with a language model.
+\newblock \emph{Science}, 379\penalty0 (6637):\penalty0 1123--1130, 2023.
+
+\bibitem[Liu et~al.(2025)Liu, Zhu, et~al.]{liu2025deepevolve}
+Gang Liu, Yihan Zhu, et~al.
+\newblock Scientific algorithm discovery by augmenting {AlphaEvolve} with deep research, 2025.
+\newblock URL \url{https://arxiv.org/abs/2510.06056}.
+
+\bibitem[Liu and Shah(2023)]{liu2023reviewergpt}
+Ryan Liu and Nihar~B. Shah.
+\newblock {ReviewerGPT}? an exploratory study on using large language models for paper reviewing, 2023.
+\newblock URL \url{https://arxiv.org/abs/2306.00622}.
+
+\bibitem[Liu et~al.(2026)Liu, Agarwal, Maheswaran, Cemri, Li, Mang, Naren, Boneh, Cheng, Pan, et~al.]{liu2026evox}
+Shu Liu, Shubham Agarwal, Monishwaran Maheswaran, Mert Cemri, Zhifei Li, Qiuyang Mang, Ashwin Naren, Ethan Boneh, Audrey Cheng, Melissa~Z Pan, et~al.
+\newblock Evox: Meta-evolution for automated discovery.
+\newblock \emph{arXiv preprint arXiv:2602.23413}, 2026.
+
+\bibitem[Lu et~al.(2024)Lu, Lu, Lange, Foerster, Clune, and Ha]{lu2024aiscientist}
+Chris Lu, Cong Lu, Robert~Tjarko Lange, Jakob Foerster, Jeff Clune, and David Ha.
+\newblock The {AI} scientist: Towards fully automated open-ended scientific discovery, 2024.
+\newblock URL \url{https://arxiv.org/abs/2408.06292}.
+
+\bibitem[Lu et~al.(2026)Lu, Lu, Lange, Yamada, Hu, Foerster, Ha, and Clune]{lu2026towards}
+Chris Lu, Cong Lu, Robert~Tjarko Lange, Yutaro Yamada, Shengran Hu, Jakob Foerster, David Ha, and Jeff Clune.
+\newblock Towards end-to-end automation of ai research.
+\newblock \emph{Nature}, 651\penalty0 (8107):\penalty0 914--919, 2026.
+
+\bibitem[Lupidi et~al.(2026)Lupidi, Gauri, Foster, Al~Omari, Magka, Pepe, Audran-Reiss, Aghamelu, Baldwin, Cipolina-Kun, Gagnon-Audet, Leow, Lefdal, Mossalam, Moudgil, Nazir, Tewolde, Urrego, Armengol~Estape, Budhiraja, Chaurasia, Charnalia, Dunfield, Hambardzumyan, Izcovich, Josifoski, Mediratta, Niu, Pathak, Shvartsman, Toledo, Protopopov, Raileanu, Miller, Shavrina, Foerster, and Bachrach]{lupidi2026airsbench}
+Alisia Lupidi, Bhavul Gauri, Thomas~Simon Foster, Bassel Al~Omari, Despoina Magka, Alberto Pepe, Alexis Audran-Reiss, Muna Aghamelu, Nicolas Baldwin, Lucia Cipolina-Kun, Jean-Christophe Gagnon-Audet, Chee~Hau Leow, Sandra Lefdal, Hossam Mossalam, Abhinav Moudgil, Saba Nazir, Emanuel Tewolde, Isabel Urrego, Jordi Armengol~Estape, Amar Budhiraja, Gaurav Chaurasia, Abhishek Charnalia, Derek Dunfield, Karen Hambardzumyan, Daniel Izcovich, Martin Josifoski, Ishita Mediratta, Kelvin Niu, Parth Pathak, Michael Shvartsman, Edan Toledo, Anton Protopopov, Roberta Raileanu, Alexander Miller, Tatiana Shavrina, Jakob Foerster, and Yoram Bachrach.
+\newblock {AIRS}-bench: a suite of tasks for frontier {AI} research science agents, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.06855}.
+
+\bibitem[Lyu et~al.(2026{\natexlab{a}})Lyu, Yang, Huang, Zhang, Xu, Li, Han, Zhang, Zhang, Huang, Yang, Chen, Guo, Yang, Ai, Chai, Cao, Yang, Wang, Jiang, Gao, Tang, Shi, Du, Simchowitz, Jiao, Song, and Jin]{lyu2026mlsbench}
+Bohan Lyu, Yucheng Yang, Siqiao Huang, Jiaru Zhang, Qixin Xu, Xinghan Li, Xinyang Han, Yicheng Zhang, Huaqing Zhang, Runhan Huang, Kaicheng Yang, Zitao Chen, Wentao Guo, Junlin Yang, Xinyue Ai, Wenhao Chai, Yadi Cao, Ziran Yang, Kun Wang, Dapeng Jiang, Huan-ang Gao, Shange Tang, Chengshuai Shi, Simon~S. Du, Max Simchowitz, Jiantao Jiao, Dawn Song, and Chi Jin.
+\newblock {MLS}-bench: A holistic and rigorous assessment of {AI} systems on building better {AI}, 2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2605.08678}.
+
+\bibitem[Lyu et~al.(2026{\natexlab{b}})Lyu, Zhang, Yi, Zhao, Guo, Hu, Piotrowski, Kaliski, Urbani, Meng, Zhou, and Yan]{lyu2026evoscientist}
+Yougang Lyu, Xi~Zhang, Xinhao Yi, Yuyue Zhao, Shuyu Guo, Wenxiang Hu, Jan Piotrowski, Jakub Kaliski, Jacopo Urbani, Zaiqiao Meng, Lun Zhou, and Xiaohui Yan.
+\newblock {EvoScientist}: Towards multi-agent evolving {AI} scientists for end-to-end scientific discovery, 2026{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2603.08127}.
+
+\bibitem[Mang et~al.(2025)Mang, Chai, Li, Mao, Zhou, Du, Li, Liu, Chen, Wang, Chu, Cheng, Xu, Xia, Wang, Shi, Yao, Zhao, Zhang, Ruan, Shen, Liu, He, Xing, Li, Zeng, Jiang, Cheng, Zhao, Sun, Zheng, Zhang, Ji, Tu, Zheng, Chen, Zhou, Wang, Chen, Korolova, Henderson, Viswanath, Ganesh, Xie, Liu, Song, Min, Stoica, Gonzalez, Shang, and Cheung]{mang2025frontiercs}
+Qiuyang Mang, Wenhao Chai, Zhifei Li, Huanzhi Mao, Shang Zhou, Alexander Du, Hanchen Li, Shu Liu, Edwin Chen, Yichuan Wang, Xieting Chu, Zerui Cheng, Yuan Xu, Tian Xia, Zirui Wang, Tianneng Shi, Jianzhu Yao, Yilong Zhao, Qizheng Zhang, Charlie Ruan, Zeyu Shen, Kaiyuan Liu, Runyuan He, Dong Xing, Zerui Li, Zirong Zeng, Yige Jiang, Lufeng Cheng, Ziyi Zhao, Youran Sun, Wesley Zheng, Meiyuwang Zhang, Ruyi Ji, Xuechang Tu, Zihan Zheng, Zexing Chen, Kangyang Zhou, Zhaozi Wang, Jingbang Chen, Aleksandra Korolova, Peter Henderson, Pramod Viswanath, Vijay Ganesh, Saining Xie, Zhuang Liu, Dawn Song, Sewon Min, Ion Stoica, Joseph~E. Gonzalez, Jingbo Shang, and Alvin Cheung.
+\newblock {FrontierCS}: Evolving challenges for evolving intelligence, 2025.
+\newblock URL \url{https://arxiv.org/abs/2512.15699}.
+
+\bibitem[Merchant et~al.(2023)Merchant, Batzner, Schoenholz, Aykol, Cheon, and Cubuk]{merchant2023scaling}
+Amil Merchant, Simon Batzner, Samuel~S Schoenholz, Muratahan Aykol, Gowoon Cheon, and Ekin~Dogus Cubuk.
+\newblock Scaling deep learning for materials discovery.
+\newblock \emph{Nature}, 624\penalty0 (7990):\penalty0 80--85, 2023.
+
+\bibitem[Miao et~al.(2025)Miao, Li, Xin, Tu, Ge, Qi, Zhou, Zhu, Yang, and Lin]{miao2025multigate}
+Jishuai Miao, Jinzhao Li, Jingxue Xin, Jiajuan Tu, Muyang Ge, Ji~Qi, Xiaocheng Zhou, Ying Zhu, Can Yang, and Zhixiang Lin.
+\newblock Multigate: integrative analysis and regulatory inference in spatial multi-omics data via graph representation learning.
+\newblock \emph{Nature Communications}, 16\penalty0 (1):\penalty0 9403, 2025.
+
+\bibitem[{MiniMax}(2026)]{minimax2026m27}
+{MiniMax}.
+\newblock Minimax m2.7: Early echoes of self-evolution.
+\newblock \url{https://www.minimax.io/news/minimax-m27-en}, 2026.
+
+\bibitem[{Moonshot AI}(2026)]{moonshot2026kimik2}
+{Moonshot AI}.
+\newblock Kimi k2.6.
+\newblock \url{https://www.kimi.com/ai-models/kimi-k2-6}, 2026.
+
+\bibitem[Nathani et~al.(2025)Nathani, Madaan, Roberts, Bashlykov, Menon, Moens, Budhiraja, Magka, Vorotilov, Chaurasia, Hupkes, Cabral, Shavrina, Foerster, Bachrach, Wang, and Raileanu]{nathani2025mlgym}
+Deepak Nathani, Lovish Madaan, Nicholas Roberts, Nikolay Bashlykov, Ajay Menon, Vincent Moens, Amar Budhiraja, Despoina Magka, Vladislav Vorotilov, Gaurav Chaurasia, Dieuwke Hupkes, Ricardo~Silveira Cabral, Tatiana Shavrina, Jakob Foerster, Yoram Bachrach, William~Yang Wang, and Roberta Raileanu.
+\newblock {MLGym}: A new framework and benchmark for advancing {AI} research agents, 2025.
+\newblock URL \url{https://arxiv.org/abs/2502.14499}.
+
+\bibitem[Novikov et~al.(2025)Novikov, Vu, Eisenberger, Dupont, Huang, Wagner, Shirobokov, Kozlovskii, Ruiz, Mehrabian, Kumar, See, Chaudhuri, Holland, Davies, Nowozin, Kohli, and Balog]{novikov2025alphaevolve}
+Alexander Novikov, Ngan Vu, Marvin Eisenberger, Emilien Dupont, Po-Sen Huang, Adam~Zsolt Wagner, Sergey Shirobokov, Borislav Kozlovskii, Francisco J.~R. Ruiz, Abbas Mehrabian, M.~Pawan Kumar, Abigail See, Swarat Chaudhuri, George Holland, Alex Davies, Sebastian Nowozin, Pushmeet Kohli, and Matej Balog.
+\newblock {AlphaEvolve}: A coding agent for scientific and algorithmic discovery, 2025.
+\newblock URL \url{https://arxiv.org/abs/2506.13131}.
+
+\bibitem[{OpenAI}(2025)]{openai2025codex}
+{OpenAI}.
+\newblock Codex cli: Lightweight coding agent that runs in your terminal.
+\newblock \url{https://github.com/openai/codex}, 2025.
+
+\bibitem[{OpenAI}(2026{\natexlab{a}})]{openai2026gpt54}
+{OpenAI}.
+\newblock Gpt-5.4 thinking system card.
+\newblock \url{https://openai.com/index/gpt-5-4-thinking-system-card/}, 2026{\natexlab{a}}.
+
+\bibitem[{OpenAI}(2026{\natexlab{b}})]{openai2026gpt55}
+{OpenAI}.
+\newblock Gpt-5.5 system card.
+\newblock \url{https://openai.com/index/gpt-5-5-system-card/}, 2026{\natexlab{b}}.
+
+\bibitem[{OpenAI}(2026{\natexlab{c}})]{openai2026tokens}
+{OpenAI}.
+\newblock What are tokens and how to count them?
+\newblock \url{https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them}, 2026{\natexlab{c}}.
+
+\bibitem[Oppliger et~al.(2024)Oppliger, Denner, K{\"u}spert, Frison, Wang, Morawietz, Ivashko, Dippel, Zimmermann, Bia{\l}o, et~al.]{oppliger2024weak}
+Jens Oppliger, M~Michael Denner, Julia K{\"u}spert, Ruggero Frison, Qisi Wang, Alexander Morawietz, Oleh Ivashko, Ann-Christin Dippel, Martin~von Zimmermann, Izabela Bia{\l}o, et~al.
+\newblock Weak signal extraction enabled by deep neural network denoising of diffraction data.
+\newblock \emph{Nature Machine Intelligence}, 6\penalty0 (2):\penalty0 180--186, 2024.
+
+\bibitem[Piao et~al.(2023)Piao, Liu, Zhang, Su, and Li]{piao2023human}
+Jinghua Piao, Jiazhen Liu, Fang Zhang, Jun Su, and Yong Li.
+\newblock Human--ai adaptive dynamics drives the emergence of information cocoons.
+\newblock \emph{Nature Machine Intelligence}, 5\penalty0 (11):\penalty0 1214--1224, 2023.
+
+\bibitem[Pineda et~al.(2025)Pineda, Mas{\'o}-Orriols, Masoliver, Bertran, Goks{\"o}r, Volpe, and Manzo]{pineda2025enhanced}
+Jes{\'u}s Pineda, Sergi Mas{\'o}-Orriols, Montse Masoliver, Joan Bertran, Mattias Goks{\"o}r, Giovanni Volpe, and Carlo Manzo.
+\newblock Enhanced spatial clustering of single-molecule localizations with graph neural networks.
+\newblock \emph{Nature Communications}, 16\penalty0 (1):\penalty0 9693, 2025.
+
+\bibitem[Price et~al.(2025)Price, Sanchez-Gonzalez, Alet, Andersson, El-Kadi, Masters, Ewalds, Stott, Mohamed, Battaglia, et~al.]{price2025probabilistic}
+Ilan Price, Alvaro Sanchez-Gonzalez, Ferran Alet, Tom~R Andersson, Andrew El-Kadi, Dominic Masters, Timo Ewalds, Jacklynn Stott, Shakir Mohamed, Peter Battaglia, et~al.
+\newblock Probabilistic weather forecasting with machine learning.
+\newblock \emph{Nature}, 637\penalty0 (8044):\penalty0 84--90, 2025.
+
+\bibitem[Qiang et~al.(2026)Qiang, Zhuang, Li, Sagar~VK, Zhang, Li, Wong, Yang, Liang, Zhang, et~al.]{qiang2026mle}
+Rushi Qiang, Yuchen Zhuang, Yinghao Li, Dingu Sagar~VK, Rongzhi Zhang, Changhao Li, Ian Wong, Sherry Yang, Percy Liang, Chao Zhang, et~al.
+\newblock Mle-dojo: Interactive environments for empowering llm agents in machine learning engineering.
+\newblock \emph{Advances in Neural Information Processing Systems}, 38, 2026.
+
+\bibitem[{Qwen Team}(2026)]{qwen2026max}
+{Qwen Team}.
+\newblock Qwen3.7: The agent frontier.
+\newblock \url{https://qwen.ai/blog?id=qwen3.7}, 2026.
+
+\bibitem[Rank et~al.(2026)Rank, Bhatnagar, Prabhu, Eisenberg, Nguyen, Bethge, and Andriushchenko]{rank2026posttrainbench}
+Ben Rank, Hardik Bhatnagar, Ameya Prabhu, Shira Eisenberg, Karina Nguyen, Matthias Bethge, and Maksym Andriushchenko.
+\newblock {PostTrainBench}: Can {LLM} agents automate {LLM} post-training?, 2026.
+\newblock URL \url{https://arxiv.org/abs/2603.08640}.
+
+\bibitem[Romera-Paredes et~al.(2024)Romera-Paredes, Barekatain, Novikov, Balog, Kumar, Dupont, Ruiz, Ellenberg, Wang, Fawzi, Kohli, and Fawzi]{romeraparedes2023funsearch}
+Bernardino Romera-Paredes, Mohammadamin Barekatain, Alexander Novikov, Matej Balog, M.~Pawan Kumar, Emilien Dupont, Francisco J.~R. Ruiz, Jordan~S. Ellenberg, Pengming Wang, Omar Fawzi, Pushmeet Kohli, and Alhussein Fawzi.
+\newblock Mathematical discoveries from program search with large language models.
+\newblock \emph{Nature}, 625:\penalty0 468--475, 2024.
+\newblock \doi{10.1038/s41586-023-06924-6}.
+\newblock URL \url{https://www.nature.com/articles/s41586-023-06924-6}.
+
+\bibitem[Siegel et~al.(2024)Siegel, Kapoor, Nagdir, Stroebl, and Narayanan]{siegel2024corebench}
+Zachary~S. Siegel, Sayash Kapoor, Nitya Nagdir, Benedikt Stroebl, and Arvind Narayanan.
+\newblock {CORE}-bench: Fostering the credibility of published research through a computational reproducibility agent benchmark, 2024.
+\newblock URL \url{https://arxiv.org/abs/2409.11363}.
+
+\bibitem[Skarlinski et~al.(2024)Skarlinski, Cox, Laurent, Braza, Hinks, Hammerling, Ponnapati, Rodriques, and White]{skarlinski2024paperqa2}
+Michael~D. Skarlinski, Sam Cox, Jon~M. Laurent, James~D. Braza, Michaela Hinks, Michael~J. Hammerling, Manvitha Ponnapati, Samuel~G. Rodriques, and Andrew~D. White.
+\newblock Language agents achieve superhuman synthesis of scientific knowledge, 2024.
+\newblock URL \url{https://arxiv.org/abs/2409.13740}.
+
+\bibitem[Starace et~al.(2025)Starace, Jaffe, Sherburn, Aung, Chan, Maksin, Dias, Mays, Kinsella, Thompson, Heidecke, Glaese, and Patwardhan]{starace2025paperbench}
+Giulio Starace, Oliver Jaffe, Dane Sherburn, James Aung, Jun~Shern Chan, Leon Maksin, Rachel Dias, Evan Mays, Benjamin Kinsella, Wyatt Thompson, Johannes Heidecke, Amelia Glaese, and Tejal Patwardhan.
+\newblock {PaperBench}: Evaluating {AI}'s ability to replicate {AI} research, 2025.
+\newblock URL \url{https://arxiv.org/abs/2504.01848}.
+
+\bibitem[Su et~al.(2025)Su, Hu, Li, Zhao, Niu, Herget, Yu, and Hu]{su2025tree}
+Xiaorui Su, Pengwei Hu, Dongxu Li, Bowei Zhao, Zhaomeng Niu, Thomas Herget, Philip~S. Yu, and Lun Hu.
+\newblock Interpretable identification of cancer genes across biological networks via transformer-powered graph representation learning.
+\newblock \emph{Nature Biomedical Engineering}, 9\penalty0 (3):\penalty0 371--389, 2025.
+\newblock \doi{10.1038/s41551-024-01312-5}.
+
+\bibitem[Theodoris et~al.(2023)Theodoris, Xiao, Chopra, Chaffin, Al~Sayed, Hill, Mantineo, Brydon, Zeng, Liu, et~al.]{theodoris2023transfer}
+Christina~V Theodoris, Ling Xiao, Anant Chopra, Mark~D Chaffin, Zeina~R Al~Sayed, Matthew~C Hill, Helene Mantineo, Elizabeth~M Brydon, Zexian Zeng, X~Shirley Liu, et~al.
+\newblock Transfer learning enables predictions in network biology.
+\newblock \emph{Nature}, 618\penalty0 (7965):\penalty0 616--624, 2023.
+
+\bibitem[Wang et~al.(2025)Wang, Su, Zeng, Xu, Ren, Yang, Huang, He, Ma, Peng, Cheng, He, Chen, Wang, Du, and Shen]{wang2025thetaevolve}
+Yiping Wang, Shao-Rong Su, Zhiyuan Zeng, Eva Xu, Liliang Ren, Xinyu Yang, Zeyi Huang, Xuehai He, Luyao Ma, Baolin Peng, Hao Cheng, Pengcheng He, Weizhu Chen, Shuohang Wang, Simon~Shaolei Du, and Yelong Shen.
+\newblock {ThetaEvolve}: Test-time learning on open problems, 2025.
+\newblock URL \url{https://arxiv.org/abs/2511.23473}.
+
+\bibitem[Wang et~al.(2026)Wang, Bai, Luo, Su, Sun, Yu, Liu, Zhou, Cardie, Dredze, Xing, and Hu]{wang2026firebench}
+Zhen Wang, Fan Bai, Zhongyan Luo, Jinyan Su, Kaiser Sun, Xinle Yu, Jieyuan Liu, Kun Zhou, Claire Cardie, Mark Dredze, Eric~P. Xing, and Zhiting Hu.
+\newblock {FIRE}-bench: Evaluating agents on the rediscovery of scientific insights, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.02905}.
+
+\bibitem[Watson et~al.(2023)Watson, Juergens, Bennett, Trippe, Yim, Eisenach, Ahern, Borst, Ragotte, Milles, et~al.]{watson2023novo}
+Joseph~L Watson, David Juergens, Nathaniel~R Bennett, Brian~L Trippe, Jason Yim, Helen~E Eisenach, Woody Ahern, Andrew~J Borst, Robert~J Ragotte, Lukas~F Milles, et~al.
+\newblock De novo design of protein structure and function with rfdiffusion.
+\newblock \emph{Nature}, 620\penalty0 (7976):\penalty0 1089--1100, 2023.
+
+\bibitem[Wen et~al.(2026)Wen, Zeng, Bonzel, Kobren, Du, Chai, Wang, Zhu, Chen, Leng, et~al.]{wen2026phenotypic}
+Jun Wen, Sihang Zeng, Clara-Lea Bonzel, Shilpa~Nadimpalli Kobren, Jiangchuan Du, Yi~Chai, Hao Wang, Meng Zhu, Siwei Chen, Fangwei Leng, et~al.
+\newblock Phenotypic prediction of missense variants via deep contrastive learning.
+\newblock \emph{Nature Biomedical Engineering}, pages 1--16, 2026.
+
+\bibitem[Weng et~al.(2025)Weng, Zhu, Xie, Sun, Lin, Liu, and Zhang]{weng2025deepscientist}
+Yixuan Weng, Minjun Zhu, Qiujie Xie, Qiyao Sun, Zhen Lin, Sifan Liu, and Yue Zhang.
+\newblock {DeepScientist}: Advancing frontier-pushing scientific findings progressively, 2025.
+\newblock URL \url{https://arxiv.org/abs/2509.26603}.
+
+\bibitem[Wohlwend et~al.(2025)Wohlwend, Corso, Passaro, Getz, Reveiz, Leidal, Swiderski, Atkinson, Portnoi, Chinn, et~al.]{wohlwend2025boltz}
+Jeremy Wohlwend, Gabriele Corso, Saro Passaro, Noah Getz, Mateo Reveiz, Ken Leidal, Wojtek Swiderski, Liam Atkinson, Tally Portnoi, Itamar Chinn, et~al.
+\newblock Boltz-1 democratizing biomolecular interaction modeling.
+\newblock \emph{BioRxiv}, pages 2024--11, 2025.
+
+\bibitem[Xu et~al.(2026)Xu, Chen, Huang, Jiang, Chen, Hua, Wu, Liu, He, Li, et~al.]{xu2026autolab}
+Zhangchen Xu, Junda Chen, Yue Huang, Dongfu Jiang, Jiefeng Chen, Hang Hua, Zijian Wu, Zheyuan Liu, Zexue He, Lichi Li, et~al.
+\newblock Autolab: Can frontier models solve long-horizon auto research and engineering tasks?
+\newblock \emph{arXiv preprint arXiv:2606.05080}, 2026.
+
+\bibitem[Yan et~al.(2025)Yan, Li, Luo, Wang, Li, Jing, He, Wu, Michalopoulos, Zhang, Zhang, Zhang, Chen, and Du]{yan2025lmrbench}
+Shuo Yan, Ruochen Li, Ziming Luo, Zimu Wang, Daoyang Li, Liqiang Jing, Kaiyu He, Peilin Wu, George Michalopoulos, Yue Zhang, Ziyang Zhang, Mian Zhang, Zhiyu Chen, and Xinya Du.
+\newblock {LMR-BENCH}: Evaluating {LLM} agent's ability on reproducing language modeling research, 2025.
+\newblock URL \url{https://arxiv.org/abs/2506.17335}.
+
+\bibitem[Ye et~al.(2025)Ye, Yuan, Cooray, Dillmann, Roque, Baron, Frank, Martin-Alvarez, Koblischke, Qu, Yang, Wechsler, and Ciuca]{ye2025replicationbench}
+Christine Ye, Sihan Yuan, Suchetha Cooray, Steven Dillmann, Ian L.~V. Roque, Dalya Baron, Philipp Frank, Sergio Martin-Alvarez, Nolan Koblischke, Frank~J Qu, Diyi Yang, Risa Wechsler, and Ioana Ciuca.
+\newblock {ReplicationBench}: Can {AI} agents replicate astrophysics research papers?, 2025.
+\newblock URL \url{https://arxiv.org/abs/2510.24591}.
+
+\bibitem[Ye et~al.(2026)Ye, Lin, Tang, Luo, Yang, Su, Thapa, Yang, Liu, Li, Gao, Ding, He, Zhang, Sun, Wang, Zhong, Shen, He, Ma, Ermon, Li, Chu, Zou, and Xu]{ye2026simpletes}
+Haotian Ye, Haowei Lin, Jingyi Tang, Yizhen Luo, Caiyin Yang, Chang Su, Rahul Thapa, Rui Yang, Ruihua Liu, Zeyu Li, Chong Gao, Dachao Ding, Guangrong He, Miaolei Zhang, Lina Sun, Wenyang Wang, Yuchen Zhong, Zhuohao Shen, Di~He, Jianzhu Ma, Stefano Ermon, Tongyang Li, Xiaowen Chu, James Zou, and Yuzhi Xu.
+\newblock Evaluation-driven scaling for scientific discovery, 2026.
+\newblock URL \url{https://arxiv.org/abs/2604.19341}.
+
+\bibitem[Yeon et~al.(2026)Yeon, Rank, and Andriushchenko]{yeon2026inferencebench}
+Jehyeok Yeon, Ben Rank, and Maksym Andriushchenko.
+\newblock {InferenceBench}: Benchmarking open-ended inference optimization by {AI} agents, 2026.
+\newblock URL \url{https://inferencebench.ai/}.
+
+\bibitem[Yuksekgonul et~al.(2026)Yuksekgonul, Koceja, Li, Bianchi, McCaleb, Wang, Kautz, Choi, Zou, Guestrin, and Sun]{yuksekgonul2026tttdiscover}
+Mert Yuksekgonul, Daniel Koceja, Xinhao Li, Federico Bianchi, Jed McCaleb, Xiaolong Wang, Jan Kautz, Yejin Choi, James Zou, Carlos Guestrin, and Yu~Sun.
+\newblock Learning to discover at test time, 2026.
+\newblock URL \url{https://arxiv.org/abs/2601.16175}.
+
+\bibitem[{Z.ai}(2026)]{zai2026glm51}
+{Z.ai}.
+\newblock Glm-5.1: Towards long-horizon tasks.
+\newblock \url{https://z.ai/blog/glm-5.1}, 2026.
+
+\bibitem[Zeni et~al.(2025)Zeni, Pinsler, Z{\"u}gner, Fowler, Horton, Fu, Wang, Shysheya, Crabb{\'e}, Ueda, et~al.]{zeni2025generative}
+Claudio Zeni, Robert Pinsler, Daniel Z{\"u}gner, Andrew Fowler, Matthew Horton, Xiang Fu, Zilong Wang, Aliaksandra Shysheya, Jonathan Crabb{\'e}, Shoko Ueda, et~al.
+\newblock A generative model for inorganic materials design.
+\newblock \emph{Nature}, 639\penalty0 (8055):\penalty0 624--632, 2025.
+
+\bibitem[Zhang et~al.(2026)Zhang, Wang, Galhotra, and Cardie]{zhang2026researcharena}
+Zhengxin Zhang, Ning Wang, Sainyam Galhotra, and Claire Cardie.
+\newblock How far are we from true auto-research?, 2026.
+\newblock URL \url{https://arxiv.org/abs/2605.19156}.
+
+\bibitem[Zhou et~al.(2025)Zhou, Ding, Bai, and Zhou]{zhou2025advancing}
+Bowen Zhou, Ning Ding, Lei Bai, and Hao Zhou.
+\newblock Advancing ai for science: From the revolution of tools to the tools for revolution.
+\newblock \emph{AI Open}, 2025.
+
+\bibitem[Zhu et~al.(2026)Zhu, Cai, Liu, Wang, Li, Jin, Liu, Bing, Zheng, Chai, et~al.]{zhu2026evomaster}
+Xinyu Zhu, Yuzhu Cai, Zexi Liu, Cheng Wang, Fengyang Li, Wenkai Jin, Wanxu Liu, Zehao Bing, Bingyang Zheng, Jingyi Chai, et~al.
+\newblock Evomaster: A foundational evolving agent framework for agentic science at scale.
+\newblock \emph{arXiv preprint arXiv:2604.17406}, 2026.
+
+\end{thebibliography}

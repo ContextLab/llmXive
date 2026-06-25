@@ -1,0 +1,13 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Experimental Protocol}
+
+\paragraph{Benchmarks.}
+We evaluate annotation-free adaptation in two settings. AndroidWorld~\citep{rawles2024androidworld} is the in-domain setting: \ourmethod explores the AndroidWorld app ecosystem, mines adaptation tasks, collects \hifpo rollouts, and evaluates on 116 AndroidWorld tasks with Pass@1, Pass@2, and Pass@3. MobileWorld GUI-only~\citep{kong2026mobileworld} is the out-of-domain setting: we evaluate on its 117-task split and use no MobileWorld rollout, task, or feedback for adaptation.
+
+\paragraph{Base agents and adaptation data.}
+We use two 8B-scale instruct base agents: the open generalist \llmname{Qwen3-VL-8B} and the GUI-specialized \llmname{GUI-Owl-1.5-8B}~\citep{bai2025qwen3,xu2026mobile}. \ourmethod generates 3,249 AndroidWorld-side candidate tasks grounded in 527 source trajectory identifiers from 20 apps. To study scaling under realistic compute constraints, we train with 200-, 400-, and 900-task subsets. The main 900-task 8B runs use eight NVIDIA 80GB GPUs and take roughly 80 hours. Appendix~\ref{sec:appendix_data_details} gives the annotation-free adaptation data details, including the generated-task distribution, and Appendix~\ref{sec:appendix_training_details} gives training hyperparameters and reward curves.
+
+\paragraph{Ablation protocol.}
+The ablations isolate corrective hints during rollout, hint-contextualized GRPO versus SFT, task-level success-rate filtering, final-decision evaluator choice, and trajectory-grounded curriculum coverage.

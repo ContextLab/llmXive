@@ -1,0 +1,46 @@
+\begin{table}[t!]
+\centering
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\resizebox{0.86\textwidth}{!}{
+\begin{tabular}{l C{2.2cm} C{2.2cm} C{2.4cm}}
+\toprule
+Per-trace behavioral feature & Pre-RL & Post-RL & $\Delta$ (rel.) \\
+\midrule
+think tokens / trace                & $30.3$  & $65.4$  & $+35.1$ ($+116\%$) \\
+think blocks / trace                & $0.21$  & $0.44$  & $+0.23$ ($+110\%$) \\
+self-correction phrases / trace     & $0.63$  & $1.14$  & $+0.51$ ($+81\%$)  \\
+assistant tokens / trace            & $4254$  & $6499$  & $+2245$ ($+53\%$)  \\
+tool errors / trace                 & $5.9$   & $8.8$   & $+2.9$ ($+48\%$)   \\
+tool responses / trace              & $18.5$  & $24.6$  & $+6.1$ ($+33\%$)   \\
+assistant msgs / trace              & $20.0$  & $26.3$  & $+6.2$ ($+31\%$)   \\
+tool calls / trace                  & $31.3$  & $40.9$  & $+9.6$ ($+31\%$)   \\
+mean tokens / asst.\ msg            & $204.7$ & $243.3$ & $+38.6$ ($+19\%$)  \\
+tool error rate                     & $31.6\%$& $35.8\%$& $+4.1$ pp          \\
+think / assistant ratio             & $0.5\%$ & $0.6\%$ & $+0.1$ pp          \\
+code fences / trace                 & $0.15$  & $0.14$  & $-0.01$ ($-7\%$)   \\
+\midrule
+\multicolumn{4}{l}{\emph{Macro metrics (whole-trace)}} \\
+mean turns / trace                  & $40.5$  & $53.3$  & $+12.9$ ($+32\%$)  \\
+mean tokens / conversation          & $18432$ & $23686$ & $+5254$ ($+29\%$)  \\
+\midrule
+\multicolumn{4}{l}{\emph{Tool-call mix (share of all tool calls)}} \\
+\texttt{mark\_task\_complete}       & $1.9\%$ & $3.0\%$ & $+1.1$ pp          \\
+\texttt{bash\_command}              & $98.1\%$& $97.0\%$& $-1.1$ pp          \\
+\bottomrule
+\end{tabular}}
+\vspace{4pt}
+\caption{\textbf{Behavioral shift induced by \texttt{pymethods2test} RL, measured on held-out SWE-bench-Verified eval traces.}
+Per-trace means computed over $300$ eval rows for the pre-RL base checkpoint
+(\texttt{...GLM\_4\_7\_swesmith\_sandboxes...}) versus the post-RL checkpoint
+(\texttt{...rl\_\_24GPU\_base\_\_exp\_rpt\_pymethods2test...}); the same $100$ underlying
+SWE-bench-Verified tasks are run $\times 3$ on each side. Features are sorted within each
+block by the magnitude of the (scale-normalized) delta. The dominant change is a large
+increase in \emph{exploratory activity}: the agent thinks more, calls more tools, emits
+more assistant messages, and self-corrects more. Crucially the per-call \emph{tool error
+rate} rises only $+4.1$ pp, so the $+48\%$ rise in absolute tool errors is mostly a
+by-product of issuing more calls rather than degraded tool-use competence, and the share of
+\texttt{mark\_task\_complete} calls actually rises ($+1.1$ pp) -- evidence against a
+trivial reward-hacking or formatting-only explanation. On these same $100$ tasks the policy
+flips $18$ from fail to pass against a single regression.}
+\label{tab:rl_behavior_shift}
+\end{table}

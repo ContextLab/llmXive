@@ -1,0 +1,90 @@
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Experimental Setup}
+\label{sec:exp:setup}
+
+We evaluate frontier coding agents on NatureBench under a single shared protocol, measuring how closely each approaches the published SOTA of each task's source paper. Given only a task's visible data and problem specification, an agent autonomously develops a solution and submits it iteratively, scored against the paper's SOTA target through the evaluation protocol of \S\ref{sec:nb:eval}.
+
+\paragraph{Models.}
+We evaluate ten models, each pairing one of three CLI-based agent harnesses. Claude Code~\citep{anthropic2025claudecode} is paired with seven models: Claude Opus 4.6, Claude Opus 4.7~\citep{anthropic2026opus46,anthropic2026opus47}, Kimi K2.6~\citep{moonshot2026kimik2}, MiniMax-M2.7~\citep{minimax2026m27}, DeepSeek-V4-Pro~\citep{deepseek2026v4}, GLM-5.1~\citep{zai2026glm51}, and Qwen 3.7 Max~\citep{qwen2026max}. Codex CLI~\citep{openai2025codex} is paired with GPT-5.4 and GPT-5.5~\citep{openai2026gpt54,openai2026gpt55}. Gemini CLI~\citep{google2025geminicli} is paired with Gemini 3.5 Flash~\citep{google2026gemini35flash}. Each agent is run independently over all 90 tasks.
+
+\paragraph{Unified conditions.}
+All agents disable web search, preventing them from retrieving the source dataset or paper content as a shortcut. Each harness keeps its default reasoning-effort setting. Every task is given the same 4-hour wall-clock budget and a GPU matched to the compute requirement recorded in its metadata (\S\ref{sec:gym:build}): the 3 tasks needing no GPU run CPU-only, the 70 with lighter GPU requirements each receive a single NVIDIA RTX 3090 or 4090, and the 17 most compute-intensive receive a single NVIDIA A800. All the evaluation mechanics follow the protocol of \S\ref{sec:nb:eval}. Appendix~\ref{app:cost} reports per-agent token and turn statistics.
+
+\input{tables/main-results}
+
+\subsection{Main Results}
+\label{sec:exp:main}
+
+Clear improvements over the published SOTA are rare across all ten agents, and even the best matches it on fewer than half of the 90 tasks. Table~\ref{tab:main-results} reports Surpass-SOTA ($g > 0.1$) and Match-SOTA ($g \ge 0$) rates, both overall and per scientific domain.
+
+\paragraph{Overall performance.}
+Clear improvements over the published SOTA ($g > 0.1$) are uncommon even for the strongest agents: Claude Opus 4.7 reaches only $17.8\%$, followed by Gemini 3.5 Flash ($15.6\%$) and GPT-5.5 ($14.4\%$), while MiniMax-M2.7 falls to $1.1\%$. Match-SOTA rates ($g \ge 0$) are higher but still below half: Claude Opus 4.7 leads at $47.8\%$, followed by GPT-5.5 ($44.4\%$), Gemini 3.5 Flash ($37.8\%$), and Claude Opus 4.6 ($36.7\%$). The remaining agents cluster between $26.7\%$ and $30.0\%$, with MiniMax-M2.7 trailing at $13.3\%$. The per-domain columns of Table~\ref{tab:main-results} show that attainment is distributed unevenly across scientific domains, and that clear improvements are more concentrated. We defer this cross-domain structure to \S\ref{sec:exp:domain}.
+
+\input{tables/gap-reliability}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/score_distribution/score_distribution.pdf}
+\caption{\textbf{Gap distribution and summary of agents on NatureBench.} \textbf{a}, Percentage of tasks in each $g$ interval for each agent, arranged around the SOTA target ($g = 0$). \textbf{b}, Mean and median relative gap over all tasks ($g_{\text{all}}$), assigning $g=-1.0$ when no valid score is available.}
+\label{fig:score-distribution}
+\end{figure}
+
+\paragraph{Completion and validity.}
+Agents submit a scorable solution on nearly all tasks, and the few invalid shortcut submissions are filtered by the validity judge. In Table~\ref{tab:gap-reliability}, the gap between SR and CR isolates scored-but-invalid (shortcut) submissions flagged by the validity judge. The two Claude Opus agents are the cleanest, with $100\%$ on both rates and no invalid submissions, so their unmatched tasks reflect genuine performance shortfalls rather than invalid methods. GPT-5.5 attempts shortcuts most often, with $13$ invalid submissions. Because these are filtered from its score, its second-highest Match-SOTA ($44.4\%$) and the only non-negative median over judge-accepted tasks ($\tilde{g}_{\text{valid}} = +0.001$) remain genuine. Among the remaining agents, GLM-5.1 has the lowest SR ($93.3\%$): on the tasks it leaves unscored, the agent's own solution never produces a scorable submission.
+
+\paragraph{Score distribution.}
+Most tasks land modestly below SOTA rather than reaching it or failing badly. The median relative gap $\tilde{g}_{\text{all}}$ ranges from $-0.007$ for the strongest agent, Claude Opus 4.7, to $-0.40$ for the weakest, MiniMax-M2.7 (Table~\ref{tab:gap-reliability}). Figure~\ref{fig:score-distribution} shows the full spread: each agent's scores center in this moderate sub-SOTA range, with the weaker agents shifting more mass into severe failure and only a minority of tasks on any agent reaching SOTA. A few tasks carry extreme negative values because the SOTA-normalized gap amplifies large shortfalls, pulling every agent's mean far below its median. We therefore treat Surpass-SOTA and Match-SOTA as the primary metrics and the median as an auxiliary summary. \S\ref{sec:exp:validity} confirms that these extreme values reflect normalization effects rather than faulty tasks.
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

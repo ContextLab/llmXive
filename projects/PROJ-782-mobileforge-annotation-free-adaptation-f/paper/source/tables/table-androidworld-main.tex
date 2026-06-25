@@ -1,0 +1,32 @@
+\begin{table*}[!t]
+\centering
+\paperCompactTable
+\caption{AndroidWorld in-domain adaptation and scaling results. Pass@$k$ is computed over 116 tasks. Easy/Medium/Hard report single-attempt success rates by task difficulty. Overall Avg. is the mean of Pass@1/2/3 and Easy/Medium/Hard. Within each base-agent block, best values are bolded and second-best values are underlined. Relative-gain rows compare the 900-task model with the corresponding base agent.}
+\label{tab:androidworld_main}
+\begin{paperFit}[\textwidth]
+\begin{tabular}{l c c c c c c c c}
+\toprule
+\multirow{2}{*}{\textbf{Base Agent}} & \multirow{2}{*}{\textbf{Tasks}} & \multicolumn{3}{c}{\textbf{Pass@$k$ Level}} & \multicolumn{3}{c}{\textbf{Task Difficulty Level}} & \multirow{2}{*}{\textbf{Overall Avg.}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+& & \textbf{Pass@1} & \textbf{Pass@2} & \textbf{Pass@3} & \textbf{Easy} & \textbf{Medium} & \textbf{Hard} & \\
+\midrule
+\llmname{Qwen3-VL-8B} & 0 & 47/116 (40.5\%) & 57/116 (49.1\%) & 64/116 (55.2\%) & 44.8\% & 35.2\% & \textbf{19.3\%} & 40.7\% \\
+\llmname{Qwen3-VL-8B} & 200 & 55/116 (47.4\%) & 64/116 (55.2\%) & 71/116 (61.2\%) & \underline{59.0\%} & 32.4\% & 12.3\% & 44.6\% \\
+\llmname{Qwen3-VL-8B} & 400 & \textbf{61/116 (52.6\%)} & \underline{69/116 (59.5\%)} & \underline{73/116 (62.9\%)} & \underline{59.0\%} & \underline{38.9\%} & 14.0\% & \underline{47.8\%} \\
+\rowcolor{oursrowcolor}
+\llmname{Qwen3-VL-8B} & 900 & \underline{59/116 (50.9\%)} & \textbf{70/116 (60.3\%)} & \textbf{78/116 (67.2\%)} & \textbf{61.2\%} & \textbf{41.7\%} & \underline{17.5\%} & \textbf{49.8\%} \\
+\rowcolor{baselinerowcolor}
+\multicolumn{2}{r}{\footnotesize\emph{Rel. gain (900 vs. base)}} & \rise{+25.7\%} & \rise{+22.8\%} & \rise{+21.9\%} & \rise{+36.6\%} & \rise{+18.5\%} & \drop{-9.3\%} & \rise{+22.4\%} \\
+\midrule
+\llmname{GUI-Owl-1.5-8B} & 0 & 65/116 (56.0\%) & 79/116 (68.1\%) & 80/116 (69.0\%) & 66.7\% & 50.0\% & 19.3\% & 54.9\% \\
+\llmname{GUI-Owl-1.5-8B} & 200 & \underline{75/116 (64.7\%)} & 85/116 (73.3\%) & \underline{86/116 (74.1\%)} & \underline{73.2\%} & 51.4\% & \underline{28.1\%} & 60.8\% \\
+\llmname{GUI-Owl-1.5-8B} & 400 & \underline{75/116 (64.7\%)} & \underline{86/116 (74.1\%)} & \textbf{90/116 (77.6\%)} & \textbf{73.8\%} & \textbf{59.3\%} & 26.3\% & \underline{62.6\%} \\
+\rowcolor{oursrowcolor}
+\llmname{GUI-Owl-1.5-8B} & 900 & \textbf{78/116 (67.2\%)} & \textbf{87/116 (75.0\%)} & \textbf{90/116 (77.6\%)} & \underline{73.2\%} & \underline{57.4\%} & \textbf{29.8\%} & \textbf{63.4\%} \\
+\rowcolor{baselinerowcolor}
+\multicolumn{2}{r}{\footnotesize\emph{Rel. gain (900 vs. base)}} & \rise{+20.0\%} & \rise{+10.1\%} & \rise{+12.5\%} & \rise{+9.7\%} & \rise{+14.8\%} & \rise{+54.4\%} & \rise{+15.5\%} \\
+\bottomrule
+\end{tabular}
+\end{paperFit}
+\vspace{-1mm}
+\end{table*}

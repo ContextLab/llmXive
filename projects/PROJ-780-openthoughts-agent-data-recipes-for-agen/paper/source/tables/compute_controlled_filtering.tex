@@ -1,0 +1,17 @@
+\begin{table}[!t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+ & & \multicolumn{3}{c}{Benchmarks} & Average \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-6}
+Selection Strategy & Tokens & SWE-bench Verified (100) & OT-TBLite & Terminal-Bench 2.0 & Raw \\
+\midrule
+Min turns $\geq 5$ (filtered) & 144.76M & \textbf{24.70}\,\subscriptval{1.56} & \textbf{18.40}\,\subscriptval{1.66} & \textbf{10.90}\,\subscriptval{1.35} & \textbf{18.00} \\
+Random subsample (control) & 144.78M & 19.30\,\subscriptval{1.63} & 17.10\,\subscriptval{1.48} & 7.10\,\subscriptval{1.24} & 14.50 \\
+\bottomrule
+\end{tabular}}
+\vspace{10pt}
+\caption{\textbf{The min-turns filter helps even at a matched token budget.} Both models are Qwen3-8B fine-tuned on subsets, each truncated to an equal $\sim$145M-token budget. Selecting the longest ($\geq 5$-turn) episodes outperforms a random subsample by $+5.4$pp on SWE-bench Verified-100 and $+3.8$pp on Terminal-Bench~2.0, while OT-TBLite is within noise. The benefit therefore reflects genuine multi-turn supervision rather than additional training compute.}
+\label{tab:compute_controlled_filtering}
+\end{table}

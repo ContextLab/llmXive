@@ -1,0 +1,17 @@
+\section{Related Work}
+\label{sec:related-work}
+\vspace{-0.25em}
+
+\paragraph{Mobile GUI agents.}
+Mobile GUI agents built on multimodal models generally follow two paradigms. 
+\emph{Agentic frameworks} combine a backbone MLLM with planning, memory, and grounding modules~\cite{rawles2025androidworld,wang2024mobile,wang2025mobileagentselfevolving,agashe2025agent}, often around proprietary backbones such as \llmname{Gemini-2.5-Pro}~\cite{comanici2025gemini}; they can perform strongly but are complex and difficult to reproduce. 
+\emph{End-to-end models}~\cite{gao2026ui,zhou2025mai,hong2024cogagent,xu2026mobile} directly map screenshots to actions, offering simplicity and deployability, but typically rely on passive context mechanisms: Action-Thought traces~\cite{zhang2025appagent,gu2025ui-venus,xu2026mobile,bai2025qwen3}, multi-turn prompts~\cite{qin2025ui}, rule-based aggregation~\cite{zheng2024seeact}, or no-history prompting~\cite{hong2024cogagent}. 
+These mechanisms either let prompts grow with task horizon or lose UI-derived facts needed across screens and apps~\cite{liu2026memgui,kong2025mobileworld}. 
+\ourmethod brings proactive context management into the end-to-end paradigm itself.
+
+\paragraph{Context management in LLM agents.}
+Long-context LLM agents manage histories through external memory or prompt-internal curation. 
+External memory maintains a separate store, such as retrieval-augmented databases~\cite{lewis2020retrieval,chhikara2025mem0,xu2026mem}, hierarchical memory~\cite{zhang2026g}, or experiential replay~\cite{zhao2024expel}. 
+Prompt-internal curation edits the in-task context through truncation, summarization, or model-controlled compression, as in recent web-agent methods such as MEM1~\cite{zhou2025mem1}, MemAgent~\cite{yu2025memagent}, and AgentFold~\cite{ye2025agentfold}. 
+Unlike text-only web settings, mobile GUI control must preserve UI-derived facts, such as prices, codes, and copied text, verbatim across screen and app transitions. 
+\conact addresses this by treating context curation as joint action over structured history, UI state, and recent-step fields within the same end-to-end policy.

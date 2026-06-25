@@ -1,0 +1,59 @@
+\input{tables/table-main-results.tex}
+\section{Experiments}
+\label{sec:experiments}
+\setcounter{insight}{0}
+\vspace{-0.25em}
+
+\paragraph{Evaluation setup.}
+We evaluate on MemGUI-Bench~\cite{liu2026memgui}, MobileWorld GUI-Only~\cite{kong2025mobileworld}, and MemGUI-Bench-40 for ablations and failure analysis. We report Pass@$k$ ($k{\in}\{1,3\}$), IRR, and MTPR on MemGUI-Bench, and single-attempt success rate on MobileWorld. Baselines are listed in Tables~\ref{tab:main-results} and~\ref{tab:mobileworld-results}; our two reported agents are \textbf{\ourmethod-235B}, a zero-shot \conact agent using \llmname{Qwen3-VL-235B-Thinking}, and \textbf{MemGUI-8B-SFT}, an SFT \llmname{Qwen3-VL-8B-Instruct} agent trained on MemGUI-3K. Unless otherwise stated, ablations, case studies, and failure analysis use zero-shot \ourmethod-235B. Benchmark details and prompts are in Appendices~\ref{sec:appendix-eval-protocol} and~\ref{sec:appendix-prompts}.
+
+\subsection{Main Results}
+\label{sec:main-results}
+\vspace{-0.25em}
+
+\paragraph{Zero-shot \conact sets a new SOTA on MemGUI-Bench.}
+On MemGUI-Bench (Table~\ref{tab:main-results}), \ourmethod-235B reaches 37.5\% Pass@1 and 62.5\% Pass@3, surpassing the best agentic framework, M3A on \llmname{Gemini-2.5-Pro} (32.8\% / 47.7\%), and improving over the same backbone by $+$13.3 Pass@1 and $+$16.8 IRR. On MobileWorld (Table~\ref{tab:mobileworld-results}), \ourmethod-235B achieves 29.1\% SR, $+$14.6 over the \llmname{Qwen3-VL-235B-Thinking} baseline, showing that zero-shot \conact also transfers to a different environment and app set. As Figure~\ref{fig:main-performance}(a) shows, these gains are not explained by larger prompts alone: \conact keeps prompt growth substantially flatter than the ReAct baseline over 150 steps.
+
+\input{tables/table-mobileworld-results.tex}
+
+\paragraph{MemGUI-3K enables an 8B agent and transfers beyond its source benchmark.}
+MemGUI-8B-SFT reaches 23.4\% Pass@1 on MemGUI-Bench versus 9.4\% for the \llmname{Qwen3-VL-8B-Instruct} baseline, with gains concentrated on harder tasks (Medium $+$19.0, Hard $+$18.5 vs.\ Easy $+$6.2). This difficulty trend indicates that MemGUI-3K does not merely teach a new output format; it improves behavior in the regime where long-horizon context drift is most severe. On MobileWorld, where the environment, apps, and evaluation protocol all differ, MemGUI-8B-SFT still reaches 17.9\% SR ($+$8.5 over backbone) and ranks among the best open-data 8B models. The learned context-management skills therefore transfer beyond the source benchmark rather than only fitting MemGUI-Bench.
+
+\vspace{-0.25em}
+\subsection{Offline Skill Analysis}
+\label{sec:offline-skill-analysis}
+\vspace{-0.55em}
+
+\input{tables/table-offline-eval.tex}
+\vspace{-0.15em}
+
+Online benchmarks measure end-to-end success but obscure subskills. We conduct step-level offline evaluation on the MemGUI-3K test set (295 trajectories, 6{,}479 steps): for each reasonable step, the evaluator feeds the same SFT input, consisting of the system prompt, structured context state, and screenshot, and compares the generated response with the gold response. This isolates whether the model learns action, memory, folding, and formatting decisions. Table~\ref{tab:offline-eval} reports core metrics, with details in Table~\ref{tab:offline-eval-detailed}. \emph{UI actions} improve moderately: match accuracy rises from 29.2\% to 36.3\%, with larger gains on click and type. \emph{Memory timing} improves most: trigger F1 rises from 19.9\% to 48.0\%, exceeding zero-shot \ourmethod-235B (34.3\%). \emph{Deep folding} also improves: MemGUI-8B-SFT reaches 26.1\% deep ratio and 58.9\% deep range accuracy, compared with 8.8\% deep ratio for zero-shot 8B and 23.2\% gold. \emph{Format compliance} reaches 99.9\%, confirming reliable structured generation. Metric definitions are in Appendix~\ref{sec:appendix-offline-skill}.
+
+\insight{MemGUI-3K teaches context control decisions, not just formatting: the largest gain comes from promoting transient observations to durable memory.}
+
+\subsection{Ablation Study}
+\label{sec:ablation}
+\vspace{-0.35em}
+
+\input{tables/table-ablation-study.tex}
+\vspace{-0.15em}
+
+We ablate the three components of \conact on MemGUI-Bench-40 with zero-shot \llmname{Qwen3-VL-235B-Thinking} (Table~\ref{tab:ablation-study}). Each targets a different failure mode, and none suffices alone. UI memory actions triple Pass@1 from 5.0\% to 17.5\%, showing the value of persistent state. History folding reaches 22.5\% Pass@1 but only 32.5\% Pass@3, confirming that compression alone cannot preserve task-critical facts. Self-describing step outputs reach 25.0\% Pass@1, indicating that grounded observations and action intents help context reuse. Full \conact reaches 40.0\% Pass@1 / 62.5\% Pass@3, far exceeding any single-component variant. 
+
+\insight{The three components are complementary: folding controls context growth, memory preserves exact facts, and self-description grounds both.}
+
+\subsection{Case Study and Error Analysis}
+\label{sec:case-error}
+\vspace{-0.25em}
+
+\input{figures/fig-case-study.tex}
+
+\paragraph{Case study.}
+Figure~\ref{fig:case-study} shows two successful zero-shot \ourmethod-235B trajectories. On MemGUI-Bench, the agent compares Amazon product specifications and records facts in Joplin; on MobileWorld, it carries contact information across Mastodon, Contacts, and Messages. Both cases show cross-app \conact behavior: writing critical facts before app transitions, folding completed subtasks, and preserving recent details. Full base-vs.-MemGUI trajectory comparisons are in Appendix~\ref{sec:appendix-trajectory-comparison}.
+
+\paragraph{Error analysis.}
+Following the MemGUI-Bench taxonomy~\cite{liu2026memgui}, Figure~\ref{fig:failure-heatmap} groups failures into process hallucination, output hallucination, knowledge deficiency, intent misunderstanding, and other errors. Full \conact reduces total failures by 41\% (99$\to$58), mainly through process hallucination ($-$22, $-$42\%) and output hallucination ($-$17, $-$57\%). Knowledge deficiency, intent misunderstanding, and other errors remain roughly stable, suggesting that \conact mainly prevents progress loss and fabricated UI facts, while remaining errors require stronger knowledge, intent understanding, and environment robustness. Taxonomy details and representative examples are in Appendix~\ref{sec:appendix-error-analysis}.
+
+\insight{\conact mainly reduces context-induced hallucinations; the remaining ceiling lies in knowledge, intent understanding, and environment robustness.}
+
+\input{figures/fig-failure-heatmap.tex}

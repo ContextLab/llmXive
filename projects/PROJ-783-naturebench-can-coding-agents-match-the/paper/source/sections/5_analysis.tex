@@ -1,0 +1,74 @@
+\section{Analysis}
+\label{sec:analysis}
+
+Agents remain far from paper-reported SOTA; we now ask how that gap arises, where it concentrates, and how reliably it is measured. The gap is primarily one of method: agents succeed mainly by recasting scientific tasks as generic ML pipelines rather than by genuine scientific discovery, and fail mostly at method choice and execution depth (\S\ref{sec:exp:discovery-modes}). It concentrates by task: the six scientific domains form a difficulty gradient shared across all agents, and cross-discipline tasks widen the gap further (\S\ref{sec:exp:domain}). And it is measured reliably: extreme scores are legitimate outputs of the SOTA-relative gap, leakage- or gaming-prone tasks are caught by the protocol, and the narrowed coverage of each source paper is immaterial: we evaluate each paper's core task rather than reproduce it in full (\S\ref{sec:exp:validity}).
+
+\subsection{Solution Mechanisms}
+\label{sec:exp:discovery-modes}
+
+To understand not just whether agents match SOTA but how they succeed or fail, we annotate all $900$ runs ($90$ tasks $\times$ $10$ agents) by comparing the paper-side method family with the agent's implemented method, attributing Match-SOTA runs to success modes, and categorizing below-SOTA or invalid runs into failure layers. As shown in Fig.~\ref{fig:solution-mechanisms}a, the Match-SOTA rate of all agents is only $32.2\%$, and this is primarily because matching published SOTA requires both choosing methods that fit the scientific structure of the task and executing them deeply enough.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/section_6_1_summary_10model/section_6_1_summary_10model.pdf}
+\caption{\textbf{Solution mechanisms of all agents across $900$ NatureBench runs.}
+\textbf{a}, Match-SOTA outcomes across all runs.
+\textbf{b}, Match-SOTA rates for runs using the same versus different broad method families as the source paper.
+\textbf{c}, Success-mode distribution among Match-SOTA runs.
+\textbf{d}, Failure-layer distribution among below-SOTA and invalid runs.}
+\label{fig:solution-mechanisms}
+\end{figure}
+
+\paragraph{Method pathways.}
+Agents systematically reshape scientific tasks into more familiar method families: while paper-side methods concentrate in structured representation, statistical modeling, and pretraining or transfer learning, agent-side methods are concentrated in supervised predictive modeling ($41.4\%$ of runs). These shifts are not equally effective, however. As shown in Fig.~\ref{fig:solution-mechanisms}b, runs whose agent method falls into the same broad family as the source paper match SOTA in $37.7\%$ of cases, compared with $29.6\%$ for runs using a different family. Although NatureBench imposes no constraint on method choice, methods closer to the task's original scientific structure tend to be more effective.
+
+\paragraph{Success modes.}
+When agents do match SOTA, they usually do so through generic ML engineering rather than domain-informed methodological choices. As shown in Fig.~\ref{fig:solution-mechanisms}c, supervised proxy prediction accounts for $45.5\%$ of successful runs, optimization and tuning for $17.6\%$, engineering pipelines for $11.0\%$, and pretraining or model scaling for $8.6\%$. Together, these engineering-driven categories account for $82.7\%$ of successes. In contrast, domain-reasoned alternatives and method-aligned solutions account for only $8.3\%$ and $9.0\%$, respectively. This pattern suggests that agents predominantly succeed by reducing scientific tasks to standard ML pipelines (trainable, tunable, and engineerable) rather than by reasoning about the task's scientific specifics.
+
+\paragraph{Failure modes.}
+Most failures stem from method choice or execution depth, not from misunderstanding the task or producing malformed output. Among the $67.8\%$ of runs that fall below Match-SOTA or lack a valid score, method-layer failures dominate at $61.1\%$, primarily wrong method choice ($45.1\%$), followed by execution-layer failures at $28.7\%$, largely due to insufficient budget or time ($24.4\%$). Understanding-layer and strategy-layer failures account for only $3.1\%$ and $7.0\%$, respectively (Fig.~\ref{fig:solution-mechanisms}d). Most of these runs do produce runnable solutions, but the chosen method is too weak or the implementation too shallow to close the gap to paper-reported SOTA. The failure distribution thus indicates that method selection and implementation depth, rather than code generation itself, are the primary bottlenecks for current agents on NatureBench tasks. Appendix~\ref{app:trajectory-cases} presents three representative trajectories illustrating these patterns.
+
+\subsection{Domain and Interdisciplinary Variation}
+\label{sec:exp:domain}
+
+We examine whether the scientific domain and disciplinary scope of a task systematically affect agent performance. Both factors prove influential: the six domains form a stable difficulty gradient, with the consensus Match-SOTA rate ranging from $60.0\%$ down to $17.9\%$, and this ordering is highly consistent across all ten agents ($\rho \ge 0.71$). Interdisciplinary tasks further widen the gap to paper-reported SOTA. Figure~\ref{fig:cross-domain-performance} presents the full decomposition.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/cross_domain/cross_domain_performance.pdf}
+\caption{\textbf{NatureBench performance by scientific domain and disciplinary scope.}
+\textbf{a,b,} Match-SOTA rate and median $\tilde{g}_{\mathrm{all}}$ across six domains for $10$ agents. Grey circles: agents; blue diamonds: domain medians. Blue/red circles mark higher/lower deviations from those medians (at least $15$ percentage points in the Match-SOTA rate and a same-direction $\tilde{g}_{\mathrm{all}}$ shift).
+\textbf{c,} Spearman $\rho$ between each agent's domain ranking and the consensus Match-SOTA ranking.
+\textbf{d,e,} The same metrics on $75$ single- versus $15$ cross-discipline tasks. Diamonds: across-agent means; green/red pairs: increases/decreases.}
+\label{fig:cross-domain-performance}
+\end{figure}
+
+\paragraph{Scientific domain.} Performance varies across the six scientific domains, and this difficulty ordering is shared across agents.
+Ranking the six domains by the consensus Match-SOTA rate reveals a difficulty gradient that separates into two tiers. The easier tier comprises Relational Reasoning ($60.0\%$), Protein Biology ($37.5\%$), and Cellular Omics ($35.5\%$). The harder tier comprises Physical Modeling ($26.9\%$), Molecular Design ($18.2\%$), and Biomedical Modeling ($17.9\%$). The consensus $\tilde{g}_{\text{all}}$ corroborates this split: the median relative gap stays within $8\%$ for the easier tier ($\tilde{g} > -0.08$) but exceeds $20\%$ for the harder tier ($\tilde{g} < -0.20$). All ten agents rank-correlate positively with this ordering (Spearman $\rho$ from $0.71$ to $1.00$, nine at $\rho \ge 0.77$), indicating that this cross-domain variation is largely shared across agents rather than specific to any individual agent.
+
+\paragraph{Interdisciplinary tasks.}
+Beyond performance spread across the six domains, a subset of tasks each integrate more than one domain within a single task, and these tend to be solved further from SOTA than single-discipline tasks. We tag each task by whether it draws on more than one scientific domain, yielding $15$ cross-discipline and $75$ single-discipline tasks. Comparing the two groups, we find that the pooled median $\tilde{g}_{\text{all}}$ falls from $-0.13$ on single-discipline tasks to $-0.21$ on cross-discipline tasks, with $9$ of $10$ agents moving in this direction. The Match-SOTA rate shows the same direction, dropping from $33.1\%$ to $28.0\%$, with $8$ of $10$ agents lower. The consistent widening of the agent--SOTA gap on interdisciplinary tasks suggests that integrating knowledge across domains remains a distinct challenge for most current agents.
+
+
+\subsection{Benchmark Validity}
+\label{sec:exp:validity}
+
+NatureBench converts public papers into automatically scored tasks and normalizes their heterogeneous metrics onto a common SOTA-relative scale. To verify that this design does not distort the results, we audit the tasks with extreme scores and those most exposed to leakage or gaming. We examined each concern and found it either working as designed or bounded to acceptable levels by the protocol.
+
+\paragraph{Metric normalization.}
+Extreme scores are a property of the SOTA-relative metric rather than a sign of a faulty task, surfacing as the heavy negative tail in Fig.~\ref{fig:score-distribution} and the gap between $\bar{g}$ and $\tilde{g}$ in Table~\ref{tab:gap-reliability}. The gap $g=(\text{score}-\text{SOTA})/|\text{SOTA}|$ scores each result as a fraction of the reported SOTA, so its magnitude depends on that SOTA as much as on the agent. A near-ceiling SOTA leaves a tiny denominator, so a merely moderate agent maps to a large negative $g$ on a genuinely hard task. A large positive $g$ may arise where the single primary metric used for scoring captures only one facet of a multi-objective method that its source paper evaluates with several metrics across different aspects: an agent optimizing for it directly can exceed the reported value without pursuing the method's other objectives. Auditing every extreme-gap task, we find no task error. We therefore use Surpass- and Match-SOTA as the primary metrics and the median $\tilde{g}$ as a tail-robust summary, with the mean only for completeness.
+
+\paragraph{Task coverage.}
+Some tasks evaluate only a bounded slice of their source paper, an unavoidable and reasonable narrowing. Each such task retains the paper's core quantitative problem and scores a subset of instances and metrics. When the omitted instances or metrics cover other directions of the contribution, the paper is captured only in part. A direction is usually excluded because it cannot be captured as structured data or scored automatically and deterministically. Separately, obtainable instances past a task's data-volume budget are also not collected. The retained slice is still the paper's core quantitative task and is scored correctly, so Surpass- and Match-SOTA measure performance on that slice, not on the whole paper.
+
+\paragraph{Leakage and feedback.}
+The residual leakage and feedback risks are unavoidable but constrained by the protocol and confirmed bounded by review. Because tasks are built from public data, some information is in principle accessible: source datasets come from public repositories and benchmarks, and on a few tasks the agent-visible inputs are inherently coupled to their targets, so an agent might read off part of the answer rather than compute it. A secondary risk is that exact-score feedback over repeated submissions lets an agent game the scorer rather than solve the task. The protocol bounds both: web search is disabled, so agents cannot retrieve the data or reported results, and a post-hoc validity judge filters scored-but-invalid submissions (the SR--CR gap in Table~\ref{tab:gap-reliability}). Reviewing the most at-risk tasks, we find high-frequency submission is overwhelmingly legitimate iteration, and the rare genuine exploit is caught by the judge.
+
+
+
+
+
+
+
+
+

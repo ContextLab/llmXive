@@ -1,0 +1,60 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{World Models.}
+The concept of a world model as an internal simulator that predicts future states given actions is central to several frameworks for general intelligence~\citep{lecun2022path, hafner2023mastering, yang2026world, delgrange2026foundation}.
+In visual and embodied domains, this idea has been instantiated through learned latent-space dynamics models.
+IRIS~\citep{micheli2022transformers} first demonstrates that Transformers can serve as sample-efficient world models for Atari games.
+DreamerV3~\citep{hafner2023mastering} and its successor Dreamer~4~\citep{hafner2025training} train agents entirely inside a learned world model, achieving strong performance across diverse control tasks without direct environment interaction during policy optimization.
+Video-based world models such as Cosmos~\citep{ali2025world}, Genie~3~\citep{genie3}, and Vid2World~\citep{huang2025vid2world} scale this approach to high-resolution visual prediction, enabling interactive simulation of physical environments.
+GameNGen~\citep{valevski2025diffusion} shows that diffusion models can simulate complex video games in real time.
+V-JEPA~2~\citep{assran2025v} learns predictive representations from video without pixel-level reconstruction, demonstrating that self-supervised world models can support both understanding and planning.
+UniSim~\citep{yang2023learning} learns a universal simulator of real-world interaction by orchestrating diverse visual datasets spanning objects, robotic actions, and navigation.
+\citet{hou2026world} provide a comprehensive survey of world models for robot learning, covering policy coupling and video world models across manipulation, navigation, and autonomous driving.
+More broadly, these approaches model how the environment evolves over time, often conditioned on actions, and use the learned dynamics for planning or policy learning.
+\method extends this paradigm to text-based agent environments, where the ``observations'' are structured text such as API responses, terminal outputs, accessibility trees, and UI view hierarchies.
+
+\paragraph{Language World Models.}
+A growing body of work explores whether LLMs can serve as world models for text-based agent environments~\citep{li2026bridgingagentworldgaptext}.
+\citet{li2025word} propose a three-level evaluation framework for LLM-based world models and find that fine-tuning substantially improves simulation fidelity, though gains depend on behavioral coverage and environment complexity; \citet{wang2024can} draw a complementary conclusion through systematic evaluation of LLMs as text-game simulators, showing that off-the-shelf LLMs remain unreliable world simulators.
+\citet{richens2025general} prove theoretically that any sufficiently general agent must contain a world model, and \citet{cifuentes2026general} extend this result to partial observability and stochastic settings.
+On the empirical side, several concurrent works train LLMs as environment simulators.
+RLVR-World~\citep{wu2026rlvr} uses RL to train a unified world model that generates environment responses for agent training across text, web, and video domains, demonstrating that RL-trained simulators produce higher-fidelity predictions than SFT-only baselines.
+In the web domain, WebDreamer~\citep{gu2024your} and WMA~\citep{chae2025web} pioneer model-based planning with LLM-simulated web environments, WebWorld~\citep{xiao2026webworld} is the first open-web world model trained at scale advancing both agent training and inference-time search, and WebATLAS~\citep{cheng2025webatlas} combines experience-driven memory with look-ahead action simulation.
+\citet{shen2026world} augment web agents with world-model-based action correction, Imagine-then-Plan~\citep{liu2026imagine} uses world-model lookahead for adaptive agent planning, DynaWeb~\citep{ding2026dynaweb} applies model-based RL to web agents, and WebSynthesis~\citep{gao2025websynthesis} combines world-model-guided MCTS with trajectory synthesis.
+Simia~\citep{li2025simulating} uses reasoning models as environment simulators for agent training on the $\tau$-bench task suite.
+RWML~\citep{yu2026reinforcement} formulates world-model learning as an RL problem and demonstrates that RL-trained world-modeling capability improves the model's own agent performance.
+DyMo~\citep{guo2025world} shows that language world modeling improves agent performance on interactive tasks, validating the benefit of next-state prediction as a training objective.
+\citet{wang2025llms} show that LLMs can serve as scalable, general-purpose simulators for digital agent training.
+\citet{zhang2025agent} propose learning from \emph{early experience}, where the agent uses its own interaction data with implicit world modeling as supervision, bypassing the need for external rewards.
+On the training methodology front, VAGEN~\citep{wang2026vagen} reinforces world-model reasoning in VLM agents through dense state-prediction rewards, BehR~\citep{huang2026beyond} optimizes for behavior consistency with the real environment rather than surface-level state matching, \citet{ren2026aligning} align agentic world models via knowledgeable experience learning, and SWIRL~\citep{qiu2026self} self-improves world models from state-only sequences by alternating forward and inverse dynamics models without action labels.
+SSRL~\citep{fan2025ssrl} and ZeroSearch~\citep{sun2025zerosearch} train LLMs via RL to simulate search engines, eliminating dependence on external APIs.
+ECHO~\citep{shrivastava2026echo} shows that terminal agents can acquire world models by adding an auxiliary environment-prediction loss to standard RL, doubling pass rates on Terminal-Bench~2.0.
+In the GUI domain, Code2World~\citep{zheng2026code2world} generates renderable code as a proxy for GUI state prediction, while CUWM~\citep{guan2026computer} builds a computer-use world model via two-stage factorization.
+MobileDreamer~\citep{cao2026mobiledreamer} uses sketch-based GUI world models for mobile agent planning, \citet{koh2026generative} propose generative visual code world models for mobile environments, and UISim~\citep{xiang2025uisim} builds an interactive image-based UI simulator for dynamic mobile environments.
+SWE-World~\citep{sun2026swe} proposes LLM-based environment simulation for software engineering agents, removing the dependence on Docker sandboxes, CWM~\citep{copet2025cwm} mid-trains a 32B open-weights LLM on observation-action trajectories from code interpreters and Docker environments to enable step-by-step simulation of code execution, and \citet{rahmani2026debugging} analyze and debug failure modes in code world models.
+A complementary line uses LLMs to generate executable world models rather than serving as simulators directly: Code~WM~\citep{lehrach2025code} translates game rules into Python simulators supporting MCTS planning, Text2World~\citep{hu2025text2world} benchmarks LLMs on PDDL-based symbolic world model generation, and Agent2World~\citep{hu2025agent2world} proposes a multi-agent framework for the same task.
+WorldLLM~\citep{levy2025worldllm} takes an orthogonal approach, enhancing world modeling through curiosity-driven theory-making without fine-tuning.
+\citet{qian2026current} provide an important negative result: current agents fail to leverage world models as tools for foresight-based planning, lacking the mechanisms to strategically invoke simulation and integrate its predictions.
+This finding motivates our native world-model approach, where environment modeling is the training objective from the CPT stage onward rather than bolted on after training.
+
+\method differs from these works in two respects.
+First, we develop a \emph{native} language world model as a foundation model for agentic environment simulation: it covers 7 domains within a single model, and is trained through a three-stage CPT$\to$SFT$\to$RL pipeline that starts from environment modeling as the pre-training objective, rather than fine-tuning a general-purpose LLM post hoc.
+Second, we investigate how world modeling can improve general agents through two complementary paradigms: \emph{decoupling} the agent from the world model, where turn-level controllability (partial observation, difficulty modulation) enables Sim~RL that matches or exceeds Real~RL; and \emph{unifying} them into a single framework, where LWM pre-training serves as a warm-up that strengthens downstream agent performance.
+
+\paragraph{Agent Foundation Models and Continual Pre-Training.}
+AgentFounder~\citep{su2025scaling} proposes continual pre-training on agentic interaction data to build a 30B-parameter agent foundation model, demonstrating that domain-specific CPT improves downstream agent performance.
+TRUSTEE~\citep{tang2026democratizingtoollearningenvironments} shows that even a free 8B LLM can fully simulate tool-use environments, enabling zero-shot agent training without any real environment access.
+\citet{chen2025internalizing} internalize world models via self-play fine-tuning. In the robotics domain, DreamZero~\citep{ye2026world} shows that video-based world-action models trained on manipulation data can serve as zero-shot policies.
+Our work shares the CPT-stage insight with AgentFounder but differs in scope (seven domains vs.\ a smaller set) and in the subsequent SFT and RL stages that refine simulation fidelity beyond what CPT alone achieves.
+
+\paragraph{Synthetic Environment Generation.}
+A parallel line of work constructs synthetic environments programmatically rather than learning a neural simulator.
+AWM (Agent World Model)~\citep{wang2026agent} generates code-based environments for agentic RL, and Agent-World~\citep{dong2026agent} scales real-world environment synthesis to nearly 2,000 environments with self-evolving training.
+RLAnything~\citep{wang2026rlanything} jointly forges environment, policy, and reward model in a fully dynamic RL system, and GenEnv~\citep{guo2025genenv} co-evolves agents and environment simulators with difficulty-aligned curricula.
+ASTRA~\citep{tian2026astra} automates the synthesis of agentic trajectories and reinforcement arenas from tool-call graphs.
+Domain-specific generators include InfiniteWeb~\citep{zhang2026infiniteweb}, WebGym~\citep{bai2026webgym}, Weblica~\citep{kar2026weblicascalablereproducibletraining}, AutoWebWorld~\citep{wu2026autowebworld}, WebFactory~\citep{fan2026webfactory}, and \citet{chae2026safe} for web environments; GUI-Genesis~\citep{cao2026gui}, EvoCUA~\citep{xue2026evocua}, and EE-MCP~\citep{he2026ee} for GUI and mobile environments; TermiGen~\citep{zhu2026termigen} and Endless Terminals~\citep{gandhi2026endless} for terminal environments; and SWE-Universe~\citep{chen2026swe}, daVinci-Env~\citep{fu2026davinci}, \citet{zhao2026immersion}, SandMLE~\citep{zhou2026synthetic}, and ClawEnvKit~\citep{li2026clawenvkit} for software engineering and general agent platforms.
+ScaleEnv~\citep{tu2026scaleenv}, AutoForge~\citep{cai2025autoforge}, EnvScaler~\citep{song2026envscaler}, SCALER~\citep{xu2026scaler}, and \citet{fang2025towards} propose general frameworks for scaling environment synthesis.
+These code-driven approaches offer deterministic execution and verifiable rewards, but are inherently limited to domains where environments can be programmatically specified.
+Our LWM-based simulation is complementary: it trades determinism for generality, covering domains (e.g., search engines, real-world MCP servers) where code-based synthesis is impractical.
+\citet{huang2025environment} survey environment scaling methods for interactive agentic experience collection, and \citet{chu2026agentic} provide a broader treatment of agentic world modeling covering foundations, capabilities, and emerging directions.

@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\caption{\textbf{Gap summary and submission rates of agents on NatureBench.} The SOTA-normalized gap $g$ (\S\ref{sec:nb:eval}) is summarized by its median $\tilde{g}$ and mean $\bar{g}$; the $\cdot_{\text{all}}$ columns set $g=-1.0$ for tasks with no valid score, while the $\cdot_{\text{valid}}$ columns cover only judge-accepted tasks. \textbf{CR} (Completion Rate) and \textbf{SR} (Score Rate) are the fractions of tasks yielding a valid score and any score. Best/second per column in \textbf{bold}/\underline{underlined}.}
+\label{tab:gap-reliability}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l l cccc cc}
+\toprule
+ & & \multicolumn{4}{c}{Gap Summary} & \multicolumn{2}{c}{Submission Rates (\%)} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-8}
+Model & Harness & $\tilde{g}_{\text{all}}$ & $\bar{g}_{\text{all}}$ & $\tilde{g}_{\text{valid}}$ & $\bar{g}_{\text{valid}}$ & CR & SR \\
+\midrule
+Claude Opus 4.7   & Claude Code & \mgb{-0.007} & \mn{-4.54}  & \mgu{-0.007} & \mn{-4.54}  & \relb{100.0} & \relb{100.0} \\
+Gemini 3.5 Flash  & Gemini CLI  & \mg{-0.083}  & \mn{-5.71}  & \mg{-0.041}  & \mn{-5.98}  & \rel{94.4}   & \relu{98.9}  \\
+GPT-5.5           & Codex CLI   & \mgu{-0.055} & \mnu{-2.81} & \mgb{+0.001} & \mn{-3.14}  & \rel{84.4}   & \relu{98.9}  \\
+Claude Opus 4.6   & Claude Code & \mg{-0.061}  & \mnb{-2.02} & \mg{-0.061}  & \mnb{-2.02} & \relb{100.0} & \relb{100.0} \\
+Qwen 3.7 Max      & Claude Code & \mg{-0.121}  & \mn{-2.94}  & \mg{-0.105}  & \mnu{-3.03} & \rel{95.6}   & \relu{98.9}  \\
+Kimi K2.6         & Claude Code & \mg{-0.142}  & \mn{-10.11} & \mg{-0.087}  & \mn{-10.88} & \rel{92.2}   & \rel{94.4}   \\
+GPT-5.4           & Codex CLI   & \mg{-0.123}  & \mn{-3.72}  & \mg{-0.113}  & \mn{-3.88}  & \rel{94.4}   & \relb{100.0} \\
+GLM-5.1           & Claude Code & \mg{-0.150}  & \mn{-8.44}  & \mg{-0.131}  & \mn{-8.98}  & \rel{93.3}   & \rel{93.3}   \\
+DeepSeek-V4-Pro   & Claude Code & \mg{-0.242}  & \mn{-8.57}  & \mg{-0.239}  & \mn{-8.66}  & \relu{98.9}  & \relu{98.9}  \\
+MiniMax-M2.7      & Claude Code & \mg{-0.401}  & \mn{-11.76} & \mg{-0.347}  & \mn{-12.53} & \rel{93.3}   & \relu{98.9}  \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

@@ -1,0 +1,81 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "otagent.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "otagent.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "otagent.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/8b_rl.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/8b_rl_sft_ablation.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/answer_filtering.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/appendix_eval_table.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/compute_controlled_filtering.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/filtering_tables.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/hyperparams_sf.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/prompt.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/rl_behavior_hero_vs_baseline.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/rl_behavior_shift.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/rl_data_ablation.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/rl_reproducibility.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/table1.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/task_augmentatoin.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/teacher.tex"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

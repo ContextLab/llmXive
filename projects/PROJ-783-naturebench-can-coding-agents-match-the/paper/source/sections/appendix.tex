@@ -1,0 +1,213 @@
+\appendix
+
+\section{Package and Environment Review Details}
+\label{app:package-review}
+
+This appendix expands the package and environment review summarized in \S\ref{sec:gym:build}. Unlike the one-shot reviews of the filtering and data-acquisition stages, this review runs a verify--repair loop that iterates until the final artifact is structurally complete, internally consistent, stably scorable by the evaluator, and buildable into a working environment, all while preserving the information firewall. It has three parts.
+
+\paragraph{Build-time self-audit.}
+Before completing the construction, a final step re-reads the paper and the structured record to recheck the task definition, data alignment, metadata tags, SOTA scores, and the firewall. Anything the automated process is uncertain about is flagged for human review before the loop proceeds.
+
+\paragraph{Task-package verification.}
+We run 36 checks across five dimensions: artifact completeness, cross-component consistency, the information firewall, benchmark-design principles, and end-to-end dynamic testing. The dynamic test runs a simple baseline solver that follows the \texttt{README} interface end to end over all instances and feeds its outputs to the evaluator, checking that the score structure and values are sensible, and adds a correctness test (ground truth as a perfect prediction should score near-perfect) and a robustness test (malformed inputs must fail cleanly rather than yield spurious scores). Failed checks are graded by severity and trigger minimal targeted repairs. After each repair we immediately re-run the relevant consistency scans and dynamic tests to confirm that the repair itself introduces no new error. This verify--repair cycle iterates over multiple rounds until the verification passes, and what cannot be reliably auto-repaired is escalated to human review.
+
+\paragraph{Environment verification.}
+We build the Docker image on a physical machine, run library imports and verify that library versions match our presets. When a build fails, we separate root causes from cascading symptoms and classify each root cause by type. Repair follows one core principle: never override a base-image package. Working from least to most disruptive, we (i) switch to a base-compatible version, (ii) add the missing dependency or runtime configuration, (iii) substitute a compatible alternative and rewrite the affected code, or (iv) remove non-essential packages. A task-critical dependency that resists all of the above triggers a standalone Dockerfile that does not inherit the shared base. Throughout, evaluator and solver dependencies are treated as mandatory and domain convenience packages are best-effort. This verify--diagnose--repair cycle repeats until all checks pass.
+
+\section{Benchmark Quality Calibration Details}
+\label{app:calibration-details}
+
+This appendix expands the benchmark quality calibration summarized in \S\ref{sec:nb:calib}.
+
+\paragraph{First-round diagnosis categories.}
+The exposed defects fall into six categories: (1)~ground-truth leakage, where the test input carries an unintended channel that allows the agent to recover the answer; (2)~distorted task definitions, where the target degenerates into a deterministic function of input features and can be exactly solved rather than learned; (3)~metrics that fail to distinguish shortcuts from genuine solutions; (4)~evaluator or anchor inconsistencies (e.g., an evaluator metric that disagrees with the task description or metadata); (5)~pipeline or environment errors; and (6)~missing data resources.
+Locally verifiable defects receive minimal targeted repairs. Mitigable risks are recorded and backstopped by the information firewall, the web-search-disabled container, and the validity judge. Tasks with broken definitions, unverifiable metrics, or irreparable leakage are dropped. Runs that are legitimate but low-scoring, timed-out, or judged invalid are retained as normal agent failures.
+
+\paragraph{Reproduction-mode audit procedure.}
+For each case in reproduce mode, we decompose the paper's method into components (e.g., preprocessing, architecture, loss, training, inference, post-processing), rate each as full, partial, or missing, classify the score outcome, and attribute any anomaly to the agent, the runtime resources, or the package.
+Regardless of score, we audit package quality along four axes: (1)~task description and data, (2)~evaluator and scoring, (3)~metadata anchors, and (4)~cross-component consistency. For example, we check whether the SOTA anchor is drawn from the same dataset and granularity as the evaluator computes, whether metadata and evaluator scores share the same scale and units, whether required training data and external resources are present, whether the evaluator returns a reasonable score on ground truth, and whether the task description is consistent with the paper's method.
+After human review, 45 tasks are dropped for defects that would systematically contaminate the main evaluation (missing data, evaluator deviations, absent required information, leakage, or distorted scoring), and 17 tasks receive minor repairs (e.g., anchor-value alignment, scale reconciliation, evaluator-logic corrections, incomplete-instance removal, environment and serialization fixes).
+
+\paragraph{Reproducibility analysis.}
+On the finalized 90 tasks, we quantify SOTA-anchor attainability (success: $\gimp \ge -0.05$; partial: $-0.2 \le \gimp < -0.05$).
+Claude Opus 4.6 reproduces 30/90 tasks successfully and 16/90 partially; DeepSeek-V4-Pro reproduces 21/90 and 13/90. At least one model succeeds on 35/90. Both succeed on 16/90, where $\gimp$ clusters tightly around zero (median $-0.0026$, $90\%$ of absolute deviations $\le 0.031$).
+Reproduce-mode success is lower than base mode: Opus drops from $41/90$ to $30/90$ and DeepSeek from $29/90$ to $21/90$, primarily because faithful reproduction triggers heavier training and more complex dependencies. DeepSeek's no-result count rises from $1$ to $29$, accounting for most of its gap. Root-cause attribution of non-success cases is dominated by insufficient compute or time and method simplification rather than package defects.
+
+\section{Case Studies}
+\label{app:trajectory-cases}
+This appendix complements the aggregate analysis in Section~\ref{sec:exp:discovery-modes} with three representative agent trajectories. The cases cover three recurring outcomes in NatureBench: a method-aligned solution that matches SOTA, a valid but methodologically insufficient solution, and a plausible long-horizon solution limited by execution depth. All cases are drawn from the final 90-task, 10-agent analysis used in Section~\ref{sec:analysis}.
+Table~\ref{tab:app-case-overview} lists the selected cases and Table~\ref{tab:app-case-mechanisms} summarizes their trajectory-level mechanisms, while two figures show how each case plays out. Figure~\ref{fig:app-case-trajectories} traces each agent's score across its submission sequence, and Figure~\ref{fig:app-case-instances} decomposes the best submission of the two multi-instance cases into per-instance gaps, showing where the aggregate score comes from.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/case_trajectories/case_trajectories.pdf}
+\caption{\textbf{Representative agent trajectories in NatureBench.}
+\textbf{(a)}~Cancer-gene identification (Claude Opus 4.7), six submissions. \textbf{(b)}~Genomic sequence prediction (GPT-5.5), 258 submissions, with the best at attempt~220. \textbf{(c)}~Reaction product prediction (DeepSeek-V4-Pro).}
+\label{fig:app-case-trajectories}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/case_instance_breakdown/case_instance_breakdown.pdf}
+\caption{\textbf{Per-instance relative gap $g$ at each agent's best submission.}
+\textbf{(a)}~Cancer-gene identification (Claude Opus 4.7), eight biological networks. \textbf{(b)}~Genomic sequence prediction (GPT-5.5), 19 genomic sub-tasks. The single-instance reaction task is omitted.}
+\label{fig:app-case-instances}
+\end{figure}
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\captionof{table}{Representative trajectory cases analyzed in Appendix~\ref{app:trajectory-cases}.}
+\label{tab:app-case-overview}
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.40\textwidth} l c l@{}}
+\toprule
+Case & Agent & $g$ & Status \\
+\midrule
+Cancer gene identification on biological networks & Claude Opus 4.7 & $0.17666$ & Match-SOTA \\
+Genomic sequence prediction & GPT-5.5 & $-0.14087$ & Below SOTA \\
+Organic reaction product prediction & DeepSeek-V4-Pro & $-0.35540$ & Timeout, below SOTA \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\captionof{table}{High-level mechanisms observed in the representative trajectories.}
+\label{tab:app-case-mechanisms}
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.40\textwidth} >{\raggedright\arraybackslash}p{0.24\textwidth} >{\raggedright\arraybackslash}p{0.26\textwidth}@{}}
+\toprule
+Case & Agent route & Outcome driver \\
+\midrule
+Cancer gene identification on biological networks & ChebNet/GNN ensemble & Method alignment and training optimization \\
+Genomic sequence prediction & From-scratch sequence models & Insufficient representation strength \\
+Organic reaction product prediction & Seq2seq reaction modeling & Insufficient execution depth \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}
+
+\paragraph{Case 1: method-aligned graph modeling can produce a valid success.}
+The first task is derived from TREE, a transformer-powered graph representation learning study for identification of cancer-genes \citep{su2025tree}. It asks the agent to identify cancer-associated genes on eight biological networks. Each instance provides a network adjacency matrix, 64-dimensional multi-omics node features, training and validation labels, and a test-node mask. The source problem is naturally a graph-based binary node-classification problem: its core scientific objective is to combine biological network structure with multi-omics node attributes to prioritize cancer genes. The primary metric is AUPRC on each network, aggregated as improvement relative to the paper-side SOTA.
+
+Claude Opus 4.7 selected a route that matched this task structure. The final solution implements a Chebyshev polynomial graph convolutional network (ChebNet) ensemble: it loads the HDF5 network data and node features, computes normalized graph Laplacians, trains with validation AUPRC early stopping, then retrains on the combined train and validation labels before averaging models across Chebyshev orders, depths, and random seeds. The judge marked the submission valid because the predictions were generated by trained graph models, and the raw logs show progressive AUPRC improvements across submissions.
+Table~\ref{tab:app-case-tree} summarizes the score progression for this trajectory.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\captionof{table}{Score progression and diagnosis for the cancer-gene identification case.}
+\label{tab:app-case-tree}
+\centering
+\small
+\begin{tabular}{@{}p{0.24\textwidth}p{0.22\textwidth}p{0.44\textwidth}@{}}
+\toprule
+Stage & Evidence & Diagnosis \\
+\midrule
+Initial graph model & $g=-0.01715$ & The first submission was runnable, but still slightly below SOTA. \\
+First crossing & $g=0.12457$ & Once the graph-modeling route matured, most networks improved substantially. \\
+Ensembling and training optimization & $g=0.161$ to $0.175$ & Chebyshev order, depth, random seeds, and train-plus-validation retraining continued to add gains. \\
+Final strengthening & $g=0.17666$ & The last round mainly improved the LTG network and produced the best aggregate score. \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}
+
+This is a genuine agent success. It correctly treated the task as graph-based node classification and used an appropriate GNN, class-imbalance handling, validation-based early stopping, and ensembling to push the score above SOTA. The per-instance results were also uneven: MTG, LTG, PCNet, and Multinet improved substantially, whereas IRef v15 remained slightly below the paper-side SOTA. However, from another aspect, the agent did not propose a new method of cancer-gene identification.
+
+\paragraph{Case 2: extensive valid iteration can still fall short.}
+The second task is derived from the Nucleotide Transformer benchmark for human genomics \citep{dallatorre2025nucleotide}. It contains 19 genomic sequence prediction instances, spanning histone marks, enhancers, promoters, splice sites, and enhancer-activity regression. The source paper's core idea is to learn broad DNA sequence representations from large-scale pretraining and transfer them to diverse downstream sequence-function tasks. The agent must submit predictions for 18 classification tasks and one regression task.
+
+This trajectory is long and technically substantial. The agent produced 258 submissions, with the best score at attempt 220. It began with compact k-mer count models and fast linear classifiers, then added splice-site motif rules, GPU CNNs, enhancer-activity CNN ensembles, a two-stage enhancer-type classifier, and many threshold sweeps. The judge marked the submission valid because all predictions were generated by models trained on the provided data.
+Table~\ref{tab:app-case-nucleotide} summarizes the main trajectory stages.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\captionof{table}{Score progression and diagnosis for the genomic sequence prediction case.}
+\label{tab:app-case-nucleotide}
+\centering
+\small
+\begin{tabular}{@{}p{0.24\textwidth}p{0.22\textwidth}p{0.44\textwidth}@{}}
+\toprule
+Stage & Evidence & Diagnosis \\
+\midrule
+Fast baseline & $g=-0.41445$ & The agent first solved the submission-completeness problem. \\
+Task specialization & $g=-0.20882$ & Local biological sequence cues improved several sub-tasks. \\
+Deep iteration & $g=-0.14087$ & Iteration was effective but gradually saturated. \\
+Remaining gap & No Match-SOTA & From-scratch models lacked the representation strength of the paper-side route. \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}
+
+The failure is therefore not a formatting or execution failure. It is a method-layer limitation: the agent built a sophisticated runnable pipeline, but its chosen models lacked the inductive bias and representation capacity of large-scale genomic pretraining. This case illustrates why many agent failures on NatureBench tasks are better described as ``runnable but not strong enough'' than as simple coding failures.
+
+\paragraph{Case 3: a plausible route can be limited by execution depth.}
+The third task is derived from LocalTransform, a generalized-template-based graph neural network for organic reactivity prediction \citep{chen2022localtransform}. It asks the agent to predict major organic reaction products for USPTO-480k atom-mapped reactants. The source paper's core idea is to model local reaction centers and bond changes with reaction templates, molecular graph representations, and chemistry tooling. This route reaches a Top-1 exact-match accuracy of $0.908$, while a strong sequence-to-sequence baseline reaches $0.887$. The task requires both learning reaction transformations from hundreds of thousands of examples and generating ranked product SMILES efficiently.
+
+The agent selected a plausible but expensive route: it implemented a complete sequence-to-sequence reaction model with a SMILES tokenizer, dataset loader, Transformer model, training loop, checkpointing, and prediction pipeline. The judge marked the submission valid because the final predictions were generated by the trained model with checkpointing and beam-search inference.
+Table~\ref{tab:app-case-localtransform} summarizes the trajectory stages and score progression.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\captionof{table}{Score progression and diagnosis for the reaction product prediction case.}
+\label{tab:app-case-localtransform}
+\centering
+\small
+\begin{tabular}{@{}p{0.24\textwidth}p{0.22\textwidth}p{0.44\textwidth}@{}}
+\toprule
+Stage & Evidence & Diagnosis \\
+\midrule
+Route selection & 24.3M parameters & The route was plausible, but computationally heavy. \\
+Long training & Loss $2.0312 \rightarrow 1.3149$ & The model learned, but training consumed much of the budget. \\
+Greedy decoding & Top-1 $13.68\%$ & The first valid submission used a weak decoding strategy. \\
+Beam search & \begin{tabular}[t]{@{}l@{}}Top-1 $58.53\%$ \\ $g=-0.35540$\end{tabular} & Inference engineering helped sharply, but the final score remained below SOTA. \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}
+
+The key limitation was execution depth rather than invalidity. The agent found a reasonable scientific-computational route, but the task required deeper training, more efficient generation, and more specialized chemical modeling than the fixed budget allowed. This case illustrates the execution-layer failures discussed in Section~\ref{sec:exp:discovery-modes}: some agents identify a plausible direction, yet fail because the required training and inference loop is too long.
+
+
+
+
+\section{Resource Usage Details}
+\label{app:cost}
+
+
+Following common practice in agent benchmarks, we report resource usage at the trajectory level rather than only at the initial prompt level. For each evaluated agent, we aggregate token-usage information from valid execution logs and summarize per-case input tokens, output tokens, and estimated API cost. Input tokens use exact harness- or provider-reported usage fields. When the log records cache accounting, we retain the distinction among non-cached input, cache read or hit tokens, and cache creation or write tokens; the mean input-token column reports their sum so that it reflects the full amount of context processed during the run.
+
+Output-token accounting follows the most reliable source available for each model. For Claude Opus, GPT, and Gemini runs, we use exact provider- or harness-reported output-token fields. For third-party models executed through Claude Code, the logged output-token fields are incomplete, so we estimate output tokens from agent-authored trajectory text using the standard rule of thumb that one token corresponds to roughly four English characters~\citep{openai2026tokens,anthropic2026pricing}. Rows that use this output-token estimate, and the costs derived from it, are marked with an asterisk. Cost is computed with official standard list prices and provider-specific cache rates. We exclude limited-time promotions, batch/flex/priority modes, regional or data-residency uplifts, cache-storage charges that cannot be recovered from the logs, and OpenAI long-context multipliers whose per-request triggers cannot be recovered from aggregate Codex logs.
+Table~\ref{tab:cost} reports the resulting per-agent means over valid runs.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\captionof{table}{Per-agent token usage and estimated API cost. Means are computed over valid runs with recorded usage information. \textsuperscript{*}Values estimated from agent-authored trajectory text; costs with \textsuperscript{*} are derived from these estimates.}
+\label{tab:cost}
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Agent} & \textbf{Mean input tokens} & \textbf{Mean output tokens} & \textbf{Mean cost (USD)} \\
+\midrule
+Claude Opus 4.7          & $24.25$M & $179.3$K & \$21.65 \\
+Claude Opus 4.6          & $9.03$M  & $87.6$K  & \$16.56 \\
+GPT-5.5                 & $8.25$M  & $31.9$K  & \$6.01 \\
+GPT-5.4                 & $10.79$M & $43.6$K  & \$4.14 \\
+Gemini 3.5 Flash        & $11.05$M & $34.2$K  & \$4.49 \\
+Qwen 3.7 Max            & $3.85$M  & $88.7$K\textsuperscript{*} & \$10.19\textsuperscript{*} \\
+Kimi K2.6               & $13.32$M & $85.0$K\textsuperscript{*} & \$12.99\textsuperscript{*} \\
+MiniMax-M2.7            & $4.44$M  & $55.7$K\textsuperscript{*} & \$1.35\textsuperscript{*} \\
+DeepSeek-V4-Pro         & $11.34$M & $77.5$K\textsuperscript{*} & \$0.15\textsuperscript{*} \\
+GLM-5.1                 & $2.77$M  & $65.8$K\textsuperscript{*} & \$4.12\textsuperscript{*} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}
+
+ 

@@ -1,0 +1,6 @@
+\begin{figure*}[t]
+  \centering
+  \includefig[width=0.92\textwidth]{images/contexact/contextact-framework.drawio.png}
+  \caption{Single-step execution of \ourmethod with \conact. The MLLM $\pi_\theta$ takes screenshot $I_t$ and structured state $\mathcal{S}_t = (G, \textcolor{histcolor}{H_t}, \textcolor{memstatecolor}{M_t}, \textcolor{recentcolor}{L_t})$ and emits five outputs $(\tau_t, \phi_t, a_t, o_t, \iota_t)$. Three parallel updates follow: \textbf{(A)}~folding directive $\phi_t$ updates \textcolor{histcolor}{$H_{t+1}$}; \textbf{(B)}~tool call $a_t$ acts on the environment or updates \textcolor{memstatecolor}{$M_{t+1}$}; \textbf{(C)}~recent step record \textcolor{recentcolor}{$L_{t+1}$} is assembled from $(o_t, \iota_t, a_t, r_t)$. The next state $\mathcal{S}_{t+1}$ feeds into step $t{+}1$.}
+  \label{fig:framework}
+\end{figure*}

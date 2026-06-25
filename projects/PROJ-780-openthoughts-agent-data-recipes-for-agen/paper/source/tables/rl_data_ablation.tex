@@ -1,0 +1,23 @@
+\begin{table}[!t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{rlcccccc}
+\toprule
+ & & \multicolumn{3}{c}{Benchmarks} & \multicolumn{2}{c}{Average} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Rank & RL Data Source & SWE-bench Verified (100) & OT-TBLite & Terminal-Bench 2.0 & Raw & Normalized \\
+\midrule
+1 & \texttt{pymethods2test} & \textbf{35.67}\,\subscriptval{1.83} & \textbf{16.02}\,\subscriptval{1.58} & \textbf{13.48}\,\subscriptval{1.50} & \textbf{21.72} & \textbf{+1.73} \\
+2 & \texttt{r2egym} & 28.67\,\subscriptval{1.67} & \textbf{16.84}\,\subscriptval{1.64} & 6.74\,\subscriptval{1.45} & \textbf{17.42} & \textbf{+0.50} \\
+3 & \texttt{nemotron-code-oracle} & 25.00\,\subscriptval{1.86} & \textbf{16.78}\,\subscriptval{1.67} & 6.74\,\subscriptval{1.24} & \textbf{16.17} & \textbf{+0.22} \\
+4 & \texttt{llm-verifier-freelancer} & 22.33\,\subscriptval{1.53} & \textbf{14.87}\,\subscriptval{1.27} & 8.61\,\subscriptval{1.35} & 15.27 & -0.24 \\
+5 & \texttt{inferredbugs} & 26.00\,\subscriptval{1.67} & 14.30\,\subscriptval{1.55} & 6.37\,\subscriptval{0.99} & 15.56 & -0.45 \\
+6 & \texttt{swesmith} & 24.33\,\subscriptval{1.73} & 14.30\,\subscriptval{1.51} & 6.74\,\subscriptval{1.12} & 15.12 & -0.51 \\
+7 & \texttt{code-contests} & 23.67\,\subscriptval{1.67} & 13.75\,\subscriptval{1.55} & 7.87\,\subscriptval{1.12} & 15.10 & -0.56 \\
+8 & \texttt{nl2bash} & 21.00\,\subscriptval{1.49} & 14.51\,\subscriptval{1.44} & 6.74\,\subscriptval{1.12} & 14.08 & -0.70 \\
+\bottomrule
+\end{tabular}}
+\vspace{10pt}
+\caption{\textbf{Data source strongly influences agentic RL performance.} Across eight 8B RL runs that hold the training pipeline fixed and vary only the source, performance varies well beyond noise.}
+\label{tab:rl_data_ablation}
+\end{table}

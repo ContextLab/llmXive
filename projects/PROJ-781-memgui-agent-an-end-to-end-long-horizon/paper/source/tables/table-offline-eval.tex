@@ -1,0 +1,27 @@
+\begin{table}[!htbp]
+  \centering
+  \footnotesize
+  \renewcommand{\arraystretch}{1.06}
+  \setlength{\tabcolsep}{4pt}
+  \begin{adjustbox}{max width=0.86\linewidth}
+  \begin{tabular}{@{}l | c | c | cc | c@{}}
+    \toprule
+    & \textbf{UI Action} & \textbf{Memory} & \multicolumn{2}{c|}{\textbf{Folding}} & \textbf{Format} \\
+    \textbf{Agent} & \texttt{Match} & \texttt{Trigger F1} & \texttt{Deep Ratio} & \texttt{Range Acc.} & \texttt{Tags} \\
+    \midrule
+    \texttt{8B-Inst.} \textit{(ZS)}
+      & 29.2 & 19.9 & 8.8 & 45.2 & 94.9 \\
+    \addlinespace[2pt]
+    \rowcolor{oursrowcolor} \textbf{MemGUI-8B-SFT} \textit{(Ours)}
+      & \textbf{36.3} & \textbf{48.0} & \textbf{26.1} & \textbf{58.9} & \textbf{99.9} \\[-2pt]
+    \multicolumn{1}{l|}{\quad\textit{\footnotesize $\Delta$ vs.\ 8B-Inst.}}
+      & {\footnotesize\rise{+7.1}} & {\footnotesize\rise{+28.1}} & {\footnotesize\rise{+17.3}} & {\footnotesize\rise{+13.7}} & {\footnotesize\rise{+5.0}} \\
+    \addlinespace[2pt]
+    \ourmethod-235B \textit{(ZS)}
+      & \underline{33.9} & \underline{34.3} & \underline{18.7} & \underline{56.7} & \underline{99.2} \\
+    \bottomrule
+  \end{tabular}%
+  \end{adjustbox}
+  \caption{Core gold-context step-level offline metrics on the MemGUI-3K test set. Each agent receives the gold SFT input for a single step and is compared with the gold assistant response. All scores are percentages. \texttt{8B-Inst.} is \llmname{Qwen3-VL-8B-Instruct}; ZS denotes zero-shot. \textbf{Bold}/\underline{underline} = best/second-best; $\Delta$ shows gains over the 8B backbone. Detailed metrics are in Table~\ref{tab:offline-eval-detailed}.}
+  \label{tab:offline-eval}
+\end{table}

@@ -1,0 +1,242 @@
+
+\documentclass[11pt, a4paper, copyright, frontis-thu]{frontis}
+\uselogo{}
+\fvlogodividerfalse        %
+\fvtitlecentertrue         %
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{wrapfig}
+\usepackage{makecell}
+\usepackage{xspace}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes,fit,backgrounds}
+\usepackage{fontawesome5}
+
+\definecolor{badgebg}{HTML}{E5F6F8}
+\definecolor{badgeborder}{HTML}{8DCFD6}
+
+\newcommand{\badgeicon}[1]{\makebox[1.0em][c]{#1}}
+
+\newcommand{\buildbadge}[2]{%
+\tikz[baseline=(text.base)]{
+  \node[
+    fill=badgebg,
+    draw=badgeborder,
+    rounded corners=4pt,
+    minimum height=20pt,
+    inner xsep=6pt,
+    inner ysep=2pt
+  ] (text) {%
+    {\fontfamily{ppl}\selectfont\small\strut
+      \badgeicon{#1}\kern0.35em #2}%
+  };
+}%
+}
+
+\newsavebox{\badgeLB}
+\savebox{\badgeLB}{%
+\buildbadge{\textcolor{black}{\faGlobe}}{Leaderboard}%
+}
+
+\newsavebox{\badgeGH}
+\savebox{\badgeGH}{%
+\buildbadge{\textcolor{black}{\faGithub}}{GitHub}%
+}
+
+\newsavebox{\badgeHF}
+\savebox{\badgeHF}{%
+\buildbadge{%
+  \raisebox{-0.05em}{\includegraphics[height=0.85em]{assets/hf-logo.pdf}}%
+}{HuggingFace}%
+}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black
+}
+
+\newcommand{\benchmark}{{\fontfamily{ppl}\selectfont NatureBench}\xspace}
+
+\definecolor{nb1}{HTML}{EAF1FA}
+\definecolor{nb2}{HTML}{CFE0F3}
+\definecolor{nb3}{HTML}{A8C8E8}
+\definecolor{nb4}{HTML}{7DAAD9}
+\definecolor{nb5}{HTML}{5189C8}
+\newcommand{\heatScolor}[1]{%
+  \ifdim#1pt>0pt%
+    \ifdim#1pt>27pt\cellcolor{nb5}%
+    \else\ifdim#1pt>20pt\cellcolor{nb4}%
+    \else\ifdim#1pt>12pt\cellcolor{nb3}%
+    \else\ifdim#1pt>5pt\cellcolor{nb2}%
+    \else\cellcolor{nb1}%
+    \fi\fi\fi\fi%
+  \fi}
+\newcommand{\heatMcolor}[1]{%
+  \ifdim#1pt>0pt%
+    \ifdim#1pt>50pt\cellcolor{nb5}%
+    \else\ifdim#1pt>38pt\cellcolor{nb4}%
+    \else\ifdim#1pt>25pt\cellcolor{nb3}%
+    \else\ifdim#1pt>12pt\cellcolor{nb2}%
+    \else\cellcolor{nb1}%
+    \fi\fi\fi\fi%
+  \fi}
+\newcommand{\hs}[1]{\heatScolor{#1}#1}
+\newcommand{\hsb}[1]{\heatScolor{#1}\textbf{#1}}
+\newcommand{\hsu}[1]{\heatScolor{#1}\underline{#1}}
+\newcommand{\hm}[1]{\heatMcolor{#1}#1}
+\newcommand{\hmb}[1]{\heatMcolor{#1}\textbf{#1}}
+\newcommand{\hmu}[1]{\heatMcolor{#1}\underline{#1}}
+\definecolor{ob1}{HTML}{FDF1E0}
+\definecolor{ob2}{HTML}{FBDDB8}
+\definecolor{ob3}{HTML}{F6C283}
+\definecolor{ob4}{HTML}{EFA24E}
+\definecolor{ob5}{HTML}{E07B2A}
+\newcommand{\heatScolorD}[1]{%
+  \ifdim#1pt>0pt%
+    \ifdim#1pt>27pt\cellcolor{ob5}%
+    \else\ifdim#1pt>20pt\cellcolor{ob4}%
+    \else\ifdim#1pt>12pt\cellcolor{ob3}%
+    \else\ifdim#1pt>5pt\cellcolor{ob2}%
+    \else\cellcolor{ob1}%
+    \fi\fi\fi\fi%
+  \fi}
+\newcommand{\heatMcolorD}[1]{%
+  \ifdim#1pt>0pt%
+    \ifdim#1pt>50pt\cellcolor{ob5}%
+    \else\ifdim#1pt>38pt\cellcolor{ob4}%
+    \else\ifdim#1pt>25pt\cellcolor{ob3}%
+    \else\ifdim#1pt>12pt\cellcolor{ob2}%
+    \else\cellcolor{ob1}%
+    \fi\fi\fi\fi%
+  \fi}
+\newcommand{\ds}[1]{\heatScolorD{#1}#1}
+\newcommand{\dm}[1]{\heatMcolorD{#1}#1}
+
+\definecolor{gapneg}{HTML}{C8553D} %
+\definecolor{gappos}{HTML}{2E7D5B} %
+\definecolor{relfill}{HTML}{4C78A8} %
+\newlength{\barlen}
+\newcommand{\divbar}[1]{%
+  \begin{tikzpicture}[baseline=-0.6ex]
+    \draw[black!12,line width=0.2pt] (-5mm,-0.85mm) rectangle (5mm,0.85mm);%
+    \draw[black!30,line width=0.3pt] (0,-1.1mm) -- (0,1.1mm);%
+    \pgfmathsetlength{\barlen}{min(abs(#1)/0.42,1)*5mm}%
+    \ifdim#1pt<0pt%
+      \fill[gapneg] (0,-0.85mm) rectangle (-\barlen,0.85mm);%
+    \else%
+      \fill[gappos] (0,-0.85mm) rectangle (\barlen,0.85mm);%
+    \fi%
+  \end{tikzpicture}}
+\newcommand{\fillbar}[1]{%
+  \begin{tikzpicture}[baseline=-0.6ex]
+    \draw[black!18,line width=0.2pt] (0,-0.85mm) rectangle (8mm,0.85mm);%
+    \pgfmathsetlength{\barlen}{#1/100*8mm}%
+    \fill[relfill] (0,-0.85mm) rectangle (\barlen,0.85mm);%
+  \end{tikzpicture}}
+\newcommand{\mg}[1]{$#1$\,\divbar{#1}}
+\newcommand{\mgb}[1]{$\mathbf{#1}$\,\divbar{#1}}
+\newcommand{\mgu}[1]{$\underline{#1}$\,\divbar{#1}}
+\newcommand{\mn}[1]{{\footnotesize\textcolor{black!55}{$#1$}}}
+\newcommand{\mnb}[1]{{\footnotesize\textcolor{black!55}{$\mathbf{#1}$}}}
+\newcommand{\mnu}[1]{{\footnotesize\textcolor{black!55}{$\underline{#1}$}}}
+\newcommand{\rel}[1]{#1\,\fillbar{#1}}
+\newcommand{\relb}[1]{\textbf{#1}\,\fillbar{#1}}
+\newcommand{\relu}[1]{\underline{#1}\,\fillbar{#1}}
+
+\newcommand{\owner}[1]{\textcolor{red}{\textbf{[#1]}}}
+ 
+\newcommand{\statusdone}[1]{\textcolor{gray}{\small [Status: #1]}}
+\newcommand{\statustodo}[1]{\textcolor{red!70!black}{\small [Status: #1]}}
+ 
+\newcommand{\tbd}{\textcolor{gray}{\textit{TBD}}}
+ 
+\newcommand{\gimp}{g}                    %
+\newcommand{\gmean}{\bar{g}}             %
+\newcommand{\gmedian}{\tilde{g}}         %
+ 
+\usepackage[sort&compress]{natbib}
+\bibliographystyle{plainnat}
+
+\setheadertext{\benchmark}
+\hypersetup{colorlinks=true, citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
+
+\title{\benchmark: Can Coding Agents Match the Published SOTA of Nature-Family Papers?}
+
+\author{%
+  Horizon Research, Frontis.AI \quad Tsinghua University \\
+  Correspondence: \texttt{zhangkaiyan@frontis.cn} \\\vspace{4pt}
+  \rule{0pt}{1.5em}%
+  \makebox[\linewidth][c]{%
+    \href{https://frontisai.github.io/NatureBench/}{\usebox{\badgeLB}}\hspace{0.65em}%
+    \href{https://github.com/FrontisAI/NatureBench}{\usebox{\badgeGH}}\hspace{0.65em}%
+    \href{https://huggingface.co/datasets/FrontisAI/NatureBench}{\usebox{\badgeHF}}%
+  }%
+  \vspace{-6pt}%
+}
+
+\date{\today}
+\makeatletter
+\gdef\theabstract{
+We introduce \textbf{NatureBench}, a cross-discipline benchmark of 90 tasks distilled from peer-reviewed Nature-family publications, designed to evaluate whether AI coding agents can move beyond \emph{reproduction} toward \emph{discovery} on real scientific problems.
+NatureBench is built on \textbf{NatureGym}, an automated pipeline that constructs a standardized, per-task containerized environment from a source paper, addressing the environment-fragmentation problem that has limited the credibility of prior agent-on-research benchmarks.
+Evaluating ten frontier agent configurations under a strict web-search-disabled protocol, we find that the strongest model surpasses SOTA on only $17.8\%$ of tasks under the $g>0.1$ criterion.
+Analysis of method pathways reveals that agents succeed primarily through methodological translation, converting scientific tasks into familiar supervised prediction problems, rather than through genuine scientific invention.
+Failures are dominated by wrong method choice and insufficient compute budget, not by task misunderstanding.
+We release the benchmark, the NatureGym pipeline, and a public leaderboard with maintainer-side reproduction.
+}
+\makeatother
+
+\newcommand{\surveyparthdr}[1]{%
+  \clearpage
+  \section*{#1}%
+  \addcontentsline{toc}{section}{#1}%
+}
+
+\begin{document}
+
+\maketitle
+\vspace{-0.9em}
+\begin{figure}[!ht]
+\centering
+\makebox[\linewidth][l]{%
+  \includegraphics[width=\linewidth]{figures/main_results/intro_main_results.pdf}%
+}
+\captionsetup{font=small,skip=2pt}
+\caption{\textbf{\benchmark overview.} (a) Six task domains with representative source figures \citep{miao2025multigate,bai2025mask,pineda2025enhanced,oppliger2024weak,igashov2024equivariant,hasani2022closed}. (b) NatureBench leaderboard by Surpass-SOTA ($g>0.1$) across ten models.}
+\label{fig:intro-main-results}
+\end{figure}
+
+\newpage
+\begingroup
+\setlength{\baselineskip}{0.9\baselineskip}   %
+\tableofcontents
+\endgroup
+\newpage
+
+\input{sections/1_intro}
+\input{sections/2_naturegym}
+\input{sections/3_naturebench}
+\input{sections/4_experiments}
+\input{sections/5_analysis}
+\input{sections/6_related}
+\input{sections/7_conclusion}
+
+\clearpage
+\bibliography{references}
+
+\input{sections/appendix}
+
+\end{document}

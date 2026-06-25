@@ -1,0 +1,53 @@
+\begin{table}[t!]
+\centering
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{p{0.15cm} l | C{1.4cm}C{1.4cm}C{1.4cm}C{1.4cm}C{1.4cm}C{1.4cm}
+@{\hspace{0.3cm}}p{0.1cm}@{\hspace{0cm}} C{1.4cm}}
+\toprule  
+& Benchmark & \rotatebox{45}{\textbf{OT-Agent-ColdSFT+RL-8B}} &
+\rotatebox{45}{\textbf{OT-Agent-SFT-8B (100K)}} & \rotatebox{45}{\textbf{Nemotron-Terminal-8B}} &
+\rotatebox{45}{\textbf{OT-Agent-SFT-8B (10K)}} & \rotatebox{45}{\textbf{SWE-Lego-Qwen3-8B}} &
+\rotatebox{45}{\textbf{Endless Terminals}} & \rotatebox{45}{\scriptsize{------ Base Model ------}} &
+\rotatebox{45}{\textbf{Qwen3-8B}} \\
+\midrule
+& Base Model & {\raisebox{-.5\height}{\includegraphics[scale=.1]{qwen_logo.jpeg}}} &
+{\raisebox{-.5\height}{\includegraphics[scale=.1]{qwen_logo.jpeg}}} &
+{\raisebox{-.5\height}{\includegraphics[scale=.1]{qwen_logo.jpeg}}} &
+{\raisebox{-.5\height}{\includegraphics[scale=.1]{qwen_logo.jpeg}}} &
+{\raisebox{-.5\height}{\includegraphics[scale=.1]{qwen_logo.jpeg}}} &
+{\raisebox{-.5\height}{\includegraphics[scale=.1]{ot_logo.png}}} & \multicolumn{1}{!{\vrule width 0.5pt}c}{} &
+{N/A} \\
+& Train Size & {10K+5K} & {100K} & {264K} & {10K} & {18K} & {15K+3K} & \multicolumn{1}{!{\vrule width 0.5pt}c}{} &
+{N/A} \\
+& Method & {SFT+RL} & {SFT} & {SFT} & {SFT} & {SFT} & {SFT+RL} & \multicolumn{1}{!{\vrule width 0.5pt}c}{} &
+{N/A} \\
+\midrule  
+\multirow{1}{*}{} & Average & \textbf{27.9} & 27.4 & 26.0 & 24.3 & 18.5 & 17.4 &
+\multicolumn{1}{!{\vrule width 0.5pt}c}{} & 10.2 \\
+\midrule
+\multirow{2}{*}{\rotatebox{90}{\textit{Core}}} & SWE-bench Verified & 31.9 & \textbf{38.9} & 22.1 & 22.7 & 37.6
+& 12.5 & \multicolumn{1}{!{\vrule width 0.5pt}c}{} & 13.2 \\
+& Terminal-Bench 2.0 & \textbf{13.5} & 10.9 & 13.1 & 7.9 & 0.7 & 8.2 & \multicolumn{1}{!{\vrule width
+0.5pt}c}{} & 2.2 \\
+\midrule
+\multirow{5}{*}{\rotatebox{90}{\textit{OOD}}} & Aider Polyglot & 18.1 & 15.9 & 12.6 & 14.2 & 3.7 &
+\textbf{18.8} & \multicolumn{1}{!{\vrule width 0.5pt}c}{} & 11.7 \\
+& BFCL-Parity & 71.5 & 65.9 & 59.9 & \textbf{79.4} & 75.3 & 48.8 & \multicolumn{1}{!{\vrule width 0.5pt}c}{} &
+34.4 \\
+& MedAgentBench & 31.1 & 36.2 & \textbf{48.6} & 25.8 & 5.0 & 18.4 & \multicolumn{1}{!{\vrule width 0.5pt}c}{}
+& 3.8 \\
+& GAIA-127 & 6.8 & 6.6 & \textbf{14.4} & 5.5 & 6.0 & 5.2 & \multicolumn{1}{!{\vrule width 0.5pt}c}{} &
+5.0 \\
+& FinanceAgent-Terminal & \textbf{22.7} & 17.3 & 11.3 & 14.7 & 1.3 & 10.0 & \multicolumn{1}{!{\vrule width
+0.5pt}c}{} & 1.3 \\
+\bottomrule
+\end{tabular}}
+\vspace{6pt}
+\caption{\textbf{RL main results (8B scale).} Each cell reports the highest accuracy (\%) attained by the model across
+all evaluated agent harnesses for that benchmark. \textbf{Average} is the mean of evaluated cells per column over the
+seven benchmarks reported here. \raisebox{-.03cm}{\includegraphics[scale=.055]{qwen_logo.jpeg}} denotes a model
+trained from Qwen3-8B. \raisebox{-.03cm}{\includegraphics[scale=.055]{ot_logo.png}} denotes a model trained
+from OpenThinker-Agent-v1-SFT. }
+\label{tab:ot_agent_8B_table3}
+\end{table}

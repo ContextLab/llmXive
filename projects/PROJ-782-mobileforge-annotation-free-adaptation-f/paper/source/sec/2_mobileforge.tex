@@ -1,0 +1,244 @@
+\section{\ourmethod}
+\label{sec:method}
+
+\ourmethod is an annotation-free adaptation system for mobile GUI agents. We consider a setting where target mobile apps and an initial GUI policy are available, but no human-written tasks, expert demonstrations, or reward labels are provided for those apps. The system therefore needs to ground task generation in real target-app interaction, collect rollout experience, evaluate its own behavior, and update the policy from the resulting feedback. Figure~\ref{fig:mobileforge-overview} illustrates the overall loop.
+
+\input{figures/fig-mobileforge-overview}
+
+\subsection{Problem Setup}
+
+We model mobile GUI control as sequential decision making over observed GUI states. Let $x\in\mathcal{T}$ denote a generated task. For attempt $k$ on task $x$ and step $t$, the policy receives a \emph{decision state}
+\begin{equation}
+\label{eq:decision-state}
+    s_k^{(t)}=(x,I_k^{(t)},\mathcal{H}_k^{(t)},\eta_{<k}),
+\end{equation}
+where $I_k^{(t)}$ is the screenshot observation, $\mathcal{H}_k^{(t)}$ is the interaction history, and $\eta_{<k}$ is the corrective hint context accumulated from earlier attempts of the same task. The policy emits a structured GUI action
+\begin{equation}
+\label{eq:gui-action}
+    a_k^{(t)}=(\alpha_k^{(t)},\psi_k^{(t)})
+    \sim \pi_\theta(\cdot\mid s_k^{(t)}),
+\end{equation}
+where $\alpha$ is the action type, such as tap, swipe, type, wait, terminate, answer, or system navigation, and $\psi$ contains the corresponding arguments, such as coordinates, direction, text, or termination status. A rollout attempt is the sequence
+\begin{equation}
+\label{eq:trajectory}
+    \tau_k=(s_k^{(1)},a_k^{(1)},\ldots,s_k^{(T_k)},a_k^{(T_k)}).
+\end{equation}
+
+The environment does not provide a dense scalar reward during rollout. Instead, \critic evaluates a completed attempt and returns labels and hints. We reserve $R$ for the numeric action reward used later by GRPO, and use $z$ and $\ell$ for evaluator feedback labels. This distinction is important: \ourmethod first converts attempts into structured feedback, then converts selected steps into policy-optimization rewards.
+
+\ourmethod contains the two coupled components introduced in Section~\ref{sec:introduction}. \mobilegym is the interaction and evaluation substrate: it explores target apps, mines executable tasks, executes rollouts, and evaluates completed rollouts through a hierarchical critic. \hifpo is the adaptation algorithm: it schedules hint-guided attempts over the MobileGym curriculum, filters tasks and steps with hierarchical feedback, and updates the policy with hint-contextualized step-level GRPO. The loop can be summarized as:
+\begin{equation}
+\label{eq:mobileforge-loop}
+\begin{aligned}
+\mathcal{Z} &\leftarrow \operatorname{Explore}(\mathcal{E}),\\
+\mathcal{T} &\leftarrow \operatorname{Curriculum}(\mathcal{Z}),\\
+\{\tau_k\}_{k=1}^{K} &\leftarrow
+\operatorname{Rollout}(\pi_\theta,x,\eta_{<k}),\quad \forall x\in\mathcal{T},\\
+\mathcal{F}_{k} &\leftarrow \operatorname{Critic}(x,\tau_k),\\
+\mathcal{D} &\leftarrow \operatorname{HiFPO}(\mathcal{T},\tau,\mathcal{F}),\\
+\theta' &\leftarrow \operatorname{GRPO}(\theta,\mathcal{D}).
+\end{aligned}
+\end{equation}
+Here $\mathcal{Z}$ is exploration evidence, $\mathcal{T}$ is the generated curriculum, $\mathcal{F}_{k}$ is hierarchical feedback for attempt $\tau_k$ on task $x$, and $\mathcal{D}$ is the filtered step-level training set. Appendix~\ref{sec:appendix_method_details} provides the full notation table (Table~\ref{tab:method_notation}) and a compact pseudocode summary of the adaptation loop (Algorithm~\ref{alg:mobileforge}).
+
+\subsection{\mobilegym: Building an Adaptation Substrate}
+\label{sec:mobilegym}
+
+\mobilegym answers the question: \emph{where do executable tasks and rollout feedback come from without human-written tasks, demonstrations, or reward labels?} It turns target-app interaction into three artifacts needed by policy learning: exploration evidence, executable tasks, and hierarchical evaluation of completed rollouts. Figure~\ref{fig:mobilegym} summarizes this substrate. Importantly, \mobilegym is the substrate and evaluator; the strategy for running multiple attempts and reusing hints belongs to \hifpo.
+
+\input{figures/fig-mobilegym}
+
+\subsubsection{Target-App Exploration}
+
+\ourmethod first explores each target app directly. We use a function-aware exploration strategy inspired by GUI-explorer \citep{xie2025gui}: app-level structural anchors, such as activities declared in the APK, are combined with the current screenshot to generate goal-oriented exploration tasks. The explorer then pursues these goals with depth-first traversal, restoring parent states when branching and recording the resulting interactions. Exploration is not treated as expert demonstration. Its role is to discover reachable screens, UI affordances, and app functions, giving the system an app-grounded basis for task generation instead of relying on generic assumptions about what an app might support. Appendix~\ref{sec:exploration_details} provides more details.
+
+Each explored transition records the before/after screens, executed action, target element, and a short natural-language summary. These transition records form $\mathcal{Z}$, the evidence pool used by the curriculum stage.
+
+\subsubsection{\curriculum}
+\label{sec:curriculum}
+
+\curriculum converts exploration evidence into executable tasks. For each explored trajectory, it checks whether the observed behavior is coherent and whether the intended function appears completed. It then generates task variants grounded in the same reachable app states and functions.
+
+We write a generated task as
+\begin{equation}
+    x=(\iota,B,c,v,p),
+\end{equation}
+where $\iota$ is the instruction, $B$ is an estimated step budget, $c$ is the core functionality, $v$ is the variation type, and $p$ describes prerequisites. The schema is lightweight by design; the key property is that each task is grounded in observed app behavior.
+The curriculum prompt jointly evaluates the explored trajectory and asks for self-contained task variants; Appendix~\ref{sec:curriculum_prompt} shows the core template.
+
+\subsubsection{Hierarchical Rollout Evaluation}
+\label{sec:evaluation}
+
+Given a completed rollout attempt $\tau_k$ for task $x$, \critic produces hierarchical feedback:
+\begin{equation}
+\label{eq:feedback-object}
+    \mathcal{F}_{k}
+    =\left(z_{k},\{\ell_k^{(t)}\}_{t=1}^{T_k},h_k\right).
+\end{equation}
+\critic is implemented as an agentic hierarchical evaluator rather than a learned reward model. It first converts the raw execution log into visual action traces: each step is rendered as an action-centered screenshot, and a VLM describes the performed action and task-relevant screen evidence. A final decision model then receives the task, raw action logs, step descriptions, and a stitched view of the last screenshots, and returns a structured JSON verdict. Appendix~\ref{sec:critic_prompts} shows the core prompts.
+
+The trajectory outcome label $z_k\in\{0,1\}$ is the final decision field: $z_k=1$ means that the attempt completed the task, while $z_k=0$ means failure. The evaluator also reports task feasibility, a failure step when applicable, and a natural-language reason. The step-level process label $\ell_k^{(t)}$ summarizes the local quality of step $t$. We represent it as
+\begin{equation}
+\label{eq:process-label}
+    \ell_k^{(t)}=(v_k^{(t)},e_k^{(t)}),
+\end{equation}
+where $v_k^{(t)}\in\{0,1\}$ is derived from the evaluator's reasonable/unreasonable step tag, and $e_k^{(t)}$ is the step-level rationale. The corrective hint $h_k$ is generated when an attempt fails or contains unreasonable steps; it summarizes key mistakes, what to avoid, suggested alternatives, and important task insights. \hifpo decides how to reuse this hint in later rollouts and training prompts.
+
+This hierarchy separates three roles that are often collapsed into one signal. Outcome labels decide whether a task is solved. Process labels identify useful local decisions inside both successful and failed attempts. Hints carry reusable failure information across attempts and into training prompts.
+
+\input{figures/fig-hifpo}
+
+\subsection{\hifpo: Feedback-Guided Policy Optimization}
+\label{sec:optimization}
+
+\hifpo answers the question: \emph{how can self-collected rollout experience become effective policy-improvement signals instead of isolated attempts with sparse feedback?} Figure~\ref{fig:hifpo} shows the pipeline. \hifpo first runs hint-guided multi-attempt rollouts over the \mobilegym curriculum, calls \critic to evaluate completed attempts, removes tasks already mastered by the current policy, selects informative attempts and reasonable local steps, and finally trains with hint-contextualized step-level GRPO.
+
+\subsubsection{Hint-Guided Multi-Attempt Rollout}
+
+For each generated task, \hifpo runs $K$ attempts. Attempts of the same task are serialized so that feedback from earlier attempts can condition later attempts, while different tasks can be collected in parallel. Before attempt $k$, \hifpo builds a hint context $\eta_{<k}$ from corrective hints produced by \critic on attempts $1,\ldots,k-1$:
+\begin{equation}
+\label{eq:hint-context}
+    \eta_{<k}=\operatorname{Aggregate}(h_1,\ldots,h_{k-1}).
+\end{equation}
+The next attempt is sampled as
+\begin{equation}
+\label{eq:hifpo-rollout}
+    \tau_k\sim \operatorname{Rollout}(\pi_\theta,x,\eta_{<k}).
+\end{equation}
+\mobilegym provides the interaction substrate and \critic evaluation for each completed attempt; \hifpo controls the repeated-attempt protocol and decides how hints are accumulated and reused. This separation keeps \mobilegym focused on target-app interaction and hierarchical evaluation, while \hifpo defines the feedback-guided optimization behavior.
+Figure~\ref{fig:case-add-hint} illustrates how corrective hints from earlier attempts are reused to guide later attempts.
+\input{figures/fig-case-add-hint}
+
+In implementation, the hint context is appended to the task instruction before the next attempt, while the agent's ordinary screenshot and history fields remain unchanged. For Qwen3-VL, the step prompt follows this protocol:
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible]
+The user query: {task instruction}
+{evaluation hints from previous attempts}
+Task progress: {previous step conclusions}
+<image>
+\end{lstlisting}
+Appendix~\ref{sec:rollout_prompts} gives the core rollout prompt templates for Qwen3-VL and GUI-Owl.
+
+\subsubsection{Task Filtering by Multi-Attempt Success}
+
+For each task, \hifpo computes the empirical success rate across attempts:
+\begin{equation}
+\label{eq:success-rate}
+    \operatorname{SR}(x)=\frac{1}{K}\sum_{k=1}^{K} z_k.
+\end{equation}
+Tasks with $\operatorname{SR}(x)=1$ are removed because the current policy already solves them consistently. Tasks with $\operatorname{SR}(x)=0$ or $0<\operatorname{SR}(x)<1$ are retained. This choice is deliberate: all-fail tasks can still contain correct local navigation or UI-recognition steps, while partially solved tasks expose unstable decisions that are valuable for adaptation.
+
+\subsubsection{Trajectory and Step Selection}
+
+For every step, we define a reasonable-step indicator from the process label:
+\begin{equation}
+\label{eq:reasonable-step}
+    \chi_k^{(t)}=\mathbb{I}[v_k^{(t)}=1].
+\end{equation}
+The local quality score of an attempt is the fraction of reasonable steps:
+\begin{equation}
+\label{eq:quality-score}
+    Q_k=\frac{1}{T_k}\sum_{t=1}^{T_k}\chi_k^{(t)}.
+\end{equation}
+For a retained task, \hifpo selects one informative attempt:
+\begin{equation}
+\label{eq:attempt-selection}
+k^\star(x) =
+\begin{cases}
+\arg\max_{k:z_k=1} Q_k, & \exists k,\ z_k=1,\\
+\arg\max_k Q_k, & \text{otherwise}.
+\end{cases}
+\end{equation}
+Thus, if any attempt succeeds, training uses the successful attempt with the cleanest local process feedback; if all attempts fail, training still uses the failure with the highest fraction of locally reasonable steps.
+
+The step-level training set keeps only reasonable local decisions from the selected attempt:
+\begin{equation}
+\label{eq:training-set}
+    \mathcal{D}=
+    \bigcup_{\substack{x\in\mathcal{T}\\ \operatorname{SR}(x)<1}}
+    \{(s_{k^\star(x)}^{(t)},a_{k^\star(x)}^{(t)})\mid
+    \chi_{k^\star(x)}^{(t)}=1\}.
+\end{equation}
+Within each set in the union, $s_k^{(t)}$, $a_k^{(t)}$, and $\chi_k^{(t)}$ refer to the rollouts of the current task $x$.
+This converts long-horizon mobile trajectories into dense step-level supervision while avoiding the mistake of reinforcing every action in a failed rollout.
+
+\subsubsection{Hint-Contextualized Step-Level GRPO}
+
+After task and step filtering, each training example is a selected local decision rather than a full trajectory. We write it as $d_j=(s_j,a_j^\star)\in\mathcal{D}$, where $a_j^\star=(\alpha_j^\star,\psi_j^\star)$ is the target GUI action selected from a rollout by hierarchical feedback. GRPO was originally introduced as a critic-free policy optimization method that normalizes rewards within a group of responses to the same prompt \citep{shao2024deepseekmath}. Several recent GUI-agent studies adapt this recipe to GUI action prediction by sampling multiple action responses and scoring them with rule-based GUI rewards \citep{lu2025ui,shi2025mobilegui}. \hifpo keeps this group-relative optimization principle, but changes the state on which GRPO operates: the policy is trained on a GUI step augmented with the corrective hint context that was available to the corresponding attempt.
+
+For each sample, the decision state $s_j$ contains the generated task, screenshot observation, interaction history, and corrective hint context $\eta_j$. We render it into a hint-contextualized prompt
+\begin{equation}
+\label{eq:hint-prompt}
+    \tilde{s}_j
+    =\operatorname{Prompt}(s_j).
+\end{equation}
+If no earlier hint exists, $\eta_j=\emptyset$ and $\tilde{s}_j$ reduces to the ordinary step prompt. Otherwise, the prompt exposes compact feedback about what was missed, what should be avoided, or what should be tried next.
+
+The hint is an input condition, not an additional reward term. Thus all responses in the same GRPO group are compared under the same feedback-aware state $\tilde{s}_j$, and the group comparison asks which action is best \emph{given the available correction}. In contrast, a standard step-level GRPO update for GUI action prediction compares actions only under the current screenshot, task, and history. \hifpo therefore makes the group-relative comparison conditional on reusable feedback accumulated across attempts.
+
+For each hint-contextualized step, the old policy samples a group of $G$ candidate responses:
+\begin{equation}
+\label{eq:hint-grpo-sampling}
+    \hat{o}_{j,g}\sim \pi_{\theta_{\rm old}}(\cdot\mid\tilde{s}_j),
+    \quad g=1,\ldots,G.
+\end{equation}
+Each response is parsed into a structured GUI action
+$\hat a_{j,g}=\operatorname{Parse}(\hat{o}_{j,g})=(\hat{\alpha}_{j,g},\hat{\psi}_{j,g})$.
+Unparseable responses receive zero action reward. For parseable responses, we use an adaptive GUI action reward that separates action type from action arguments:
+\begin{equation}
+\label{eq:gui-reward}
+\begin{aligned}
+    r^{\rm type}_{j,g}
+    &=\mathbb{I}[\hat{\alpha}_{j,g}=\alpha_j^\star],\\
+    r^{\rm arg}_{j,g}
+    &=r^{\rm type}_{j,g}\,
+      S_{\alpha_j^\star}(\hat{\psi}_{j,g},\psi_j^\star),\\
+    R_{j,g}
+    &=\lambda_{\rm type}r^{\rm type}_{j,g}
+      +\lambda_{\rm arg}r^{\rm arg}_{j,g},
+\end{aligned}
+\end{equation}
+where $\lambda_{\rm type},\lambda_{\rm arg}\geq0$ are reward weights. The type score checks whether the predicted action belongs to the same canonical mobile action as the selected step. The argument score $S_{\alpha_j^\star}\in[0,1]$ is evaluated only when the type is correct, which prevents a wrong action type from receiving credit through accidentally similar parameters. We instantiate $S_{\alpha}$ according to the action semantics: point-in-box or distance-based coordinate matching for click and long-press actions, direction matching for swipes, token-level text similarity for typing or answering, button identity for system actions, status matching for termination actions, and name matching for app-opening or key actions. Wait actions receive full parameter credit after the action type is correct because their training targets do not require an additional argument. Appendix~\ref{sec:appendix_reward} provides the concrete rule-based scoring details. The scalar $R_{j,g}$ is the reward optimized by GRPO; it is distinct from the evaluator labels $z,\ell$ and from the hint context $\eta_j$.
+
+Rewards are normalized within the response group of the same hint-contextualized step. Let
+\begin{equation}
+\label{eq:group-stats}
+\begin{aligned}
+    \mu_j&=\frac{1}{G}\sum_{g=1}^{G}R_{j,g},\\
+    \sigma_j&=\sqrt{\frac{1}{G}\sum_{g=1}^{G}(R_{j,g}-\mu_j)^2}.
+\end{aligned}
+\end{equation}
+The group-relative advantage is
+\begin{equation}
+\label{eq:grpo-adv}
+    A_{j,g}=
+    \frac{R_{j,g}-\mu_j}{\sigma_j+\epsilon_{\rm std}}.
+\end{equation}
+\hifpo then applies a clipped GRPO update with KL regularization to a reference policy. The response-level importance ratio is
+\begin{equation}
+\label{eq:grpo-ratio}
+\begin{aligned}
+    \rho_{j,g}(\theta)=
+    \frac{\pi_\theta(\hat{o}_{j,g}\mid\tilde{s}_j)}
+         {\pi_{\theta_{\rm old}}(\hat{o}_{j,g}\mid\tilde{s}_j)},\\
+    \bar{\rho}_{j,g}(\theta)=
+    \operatorname{clip}\!\left(
+    \rho_{j,g}(\theta),
+    1-\epsilon_{\rm clip},
+    1+\epsilon_{\rm clip}
+    \right).
+\end{aligned}
+\end{equation}
+The resulting loss is
+\begin{equation}
+\label{eq:hifpo-objective}
+\begin{aligned}
+\mathcal{L}_{\hifpo}(\theta)
+=&-\mathbb{E}_{j,g}
+\left[\min\left(\rho_{j,g}A_{j,g},
+\bar{\rho}_{j,g}A_{j,g}\right)\right]\\
+&+\beta\,\mathbb{E}_{j}\left[D^{\rm KL}_{j}(\theta)\right].
+\end{aligned}
+\end{equation}
+Here $D^{\rm KL}_{j}(\theta)$ denotes
+$D_{\rm KL}\!\left(\pi_\theta(\cdot\mid\tilde{s}_j)\,\|\,\pi_{\rm ref}(\cdot\mid\tilde{s}_j)\right)$, and $\rho_{j,g},\bar{\rho}_{j,g}$ abbreviate the ratios in Equation~\ref{eq:grpo-ratio}.
+In short, \hifpo does not replace GRPO with a new optimizer. It makes GRPO step-aware and feedback-aware: trajectory and process feedback choose which local actions become training targets, corrective hints define the conditioning context, and the adaptive GUI reward supplies a verifiable group-relative signal for the sampled actions.

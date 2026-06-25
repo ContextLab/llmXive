@@ -1,0 +1,17 @@
+\begin{table}[h]
+\centering
+\paperTable
+\caption{Task-level success-rate filtering ablation. The final \ourmethod design removes mastered all-success tasks and retains all-fail plus mixed tasks. Best values in result columns are bolded and second-best values are underlined.}
+\label{tab:task_filter_ablation_main}
+\begin{tabular}{@{}l c r r r r@{}}
+\toprule
+\textbf{Filter} & \textbf{SR Range} & \textbf{Samples} & \textbf{Tasks} & \textbf{AW} & \textbf{MW-GUI} \\
+\midrule
+Medium only & $[0.1,0.9]$ & 1193 & 105 & \textbf{48.3\%} & \underline{12/117} \\
+Medium + simple & $[0.1,1.0]$ & 1288 & 120 & \underline{46.6\%} & \textbf{15/117} \\
+\rowcolor{oursrowcolor}
+Medium + hard & $[0.0,0.9]$ & 1910 & 167 & \textbf{48.3\%} & \textbf{15/117} \\
+All tasks & $[0.0,1.0]$ & 2137 & 200 & \textbf{48.3\%} & 10/117 \\
+\bottomrule
+\end{tabular}
+\end{table}
