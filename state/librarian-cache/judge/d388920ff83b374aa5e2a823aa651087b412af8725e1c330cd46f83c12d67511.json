@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0307356",
+  "judged_at": "2026-06-25T04:07:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from vibrational spectra with deep learning chemistry",
+  "rationale": "The paper studies Raman (vibrational) spectra and their relationship to structural properties of carbon nanotubes, providing same‑mechanism evidence (a) and measuring an independent variable (Raman spectra) and dependent variable (material structure) in the domain of vibrational‑spectroscopy‑based property inference, which is relevant background for deep‑learning prediction of molecular properties from spectra.",
+  "relevant": true
+}

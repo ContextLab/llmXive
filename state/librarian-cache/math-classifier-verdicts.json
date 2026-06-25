@@ -39,6 +39,10 @@
     "classified_at": "2026-06-24T21:08:19Z",
     "verdict": false
   },
+  "PROJ-176-predicting-molecular-properties-from-vib::1.6.0": {
+    "classified_at": "2026-06-25T04:07:20Z",
+    "verdict": false
+  },
   "PROJ-191-investigating-the-validity-of-the-invers::1.6.0": {
     "classified_at": "2026-06-16T08:26:08Z",
     "verdict": false
@@ -221,6 +225,10 @@
   },
   "PROJ-593-the-binding-problem-in-llms-implementing::1.6.0": {
     "classified_at": "2026-06-02T03:38:22Z",
+    "verdict": false
+  },
+  "PROJ-594-quantum-cognition-in-llms-superposition::1.6.0": {
+    "classified_at": "2026-06-25T04:06:08Z",
     "verdict": false
   },
   "PROJ-595-neural-narrative-networks-brain-inspired::1.6.0": {

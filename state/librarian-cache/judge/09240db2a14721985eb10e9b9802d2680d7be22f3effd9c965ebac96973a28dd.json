@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-25T04:07:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from vibrational spectra with deep learning chemistry",
+  "rationale": "The paper proposes a new deep‑learning architecture based on arbitrary polynomial chaos theory and does not involve vibrational spectra, molecular property prediction, or any chemical application, so it lacks a measurable connection to the user’s mechanism, variables, or domain.",
+  "relevant": false
+}

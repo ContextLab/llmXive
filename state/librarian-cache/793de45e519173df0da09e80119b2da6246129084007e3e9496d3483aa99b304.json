@@ -1,0 +1,554 @@
+{
+  "fetched_at": "2026-06-25T04:06:29Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning",
+      "target_n": 5
+    },
+    "duration_seconds": 63.48,
+    "ended_at": "2026-06-25T04:06:29Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "quantum‑inspired language models for ambiguous reasoning"
+        ],
+        [
+          2,
+          "quantum probability representations in natural language processing"
+        ],
+        [
+          3,
+          "superposition‑based inference mechanisms in transformers"
+        ],
+        [
+          4,
+          "quantum‑like semantics for large language models"
+        ],
+        [
+          5,
+          "Hilbert‑space embeddings for textual ambiguity"
+        ],
+        [
+          6,
+          "quantum contextuality in neural language understanding"
+        ],
+        [
+          7,
+          "quantum cognition theory applied to AI reasoning"
+        ],
+        [
+          8,
+          "quantum interference effects in text generation"
+        ],
+        [
+          9,
+          "complex‑amplitude word embeddings for disambiguation"
+        ],
+        [
+          10,
+          "quantum‑inspired attention and gating mechanisms"
+        ],
+        [
+          11,
+          "probabilistic superposition modeling for language uncertainty"
+        ],
+        [
+          12,
+          "quantum Bayesian networks for NLP tasks"
+        ],
+        [
+          13,
+          "latent quantum states in transformer architectures"
+        ],
+        [
+          14,
+          "quantum‑formal reasoning frameworks for generative models"
+        ],
+        [
+          15,
+          "quantum‑based uncertainty quantification in large language models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer science": 0,
+        "quantum‑inspired language models for ambiguous reasoning": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "quantum probability cognition",
+      "GPT-3 Winograd Schema",
+      "latent space interference",
+      "ambiguity resolution accuracy",
+      "Hilbert space dynamics LLM"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2601.00466"
+      ]
+    },
+    "per_query_hit_count": {
+      "GPT-3 Winograd Schema": 3,
+      "Hilbert space dynamics LLM": 3,
+      "Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer science": 3,
+      "ambiguity resolution accuracy": 3,
+      "latent space interference": 3,
+      "quantum probability cognition": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2207.10592",
+          "rationale": "The paper studies physical quantum superposition of field configurations in quantum field theory and gravity, which is unrelated to the cognitive or computational mechanisms (quantum cognition, ambiguous reasoning in LLMs) the user’s question addresses. It does not measure any relevant variables or provide a methodological foundation for quantum-inspired reasoning in language models.",
+          "title": "Quantum States of Fields for Quantum Split Sources"
+        },
+        {
+          "primary_pointer": "2207.00021",
+          "rationale": "The paper studies quantum conformal symmetries and superpositions of spacetime metrics in quantum field theory, which is unrelated to quantum cognition, ambiguous reasoning, or large language models; it does not address the same mechanism, variables, or domain required for the user's question.",
+          "title": "Quantum conformal symmetries for spacetimes in superposition"
+        },
+        {
+          "primary_pointer": "2510.00071",
+          "rationale": "The paper focuses on efficiency techniques (adaptive reasoning suppression) for large reasoning language models and does not address quantum cognition, superposition states, or ambiguous reasoning mechanisms, which are the core constructs of the user's question. It falls under the off‑domain/relevant‑construct rejection.",
+          "title": "ARS: Adaptive Reasoning Suppression for Efficient Large Reasoning Language Models"
+        },
+        {
+          "primary_pointer": "2309.02144",
+          "rationale": "The paper focuses on alignment fine‑tuning and scoring of chain‑of‑thought reasoning in LLMs, without discussing quantum cognition, superposition states, or ambiguous reasoning in a quantum framework, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Making Large Language Models Better Reasoners with Alignment"
+        },
+        {
+          "primary_pointer": "1905.10415",
+          "rationale": "The paper studies quantum‑inspired classical algorithms for recommendation and linear‑system tasks, without addressing large language models, cognitive superposition, or ambiguous reasoning; it does not share the mechanism, variables, or domain of “quantum cognition in LLMs,” so it fails all inclusion criteria (a‑f).",
+          "title": "Quantum-inspired algorithms in practice"
+        },
+        {
+          "primary_pointer": "2601.01982",
+          "rationale": "The paper focuses on a benchmark for logical and symbolic reasoning over chaotic dynamical systems and does not address quantum cognition, superposition states, or ambiguous reasoning in LLMs, thus it lacks any of the inclusion criteria (a‑f) and is off‑domain.",
+          "title": "ChaosBench-Logic: A Benchmark for Logical and Symbolic Reasoning on Chaotic Dynamical Systems"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T04:05:26Z",
+    "term_input": {
+      "normalized": "quantum cognition in llms: superposition states for ambiguous reasoning computer science",
+      "raw": "Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-06-25T04:06:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "By formulating the axioms of quantum mechanics, von Neumann also laid the foundations of a \"quantum probability theory\". As such, it is regarded a generalization of the \"classical probability theory\" due to Kolmogorov. Outside of quantum physics, however, Kolmogorov's axioms enjoy universal applicability. This raises the question of whether quantum physics indeed requires such a generalization of our conception of probability or if von Neumann's axiomatization of quantum mechanics was contingent on the absence of a general theory of probability in the 1920s.\n  This work argues in favor of the latter position. In particular, it shows how to construct a mathematically rigorous theory for non-relativistic $N$-body quantum systems subject to a time-independent scalar potential, which is based on Kolmogorov's axioms and physically natural random variables. Though this theory is provably distinct from its quantum mechanical analog, it nonetheless reproduces central predictions of the latter. Further work may make an empirical comparison possible. Moreover, the approach can in principle be adapted to other classes of quantum-mechanical models.\n  Part II of this series discusses the empirical violation of Bell inequalities in the context of this approach. Part III addresses the projection postulate and the question of measurement.",
+          "claimed_authors": [
+            "Maik Reddiger"
+          ],
+          "claimed_title": "On the applicability of Kolmogorov's theory of probability to the description of quantum phenomena. Part I: foundations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.05710"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title=\"On the applicability of Kolmogorov's theory of probability to the description of quantum phenomena. Part I: foundations\")",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tianyan Quantum Cloud Platform offers cloud services demonstrating quantum advantage capabilities with a Zuchongzhi 3.0-like superconducting quantum processor. This cloud-accessible superconducting quantum prototype, named Tianyan-287, features 105 qubits and achieves high operational fidelities, with single-qubit gates, two-qubit gates, and readout fidelity at 99.90%, 99.56%, 98.7%, respectively. For a specific benchmark task involving random circuit sampling on a 74-qubit system over 24 cycles, the platform completes one million samples in just 18.4 minutes. In contrast, state-of-the-art classical supercomputers would require approximately 16,000 years to complete the equivalent calculation. To facilitate this, the platform provides access via Cqlib, an open-source SDK designed for working with quantum systems at the level of extended quantum circuits, operators, and primitives. The cloud service aims to democratize access to high-performance quantum hardware, enabling the community to validate and explore practical quantum advantages.",
+          "claimed_authors": [
+            " Tianyan Quantum Group"
+          ],
+          "claimed_title": "Tianyan: Cloud services with quantum advantage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.10504"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Tianyan: Cloud services with quantum advantage')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose commonsense knowledge enhanced embeddings (KEE) for solving the Pronoun Disambiguation Problems (PDP). The PDP task we investigate in this paper is a complex coreference resolution task which requires the utilization of commonsense knowledge. This task is a standard first round test set in the 2016 Winograd Schema Challenge. In this task, traditional linguistic features that are useful for coreference resolution, e.g. context and gender information, are no longer effective anymore. Therefore, the KEE models are proposed to provide a general framework to make use of commonsense knowledge for solving the PDP problems. Since the PDP task doesn't have training data, the KEE models would be used during the unsupervised feature extraction process. To evaluate the effectiveness of the KEE models, we propose to incorporate various commonsense knowledge bases, including ConceptNet, WordNet, and CauseCom, into the KEE training process. We achieved the best performance by applying the proposed methods to the 2016 Winograd Schema Challenge. In addition, experiments conducted on the standard PDP task indicate that, the proposed KEE models could solve the PDP problems by achieving 66.7% accuracy, which is a new state-of-the-art performance.",
+          "claimed_authors": [
+            "Quan Liu",
+            "Hui Jiang",
+            "Zhen-Hua Ling",
+            "Xiaodan Zhu",
+            "Si Wei",
+            "Yu Hu"
+          ],
+          "claimed_title": "Commonsense Knowledge Enhanced Embeddings for Solving Pronoun Disambiguation Problems in Winograd Schema Challenge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.04146"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Commonsense Knowledge Enhanced Embeddings for Solving Pronoun Disambiguation Problems in Winograd Schema Challenge')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Ambiguities in natural language give rise to probability distributions over interpretations. The distributions are often over multiple ambiguous words at a time; a multiplicity which makes them a suitable topic for sheaf-theoretic models of quantum contextuality.  Previous research showed that different quantitative measures of contextuality correlate well with Psycholinguistic research on lexical ambiguities. In this work, we focus on coreference ambiguities and investigate the Winograd Schema Challenge (WSC), a test proposed by Levesque in 2011 to evaluate the intelligence of machines. The WSC consists of a collection of multiple-choice questions that require disambiguating pronouns in sentences structured according to the Winograd schema, in a way that makes it difficult for machines to determine the correct referents but remains intuitive for human comprehension. In this study, we propose an approach that analogously models the Winograd schema as an experiment in quantum physics. However, we argue that the original Winograd Schema is inherently too simplistic to facilitate contextuality.  We introduce a novel mechanism for generalising the schema, rendering it analogous to a Bell-CHSH measurement scenario. We report an instance of this generalised schema, complemented by the human judgements we gathered via a crowdsourcing platform. The resulting model violates the Bell-CHSH inequality by 0.192, thus exhibiting contextuality in a coreference resolution setting.",
+          "claimed_authors": [
+            "Kin Ian Lo",
+            "Mehrnoosh Sadrzadeh",
+            "Shane Mansfield"
+          ],
+          "claimed_title": "Generalised Winograd Schema and its Contextuality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.16498"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Generalised Winograd Schema and its Contextuality')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Winograd schema is a pair of sentences that differ in a single word and that contain an ambiguous pronoun whose referent is different in the two sentences and requires the use of commonsense knowledge or world knowledge to disambiguate. This paper discusses how Winograd schemas and other sentence pairs could be used as challenges for machine translation using distinctions between pronouns, such as gender, that appear in the target language but not in the source.",
+          "claimed_authors": [
+            "Ernest Davis"
+          ],
+          "claimed_title": "Winograd Schemas and Machine Translation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1608.01884"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Winograd Schemas and Machine Translation')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20263"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have measured the cosmic ray spectrum above 10^17.2 eV using the two air fluorescence detectors of the High Resolution Fly's Eye observatory operating in monocular mode. We describe the detector, photo-tube and atmospheric calibrations, as well as the analysis techniques for the two detectors. We fit the spectrum to a model consisting of galactic and extra-galactic sources.",
+          "claimed_authors": [
+            "The High Resolution Fly's Eye Collaboration"
+          ],
+          "claimed_title": "Measurement of the Flux of Ultrahigh Energy Cosmic Rays from Monocular Observations by the High Resolution Fly's Eye Experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "astro-ph/0208243"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title=\"Measurement of the Flux of Ultrahigh Energy Cosmic Rays from Monocular Observations by the High Resolution Fly's Eye Experiment\")",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The composition of Ultra High Energy Cosmic Rays (UHECR) is measured with the High Resolution Fly's Eye cosmic ray observatory (HiRes) data using the Xmax technique. Data were collected in stereo between 1999 November and 2001 September. The data are reconstructed with well-determined geometry. Measurements of the atmospheric transmission are incorporated in the reconstruction. The detector resolution is found to be 30 g cm^-2 in Xmax and 13% in Energy. The Xmax elongation rate between 10^18.0 eV and 10^19.4 eV is measured to be 54.5 +/- 6.5 (stat) +/- 4.5 (sys) g cm^-2 per decade. This is compared to predictions using the QGSJet01 and SIBYLL 2.1 hadronic interaction models for both protons and iron nuclei. CORSIKA-generated Extensive Air Showers (EAS) are incorporated directly into a detailed detector Monte Carlo program. The elongation rate and the Xmax distribution widths are consistent with a constant or slowly changing and predominantly light composition. A simple model containing only protons and iron nuclei is compared to QGSJet and SIBYLL. The best agreement between the model and the data is at 80% protons for QGSJet and 60% protons for SIBYLL.",
+          "claimed_authors": [
+            "The High Resolution Fly's Eye Collaboration"
+          ],
+          "claimed_title": "A Study of the Composition of Ultra High Energy Cosmic Rays Using the High Resolution Fly's Eye",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0407622"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title=\"A Study of the Composition of Ultra High Energy Cosmic Rays Using the High Resolution Fly's Eye\")",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "I explore some of the issues that arise when trying to establish a connection between the underspecification hypothesis pursued in the NLP literature and work on ambiguity in semantics and in the psychological literature. A theory of underspecification is developed `from the first principles', i.e., starting from a definition of what it means for a sentence to be semantically ambiguous and from what we know about the way humans deal with ambiguity. An underspecified language is specified as the translation language of a grammar covering sentences that display three classes of semantic ambiguity: lexical ambiguity, scopal ambiguity, and referential ambiguity. The expressions of this language denote sets of senses. A formalization of defeasible reasoning with underspecified representations is presented, based on Default Logic. Some issues to be confronted by such a formalization are discussed.",
+          "claimed_authors": [
+            "Massimo Poesio"
+          ],
+          "claimed_title": "Semantic Ambiguity and Perceived Ambiguity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1995,
+          "primary_pointer": "cmp-lg/9505034"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Semantic Ambiguity and Perceived Ambiguity')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There is compelling evidence that, when continuous spectrum is present, the natural mathematical setting for Quantum Mechanics is the rigged Hilbert space rather than just the Hilbert space. In particular, Dirac's bra-ket formalism is fully implemented by the rigged Hilbert space rather than just by the Hilbert space. In this paper, we provide a pedestrian introduction to the role the rigged Hilbert space plays in Quantum Mechanics, by way of a simple, exactly solvable example. The procedure will be constructive and based on a recent publication. We also provide a thorough discussion on the physical significance of the rigged Hilbert space.",
+          "claimed_authors": [
+            "R. de la Madrid"
+          ],
+          "claimed_title": "The role of the rigged Hilbert space in Quantum Mechanics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "quant-ph/0502053"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='The role of the rigged Hilbert space in Quantum Mechanics')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this short work we prove that the Hilbert Grassmannians endowed with the weak topology are models for the classifying spaces of the unitary groups. As application of this result one can use Hilbert Grassmannians for the presentation of the $K$-theory of topological spaces by computing equivalences classes of homotopy equivalent maps.",
+          "claimed_authors": [
+            "Giuseppe De Nittis",
+            "Kiyonori Gomi",
+            "Santiago Rendel"
+          ],
+          "claimed_title": "Hilbert Grassmannians as classifying spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.20051"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer', candidate_title='Hilbert Grassmannians as classifying spaces')",
+        "failed_at": "2026-06-25T04:06:09Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jacek Małecki",
+            "Alexander Mathiesen-Ohman"
+          ],
+          "title": "Rogue Variable Theory: A Quantum-Compatible Cognition Framework with a Rosetta Stone Alignment Algorithm",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.00466",
+        "summary": "Many of the most consequential dynamics in human cognition occur \\emph{before} events become explicit: before decisions are finalized, emotions are labeled, or meanings stabilize into narrative form. These pre-event states are characterized by ambiguity, contextual tension, and competing latent interpretations. Rogue Variable Theory (RVT) formalizes such states as \\emph{Rogue Variables}: structured, pre-event cognitive configurations that influence outcomes while remaining unresolved or incompatible with a system's current representational manifold. We present a quantum-consistent information-theoretic implementation of RVT based on a time-indexed \\emph{Mirrored Personal Graph} (MPG) embedded into a fixed graph Hilbert space, a normalized \\emph{Quantum MPG State} (QMS) constructed from node and edge metrics under context, Hamiltonian dynamics derived from graph couplings, and an error-weighted `rogue operator'' whose principal eigenvectors identify rogue factor directions and candidate Rogue Variable segments. We further introduce a \\emph{Rosetta Stone Layer} (RSL) that maps user-specific latent factor coordinates into a shared reference Hilbert space to enable cross-user comparison and aggregation without explicit node alignment. The framework is fully implementable on classical systems and does not assume physical quantum processes; \\emph{collapse} is interpreted as informational decoherence under interaction, often human clarification.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.00466",
+          "http_status": 200,
+          "pdf_sample_score": 0.262,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T04:06:08Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantum cognition in llms: superposition states for ambiguous reasoning computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

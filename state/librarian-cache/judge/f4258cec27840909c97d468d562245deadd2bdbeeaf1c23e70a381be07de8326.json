@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2207.00021",
+  "judged_at": "2026-06-25T04:06:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantum cognition in llms: superposition states for ambiguous reasoning computer science",
+  "rationale": "The paper studies quantum conformal symmetries and superpositions of spacetime metrics in quantum field theory, which is unrelated to quantum cognition, ambiguous reasoning, or large language models; it does not address the same mechanism, variables, or domain required for the user's question.",
+  "relevant": false
+}

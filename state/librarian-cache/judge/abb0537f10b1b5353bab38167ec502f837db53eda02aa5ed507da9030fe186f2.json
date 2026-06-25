@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.10415",
+  "judged_at": "2026-06-25T04:06:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantum cognition in llms: superposition states for ambiguous reasoning computer science",
+  "rationale": "The paper studies quantum‑inspired classical algorithms for recommendation and linear‑system tasks, without addressing large language models, cognitive superposition, or ambiguous reasoning; it does not share the mechanism, variables, or domain of “quantum cognition in LLMs,” so it fails all inclusion criteria (a‑f).",
+  "relevant": false
+}

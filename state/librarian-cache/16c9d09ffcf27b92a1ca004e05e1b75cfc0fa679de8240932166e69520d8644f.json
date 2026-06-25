@@ -1,0 +1,568 @@
+{
+  "fetched_at": "2026-06-25T04:07:46Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 58.775,
+    "ended_at": "2026-06-25T04:07:46Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "deep neural networks for infrared and Raman spectroscopy"
+        ],
+        [
+          2,
+          "machine‑learning regression of molecular properties from vibrational spectra"
+        ],
+        [
+          3,
+          "convolutional neural networks on vibrational frequency vectors"
+        ],
+        [
+          4,
+          "graph neural networks for vibrational mode analysis"
+        ],
+        [
+          5,
+          "spectral fingerprinting of chemical properties using AI"
+        ],
+        [
+          6,
+          "inverse design of molecules from Raman spectra with deep learning"
+        ],
+        [
+          7,
+          "physics‑informed neural networks for vibrational spectroscopy"
+        ],
+        [
+          8,
+          "transfer learning for IR/Raman spectral interpretation"
+        ],
+        [
+          9,
+          "autoencoder‑based embedding of vibrational spectra for property prediction"
+        ],
+        [
+          10,
+          "multimodal deep learning combining vibrational spectra and molecular structure"
+        ],
+        [
+          11,
+          "supervised learning of thermodynamic properties from vibrational frequencies"
+        ],
+        [
+          12,
+          "spectral intensity mapping to dipole moments via neural networks"
+        ],
+        [
+          13,
+          "deep learning models for anharmonic vibrational frequency prediction"
+        ],
+        [
+          14,
+          "spectral regression using convolutional architectures for property estimation"
+        ],
+        [
+          15,
+          "neural‑network‑driven assignment of vibrational modes for chemical insight"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Molecular Properties from Vibrational Spectra with Deep Learning chemistry": 0,
+        "deep neural networks for infrared and Raman spectroscopy": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Raman spectroscopy property prediction",
+      "QM9 vibrational spectra dataset",
+      "graph neural network vibrational",
+      "RMSE molecular property prediction",
+      "inverse problem spectroscopy deep learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2401.08821"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Molecular Properties from Vibrational Spectra with Deep Learning chemistry": 3,
+      "QM9 vibrational spectra dataset": 3,
+      "RMSE molecular property prediction": 3,
+      "Raman spectroscopy property prediction": 3,
+      "graph neural network vibrational": 3,
+      "inverse problem spectroscopy deep learning": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2510.08900",
+          "rationale": "The paper surveys few‑shot molecular property prediction methods and does not address vibrational spectra as an input modality or deep‑learning models that map spectra to properties, so it lacks the same mechanism or relevant variable focus required for inclusion.",
+          "title": "Few-shot Molecular Property Prediction: A Survey"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper proposes a new deep‑learning architecture based on arbitrary polynomial chaos theory and does not involve vibrational spectra, molecular property prediction, or any chemical application, so it lacks a measurable connection to the user’s mechanism, variables, or domain.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "1912.06732",
+          "rationale": "The paper focuses on theoretical approximation of rough functions with deep ReLU networks and ENO interpolation, without addressing vibrational spectra, molecular property prediction, or any chemistry‑related variables, so it does not meet any inclusion criteria.",
+          "title": "On the approximation of rough functions with deep neural networks"
+        },
+        {
+          "primary_pointer": "cond-mat/0509468",
+          "rationale": "The paper solely reports experimental Raman spectra and phonon assignments for SrMnO₃ and does not involve deep learning, prediction of molecular properties, or any of the mechanisms or variables relevant to the user's question. It falls outside the domain of using vibrational spectra for molecular property prediction.",
+          "title": "Raman spectroscopy on cubic and hexagonal SrMnO$_3$"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "The paper presents a generic Gaussian RBF neural network for feature selection and interpretability on tabular data, without addressing vibrational spectra, molecular property prediction, or any chemistry-specific context, so it does not meet any inclusion criteria for the user's question.",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T04:06:47Z",
+    "term_input": {
+      "normalized": "predicting molecular properties from vibrational spectra with deep learning chemistry",
+      "raw": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For acute ischemic stroke (AIS) patients with large vessel occlusions, clinicians must decide if the benefit of mechanical thrombectomy (MTB) outweighs the risks and potential complications following an invasive procedure. Pre-treatment computed tomography (CT) and angiography (CTA) are widely used to characterize occlusions in the brain vasculature. If a patient is deemed eligible, a modified treatment in cerebral ischemia (mTICI) score will be used to grade how well blood flow is reestablished throughout and following the MTB procedure. An estimation of the likelihood of successful recanalization can support treatment decision-making. In this study, we proposed a fully automated prediction of a patient's recanalization score using pre-treatment CT and CTA imaging. We designed a spatial cross attention network (SCANet) that utilizes vision transformers to localize to pertinent slices and brain regions. Our top model achieved an average cross-validated ROC-AUC of 77.33 $\\pm$ 3.9\\%. This is a promising result that supports future applications of deep learning on CT and CTA for the identification of eligible AIS patients for MTB.",
+          "claimed_authors": [
+            "Haoyue Zhang",
+            "Jennifer S. Polson",
+            "Eric J. Yang",
+            "Kambiz Nael",
+            "William Speier",
+            "Corey W. Arnold"
+          ],
+          "claimed_title": "Predicting Thrombectomy Recanalization from CT Imaging Using Deep Learning Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.04143"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Predicting Thrombectomy Recanalization from CT Imaging Using Deep Learning Models')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Raman spectroscopy has been the most extensively employed method to study carbon nanotubes at high pressures. This review covers reversible pressure-induced changes of the lattice dynamics and structure of single- and multi-wall carbon nanotubes as well as irreversible transformations induced by high pressures. The interplay of covalent and van-der-Waals bonding in single-wall nanotube bundles and a structural distortion near 2 GPa are discussed in detail. Attempts of transforming carbon nanotubes into diamond and other \"superhard\" phases are reviewed critically.",
+          "claimed_authors": [
+            "I. Loa"
+          ],
+          "claimed_title": "Raman spectroscopy on carbon nanotubes at high pressure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "cond-mat/0307356"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Raman spectroscopy on carbon nanotubes at high pressure')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report on the first optical characterization of both cubic and hexagonal SrMnO$_3$. Room-temperature Raman spectra collected by means of a micro-Raman spectrometer are shown. The spectrum of the cubic compound is characterized by weak and broad bands in agreement with group-theory which predicts no Raman-active phonons for this compound. On the other hand, the spectrum of the hexagonal compound shows six narrow peaks ascribed to one-phonon processes. A complete polarization analysis of the spectra collected from a single crystallite allows us to completely assign the symmetries of the six observed peaks. Atomic displacements for each phonon peaks are also proposed.",
+          "claimed_authors": [
+            "A. Sacchetti",
+            "M. Baldini",
+            "P. Postorino",
+            "C. Martin",
+            "A. Maignan"
+          ],
+          "claimed_title": "Raman spectroscopy on cubic and hexagonal SrMnO$_3$",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cond-mat/0509468"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Raman spectroscopy on cubic and hexagonal SrMnO$_3$')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Hyper-Skin, a hyperspectral dataset covering wide range of wavelengths from visible (VIS) spectrum (400nm - 700nm) to near-infrared (NIR) spectrum (700nm - 1000nm), uniquely designed to facilitate research on facial skin-spectra reconstruction. By reconstructing skin spectra from RGB images, our dataset enables the study of hyperspectral skin analysis, such as melanin and hemoglobin concentrations, directly on the consumer device. Overcoming limitations of existing datasets, Hyper-Skin consists of diverse facial skin data collected with a pushbroom hyperspectral camera. With 330 hyperspectral cubes from 51 subjects, the dataset covers the facial skin from different angles and facial poses. Each hyperspectral cube has dimensions of 1024$\\times$1024$\\times$448, resulting in millions of spectra vectors per image. The dataset, carefully curated in adherence to ethical guidelines, includes paired hyperspectral images and synthetic RGB images generated using real camera responses. We demonstrate the efficacy of our dataset by showcasing skin spectra reconstruction using state-of-the-art models on 31 bands of hyperspectral data resampled in the VIS and NIR spectrum. This Hyper-Skin dataset would be a valuable resource to NeurIPS community, encouraging the development of novel algorithms for skin spectral reconstruction while fostering interdisciplinary collaboration in hyperspectral skin analysis related to cosmetology and skin's well-being. Instructions to request the data and the related benchmarking codes are publicly available at: \\url{https://github.com/hyperspectral-skin/Hyper-Skin-2023}.",
+          "claimed_authors": [
+            "Pai Chet Ng",
+            "Zhixiang Chi",
+            "Yannick Verdie",
+            "Juwei Lu",
+            "Konstantinos N. Plataniotis"
+          ],
+          "claimed_title": "Hyper-Skin: A Hyperspectral Dataset for Reconstructing Facial Skin-Spectra from RGB Images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.17911"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Hyper-Skin: A Hyperspectral Dataset for Reconstructing Facial Skin-Spectra from RGB Images')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Molecular systems involve interactions across multiple spatial scales, from local coordination and short-range perturbations to long-range electrostatic and solvent-mediated effects. However, most molecular representation learning methods rely on manually predefined scales, and the task-optimal modeling scale may not coincide with these fixed levels. This study introduces a loss-guided adaptive scale refinement framework for molecular force prediction, treating predefined scales as initial anchors and discovering task-effective resolutions through interpolation, routing, differentiable scale updates, and scale pool refinement.\n  Using a NaCl aqueous ionic system as a minimal testbed, this study constructs short-scale and long-range force prediction branches and analyzes their complementarity. Oracle hard routing reduces the overall force MAE from 399.65 to 382.67, while continuous oracle interpolation further reduces it to 380.96. In close-contact regimes with nearest-ion distance below 0.6 nm, the close-contact MAE decreases from 327.22 to 260.51. A minimal scale pool update experiment shows that starting from endpoint anchors {0,1}, loss-guided updates automatically generate intermediate scales and recover most of the continuous oracle performance. The final updated scale pool {0,0.125,0.25,0.375,0.5,0.75,1} achieves an overall MAE of 381.23.\n  These results support adaptive scale refinement as a promising direction for molecular representation learning, especially when fixed-scale modeling is insufficient.",
+          "claimed_authors": [
+            "Limin Yu"
+          ],
+          "claimed_title": "Loss-Guided Adaptive Scale Refinement for Molecular Force Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.09480"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Loss-Guided Adaptive Scale Refinement for Molecular Force Prediction')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inverse problems are ubiquitous in nature, arising in almost all areas of science and engineering ranging from geophysics and climate science to astrophysics and biomechanics. One of the central challenges in solving inverse problems is tackling their ill-posed nature. Bayesian inference provides a principled approach for overcoming this by formulating the inverse problem into a statistical framework. However, it is challenging to apply when inferring fields that have discrete representations of large dimensions (the so-called \"curse of dimensionality\") and/or when prior information is available only in the form of previously acquired solutions. In this work, we present a novel method for efficient and accurate Bayesian inversion using deep generative models. Specifically, we demonstrate how using the approximate distribution learned by a Generative Adversarial Network (GAN) as a prior in a Bayesian update and reformulating the resulting inference problem in the low-dimensional latent space of the GAN, enables the efficient solution of large-scale Bayesian inverse problems. Our statistical framework preserves the underlying physics and is demonstrated to yield accurate results with reliable uncertainty estimates, even in the absence of information about underlying noise model, which is a significant challenge with many existing methods. We demonstrate the effectiveness of proposed method on a variety of inverse problems which include both synthetic as well as experimentally observed data.",
+          "claimed_authors": [
+            "Dhruv V Patel",
+            "Deep Ray",
+            "Assad A Oberai"
+          ],
+          "claimed_title": "Solution of Physics-based Bayesian Inverse Problems with Deep Generative Priors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.02926"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Solution of Physics-based Bayesian Inverse Problems with Deep Generative Priors')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, there have been significant advances in the use of deep learning methods in inverse problems such as denoising, compressive sensing, inpainting, and super-resolution. While this line of works has predominantly been driven by practical algorithms and experiments, it has also given rise to a variety of intriguing theoretical problems. In this paper, we survey some of the prominent theoretical developments in this line of works, focusing in particular on generative priors, untrained neural network priors, and unfolding algorithms. In addition to summarizing existing results in these topics, we highlight several ongoing challenges and open problems.",
+          "claimed_authors": [
+            "Jonathan Scarlett",
+            "Reinhard Heckel",
+            "Miguel R. D. Rodrigues",
+            "Paul Hand",
+            "Yonina C. Eldar"
+          ],
+          "claimed_title": "Theoretical Perspectives on Deep Learning Methods in Inverse Problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.14373"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Properties from Vibrational Spectra with Deep Learning chem', candidate_title='Theoretical Perspectives on Deep Learning Methods in Inverse Problems')",
+        "failed_at": "2026-06-25T04:07:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ashutosh Raman",
+            "Ren A. Odion",
+            "Kent K. Yamamoto",
+            "Weston Ross",
+            "Tuan Vo-Dinh",
+            "Patrick J. Codd"
+          ],
+          "title": "Surface-Enhanced Raman Spectroscopy and Transfer Learning Toward Accurate Reconstruction of the Surgical Zone",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.08821",
+        "summary": "Raman spectroscopy, a photonic modality based on the inelastic backscattering of coherent light, is a valuable asset to the intraoperative sensing space, offering non-ionizing potential and highly-specific molecular fingerprint-like spectroscopic signatures that can be used for diagnosis of pathological tissue in the dynamic surgical field. Though Raman suffers from weakness in intensity, Surface-Enhanced Raman Spectroscopy (SERS), which uses metal nanostructures to amplify Raman signals, can achieve detection sensitivities that rival traditional photonic modalities. In this study, we outline a robotic Raman system that can reliably pinpoint the location and boundaries of a tumor embedded in healthy tissue, modeled here as a tissue-mimicking phantom with selectively infused Gold Nanostar regions. Further, due to the relative dearth of collected biological SERS or Raman data, we implement transfer learning to achieve 100% validation classification accuracy for Gold Nanostars compared to Control Agarose, thus providing a proof-of-concept for Raman-based deep learning training pipelines. We reconstruct a surgical field of 30x60mm in 10.2 minutes, and achieve 98.2% accuracy, preserving relative measurements between features in the phantom. We also achieve an 84.3% Intersection-over-Union score, which is the extent of overlap between the ground truth and predicted reconstructions. Lastly, we also demonstrate that the Raman system and classification algorithm do not discern based on sample color, but instead on presence of SERS agents. This study provides a crucial step in the translation of intelligent Raman systems in intraoperative oncological spaces.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.08821",
+          "http_status": 200,
+          "pdf_sample_score": 0.1923,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T04:07:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "I. Loa"
+          ],
+          "title": "Raman spectroscopy on carbon nanotubes at high pressure",
+          "venue": "arXiv",
+          "year": 2003
+        },
+        "primary_pointer": "cond-mat/0307356",
+        "summary": "Raman spectroscopy has been the most extensively employed method to study carbon nanotubes at high pressures. This review covers reversible pressure-induced changes of the lattice dynamics and structure of single- and multi-wall carbon nanotubes as well as irreversible transformations induced by high pressures. The interplay of covalent and van-der-Waals bonding in single-wall nanotube bundles and a structural distortion near 2 GPa are discussed in detail. Attempts of transforming carbon nanotubes into diamond and other \"superhard\" phases are reviewed critically.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0307356",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T04:07:24Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular properties from vibrational spectra with deep learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

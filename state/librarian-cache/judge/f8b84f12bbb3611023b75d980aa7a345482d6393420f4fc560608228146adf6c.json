@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2207.10592",
+  "judged_at": "2026-06-25T04:06:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantum cognition in llms: superposition states for ambiguous reasoning computer science",
+  "rationale": "The paper studies physical quantum superposition of field configurations in quantum field theory and gravity, which is unrelated to the cognitive or computational mechanisms (quantum cognition, ambiguous reasoning in LLMs) the user’s question addresses. It does not measure any relevant variables or provide a methodological foundation for quantum-inspired reasoning in language models.",
+  "relevant": false
+}

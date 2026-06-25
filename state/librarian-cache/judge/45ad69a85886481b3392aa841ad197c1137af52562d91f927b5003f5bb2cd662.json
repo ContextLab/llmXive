@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.08900",
+  "judged_at": "2026-06-25T04:07:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from vibrational spectra with deep learning chemistry",
+  "rationale": "The paper surveys few‑shot molecular property prediction methods and does not address vibrational spectra as an input modality or deep‑learning models that map spectra to properties, so it lacks the same mechanism or relevant variable focus required for inclusion.",
+  "relevant": false
+}

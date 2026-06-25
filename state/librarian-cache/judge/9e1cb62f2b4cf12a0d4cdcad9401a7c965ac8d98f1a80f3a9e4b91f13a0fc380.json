@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0509468",
+  "judged_at": "2026-06-25T04:07:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from vibrational spectra with deep learning chemistry",
+  "rationale": "The paper solely reports experimental Raman spectra and phonon assignments for SrMnO₃ and does not involve deep learning, prediction of molecular properties, or any of the mechanisms or variables relevant to the user's question. It falls outside the domain of using vibrational spectra for molecular property prediction.",
+  "relevant": false
+}

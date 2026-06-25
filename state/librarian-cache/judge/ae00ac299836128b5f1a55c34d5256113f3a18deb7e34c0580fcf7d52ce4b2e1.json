@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.00466",
+  "judged_at": "2026-06-25T04:06:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantum cognition in llms: superposition states for ambiguous reasoning computer science",
+  "rationale": "The paper proposes a quantum‑compatible cognitive framework that models ambiguous, pre‑event mental states as superposition‑like “rogue variables,” directly addressing the same mechanism (quantum superposition for ambiguous reasoning) that the user’s question concerns, even though it is applied to human cognition rather than LLMs. It therefore serves as a foundational methodological reference for quantum cognition approaches relevant to LLM research.",
+  "relevant": true
+}

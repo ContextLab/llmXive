@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.08821",
+  "judged_at": "2026-06-25T04:07:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from vibrational spectra with deep learning chemistry",
+  "rationale": "The paper applies deep learning to Raman (vibrational) spectra to predict a target property (tissue classification/reconstruction), matching the same mechanism of using DL on vibrational spectra, which is relevant methodological precedent for predicting molecular properties (acceptance category a).",
+  "relevant": true
+}

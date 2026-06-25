@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.06732",
+  "judged_at": "2026-06-25T04:07:41Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from vibrational spectra with deep learning chemistry",
+  "rationale": "The paper focuses on theoretical approximation of rough functions with deep ReLU networks and ENO interpolation, without addressing vibrational spectra, molecular property prediction, or any chemistry‑related variables, so it does not meet any inclusion criteria.",
+  "relevant": false
+}

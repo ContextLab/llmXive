@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.01982",
+  "judged_at": "2026-06-25T04:06:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantum cognition in llms: superposition states for ambiguous reasoning computer science",
+  "rationale": "The paper focuses on a benchmark for logical and symbolic reasoning over chaotic dynamical systems and does not address quantum cognition, superposition states, or ambiguous reasoning in LLMs, thus it lacks any of the inclusion criteria (a‑f) and is off‑domain.",
+  "relevant": false
+}

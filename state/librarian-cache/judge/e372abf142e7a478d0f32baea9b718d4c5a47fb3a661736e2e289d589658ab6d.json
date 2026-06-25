@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05639",
+  "judged_at": "2026-06-25T04:07:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from vibrational spectra with deep learning chemistry",
+  "rationale": "The paper presents a generic Gaussian RBF neural network for feature selection and interpretability on tabular data, without addressing vibrational spectra, molecular property prediction, or any chemistry-specific context, so it does not meet any inclusion criteria for the user's question.",
+  "relevant": false
+}

@@ -10,74 +10,84 @@ github_issue: https://github.com/ContextLab/llmXive/issues/3
 
 ## Research question
 
-Do quantum-inspired superposition representations improve large language models' ability to resolve semantic ambiguity compared to classical vector embeddings?
+Do interference-based operations on complex-valued token representations capture context‑dependent semantic ambiguity more effectively than fixed classical vector embeddings on standard word‑sense disambiguation benchmarks?
 
 ## Motivation
 
-Human cognition handles ambiguity through context-dependent probability judgments that violate classical probability theory (quantum cognition theory). Current LLMs use fixed vector representations that may be insufficient for modeling this contextuality. If quantum-inspired architectures can better capture these phenomena, it could improve LLMs on tasks requiring nuanced interpretation of paradox, puns, and context-switching.
+Human cognition resolves ambiguity through context‑dependent probability judgments that often violate classical probability theory, a phenomenon captured by quantum cognition models. Contemporary large language models (LLMs) rely on static real‑valued embeddings, which may be ill‑suited to represent such contextual superpositions. Demonstrating that quantum‑inspired interference operations improve ambiguity resolution would provide a principled architectural advance for reasoning‑heavy NLP applications (e.g., legal text analysis, creative writing, cross‑cultural communication).
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-
-Search queries attempted: (1) "quantum cognition language models semantic ambiguity", (2) "quantum-inspired neural networks natural language processing", (3) "superposition states transformer architecture disambiguation". Sources queried include Semantic Scholar, arXiv, and OpenAlex. The search returned limited results directly connecting quantum cognition theory to practical LLM implementations.
-
-### What is known
-
-- No on-topic results from literature block were available to cite — this represents a genuine gap in the published literature connecting quantum cognition theory to transformer architectures.
-
-### What is NOT known
-
-No published work has empirically tested whether quantum-inspired superposition representations outperform classical embeddings on ambiguity resolution tasks in LLMs. Existing quantum NLP work focuses primarily on quantum computing hardware rather than classical neural architectures that simulate quantum phenomena.
-
-### Why this gap matters
-
-Bridging quantum cognition theory with practical LLM architectures could enable more human-aligned reasoning on ambiguous inputs, with applications in legal reasoning, creative writing, and cross-cultural communication where context-dependent meaning is critical.
-
-### How this project addresses the gap
-
-The methodology below implements a minimal quantum-inspired superposition layer on top of existing pre-trained models and tests it on publicly available ambiguity benchmarks, directly producing the first empirical comparison between classical and quantum-inspired representations for this specific question.
+- [Rogue Variable Theory: A Quantum-Compatible Cognition Framework with a Rosetta Stone Alignment Algorithm (2026)](https://arxiv.org/abs/2601.00466) — Introduces a quantum‑compatible cognitive framework and alignment algorithm that formalize superposition‑like dynamics in human reasoning, offering a theoretical foundation for applying interference‑based representations to language processing.
 
 ## Expected results
 
-We expect quantum-inspired superposition representations to show improved performance (5-15% accuracy gain) on ambiguity resolution tasks compared to baseline classical embeddings, measured via standard NLP benchmarks. A null result (no significant difference) would also be informative, suggesting that classical vector spaces may already capture sufficient representational capacity for ambiguity.
+- **Positive outcome**: Complex‑valued interference layers yield a 5–15 % absolute increase in accuracy (and corresponding F1 gain) over a frozen‑BERT baseline on word‑sense disambiguation benchmarks such as WiC and the Word‑in‑Context dataset. Significance will be confirmed by a paired t‑test (α = 0.05) across multiple random seeds.
+- **Null outcome**: No statistically reliable difference, indicating that classical embeddings already capture the necessary contextual information for these tasks. Either result refines our understanding of the limits of quantum‑inspired augmentations.
 
 ## Methodology sketch
 
-- Download pre-trained transformer model (e.g., BERT-base from HuggingFace Datasets) and ambiguity benchmark datasets (e.g., Word-in-Context WiC dataset from SuperGLUE, available at `https://huggingface.co/datasets/super_glue`)
-- Implement quantum-inspired superposition layer: represent each token as a linear combination of multiple contextual basis vectors with complex-valued coefficients
-- Apply interference operations: compute context-dependent probability distributions using quantum-inspired Born rule (probability = |amplitude|²)
-- Train only the superposition layer (freeze base transformer) to minimize computational requirements
-- Evaluate on WiC task using held-out test set; measure accuracy and F1 score
-- Perform statistical comparison: paired t-test across 5 random seeds to assess significance of performance difference
-- Run ablation study: remove interference operations to isolate their contribution
-- Total compute budget: ~4 hours on single CPU core with 7GB RAM (frozen backbone, small adapter layer)
+- **Data acquisition**
+  - Download `bert-base-uncased` from HuggingFace (`https://huggingface.co/bert-base-uncased`).
+  - Retrieve the Word‑in‑Context (WiC) dataset from SuperGLUE (`https://huggingface.co/datasets/super_glue`, subset `wi c`).
+  - Optionally add the Word‑Sense Disambiguation (WSD) evaluation set from the `lexical‑semantics` HuggingFace hub (`https://huggingface.co/datasets/lexical_semantics`).
+
+- **Model construction**
+  1. Freeze all transformer layers of BERT.
+   2. Append a lightweight adapter that maps each token’s real‑valued hidden state **h** ∈ ℝᵈ to a complex vector **c** = **a** + i **b**, where **a**, **b** ∈ ℝᵈ are learned linear projections.
+  3. Define interference operation: for a pair of token representations **c₁**, **c₂**, compute the combined amplitude **c₁ ⊕ c₂** = **c₁** + **c₂** and obtain a probability distribution via the Born rule ‖**c₁ ⊕ c₂**‖².
+
+- **Training**
+  - Train only the adapter (≈ 0.5 M parameters) on the WiC training split using cross‑entropy loss on the binary same‑sense / different‑sense label.
+  - Use AdamW, learning rate = 1e‑4, batch size = 16, 3 epochs (≈ 15 min on a single CPU core).
+
+- **Evaluation**
+  1. Run the trained model on the WiC test split; compute accuracy and macro‑F1.
+  2. Run the frozen‑BERT baseline (no adapter) on the same test split for direct comparison.
+  3. Perform a paired t‑test across 5 different random seeds (different weight initializations) to assess statistical significance of the performance gap.
+
+- **Ablation**
+  - Remove the interference (Born‑rule) step, keeping only complex‑valued embeddings, to isolate the contribution of the quantum‑style probability computation.
+
+- **Resource budgeting**
+  - All steps run on a single CPU core with ≤ 6 GB RAM.
+  - Estimated total wall‑clock time: ≤ 4 h (data download ≈ 15 min, training ≈ 1 h, evaluation ≈ 30 min, repeats for seeds ≈ 2 h).
 
 ## Duplicate-check
 
-- Reviewed existing ideas: [None available in corpus]
-- Closest match: None identified
-- Verdict: NOT a duplicate — unique combination of quantum cognition theory and LLM architecture
-```
-
----
-
-**⚠️ Scope Note**: This methodology has been designed to fit GitHub Actions free-tier constraints by freezing the base transformer and training only a small adapter layer. If actual execution exceeds 6 hours or 7GB RAM, the task should be decomposed into smaller pieces (e.g., process one dataset subset per job) or the model size should be reduced further.
+- Reviewed existing ideas: None available in corpus.
+- Closest match: None identified.
+- Verdict: NOT a duplicate — unique combination of quantum‑cognition theory and LLM architecture.
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-05-27T03:24:56Z
-**Outcome**: failed
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T04:06:29Z
+**Outcome**: exhausted
 **Original term**: Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer science
-**Verified citation count**: 0
+**Verified citation count**: 1
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning computer science | 0 |
+| 1 | quantum‑inspired language models for ambiguous reasoning | 4 |
+| 2 | quantum probability representations in natural language processing | 0 |
+| 3 | superposition‑based inference mechanisms in transformers | 0 |
+| 4 | quantum‑like semantics for large language models | 0 |
+| 5 | Hilbert‑space embeddings for textual ambiguity | 0 |
+| 6 | quantum contextuality in neural language understanding | 0 |
+| 7 | quantum cognition theory applied to AI reasoning | 0 |
+| 8 | quantum interference effects in text generation | 0 |
+| 9 | complex‑amplitude word embeddings for disambiguation | 0 |
+| 10 | quantum‑inspired attention and gating mechanisms | 0 |
+| 11 | probabilistic superposition modeling for language uncertainty | 0 |
+| 12 | quantum Bayesian networks for NLP tasks | 0 |
+| 13 | latent quantum states in transformer architectures | 0 |
+| 14 | quantum‑formal reasoning frameworks for generative models | 0 |
+| 15 | quantum‑based uncertainty quantification in large language models | 0 |
 
 ### Verified citations
 
-(none)
+1. **Rogue Variable Theory: A Quantum-Compatible Cognition Framework with a Rosetta Stone Alignment Algorithm** (2026). Jacek Małecki, Alexander Mathiesen-Ohman. arXiv. [2601.00466](https://arxiv.org/abs/2601.00466). PDF-sampled: No.

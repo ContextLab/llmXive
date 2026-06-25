@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.02144",
+  "judged_at": "2026-06-25T04:06:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantum cognition in llms: superposition states for ambiguous reasoning computer science",
+  "rationale": "The paper focuses on alignment fine‑tuning and scoring of chain‑of‑thought reasoning in LLMs, without discussing quantum cognition, superposition states, or ambiguous reasoning in a quantum framework, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.00071",
+  "judged_at": "2026-06-25T04:06:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantum cognition in llms: superposition states for ambiguous reasoning computer science",
+  "rationale": "The paper focuses on efficiency techniques (adaptive reasoning suppression) for large reasoning language models and does not address quantum cognition, superposition states, or ambiguous reasoning mechanisms, which are the core constructs of the user's question. It falls under the off‑domain/relevant‑construct rejection.",
+  "relevant": false
+}
