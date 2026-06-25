@@ -1,26 +1,50 @@
-resolved_at: '2026-06-25T15:50:50.582133+00:00'
+resolved_at: '2026-06-25T22:06:44.981021+00:00'
 datasets:
+- intent: 10.1037/xap0000421
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: FR-030
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://publications.cispa.de/articles/preprint/Membership_Inference_Attack_Against_Masked_Image_Modeling/32791611
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publications.cispa.de/articles/conference_contribution/Learning_Formal_Models_of_Parametrized_Systems/32791605
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/journal_contribution/Roman_military_dagger_pugio_material_from_Chester_legionary_base_Deva_UK/32566743
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Uniting_Bounded_Verification_and_Transformer_Based_Learning_for_Proactive_IoT_Security/30574706
+  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_codes_from_Evolutionary_drivers_of_vocal_amplitude_in_birds/31050076
+  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -36,11 +60,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10332095
+  - url: https://zenodo.org/records/10316233
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10316233
+  - url: https://zenodo.org/records/10332095
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -93,23 +117,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/conference_contribution/Carcinoma_mam_rio_em_cadela_idosa_Relato_de_caso/32791617
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publications.cispa.de/articles/preprint/Membership_Inference_Attack_Against_Masked_Image_Modeling/32791611
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publications.cispa.de/articles/conference_contribution/Learning_Formal_Models_of_Parametrized_Systems/32791605
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/journal_contribution/Roman_military_dagger_pugio_material_from_Chester_legionary_base_Deva_UK/32566743
+  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Uniting_Bounded_Verification_and_Transformer_Based_Learning_for_Proactive_IoT_Security/30574706
+  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -121,35 +145,225 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18961168
+  - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rucore.libraries.rutgers.edu/rutgers-lib/76070/
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20457089
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20849189
+  - url: https://zenodo.org/records/20457089
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20849189
+  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aisberg.unibg.it//handle/10446/32185
+  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aisberg.unibg.it//handle/10446/86196
+  - url: https://zenodo.org/records/20871447
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/aisc-team-a1/augmented-clinical-notes/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11945
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/aisc-team-a1/augmented-clinical-notes/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NHSEDataScience/synthetic_clinical_notes/resolve/main/silver/admissions.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16039952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4578581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ACM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/matchbench/DBLP-ACM/resolve/main/tableA.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/matchbench/DBLP-ACM-SM/resolve/main/dblp_acm-sm-1.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/acmc/beamit-annotated-full-texts-dataset/resolve/main/data/test-00000-of-00001-c5a8bb286e326c6c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/matchbench/DBLP-ACM/resolve/main/tableA.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/matchbench/DBLP-ACM-SM/resolve/main/dblp_acm-sm-1.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/acmc/beamit-annotated-full-texts-dataset/resolve/main/data/test-00000-of-00001-c5a8bb286e326c6c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/acmc/beamit-full-texts-dataset/resolve/main/data/train-00000-of-00006-b137d96427b8dcde.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/acmc/beamit-annotated_full_texts_dataset/resolve/main/data/train-00003-of-00004-7b86edd3179afbcc.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8276060
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8280037
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8274053
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8274050
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8276995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/mw9sn8m4n5/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/mw9sn8m4n5
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20856187
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20856187
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20853203
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -157,31 +371,31 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://drs.britishmuseum.org/articles/dataset/2023SG06_Project_Metadata/32791554
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/dataset/2023SG06_Guide_to_the_Dataset/32791590
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Carcinoma_mam_rio_em_cadela_idosa_Relato_de_caso/32791617
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publications.cispa.de/articles/preprint/Membership_Inference_Attack_Against_Masked_Image_Modeling/32791611
+  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publications.cispa.de/articles/conference_contribution/Learning_Formal_Models_of_Parametrized_Systems/32791605
+  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10238430
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10598521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10238430
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -193,7 +407,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10381038
+  - url: https://zenodo.org/records/10344963
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -209,11 +423,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20470525
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
   - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
     status: unreachable
@@ -223,23 +437,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://drs.britishmuseum.org/articles/dataset/2023SG06_Project_Metadata/32791554
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/dataset/2023SG06_Guide_to_the_Dataset/32791590
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Carcinoma_mam_rio_em_cadela_idosa_Relato_de_caso/32791617
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publications.cispa.de/articles/preprint/Membership_Inference_Attack_Against_Masked_Image_Modeling/32791611
+  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publications.cispa.de/articles/conference_contribution/Learning_Formal_Models_of_Parametrized_Systems/32791605
+  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -251,11 +465,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10332095
+  - url: https://zenodo.org/records/10316233
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10316233
+  - url: https://zenodo.org/records/10332095
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -279,7 +493,15 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635092
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+- intent: T026
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CSV
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: JSON
+  status: unresolved
+  candidates: []
+  candidates_tried: []

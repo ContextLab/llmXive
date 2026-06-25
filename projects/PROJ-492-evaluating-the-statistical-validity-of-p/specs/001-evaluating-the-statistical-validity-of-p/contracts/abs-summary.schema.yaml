@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ABSummary Schema"
+description: "Schema for A/B test summary entity as defined in FR-002"
+type: "object"
+required:
+  - "url"
+  - "variant_a_n"
+  - "variant_b_n"
+  - "variant_a_conversions"
+  - "variant_b_conversions"
+  - "reported_p"
+  - "reported_effect_size"
+  - "outcome_type"
+properties:
+  url:
+    type: "string"
+    description: "Source URL of the A/B test summary (required, valid URL format)"
+    pattern: "^https?://.+"
+  variant_a_n:
+    type: "integer"
+    description: "Sample size for variant A (required, ≥1)"
+    minimum: 1
+  variant_b_n:
+    type: "integer"
+    description: "Sample size for variant B (required, ≥1)"
+    minimum: 1
+  variant_a_conversions:
+    type: "integer"
+    description: "Conversion count for variant A (required, ≥0)"
+    minimum: 0
+  variant_b_conversions:
+    type: "integer"
+    description: "Conversion count for variant B (required, ≥0)"
+    minimum: 0
+  reported_p:
+    type: "number"
+    description: "Reported p-value (required, 0 < p ≤ 1, or null for inequality bounds)"
+    minimum: 0
+    maximum: 1
+    nullable: true
+  reported_effect_size:
+    type: "number"
+    description: "Reported effect size (required, can be negative)"
+  outcome_type:
+    type: "string"
+    description: "Type of outcome metric (required, one of: binary, continuous)"
+    enum:
+      - "binary"
+      - "continuous"
+  confidence_interval:
+    type: "object"
+    description: "Optional confidence interval"
+    properties:
+      lower:
+        type: "number"
+        description: "Lower bound of confidence interval"
+      upper:
+        type: "number"
+        description: "Upper bound of confidence interval"
+    required:
+      - "lower"
+      - "upper"
+additionalProperties: false

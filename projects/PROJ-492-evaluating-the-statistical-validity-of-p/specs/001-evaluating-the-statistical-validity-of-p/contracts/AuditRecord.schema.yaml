@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AuditRecord"
-description: "Schema for audit record results (FR-024)"
+description: "Schema for audit record results (FR-024, FR-004, FR-004b)"
 type: "object"
 required:
   - "url"
@@ -21,12 +21,13 @@ properties:
   url:
     type: "string"
     format: "uri"
-    description: "Source URL"
+    description: "Source URL (Constitution VII)"
   reported_p:
     type: "number"
     minimum: 0.0
     maximum: 1.0
     description: "Reported p-value"
+    nullable: true
   reported_effect_size:
     type: "number"
     description: "Reported effect size"
@@ -56,7 +57,7 @@ properties:
     description: "Absolute difference in effect sizes"
   flag_inconsistent:
     type: "boolean"
-    description: "True if inconsistent (FR-004)"
+    description: "True if inconsistent (FR-004 conditions met)"
   flag_size_mismatch:
     type: "boolean"
     description: "True if sample size discrepancy >5% (FR-004b)"

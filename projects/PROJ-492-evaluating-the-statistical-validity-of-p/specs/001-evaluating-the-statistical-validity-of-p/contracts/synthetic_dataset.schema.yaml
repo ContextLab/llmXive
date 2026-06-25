@@ -51,6 +51,22 @@ properties:
           minimum: 0.0
           maximum: 1.0
           description: "True conversion rate, variant B"
+        variant_a_mean:
+          type: "number"
+          description: "True mean, variant A (continuous only)"
+          nullable: true
+        variant_b_mean:
+          type: "number"
+          description: "True mean, variant B (continuous only)"
+          nullable: true
+        variant_a_std:
+          type: "number"
+          description: "True std, variant A (continuous only)"
+          nullable: true
+        variant_b_std:
+          type: "number"
+          description: "True std, variant B (continuous only)"
+          nullable: true
         true_p_value:
           type: "number"
           minimum: 0.0

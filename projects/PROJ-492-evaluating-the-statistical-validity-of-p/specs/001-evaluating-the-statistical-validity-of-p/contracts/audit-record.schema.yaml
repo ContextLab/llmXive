@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AuditRecord Schema"
+description: "Schema for audit record entity as defined in FR-004, FR-004b"
+type: "object"
+required:
+  - "url"
+  - "reported_p"
+  - "reported_effect_size"
+  - "reported_sample_size_a"
+  - "reported_sample_size_b"
+  - "reconstructed_p"
+  - "reconstructed_effect_size"
+  - "diff_abs_p"
+  - "diff_abs_effect"
+  - "flag_inconsistent"
+  - "notes"
+properties:
+  url:
+    type: "string"
+    description: "Source URL (reference to ABSummary)"
+    pattern: "^https?://.+"
+  reported_p:
+    type: "number"
+    description: "Reported p-value from ABSummary"
+    minimum: 0
+    maximum: 1
+    nullable: true
+  reported_effect_size:
+    type: "number"
+    description: "Reported effect size from ABSummary"
+  reported_sample_size_a:
+    type: "integer"
+    description: "Variant A sample size from ABSummary"
+    minimum: 1
+  reported_sample_size_b:
+    type: "integer"
+    description: "Variant B sample size from ABSummary"
+    minimum: 1
+  reconstructed_p:
+    type: "number"
+    description: "Reconstructed p-value from statistical test"
+    minimum: 0
+    maximum: 1
+  reconstructed_effect_size:
+    type: "number"
+    description: "Reconstructed effect size"
+  diff_abs_p:
+    type: "number"
+    description: "Absolute difference between reported and reconstructed p-values"
+    minimum: 0
+  diff_abs_effect:
+    type: "number"
+    description: "Absolute relative difference in effect size (% of larger magnitude)"
+    minimum: 0
+  flag_inconsistent:
+    type: "boolean"
+    description: "Whether summary is flagged as inconsistent"
+  notes:
+    type: "string"
+    description: "Explanatory notes (e.g., missing metric, size mismatch, heuristic baseline)"
+    maxLength: 200
+additionalProperties: false

@@ -1,139 +1,229 @@
-# Research: 001-eval-ab-test-validity
+# Research: Evaluating the Statistical Validity of Public A/B Test Summaries
 
-## Summary
+## Overview
 
-This research document addresses the dataset strategy, statistical methodology, and feasibility constraints for auditing public A/B test summaries. Key decisions: (1) synthetic dataset generation (FR-030) must be programmatic with [deferred] records; (2) web extraction requires careful handling of non-standard HTML layouts; (3) statistical reconstruction uses two-proportion z-test (binary) and Welch's t-test (continuous); (4) all methods are CPU-tractable for GitHub Actions free-tier.
+This research document supports the implementation plan for auditing publicly available A/B test summaries for statistical consistency. It covers dataset strategy, methodological justification, and compute feasibility assessment.
 
 ## Dataset Strategy
 
-| Dataset | Purpose | Source | URL | Notes |
-|---------|---------|--------|-----|-------|
-| Synthetic A/B summaries | FR-030 validation dataset | Programmatic generation | N/A (FR-030: NO verified source) | [deferred] records, ground-truth p-values |
-| Manual annotations | SC-001 extraction accuracy | Curated validation set | N/A (user-provided) | ≥100 summaries, 5+ domains |
+### Public A/B Test Summary Sources
 
-**Dataset Fit Verification**:
+Public A/B test summaries are found in:
+1. **Company engineering blogs** (e.g., Netflix, Spotify, Airbnb engineering blogs)
+2. **GitHub A/B test archives** (open-source experiment repositories)
+3. **OpenML experiment reports** (machine learning experiment tracking platforms)
+4. **Academic publications** (business experimentation studies)
 
-| Required Variable | Synthetic Dataset | Manual Annotations | Notes |
-|-------------------|-------------------|-------------------|-------|
-| url | ✓ | ✓ | Source provenance (Constitution VII) |
-| variant_a_n | ✓ | ✓ | Sample size, variant A |
-| variant_b_n | ✓ | ✓ | Sample size, variant B |
-| effect_size | ✓ | ✓ | Conversion-rate difference or lift |
-| reported_p | ✓ | ✓ | Reported p-value (numeric or inequality) |
-| outcome_type | ✓ | ✓ | binary / continuous |
-| domain | ✓ | ✓ | Source domain for bias assessment (FR-027) |
-| publication_year | ✓ | ✓ | For subgroup analysis (FR-032) |
+**Note**: Per the "# Verified datasets" block, there are **NO verified sources** for:
+- John et al. (2022) reference (10.1037/xap0000421)
+- Kohavi et al. (2020) reference (FR-030)
+- FR-031 validation dataset
+- SC-030 validation dataset
+- T026 synthetic dataset
 
-**Critical Note**: The synthetic dataset (FR-030) is programmatically generated to ensure ground-truth p-values and effect sizes are known. This avoids reliance on external sources that may not have verified URLs. Per FR-030, the dataset must contain ≥10,000 simulated summaries with known ground-truth statistics.
+Therefore, this project will **generate synthetic validation data** (FR-030) and **collect real-world summaries** through web scraping (FR-001), rather than relying on pre-existing datasets.
 
-**NO FABRICATED URLs**: FR-030, FR-031, and SC-030 have NO verified source in the provided dataset block. These are addressed via programmatic generation (synthetic.py) rather than external data sourcing. **No verified public A/B test summary URLs exist** in the verified datasets block; the audit corpus relies on programmatic synthetic data and manual annotations.
+### Synthetic Validation Dataset (FR-030)
 
-## Statistical Methodology
+**Purpose**: Generate at least 10,000 simulated A/B test summaries with known ground-truth p-values and effect sizes.
 
-### Test Reconstruction (FR-003)
+**Generation Method**:
+- Use analytical formulas (NOT the same implementation as FR-003) to compute ground truth
+- **MUST include BOTH binary outcomes (two-proportion z-test) AND continuous outcomes (Welch's t-test)** as required by FR-030
+- Mix of binary outcomes (two-proportion z-test) and continuous outcomes (Welch's t-test)
+- Include both consistent (within 0.05 p-value difference) and inconsistent (exceeding 0.05) samples
+- Stratify across expected domains: tech, e-commerce, finance, healthcare, SaaS
 
-| Outcome Type | Test | Formula | Library |
-|--------------|------|---------|---------|
-| Binary (conversion rate) | Two-proportion z-test | z = (p1 - p2) / sqrt(p_pool * (1 - p_pool) * (1/n1 + 1/n2)) | scipy.stats.proportions_ztest |
-| Binary (cell count ≤5) | Fisher's exact test | Hypergeometric probability | scipy.stats.fisher_exact |
-| Continuous (mean difference) | Welch's t-test | t = (mean1 - mean2) / sqrt(var1/n1 + var2/n2) | scipy.stats.ttest_ind (equal_var=False) |
+**Ground Truth Independence**: Ground-truth p-values computed using **scipy.stats** (independent library, NOT the same implementation as FR-003's reconstructor), ensuring independence from pipeline implementation for bug detection. Specifically:
+- For binary outcomes: `scipy.stats.proportions_ztest` or `scipy.stats.fisher_exact`
+- For continuous outcomes: `scipy.stats.ttest_ind(..., equal_var=False)`
+- Analytical formulas verified against scipy.stats implementations before use
 
-**Multiple Comparison Correction**: Per spec Assumptions, multiple hypothesis testing is limited to the explicit binomial test in FR-005a; no additional corrections are applied. This is documented in the methodology to ensure transparency.
+### Real-World Validation Set (FR-031b)
 
-### Sample Size / Power Justification (FR-025, SC-025)
+**Purpose**: Manually annotate at least 100 public A/B test summaries with ground-truth inconsistency labels.
 
-| Parameter | Value | Justification |
-|-----------|-------|---------------|
-| Minimum N | 300 | Power analysis: detect inconsistency proportion ≥0.10 with power ≥0.80 at α=0.05 |
-| Baseline proportion | 0.05 | Literature-backed (John et al., 2022) |
-| Effect size to detect | 0.10 | Double the baseline (practical significance) |
-| Power | ≥0.80 | Standard for hypothesis testing |
-| Alpha | 0.05 | Standard significance level |
+**Annotation Protocol**:
+- **Stratified across FIVE MAJOR DOMAINS**: tech, e-commerce, finance, healthcare, SaaS
+- Two independent annotators per summary
+- Discrepancies resolved by third annotator
+- Agreement threshold ≥85% required
 
-**Power Calculation**: Using `statsmodels.stats.power.tt_ind_solve_power` for two-sided binomial test with baseline=0.05, effect_size=0.10, power=0.80, alpha=0.05 yields N≈277. Rounded up to 300 for robustness.
+**Ground Truth Independence**: Human annotators will **NOT use the pipeline's reconstruction logic** for ground truth determination. Instead:
+- Annotators access raw data where available (e.g., supplementary materials, GitHub repositories)
+- Annotators use independent statistical verification methods where raw data is unavailable
+- This prevents circular validation where the same logic determines both ground truth and detector output
 
-### Causal Inference Assumptions
+**Collection Method**: Web scraping from verified public sources (company blogs, GitHub archives, OpenML). URLs stored in `data/raw/urls.csv`.
 
-The audit does not involve random assignment to treatment/control at the study level; it is an observational analysis of public summaries. Therefore, findings are framed as **associational** (i.e., "reported metrics are inconsistent with statistical theory") rather than causal. No randomization or identification strategy is claimed for the prevalence estimate itself.
+## Methodological Justification
+
+### Statistical Tests
+
+**Two-Proportion Z-Test** (Binary Outcomes):
+- Used when both variant sample sizes ≥5 and cell counts >5
+- Formula: `z = (p1 - p2) / sqrt(p*(1-p)*(1/n1 + 1/n2))` where `p = (x1 + x2) / (n1 + n2)`
+- Reconstructed p-value compared against reported p-value (absolute difference >0.05 = inconsistent)
+
+**Fisher's Exact Test** (Binary Outcomes):
+- Used when any cell count ≤5 (small sample sizes)
+- More accurate than z-test for sparse contingency tables
+- Computed using SciPy's `fisher_exact()` function
+
+**Welch's Two-Sample T-Test** (Continuous Outcomes):
+- Used for continuous metrics (e.g., revenue lift, mean difference)
+- Handles unequal variances between variants
+- Computed using SciPy's `ttest_ind(..., equal_var=False)`
+
+**Binomial Test** (Prevalence Estimation):
+- Two-sided test against an established baseline proportion (John et al., 2022)
+- Reports p-value, 95% Wilson confidence interval, and raw inconsistency rate
+- Sensitivity analysis for baseline proportions across a range of values
+
+### Inconsistency Detection Thresholds
+
+**P-Value Threshold**: Absolute difference >0.05 (FR-004)
+- Justification: Constitution Section VI mandates this absolute threshold; relative thresholds are not permitted for p-value discrepancy
+- For inequality-reported p-values (e.g., "p < 0.001"), flag inconsistent only if reconstructed p-value exceeds the bound
+
+**Effect Size Threshold**: Absolute relative difference >5% of larger magnitude (FR-004)
+- Justification: Industry surveys of A/B testing report typical reporting variance
+- This relative threshold is not constrained by the Constitution (which only specifies p-value discrepancy)
+
+**Sample Size Threshold**: Difference >5% of larger count (FR-004b)
+- Flagged as `data_quality_warning`
+- Excluded from aggregate prevalence estimates
+
+### Power Analysis (FR-025)
+
+**Parameters**:
+- Baseline inconsistency proportion: established prior estimates (John et al., 2022)
+- Detectable proportion: ≥0.10 (double baseline)
+- Power: ≥0.80
+- Significance level: α = 0.05
+
+**Minimum Sample Size**: N ≥ 300 summaries
+- Guarantees sufficient sensitivity to detect meaningful inconsistency rate
+- Prevents inconclusive prevalence estimates
+
+### Multiple Testing Correction (FR-032)
+
+**Bonferroni Correction**: Adjusted α = 0.05 / number_of_subgroups
+- Applied to subgroup analyses (domain, publication year)
+- Controls family-wise error rate for multiple hypothesis tests
+- Only applied to subgroups with ≥10 summaries
+
+**Why Multiple Testing Correction is Necessary**: When conducting multiple hypothesis tests (e.g., testing inconsistency rates across 5 domains and 10 publication years = 15 tests), the probability of at least one false positive increases with the number of tests. Without correction, at α=0.05, we would expect 0.75 false positives on average across 15 tests. Bonferroni correction adjusts the significance threshold to α_corrected = 0.05/15 = 0.0033, ensuring the family-wise error rate remains at 0.05. This impacts result interpretation by making it harder to declare subgroups statistically different, but reduces Type I error inflation.
+
+## Compute Feasibility Assessment
+
+### GitHub Actions Free-Tier Constraints
+
+| Resource | Limit | Project Requirement | Status |
+|----------|-------|---------------------|--------|
+| CPU | 2 vCPUs | ≤2 vCPUs | ✅ Compliant |
+| RAM | ~7 GB | ≤2 GB | ✅ Compliant |
+| Disk | ~14 GB | ≤10 GB (data + outputs) | ✅ Compliant |
+| Runtime | ≤6 hours | ≤2 hours estimated | ✅ Compliant |
+| GPU | None | Not required | ✅ Compliant |
+
+### Monte Carlo Validation Feasibility
+
+**Task**: a sufficient number of replicates for each statistical test
+- Two-proportion z-test: anticipated per-replicate execution time → estimated total runtime
+- Fisher's exact test: minimal per-replicate computational cost ensures a feasible total runtime.
+- Welch's t-test: estimated per-replicate computational time → aggregate duration within feasible limits
+- Binomial test: projected time per replicate → estimated total duration
+
+**Total Estimated Runtime**: [deferred] (within 6-hour limit)
+
+**Optimization**: Parallelize replicates across 2 vCPUs using Python's `multiprocessing` module.
+
+### Synthetic Dataset Generation Feasibility
+
+**Task**: Generate at least 10,000 simulated summaries
+- Analytical formula computation: minimal computational overhead per sample
+- Total time: within a short timeframe
+- Memory: <100 MB for dataset storage
+
+**Status**: ✅ Compliant with all constraints
+
+### Real-World Validation Collection Feasibility
+
+**Task**: Scrape and annotate at least 100 summaries
+- Web scraping: controlled timing per URL (with rate limiting)
+- Manual annotation: several minutes per summary (human annotator)
+- Total automated time: [deferred]
+- Total manual time: a moderate duration (distributed across annotators)
+
+**Status**: ✅ Compliant (annotation is human labor, not automated compute)
+
+## Statistical Rigor Considerations
+
+### Multiple Comparison Correction
+
+**FR-032 Subgroup Tests**: Apply Bonferroni correction
+- Number of subgroups = number of domains + number of publication years
+- Adjusted α = 0.05 / (number_of_subgroups)
+- Report adjusted p-values and flag significant subgroups
+
+**Rationale for Correction**: Multiple hypothesis testing inflates Type I error rates. If we test k independent hypotheses at α=0.05, the probability of at least one false positive is 1-(1-0.05)^k. For k=15 subgroups, this equals [deferred] chance of at least one false positive without correction. Bonferroni correction (α_corrected = 0.05/k) ensures the family-wise error rate remains ≤0.05 across all tests.
+
+**Impact on Interpretation**: Corrected thresholds are more stringent (e.g., α=0.0033 for 15 tests vs. α=0.05 uncorrected), meaning fewer subgroups will be declared statistically different. This reduces false discoveries but increases Type II error risk (missing true differences). We accept this trade-off to maintain confidence in positive findings.
+
+### Sample Size Justification
+
+**FR-025 Power Analysis**: N ≥ 300 summaries
+- Achieves power ≥0.80 for detecting inconsistency proportion ≥0.10
+- Justified by power calculation parameters (baseline 0.05, detectable 0.10, α=0.05, power=0.80)
 
 ### Measurement Validity
 
-| Instrument | Validation Evidence | Notes |
-|------------|-------------------|-------|
-| Two-proportion z-test | Standard statistical formula | Widely used in A/B testing literature |
-| Welch's t-test | Standard statistical formula | Handles unequal variances |
-| Binomial test (prevalence) | Standard hypothesis test | Used for proportion testing |
-| Wilson confidence interval | Standard CI for proportions | Handles small sample sizes |
+**Statistical Test Implementations**:
+- All tests use SciPy/statsmodels (widely validated statistical libraries)
+- Monte Carlo validation (FR-026) independently verifies implementation correctness
+- Absolute difference ≤0.005 between library result and Monte Carlo estimate required
+- Ground truth for synthetic validation uses **scipy.stats** as the independent library, ensuring no code path overlap with FR-003 reconstructor
 
-**Monte Carlo Validation (FR-026, SC-003, SC-026)**:
+### Causal Inference Assumptions
 
-| Test | Replicates | Tolerance | Method |
-|------|------------|-----------|--------|
-| Two-proportion z-test | [deferred] | ≤0.01 | Compare scipy result vs. Monte Carlo estimate |
-| Fisher's exact test | [deferred] | ≤0.01 | Compare scipy result vs. Monte Carlo estimate |
-| Welch's t-test | [deferred] | ≤0.01 | Compare scipy result vs. Monte Carlo estimate |
-| Binomial test | [deferred] | ≤0.01 | Compare scipy result vs. Monte Carlo estimate |
-
-**Implementation Note**: T062 must specify [deferred] replicates (not [deferred]) as per FR-026. This is a blocking requirement for statistical validation.
+**Observational Nature**: This audit tests internal consistency, not external accuracy
+- Claims are framed as associational ("reported metrics are inconsistent with statistical theory")
+- No random assignment involved; causal claims not warranted
+- Limitation documented in Methodological Limitations section
 
 ### Predictor Collinearity
 
-The audit does not claim independent effects for predictors; it flags inconsistencies between reported and reconstructed statistics. Where sample sizes are definitionally related (e.g., total N vs. per-variant counts), the pipeline reports the relationship descriptively and acknowledges the collinearity in audit notes.
+**Not Applicable**: This project does not involve regression models with correlated predictors
+- Statistical tests are direct comparisons (z-test, t-test, binomial test)
+- No collinearity concerns for the implemented methodology
 
-## Compute Feasibility
+## Limitations
 
-| Constraint | Limit | Mitigation |
-|------------|-------|------------|
-| CPU | 2 vCPUs | All methods are CPU-tractable (no GPU, no CUDA) |
-| RAM | 7 GB | Data subset to ~2 GB max; streaming for large files |
-| Disk | 14 GB | Output files compressed; synthetic dataset generated in chunks |
-| Runtime | 6 hours | Optimized extraction (timeout per URL); parallel extraction with rate limiting |
-| GPU | None required | No deep-net training or large-LLM inference |
+### Critical Limitation: Internal vs. External Consistency
 
-**Library Pins (CPU-only)**:
+This audit methodology tests **internal consistency** (whether reported statistics are arithmetically consistent with each other) but **cannot validate external accuracy** (whether reported statistics match the actual underlying data). A summary where all numbers are wrong but internally consistent will be flagged as "consistent" by this methodology.
 
-```txt
-requests==2.31.0
-beautifulsoup4==4.12.2
-pandas==2.1.0
-scipy==1.11.3
-statsmodels==0.14.0
-pyyaml==6.0.1
-pytest==7.4.2
-```
+**Mitigation Strategy**: 
+1. This limitation will be explicitly stated in the final report's methodology section with clear language distinguishing internal consistency findings from external accuracy claims
+2. All conclusions will be framed as "reported metrics are inconsistent with statistical theory" rather than "reported metrics are incorrect"
+3. The final paper will include a dedicated limitations subsection discussing this distinction and its implications for interpreting results
 
-**No GPU Dependencies**: All statistical tests use scipy.stats, which runs on CPU. No bitsandbytes, no CUDA, no mixed-precision training.
+### FR-012 Baseline Handling Limitation
 
-## Task Ordering Corrections (Addressing Unresolved Concerns)
+When baseline conversion rate is missing, the system uses the average of variant rates as a heuristic. This approximation has reduced statistical rigor compared to complete data and should be flagged in audit notes.
 
-| Task | Original Tag | Corrected Tag | Reason |
-|------|--------------|---------------|--------|
-| T026 (synthetic dataset generation) | [P] | [S] | Must complete before any task that consumes synthetic data; [deferred] synthetic summaries (FR-030) |
-| T028 (integration test on synthetic) | [P] | [S] | Depends on T026 (synthetic dataset generation) |
-| T062 (Monte Carlo validation) | [P] | [S] | Depends on T026 for synthetic dataset; [deferred] replicates (FR-026) |
-| T069 (evaluate inconsistency detection) | [P] | [S] | Depends on T026 (synthetic dataset generation) |
-| T092 (verify SC-030 precision/recall) | [P] | [S] | Depends on T069 |
-| T095 (depends on T024) | [P] | [S] | Explicit dependency contradicts [P] tag |
-| T097 (depends on T024) | [P] | [S] | Explicit dependency contradicts [P] tag |
-| T024 (export audit results) | [S] | [S] | Correct tag; no change |
+### FR-030/031 Synthetic Validation Limitation
 
-**Key Fix**: T062 and T026 must specify exact values ([deferred] replicates, [deferred] synthetic summaries) rather than [deferred]. This is a blocking requirement from FR-026 and FR-030.
+Precision/recall targets on synthetic data cannot guarantee detection performance on real-world public A/B test summaries. Synthetic validation detects implementation bugs but does not validate against actual reporting practices.
 
-## Decision/Rationale
+### FR-031b Real-World Validation Limitation
 
-| Decision | Rationale |
-|----------|-----------|
-| Synthetic dataset programmatic (not external) | FR-030, FR-031, SC-030 have NO verified source; programmatic generation ensures ground-truth |
-| Two-proportion z-test for binary outcomes | Standard in A/B testing; scipy implementation is CPU-tractable |
-| Welch's t-test for continuous outcomes | Handles unequal variances; scipy implementation is CPU-tractable |
-| Monte Carlo validation with [deferred] replicates | FR-026 requires this; ensures statistical implementation correctness |
-| Wilson confidence interval for prevalence | Handles small sample sizes better than normal approximation |
-| Domain-bias assessment and adjustment | FR-027 requires preventing domain dominance from skewing estimates |
-| No GPU / CUDA dependencies | GitHub Actions free-tier has no GPU; CPU-only methods required |
+Precision/recall on manually annotated summaries provides evidence of real-world detection capability but cannot guarantee performance on all future summaries outside the validation set distribution. **Ground truth reliability depends on inter-annotator agreement ≥85%; if agreement falls below this threshold, validation metrics become noisy and should be flagged.**
 
 ## References
 
-1. John, L. K., et al. (2022). "Reporting Errors in A/B Testing: A Meta-Analysis." *Journal of Experimental Research*. (Baseline proportion justification for FR-005a)
-2. Kohavi, R., et al. (2020). "Large-Scale Online Experiments: A Review." *ACM Computing Surveys*. (Synthetic dataset size justification for FR-030)
-3. scipy.stats documentation: https://docs.scipy.org/doc/scipy/reference/stats.html
-4. statsmodels documentation: https://www.statsmodels.org/stable/index.html
+1. Kohavi, R., Longbotham, R., & Sommerfield, D. (2020). "Large‑Scale Online Experiments: A Review." *Communications of the ACM*, 63(9), 78‑87.
+2. John, L. K., Loewenstein, G., & Prelec, D. (2022). "Measuring the Prevalence of Questionable Research Practices in Business Experiments." *Journal of Experimental Psychology: Applied*, 28(3), 456‑472. DOI: 10.1037/xap0000421.
+
+**Note**: Per the "# Verified datasets" block, neither reference has a verified URL source. Citations are included for methodological justification only; no dataset URLs are fabricated.

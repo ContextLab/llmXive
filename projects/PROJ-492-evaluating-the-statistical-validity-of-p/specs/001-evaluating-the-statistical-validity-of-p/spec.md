@@ -141,7 +141,7 @@ The original idea called for auditing public A/B test summaries and reporting th
 2. **Reconstruction of statistical tests** (FR‑003) provides the ground‑truth p‑values against which reported values can be compared.
 3. **Inconsistency detection** (FR‑004) implements the core audit logic, now aligned with Constitution Section VI's absolute 0.05 threshold for p‑value discrepancy.
 4. **Sample‑size discrepancy detection** (FR‑004b) ensures that mismatched sample size reporting is also flagged, as required by the original methodology.
-5. **Prevalence estimation** (FR‑005a) yields the quantitative answer to "how prevalent are inconsistencies?" using a literature‑backed baseline of 0.05 (John et al., 2022), and **FR‑005b** ensures robustness to that assumption.
+5. **Prevalence estimation** (FR‑005a) yields the quantitative answer to "how prevalent are inconsistencies?" using a literature‑backed baseline of 0.05 (John et al.), and **FR‑005b** ensures robustness to that assumption.
 6. **Sample‑size increase** (FR‑025) guarantees that the audit corpus is large enough to detect a meaningful inconsistency rate with adequate power (power ≥ 0.80), preventing inconclusive results; N ≥ 300 is required by the power calculation parameters.
 7. **Monte‑Carlo validation** (FR‑026) ensures the correctness of statistical implementations, a prerequisite for trustworthy inference; 10,000 replicates required for stable validation estimates.
 8. **Bias assessment and adjustment** (FR‑027) prevents domain‑dominance from skewing the overall estimate, satisfying methodological rigor.

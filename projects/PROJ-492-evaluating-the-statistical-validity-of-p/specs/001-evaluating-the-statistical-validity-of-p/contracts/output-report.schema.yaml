@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Report Schema"
+description: "Schema for summary_report.csv output as defined in FR-024, SC-024"
+type: "object"
+required:
+  - "total_summaries"
+  - "inconsistent_count"
+  - "inconsistent_rate"
+  - "bias_adjusted_rate"
+  - "wilson_ci_lower"
+  - "wilson_ci_upper"
+properties:
+  total_summaries:
+    type: "integer"
+    description: "Total number of summaries audited"
+    minimum: 1
+  inconsistent_count:
+    type: "integer"
+    description: "Number of inconsistent summaries"
+    minimum: 0
+  inconsistent_rate:
+    type: "number"
+    description: "Raw inconsistency rate (inconsistent_count / total_summaries)"
+    minimum: 0
+    maximum: 1
+  bias_adjusted_rate:
+    type: "number"
+    description: "Domain-weighted bias-adjusted rate"
+    minimum: 0
+    maximum: 1
+  wilson_ci_lower:
+    type: "number"
+    description: "Lower bound of 95% Wilson confidence interval"
+    minimum: 0
+    maximum: 1
+  wilson_ci_upper:
+    type: "number"
+    description: "Upper bound of 95% Wilson confidence interval"
+    minimum: 0
+    maximum: 1
+additionalProperties: false

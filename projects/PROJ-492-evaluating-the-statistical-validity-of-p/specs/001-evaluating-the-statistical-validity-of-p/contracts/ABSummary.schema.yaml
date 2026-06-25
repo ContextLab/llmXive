@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ABSummary"
+type: object
+required:
+  - url
+  - outcome_type
+properties:
+  url:
+    type: string
+    format: uri
+    description: "Original URL of the public A/B test summary"
+  outcome_type:
+    type: string
+    enum:
+      - "binary"
+      - "continuous"
+    description: "Nature of the outcome metric"
+  variant_a_n:
+    type: integer
+    minimum: 1
+    description: "Sample size for variant A"
+  variant_b_n:
+    type: integer
+    minimum: 1
+    description: "Sample size for variant B"
+  variant_a_conversions:
+    type: integer
+    minimum: 0
+    description: "Number of conversions (or successes) in variant A (binary only)"
+    nullable: true
+  variant_b_conversions:
+    type: integer
+    minimum: 0
+    description: "Number of conversions (or successes) in variant B (binary only)"
+    nullable: true
+  variant_a_mean:
+    type: number
+    description: "Mean for variant A (continuous only)"
+    nullable: true
+  variant_b_mean:
+    type: number
+    description: "Mean for variant B (continuous only)"
+    nullable: true
+  variant_a_std:
+    type: number
+    description: "Standard deviation for variant A (continuous only)"
+    nullable: true
+  variant_b_std:
+    type: number
+    description: "Standard deviation for variant B (continuous only)"
+    nullable: true
+  reported_p:
+    type: number
+    minimum: 0
+    maximum: 1
+    nullable: true
+    description: "Reported p‑value (null if reported as inequality, e.g., p < 0.001)"
+  reported_effect_size:
+    type: number
+    description: "Reported effect size (absolute difference for binary, mean diff for continuous)"
+  confidence_interval:
+    type: object
+    nullable: true
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+    description: "Optional reported confidence interval"
