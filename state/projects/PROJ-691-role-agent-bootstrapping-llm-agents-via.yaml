@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-691-role-agent-bootstrapping-llm-agents-via/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Role-Agent: Bootstrapping LLM Agents via Dual-Role Evolution'
-updated_at: '2026-06-17T00:46:38.784230Z'
+updated_at: '2026-06-25T10:10:30.344617Z'
