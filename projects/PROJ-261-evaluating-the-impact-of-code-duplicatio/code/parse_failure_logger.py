@@ -5,85 +5,103 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-# Module‑level state
-_logger: Optional[logging.Logger] = None
-_log_path: Optional[Path] = None
+# Thread‑safe lock for CSV writes
 _lock = threading.Lock()
 
+# Module‑level singleton logger and path
+_logger: Optional[logging.Logger] = None
+_log_file_path: Optional[Path] = None
 
-def init_logger(log_file: Path) -> logging.Logger:
+
+def init_logger(log_file: Optional[Path] = None) -> logging.Logger:
     """
-    Initialise a singleton logger used for parse‑failure reporting.
+    Initialise (or retrieve) a logger that records parse failures to a CSV file.
 
     Parameters
     ----------
-    log_file: Path
-        Destination CSV file where each parse failure will be recorded.
-        The file is created if it does not exist and the parent directory
-        is created automatically.
+    log_file: Optional[Path]
+        Destination CSV file. If omitted, defaults to
+        ``<project_root>/data/parse_failures.csv``.
 
     Returns
     -------
     logging.Logger
-        Configured logger instance (writes to stdout for visibility).
+        A configured logger named ``parse_failure_logger``.
     """
-    global _logger, _log_path
-    _log_path = Path(log_file)
-    _log_path.parent.mkdir(parents=True, exist_ok=True)
+    global _logger, _log_file_path
 
+    # Return existing logger if already created
+    if _logger is not None:
+        return _logger
+
+    # Resolve default location relative to the project root (two levels up from this file)
+    if log_file is None:
+        project_root = Path(__file__).resolve().parents[2]
+        log_file = project_root / "data" / "parse_failures.csv"
+
+    _log_file_path = log_file
+
+    # Ensure the parent directory exists
+    _log_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Create logger instance
     logger = logging.getLogger("parse_failure_logger")
     logger.setLevel(logging.INFO)
 
-    # Avoid duplicate handlers if init_logger is called multiple times
+    # Avoid adding duplicate handlers if init_logger is called multiple times
     if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+        # Simple stream handler for console output; CSV handling is done manually
+        stream_handler = logging.StreamHandler()
+        logger.addHandler(stream_handler)
 
     _logger = logger
+
+    # Initialise the CSV file with a header if it does not yet exist
+    with _lock:
+        if not _log_file_path.is_file():
+            with _log_file_path.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(
+                    f, fieldnames=["timestamp", "file_path", "error_message"]
+                )
+                writer.writeheader()
+
     return logger
 
 
-def _ensure_header() -> None:
+def log_parse_failure(
+    file_path: str, error_message: str, logger: Optional[logging.Logger] = None
+) -> None:
     """
-    Ensure that the CSV file has a header row.  This is called lazily
-    before the first write.  If the file already exists and contains data,
-    the header is left untouched.
-    """
-    if _log_path is None:
-        raise RuntimeError("Logger not initialised – call init_logger() first.")
-    if not _log_path.exists():
-        with _log_path.open("w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(["timestamp", "file_path", "error_type", "error_message"])
-
-
-def log_parse_failure(file_path: str, error: Exception) -> None:
-    """
-    Record a single parse‑failure event to the CSV log.
+    Record a parse‑failure incident to the CSV log.
 
     Parameters
     ----------
     file_path: str
-        The path (relative or absolute) of the file that could not be parsed.
-    error: Exception
-        The exception raised during parsing (e.g., ``SyntaxError``).
+        Path of the source file that failed to parse.
+    error_message: str
+        Human‑readable description of the parsing error.
+    logger: Optional[logging.Logger]
+        Logger to emit a one‑line INFO message. If omitted, the singleton logger
+        created by :func:`init_logger` is used.
     """
-    if _log_path is None:
-        raise RuntimeError("Logger not initialised – call init_logger() first.")
-
-    _ensure_header()
+    # Ensure the logger (and underlying CSV path) are initialised
+    if logger is None:
+        logger = _logger or init_logger()
 
     timestamp = datetime.utcnow().isoformat()
-    row = [timestamp, file_path, type(error).__name__, str(error)]
+    row = {
+        "timestamp": timestamp,
+        "file_path": file_path,
+        "error_message": error_message,
+    }
 
-    # Thread‑safe append
+    # Append the row to the CSV in a thread‑safe manner
     with _lock:
-        with _log_path.open("a", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
+        with _log_file_path.open("a", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(
+                f, fieldnames=["timestamp", "file_path", "error_message"]
+            )
             writer.writerow(row)
 
-    # Also emit a human‑readable log line for debugging / CI visibility
-    if _logger:
-        _logger.info(f"Parse failure logged for {file_path}: {error}")
+    # Emit a concise log message for console / log aggregation
+    logger.info(f"Parse failure logged for {file_path}: {error_message}")

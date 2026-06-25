@@ -1,0 +1,40 @@
+## `research_reviewer_data_quality_research__2026-06-24__research.md`
+
+---
+action_items:
+- id: 01ff3e753f39
+  severity: writing
+  text: "Fix data acquisition / parsing so that the braid index field is populated\
+    \ for \u2265 95 % of records (null \u2264 5 %). This may require:"
+- id: 6c6235991eaf
+  severity: writing
+  text: "Updating code/download/knot_atlas_loader.py to request the braid\u2011index\
+    \ column explicitly from Knot Atlas."
+- id: bcb47c573700
+  severity: writing
+  text: Adding a fallback lookup against KnotInfo where the Knot Atlas entry is missing.
+- id: c37d3c9e1450
+  severity: writing
+  text: "Correct the missing\u2011invariant flag logic in code/data/validator.py (or\
+    \ the equivalent validation module) to ensure that missing_invariant_flags are\
+    \ only set for invariants that truly cannot be computed (e.g., additional invariants\
+    \ in Phase 2+). Core tabulated invariants must never receive this flag."
+- id: ef9b1af9da1e
+  severity: writing
+  text: "Regenerate the data\u2011quality reports (docs/reproducibility/data_quality_report.md,\
+    \ docs/reproducibility/invariant_coverage.md) after the above fixes so that they\
+    \ accurately reflect:"
+- id: 1e269932fa8b
+  severity: writing
+  text: "Null percentages \u2264 5 % for all required fields."
+- id: a902f0003ce8
+  severity: writing
+  text: Correct counts for data_quality_flags and missing_invariant_flags.
+- id: cba7e754d1f0
+  severity: writing
+  text: 'Verify and update the checksum manifest:'
+- id: 136b081e7a7a
+  severity: writing
+  text: Run code/reprod
+
+*[truncated]*

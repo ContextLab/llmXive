@@ -607,105 +607,79 @@
   updated_at: '2026-06-24T21:50:31Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
-  canonical: 500 MB corpus requirement
-  claim_id: c_77906ae8
-  context: "SC\u2011001 validation is performed by T024 (with 500MB corpus verification)\
-    \ to ensure the full dataset meets the size requirement."
+  canonical: 500 MB subset of codeparrot/github-code streamed with HuggingFace datasets
+  claim_id: c_24d9def9
+  context: "Implementation task T018 specifies that the data loader will stream the\
+    \ codeparrot/github-code dataset, using a 500\u202FMB subset, with streaming mode\
+    \ enabled."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "500\u202FMB corpus requirement"
+  raw_text: "stream `codeparrot/github-code` (500\u202FMB subset) using HuggingFace\
+    \ datasets library with streaming mode enabled"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-25T00:41:05Z'
+  updated_at: '2026-06-25T00:44:53Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
-  canonical: 10 files sample for clone density and perplexity verification
-  claim_id: c_8bec6982
-  context: "Integration test T015b runs the pipeline on a small sample of 10 files\
-    \ and checks that clone\u2011density and perplexity CSV output are produced."
+  canonical: 7 GB memory limit validated during model inference
+  claim_id: c_5ed21a01
+  context: "Task T023 adds memory\u2011monitoring to ensure that model inference does\
+    \ not exceed a 7\u202FGB memory limit."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "small sample (10 files) verifying clone\u2011density and perplexity CSV\
-    \ output"
+  raw_text: "Add explicit memory\u2011monitoring to validate 7\u202FGB limit throughout\
+    \ model inference (SC\u2011002)"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-25T00:41:59Z'
+  updated_at: '2026-06-25T00:46:46Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
-  canonical: 1000 code segments processed with valid metrics
-  claim_id: c_a6f8feb5
-  context: "SC\u2011003 validation is performed by T026, which checks that at least\
-    \ 1000 code segments have been processed with valid clone density and perplexity\
-    \ measurements."
+  canonical: at least 1000 code segments processed with valid metrics
+  claim_id: c_58b81f46
+  context: Task T026 defines a validation that checks that a minimum of 1000 code
+    segments have been processed with valid clone density and perplexity measurements.
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/1000_code_segments_processed_with_valid_metrics
+    source_url: https://en.wikipedia.org/wiki/At_least_1000_code_segments_processed_with_valid_metrics
   kind: magnitude
-  raw_text: at least 1000 code segments processed with valid clone density and perplexity
-    measurements
+  raw_text: "Add validation task to verify SC\u2011003 (at least 1000 code segments\
+    \ processed with valid clone density and perplexity measurements)"
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-25T00:42:45Z'
+  updated_at: '2026-06-25T00:47:29Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
-  canonical: 50 problem HumanEval subset
-  claim_id: c_8e6fb781
-  context: "Implementation task T031 loads the 50\u2011problem HumanEval subset to\
-    \ compute pass@1 accuracy."
+  canonical: 50 problem HumanEval subset loaded for pass@1 accuracy computation
+  claim_id: c_f5b54d81
+  context: Implementation task T031 states that bug_detection.py will load a HumanEval
+    subset containing 50 problems and compute pass@1 accuracy.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "50\u2011problem HumanEval subset"
+  raw_text: "load the 50\u2011problem HumanEval subset and compute pass@1 accuracy"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-25T00:43:32Z'
+  updated_at: '2026-06-25T00:48:28Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
-  canonical: p-value less than 0.05 significance
-  claim_id: c_e32e6733
-  context: "SC\u2011004 validation is performed by T035, which asserts that the computed\
-    \ p\u2011value is below 0.05 to deem the correlation statistically significant."
-  evidence:
-    fill:
-      channel: wikipedia
-      conflicts: []
-      quote: The 0.05 significance level is merely a convention. The 0.05 significance
-        level (alpha level) is often used as the boundary between a statistically
-        significant and a statistically non-significant p-value. However, this does
-        not imply that there is generally a scientific reason to consider results
-        on opposite sides of any threshold as qualitatively different.
-      source_id: Misuse of p-values
-      url: https://en.wikipedia.org/wiki/Misuse_of_p-values
-      value: '0.05'
-    filled: true
-  kind: magnitude
-  raw_text: "p\u2011value <\u202F0.05 significance"
-  resolved_value: '0.05'
-  resolver: fill:wikipedia
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-06-25T00:44:06Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: 500 MB dataset download
-  claim_id: c_308fe50a
-  context: "T015a [US1] Integration test for HuggingFace rate\u2011limiting and network\u2011\
+  canonical: 500 MB download
+  claim_id: c_8a3de376
+  context: "Integration test for HuggingFace rate\u2011limiting and network\u2011\
     interruption handling during 500\u202FMB download (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_data_loader.py`)\
     \ using pytest"
   evidence:
@@ -718,13 +692,13 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-25T00:45:28Z'
+  updated_at: '2026-06-25T00:50:27Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
-  canonical: sample of 10 files
-  claim_id: c_f040702d
-  context: "T015b [US1] Integration test for pipeline on a small sample (10 files)\
-    \ verifying clone\u2011density and perplexity CSV output (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_us1_small_sample.py`)\
+  canonical: 10 files sample
+  claim_id: c_76e6730a
+  context: "Integration test for pipeline on a small sample (10 files) verifying clone\u2011\
+    density and perplexity CSV output (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_us1_small_sample.py`)\
     \ using pytest"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
@@ -736,217 +710,68 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-25T00:46:09Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: 500 MB dataset download
-  claim_id: c_e0ddd7e4
-  context: "T018 [US1] Implement data_loader.py to stream codeparrot/github-code (500\u202F\
-    MB subset) using HuggingFace datasets library with streaming mode enabled, outputting\
-    \ to data/raw/github-code-sample.csv"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/data_loader.py`\
-    \ to stream `codeparrot/github-code` (500\u202FMB subset) using HuggingFace datasets\
-    \ library with streaming mode enabled"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-25T00:46:44Z'
+  updated_at: '2026-06-25T00:51:42Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
   canonical: 7 GB memory limit
-  claim_id: c_d31fc17a
-  context: "T023 [US1] Add explicit memory\u2011monitoring to validate 7\u202FGB limit\
-    \ throughout model inference (SC\u2011002)"
+  claim_id: c_2ac5149d
+  context: "Add explicit memory\u2011monitoring to validate 7\u202FGB limit throughout\
+    \ model inference (SC\u2011002)"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
   raw_text: "Add explicit memory\u2011monitoring to validate 7\u202FGB limit throughout\
-    \ model inference (SC\u2011002)"
+    \ model inference"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-25T00:47:08Z'
+  updated_at: '2026-06-25T00:51:43Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
-  canonical: at least 1000 code segments processed
-  claim_id: c_586cc82e
-  context: "T026 [US1] Add validation task to verify SC\u2011003 (at least 1000 code\
-    \ segments processed with valid clone density and perplexity measurements) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`)\
+  canonical: 24 hour completion
+  claim_id: c_6cfb914b
+  context: "Add validation task to verify SC\u2011001 (24\u2011hour completion) AND\
+    \ 500MB corpus requirement on the full dataset (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`)\
+    \ using pytest"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add validation task to verify SC\u2011001 (24\u2011hour completion) AND\
+    \ 500MB corpus requirement on the full dataset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-25T00:52:12Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: 1000 code segments processed
+  claim_id: c_8919614c
+  context: "Add validation task to verify SC\u2011003 (at least 1000 code segments\
+    \ processed with valid clone density and perplexity measurements) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`)\
     \ using pytest"
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/At_least_1000_code_segments_processed
+    source_url: https://en.wikipedia.org/wiki/1000_code_segments_processed
   kind: magnitude
-  raw_text: "Add validation task to verify **SC\u2011003** (at least 1000 code segments\
+  raw_text: "Add validation task to verify SC\u2011003 (at least 1000 code segments\
     \ processed with valid clone density and perplexity measurements)"
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-25T00:47:40Z'
+  updated_at: '2026-06-25T00:52:20Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
-  canonical: 50-problem HumanEval subset
-  claim_id: c_bc2a0f67
-  context: "T031 [US2] Implement bug_detection.py to load the 50\u2011problem HumanEval\
-    \ subset and compute pass@1 accuracy"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py`\
-    \ to load the 50\u2011problem HumanEval subset and compute pass@1 accuracy"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-25T00:48:22Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: sensitivity analysis thresholds 0.7 0.8 0.9
-  claim_id: c_2adb637b
-  context: T038 [US3] Unit test for sensitivity analysis across thresholds 0.7, 0.8,
-    0.9 (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_correlation_analysis.py`)
-    using pytest
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Unit test for sensitivity analysis across thresholds 0.7, 0.8, 0.9
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-25T00:49:20Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: stream 500 MB subset of codeparrot/github-code dataset
-  claim_id: c_0028d131
-  context: "Implementation task T018 specifies streaming a 500\u202FMB subset of the\
-    \ codeparrot/github-code dataset using the HuggingFace datasets library."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement `projects/.../code/data_loader.py` to stream `codeparrot/github-code`\
-    \ (500\u202FMB subset) using HuggingFace datasets library with streaming mode\
-    \ enabled"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-25T00:50:18Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: integration test on 10 files verifying clone density and perplexity CSV
-    output
-  claim_id: c_c5b345a0
-  context: "Test task T015b defines an integration test on a small sample of 10 files\
-    \ to verify clone\u2011density and perplexity CSV output."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Integration test for pipeline on a small sample (10 files) verifying\
-    \ clone\u2011density and perplexity CSV output"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-25T00:50:18Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: at least 1000 code segments processed with valid clone density and perplexity
-    measurements
-  claim_id: c_301a47ec
-  context: "Validation task T026 ensures SC\u2011003 by checking that at least 1000\
-    \ code segments are processed with valid metrics."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/At_least_1000_code_segments_processed_with_valid_clone_densi
-  kind: magnitude
-  raw_text: "SC\u2011003 requires at least 1000 code segments processed with valid\
-    \ clone density and perplexity measurements"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-25T00:50:53Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: validate 7 GB memory limit during model inference
-  claim_id: c_12e5a16a
-  context: "Task T023 adds memory monitoring to enforce a 7\u202FGB limit during model\
-    \ inference as required by SC\u2011002."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Add explicit memory\u2011monitoring to validate 7\u202FGB limit throughout\
-    \ model inference (SC\u2011002)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-25T00:50:53Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: load 50-problem HumanEval subset and compute pass@1 accuracy
-  claim_id: c_7945839a
-  context: "Implementation task T031 involves loading a 50\u2011problem HumanEval\
-    \ subset for pass@1 accuracy calculation."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement `bug_detection.py` to load the 50\u2011problem HumanEval subset\
-    \ and compute pass@1 accuracy"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-25T00:51:47Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: sensitivity analysis for clone detection thresholds 0.7 0.8 0.9
-  claim_id: c_2750538f
-  context: Task T040 extends correlation analysis to run sensitivity analysis across
-    thresholds 0.7, 0.8, and 0.9.
-  evidence:
-    asserted: '0.7'
-    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
-    constant: avogadro
-    corrected: true
-    mode: approximate
-    true_value: 6.02214076e+23
-    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
-  kind: numeric
-  raw_text: "Extend correlation_analysis.py to perform sensitivity analysis for clone\u2011\
-    detection thresholds 0.7, 0.8, 0.9"
-  resolved_value: '602214075999999987023872'
-  resolver: approximate
-  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
-  source_type: external
-  status: verified
-  updated_at: '2026-06-25T00:51:47Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
-  canonical: integration test handling rate limiting and network interruption during
-    500 MB download
-  claim_id: c_50191275
-  context: "Test task T015a defines an integration test for handling rate limiting\
-    \ and network interruptions while downloading a 500\u202FMB dataset."
+  canonical: integration test for 500 MB download handling
+  claim_id: c_6c0ad101
+  context: "Test task T015a specifies an integration test for handling rate\u2011\
+    limiting and network interruptions during a 500\u202FMB download."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -957,4 +782,133 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-25T00:51:47Z'
+  updated_at: '2026-06-25T00:53:03Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: integration test on small sample of 10 files
+  claim_id: c_cd6eefd1
+  context: "Test task T015b defines an integration test using a small sample of 10\
+    \ files to verify clone\u2011density and perplexity CSV output."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Integration test for pipeline on a small sample (10 files) verifying\
+    \ clone\u2011density and perplexity CSV output"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-25T00:53:03Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: at least 1000 code segments processed with valid metrics
+  claim_id: c_12db2e63
+  context: "Success\u2011criterion SC\u2011003 requires processing of at least 1000\
+    \ code segments with valid clone density and perplexity measurements."
+  evidence:
+    entailment_evidence: At least 1000 code segments processed with valid metrics
+      - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/At_least_1000_code_segments_processed_with_valid_metrics
+  kind: magnitude
+  raw_text: "SC\u2011003 (at least 1000 code segments processed with valid clone density\
+    \ and perplexity measurements)"
+  resolved_value: at least 1000 code segments processed with valid metrics
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-25T00:53:06Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: memory monitoring validates 7 GB limit during inference
+  claim_id: c_800ff510
+  context: "Task T023 adds memory\u2011monitoring to ensure the model inference stays\
+    \ within a 7\u202FGB memory limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add explicit memory\u2011monitoring to validate 7\u202FGB limit throughout\
+    \ model inference"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-25T00:53:06Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: p value less than 0.05 significance
+  claim_id: c_d44bb391
+  context: "Success\u2011criterion SC\u2011004 mandates that the correlation results\
+    \ have a p\u2011value below 0.05."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In the "lady tasting tea" example (below), Fisher required the lady to
+        properly categorize all of the cups of tea to justify the conclusion that
+        the result was unlikely to result from chance. His test revealed that if the
+        lady was effectively guessing at random (the null hypothesis), there was a
+        1.4% chance that the observed results (perfectly ordered tea) would occur.
+      source_id: Statistical hypothesis test
+      url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+      value: 1.4%
+    filled: true
+  kind: magnitude
+  raw_text: "SC\u2011004 \u2013 p\u2011value <\u202F0.05 significance documented"
+  resolved_value: 1.4%
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-25T00:53:29Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis across thresholds 0.7 0.8 0.9
+  claim_id: c_9a428219
+  context: Task T038 defines a unit test for sensitivity analysis using thresholds
+    of 0.7, 0.8, and 0.9.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sensitivity analysis across thresholds 0.7, 0.8, 0.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-25T00:54:18Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: load 50 problem HumanEval subset
+  claim_id: c_766db9c9
+  context: Implementation task T031 will load a HumanEval subset consisting of 50
+    problems.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "load the 50\u2011problem HumanEval subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-25T00:54:55Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: 24 hour completion for SC-001
+  claim_id: c_166fcc79
+  context: "Success\u2011criterion SC\u2011001 requires the overall pipeline to complete\
+    \ within 24 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "SC\u2011001 (24\u2011hour completion)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-25T00:55:35Z'
