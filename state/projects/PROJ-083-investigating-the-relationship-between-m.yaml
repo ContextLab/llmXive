@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T10:38:02.017701Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-083-investigating-the-relationship-between-m
-last_run_id: cf7c0525-686b-4ccb-a2f9-36407ba325cd
+last_run_id: 024cb92e-5278-416a-8e6c-c729401bb423
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Relationship Between Molecular Topology and Reaction Selectivity
-updated_at: '2026-06-15T09:50:20.196834Z'
+updated_at: '2026-06-25T01:38:37.412676Z'
