@@ -294,3 +294,41 @@ class TestAuditEndToEnd(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_depends_on_task_annotations_are_not_template_placeholders(tmp_path):
+    """A tasks.md that expresses dependencies via explicit ``[DEPENDS ON: T0NN]``
+    annotations (the filled form of a removed ``[P]`` marker) must classify REAL,
+    not template. Live PROJ-492 tasker refusal: the tasker correctly switched
+    mis-tagged [P] tasks to [DEPENDS ON: T0NN] and the whole tasks.md was
+    mis-classified 'template' on bracket density (sample=['[DEPENDS ON: T011]', …])
+    and refused. A bracket naming a concrete task id is FILLED, not a placeholder."""
+    from llmxive.audit.template_vs_real import classify
+
+    tasks = "# Tasks\n\n## Phase 1\n" + "".join(
+        f"- [ ] T{i:03d} [P] [US1] do thing {i} in code/a{i}.py "
+        f"[DEPENDS ON: T0{(i % 9) + 11:02d}]\n"
+        for i in range(12, 30)
+    )
+    p = tmp_path / "tasks.md"
+    p.write_text(tasks, encoding="utf-8")
+    classification, rules = classify(p, templates_dir=Path(".specify/templates"))
+    assert classification == "real", [r.rule_id for r in rules]
+
+
+def test_genuine_unfilled_template_still_classifies_template(tmp_path):
+    """Regression: the bracket-density rule must still catch a real unfilled
+    template — the [DEPENDS ON: T0NN] exclusion must not blanket-disable it."""
+    from llmxive.audit.template_vs_real import classify
+
+    tmpl = (
+        "# Feature Specification: [FEATURE NAME]\nCreated: [DATE]\n\n## Overview\n"
+        "[Brief description of the feature]\n\n## Requirements\n"
+        "[List the functional requirements here]\n[Describe the user scenarios]\n"
+        "[Add acceptance criteria]\n[Define the success metrics]\n"
+        "[Enumerate the edge cases]\n[Note the assumptions made]\n"
+    )
+    p = tmp_path / "spec.md"
+    p.write_text(tmpl, encoding="utf-8")
+    classification, _ = classify(p, templates_dir=Path(".specify/templates"))
+    assert classification == "template"
