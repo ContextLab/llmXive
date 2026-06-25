@@ -346,9 +346,25 @@ def run_convergence(
         on_round(1, list(open_concerns), [], [])
 
     rounds_used = 0
+    # BEST-SO-FAR (PROJ-492 spec-panel oscillation 27->2->32->14): the reviser
+    # regenerates the WHOLE artifact each round and sometimes REGRESSES
+    # previously-resolved concerns (e.g. drops the FR->US anchors it just added),
+    # which the accepter lenses correctly re-flag. Feeding that regressed artifact
+    # to the next revise compounds the drift and the panel never converges even
+    # though an earlier round was nearly clean. Keep the round with the FEWEST
+    # open concerns and always refine from THAT — each round becomes an
+    # independent shot from the best spec, not a compounding regression. This only
+    # ever helps convergence; it never marks an unresolved concern resolved.
+    best_artifacts = dict(artifacts)
+    best_open = list(open_concerns)
     while open_concerns and rounds_used < cap:
         rounds_used += 1
         t0 = time.monotonic()
+        # Never compound a regression: if the last round left MORE open concerns
+        # than the best seen, refine the BEST artifact, not the regressed one.
+        if len(open_concerns) > len(best_open):
+            artifacts = dict(best_artifacts)
+            open_concerns = list(best_open)
 
         # --- R2: revise (the reviser addresses EVERY open concern) ---
         if spec.reviser is None:
@@ -474,12 +490,26 @@ def run_convergence(
             if c.id not in {h.id for h in concern_history}:
                 concern_history.append(c)
         open_concerns = deduped
+        # Record this round as the new best iff it left strictly fewer open
+        # concerns (so a regressing round is discarded, not refined-from).
+        if len(open_concerns) < len(best_open):
+            best_artifacts = dict(artifacts)
+            best_open = list(open_concerns)
 
         if on_round is not None:
             on_round(rounds_used + 1, list(open_concerns), list(responses), list(round_verdicts))
 
         if per_round_budget_s is not None and (time.monotonic() - t0) > per_round_budget_s:
             break  # per-round wall-clock budget exceeded -> stop, kickback
+
+    # Decide convergence on the BEST-so-far artifact: a later round may have
+    # regressed it; the project should advance on the cleanest spec achieved, and
+    # converge iff THAT reached zero open concerns. (The deterministic marker /
+    # spec-quality backstops below re-scan these artifacts, so this can only
+    # flip converged->False, never hide an unresolved concern.)
+    if len(best_open) < len(open_concerns):
+        artifacts = dict(best_artifacts)
+        open_concerns = list(best_open)
 
     # F-18 universal citation hard-block: BEFORE declaring convergence, scan the
     # FINAL produced-doc artifacts for unresolved ``[UNVERIFIED: ...]`` markers.
