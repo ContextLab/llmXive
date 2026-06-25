@@ -82,6 +82,24 @@ every one:
     bounded by or derived from another), do NOT claim independent effects —
     report the relationship descriptively and acknowledge the collinearity.
 
+## Compute feasibility (the plan MUST be runnable on free CPU-only CI)
+
+The implementation is executed on a GitHub Actions free-tier runner: **2 CPU
+cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job.** A plan that names a
+GPU/heavy method never runs → the project never reaches `research_complete`.
+Every library, model, and method named in plan.md / research.md / data-model.md
+/ quickstart.md MUST run there:
+
+- **No GPU / CUDA**, no 8-bit/4-bit quantization (`load_in_8bit`, bitsandbytes
+  require CUDA), no `device_map="cuda"`, no GPU/mixed-precision training.
+- **No deep-net training from scratch or large-LLM inference.** A small CPU
+  model in default precision over a SAMPLED dataset is fine; pin libraries that
+  install + run on CPU (e.g. CPU-wheel `torch`, `scikit-learn`).
+- **Fit the box.** Data subset to ~7 GB RAM / ~14 GB disk; total runtime ≤6 h.
+- Prefer CPU-tractable methods. If the spec implies a heavy method, plan a
+  CPU-tractable approximation (smaller model, default precision, sampled data)
+  and say so in research.md's Decision/Rationale.
+
 ## Rules
 
 - Plan MUST include a Constitution Check section that references

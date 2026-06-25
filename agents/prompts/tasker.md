@@ -73,6 +73,15 @@ for the cap-hit path and signals `human_input_needed`.
 
 ## Rules
 
+- **Compute feasibility — every task MUST run on free CPU-only CI** (2 CPU
+  cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h). A task that needs hardware the
+  runner lacks never executes, so the project never reaches research_complete.
+  NEVER write a task that loads a model in 8-bit/4-bit quantization
+  (`load_in_8bit` / bitsandbytes REQUIRE CUDA), uses `device_map="cuda"`, trains
+  a deep net (GNN/transformer) from scratch, runs a large LLM, or processes data
+  exceeding RAM/disk. If the plan implies a heavy method, task a CPU-tractable
+  version instead: a SMALL model in DEFAULT precision on a SAMPLED dataset,
+  classical statistics, or scikit-learn — never an 8-bit/GPU model.
 - NEVER weaken a test or remove a constraint to make analyze pass —
   the constitution says "fix the code, not the test".
 - Task ordering MUST respect data flow: a task that says

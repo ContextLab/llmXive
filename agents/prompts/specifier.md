@@ -64,6 +64,28 @@ methodology panel raises and that no later stage can paper over:
   SCs must NOT claim independent predictive effects; frame the joint relationship
   descriptively and require a collinearity diagnostic.
 
+## Compute feasibility (the analysis MUST run on free CPU-only CI)
+
+The whole analysis is executed end-to-end on a GitHub Actions free-tier runner:
+**2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job.** A method that
+needs hardware the runner lacks simply NEVER EXECUTES — the project can never
+reach `research_complete`. Encode the constraint in the FRs/SCs and `##
+Assumptions`:
+
+- **No GPU / CUDA / accelerators.** Never require 8-bit or 4-bit quantization
+  (`load_in_8bit`, bitsandbytes — these REQUIRE CUDA), `device_map="cuda"`,
+  mixed-precision/GPU training, or any method assuming a GPU.
+- **No heavy training / large-model inference.** Do not require training a deep
+  net (GNN/transformer) from scratch or running a large LLM. A SMALL model that
+  runs on CPU in DEFAULT precision over a SAMPLED dataset is acceptable; an
+  8-bit/GPU or large model is not.
+- **Fit the box.** Data must fit ~7 GB RAM / ~14 GB disk (sample/subset if
+  needed); total compute ≤6 h.
+- Prefer CPU-tractable methods: classical statistics, scikit-learn on modest
+  data, exact/closed-form computation, simulation, text retrieval. If the idea
+  implies a heavy method, specify a CPU-tractable approximation and record the
+  scoping decision under `## Assumptions`.
+
 ## Rules
 
 - Use the project's idea Markdown as the source of truth for
