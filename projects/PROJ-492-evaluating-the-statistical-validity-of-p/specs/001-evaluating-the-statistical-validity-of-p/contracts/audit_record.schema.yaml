@@ -1,57 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AuditRecord"
-type: "object"
+title: "Audit Record"
+type: object
 required:
-  - summary_url
+  - url
   - reconstructed_p
   - reconstructed_effect_size
   - diff_abs_p
   - diff_abs_effect
-  - diff_abs_n
   - flag_inconsistent
   - category
-  - hash
-  - processed_at
 properties:
-  summary_url:
-    type: "string"
-    format: "uri"
-    description: "URL of the audited summary (mirrors ABSummary.url)."
+  url:
+    type: string
+    format: uri
+    description: "URL of the audited summary."
   reconstructed_p:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "P‑value computed from raw numbers."
+    type: number
+    description: "Two‑sided p‑value computed from the reconstructed statistical test."
   reconstructed_effect_size:
-    type: "number"
-    description: "Effect size derived from raw counts/rates."
+    type: number
+    description: "Effect size derived from raw counts (absolute difference)."
   diff_abs_p:
-    type: "number"
-    minimum: 0
+    type: number
     description: "Absolute difference between reported and reconstructed p‑values."
   diff_abs_effect:
-    type: "number"
-    minimum: 0
-    description: "Absolute relative difference between reported and reconstructed effect size."
-  diff_abs_n:
-    type: "number"
-    minimum: 0
-    description: "Absolute relative difference between reported and reconstructed sample size (max of two variants)."
+    type: number
+    description: "Absolute difference between reported and reconstructed effect sizes."
   flag_inconsistent:
-    type: "boolean"
-    description: "True if any FR‑004 rule flags the summary."
+    type: boolean
+    description: "True if any inconsistency rule from FR‑004 is triggered."
   category:
-    type: "string"
-    enum: ["p_value","effect_size","sample_size","ci_mismatch","missing_metric","size_mismatch","parsing_failure"]
-    description: "Primary inconsistency category."
+    type: string
+    enum: ["p_value", "effect_size", "sample_size", "missing_metric", "size_mismatch", "ci_violation", "inequality_p", "none"]
+    description: "Primary reason for inconsistency, or \"none\" if consistent."
   notes:
-    type: "string"
-    description: "Optional human‑readable explanation or error message."
-  hash:
-    type: "string"
-    pattern: "^[a-f0-9]{64}$"
-    description: "SHA‑256 hash of the normalized payload (used for deduplication)."
-  processed_at:
-    type: "string"
-    format: "date-time"
-    description: "Timestamp when the audit record was created."
+    type: string
+    description: "Human‑readable explanation of the flag or any parsing issues."

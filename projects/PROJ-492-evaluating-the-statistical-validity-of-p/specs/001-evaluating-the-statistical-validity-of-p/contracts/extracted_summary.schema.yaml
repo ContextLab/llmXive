@@ -1,71 +1,53 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ABSummary"
-type: "object"
+title: "Extracted A/B Summary"
+type: object
 required:
   - url
-  - retrieved_at
   - variant_a_n
   - variant_b_n
-  - variant_a_rate
-  - variant_b_rate
   - effect_size
-  - effect_size_unit
+  - effect_size_type
   - reported_p
   - outcome_type
 properties:
   url:
-    type: "string"
-    format: "uri"
+    type: string
+    format: uri
     description: "Original URL of the public A/B test summary."
-  retrieved_at:
-    type: "string"
-    format: "date-time"
-    description: "Timestamp when the page was downloaded."
   variant_a_n:
-    type: "integer"
+    type: integer
     minimum: 1
-    description: "Sample size for Variant A."
+    description: "Sample size for variant A."
   variant_b_n:
-    type: "integer"
+    type: integer
     minimum: 1
-    description: "Sample size for Variant B."
-  variant_a_rate:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Conversion rate or mean for Variant A."
-  variant_b_rate:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Conversion rate or mean for Variant B."
+    description: "Sample size for variant B."
   effect_size:
-    type: "number"
-    description: "Reported effect size (absolute difference, lift %, mean diff, or odds ratio)."
-  effect_size_unit:
-    type: "string"
-    enum: ["abs_diff","lift_percent","mean_diff","odds_ratio"]
-    description: "Unit of the reported effect size."
+    type: number
+    description: "Reported effect size (absolute difference for binary outcomes, mean difference for continuous)."
+  effect_size_type:
+    type: string
+    enum: ["absolute", "lift_percent"]
+    description: "Units of the reported effect size."
   reported_p:
-    type: "string"
-    description: "Reported p‑value string (e.g., \"0.032\" or \"p<0.001\")."
+    type: string
+    description: "Reported p‑value; may be a numeric string (e.g., \"0.032\") or an inequality (e.g., \"p<0.001\")."
   confidence_interval:
-    type: "object"
-    required: ["lower","upper"]
+    type: object
+    required:
+      - lower
+      - upper
     properties:
       lower:
-        type: "number"
+        type: number
       upper:
-        type: "number"
+        type: number
     description: "Optional 95 % confidence interval for the effect size."
   outcome_type:
-    type: "string"
-    enum: ["binary","continuous"]
-    description: "Nature of the outcome metric."
-  source:
-    type: "string"
-    description: "Human‑readable source name (optional)."
+    type: string
+    enum: ["binary", "continuous"]
+    description: "Whether the metric is a conversion rate (binary) or a continuous measure."
   timestamp:
-    type: "string"
-    format: "date-time"
-    description: "Publication date of the summary (optional)."
+    type: string
+    format: date-time
+    description: "Optional publication timestamp extracted from the source."

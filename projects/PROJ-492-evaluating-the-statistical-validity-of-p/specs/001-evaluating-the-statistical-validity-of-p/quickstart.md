@@ -1,82 +1,89 @@
-# Quickstart: Auditing Public A/B Test Summaries
+# Quickstart: Evaluating the Statistical Validity of Public A/B Test Summaries
 
-This guide walks you through a fresh clone of the repository to run the full audit pipeline on a sample corpus of URLs.
+## Prerequisites
+- **Docker** (recommended) or a local Python 3.11 environment.  
+- GitHub account with permission to trigger the repository workflow.  
 
-## 1. Clone the Repository
+## Step‑by‑Step
+
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-org/ab-test-audit.git
+git clone https://github.com/yourorg/ab-test-audit.git
 cd ab-test-audit
 ```
 
-## 2. Build the Docker Image (CPU‑only)
+### 2. Build the Docker Image (optional but ensures reproducibility)
 ```bash
 docker build -t ab-audit:latest .
 ```
-*The Dockerfile pins Python 3.11 and all library versions (see `requirements.txt`).*
 
-## 3. Prepare Input URLs
-Create a CSV file `input/urls.csv` with a header `url` and at least 300 reachable URLs:
+### 3. Prepare the Input URL List
+Create `input/urls.csv` with a header `url` and one URL per line, e.g.:
 
 ```csv
 url
-https://example.com/blog/ab-test-1
-https://example.org/engineering/experiment-42
+https://example.com/blog/2023/ab-test-1
+https://another.com/engineering/ab-test-42
 ...
 ```
 
-## 4. Run the Audit Pipeline
+> **Tip:** The file can be as large as you like; the pipeline will process it in parallel while respecting the 2‑CPU limit of the GitHub Actions runner. The realistic target is up to **[deferred]** URLs to stay within the 6‑hour CI window (see performance notes in `plan.md`).
+
+### 4. Run the Audit Pipeline
+
+#### Using Docker (recommended)
 ```bash
 docker run --rm \
   -v "$(pwd)/input:/app/input" \
   -v "$(pwd)/output:/app/output" \
   -v "$(pwd)/data:/app/data" \
   ab-audit:latest \
-  python -m src.audit.cli input/urls.csv output/
+  ./run_audit.sh input/urls.csv output/
 ```
-The CLI performs the following steps automatically:
 
-1. **Deduplication** (FR‑017)  
-2. **HTML download & extraction** (FR‑001, FR‑002, FR‑007)  
-3. **Statistical reconstruction** (FR‑003)  
-4. **Consistency checks** (FR‑004) & **sensitivity analysis** (FR‑004a)  
-5. **Synthetic validation dataset generation** (FR‑008) – saved under `data/synthetic/`  
-6. **Dashboard generation** (`output/dashboard.html`, FR‑010)  
-7. **Manifest creation** (`output/manifest.json`, FR‑014)  
-
-## 5. Verify Resource Usage (SC‑008)
-After the run finishes, inspect `output/resource_log.json` which contains:
-
-```json
-{
-  "cpu_time_seconds": 11234,
-  "max_memory_gb": 6.3,
-  "wall_time_seconds": 11500
-}
-```
-All values must respect the limits (≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h).
-
-## 6. Check Reproducibility (SC‑004, SC‑009)
+#### Using Local Python (if you prefer)
 ```bash
-md5sum output/audit_report.json output/dashboard.html
-cat output/manifest.json   # contains SHA‑256 hashes of the above files
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+./run_audit.sh input/urls.csv output/
 ```
-The MD5 sums should match the values recorded in `manifest.json`.
 
-## 7. View the Dashboard
-Open `output/dashboard.html` in any browser. It displays:
+The script will:
+1. Download each URL (checksums stored under `data/raw/`).  
+2. Extract required metrics into `data/processed/extracted.csv`.  
+3. Reconstruct p‑values/effect sizes.  
+4. Flag inconsistencies per **FR‑004**.  
+5. Perform the binomial prevalence test (**FR‑005a**) with post‑hoc power assessment.  
+6. Conduct a sensitivity analysis on the FR‑004 thresholds.  
+7. Write `output/audit_report.json` (the **Single Source of Truth** for per‑summary results) and `output/summary_report.csv` (aggregate summary).
 
-- Overall inconsistency rate  
-- Source‑wise bar chart  
-- Monthly trend line chart  
-- Binomial test p‑value and Wilson 95 % CI (FR‑005a)  
+### 5. Inspect the Results
+- **Detailed per‑summary audit**: `output/audit_report.json` – each entry follows `audit_record.schema.yaml`.  
+- **Aggregate summary**: `output/summary_report.csv` – columns:  
+  `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `wilson_ci_lower`, `wilson_ci_upper`.  
 
-## 8. Run Contract Tests (optional)
+Open the CSV in any spreadsheet program or view it directly:
+
 ```bash
-docker run --rm -v "$(pwd):/app" ab-audit:latest pytest -m contract
+head output/summary_report.csv
 ```
-All schema validations must pass (SC‑015).
 
-## 9. CI Execution (for developers)
-Push a branch to GitHub; the workflow `.github/workflows/audit.yml` will automatically run the pipeline on the GitHub Actions free‑tier runner and enforce the resource caps.
+### 6. Verify Compliance (Automated Tests)
+Run the contract‑based test suite to ensure outputs match schemas and success criteria:
+
+```bash
+pytest -q
+```
+
+All tests should pass, confirming:
+- Extraction accuracy ≥ 95 % on the **≥ 100**‑item validation set (`SC‑001`).  
+- Inconsistency‑detection precision ≥ 90 % (`SC‑014`).  
+- Parsing‑error rate ≤ 5 % (`SC‑005`).  
+- CI‑compatible runtime ≤ 6 h (`SC‑008`).  
+
+### 7. CI Execution (Optional)
+The repository includes a GitHub Actions workflow (`.github/workflows/audit.yml`). Push a branch with an updated `input/urls.csv` and the workflow will automatically run the full pipeline, producing the same artifacts under the `artifact/` section of the workflow run.
 
 ---
+

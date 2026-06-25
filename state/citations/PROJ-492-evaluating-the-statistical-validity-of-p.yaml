@@ -1,4 +1,4 @@
-- artifact_hash: f50a99148eecd0d71b88a07634f9bf1af75df4e3067c7a08b4f85b0455fda2ba
+- artifact_hash: ef82736b1d894bb26b85319c7457c2b5bd8173c22df9a5bb66ea677176abef04
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,32 +8,10 @@
   value: https://example.com/ab-test-1
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-1
-  verified_at: '2026-06-25T08:00:18.646055Z'
-- artifact_hash: f50a99148eecd0d71b88a07634f9bf1af75df4e3067c7a08b4f85b0455fda2ba
+  verified_at: '2026-06-25T09:04:47.627675Z'
+- artifact_hash: ef82736b1d894bb26b85319c7457c2b5bd8173c22df9a5bb66ea677176abef04
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/spec.md
   cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://example.com/ab-test-2
-  verification_status: mismatch
-  verified_against_url: https://example.com/ab-test-2
-  verified_at: '2026-06-25T08:00:18.646055Z'
-- artifact_hash: f50a99148eecd0d71b88a07634f9bf1af75df4e3067c7a08b4f85b0455fda2ba
-  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/spec.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://example.com/ab-test-3
-  verification_status: mismatch
-  verified_against_url: https://example.com/ab-test-3
-  verified_at: '2026-06-25T08:00:18.646055Z'
-- artifact_hash: f50a99148eecd0d71b88a07634f9bf1af75df4e3067c7a08b4f85b0455fda2ba
-  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/spec.md
-  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -41,4 +19,4 @@
   value: https://github.com/yourorg/ab-test-audit.git
   verification_status: mismatch
   verified_against_url: https://github.com/yourorg/ab-test-audit
-  verified_at: '2026-06-25T08:00:18.646055Z'
+  verified_at: '2026-06-25T09:04:47.627675Z'
