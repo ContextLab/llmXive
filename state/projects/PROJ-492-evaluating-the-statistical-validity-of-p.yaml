@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-492-evaluating-the-statistical-validity-of-p
-last_run_id: e85252ea-5771-413c-8cb5-de4a9123272d
+last_run_id: 87bf51a2-5fa4-4a34-9671-e15cf6fb1ee6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p
 title: Evaluating the Statistical Validity of Publicly Available A/B Test Summaries
-updated_at: '2026-06-25T05:50:44.829623Z'
+updated_at: '2026-06-25T06:36:45.278189Z'

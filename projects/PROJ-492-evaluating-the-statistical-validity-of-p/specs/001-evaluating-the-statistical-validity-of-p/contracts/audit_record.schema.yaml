@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AuditRecord"
+type: object
+required:
+  - summary_url
+  - reconstructed_p
+  - reconstructed_effect_size
+  - reconstructed_variant_a_n
+  - reconstructed_variant_b_n
+  - diff_abs_p
+  - diff_rel_effect
+  - diff_rel_n
+  - flag_inconsistent
+  - category
+  - audit_timestamp
+properties:
+  summary_url:
+    type: string
+    format: uri
+    description: "URL of the audited A/B test summary."
+  reconstructed_p:
+    type: number
+    description: "P‑value computed from the reconstructed statistical test."
+  reconstructed_effect_size:
+    type: number
+    description: "Effect size computed from raw counts or means."
+  reconstructed_variant_a_n:
+    type: integer
+    minimum: 0
+    description: "Reconstructed sample size for variant A."
+  reconstructed_variant_b_n:
+    type: integer
+    minimum: 0
+    description: "Reconstructed sample size for variant B."
+  diff_abs_p:
+    type: number
+    description: "Absolute difference between reported and reconstructed p‑values."
+  diff_rel_effect:
+    type: number
+    description: "Relative difference of effect sizes (absolute diff / larger magnitude)."
+  diff_rel_n:
+    type: number
+    description: "Relative difference of sample sizes (absolute diff / larger count."
+  flag_inconsistent:
+    type: boolean
+    description: "True if any FR‑004 inconsistency rule is triggered."
+  category:
+    type: string
+    enum:
+      - p_value
+      - effect_size
+      - sample_size
+      - ci_mismatch
+      - missing_metric
+      - size_mismatch
+    description: "Primary "
+  notes:
+    type: string
+    description: "Free‑form "
+  audit_timestamp:
+    type: string
+    format: date-time
+    description: "When "

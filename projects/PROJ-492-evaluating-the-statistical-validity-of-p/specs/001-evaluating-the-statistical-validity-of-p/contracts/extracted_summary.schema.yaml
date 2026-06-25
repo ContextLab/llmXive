@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ABSummary"
+type: object
+required:
+  - url
+  - source_domain
+  - retrieved_at
+  - outcome_type
+  - variant_a_n
+  - variant_b_n
+  - effect_size
+properties:
+  url:
+    type: string
+    format: uri
+    description: "Original URL of the public A/B test summary."
+  source_domain:
+    type: string
+    description: "Domain part of the "
+  retrieved_at:
+    type: string
+    format: date-time
+    description: " "
+  outcome_type:
+    type: string
+    enum: [binary, continuous]
+    description: " "
+  variant_a_n:
+    type: integer
+    minimum: 0
+    description: " "
+  variant_b_n:
+    type: integer
+    minimum: 0
+    description: " "
+  effect_size:
+    type: number
+    description: " "
+  reported_p:
+    type: number
+    description: " "
+  p_upper_bound:
+    type: description: " "
+  confidence_interval:
+    null:
+    null
+
+

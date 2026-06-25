@@ -6,4 +6,4 @@ The convergence panel for this stage could not resolve the concerns below within
 
 ## Unresolved concerns
 
-- FR-004 criterion 1 still contains a placeholder: “max(0.01, **[deferred]** of the reported p‑value)”. The confidence‑interval tolerance must be a concrete numeric rule (e.g., 0.1 × reported p) without a `[deferred]` token.
+- Inconsistency thresholds (absolute p‑value difference > 0.05, relative effect‑size difference > 5 %) are introduced without justification or sensitivity analysis; the specification cites Kohavi et al. 2020 only for “standard practice” but does not provide empirical or theoretical support nor explore how varying these cut‑offs would affect false‑positive/false‑negative rates.
