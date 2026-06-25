@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-25T07:13:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting coating adhesion strength from composition and surface features materials science",
+  "rationale": "The paper discusses data source changes and machine‑learning risks in official statistics, which bears no connection to coating adhesion strength, material composition, surface features, or materials‑science predictive modeling. It is off‑domain and does not address any of the variables or mechanisms of the user's question.",
+  "relevant": false
+}

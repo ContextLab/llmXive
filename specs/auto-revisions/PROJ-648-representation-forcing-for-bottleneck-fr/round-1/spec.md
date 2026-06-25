@@ -1,0 +1,56 @@
+# Revision Specification: Paper Science Revision — PROJ-648-representation-forcing-for-bottleneck-fr round 1
+
+**Generated**: 2026-06-25T07:14:27.494484+00:00
+**Kind**: paper_science
+**Project**: PROJ-648-representation-forcing-for-bottleneck-fr
+**Round**: 1
+
+## Input
+
+Address the following reviewer-raised action items:
+
+- **[71c72833442a] (severity: writing)** Multiple critical citations remain missing from main.bib. The following entries cited in the paper are still absent: `vae`, `esser2020taming`, `pixelflow`, `pixnerd`, `uniworld`, `omnigen2`, `qwenimage`, `zimageturbo`, `seedream`, `knight2008sinkhorn`. Add these entries to main.bib to enable verification of baseline claims (see Table 1, lines 1-40 in experiments.tex).
+- **[c5f0c6ed3ae4] (severity: science)** Verify that the REPA comparison in Section 4.4 (Ablation Studies, Table 4b) accurately reflects the REPA paper's methodology. The REPA citation now exists in main.bib, but ensure the claim that RF 'substantially outperforms REPA' (0.76 vs 0.43 on GenEval) is supported by comparable experimental settings between the two methods.
+- **[69a07859c574] (severity: writing)** The GenEval/DPG-Bench SOTA claims in Table 1 (experiments.tex) cite `omnigen2` and `qwenimage` but these bib entries are missing. Without these citations, the 'matching state-of-the-art' claim cannot be verified by readers.
+- **[3cf6704a45c2] (severity: writing)** The actual code repository is not included in the submission. Please provide the code files or a direct link to the repository to evaluate modularity, tests, and dependency hygiene.
+- **[db020039087e] (severity: writing)** The pseudocode in Algorithm 1 lacks specific library version requirements (e.g., PyTorch version) and dependency declarations (requirements.txt) for reproducibility.
+- **[77ccb2f7de89] (severity: writing)** Data provenance is underspecified: paper states training follows BAGEL pipeline but does not list specific dataset names, sizes, or licensing terms. Add a Data Availability subsection with explicit dataset sources and licenses.
+- **[83758f0a10bd] (severity: writing)** No dataset versioning information provided. External URLs (e.g., project page at yuqingwang1029.github.io/RepresentationForcing) risk link rot. Archive datasets/code in a persistent repository (e.g., Zenodo, Hugging Face) with DOIs.
+- **[5e4731040188] (severity: writing)** Many bibliography entries cite arXiv preprints from 2024-2026 without stable publication venues. Replace with published versions where available, or provide permanent archive links for reproducibility.
+- **[9fa65aef88d5] (severity: writing)** Add accessibility alt text to all \includegraphics commands for screen reader compatibility.
+- **[7de51cc6f3a3] (severity: writing)** Expand the caption for Figure 3 (demo.pdf) to describe specific visual qualities or prompts.
+- **[b59fe11bb1a4] (severity: writing)** Remove unused figure files (method_old.pdf, rf_teaser.pdf) to ensure build reproducibility.
+- **[ff9c9cbc27ca] (severity: writing)** Define 'VAE' (Variational Autoencoder) at first use in Abstract and Introduction.
+- **[b623cf39890b] (severity: writing)** Define 'LLM' (Large Language Model) at first use in Section 3.3.
+- **[b70f2863c9bb] (severity: writing)** Define acronyms 'JiT', 'REPA', 'NaViT' upon first citation in Sections 3.2 and Appendix.
+- **[72bd3b9e2427] (severity: writing)** Replace 'autoregressively predict' with 'predict step-by-step' in Abstract and Section 3.1.
+- **[c2a20d403f98] (severity: writing)** Simplify 'codebook collapse' to 'codebook failure' or explain the concept in Section 3.1.
+- **[f8e3917b1aed] (severity: writing)** Define 'flow matching' and 'x-prediction' when introduced in Section 3.2.
+- **[cb5b687a3b22] (severity: writing)** Define 'VLM' (Vision-Language Model) at first use in Table 2 caption (Experiments).
+- **[67d343831a71] (severity: writing)** Clarify the claim of "fully end-to-end native multimodal learning" in the Conclusion. The method relies on an understanding encoder initialized from pretrained DINOv3 (Sec 4.3), meaning the representation space inherits biases rather than being learned solely from raw inputs. Temper "fully end-to-end" language to reflect this dependency.
+- **[7638f5c1aefa] (severity: writing)** Training data provenance lacks specificity: paper references BAGEL data pipeline without clarifying whether training datasets include copyrighted content, personally identifiable information, or whether consent was obtained for all image-text pairs used.
+- **[06a74a8db51e] (severity: writing)** Broader Impact section (appendix.tex) acknowledges dual-use risks but does not describe concrete mitigation measures implemented or tested (e.g., safety filters, bias evaluation across demographic groups, red-teaming for harmful outputs).
+- **[a0a2e92d1677] (severity: writing)** No discussion of bias/fairness testing for the model's outputs across demographic groups, which is standard practice for image generation systems given documented risks of demographic bias in generative models.
+- **[255b216df726] (severity: science)** Report standard deviations or number of random seeds for all benchmark results (Tables 1 & 2) to establish statistical significance of reported gains.
+- **[806cf4f849fb] (severity: science)** Clarify if the four generation variants (Pixel/VAE w/ & w/o RF) were trained with identical random seeds to ensure fair comparison in Table 3a.
+- **[fb3898324d6e] (severity: science)** Report benchmark scores as mean ± standard deviation over multiple random seeds (e.g., n=5) to quantify variance. Current single-point estimates in Tables 1-3 do not support statistical significance claims.
+- **[d4b89f179ea5] (severity: science)** Include hypothesis testing (e.g., paired t-tests) for key comparisons (RF-Pixel vs. VAE+RF) to validate 'outperforms' claims. Without p-values, observed differences may be due to random initialization.
+- **[e6b79be4f00a] (severity: science)** Address multiple-comparisons error when claiming 'improves 6 of 8 benchmarks' (Table 2). Apply corrections (e.g., Bonferroni) or clarify if this is an exploratory observation rather than a primary claim.
+- **[0d24ea470fb4] (severity: writing)** Add \usepackage{subcaption} to paper.tex; \begin{subtable} is used in sections/experiments.tex (Table 3) but the package is missing, causing compilation failure.
+- **[1a778fdf3517] (severity: writing)** Rename \section{Discussion} to \section{Conclusion} in sections/conclusion.tex to align the heading with the content block labeled 'Conclusion'.
+- **[4f9d3dc9e471] (severity: writing)** Remove duplicate 'year' field from 'zheng2023judging' entry in main.bib to ensure BibTeX hygiene.
+- **[19b4aa51abb5] (severity: writing)** Standardize 'arXiv' capitalization in 'titok' bib entry (currently 'arxiv') for consistency with other entries.
+- **[0dffdeb6aa95] (severity: writing)** Author affiliations in paper.tex show inconsistent line breaks. Entries for 'Qi Zhao' and 'Haoqi Fan' still contain double newlines (\) before their names, unlike other authors. Standardize formatting across all author entries to avoid visual inconsistency.
+- **[efcecf460f75] (severity: writing)** Several sentences throughout remain overly long (e.g., introduction, paragraph 2). Consider splitting complex sentences like 'We attribute this to the broader image distribution...' into 2-3 shorter sentences for improved readability.
+
+
+## Success Criterion
+
+After the implementer applies this revision, the project returns to
+``paper_review`` and the per-specialist re-review protocol confirms
+each of the 33 action item(s) above as ADEQUATELY ADDRESSED.
+
+## Out of scope
+
+- New experiments not directly required by a ``science``-severity item above.
+- Refactors / cleanups not required by an action item.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-06-25T07:13:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting coating adhesion strength from composition and surface features materials science",
+  "rationale": "The paper focuses on interpreting machine‑learning models via energy‑landscape methods and does not study coating adhesion strength, composition, or surface features, nor does it provide a baseline or foundational method for predicting such material properties. Hence it is unrelated to the user's research question.",
+  "relevant": false
+}

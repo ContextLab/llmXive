@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-25T07:13:41Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting coating adhesion strength from composition and surface features materials science",
+  "rationale": "The paper discusses general validation recommendations for supervised machine learning in biology and does not address coating adhesion strength, composition, surface features, or materials‑science prediction tasks, nor does it provide a foundational method specific to that domain. It is off‑topic for the user's research question.",
+  "relevant": false
+}

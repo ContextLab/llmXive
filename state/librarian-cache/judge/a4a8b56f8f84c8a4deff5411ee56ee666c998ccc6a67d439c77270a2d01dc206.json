@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-06-25T07:13:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting coating adhesion strength from composition and surface features materials science",
+  "rationale": "The paper surveys learning‑curve models for machine‑learning decision making and does not study coating adhesion strength, material composition, or surface‑feature effects; it is unrelated to the domain or variables of the user's question.",
+  "relevant": false
+}

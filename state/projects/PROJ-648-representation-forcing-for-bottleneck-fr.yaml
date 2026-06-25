@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-648-representation-forcing-for-bottleneck-fr
-last_run_id: null
+last_run_id: 8a587b25-b9e3-4089-b58d-55feccd50c17
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-648-representation-forcing-for-bottleneck-fr/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Representation Forcing for Bottleneck-Free Unified Multimodal Models
-updated_at: '2026-06-02T09:29:08.035760Z'
+updated_at: '2026-06-25T07:14:27.520146Z'

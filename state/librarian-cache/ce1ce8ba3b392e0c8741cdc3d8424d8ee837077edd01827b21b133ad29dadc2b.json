@@ -1,0 +1,591 @@
+{
+  "fetched_at": "2026-06-25T07:13:48Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting Coating Adhesion Strength from Composition and Surface Features",
+      "target_n": 5
+    },
+    "duration_seconds": 50.806,
+    "ended_at": "2026-06-25T07:13:48Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning models for coating adhesion strength"
+        ],
+        [
+          2,
+          "data‑driven prediction of interfacial bonding strength"
+        ],
+        [
+          3,
+          "composition‑based adhesion strength estimation"
+        ],
+        [
+          4,
+          "surface roughness influence on coating adhesion prediction"
+        ],
+        [
+          5,
+          "multivariate regression of coating adhesion properties"
+        ],
+        [
+          6,
+          "deep learning for coating‑substrate adhesion forecasting"
+        ],
+        [
+          7,
+          "predictive analytics of interfacial fracture toughness"
+        ],
+        [
+          8,
+          "AI‑assisted modeling of coating durability"
+        ],
+        [
+          9,
+          "statistical modeling of coating‑substrate bonding strength"
+        ],
+        [
+          10,
+          "feature engineering for adhesion strength prediction"
+        ],
+        [
+          11,
+          "computational estimation of adhesion energy from material properties"
+        ],
+        [
+          12,
+          "high‑throughput screening of coating formulations for adhesion performance"
+        ],
+        [
+          13,
+          "Bayesian inference of coating adhesion metrics"
+        ],
+        [
+          14,
+          "mechanistic modeling of interfacial adhesion mechanisms"
+        ],
+        [
+          15,
+          "microstructure‑driven prediction of coating adhesion strength"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Coating Adhesion Strength from Composition and Surface Features materials science": 0,
+        "machine learning models for coating adhesion strength": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "interfacial shear strength prediction",
+      "ASTM D4541 pull-off test",
+      "materials genome adhesion descriptor",
+      "energy release rate adhesion measurement",
+      "surface roughness influence adhesion"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2302.08893"
+      ]
+    },
+    "per_query_hit_count": {
+      "ASTM D4541 pull-off test": 3,
+      "Predicting Coating Adhesion Strength from Composition and Surface Features materials science": 3,
+      "energy release rate adhesion measurement": 3,
+      "interfacial shear strength prediction": 3,
+      "materials genome adhesion descriptor": 2,
+      "surface roughness influence adhesion": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper discusses data source changes and machine‑learning risks in official statistics, which bears no connection to coating adhesion strength, material composition, surface features, or materials‑science predictive modeling. It is off‑domain and does not address any of the variables or mechanisms of the user's question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper discusses general validation recommendations for supervised machine learning in biology and does not address coating adhesion strength, composition, surface features, or materials‑science prediction tasks, nor does it provide a foundational method specific to that domain. It is off‑topic for the user's research question.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper surveys learning‑curve models for machine‑learning decision making and does not study coating adhesion strength, material composition, or surface‑feature effects; it is unrelated to the domain or variables of the user's question.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper focuses on interpreting machine‑learning models via energy‑landscape methods and does not study coating adhesion strength, composition, or surface features, nor does it provide a baseline or foundational method for predicting such material properties. Hence it is unrelated to the user's research question.",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper surveys active‑learning methods for data streams and does not address coating adhesion strength, material composition, or surface‑feature prediction, nor does it provide a baseline or foundational methodology specific to that materials‑science problem. It is off‑domain with respect to the user's research question.",
+          "title": "Active learning for data streams: a survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T07:12:57Z",
+    "term_input": {
+      "normalized": "predicting coating adhesion strength from composition and surface features materials science",
+      "raw": "Predicting Coating Adhesion Strength from Composition and Surface Features materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tree frogs possess soft structured toe pads with channels that help squeeze out fluid from the region between the toe pad and the contacting surfaces. This structure enables them to walk on wet and rough surfaces. We present our preliminary result aiming at understanding the role of surface structure on hydrodynamic drainage forces. We have used the surface forces apparatus to measure the drainage forces (approach and retraction) in silicone oil. We compare the drainage force measured between two smooth PMMA surfaces with the one measure when one of the two surfaces has a structure with channels. We have observed that the presence of channels reduces the hydrodynamic drainage forces when the surfaces come together and reduces the adhesion when the surfaces are pulled apart. Our force measurements were compared to Reynolds theory and we discuss the possible role of elastohydrodynamic deformation in tree frog adhesion.",
+          "claimed_authors": [
+            "Rohini Gupta",
+            "Joelle Frechette"
+          ],
+          "claimed_title": "Role of Hydrodynamic Drainage in Adhesion to Wet Surfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.12491"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Role of Hydrodynamic Drainage in Adhesion to Wet Surfaces')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Experimental results for adhesive contacts on substrates coated with elastomeric thin films have recently been obtained by C. Tardivat and L. Léger (J. Adhesion Sci. Technol. 15 1055-1078 (2001)) by the so-called JKR test, which provides both adhesion energy and elastic modulus. These data show that on substrates coated with thin films the adhesion and effective elastic modulus of the sphere depend upon the film thickness. In keeping with the experimental conditions, we try to interpret these data using a simple model (E. Barthel and A. Perriot, J. Phys. D 40, 1059-1067 (2007)) in the thin film limit, ie when the film thickness is small compared to the contact radius. Although the film does impact the local crack tip stress field, we show that no effect on the macroscopic contact variables is expected for the adhesion to coated substrates in such confined geometries. The deviations from the experimental results are ascribed to the idealized contact boundary conditions assumed in the model.",
+          "claimed_authors": [
+            "Etienne Barthel"
+          ],
+          "claimed_title": "Adhesive contact of a compliant sphere to an elastic coated substrate: the thin film limit",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "cond-mat/0703616"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Adhesive contact of a compliant sphere to an elastic coated substrate: the thin film limit')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The results of Brownian dynamics simulations of a single DNA molecule in shear flow are presented taking into account the effect of internal viscosity. The dissipative mechanism of internal viscosity is proved necessary in the research of DNA dynamics. A stochastic model is derived on the basis of the balance equation for forces acting on the chain. The Euler method is applied to the solution of the model. The extensions of DNA molecules for different Weissenberg numbers are analyzed. Comparison with the experimental results available in the literature is carried out to estimate the contribution of the effect of internal viscosity.",
+          "claimed_authors": [
+            "Jack Yang",
+            "Roderick V. N. Melnik"
+          ],
+          "claimed_title": "Effect of Internal Viscosity on Brownian Dynamics of DNA Molecules in Shear Flow",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "q-bio/0703003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Effect of Internal Viscosity on Brownian Dynamics of DNA Molecules in Shear Flow')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding the interfacial electrical properties between metallic electrodes and low dimensional semiconductors is essential for both fundamental science and practical applications. Here we report the observation of thickness reduction induced crossover of electrical contact at Au/MoS2 interfaces. For MoS2 thicker than 5 layers, the contact resistivity slightly decreases with reducing MoS2 thickness. By contrast, the contact resistivity sharply increases with reducing MoS2 thickness below 5 layers, mainly governed by the quantum confinement effect. It is found that the interfacial potential barrier can be finely tailored from 0.3 to 0.6 eV by merely varying MoS2 thickness. A full evolution diagram of energy level alignment is also drawn to elucidate the thickness scaling effect. The finding of tailoring interfacial properties with channel thickness represents a useful approach controlling the metal/semiconductor interfaces which may result in conceptually innovative functionalities.",
+          "claimed_authors": [
+            "Song-Lin Li",
+            "K. Komatsu",
+            "Shu Nakaharai",
+            "Yen-Fu Lin",
+            "M. Yamamoto",
+            "X. F. Duan",
+            "K. Tsukagoshi"
+          ],
+          "claimed_title": "Thickness Scaling Effect on Interfacial Barrier and Electrical Contact to Two-Dimensional MoS2 Layers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.1943"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Thickness Scaling Effect on Interfacial Barrier and Electrical Contact to Two-Dimensional MoS2 Layers')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-healing of polymer films often takes place as the molecules diffuse across a damaged region, above their melting temperature. Using molecular dynamics simulations we probe the healing of polymer films and compare the results with those for thermal welding of homopolymer slabs. The two processes differ in their interfacial structure since damage leads to increased polydispersity and more short chains. A polymer sample was cut into two separate films that were then held together in the melt state. The recovery of the damaged film was followed as time elapsed and polymer molecules diffused across the interface. The mass uptake and formation of entanglements, as obtained from primitive path analysis, are extracted and correlated with the interfacial strength obtained from shear simulations. We find that the interdiffusion is significantly faster in the damaged film compared to welding because of the presence of short chains. Though interfacial entanglements increase more rapidly for the damaged films, a large fraction of them are near chain ends. As a result, the interfacial strength of the healing film increases more slowly than for welding. For both healing and welding, the interfacial strength saturates as the bulk entanglement density is recovered across the interface. However, the saturation strength of the damaged film is below the bulk strength for the polymer sample. At saturation, cut chains remain near the healing interface. They are less entangled and thus mechanically weaken the interface. When the interfacial strength saturates, the number of interfacial entanglements scales with the corresponding bulk entanglement density. Chain stiffness increases the density of entanglements, which increases the interfacial strength. Our results show that a few entanglements across the interface are sufficient to resist interfacial chain pullout and enhance the mechanical strength.",
+          "claimed_authors": [
+            "Ting Ge",
+            "Mark O. Robbins",
+            "Dvora Perahia",
+            "Gary S. Grest"
+          ],
+          "claimed_title": "Healing of polymer interfaces: Interfacial dynamics, entanglements, and strength",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1407.3198"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Healing of polymer interfaces: Interfacial dynamics, entanglements, and strength')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article looks at a simple modification to speedup the conventional Gauss Elimination. The proposed modification speeds up the conventional Gauss Elimination by a factor of nearly 9/7 (in the asymptotic limit).",
+          "claimed_authors": [
+            "Sivaram Ambikasaran"
+          ],
+          "claimed_title": "A simple way to speedup Gauss Elimination",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.4081"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='A simple way to speedup Gauss Elimination')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When quickly detaching an elastomer from a counterface, viscoelasticity dramatically increases the perceived adhesion relative to its adiabatic or equilibrium value. Here, we report simulations on the sticking contact between a rigid cylinder and a viscoelastic half space revealing a maximum in the work of adhesion at intermediate pull-off velocities. Maximum tensile forces yet increase monotonically with the pull-off speed and the crack-tip speed in accordance with the Persson-Brener approach. As predicted theoretically, the fracture mode transitions from interfacial crack propagation to quasi-uniform bond breaking with increasing range of adhesion.",
+          "claimed_authors": [
+            "Martin H. Müser",
+            "Bo N. J. Persson"
+          ],
+          "claimed_title": "Crack and pull-off dynamics of adhesive, viscoelastic solids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.02031"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Crack and pull-off dynamics of adhesive, viscoelastic solids')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Extracting standardized metallurgical metrics from microscopy images remains challenging due to complex grain morphology and the data demands of supervised segmentation. To bridge foundational computer vision with practical metallurgical evaluation, we propose an automated pipeline for dense instance segmentation and grain size estimation that adapts Cellpose-SAM to microstructures and integrates its topology-aware gradient tracking with an ASTM E112 Jeffries planimetric module. We systematically benchmark this pipeline against a classical convolutional network (U-Net), an adaptive-prompting vision foundation model (MatSAM) and a contemporary vision-language model (Qwen2.5-VL-7B). Our evaluations reveal that while the out-of-the-box vision-language model struggles with the localized spatial reasoning required for dense microscopic counting and MatSAM suffers from over-segmentation despite its domain-specific prompt generation, our adapted pipeline successfully maintains topological separation. Furthermore, experiments across progressively reduced training splits demonstrate exceptional few-shot scalability; utilizing only two training samples, the proposed system predicts the ASTM grain size number (G) with a mean absolute percentage error (MAPE) as low as 1.50%, while robustness testing across varying target grain counts empirically validates the ASTM 50-grain sampling minimum. These results highlight the efficacy of application-level foundation model integration for highly accurate, automated materials characterization. Our project repository is available at https://github.com/mueez-overflow/ASTM-Grain-Size-Estimator.",
+          "claimed_authors": [
+            "Abdul Mueez",
+            "Shruti Vyas"
+          ],
+          "claimed_title": "Bridging Foundation Models and ASTM Metallurgical Standards for Automated Grain Size Estimation from Microscopy Images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.18957"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Bridging Foundation Models and ASTM Metallurgical Standards for Automated Grain Size Estimation from Microscopy Images')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Critical Assessment of Genome Interpretation (CAGI) aims to advance the state of the art for computational prediction of genetic variant impact, particularly those relevant to disease. The five complete editions of the CAGI community experiment comprised 50 challenges, in which participants made blind predictions of phenotypes from genetic data, and these were evaluated by independent assessors. Overall, results show that while current methods are imperfect, they have major utility for research and clinical applications. Missense variant interpretation methods are able to estimate biochemical effects with increasing accuracy. Performance is particularly strong for clinical pathogenic variants, including some difficult-to-diagnose cases, and extends to interpretation of cancer-related variants. Assessment of methods for regulatory variants and complex trait disease risk is less definitive, and indicates performance potentially suitable for auxiliary use in the clinic. Emerging methods and increasingly large, robust datasets for training and assessment promise further progress ahead.",
+          "claimed_authors": [
+            "The Critical Assessment of Genome Interpretation Consortium"
+          ],
+          "claimed_title": "CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.05897"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a framework for generating universal semantic embeddings of chemical elements to advance materials inference and discovery. This framework leverages ElementBERT, a domain-specific BERT-based natural language processing model trained on 1.29 million abstracts of alloy-related scientific papers, to capture latent knowledge and contextual relationships specific to alloys. These semantic embeddings serve as robust elemental descriptors, consistently outperforming traditional empirical descriptors with significant improvements across multiple downstream tasks. These include predicting mechanical and transformation properties, classifying phase structures, and optimizing materials properties via Bayesian optimization. Applications to titanium alloys, high-entropy alloys, and shape memory alloys demonstrate up to 23% gains in prediction accuracy. Our results show that ElementBERT surpasses general-purpose BERT variants by encoding specialized alloy knowledge. By bridging contextual insights from scientific literature with quantitative inference, our framework accelerates the discovery and optimization of advanced materials, with potential applications extending beyond alloys to other material classes.",
+          "claimed_authors": [
+            "Yunze Jia",
+            "Yuehui Xian",
+            "Yangyang Xu",
+            "Pengfei Dang",
+            "Xiangdong Ding",
+            "Jun Sun",
+            "Yumei Zhou",
+            "Dezhen Xue"
+          ],
+          "claimed_title": "Semantic Embeddings of Chemical Elements for Enhanced Materials Inference and Discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.14912"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Semantic Embeddings of Chemical Elements for Enhanced Materials Inference and Discovery')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The TDCB test is an established method to determine the critical strain energy release rate of adhesives in mode I. Provided that the adherends stay elastic, that the adhesive layer is not too flexible and that inertia effects can be neglected, the experiment allows to identify the work required by the adhesive layer per area of crack growth. The evaluation according to the standard does not permit to distinguish between different sources of dissipation in the adhesive layer or at the adhesive-adherend interfaces, though. This paper proposes two approaches to gain a more detailed understanding of the dissipation in mode I crack growth of adhesive layers.\n  The first investigation method uses detailed finite element simulations of the TDCB test based on an elastic-plastic adhesive material model derived from tests on bulk specimens. The simulation is used to distinct between the work required for the plastic deformation of the entire adhesive layer and the work consumed by the crack and the adhesive in its vicinity. The dependence of this distribution of work on the adhesive layer thickness is studied. The second approach adds a temperature measurement by an infrared camera to the TDCB test. This measurement allows observation of the thermo-elastic effect in the adhesive layer and of the heat generation at the crack. Finally, the results of the two approaches are employed to estimate the energy balance in the TDCB test.",
+          "claimed_authors": [
+            "Olaf Hesebeck",
+            "Udo Meyer",
+            "Andrea Sondag",
+            "Markus Brede"
+          ],
+          "claimed_title": "Investigations on the energy balance in TDCB tests",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.02070"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Investigations on the energy balance in TDCB tests')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Adhesion control at the interface of two surfaces is crucial in various applications, including the design of micro- and nanodevices such as microfluidic devices, triboelectric nanogenerators, biochips, and electronic sensors. Several factors influence adhesion, including sample preparation, surface energy, mechanical properties such as modulus of elasticity, and surface texture or roughness. This study specifically investigates the effect of surface roughness on the adhesion behavior of the elastomer polydimethylsiloxane (PDMS), focusing on a complementary interface with identical roughness. To create surface roughness, sandpapers with grit sizes ranging from N = 120 to N = 2000 were used during the molding process. The surface roughness of the PDMS elastomer was then characterized using a stylus profilometer. Interfacial adhesion was evaluated through wedge test experiments, which enabled the analysis of the relationship between surface roughness, work of adhesion, and equilibrium crack length. Furthermore, the study also explores the correlation between the real area of contact and the work of adhesion.",
+          "claimed_authors": [
+            "Susheel Kumar",
+            "Krishnacharya Khare",
+            "Manjesh K. Singh"
+          ],
+          "claimed_title": "Study of surface roughness modulation on the adhesion behavior of PDMS elastomer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.09603"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='Study of surface roughness modulation on the adhesion behavior of PDMS elastomer')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the influence of surface roughness on the adhesion of elastic solids. Most real surfaces have roughness on many different length scales, and this fact is taken into account in our analysis. We consider in detail the case when the surface roughness can be described as a self affine fractal, and show that when the fractal dimension D_f >2.5, the adhesion force may vanish, or be at least strongly reduced. We consider the block-substrate pull-off force as a function of roughness, and find a partial detachment transition preceding a full detachment one. The theory is in good qualitative agreement with experimental data.",
+          "claimed_authors": [
+            "B. N. J. Persson",
+            "E. Tosatti"
+          ],
+          "claimed_title": "The effect of surface roughness on the adhesion of elastic solids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "cond-mat/0104180"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Coating Adhesion Strength from Composition and Surface Features mater', candidate_title='The effect of surface roughness on the adhesion of elastic solids')",
+        "failed_at": "2026-06-25T07:13:31Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T07:13:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16189",
+        "summary": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16189",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T07:13:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T07:13:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Maximilian P Niroomand",
+            "David J Wales"
+          ],
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.02381",
+        "summary": "The ability to explain decisions made by machine learning models remains one of the most significant hurdles towards widespread adoption of AI in highly sensitive areas such as medicine, cybersecurity or autonomous driving. Great interest exists in understanding which features of the input data prompt model decision making. In this contribution, we propose a novel approach to identify relevant features of the input data, inspired by methods from the energy landscapes field, developed in the physical sciences. By identifying conserved weights within groups of minima of the loss landscapes, we can identify the drivers of model decision making. Analogues to this idea exist in the molecular sciences, where coordinate invariants or order parameters are employed to identify critical features of a molecule. However, no such approach exists for machine learning loss landscapes. We will demonstrate the applicability of energy landscape methods to machine learning models and give examples, both synthetic and from the real world, for how these methods can help to make models more interpretable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.02381",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T07:13:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "title": "Active learning for data streams: a survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.08893",
+        "summary": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.08893",
+          "http_status": 200,
+          "pdf_sample_score": 0.3247,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T07:13:36Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting coating adhesion strength from composition and surface features materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-06-25T07:13:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting coating adhesion strength from composition and surface features materials science",
+  "rationale": "The paper surveys active‑learning methods for data streams and does not address coating adhesion strength, material composition, or surface‑feature prediction, nor does it provide a baseline or foundational methodology specific to that materials‑science problem. It is off‑domain with respect to the user's research question.",
+  "relevant": false
+}
