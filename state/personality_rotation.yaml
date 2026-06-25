@@ -1,12 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-06-25T06:29:58.473253+00:00'
+last_used: richard-feynman
+last_used_at: '2026-06-25T07:47:26.295723+00:00'
 last_outcome: abstained
 history:
-- slug: david-krakauer
-  started_at: '2026-06-13T17:03:24.470904+00:00'
-  ended_at: '2026-06-13T17:59:38.514837+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: eric-kandel
   started_at: '2026-06-13T17:59:38.514837+00:00'
   ended_at: '2026-06-13T18:29:49.430804+00:00'
@@ -1142,5 +1137,10 @@ history:
 - slug: marie-curie
   started_at: '2026-06-25T04:54:01.070007+00:00'
   ended_at: '2026-06-25T06:29:58.473253+00:00'
+  outcome: abstained
+  action: abstain
+- slug: richard-feynman
+  started_at: '2026-06-25T06:29:58.473253+00:00'
+  ended_at: '2026-06-25T07:47:26.295723+00:00'
   outcome: abstained
   action: abstain
