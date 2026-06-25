@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2209.02051",
+  "judged_at": "2026-06-25T04:35:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the stability of perovskite structures using machine learning materials science",
+  "rationale": "The paper focuses on machine‑learning‑based reduced‑order modeling for combustion reacting‑flow simulations, which is a different domain and material system than perovskite stability prediction; it does not provide relevant methodology, baseline, or empirical data for the materials‑science question.",
+  "relevant": false
+}

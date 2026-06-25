@@ -1,0 +1,692 @@
+{
+  "fetched_at": "2026-06-25T04:35:26Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Stability of Perovskite Structures Using Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 51.857,
+    "ended_at": "2026-06-25T04:35:26Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine‑learning‑driven perovskite phase stability prediction"
+        ],
+        [
+          2,
+          "data‑centric modeling of perovskite formation energy"
+        ],
+        [
+          3,
+          "deep‑learning approaches for perovskite stability screening"
+        ],
+        [
+          4,
+          "graph neural network assessment of perovskite thermodynamic stability"
+        ],
+        [
+          5,
+          "descriptor‑based ML prediction of perovskite decomposition pathways"
+        ],
+        [
+          6,
+          "high‑throughput computational screening of stable perovskite compositions"
+        ],
+        [
+          7,
+          "Bayesian optimization of perovskite alloy stability"
+        ],
+        [
+          8,
+          "materials informatics for perovskite degradation forecasting"
+        ],
+        [
+          9,
+          "AI‑augmented prediction of perovskite tolerance factor and stability"
+        ],
+        [
+          10,
+          "hybrid DFT‑ML frameworks for perovskite stability evaluation"
+        ],
+        [
+          11,
+          "supervised learning of perovskite bandgap‑stability relationships"
+        ],
+        [
+          12,
+          "ensemble machine‑learning models for perovskite phase diagram mapping"
+        ],
+        [
+          13,
+          "feature engineering of ionic radii for perovskite stability classification"
+        ],
+        [
+          14,
+          "transfer learning from oxide databases to perovskite stability prediction"
+        ],
+        [
+          15,
+          "probabilistic modeling of perovskite structural resilience using ML"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Stability of Perovskite Structures Using Machine Learning materials science": 0,
+        "machine‑learning‑driven perovskite phase stability prediction": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "decomposition energy perovskite",
+      "Materials Project perovskite dataset",
+      "energy above hull perovskite",
+      "MAE perovskite stability prediction",
+      "Goldschmidt tolerance factor ML"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1910.07640"
+      ]
+    },
+    "per_query_hit_count": {
+      "Goldschmidt tolerance factor ML": 3,
+      "MAE perovskite stability prediction": 3,
+      "Materials Project perovskite dataset": 3,
+      "Predicting the Stability of Perovskite Structures Using Machine Learning materials science": 3,
+      "decomposition energy perovskite": 3,
+      "energy above hull perovskite": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper discusses machine‑learning challenges in official statistics (data‑source changes, concept drift, bias) and does not address perovskite materials, their structural stability, or machine‑learning models for predicting that stability, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper surveys learning‑curve methods for supervised machine learning and does not address perovskite materials, stability prediction, or any related materials‑science variables, thus it is off‑domain for the user's question.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "1910.07640",
+          "rationale": "The paper studies neuroimaging data to predict fluid intelligence, which is unrelated to perovskite materials, crystal stability, or any materials‑science machine‑learning task; it shares no mechanism, variables, or domain with the user's question.",
+          "title": "A Combined Deep Learning-Gradient Boosting Machine Framework for Fluid Intelligence Prediction"
+        },
+        {
+          "primary_pointer": "2009.10633",
+          "rationale": "The paper focuses on model-driven software engineering and IoT applications, integrating machine learning into the ThingML language, which is unrelated to materials science, perovskite structures, or stability prediction. It does not address any of the mechanisms, variables, or methodologies relevant to the user's question.",
+          "title": "ThingML+ Augmenting Model-Driven Software Engineering for the Internet of Things with Machine Learning"
+        },
+        {
+          "primary_pointer": "2209.02051",
+          "rationale": "The paper focuses on machine‑learning‑based reduced‑order modeling for combustion reacting‑flow simulations, which is a different domain and material system than perovskite stability prediction; it does not provide relevant methodology, baseline, or empirical data for the materials‑science question.",
+          "title": "Advancing Reacting Flow Simulations with Data-Driven Models"
+        },
+        {
+          "primary_pointer": "2602.04435",
+          "rationale": "The paper focuses on machine‑learning classification of crystal system, point group, and space‑group from XRD data for perovskites, not on predicting their thermodynamic or kinetic stability. It does not measure the stability variable (or a closely related proxy) and therefore does not satisfy any of the inclusion criteria (a)–(f).",
+          "title": "Machine Learning-Driven Crystal System Prediction for Perovskites Using Augmented X-ray Diffraction Data"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-25T04:34:34Z",
+    "term_input": {
+      "normalized": "predicting the stability of perovskite structures using machine learning materials science",
+      "raw": "Predicting the Stability of Perovskite Structures Using Machine Learning materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-25T04:35:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper gives an overview of the proposed Gemini/Subaru Wide-Field Multi-Object Spectrograph (WFMOS) and the proposed redshift surveys of 2.6 million galaxies with 0.5<z<3.3 over 2000 deg^2 of sky. These surveys will probe the baryonic acoustic oscillations in the galaxy power spectrum with unprecedented precision and over a range of redshifts and deliver dark energy w(z) constraints an order of magnitude better than current limits. We discuss the requirements on precursor observations and on calibrations, the systematics in the method and the quantitative precision obtainaible in distance-redshift and expansion-rate-redshift measurements which feed in to the w(z) precision. We also outline the technological and scientific strengths and risks which might be associated with the project and the relationship of WFMOS to other baryon oscillation experiments.",
+          "claimed_authors": [
+            "Karl Glazebrook",
+            "Daniel Eisenstein",
+            "Arjun Dey",
+            "Bob Nichol",
+            "The WFMOS Feasibility Study Dark Energy Team"
+          ],
+          "claimed_title": "Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0507457"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge of the centre-of-mass energy at LEP2 is of primary importance to set the absolute energy scale for the measurement of the W-boson mass. The beam energy above 80 GeV is derived from continuous measurements of the magnetic bending field by 16 NMR probes situated in a number of the LEP dipoles. The relationship between the fields measured by the probes and the beam energy is calibrated against precise measurements of the average beam energy between 41 and 55 GeV made using the resonant depolarisation technique. The linearity of the relationship is tested by comparing the fields measured by the probes with the total bending field measured by a flux loop. This test results in the largest contribution to the systematic uncertainty. Several further corrections are applied to derive the the centre-of-mass energies at each interaction point. In addition the centre-of-mass energy spread is evaluated. The beam energy has been determined with a precision of 25 MeV for the data taken in 1997, corresponding to a relative precision of 2.7x10^{-4}. This is small in comparison to the present uncertainty on the W mass measurement at LEP. However, the ultimate statistical precision on the W mass with the full LEP2 data sample should be around 25 MeV, and a smaller uncertainty on the beam energy is desirable. Prospects for improvements are outlined.",
+          "claimed_authors": [
+            " The LEP Energy Working Group"
+          ],
+          "claimed_title": "Evaluation of the LEP Centre-of-Mass Energy Above the W-Pair Production Threshold",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "hep-ex/9901002"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='Evaluation of the LEP Centre-of-Mass Energy Above the W-Pair Production Threshold')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Medical image segmentation remains a formidable challenge due to the label scarcity. Pre-training Vision Transformer (ViT) through masked image modeling (MIM) on large-scale unlabeled medical datasets presents a promising solution, providing both computational efficiency and model generalization for various downstream tasks. However, current ViT-based MIM pre-training frameworks predominantly emphasize local aggregation representations in output layers and fail to exploit the rich representations across different ViT layers that better capture fine-grained semantic information needed for more precise medical downstream tasks. To fill the above gap, we hereby present Hierarchical Encoder-driven MAE (Hi-End-MAE), a simple yet effective ViT-based pre-training solution, which centers on two key innovations: (1) Encoder-driven reconstruction, which encourages the encoder to learn more informative features to guide the reconstruction of masked patches; and (2) Hierarchical dense decoding, which implements a hierarchical decoding structure to capture rich representations across different layers. We pre-train Hi-End-MAE on a large-scale dataset of 10K CT scans and evaluated its performance across seven public medical image segmentation benchmarks. Extensive experiments demonstrate that Hi-End-MAE achieves superior transfer learning capabilities across various downstream tasks, revealing the potential of ViT in medical imaging applications. The code is available at: https://github.com/FengheTan9/Hi-End-MAE",
+          "claimed_authors": [
+            "Fenghe Tang",
+            "Qingsong Yao",
+            "Wenxin Ma",
+            "Chenxu Wu",
+            "Zihang Jiang",
+            "S. Kevin Zhou"
+          ],
+          "claimed_title": "Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.08347"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nowadays, multimedia forensics faces unprecedented challenges due to the rapid advancement of multimedia generation technology thereby making Image Manipulation Localization (IML) crucial in the pursuit of truth. The key to IML lies in revealing the artifacts or inconsistencies between the tampered and authentic areas, which are evident under pixel-level features. Consequently, existing studies treat IML as a low-level vision task, focusing on allocating tampered masks by crafting pixel-level features such as image RGB noises, edge signals, or high-frequency features. However, in practice, tampering commonly occurs at the object level, and different classes of objects have varying likelihoods of becoming targets of tampering. Therefore, object semantics are also vital in identifying the tampered areas in addition to pixel-level features. This necessitates IML models to carry out a semantic understanding of the entire image. In this paper, we reformulate the IML task as a high-level vision task that greatly benefits from low-level features. Based on such an interpretation, we propose a method to enhance the Masked Autoencoder (MAE) by incorporating high-resolution inputs and a perceptual loss supervision module, which is termed Perceptual MAE (PMAE). While MAE has demonstrated an impressive understanding of object semantics, PMAE can also compensate for low-level semantics with our proposed enhancements. Evidenced by extensive experiments, this paradigm effectively unites the low-level and high-level features of the IML task and outperforms state-of-the-art tampering localization methods on all five publicly available datasets.",
+          "claimed_authors": [
+            "Xiaochen Ma",
+            "Jizhe Zhou",
+            "Xiong Xu",
+            "Zhuohang Jiang",
+            "Chi-Man Pun"
+          ],
+          "claimed_title": "Perceptual MAE for Image Manipulation Localization: A High-level Vision Learner Focusing on Low-level Features",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.06525"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='Perceptual MAE for Image Manipulation Localization: A High-level Vision Learner Focusing on Low-level Features')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Growing techniques have been emerging to improve the performance of passage retrieval. As an effective representation bottleneck pretraining technique, the contextual masked auto-encoder utilizes contextual embedding to assist in the reconstruction of passages. However, it only uses a single auto-encoding pre-task for dense representation pre-training. This study brings multi-view modeling to the contextual masked auto-encoder. Firstly, multi-view representation utilizes both dense and sparse vectors as multi-view representations, aiming to capture sentence semantics from different aspects. Moreover, multiview decoding paradigm utilizes both autoencoding and auto-regressive decoders in representation bottleneck pre-training, aiming to provide both reconstructive and generative signals for better contextual representation pretraining. We refer to this multi-view pretraining method as CoT-MAE v2. Through extensive experiments, we show that CoT-MAE v2 is effective and robust on large-scale passage retrieval benchmarks and out-of-domain zero-shot benchmarks.",
+          "claimed_authors": [
+            "Xing Wu",
+            "Guangyuan Ma",
+            "Peng Wang",
+            "Meng Lin",
+            "Zijia Lin",
+            "Fuzheng Zhang",
+            "Songlin Hu"
+          ],
+          "claimed_title": "CoT-MAE v2: Contextual Masked Auto-Encoder with Multi-view Modeling for Passage Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.03158"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='CoT-MAE v2: Contextual Masked Auto-Encoder with Multi-view Modeling for Passage Retrieval')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we investigate a parking process on a uniform random rooted plane tree with $n$ vertices. Every vertex of the tree has a parking space for a single car. Cars arrive at independent uniformly random vertices of the tree. If the parking space at a vertex is unoccupied when a car arrives there, it parks. If not, the car drives towards the root and parks in the first empty space it encounters (if there is one). We are interested in asymptotics of the probability of the event that all cars can park when $\\lfloor αn \\rfloor$ cars arrive, for $α> 0$. We observe that there is a phase transition at $α_c := \\sqrt{2} -1$: if $α< α_c$ then the event has positive probability, whereas for $α> α_c$ it has probability 0. Analogous results have been proved by Lackner and Panholzer, Goldschmidt and Przykucki, and Jones for different underlying random tree models.",
+          "claimed_authors": [
+            "Qizhao Chen",
+            "Christina Goldschmidt"
+          ],
+          "claimed_title": "Parking On A Random Rooted Plane Tree",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.03816"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='Parking On A Random Rooted Plane Tree')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In dynamic systems that adapt to users' needs and changing environments, dependability needs cannot be avoided. This paper proposes an orthogonal fault tolerance model as a means to manage and reason about multiple fault tolerance mechanisms that co-exist in dynamically adaptive systems. One of the key challenges associated with dynamically evolving fault tolerance needs is the feature interaction problem arising from the integration of fault tolerance features. The proposed approach provides a separation of fault tolerance concerns to study the effects of integrated fault tolerance on the system. This approach uses state machine and operational semantics to reason about these interactions and inconsistencies. The proposed approach is supported by the tool NuSMV to simulate and verify the state machines against logic statements.",
+          "claimed_authors": [
+            "Sobia K Khan"
+          ],
+          "claimed_title": "Orthogonal Fault Tolerance for Dynamically Adaptive Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.6830"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='Orthogonal Fault Tolerance for Dynamically Adaptive Systems')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The COVID-19 pandemic and other ongoing health crises have underscored the need for prompt healthcare services worldwide. The traditional healthcare system, centered around hospitals and clinics, has proven inadequate in the face of such challenges. Intelligent wearable devices, a key part of modern healthcare, leverage Internet of Things technology to collect extensive data related to the environment as well as psychological, behavioral, and physical health. However, managing the substantial data generated by these wearables and other IoT devices in healthcare poses a significant challenge, potentially impeding decision-making processes. Recent interest has grown in applying data analytics for extracting information, gaining insights, and making predictions. Additionally, machine learning, known for addressing various big data and networking challenges, has seen increased implementation to enhance IoT systems in healthcare. This chapter focuses exclusively on exploring the hurdles encountered when integrating ML methods into the IoT healthcare sector. It offers a comprehensive summary of current research challenges and potential opportunities, categorized into three scenarios: IoT-based, ML-based, and the implementation of machine learning methodologies in the IoT-based healthcare industry. This compilation will assist future researchers, healthcare professionals, and government agencies by offering valuable insights into recent smart healthcare advancements.",
+          "claimed_authors": [
+            "Munshi Saifuzzaman",
+            "Tajkia Nuri Ananna"
+          ],
+          "claimed_title": "Towards Smart Healthcare: Challenges and Opportunities in IoT and ML",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.05530"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Stability of Perovskite Structures Using Machine Learning materia', candidate_title='Towards Smart Healthcare: Challenges and Opportunities in IoT and ML')",
+        "failed_at": "2026-06-25T04:35:07Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T04:35:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T04:35:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yeeleng S. Vang",
+            "Yingxin Cao",
+            "Xiaohui Xie"
+          ],
+          "title": "A Combined Deep Learning-Gradient Boosting Machine Framework for Fluid Intelligence Prediction",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1910.07640",
+        "summary": "The ABCD Neurocognitive Prediction Challenge is a community driven competition asking competitors to develop algorithms to predict fluid intelligence score from T1-w MRIs. In this work, we propose a deep learning combined with gradient boosting machine framework to solve this task. We train a convolutional neural network to compress the high dimensional MRI data and learn meaningful image features by predicting the 123 continuous-valued derived data provided with each MRI. These extracted features are then used to train a gradient boosting machine that predicts the residualized fluid intelligence score. Our approach achieved mean square error (MSE) scores of 18.4374, 68.7868, and 96.1806 for the training, validation, and test set respectively.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1910.07640",
+          "http_status": 200,
+          "pdf_sample_score": 0.167,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T04:35:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Armin Moin",
+            "Stephan Rössler",
+            "Stephan Günnemann"
+          ],
+          "title": "ThingML+ Augmenting Model-Driven Software Engineering for the Internet of Things with Machine Learning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2009.10633",
+        "summary": "In this paper, we present the current position of the research project ML-Quadrat, which aims to extend the methodology, modeling language and tool support of ThingML - an open source modeling tool for IoT/CPS - to address Machine Learning needs for the IoT applications. Currently, ThingML offers a modeling language and tool support for modeling the components of the system, their communication interfaces as well as their behaviors. The latter is done through state machines. However, we argue that in many cases IoT/CPS services involve system components and physical processes, whose behaviors are not well understood in order to be modeled using state machines. Hence, quite often a data-driven approach that enables inference based on the observed data, e.g., using Machine Learning is preferred. To this aim, ML-Quadrat integrates the necessary Machine Learning concepts into ThingML both on the modeling level (syntax and semantics of the modeling language) and on the code generators level. We plan to support two target platforms for code generation regarding Stream Processing and Complex Event Processing, namely Apache SAMOA and Apama.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2009.10633",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T04:35:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kamila Zdybał",
+            "Giuseppe D'Alessio",
+            "Gianmarco Aversano",
+            "Mohammad Rafi Malik",
+            "Axel Coussement",
+            "James C. Sutherland",
+            "Alessandro Parente"
+          ],
+          "title": "Advancing Reacting Flow Simulations with Data-Driven Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2209.02051",
+        "summary": "The use of machine learning algorithms to predict behaviors of complex systems is booming. However, the key to an effective use of machine learning tools in multi-physics problems, including combustion, is to couple them to physical and computer models. The performance of these tools is enhanced if all the prior knowledge and the physical constraints are embodied. In other words, the scientific method must be adapted to bring machine learning into the picture, and make the best use of the massive amount of data we have produced, thanks to the advances in numerical computing. The present chapter reviews some of the open opportunities for the application of data-driven reduced-order modeling of combustion systems. Examples of feature extraction in turbulent combustion data, empirical low-dimensional manifold (ELDM) identification, classification, regression, and reduced-order modeling are provided.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2209.02051",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T04:35:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ansu Mathew",
+            "Ahmer A. B. Baloch",
+            "Alamin Yakasai",
+            "Hemant Mittal",
+            "Vivian Alberts",
+            "Jayakumar V. Karunamurthy"
+          ],
+          "title": "Machine Learning-Driven Crystal System Prediction for Perovskites Using Augmented X-ray Diffraction Data",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.04435",
+        "summary": "Prediction of crystal system from X-ray diffraction (XRD) spectra is a critical task in materials science, particularly for perovskite materials which are known for their diverse applications in photovoltaics, optoelectronics, and catalysis. In this study, we present a machine learning (ML)-driven framework that leverages advanced models, including Time Series Forest (TSF), Random Forest (RF), Extreme Gradient Boosting (XGBoost), Recurrent Neural Network (RNN), Long Short-Term Memory (LSTM), Gated Recurrent Unit (GRU), and a simple feedforward neural network (NN), to classify crystal systems, point groups, and space groups from XRD data of perovskite materials. To address class imbalance and enhance model robustness, we integrated feature augmentation strategies such as Synthetic Minority Over-sampling Technique (SMOTE), class weighting, jittering, and spectrum shifting, along with efficient data preprocessing pipelines. The TSF model with SMOTE augmentation achieved strong performance for crystal system prediction, with a Matthews correlation coefficient (MCC) of 0.9, an F1 score of 0.92, and an accuracy of 97.76%. For point and space group prediction, balanced accuracies above 95% were obtained. The model demonstrated high performance for symmetry-distinct classes, including cubic crystal systems, point groups 3m and m-3m, and space groups Pnma and Pnnn. This work highlights the potential of ML for XRD-based structural characterization and accelerated discovery of perovskite materials",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.04435",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-25T04:35:12Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the stability of perovskite structures using machine learning materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

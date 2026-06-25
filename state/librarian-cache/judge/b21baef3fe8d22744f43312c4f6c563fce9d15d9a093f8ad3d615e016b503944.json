@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1910.07640",
+  "judged_at": "2026-06-25T04:35:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the stability of perovskite structures using machine learning materials science",
+  "rationale": "The paper studies neuroimaging data to predict fluid intelligence, which is unrelated to perovskite materials, crystal stability, or any materials‑science machine‑learning task; it shares no mechanism, variables, or domain with the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.04435",
+  "judged_at": "2026-06-25T04:35:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the stability of perovskite structures using machine learning materials science",
+  "rationale": "The paper focuses on machine‑learning classification of crystal system, point group, and space‑group from XRD data for perovskites, not on predicting their thermodynamic or kinetic stability. It does not measure the stability variable (or a closely related proxy) and therefore does not satisfy any of the inclusion criteria (a)–(f).",
+  "relevant": false
+}

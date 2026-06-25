@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-21T01:23:25.214771Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-752-testing-the-equivalence-principle-with-s
-last_run_id: e6fdfa2a-7007-4824-8753-0a865082bba1
+last_run_id: bdded482-8a8d-4bad-b03f-14f1dd1ecf0b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Testing the Equivalence Principle with Satellite Laser Ranging
-updated_at: '2026-06-21T02:43:11.996833Z'
+updated_at: '2026-06-25T04:34:23.617921Z'

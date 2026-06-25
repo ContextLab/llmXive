@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-25T04:35:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the stability of perovskite structures using machine learning materials science",
+  "rationale": "The paper discusses machine‑learning challenges in official statistics (data‑source changes, concept drift, bias) and does not address perovskite materials, their structural stability, or machine‑learning models for predicting that stability, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

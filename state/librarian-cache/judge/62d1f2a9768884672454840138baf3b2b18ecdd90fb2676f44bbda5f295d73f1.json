@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.10633",
+  "judged_at": "2026-06-25T04:35:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the stability of perovskite structures using machine learning materials science",
+  "rationale": "The paper focuses on model-driven software engineering and IoT applications, integrating machine learning into the ThingML language, which is unrelated to materials science, perovskite structures, or stability prediction. It does not address any of the mechanisms, variables, or methodologies relevant to the user's question.",
+  "relevant": false
+}
