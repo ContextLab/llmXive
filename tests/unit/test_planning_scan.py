@@ -248,3 +248,25 @@ def test_stale_deferred_marker_beside_concrete_value_is_collapsed() -> None:
     assert "[deferred]" in strip_empirical_values("the corpus held 12,345 abstracts")
     # An explanatory parenthetical must NOT be eaten.
     assert "because" in strip_empirical_values("baseline 0.05 ([deferred] because unmeasured)")
+
+
+def test_synthetic_and_procedure_design_counts_not_deferred() -> None:
+    """An operator-CHOSEN N for a synthetic/simulated procedure (Monte-Carlo
+    replicates, synthetic dataset size, bootstrap resamples) is a design
+    parameter, not a measured world quantity — and is usually pinned by an FR, so
+    deferring it in the plan/tasks creates a spec↔task mismatch the consistency
+    panel re-flags forever (the live PROJ-492 FR-026 10,000-replicate loop). Keep
+    these concrete; a REAL/observed count still defers."""
+    from llmxive.claims.planning_scan import strip_empirical_values
+
+    for text, val in [
+        ("runs 10,000 replicates for statistical validation", "10,000"),
+        ("ground-truth JSON with 10,000 simulated summaries", "10,000"),
+        ("a synthetic dataset of 10,000 summaries", "10,000"),
+        ("5,000 bootstrap resamples", "5,000"),
+        ("a Monte Carlo simulation of 10,000 replicates", "10,000"),
+    ]:
+        assert val in strip_empirical_values(text), text
+    # Real/observed counts (no synthetic/procedure context) still defer.
+    assert "[deferred]" in strip_empirical_values("the corpus contained 27,635 real papers")
+    assert "[deferred]" in strip_empirical_values("we collected 2,500 publicly available summaries")

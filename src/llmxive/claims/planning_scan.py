@@ -93,16 +93,26 @@ _LEAD = re.compile(
 #     design-context word ("tolerance") is often NOT adjacent to the fraction
 #     (``max(0.01, 0.1 of the reported p)``), so the ``of the <reference>``
 #     construction itself is the design signal.
-# Deferring any of these produces e.g. ``[deferred] of the reported p-value``,
-# which the testability/soundness panels (correctly) re-flag as unverifiable
-# forever: the reviser sets 0.1, the strip re-defers it next render — the live
-# PROJ-492 spec non-convergence loop (confidence level → ``tolerance`` →
-# ``max(.., 0.1 of the reported p)``). KEEP these concrete.
+#   * synthetic-data / statistical-procedure COUNTS — ``10,000 replicates``,
+#     ``10,000 simulated summaries``, ``synthetic dataset of 10,000``,
+#     ``5,000 bootstrap resamples`` — an operator-CHOSEN N for a generated /
+#     simulated procedure, NOT a measured world quantity. The planning convention
+#     defers REAL/observed dataset sizes, but a SYNTHETIC size or a Monte-Carlo /
+#     bootstrap / permutation replicate count IS the design (and is usually pinned
+#     by an FR, so deferring it in the plan/tasks creates a spec↔task mismatch
+#     the consistency panel re-flags forever — the live PROJ-492 plan loop on
+#     FR-026's 10,000-replicate Monte-Carlo validation + synthetic dataset size).
+# Deferring any of these produces e.g. ``[deferred] of the reported p-value`` /
+# ``[deferred] replicates``, which the testability/soundness/consistency panels
+# (correctly) re-flag as unverifiable forever: the reviser sets the value, the
+# strip re-defers it next render. KEEP these concrete.
 _STAT_DESIGN_CONTEXT = re.compile(
     r"confidence|\bCIs?\b|credible\s+interval|significance\s+level|\balpha\b|α"
     r"|toleranc|threshold|\bmargin\b"
     r"|of\s+the\s+(?:reported|reconstructed|expected|observed|nominal|larger"
-    r"|smaller|total|reference|baseline|true|actual|predicted)",
+    r"|smaller|total|reference|baseline|true|actual|predicted)"
+    r"|replicat|\bsimulat|\bsynthetic\b|bootstrap|permutation|monte[\s-]*carlo"
+    r"|resampl",
     re.IGNORECASE,
 )
 
