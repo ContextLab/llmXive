@@ -1,12 +1,7 @@
 last_used: ada-lovelace
-last_used_at: '2026-06-26T21:32:17.146266+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used_at: '2026-06-26T21:59:00.055625+00:00'
+last_outcome: librarian_held
 history:
-- slug: marie-curie
-  started_at: '2026-06-15T16:38:19.410444+00:00'
-  ended_at: '2026-06-15T18:36:15.741636+00:00'
-  outcome: target_missing
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-15T18:36:15.741636+00:00'
   ended_at: '2026-06-15T20:13:51.016688+00:00'
@@ -1156,3 +1151,10 @@ history:
   ended_at: '2026-06-26T21:32:17.146266+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: alan-turing
+  started_at: '2026-06-26T21:32:17.146266+00:00'
+  ended_at: '2026-06-26T21:59:00.055625+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/_held/alan-turing-simulated__2026-06-26__research.md
