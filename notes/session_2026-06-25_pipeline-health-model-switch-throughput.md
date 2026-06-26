@@ -118,3 +118,19 @@ UNTESTED by any genuine project; execute_and_gate (in_progress) is the wall. 492
 SciPy stats are CPU-tractable, so it's the vehicle. Fix REAL bugs as 492 hits each
 new gate (implementer code must actually RUN; research_review/paper stages unproven).
 Reset 492 kickback ONLY after a real fix. qwen runs ~5h; #45 commits before timeout.
+
+## CONTINUED — 492 into the tasks gate (#49)
+- **#48** (verified): tasker emitted tasks.md (template false-positive fixed). 492 reached the TASKS panel.
+- **#49** tasks-panel crash fix: one lens (ordering) emitted malformed YAML frontmatter
+  ('while scanning a simple key') that escaped all 4 _safe_yaml_load repair stages and
+  RuntimeError'd the WHOLE panel — and at temp=0 it's DETERMINISTIC, so the project
+  hard-stalls. Added a regex line-scan salvage in _parse_response (verdict + (severity,
+  text) concern pairs) that runs when YAML parse fails; rescues ONLY a non-accept review
+  (>=1 concern) so it can never rubber-stamp garbage as a clean accept. Parser is now
+  robust across: leading fence (#44) + 4-stage YAML repair + line-scan salvage (#49).
+- Run 25 (id 28210289848, 492 at planned + #48 + #49) re-driving planned→tasked→analyze→in_progress.
+- Fixes shipped this session: #42-#49 (9 general fixes). Each unblocked a real gate as 492
+  advanced. Pattern: qwen review-output format is the recurring fragility (fence, malformed YAML).
+- RESUME: check run 25. Next walls: tasks-gate convergence, analyze, execute_and_gate (the
+  in_progress wall — implementer-generated CPU stats code must RUN cleanly), then the entirely
+  unproven research_review + paper track. qwen runs ~5h; #45 wall-budget commits before timeout.
