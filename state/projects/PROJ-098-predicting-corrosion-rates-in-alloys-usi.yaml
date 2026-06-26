@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T17:28:38.227887Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-098-predicting-corrosion-rates-in-alloys-usi
-last_run_id: bf6b3044-448d-4804-90fb-09efc08fcdb6
+last_run_id: fcd075df-09a1-46dc-bfab-2008b26f7373
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets
-updated_at: '2026-06-12T06:18:50.585911Z'
+updated_at: '2026-06-26T14:42:31.708101Z'

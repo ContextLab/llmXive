@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-26T14:38:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates in alloys using machine learning on public datasets materials science",
+  "rationale": "This paper is off-domain entirely, focusing on machine learning for official government statistics rather than materials science, corrosion rates, or alloy properties. It shares only generic keywords like \"machine learning\" and \"data\" without addressing the specific domain, variables, or mechanisms required for the user's literature review.",
+  "relevant": false
+}

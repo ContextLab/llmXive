@@ -1,0 +1,262 @@
+{
+  "fetched_at": "2026-06-26T14:42:00Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets",
+      "target_n": 5
+    },
+    "duration_seconds": 375.303,
+    "ended_at": "2026-06-26T14:42:00Z",
+    "expansion": null,
+    "extracted_queries": [
+      "material degradation kinetics machine learning",
+      "alloy corrosion dataset machine learning",
+      "materials informatics property prediction",
+      "corrosion current density prediction",
+      "physics-informed neural networks corrosion"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2008.06415"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets materials science": 3,
+      "alloy corrosion dataset machine learning": 0,
+      "corrosion current density prediction": 3,
+      "material degradation kinetics machine learning": 0,
+      "materials informatics property prediction": 3,
+      "physics-informed neural networks corrosion": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "This paper is off-domain entirely, focusing on machine learning for official government statistics rather than materials science, corrosion rates, or alloy properties. It shares only generic keywords like \"machine learning\" and \"data\" without addressing the specific domain, variables, or mechanisms required for the user's literature review.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "This paper focuses on general machine learning methodology regarding learning curves and algorithm selection, lacking any connection to materials science, corrosion rates, or alloy datasets. It falls under the rejection rule for being off-domain entirely relative to the user's specific application context.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2308.16259",
+          "rationale": "The paper focuses on Metal-Organic Frameworks (MOFs) and crystallographic space groups rather than alloys or corrosion rates, failing to measure the specific dependent variable or material population required for the user's literature review. While both fall under the broad field of materials science, the specific material class and property (MOF properties vs. alloy corrosion) are distinct enough to be considered off-target for a review specifically on corrosion prediction.",
+          "title": "Materials Informatics Transformer: A Language Model for Interpretable Materials Properties Prediction"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper focuses on theoretical neural network architecture (Polynomial Chaos) without any application to materials science, corrosion, or alloys, failing to meet inclusion criteria as it does not measure the relevant variables or domain. It is off-domain regarding the specific physical problem (corrosion prediction) despite sharing the general keyword \"Machine Learning.\"",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T14:35:45Z",
+    "term_input": {
+      "normalized": "predicting corrosion rates in alloys using machine learning on public datasets materials science",
+      "raw": "Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets m', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-26T14:38:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There has been an increasing demand for materials with special thermal properties, whereas experimental discovery is high-cost and time-consuming. The emerging discipline `Materials Informatics' is an effective approach that can accelerate materials development by combining material science and big data technique. Recently materials informatics has been applied to the design of novel materials such as thermal interface materials for heat-dissipation, and thermoelectric materials for power generation. This mini-review summarized the research progress on the applications of materials informatics for the thermal transport properties prediction and discovery of materials with special thermal properties, including optimal thermal conductivity, interfacial thermal conductance and thermoelectricity efficiency. In addition, some perspectives are given for the outlook of materials informatics in the field of thermal transport.",
+          "claimed_authors": [
+            "Xiao Wan",
+            "Wentao Feng",
+            "Yunpeng Wang",
+            "Chengcheng Deng",
+            "Nuo Yang"
+          ],
+          "claimed_title": "Materials discovery and properties prediction in thermal transport via materials informatics: a mini-review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.04133"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets m', candidate_title='Materials discovery and properties prediction in thermal transport via materials informatics: a mini-review')",
+        "failed_at": "2026-06-26T14:38:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Gas turbine superalloys experience hot corrosion, driven by factors including corrosive deposit flux, temperature, gas composition, and component material. The full mechanism still needs clarification and research often focuses on laboratory work. As such, there is interest in causal discovery to confirm the significance of factors and identify potential missing causal relationships or co-dependencies between these factors. The causal discovery algorithm Fast Causal Inference (FCI) has been trialled on a small set of laboratory data, with the outputs evaluated for their significance to corrosion propagation, and compared to existing mechanistic understanding. FCI identified the salt deposition flux as the most influential corrosion variable for this limited dataset. However, HCl was the second most influential for pitting regions, compared to temperature for more uniformly corroding regions. Thus FCI generated causal links aligned with literature from a randomised corrosion dataset, while also identifying the presence of two different degradation modes in operation.",
+          "claimed_authors": [
+            "A. Varghese",
+            "M. Arana-Catania",
+            "S. Mori",
+            "A. Encinas-Oropesa",
+            "J. Sumner"
+          ],
+          "claimed_title": "Causal Discovery to Understand Hot Corrosion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.07804"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets m', candidate_title='Causal Discovery to Understand Hot Corrosion')",
+        "failed_at": "2026-06-26T14:38:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Magnesium and its alloys are ideal candidates for biodegradable implants. However, they can dissolve too rapidly in the human body for most applications. In this research, high purified magnesium (HP-Mg) was coated with stearic acid in order to slow the corrosion rate of magnesium in simulated body fluid at 37°C. HP-Mg was anodized to form an oxide/hydroxide layer, then it was immersed in a stearic acid solution. Electrochemical impedance spectroscopy and potentiodynamic polarization were used to estimate the corrosion rate of HP-Mg specimens. The results confirm that the hydrophobic coating can temporarily decrease the corrosion rate of HP-Mg by 1000x.",
+          "claimed_authors": [
+            "Sohrab Khalifeh",
+            "T. David Burleigh"
+          ],
+          "claimed_title": "Super-Hydrophobic Stearic Acid Layer Formed on Anodized High Purified Magnesium for Improving Corrosion Resistance of Biodegradable Implants",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.09508"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets m', candidate_title='Super-Hydrophobic Stearic Acid Layer Formed on Anodized High Purified Magnesium for Improving Corrosion Resistance of Biodegradable Implants')",
+        "failed_at": "2026-06-26T14:38:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Physics-Informed Neural Networks (PINNs) have emerged recently as a promising application of deep neural networks to the numerical solution of nonlinear partial differential equations (PDEs). However, it has been recognized that adaptive procedures are needed to force the neural network to fit accurately the stubborn spots in the solution of \"stiff\" PDEs. In this paper, we propose a fundamentally new way to train PINNs adaptively, where the adaptation weights are fully trainable and applied to each training point individually, so the neural network learns autonomously which regions of the solution are difficult and is forced to focus on them. The self-adaptation weights specify a soft multiplicative soft attention mask, which is reminiscent of similar mechanisms used in computer vision. The basic idea behind these SA-PINNs is to make the weights increase as the corresponding losses increase, which is accomplished by training the network to simultaneously minimize the losses and maximize the weights. In addition, we show how to build a continuous map of self-adaptive weights using Gaussian Process regression, which allows the use of stochastic gradient descent in problems where conventional gradient descent is not enough to produce accurate solutions. Finally, we derive the Neural Tangent Kernel matrix for SA-PINNs and use it to obtain a heuristic understanding of the effect of the self-adaptive weights on the dynamics of training in the limiting case of infinitely-wide PINNs, which suggests that SA-PINNs work by producing a smooth equalization of the eigenvalues of the NTK matrix corresponding to the different loss terms. In numerical experiments with several linear and nonlinear benchmark problems, the SA-PINN outperformed other state-of-the-art PINN algorithm in L2 error, while using a smaller number of training epochs.",
+          "claimed_authors": [
+            "Levi McClenny",
+            "Ulisses Braga-Neto"
+          ],
+          "claimed_title": "Self-Adaptive Physics-Informed Neural Networks using a Soft Attention Mechanism",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.04544"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets m', candidate_title='Self-Adaptive Physics-Informed Neural Networks using a Soft Attention Mechanism')",
+        "failed_at": "2026-06-26T14:38:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Corrosion Rates in Alloys Using Machine Learning on Public Datasets m', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-06-26T14:38:02Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammadreza Karamad",
+            "Rishikesh Magar",
+            "Yuting Shi",
+            "Samira Siahrostami",
+            "Ian D. Gates",
+            "Amir Barati Farimani"
+          ],
+          "title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.06415",
+        "summary": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.06415",
+          "http_status": 200,
+          "pdf_sample_score": 0.2952,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T14:38:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sohrab Khalifeh",
+            "T. David Burleigh"
+          ],
+          "title": "Influence of Heat Treatment on the Corrosion Behavior of Purified Magnesium and AZ31 Alloy",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1706.08663",
+        "summary": "Magnesium and its alloys are ideal for biodegradable implants due to their biocompatibility and their low-stress shielding. However, they can corrode too rapidly in the biological environment. The objective of this research was to develop heat treatments to slow the corrosion of high purified magnesium and AZ31 alloy in simulated body fluid at 37°C. Heat treatments were performed at different temperatures and times. Hydrogen evolution, weight loss, PDP, and EIS methods were used to measure the corrosion rates. Results show that heat treating can increase the corrosion resistance of HP-Mg by 2x and AZ31 by 10x.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1706.08663",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T14:38:01Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting corrosion rates in alloys using machine learning on public datasets materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

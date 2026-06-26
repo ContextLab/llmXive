@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.16259",
+  "judged_at": "2026-06-26T14:40:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates in alloys using machine learning on public datasets materials science",
+  "rationale": "The paper focuses on Metal-Organic Frameworks (MOFs) and crystallographic space groups rather than alloys or corrosion rates, failing to measure the specific dependent variable or material population required for the user's literature review. While both fall under the broad field of materials science, the specific material class and property (MOF properties vs. alloy corrosion) are distinct enough to be considered off-target for a review specifically on corrosion prediction.",
+  "relevant": false
+}

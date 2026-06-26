@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.06415",
+  "judged_at": "2026-06-26T14:38:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates in alloys using machine learning on public datasets materials science",
+  "rationale": "This paper qualifies under category (d) as foundational methodology for machine learning in materials property prediction, and category (b) as it measures material properties using ML in the same domain (materials science). While it doesn't specifically address corrosion rates or alloys, it establishes canonical ML approaches for material property prediction that would be expected in a literature review for this research question.",
+  "relevant": true
+}

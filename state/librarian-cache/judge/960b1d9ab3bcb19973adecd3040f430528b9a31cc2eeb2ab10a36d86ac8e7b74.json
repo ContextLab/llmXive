@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-26T14:41:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates in alloys using machine learning on public datasets materials science",
+  "rationale": "The paper focuses on theoretical neural network architecture (Polynomial Chaos) without any application to materials science, corrosion, or alloys, failing to meet inclusion criteria as it does not measure the relevant variables or domain. It is off-domain regarding the specific physical problem (corrosion prediction) despite sharing the general keyword \"Machine Learning.\"",
+  "relevant": false
+}
