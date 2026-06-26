@@ -134,3 +134,55 @@ Reset 492 kickback ONLY after a real fix. qwen runs ~5h; #45 commits before time
 - RESUME: check run 25. Next walls: tasks-gate convergence, analyze, execute_and_gate (the
   in_progress wall — implementer-generated CPU stats code must RUN cleanly), then the entirely
   unproven research_review + paper track. qwen runs ~5h; #45 wall-budget commits before timeout.
+
+## CONTINUED 2026-06-26 — systematic error campaign (#50-#57) + activity-log audit
+
+User: "i'm seeing a bunch of failures in the activity log (context-lab.com/llmXive/#activity) —
+flukes or real? systematically work through ALL errors, deep-dive w/ sub-agents, fix everything."
+Plus: personality comments + pipeline-step products don't appear in repo → genuine errors.
+
+5 parallel scientist deep-dives → classified every error class (fluke / real / STALE / benign),
+then fixed all the real bugs. All committed + pushed; full unit+contract suite 3507 green.
+
+- **#50** Deploy Pages failed 15x = `git push` race (non-fast-forward) vs the ~14 cron commits.
+  Fixed: rebase-retry (later refactored to the shared commit-and-push.sh in #56).
+- **#51** specifier spec refusals: `[See US-N]` = classifier false-positive (FILLED_TASK_REF_RE
+  now also exempts `US-?\d+`, like the #48 `[DEPENDS ON: T0NN]` fix); `[Assumption about X]` =
+  real defect (specifier copied template scaffold verbatim) → specifier.md rule to delete them.
+- **#52** `round 1 already recorded` (all 31 = PROJ-552): _derive_round_number fallback returned
+  hardcoded 1 (vs its docstring's _next_round_number) → collided with the recorded round 1 on
+  every tick, applying work but never crediting it, permanently blocking. Fixed to next-free round.
+  append_round's raise LEFT intact (tested invariant; root cause was the fallback).
+- **#53** lualatex: implementer path already guarded (06-24); hardened publisher._compile_full to
+  return (False,None) instead of a raw FileNotFoundError. The 35 crashes are stale (pre-guard).
+- **#54** artifact-loss ("products don't appear in repo"): computed results under data/processed/
+  were gitignored. Re-included data/**/results/ (small reports); large datasets still ignored.
+  NOT goal-blocking (values persist via committed receipts; figures under paper/source/figures/).
+- **#55** activity-feed: painted EXPECTED mechanics (StagePanelKickback / librarian_held / abstain)
+  the same red as crashes — live payload 500 rows = ok 431 / soft 56 / hard 13, but ALL 69
+  non-ok showed red. Added _activity_severity (ok|soft|hard) + app.js amber "soft". Also
+  _project_authors counted only outcome=="success", dropping personas (outcome=="committed").
+- **#56** pipeline-paper-speckit.yml: Pages-trigger step gated on steps.commit BEFORE the commit
+  step ran (never fired) → reordered; pages.yml now uses shared commit-and-push.sh (SSOT).
+- **#57** persona comments: triaged through the human-review quality gate (needs a quoted phrase /
+  section / FR-SC id / technical term); ~48% rejected → never reached modals. User chose: strengthen
+  the persona prompt to ANCHOR each comment (quote/cite/name an element) rather than lower the bar.
+
+CONFIRMED STALE (already fixed, zero recurrence): malformed-YAML panel crash (#49), paper_reviewer
+missing-YAML, ReviewRecord-validation — all stopped before/at the fixes.
+
+### Run findings (552/492 driving)
+- **552 science-recovery test DID NOT RUN**: workflow_dispatch sat ~3h QUEUED behind 492's long
+  run, then GitHub bumped it (cancel-in-progress: false serializes; older PENDING runs are
+  cancelled when newer ones queue). The spec-035/037 trail was from earlier runs. Lesson: manual
+  re-dispatches THRASH the llmxive-pipeline queue (runs take up to 330min but cron fires every 3h);
+  rely on the SCHEDULED crons + per-stage workflows to drive specific projects, not manual dispatch.
+- **492** crossed spec+plan, now OSCILLATING at the tasks gate (planned↔tasked↔clarified): tasks
+  panel raises 4→8 concerns → kickback → re-converge → repeat. Several recent tasker failures were
+  the now-fixed crash classes (#48 TemplateRefused @23:49 pre-fix, #49 engine-failure @00:46
+  pre-fix). kickback counter only 1 (resets on advance) so it cycles without escalating. With the
+  crash classes patched, the next CLEAN runs test whether the tasks panel genuinely converges.
+
+### RESUME: error campaign COMPLETE (#50-#57 pushed). Next frontier = 492 tasks-gate convergence
+(the next wall after spec+plan, same class as the earlier spec/plan oscillations) + the in_progress
+execute_and_gate beyond it. Let the crons drive; watch for a NEW fixable bug vs genuine non-converge.
