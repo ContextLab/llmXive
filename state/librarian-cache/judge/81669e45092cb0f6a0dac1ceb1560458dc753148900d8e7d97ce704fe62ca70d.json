@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1301.1635",
+  "judged_at": "2026-06-26T00:22:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on high-temperature oxidation resistance materials science",
+  "rationale": "This paper satisfies criterion (b) as it measures the dependent variable (high-temperature oxidation resistance) within the same domain (materials science/metals), providing empirical data on the outcome phenomenon even though the independent variable (residual stress) differs from the user's focus (alloying). It serves as a relevant baseline study for oxidation behavior in the material class under investigation.",
+  "relevant": true
+}

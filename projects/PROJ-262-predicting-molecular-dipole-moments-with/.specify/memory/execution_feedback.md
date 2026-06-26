@@ -7,20 +7,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/training/train_rf.py -> rc=1
-    ts-with/code/training/train_rf.py", line 40, in <module>
-    from training.save_checkpoints import save_rf_checkpoint
-ImportError: cannot import name 'save_rf_checkpoint' from partially initialized module 'training.save_checkpoints' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/save_checkpoints.py)
+    e 1620, in _get_merge_keys
+    right_keys.append(right._get_label_or_level_values(rk))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/core/generic.py", line 1776, in _get_label_or_level_values
+    raise KeyError(key)
+KeyError: 'molecule_id'
 - python code/analysis/generate_performance_plots.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py", line 28, in <module>
-    import matplotlib.pyplot as plt
-ModuleNotFoundError: No module named 'matplotlib'
+     line 138, in generate_plots
+    df = load_metrics(metrics_csv)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py", line 51, in load_metrics
+    raise ValueError(f"Metrics CSV missing columns: {missing}")
+ValueError: Metrics CSV missing columns: {'rmse', 'model', 'mae'}
 - python code/analysis/generate_significance.py -> rc=1
     ric_data = _load_metrics(metrics_path)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py", line 54, in _load_metrics
     raise ValueError(f"Metrics CSV missing required columns: {missing}")
-ValueError: Metrics CSV missing required columns: {'mae', 'model', 'rmse'}
+ValueError: Metrics CSV missing required columns: {'model', 'mae', 'rmse'}
 - python code/generate_summary.py -> rc=1
     ary
     significance = load_csv_as_dicts(significance_path)
@@ -44,7 +49,7 @@ A `missing columns` / `KeyError` / `FileNotFoundError: <file>` failure above is 
 - `data/checkpoints/rf_seed_2.pkl` (337617 bytes)
 - `data/checkpoints/rf_seed_3.pkl` (337617 bytes)
 - `data/checkpoints/rf_seed_4.pkl` (337617 bytes)
-- `data/processed/features_2d.parquet` (330751 bytes)
-- `data/processed/features_3d.parquet` (3816421 bytes)
-- `data/processed/molecules_10k.parquet` (629397 bytes)
+- `data/processed/features_2d.parquet` (330765 bytes)
+- `data/processed/features_3d.parquet` (3816349 bytes)
+- `data/processed/molecules_10k.parquet` (629861 bytes)
 - `results/metrics.csv` — actual CSV header: `seed,model_type,MAE,RMSE`

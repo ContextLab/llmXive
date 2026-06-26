@@ -1,0 +1,398 @@
+{
+  "fetched_at": "2026-06-26T00:24:07Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Alloying on High-Temperature Oxidation Resistance",
+      "target_n": 5
+    },
+    "duration_seconds": 307.332,
+    "ended_at": "2026-06-26T00:24:07Z",
+    "expansion": null,
+    "extracted_queries": [
+      "elemental substitution oxidation kinetics",
+      "Ni-based superalloy high-temperature oxidation",
+      "materials informatics oxidation prediction",
+      "parabolic rate constant mass gain",
+      "protective oxide scale thermodynamics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1902.10001"
+      ]
+    },
+    "per_query_hit_count": {
+      "Ni-based superalloy high-temperature oxidation": 3,
+      "Predicting the Impact of Alloying on High-Temperature Oxidation Resistance materials science": 3,
+      "elemental substitution oxidation kinetics": 3,
+      "materials informatics oxidation prediction": 2,
+      "parabolic rate constant mass gain": 3,
+      "protective oxide scale thermodynamics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2304.06533",
+          "rationale": "This paper studies magnetic ordering and ambient stability of 2D van der Waals minerals, which is a distinct construct from high-temperature oxidation resistance in alloys, sharing only the keyword \"oxidation\" (referring to chemical valence states rather than corrosion resistance). It does not measure the relevant variables (oxidation kinetics, mass gain, oxide scale formation) or address the mechanism of high-temperature degradation required for the user's literature review.",
+          "title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals"
+        },
+        {
+          "primary_pointer": "1901.04133",
+          "rationale": "The paper focuses on thermal transport properties (conductivity, thermoelectricity) rather than high-temperature oxidation resistance, which are distinct physical constructs with different underlying mechanisms. It does not measure the user's dependent variable or provide the canonical methodology for predicting oxidation behavior in alloys.",
+          "title": "Materials discovery and properties prediction in thermal transport via materials informatics: a mini-review"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T00:19:00Z",
+    "term_input": {
+      "normalized": "predicting the impact of alloying on high-temperature oxidation resistance materials science",
+      "raw": "Predicting the Impact of Alloying on High-Temperature Oxidation Resistance materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proposed as blanket structural materials for fusion power reactors, reduced activation ferritic/martensitic (RAFM) steel undergoes volume expanding and contracting in a cyclic mode under service environment. Particularly, being subjected to significant fluxes of fusion neutrons RAFM steel suffers considerable local volume variations in the radiation damage involved regions. It is necessary to study the structure properties of the alloying elements in contraction and expansion states. In this paper we studied local substitution structures of thirteen alloying elements Al, Co, Cr, Cu, Mn, Mo, Nb, Ni, Si, Ta, Ti, V, and W in bcc Fe and calculated their substitutional energies in the volume variation range from -1.0% to 1.0%. From the structure relaxation results of the first five neighbor shells around the substitutional atom we find the relaxation in each neighbor shell keeps approximately uniform within the volume variation from -1.0% to 1.0% except those of Mn and the relaxation of the fifth neighbor shell is stronger than that of the third and forth, indicating that the lattice distortion due to the substitution atom is easier to spread in <111> direction than in other direction. The relaxation pattern and intensity are related to the size and electron structure of the substitutional atom. For some alloying elements, such as Mo, Nb, Ni, Ta, Ti and W, the substitutional energy decreases noticeably when the volume increases. Further analysis show that the substitutional energy comprises the energy variation originated from local structure relaxation and the chemical potential difference of the substitutional atom between its elemental crystalline state and the solid solution phase in bcc Fe. We think the approximately uniform relaxation of each neighbor shell around a substitutional atom give rise to a linear decrease in the substitutional energy with the increasing volume.",
+          "claimed_authors": [
+            "Wei Liu",
+            "Wei-Lu Wang",
+            "C. S. Liu",
+            "Q. F. Fang",
+            "Qun-Ying Huang",
+            "Yi-Can Wu",
+            "Key Laboratory of Materials Physics",
+            "Institute of Solid State Physics",
+            "Chinese Academy of Sciences",
+            "P. O. Box 1129",
+            "Hefei 230031",
+            "P. R. China",
+            "Institute of Plasma Physics",
+            "Chinese Academy of Sciences",
+            "Hefei 230031",
+            "P. R. China"
+          ],
+          "claimed_title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.3001"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe')",
+        "failed_at": "2026-06-26T00:21:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-06-26T00:21:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Co(II) dissolved in acetate buffer at pH 7 is found to be a good water oxidation catalyst (WOC) showing electrocatalytic water oxidation current significantly greater than Co(II) in phosphate buffer under the same conditions owing to the higher solubility of the former. When electrodeposited on ITO/FTO electrodes it forms acetate bound cobalt(II)oxide based material (Co-Ac-WOC) showing catalytic water oxidation current density of 0.1 mA/cm$^{2}$ at 830 mV and 1 mA/cm$^{2}$ at 1 V in a pH 7 buffer solution. The morphology of Co-Ac-OEC is investigated with AFM, HR-TEM and SEM (at different times and electrodeposition potentials). The chemical composition of Co-Ac-OEC is investigated using XPS, EDX, combustion analysis and ATR-FTIR which indicates that this material has a CoO core with chloride and acetate anions bound to the Co center. Sodium is found to be integrated in the Co-Ac-WOC. The presence of the sodium ions and the chloride ions lowers the onset potential for oxygen evolution reaction (OER) by 240 mV relative to the classic Co-Pi at pH 7. The lower onset potential and higher OER current lowers the exchange current density to 10$^{-6.7}$ in Co-Ac-WOC relative to 10$^{-8}$-10$^{-10}$ in Co-Pi and its derivatives.",
+          "claimed_authors": [
+            "Subal Dey",
+            "Biswajit Mondal",
+            "Abhishek Dey"
+          ],
+          "claimed_title": "An Acetate Bound Cobalt Oxide Catalyst for Water Oxidation: Role of Monovalent Anions and Cations In Lowering Overpotential",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.5491"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='An Acetate Bound Cobalt Oxide Catalyst for Water Oxidation: Role of Monovalent Anions and Cations In Lowering Overpotential')",
+        "failed_at": "2026-06-26T00:21:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter provides a pedagogical introduction and overview of spatial and temporal correlation and fluctuation effects resulting from the fundamentally stochastic kinetics underlying chemical reactions and the dynamics of populations or epidemics. After reviewing the assumptions and mean-field type approximations involved in the construction of chemical rate equations for uniform reactant densities, we first discuss spatial clustering in birth-death systems, where non-linearities are introduced through either density-limiting pair reactions, or equivalently via local imposition of finite carrying capacities. The competition of offspring production, death, and non-linear inhibition induces a population extinction threshold, which represents a non-equilibrium phase transition that separates active from absorbing states. This continuous transition is characterized by the universal scaling exponents of critical directed percolation clusters. Next we focus on the emergence of depletion zones in single-species annihilation processes and spatial population segregation with the associated reaction fronts in two-species pair annihilation. These strong (anti-)correlation effects are dynamically generated by the underlying stochastic kinetics. Finally, we address noise-induced and fluctuation-stabilized spatio-temporal patterns in basic predator-prey systems, exemplified by spreading activity fronts in the two-species Lotka-Volterra model as well as spiral structures in the May-Leonard variant of cyclically competing three-species systems akin to rock-paper-scissors games.",
+          "claimed_authors": [
+            "Uwe C. Täuber"
+          ],
+          "claimed_title": "Fluctuations and correlations in chemical reaction kinetics and population dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.01248"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Fluctuations and correlations in chemical reaction kinetics and population dynamics')",
+        "failed_at": "2026-06-26T00:21:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the present work, it is shown that the surface preparation method used on two Ni-based superalloys prior to aluminizing chemical vapor deposition (CVD) is one of the most important factors determining the oxidation resistance of aluminized Ni-based superalloys. It was found that grit blasting the substrate surface negatively affects the oxidation resistance of the aluminized coatings. For grit blasted and aluminized IN 625, a thicker outer NiAl coating was formed compared to that of IN 738. In contrast, no effect on NiAl coating thickness was found for grit blasted and aluminized IN 738. However, a thicker interdiffusion zone (IDZ) was observed. It was shown that the systems with grit-blasted surfaces reveal worse oxidation resistance during thermal shock tests, namely, a higher mass loss was observed for both grit blasted and aluminized alloys, as compared to ground and aluminized alloys. A possible reason for this effect of remaining alumina particles originating from surface grit blasting on the diffusion processes and stress distribution at the coating/substrate is proposed.",
+          "claimed_authors": [
+            "Wojciech J. Nowak",
+            "Kamil Ocha",
+            "Patrycja Wierzba",
+            "Kamil Gancarczyk",
+            "Bartek Wierzba"
+          ],
+          "claimed_title": "Effect of Substrate Roughness on Oxidation Resistance of an Aluminized Ni-Base Superalloy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.08921"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Effect of Substrate Roughness on Oxidation Resistance of an Aluminized Ni-Base Superalloy')",
+        "failed_at": "2026-06-26T00:21:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+          "claimed_authors": [
+            "Mohammadreza Karamad",
+            "Rishikesh Magar",
+            "Yuting Shi",
+            "Samira Siahrostami",
+            "Ian D. Gates",
+            "Amir Barati Farimani"
+          ],
+          "claimed_title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.06415"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Orbital Graph Convolutional Neural Network for Material Property Prediction')",
+        "failed_at": "2026-06-26T00:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tunneling of electrons through the barriers in heterostructures has been studied, within unified transfer matrix approach. The effect of barrier width on the transmission coefficient of the electrons has been investigated for different pairs of semi conducting materials that are gaining much importance recently. These pairs include CdS/CdSe, AlGaAs/GaAs and InAs/AlSb. Barrier dimensions have been reduced from 20nm to 5nm to observe the effect of scaling on tunneling properties. Material depended is highlighted for electrons with energy varying from below the barrier height to above it. The electron effective mass inside the barrier and the well are often different. The results show that the coupling effect leads to significant changes on the transmission effect. . The effective-mass dependant transmission coefficient has been plotted with respect to electron energy. The computation is based on the transfer matrix method by using MATLAB.",
+          "claimed_authors": [
+            "Jatindranath Gain",
+            "Madhumita Das Sarkar",
+            "Sudakshina Kundu"
+          ],
+          "claimed_title": "Energy and Effective Mass Dependence of Electron Tunnelling Through Multiple Quantum barriers in Different Heterostructures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1931"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Energy and Effective Mass Dependence of Electron Tunnelling Through Multiple Quantum barriers in Different Heterostructures')",
+        "failed_at": "2026-06-26T00:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A complex ruled surface admits an iterated blow-up encoded by a parabolic structure with rational weights. Under a condition of parabolic stability, one can construct a Kaehler metric of constant scalar curvature on the blow-up according to math.DG/0412405. We present a generalization of this construction to the case of parabolically polystable ruled surfaces. Thus we can produce numerous examples of Kaehler surfaces of constant scalar curvature with circle or toric symmetry.",
+          "claimed_authors": [
+            "Yann Rollin",
+            "Michael A. Singer"
+          ],
+          "claimed_title": "Constant scalar curvature Kaehler surfaces and parabolic polystability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "math/0703212"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Constant scalar curvature Kaehler surfaces and parabolic polystability')",
+        "failed_at": "2026-06-26T00:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) are rapidly reshaping machine translation (MT), particularly by introducing instruction-following, in-context learning, and preference-based alignment into what has traditionally been a supervised encoder-decoder paradigm. This survey provides a comprehensive and up-to-date overview of how LLMs are being leveraged for MT across data regimes, languages, and application settings. We systematically analyze prompting-based methods, parameter-efficient and full fine-tuning strategies, synthetic data generation, preference-based optimization, and reinforcement learning with human and weakly supervised feedback. Special attention is given to low-resource translation, where we examine the roles of synthetic data quality, diversity, and preference signals, as well as the limitations of current RLHF pipelines. We further review recent advances in Mixture-of-Experts models, MT-focused LLMs, and multilingual alignment, highlighting trade-offs between scalability, specialization, and accessibility. Beyond sentence-level translation, we survey emerging document-level and discourse-aware MT methods with LLMs, showing that most approaches extend sentence-level pipelines through structured context selection, post-editing, or reranking rather than requiring fundamentally new data regimes or architectures. Finally, we discuss LLM-based evaluation, its strengths and biases, and its role alongside learned metrics. Overall, this survey positions LLM-based MT as an evolution of traditional MT systems, where gains increasingly depend on data quality, preference alignment, and context utilization rather than scale alone, and outlines open challenges for building robust, inclusive, and controllable translation systems.",
+          "claimed_authors": [
+            "Baban Gain",
+            "Dibyanayan Bandyopadhyay",
+            "Asif Ekbal",
+            "Trilok Nath Singh"
+          ],
+          "claimed_title": "Bridging the Linguistic Divide: A Survey on Leveraging Large Language Models for Machine Translation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.01919"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Bridging the Linguistic Divide: A Survey on Leveraging Large Language Models for Machine Translation')",
+        "failed_at": "2026-06-26T00:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The effects of low dimensionality on the thermodynamics of a Fermi gas trapped by isotropic power law potentials are analyzed. Particular attention is given to different characteristic temperatures that emerge, at low dimensionality, in the thermodynamic functions of state and in the thermodynamic susceptibilities (isothermal compressibility and specific heat). An energy-entropy argument that physically favors the relevance of one of these characteristic temperatures, namely, the non vanishing temperature at which the chemical potential reaches the Fermi energy value, is presented. Such an argument allows to interpret the nonmonotonic dependence of the chemical potential on temperature, as an indicator of the appearance of a thermodynamic regime, where the equilibrium states of a trapped Fermi gas are characterized by larger fluctuations in energy and particle density as is revealed in the corresponding thermodynamics susceptibilities.",
+          "claimed_authors": [
+            "Francisco J. Sevilla"
+          ],
+          "claimed_title": "Thermodynamics of low-dimensional trapped Fermi gases",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.02496"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Thermodynamics of low-dimensional trapped Fermi gases')",
+        "failed_at": "2026-06-26T00:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We examine the entanglement and state disturbance arising in a protective measurement and argue that these inescapable effects doom the claim that protective measurement establishes the reality of the wave function. An additional challenge to this claim results from the exponential number of protective measurements required to reconstruct multi-qubit states. We suggest that the failure of protective measurement to settle the question of the meaning of the wave function is entirely expected, for protective measurement is but an application of the standard quantum formalism, and none of the hard foundational questions can ever be settled in this way.",
+          "claimed_authors": [
+            "Maximilian Schlosshauer",
+            "Tangereen V. B. Claringbold"
+          ],
+          "claimed_title": "Entanglement, scaling, and the meaning of the wave function in protective measurement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.1217"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Entanglement, scaling, and the meaning of the wave function in protective measurement')",
+        "failed_at": "2026-06-26T00:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The dynamics and the thermodynamics of particles/spins interacting via long-range forces display several unusual features with respect to systems with short-range interactions. The Hamiltonian Mean Field (HMF) model, a Hamiltonian system of N classical inertial spins with infinite-range interactions represents a paradigmatic example of this class of systems. The equilibrium properties of the model can be derived analytically in the canonical ensemble: in particular the model shows a second order phase transition from a ferromagnetic to a paramagnetic phase. Strong anomalies are observed in the process of relaxation towards equilibrium for a particular class of out-of-equilibrium initial conditions. In fact the numerical simulations show the presence of quasi-stationary state (QSS), i.e. metastable states which become stable if the thermodynamic limit is taken before the infinite time limit. The QSS differ strongly from\n Boltzmann-Gibbs equilibrium states: they exhibit negative specific heat, vanishing Lyapunov exponents and weak mixing, non-Gaussian velocity distributions and anomalous diffusion, slowly-decaying correlations and aging. Such a scenario provides strong hints for the possible application of Tsallis generalized thermostatistics. The QSS have been recently interpreted as a spin-glass phase of the model. This link indicates another promising line of research, which is not alternative to the previous one.",
+          "claimed_authors": [
+            "Alessandro Pluchino",
+            "Vito Latora",
+            "Andrea Rapisarda"
+          ],
+          "claimed_title": "Dynamics and Thermodynamics of a model with long-range interactions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cond-mat/0410213"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on High-Temperature Oxidation Resistance mater', candidate_title='Dynamics and Thermodynamics of a model with long-range interactions')",
+        "failed_at": "2026-06-26T00:21:09Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Laura Raceanu",
+            "Virgil Optasanu",
+            "Tony Montesin",
+            "Guillaume Montay",
+            "Manuel Francois"
+          ],
+          "title": "Shot-Peening of Pre-Oxidized Plates of Zirconium: Influence of Residual Stress on Oxidation",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1301.1635",
+        "summary": "The present study deals with oxidation behavior under residual stress of shot-peened plates of \"commercially pure\" zirconium exposed for 30 min at 650 C. The influence of the shot-peening on a pre-oxidized material is presented. The results have been used to determine the influences of these chemical (preoxidation) and mechanical (shot-peening) treatments on the high temperature oxidation of zirconium. The oxygen profile was revealed using micro-hardness techniques and confirmed by SEM-EDS techniques. After pre-oxidation the samples were first resurfaced then shot-peened in order to introduce residual stress. A significant increase of the hardness of about 400 HV was observed on pre-oxidized shot-peened samples. Thermogravimetric analysis for 30 min at 650 C under 200 mbar O2 showed a significantly slower oxidation rate for shot-peened samples. A comparison with our computations points out the role of the residual stresses on the diffusion and, consequently, on the oxidation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1301.1635",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T00:21:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cameron. Crabb",
+            "Zachary. T. Kloenne",
+            "Samuel. R. Rogers",
+            "Chi-Hang. D. Kwok",
+            "Mark. C. Hardy",
+            "Michelle. S. Conroy",
+            "David. Dye"
+          ],
+          "title": "Time-Dependent Oxidation and Scale Evolution of a Wrought Co/Ni-based Superalloy",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.09678",
+        "summary": "Understanding how protective oxide scales evolve over time is necessary for improving the long term resistance of superalloys. This work investigates the time-dependent oxidation behavior of an ingot-processable Co/Ni-based superalloy oxidized in air at $800~^\\circ\\mathrm{C}$ for $20$, $100$, and $1000~\\mathrm{h}$ . Mass-gain and white-light interferometry measurements quantified oxidation kinetics, surface roughness, and spallation, while high-resolution STEM-EDX characterized oxide morphology and nanoscale elemental partitioning. Atom probe tomography captured the key transition regions between the chromia and alumina scales, and X-ray diffraction was used to identify a gradual transition from NiO and (Ni,Co)-spinel phases to a compact, dual phase chromia and alumina-rich scale. The oxidation rate evolved from near-linear to parabolic behavior with time, consistent with diffusion-controlled growth once a continuous Cr$_2$O$_3$/$α$-Al$_2$O$_3$ scale formed. These observations help link kinetics, structure and chemistry, showing how an originally porous spinel layer transforms into a dense, adherent chromia + alumina scale that provides long-term protection in wrought Co/Ni-based superalloys.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.09678",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T00:21:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Maxim Sokol",
+            "Jian Wang",
+            "Hrishikesh Keshavan",
+            "Michel W. Barsoum"
+          ],
+          "title": "Bonding and oxidation protection of Ti${_2}$AlC and Cr${_2}$AlC for a Ni-based Superalloy",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1902.10001",
+        "summary": "Alumina forming, oxidation and thermal shock resistant MAX phases are of a high interest for high temperature applications. Herein we report, on bonding and resulting interactions between a Ni-based superalloy, NSA, and two alumina forming MAX phases. The diffusion couples Cr${_2}$AlC/Inconel-718/Ti${_2}$AlC were assembled and heated to 1000 or 1100°C in a vacuum hot press under loads corresponding to stresses of either 2 MPa or 20 MPa. The resulting interfaces were examined using X-ray diffraction, scanning electron microscopy and energy-dispersive X-ray spectroscopy. Good bonding between Cr${_2}$AlC and NSA was achieved after hot pressing at 1000°C and a contact pressure of only 2 MPa; in the case of Ti${_2}$AlC a higher temperature (1100°C) and pressure (20 MPa) were needed. In both cases, a diffusion bond was realized with no evidence of interfacial damage or cracking after cooling to room temperature. Twenty thermal cycles from room temperature to 1000°C showed that Ti${_2}$AlC is a poor oxidation barrier for Inconel-718. However, in the case of Cr${_2}$AlC no cracks, delamination nor surface degradation were observed, suggesting that this material could be used to protect Inconel-718 from oxidation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1902.10001",
+          "http_status": 200,
+          "pdf_sample_score": 0.2461,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T00:21:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of alloying on high-temperature oxidation resistance materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

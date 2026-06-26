@@ -2,32 +2,33 @@
 
 ### Phenomenon-vs-method check
 
-**Verdict**: concern  
+**Verdict**: concern
 
-The question is framed around a specific implementation choice—quantized small language models (<3 B parameters) with prompt engineering and no fine‑tuning. The underlying scientific phenomenon of interest is the relationship between model capacity/quantization and the quality of automatically generated unit tests from API specifications. Reframing the question to focus on that relationship would remove the method‑centric wording.
+The question asks about the relationship between model configuration (size, quantization) and output quality, which is an empirical relationship in the ML-software engineering domain. However, it leans toward benchmarking ("what model configuration works") rather than investigating a substantive phenomenon about the nature of API specifications or test generation difficulty. The underlying phenomenon question would be about what makes certain API specifications harder to generate tests for, with model characteristics as a moderating factor rather than the primary focus.
 
 ### Circularity check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-The predictor (model‑generated test scripts) and the predicted variable (whether the tests pass when executed against the API) are derived from distinct processes: generation from the language model versus execution in a sandboxed environment. There is no mechanical guarantee linking them.
+The predictor (model size and quantization level) is an external configuration choice independent of the API specifications. The predicted variable (test quality: pass rate, coverage, hallucination rate) is measured through external test execution and static analysis against ground truth. These are independent data sources with no shared primary signal.
 
 ### Triviality check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-It is not obvious a priori whether sub‑3 B quantized models can reliably produce executable tests, nor how performance scales with schema complexity. Both a positive result (reasonable pass rates) and a negative result (significant degradation) would provide novel insight for the community.
+Either outcome would be informative: a strong degradation curve with model size/quantization would establish practical limits for resource-constrained test automation; a null or weak relationship would suggest that test generation is a task where small models can be effective, challenging assumptions about model scaling requirements. Both findings would provide evidence-based guidance for practitioners.
 
 ### Question-narrowing check
 
-**Verdict**: concern  
+**Verdict**: concern
 
-The current wording asks whether a particular class of models can accomplish a task under specific resource constraints, which is an implementation‑method constraint rather than a domain‑focused scientific question. A broader question about how model size/quantization influences test‑generation quality would be preferable.
+The question names a relationship in the domain (model characteristics → test quality) but heavily emphasizes implementation constraints (quantization level, model size, CPU inference limits). A more phenomenon-focused framing would ask about the relationship between API specification characteristics and test generation difficulty, with model capacity as a moderating variable rather than the primary question.
 
 ### Overall verdict
 
-**Verdict**: validator_revise  
+**Verdict**: validator_revise
 
-[REVISED]What is the relationship between language‑model size and quantization level and the quality (pass rate, coverage, hallucination rate) of unit tests automatically generated from OpenAPI specifications, and how does this relationship change as schema complexity increases?[/REVISED]
-
-Reframing removes the narrow focus on a specific method and instead asks a domain‑level question about capacity limits and complexity effects, while still staying within the original project's scope.
+[REVISED]
+How does API specification complexity interact with model capacity to predict unit test generation quality, and which specification characteristics (endpoint density, schema nesting depth, constraint specificity) most strongly moderate the relationship between model size and test pass rate?
+[/REVISED]
+Reframing shifts the phenomenon of interest from "model configuration trade-offs" to "what makes certain API specifications harder to test," with model capacity as a moderating factor. This advances understanding of the test generation task itself rather than just benchmarking model configurations.

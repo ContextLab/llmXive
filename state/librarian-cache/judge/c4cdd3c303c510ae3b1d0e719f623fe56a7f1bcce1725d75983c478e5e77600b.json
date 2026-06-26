@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.06533",
+  "judged_at": "2026-06-26T00:21:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on high-temperature oxidation resistance materials science",
+  "rationale": "This paper studies magnetic ordering and ambient stability of 2D van der Waals minerals, which is a distinct construct from high-temperature oxidation resistance in alloys, sharing only the keyword \"oxidation\" (referring to chemical valence states rather than corrosion resistance). It does not measure the relevant variables (oxidation kinetics, mass gain, oxide scale formation) or address the mechanism of high-temperature degradation required for the user's literature review.",
+  "relevant": false
+}

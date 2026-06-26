@@ -115,6 +115,10 @@
     "classified_at": "2026-06-22T13:55:16Z",
     "verdict": false
   },
+  "PROJ-277-predicting-the-impact-of-alloying-on-hig::1.6.0": {
+    "classified_at": "2026-06-26T00:21:07Z",
+    "verdict": false
+  },
   "PROJ-282-evaluating-the-effectiveness-of-llms-for::1.6.0": {
     "classified_at": "2026-06-19T18:39:16Z",
     "verdict": false
