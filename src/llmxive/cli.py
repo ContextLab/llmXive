@@ -76,16 +76,21 @@ def _cmd_run(args: argparse.Namespace) -> int:
     # CI job timeout, so the commit-and-push ALWAYS persists progress instead of
     # the job being killed mid-step (losing the whole run's work). A multi-gate
     # convergence run on the slow reasoning default (qwen3.5-122b) can otherwise
-    # accumulate past the 330-min llmxive-pipeline.yml timeout. Default 270 min
-    # leaves ~60 min margin for one in-flight step + the commit; overridable via
-    # LLMXIVE_RUN_WALL_BUDGET_S. A fast run never reaches it (pure safety net).
+    # accumulate past the 330-min llmxive-pipeline.yml timeout. The budget is
+    # checked BETWEEN steps, so the margin must exceed the LONGEST single step:
+    # a live tasked/review convergence (panel identify + revise + re-review over
+    # the cap) was observed at ~77 min. Default 230 min leaves ~100 min margin so
+    # an in-flight step + the commit always finish before the CI hard-timeout
+    # (a 270-min budget left only ~60 min and a long final step overran -> the
+    # job was timeout-CANCELLED at 330 min, losing that step's work). Overridable
+    # via LLMXIVE_RUN_WALL_BUDGET_S. A fast run never reaches it (pure safety net).
     import time as _time
 
     _run_start = _time.monotonic()
     try:
-        _wall_budget_s = float(os.environ.get("LLMXIVE_RUN_WALL_BUDGET_S", "16200"))
+        _wall_budget_s = float(os.environ.get("LLMXIVE_RUN_WALL_BUDGET_S", "13800"))
     except ValueError:
-        _wall_budget_s = 16200.0
+        _wall_budget_s = 13800.0
 
     completed = 0
     for _ in range(max(1, args.max_tasks)):
