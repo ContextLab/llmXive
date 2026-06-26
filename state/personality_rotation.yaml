@@ -1,12 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-26T13:43:33.214975+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-06-26T14:56:29.439319+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-14T23:57:13.871221+00:00'
-  ended_at: '2026-06-15T00:42:49.799706+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: daniel-kahneman
   started_at: '2026-06-15T00:42:49.799706+00:00'
   ended_at: '2026-06-15T01:52:36.938798+00:00'
@@ -1148,5 +1143,10 @@ history:
 - slug: freeman-dyson
   started_at: '2026-06-26T12:43:11.125101+00:00'
   ended_at: '2026-06-26T13:43:33.214975+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-26T13:43:33.214975+00:00'
+  ended_at: '2026-06-26T14:56:29.439319+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
