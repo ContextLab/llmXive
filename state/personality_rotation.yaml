@@ -1,12 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-26T12:43:11.125101+00:00'
-last_outcome: committed
+last_used: freeman-dyson
+last_used_at: '2026-06-26T13:43:33.214975+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: albert-einstein
-  started_at: '2026-06-14T23:30:32.950400+00:00'
-  ended_at: '2026-06-14T23:57:13.871221+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: dan-rockmore
   started_at: '2026-06-14T23:57:13.871221+00:00'
   ended_at: '2026-06-15T00:42:49.799706+00:00'
@@ -1150,3 +1145,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-361-investigating-the-relationship-between-b/reviews/research/eric-kandel-simulated__2026-06-26__research.md
+- slug: freeman-dyson
+  started_at: '2026-06-26T12:43:11.125101+00:00'
+  ended_at: '2026-06-26T13:43:33.214975+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
