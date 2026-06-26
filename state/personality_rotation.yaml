@@ -1,12 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-26T14:56:29.439319+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: john-von-neumann
+last_used_at: '2026-06-26T15:48:00.665758+00:00'
+last_outcome: committed
 history:
-- slug: daniel-kahneman
-  started_at: '2026-06-15T00:42:49.799706+00:00'
-  ended_at: '2026-06-15T01:52:36.938798+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: david-krakauer
   started_at: '2026-06-15T01:52:36.938798+00:00'
   ended_at: '2026-06-15T03:09:21.308213+00:00'
@@ -1150,3 +1145,10 @@ history:
   ended_at: '2026-06-26T14:56:29.439319+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-26T14:56:29.439319+00:00'
+  ended_at: '2026-06-26T15:48:00.665758+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-128-investigating-the-influence-of-network-t/reviews/research/john-von-neumann-simulated__2026-06-26__research.md
