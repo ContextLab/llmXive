@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T03:17:33.982360Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-181-predicting-species-distribution-shifts-u
-last_run_id: 9290b447-e69c-454b-9b6f-134e2b31f286
+last_run_id: 01a6fb44-beff-47ca-9418-abff66d021ea
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u
 title: Predicting Species Distribution Shifts Using Historical Occurrence Records
   and Climate Data
-updated_at: '2026-06-24T06:06:45.696919Z'
+updated_at: '2026-06-25T23:55:13.636918Z'
