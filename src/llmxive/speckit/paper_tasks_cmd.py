@@ -17,7 +17,7 @@ from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.backends.router import chat_with_fallback
 from llmxive.config import TASKER_MAX_REVISION_ROUNDS
-from llmxive.speckit.analyze_cmd import is_clean, run_analyze
+from llmxive.speckit.analyze_cmd import analyze_advance_ok, run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
 
@@ -127,7 +127,7 @@ class PaperTaskerAgent(SlashCommandAgent):
                 kind="paper",
                 constitution_text=_paper_const_text,
             )
-            if is_clean(report):
+            if analyze_advance_ok(report):
                 round_record = (
                     self._paper_dir(ctx) / ".specify" / "memory" / "tasker_rounds.yaml"
                 )

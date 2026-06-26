@@ -31,7 +31,7 @@ from llmxive.backends.base import (
 )
 from llmxive.backends.router import chat_with_fallback
 from llmxive.config import TASKER_MAX_REVISION_ROUNDS
-from llmxive.speckit.analyze_cmd import is_clean, run_analyze
+from llmxive.speckit.analyze_cmd import analyze_advance_ok, run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
 
@@ -257,9 +257,10 @@ class TaskerAgent(SlashCommandAgent):
                 print(f"[tasker] analyze round {round_idx + 1} failed: {exc}; "
                       "skipping further analyze rounds")
                 break
-            if is_clean(report):
-                # T007 observability: a clean analyze pass is still a round —
-                # record the report it received (no Mode-B patch, no rewrites).
+            if analyze_advance_ok(report):
+                # T007 observability: an advance-permitting analyze pass (CLEAN or
+                # only MEDIUM/LOW residue — the doc-stage two-tier bar) is still a
+                # round — record the report it received (no Mode-B patch, no rewrites).
                 self._inspection_rounds.append({
                     "round_index": round_idx,
                     "analyze_report": report,
@@ -492,8 +493,9 @@ class TaskerAgent(SlashCommandAgent):
             )
             return
 
-        if is_clean(first_report):
-            # First analyze is clean — no engine call needed.
+        if analyze_advance_ok(first_report):
+            # First analyze permits advance (CLEAN, or only MEDIUM/LOW residue —
+            # the doc-stage two-tier bar). No engine resolve loop needed.
             self._inspection_rounds.append({
                 "round_index": 0,
                 "analyze_report": first_report,
@@ -662,7 +664,7 @@ class TaskerAgent(SlashCommandAgent):
                 kind="research",
                 constitution_text=_const_text,
             )
-            final_clean = is_clean(final_report)
+            final_clean = analyze_advance_ok(final_report)
         except _BackendError as exc:
             # If the final analyze can't run, fall back to the engine's
             # `converged` flag for the honest verdict.

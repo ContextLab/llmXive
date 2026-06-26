@@ -9,6 +9,7 @@ resolve loop.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from llmxive.agents.prompts import render_prompt
@@ -89,9 +90,45 @@ def is_clean(report: str) -> bool:
     return report.strip().upper().startswith("CLEAN")
 
 
+# Findings are emitted as `(severity: CRITICAL|HIGH|MEDIUM|LOW) ...` bullets
+# (agents/prompts/analyze.md). CRITICAL/HIGH = a real cross-artifact defect
+# (missing coverage, contradiction, scope creep, constitution violation);
+# MEDIUM/LOW = doc-level polish.
+_BLOCKING_SEVERITY_RE = re.compile(r"severity\s*[:=]\s*(?:CRITICAL|HIGH)\b", re.IGNORECASE)
+_ANY_SEVERITY_RE = re.compile(
+    r"severity\s*[:=]\s*(?:CRITICAL|HIGH|MEDIUM|LOW)\b", re.IGNORECASE
+)
+
+
+def analyze_advance_ok(report: str) -> bool:
+    """Two-tier convergence for the doc-authoring **tasks** stage (Constitution
+    1.2.0).
+
+    The analyze step is an LLM critic that almost never emits a literal
+    ``CLEAN`` — it reliably finds *some* minor nit — so gating convergence on
+    ``is_clean`` alone stalls EVERY project at the tasks gate forever, even with
+    a genuinely good tasks.md. A doc-authoring stage may ADVANCE on writing-level
+    residue: converge when the report is ``CLEAN`` **or** carries only MEDIUM/LOW
+    findings. A CRITICAL/HIGH cross-artifact issue (a real coverage gap,
+    contradiction, scope creep, or constitution violation) ALWAYS kicks back —
+    the science bar is never relaxed. Mirrors ``engine.py``'s two-tier bar (doc
+    stages advance when ``worst_rank <= WRITING``); the strict zero-concern gate
+    remains ``research_review``.
+
+    A non-CLEAN report with NO parseable ``severity:`` bullet is malformed — kick
+    back (return False) rather than advance on an uninterpretable critique.
+    """
+    if is_clean(report):
+        return True
+    if _BLOCKING_SEVERITY_RE.search(report):
+        return False
+    return _ANY_SEVERITY_RE.search(report) is not None
+
+
 __all__ = [
     "ANALYZE_SYSTEM_PROMPT_PATH",
     "ANALYZE_SYSTEM_PROMPT_PATHS",
+    "analyze_advance_ok",
     "is_clean",
     "run_analyze",
 ]
