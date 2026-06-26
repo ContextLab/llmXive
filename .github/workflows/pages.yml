@@ -50,33 +50,12 @@ jobs:
           done < <(find projects -path 'projects/*/paper/pdf/*.pdf' -type f)
 
       - name: Commit if changed
+        # The ~14 cron workflows commit to main constantly, so a bare push races
+        # and is rejected non-fast-forward (the dominant Deploy Pages failure).
+        # Use the SAME single-source-of-truth commit+push helper every other
+        # workflow uses (8-attempt rebase-retry with `-X theirs`, clean tree
+        # guaranteed via `rebase --abort`, push exit checked directly, fails loud
+        # on total loss). The deploy commit only touches docs/ (regenerated
+        # wholesale from web/), so the rebase is conflict-free.
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs
-          if git diff --cached --quiet; then
-            echo "no changes"
-          else
-            git commit -m "deploy: sync web/ -> docs/ for GitHub Pages [skip ci]"
-            # The ~10 cron workflows commit to main constantly, so a bare push
-            # races and is rejected non-fast-forward (the dominant Deploy Pages
-            # failure). Rebase-retry: this commit only touches docs/ (regenerated
-            # wholesale from web/), so rebasing onto sibling non-docs commits is
-            # conflict-free. Check the push exit code DIRECTLY (never through a
-            # pipe, which would mask a rejection) and fail honestly if it can't
-            # land after retries.
-            pushed=0
-            for attempt in 1 2 3 4 5; do
-              if git push origin HEAD:main; then pushed=1; break; fi
-              echo "push rejected (main advanced) — fetch+rebase, attempt $attempt"
-              git fetch origin main
-              if ! git rebase origin/main; then
-                git rebase --abort || true
-                sleep $((attempt * 3))
-              fi
-            done
-            if [ "$pushed" != "1" ]; then
-              echo "::error::deploy: failed to push docs after 5 rebase-retry attempts (main moving too fast)"
-              exit 1
-            fi
-          fi
+          bash scripts/ci/commit-and-push.sh "deploy: sync web/ -> docs/ for GitHub Pages [skip ci]"
