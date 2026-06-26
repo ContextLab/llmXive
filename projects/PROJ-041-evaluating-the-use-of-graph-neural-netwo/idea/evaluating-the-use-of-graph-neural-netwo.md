@@ -9,37 +9,61 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can lightweight Graph Neural Networks (GNNs) effectively detect anomalies in network traffic graphs constructed from public flow datasets within constrained compute environments (2 CPU cores, 7GB RAM)?
+Which structural and temporal patterns in network traffic graphs (node degree distributions, edge weight dynamics, community structure) are most predictive of anomalous behavior, and how much can graph-structured models close the gap to state-of-the-art detection accuracy compared to feature-engineered baselines?
 
 ## Motivation
 
-Network security relies on timely anomaly detection, but traditional methods struggle with the relational structure of traffic data. While GNNs capture topology, they are often compute-heavy; this project evaluates their feasibility on resource-constrained infrastructure without specialized hardware.
+Network security relies on timely anomaly detection, but traditional methods often treat traffic as flat feature vectors, losing relational structure that GNNs can capture. While GNNs have shown promise in graph anomaly detection, their comparative advantage over feature-engineered baselines in constrained compute environments remains underexplored. This project addresses whether graph structure itself provides independent predictive signal beyond engineered features.
 
 ## Related work
 
-- [Detecting Contextual Network Anomalies with Graph Neural Networks (2023)](http://arxiv.org/abs/2312.06342v1) — Proposes a GNN framework specifically for contextual network anomaly detection.
-- [Rethinking Graph Neural Networks for Anomaly Detection (2022)](http://arxiv.org/abs/2205.15508v1) — Analyzes spectral filters in GNNs for anomaly detection tasks.
-- [Mul-GAD: a semi-supervised graph anomaly detection framework via aggregating multi-view information (2022)](http://arxiv.org/abs/2212.05478v1) — Presents a semi-supervised framework aggregating multi-view information for graph anomalies.
-- [A Deep Learning Approach to Network Intrusion Detection (2018)](https://doi.org/10.1109/tetci.2017.2772792) — Discusses feasibility and sustainability of deep learning for network intrusion detection.
-- [Graph-based Anomaly Detection and Description: A Survey (2014)](http://arxiv.org/abs/1404.4679v2) — Provides a foundational survey of graph-based anomaly detection techniques.
+- [Mul-GAD: a semi-supervised graph anomaly detection framework via aggregating multi-view information (2022)](https://arxiv.org/abs/2212.05478) — Demonstrates semi-supervised aggregation of multi-view graph information for anomaly detection, providing a methodological precedent for leveraging graph structure.
+- [Revisiting Graph Contrastive Learning for Anomaly Detection (2023)](https://arxiv.org/abs/2305.02496) — Examines contrastive learning approaches for graph anomaly detection, relevant for understanding self-supervised signal extraction in sparse anomaly settings.
+- [Intrusion Detection in Internet of Things using Convolutional Neural Networks (2022)](https://arxiv.org/abs/2211.10062) — Establishes deep learning feasibility for intrusion detection in resource-constrained networked environments, though using CNNs rather than GNNs.
+- [A Semi-distributed Reputation Based Intrusion Detection System for Mobile Adhoc Networks (2010)](https://arxiv.org/abs/1006.1956) — Provides historical precedent for distributed, structure-aware intrusion detection in peer networks without centralized infrastructure.
+- [A Hybrid Deep Learning Anomaly Detection Framework for Intrusion Detection (2022)](https://arxiv.org/abs/2212.00966) — Shows hybrid architectures can improve detection performance, supporting the case for comparing specialized graph models against combined baselines.
 
 ## Expected results
 
-The GNN model is expected to achieve higher F1-scores than traditional shallow learning baselines on graph-structured traffic data. Success will be confirmed if the model trains within 6 hours on CPU and achieves a statistically significant improvement (p < 0.05) in detection accuracy over a Random Forest baseline.
+The project expects to identify specific structural patterns (e.g., degree distribution skew, edge weight variance) that correlate with anomalous traffic, and to quantify whether graph-structured models achieve statistically significant improvement over feature-engineered baselines. Success will be confirmed if at least one structural pattern shows predictive power (AUC > 0.7) and if GNN performance exceeds Random Forest by a margin that survives multiple-comparison correction (FDR < 0.05).
 
 ## Methodology sketch
 
-- Download the CTU-13 dataset (https://www.stratosphereips.org/datasets-ctu13) and extract flow records.
-- Construct communication graphs where nodes are IP addresses and edges represent bidirectional flows.
-- Subsample graphs to ≤5,000 nodes per batch to fit within 7GB RAM constraints.
-- Implement a 2-layer Graph Convolutional Network (GCN) using PyTorch Geometric on CPU backend.
-- Train using semi-supervised loss on labeled normal/abnormal flows (max 50 epochs).
-- Evaluate performance using Precision, Recall, and F1-Score on a held-out test set.
-- Compare results against a Random Forest baseline using a paired t-test on F1-scores.
-- Monitor runtime to ensure end-to-end execution completes within the 6-hour GitHub Actions limit.
+- Download CTU-13 dataset (https://www.stratosphereips.org/datasets-ctu13) and extract NetFlow records for 3-4 scenarios with labeled botnet traffic.
+- Construct communication graphs where nodes represent IP addresses and directed edges represent bidirectional flows with weights = packet counts and timestamps.
+- Compute structural features for each node: degree distribution, betweenness centrality, local clustering coefficient, temporal edge weight variance.
+- Subsample graphs to ≤5,000 nodes per scenario to fit within 7GB RAM; verify memory usage with `tracemalloc` during graph construction.
+- Implement a 2-layer Graph Convolutional Network (GCN) using PyTorch Geometric on CPU backend; limit to 30 epochs with early stopping.
+- Train Random Forest and XGBoost baselines on the same structural features without graph message-passing.
+- Evaluate using Precision, Recall, F1-Score, and AUC-ROC on held-out test scenarios not seen during training.
+- Perform paired t-tests on F1-scores across 5 random seeds to compare GNN vs. baselines; apply Benjamini-Hochberg correction for multiple comparisons.
+- Measure end-to-end runtime and verify completion within 6-hour GitHub Actions limit; log memory peaks.
+- Validate model predictions against ground-truth labels from CTU-13 scenario metadata (independent of model inputs).
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None in current project context.
 - Closest match: None (similarity sketch: N/A).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-26T17:07:04Z
+**Outcome**: success
+**Original term**: Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic computer science | 5 |
+
+### Verified citations
+
+1. **Mul-GAD: a semi-supervised graph anomaly detection framework via aggregating multi-view information** (2022). Zhiyuan Liu, Chunjie Cao, Jingzhang Sun. arXiv. [2212.05478](https://arxiv.org/abs/2212.05478). PDF-sampled: No.
+2. **Revisiting Graph Contrastive Learning for Anomaly Detection** (2023). Zhiyuan Liu, Chunjie Cao, Fangjian Tao, Jingzhang Sun. arXiv. [2305.02496](https://arxiv.org/abs/2305.02496). PDF-sampled: No.
+3. **Intrusion Detection in Internet of Things using Convolutional Neural Networks** (2022). Martin Kodys, Zhi Lu, Kar Wai Fok, Vrizlynn L. L. Thing. arXiv. [2211.10062](https://arxiv.org/abs/2211.10062). PDF-sampled: No.
+4. **A Semi-distributed Reputation Based Intrusion Detection System for Mobile Adhoc Networks** (2010). Animesh Kr Trivedi, Rajan Arora, Rishi Kapoor, Sudip Sanyal, Sugata Sanyal. arXiv. [1006.1956](https://arxiv.org/abs/1006.1956). PDF-sampled: No.
+5. **A Hybrid Deep Learning Anomaly Detection Framework for Intrusion Detection** (2022). Rahul Kale, Zhi Lu, Kar Wai Fok, Vrizlynn L. L. Thing. arXiv. [2212.00966](https://arxiv.org/abs/2212.00966). PDF-sampled: No.

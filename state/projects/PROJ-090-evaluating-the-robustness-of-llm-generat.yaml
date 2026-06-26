@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T13:37:06.000752Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-090-evaluating-the-robustness-of-llm-generat
-last_run_id: c01a440f-eece-454f-8485-cf9876a0d252
+last_run_id: dec784aa-7915-4513-81b7-356d16d9b96e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Robustness of LLM-Generated Code to Input Perturbations
-updated_at: '2026-06-14T18:10:29.129884Z'
+updated_at: '2026-06-26T16:52:39.825506Z'

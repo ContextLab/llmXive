@@ -11,6 +11,10 @@
     "classified_at": "2026-06-24T18:40:18Z",
     "verdict": false
   },
+  "PROJ-041-evaluating-the-use-of-graph-neural-netwo::1.6.0": {
+    "classified_at": "2026-06-26T17:00:37Z",
+    "verdict": false
+  },
   "PROJ-043-leveraging-large-language-models-for-aut::1.6.0": {
     "classified_at": "2026-06-24T18:07:15Z",
     "verdict": false

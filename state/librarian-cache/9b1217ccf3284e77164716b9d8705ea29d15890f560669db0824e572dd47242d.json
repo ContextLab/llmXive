@@ -1,0 +1,377 @@
+{
+  "fetched_at": "2026-06-26T17:07:04Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic",
+      "target_n": 5
+    },
+    "duration_seconds": 547.452,
+    "ended_at": "2026-06-26T17:07:04Z",
+    "expansion": null,
+    "extracted_queries": [
+      "intrusion detection graph convolutional network",
+      "CIC-IDS2017 graph neural network anomaly",
+      "network flow graph topology representation",
+      "anomaly detection evaluation metrics AUC ROC",
+      "message passing structural dependency detection"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2211.10062"
+      ]
+    },
+    "per_query_hit_count": {
+      "CIC-IDS2017 graph neural network anomaly": 2,
+      "Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic computer science": 3,
+      "anomaly detection evaluation metrics AUC ROC": 3,
+      "intrusion detection graph convolutional network": 3,
+      "message passing structural dependency detection": 3,
+      "network flow graph topology representation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1905.05918",
+          "rationale": "This paper is off-domain entirely, focusing on mechanical system remaining useful life estimation using multi-layer perceptrons rather than graph neural networks for network traffic anomaly detection, satisfying the rejection rule for distinct constructs sharing only homonym keywords like \"Neural Network\".",
+          "title": "A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems"
+        },
+        {
+          "primary_pointer": "1609.04846",
+          "rationale": "This paper should be rejected because it addresses Random Neural Networks (a queuing-network-based architecture) rather than Graph Neural Networks (GNNs), which are fundamentally different neural network constructs. The paper also focuses on supervised learning rather than anomaly detection and does not address network traffic domains, failing to meet any of the inclusion criteria (a-f) for a literature review on GNNs for network traffic anomaly detection.",
+          "title": "A Tutorial about Random Neural Networks in Supervised Learning"
+        },
+        {
+          "primary_pointer": "1909.10086",
+          "rationale": "This paper does not satisfy any acceptance criteria (a-f) because while it uses GNNs, it focuses on graph classification benchmark datasets rather than anomaly detection or network traffic domains. It fails the \"off-domain entirely\" rejection rule since the application context (graph classification benchmarks vs. network traffic anomaly detection) is fundamentally different, and it does not measure the same mechanism, variables, or empirical population the user's question targets.",
+          "title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning"
+        },
+        {
+          "primary_pointer": "2501.07186",
+          "rationale": "This paper focuses on electrical power transmission grids rather than computer network traffic, representing an off-domain mismatch where \"network\" refers to electrical infrastructure instead of data communication systems. It is rejected under the off-domain rule as it does not address the specific CS security context of network traffic anomaly detection.",
+          "title": "Graph Neural Networks for Transmission Grid Topology Control: Busbar Information Asymmetry and Heterogeneous Representations"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T16:57:57Z",
+    "term_input": {
+      "normalized": "evaluating the use of graph neural networks for anomaly detection in network traffic computer science",
+      "raw": "Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Tra', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-06-26T17:00:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper is devoted to study the structure of Hawaiian groups of some topological spaces. We present some behaviors of Hawaiian groups with respect to product spaces, weak join spaces, cone spaces, covering spaces and locally trivial bundles. In particular, we determine the structure of the $n$-dimensional Hawaiian group of the $m$-dimensional Hawaiian earring space, for all $1\\leq m\\leq n$.",
+          "claimed_authors": [
+            "Ameneh Babaee",
+            "Behrooz Mashayekhy",
+            "Hanieh Mirebrahimi"
+          ],
+          "claimed_title": "On Hawaiian Groups of Some Topological Spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0731"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Tra', candidate_title='On Hawaiian Groups of Some Topological Spaces')",
+        "failed_at": "2026-06-26T17:00:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Tra', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-06-26T17:00:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have shown their potential in long-context understanding and mathematical reasoning. In this paper, we study the problem of using LLMs to detect tabular anomalies and show that pre-trained LLMs are zero-shot batch-level anomaly detectors. That is, without extra distribution-specific model fitting, they can discover hidden outliers in a batch of data, demonstrating their ability to identify low-density data regions. For LLMs that are not well aligned with anomaly detection and frequently output factual errors, we apply simple yet effective data-generating processes to simulate synthetic batch-level anomaly detection datasets and propose an end-to-end fine-tuning strategy to bring out the potential of LLMs in detecting real anomalies. Experiments on a large anomaly detection benchmark (ODDS) showcase i) GPT-4 has on-par performance with the state-of-the-art transductive learning-based anomaly detection methods and ii) the efficacy of our synthetic dataset and fine-tuning strategy in aligning LLMs to this task.",
+          "claimed_authors": [
+            "Aodong Li",
+            "Yunhan Zhao",
+            "Chen Qiu",
+            "Marius Kloft",
+            "Padhraic Smyth",
+            "Maja Rudolph",
+            "Stephan Mandt"
+          ],
+          "claimed_title": "Anomaly Detection of Tabular Data Using LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.16308"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Tra', candidate_title='Anomaly Detection of Tabular Data Using LLMs')",
+        "failed_at": "2026-06-26T17:00:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Prompting has emerged as a practical way to adapt frozen vision-language models (VLMs) for video anomaly detection (VAD). Yet, existing prompts are often overly abstract, overlooking the fine-grained human-object interactions or action semantics that define complex anomalies in surveillance videos. We propose ASK-Hint, a structured prompting framework that leverages action-centric knowledge to elicit more accurate and interpretable reasoning from frozen VLMs. Our approach organizes prompts into semantically coherent groups (e.g. violence, property crimes, public safety) and formulates fine-grained guiding questions that align model predictions with discriminative visual cues. Extensive experiments on UCF-Crime and XD-Violence show that ASK-Hint consistently improves AUC over prior baselines, achieving state-of-the-art performance compared to both fine-tuned and training-free methods. Beyond accuracy, our framework provides interpretable reasoning traces towards anomaly and demonstrates strong generalization across datasets and VLM backbones. These results highlight the critical role of prompt granularity and establish ASK-Hint as a new training-free and generalizable solution for explainable video anomaly detection.",
+          "claimed_authors": [
+            "Shu Zou",
+            "Xinyu Tian",
+            "Lukas Wesemann",
+            "Fabian Waschkowski",
+            "Zhaoyuan Yang",
+            "Jing Zhang"
+          ],
+          "claimed_title": "Unlocking Vision-Language Models for Video Anomaly Detection via Fine-Grained Prompting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.02155"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Tra', candidate_title='Unlocking Vision-Language Models for Video Anomaly Detection via Fine-Grained Prompting')",
+        "failed_at": "2026-06-26T17:00:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we present the concept of MPF, Message Passing Fluid, an abstract fluid where the molecules move by mean of the informations that they exchange each other, on the basis of rules and methods of a generalized Cellular Automaton. The model is intended for its simulation by mean of message passing libraries on the field of parallel computing. We present a critical analysis of the necessary computational effort in a possible implementation of such an object.",
+          "claimed_authors": [
+            "Gianluca Argentini"
+          ],
+          "claimed_title": "Message Passing Fluids: molecules as processes in parallel computational fluids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "physics/0304041"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Tra', candidate_title='Message Passing Fluids: molecules as processes in parallel computational fluids')",
+        "failed_at": "2026-06-26T17:00:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graphical models use the intuitive and well-studied methods of graph theory to implicitly represent dependencies between variables in large systems. They can model the global behaviour of a complex system by specifying only local factors. This thesis studies inference in discrete graphical models from an algebraic perspective and the ways inference can be used to express and approximate NP-hard combinatorial problems.\n  We investigate the complexity and reducibility of various inference problems, in part by organizing them in an inference hierarchy. We then investigate tractable approximations for a subset of these problems using distributive law in the form of message passing. The quality of the resulting message passing procedure, called Belief Propagation (BP), depends on the influence of loops in the graphical model. We contribute to three classes of approximations that improve BP for loopy graphs A) loop correction techniques; B) survey propagation, another message passing technique that surpasses BP in some settings; and C) hybrid methods that interpolate between deterministic message passing and Markov Chain Monte Carlo inference.\n  We then review the existing message passing solutions and provide novel graphical models and inference techniques for combinatorial problems under three broad classes: A) constraint satisfaction problems such as satisfiability, coloring, packing, set / clique-cover and dominating / independent set and their optimization counterparts; B) clustering problems such as hierarchical clustering, K-median, K-clustering, K-center and modularity optimization; C) problems over permutations including assignment, graph morphisms and alignment, finding symmetries and traveling salesman problem. In many cases we show that message passing is able to find solutions that are either near optimal or favourably compare with today's state-of-the-art approaches.",
+          "claimed_authors": [
+            "Siamak Ravanbakhsh"
+          ],
+          "claimed_title": "Message Passing and Combinatorial Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.05013"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Tra', candidate_title='Message Passing and Combinatorial Optimization')",
+        "failed_at": "2026-06-26T17:00:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a variational message passing (VMP) approach to detect the presence of a person based on their respiratory chest motion using multistatic ultra-wideband (UWB) radar. In the process, the respiratory motion is estimated for contact-free vital sign monitoring. The received signal is modeled by a backscatter channel and the respiratory motion and propagation channels are estimated using VMP. We use the evidence lower bound (ELBO) to approximate the model evidence for the detection. Numerical analyses and measurements demonstrate that the proposed method leads to a significant improvement in the detection performance compared to a fast Fourier transform (FFT)-based detector or an estimator-correlator, since the multipath components (MPCs) are better incorporated into the detection procedure. Specifically, the proposed method has a detection probability of 0.95 at -20 dB signal-to-noise ratio (SNR), while the estimator-correlator and FFT-based detector have 0.32 and 0.05, respectively.",
+          "claimed_authors": [
+            "Jakob Möderl",
+            "Erik Leitinger",
+            "Franz Pernkopf",
+            "Klaus Witrisal"
+          ],
+          "claimed_title": "Variational Message Passing-Based Respiratory Motion Estimation and Detection Using Radar Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.07619"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Tra', candidate_title='Variational Message Passing-Based Respiratory Motion Estimation and Detection Using Radar Signals')",
+        "failed_at": "2026-06-26T17:00:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhiyuan Liu",
+            "Chunjie Cao",
+            "Jingzhang Sun"
+          ],
+          "title": "Mul-GAD: a semi-supervised graph anomaly detection framework via aggregating multi-view information",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.05478",
+        "summary": "Anomaly detection is defined as discovering patterns that do not conform to the expected behavior. Previously, anomaly detection was mostly conducted using traditional shallow learning techniques, but with little improvement. As the emergence of graph neural networks (GNN), graph anomaly detection has been greatly developed. However, recent studies have shown that GNN-based methods encounter challenge, in that no graph anomaly detection algorithm can perform generalization on most datasets. To bridge the tap, we propose a multi-view fusion approach for graph anomaly detection (Mul-GAD). The view-level fusion captures the extent of significance between different views, while the feature-level fusion makes full use of complementary information. We theoretically and experimentally elaborate the effectiveness of the fusion strategies. For a more comprehensive conclusion, we further investigate the effect of the objective function and the number of fused views on detection performance. Exploiting these findings, our Mul-GAD is proposed equipped with fusion strategies and the well-performed objective function. Compared with other state-of-the-art detection methods, we achieve a better detection performance and generalization in most scenarios via a series of experiments conducted on Pubmed, Amazon Computer, Amazon Photo, Weibo and Books. Our code is available at https://github.com/liuyishoua/Mul-Graph-Fusion.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2212.05478",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T17:00:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhiyuan Liu",
+            "Chunjie Cao",
+            "Fangjian Tao",
+            "Jingzhang Sun"
+          ],
+          "title": "Revisiting Graph Contrastive Learning for Anomaly Detection",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.02496",
+        "summary": "Combining Graph neural networks (GNNs) with contrastive learning for anomaly detection has drawn rising attention recently. Existing graph contrastive anomaly detection (GCAD) methods have primarily focused on improving detection capability through graph augmentation and multi-scale contrast modules. However, the underlying mechanisms of how these modules work have not been fully explored. We dive into the multi-scale and graph augmentation mechanism and observed that multi-scale contrast modules do not enhance the expression, while the multi-GNN modules are the hidden contributors. Previous studies have tended to attribute the benefits brought by multi-GNN to the multi-scale modules. In the paper, we delve into the misconception and propose Multi-GNN and Augmented Graph contrastive framework MAG, which unified the existing GCAD methods in the contrastive self-supervised perspective. We extracted two variants from the MAG framework, L-MAG and M-MAG. The L-MAG is the lightweight instance of the MAG, which outperform the state-of-the-art on Cora and Pubmed with the low computational cost. The variant M-MAG equipped with multi-GNN modules further improve the detection performance. Our study sheds light on the drawback of the existing GCAD methods and demonstrates the potential of multi-GNN and graph augmentation modules. Our code is available at https://github.com/liuyishoua/MAG-Framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.02496",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T17:00:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Martin Kodys",
+            "Zhi Lu",
+            "Kar Wai Fok",
+            "Vrizlynn L. L. Thing"
+          ],
+          "title": "Intrusion Detection in Internet of Things using Convolutional Neural Networks",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2211.10062",
+        "summary": "Internet of Things (IoT) has become a popular paradigm to fulfil needs of the industry such as asset tracking, resource monitoring and automation. As security mechanisms are often neglected during the deployment of IoT devices, they are more easily attacked by complicated and large volume intrusion attacks using advanced techniques. Artificial Intelligence (AI) has been used by the cyber security community in the past decade to automatically identify such attacks. However, deep learning methods have yet to be extensively explored for Intrusion Detection Systems (IDS) specifically for IoT. Most recent works are based on time sequential models like LSTM and there is short of research in CNNs as they are not naturally suited for this problem. In this article, we propose a novel solution to the intrusion attacks against IoT devices using CNNs. The data is encoded as the convolutional operations to capture the patterns from the sensors data along time that are useful for attacks detection by CNNs. The proposed method is integrated with two classical CNNs: ResNet and EfficientNet, where the detection performance is evaluated. The experimental results show significant improvement in both true positive rate and false positive rate compared to the baseline using LSTM.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2211.10062",
+          "http_status": 200,
+          "pdf_sample_score": 0.2343,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T17:00:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Animesh Kr Trivedi",
+            "Rajan Arora",
+            "Rishi Kapoor",
+            "Sudip Sanyal",
+            "Sugata Sanyal"
+          ],
+          "title": "A Semi-distributed Reputation Based Intrusion Detection System for Mobile Adhoc Networks",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1006.1956",
+        "summary": "A Mobile Adhoc Network (MANET) is a cooperative engagement of a collection of mobile nodes without any centralized access point or infrastructure to coordinate among the peers. The underlying concept of coordination among nodes in a cooperative MANET has induced in them a vulnerability to attacks due to issues like lack of fixed infrastructure, dynamically changing network topology, cooperative algorithms, lack of centralized monitoring and management point, and lack of a clear line of defense. We propose a semi-distributed approach towards Reputation Based Intrusion Detection System (IDS) that combines with the DSR routing protocol for strengthening the defense of a MANET. Our system inherits the features of reputation from human behavior, hence making the IDS socially inspired. It has a semi-distributed architecture as the critical observation results of the system are neither spread globally nor restricted locally. The system assigns maximum weightage to self observation by nodes for updating any reputation values, thus avoiding the need of a trust relationship between nodes. Our system is also unique in the sense that it features the concepts of Redemption and Fading with a robust Path Manager and Monitor system. Simulation studies show that DSR fortified with our system outperforms normal DSR in terms of the packet delivery ratio and routing overhead even when up to half of nodes in the network behave as malicious. Various parameters introduced such as timing window size, reputation update values, congestion parameter and other thresholds have been optimized over several simulation test runs of the system. By combining the semi-distributed architecture and other design essentials like path manager, monitor module, redemption and fading concepts; Our system proves to be robust enough to counter most common attacks in MANETs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1006.1956",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T17:00:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rahul Kale",
+            "Zhi Lu",
+            "Kar Wai Fok",
+            "Vrizlynn L. L. Thing"
+          ],
+          "title": "A Hybrid Deep Learning Anomaly Detection Framework for Intrusion Detection",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.00966",
+        "summary": "Cyber intrusion attacks that compromise the users' critical and sensitive data are escalating in volume and intensity, especially with the growing connections between our daily life and the Internet. The large volume and high complexity of such intrusion attacks have impeded the effectiveness of most traditional defence techniques. While at the same time, the remarkable performance of the machine learning methods, especially deep learning, in computer vision, had garnered research interests from the cyber security community to further enhance and automate intrusion detections. However, the expensive data labeling and limitation of anomalous data make it challenging to train an intrusion detector in a fully supervised manner. Therefore, intrusion detection based on unsupervised anomaly detection is an important feature too. In this paper, we propose a three-stage deep learning anomaly detection based network intrusion attack detection framework. The framework comprises an integration of unsupervised (K-means clustering), semi-supervised (GANomaly) and supervised learning (CNN) algorithms. We then evaluated and showed the performance of our implemented framework on three benchmark datasets: NSL-KDD, CIC-IDS2018, and TON_IoT.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2212.00966",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T17:00:39Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the use of graph neural networks for anomaly detection in network traffic computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
