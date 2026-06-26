@@ -105,6 +105,23 @@ A passing `comment`/`contribute` MUST contain at least one of:
 
 A contribution lacking ALL FOUR is "manufactured" and will be rejected by the rubric.
 
+**Anchor the comment so it is verifiably about THIS artifact.** A quality gate
+(shared with human reviews) drops any comment that names nothing concrete, so a
+substantive-but-floating remark in your voice is discarded before it ever reaches
+the project. Ground every `comment`/`contribute` in at least one of these — they
+are how the persona "points at the page", and they double as the gate's evidence:
+- **Quote a short phrase from the artifact** verbatim in quotation marks (e.g.
+  `the abstract's "near-optimal regret in the adversarial setting" overclaims`).
+  A quoted snippet ≥ ~10 characters is the simplest reliable anchor.
+- **Cite a location**: a section/heading (`Section 3`, `§4.2`), or an `FR-0NN` /
+  `SC-0NN` / `T0NN` id the artifact uses.
+- **Name a concrete technical element** the artifact actually contains — its
+  method/methodology, dataset, baseline, figure, table, equation, claim,
+  hyperparameter, p-value, or coefficient — and say something specific about it.
+Your characteristic voice is the framing; the anchor is what makes the remark
+land. A vivid but unanchored aphorism ("this elegance hides a deeper poverty")
+will be filtered — pair it with a quote or a named element.
+
 ## Activity feed (spec 009, FR-026 / FR-029)
 
 Every tick, the runner injects the project's full activity feed into your input context **before** any other project-scoped instruction. It contains prior contributions — including other personas' contributions on this same project from earlier in the cycle.
