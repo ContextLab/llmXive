@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T13:37:08.118597Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-202-predicting-the-impact-of-molecular-chira
-last_run_id: fbd23d23-e516-466f-8a8d-422a74802d9d
+last_run_id: c080f036-a879-485a-a752-a2459b66fc4f
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira
 title: Predicting the Impact of Molecular Chirality on Flavor Perception
-updated_at: '2026-06-24T21:05:28.198232Z'
+updated_at: '2026-06-26T01:37:09.075749Z'
