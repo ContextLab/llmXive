@@ -1,0 +1,11 @@
+ For each statistical test (two‑proportion z‑test, Fisher's exact test, Welch's t‑test, binomial test) run **10 000** Monte Carlo replicates, compare the library implementation result to the Monte Carlo estimate, and verify that the absolute difference is **≤ 0.005**. Record results in `monte_carlo_validation_report.json`. This task directly satisfies **FR‑026**.
+
+- **T076**: Compute checksums for all generated output files and record them in `output/checksums.txt`.
+
+- **T077**: Extend `manifest.json` to include the checksum entries produced by T076.
+
+- **T081**: *Real-World Validation Set Annotation*
+ Create a manually annotated validation set of at least **100** public A/B test summaries with ground‑truth inconsistency labels determined by independent human annotators. Two annotators must independently label each summary; discrepancies are resolved by a third annotator. Store annotations in `real_world_validation_labels.csv` with fields: `url`, `ground_truth_inconsistent` (boolean), `annotator_1`, `annotator_2`, `annotator_3`, `resolution_notes`. This task directly satisfies **FR‑031b**.
+
+- **T082**: *Real-World Validation Evaluation*
+ Run the inconsistency detector on the real-world validation set from T081 and compute precision, recall, and F1 score. Verify that precision ≥ 85 % and recall ≥ 75 % (F1 ≥ 0.80) as required by **FR‑031b** and **SC‑031b**. Record results in `real_world_validation_report.json`.

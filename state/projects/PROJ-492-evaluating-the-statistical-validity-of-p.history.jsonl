@@ -56,3 +56,7 @@
 {"at": "2026-06-25T20:23:57.970800+00:00", "from_stage": "clarified", "last_run_id": "f5060e46-149d-478e-8f07-2b5cb7b3b0fe", "to_stage": "planned"}
 {"at": "2026-06-25T22:01:38.692423+00:00", "from_stage": "planned", "last_run_id": "25a47af9-366f-431d-be4a-439add555d30", "to_stage": "clarified"}
 {"at": "2026-06-25T23:46:33.734471+00:00", "from_stage": "clarified", "last_run_id": "76a6374f-a18a-4957-9729-103b6545227c", "to_stage": "planned"}
+{"at": "2026-06-26T02:07:17.935012+00:00", "from_stage": "planned", "last_run_id": "ad63e93c-44fb-46e7-b3b9-a2f7b5bfb96c", "to_stage": "clarified"}
+{"at": "2026-06-26T03:55:42.291719+00:00", "from_stage": "clarified", "last_run_id": "c7240d17-26e6-4acc-8813-5e372b9a0f7d", "to_stage": "specified"}
+{"at": "2026-06-26T04:30:57.531292+00:00", "from_stage": "specified", "last_run_id": "f2585773-5a85-45d8-9053-6b3011d02f1c", "to_stage": "clarified"}
+{"at": "2026-06-26T05:51:57.367481+00:00", "from_stage": "clarified", "last_run_id": "54138845-d556-483a-a2ca-fba40bb14965", "to_stage": "planned"}

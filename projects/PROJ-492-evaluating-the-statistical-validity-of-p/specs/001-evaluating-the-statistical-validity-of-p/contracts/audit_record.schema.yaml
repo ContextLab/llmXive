@@ -1,73 +1,63 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AuditRecord"
-description: "Schema for audit record results (FR-024)"
+title: "AuditRecord Schema"
+description: "Schema for audit results per summary (FR-024)"
 type: "object"
 required:
-  - "url"
-  - "reported_p"
-  - "reported_effect_size"
-  - "reported_sample_size_a"
-  - "reported_sample_size_b"
-  - "reconstructed_p"
-  - "reconstructed_effect_size"
-  - "diff_abs_p"
-  - "diff_abs_effect"
-  - "flag_inconsistent"
-  - "flag_size_mismatch"
-  - "flag_missing_metric"
-  - "flag_unverifiable"
-  - "notes"
+  - url
+  - reported_p
+  - reported_effect_size
+  - reported_sample_size_a
+  - reported_sample_size_b
+  - reconstructed_p
+  - reconstructed_effect_size
+  - diff_abs_p
+  - diff_abs_effect
+  - flag_inconsistent
+  - notes
 properties:
   url:
     type: "string"
-    format: "uri"
-    description: "Source URL"
+    description: "Valid URL pointing to the A/B test summary"
+    pattern: "^https?://[^\\s]+$"
   reported_p:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Reported p-value"
+    type:
+      - "number"
+      - "null"
+    minimum: 0.000001
+    maximum: 1
+    description: "Reported p-value (0 < p ≤ 1), or null for inequality bounds"
   reported_effect_size:
     type: "number"
-    description: "Reported effect size"
+    description: "Reported effect size (can be negative)"
   reported_sample_size_a:
     type: "integer"
     minimum: 1
-    description: "Reported sample size A"
+    description: "Reported sample size for variant A"
   reported_sample_size_b:
     type: "integer"
     minimum: 1
-    description: "Reported sample size B"
+    description: "Reported sample size for variant B"
   reconstructed_p:
     type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Reconstructed p-value"
+    minimum: 0.000001
+    maximum: 1
+    description: "Reconstructed p-value from statistical test"
   reconstructed_effect_size:
     type: "number"
-    description: "Reconstructed effect size"
+    description: "Reconstructed effect size from reported numbers"
   diff_abs_p:
     type: "number"
-    minimum: 0.0
-    description: "Absolute difference in p-values"
+    minimum: 0
+    description: "Absolute difference between reported and reconstructed p-value"
   diff_abs_effect:
     type: "number"
-    minimum: 0.0
-    description: "Absolute difference in effect sizes"
+    minimum: 0
+    description: "Absolute difference between reported and reconstructed effect size"
   flag_inconsistent:
     type: "boolean"
-    description: "True if inconsistent (FR-004)"
-  flag_size_mismatch:
-    type: "boolean"
-    description: "True if sample size discrepancy >5% (FR-004b)"
-  flag_missing_metric:
-    type: "boolean"
-    description: "True if required metric missing"
-  flag_unverifiable:
-    type: "boolean"
-    description: "True if source lacks sufficient raw data for independent ground truth verification (FR-031b)"
+    description: "True if any inconsistency criterion is met (|Δp|>0.05 or other)"
   notes:
     type: "string"
-    maxLength: 500
-    description: "Audit notes / explanations"
+    maxLength: 200
+    description: "Audit notes; includes ERR-### codes if applicable"
 additionalProperties: false

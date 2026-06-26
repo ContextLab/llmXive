@@ -2,268 +2,147 @@
 
 ## Overview
 
-This document defines the data structures used throughout the audit pipeline, including input schemas, intermediate representations, and output formats. All models conform to the inline schema definitions in the feature specification (FR-002).
+This document defines the data models used throughout the audit pipeline. All models conform to the schema contracts in `contracts/` and are validated via pytest contract tests.
 
 ## Core Entities
 
-### ABSummary
+### 1. ABSummary (Extraction Output)
 
-Represents a single publicly posted A/B test experiment with extracted statistics.
+Represents a single audited A/B test summary with extracted metrics.
 
-| Field | Type | Required | Constraints | Description |
-|-------|------|----------|-------------|-------------|
-| `url` | string | Yes | Valid URL format | Source URL of the summary |
-| `variant_a_n` | integer | Yes | ≥1 | Sample size for variant A |
-| `variant_b_n` | integer | Yes | ≥1 | Sample size for variant B |
-| `variant_a_conversions` | integer | Yes | ≥0 | Conversion count for variant A (binary outcomes only) |
-| `variant_b_conversions` | integer | Yes | ≥0 | Conversion count for variant B (binary outcomes only) |
-| `variant_a_mean` | float | No | N/A | Mean for variant A (continuous outcomes only) |
-| `variant_b_mean` | float | No | N/A | Mean for variant B (continuous outcomes only) |
-| `variant_a_std` | float | No | N/A | Standard deviation for variant A (continuous outcomes only) |
-| `variant_b_std` | float | No | N/A | Standard deviation for variant B (continuous outcomes only) |
-| `reported_p` | float | Yes | 0 < p ≤ 1, or null for inequality bounds | Reported p-value |
-| `reported_effect_size` | float | Yes | Can be negative | Reported effect size (conversion difference, lift %, or mean difference) |
-| `outcome_type` | string | Yes | One of: `binary`, `continuous` | Type of outcome metric |
-| `confidence_interval` | object | No | `{lower: float, upper: float}` | Optional confidence interval |
+| Field | Type | Required | Constraints | FR Reference |
+|-------|------|----------|-------------|--------------|
+| url | string | Yes | Valid URL format | FR-002 |
+| variant_a_n | integer | Yes | ≥1 | FR-002 |
+| variant_b_n | integer | Yes | ≥1 | FR-002 |
+| variant_a_conversions | integer | Yes | ≥0 | FR-002 |
+| variant_b_conversions | integer | Yes | ≥0 | FR-002 |
+| reported_p | float or null | Yes | 0 < p ≤ 1, or null for inequality bounds | FR-002 |
+| reported_effect_size | float | Yes | Can be negative | FR-002 |
+| outcome_type | string | Yes | One of: "binary", "continuous" | FR-002 |
+| confidence_interval | object or null | No | {lower: float, upper: float} | FR-002 |
+| source_domain | string | Yes | Extracted from URL hostname | FR-007, VII |
+| publication_year | integer or null | No | Extracted from URL or page metadata | FR-032 |
+| extraction_timestamp | string | Yes | ISO 8601 format | FR-007 |
 
-**Inline Schema Definition (FR-002)**:
+**Schema Contract**: `contracts/abs_summary.schema.yaml`
+
+### 2. AuditRecord (Inconsistency Detection Output)
+
+Represents the audit result for a single summary.
+
+| Field | Type | Required | Constraints | FR Reference |
+|-------|------|----------|-------------|--------------|
+| url | string | Yes | Valid URL format | FR-024 |
+| reported_p | float or null | Yes | 0 < p ≤ 1, or null | FR-024 |
+| reported_effect_size | float | Yes | Can be negative | FR-024 |
+| reported_sample_size_a | integer | Yes | ≥1 | FR-024 |
+| reported_sample_size_b | integer | Yes | ≥1 | FR-024 |
+| reconstructed_p | float | Yes | 0 < p ≤ 1 | FR-024 |
+| reconstructed_effect_size | float | Yes | Can be negative | FR-024 |
+| diff_abs_p | float | Yes | Absolute difference | FR-024 |
+| diff_abs_effect | float | Yes | Absolute difference | FR-024 |
+| flag_inconsistent | boolean | Yes | True if any inconsistency criterion met | FR-024 |
+| notes | string | Yes | ≤200 characters; includes error codes if applicable | FR-024, FR-007 |
+
+**Schema Contract**: `contracts/audit_record.schema.yaml`
+
+### 3. SummaryReport (Aggregate Output)
+
+Represents the aggregated audit results.
+
+| Field | Type | Required | Constraints | FR Reference |
+|-------|------|----------|-------------|--------------|
+| total_summaries | integer | Yes | ≥300 (per FR-025) | FR-024, SC-025 |
+| inconsistent_count | integer | Yes | ≤total_summaries | FR-024 |
+| inconsistent_rate | float | Yes | 0 ≤ rate ≤ 1 | FR-024 |
+| bias_adjusted_rate | float | Yes | 0 ≤ rate ≤ 1 | FR-024, FR-027 |
+| wilson_ci_lower | float | Yes | 0 ≤ value ≤ 1 | FR-024, SC-014 |
+| wilson_ci_upper | float | Yes | 0 ≤ value ≤ 1 | FR-024, SC-014 |
+| parsing_error_count | integer | Yes | ≤5% of total_summaries (SC-005) | FR-007 |
+| bias_report_url | string | Yes | Path to bias_report.json | FR-027 |
+| subgroup_report_url | string | Yes | Path to subgroup_report.json | FR-032 |
+| generated_timestamp | string | Yes | ISO 8601 format | FR-024 |
+
+**Schema Contract**: `contracts/summary_report.schema.yaml`
+
+## Data Flow
+
 ```
-ABSummary:
- url: string (required, valid URL)
- variant_a_n: integer (required, ≥1)
- variant_b_n: integer (required, ≥1)
- variant_a_conversions: integer (required, ≥0)
- variant_b_conversions: integer (required, ≥0)
- variant_a_mean: float (optional, continuous outcomes only)
- variant_b_mean: float (optional, continuous outcomes only)
- variant_a_std: float (optional, continuous outcomes only)
- variant_b_std: float (optional, continuous outcomes only)
- reported_p: float (required, 0 < p ≤ 1, or null for inequality bounds)
- reported_effect_size: float (required, can be negative)
- outcome_type: string (required, one of: binary, continuous)
- confidence_interval: object (optional, {lower: float, upper: float})
-```
-
-### AuditRecord
-
-Represents the result of the consistency check for one ABSummary.
-
-| Field | Type | Required | Constraints | Description |
-|-------|------|----------|-------------|-------------|
-| `url` | string | Yes | Valid URL format | Source URL (reference to ABSummary) |
-| `reported_p` | float | Yes | 0 < p ≤ 1, or null | Reported p-value from ABSummary |
-| `reported_effect_size` | float | Yes | Any float | Reported effect size from ABSummary |
-| `reported_sample_size_a` | integer | Yes | ≥1 | Variant A sample size from ABSummary |
-| `reported_sample_size_b` | integer | Yes | ≥1 | Variant B sample size from ABSummary |
-| `reconstructed_p` | float | Yes | 0 < p ≤ 1 | Reconstructed p-value from statistical test |
-| `reconstructed_effect_size` | float | Yes | Any float | Reconstructed effect size |
-| `diff_abs_p` | float | Yes | ≥0 | Absolute difference between reported and reconstructed p-values |
-| `diff_abs_effect` | float | Yes | ≥0 | Absolute relative difference in effect size (% of larger magnitude) |
-| `flag_inconsistent` | boolean | Yes | True/False | Whether summary is flagged as inconsistent |
-| `flag_size_mismatch` | boolean | Yes | True/False | True if sample size discrepancy >5% (FR-004b) |
-| `flag_missing_metric` | boolean | Yes | True/False | True if required metric missing |
-| `flag_unverifiable` | boolean | Yes | True/False | True if source lacks sufficient raw data for independent ground truth verification (FR-031b) |
-| `notes` | string | Yes | ≤200 characters | Explanatory notes (e.g., "missing metric", "size mismatch", "heuristic baseline") |
-
-## Input Data Models
-
-### URL Input File
-
-**Format**: CSV
-**Location**: `data/raw/urls.csv`
-**Schema**:
-```csv
-url
-
-
-...
-```
-
-### Synthetic Validation Dataset
-
-**Format**: CSV + JSON
-**Location**: `data/processed/synthetic_validation.csv`, `data/processed/synthetic_ground_truth.json`
-**Schema**:
-```csv
-url,outcome_type,variant_a_n,variant_b_n,variant_a_conversions,variant_b_conversions,reported_p,reported_effect_size,ground_truth_inconsistent
-synthetic-001,binary,1000,1000,150,180,0.042,0.03,False
-synthetic-002,continuous,500,500,0,0,0.003,0.15,True
-...
-```
-
-### Real-World Validation Labels
-
-**Format**: CSV
-**Location**: `data/processed/real_world_validation_labels.csv`
-**Schema**:
-```csv
-url,ground_truth_inconsistent,annotator_1,annotator_2,annotator_3,resolution_notes
- on inconsistency due to p-value mismatch
-...
-```
-
-## Output Data Models
-
-### Audit Report (JSON)
-
-**Format**: JSON
-**Location**: `data/output/audit_report.json`
-**Schema**: Array of `AuditRecord` objects
-
-```json
-[
- {
- "url": "",
- "reported_p": 0.042,
- "reported_effect_size": 0.03,
- "reported_sample_size_a": 1000,
- "reported_sample_size_b": 1000,
- "reconstructed_p": 0.038,
- "reconstructed_effect_size": 0.03,
- "diff_abs_p": 0.004,
- "diff_abs_effect": 0.0,
- "flag_inconsistent": false,
- "flag_size_mismatch": false,
- "flag_missing_metric": false,
- "flag_unverifiable": false,
- "notes": "Consistent"
- },
-...
-]
-```
-
-### Summary Report (CSV)
-
-**Format**: CSV
-**Location**: `data/output/summary_report.csv`
-**Schema**:
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `total_summaries` | integer | Total number of summaries audited |
-| `inconsistent_count` | integer | Number of inconsistent summaries |
-| `inconsistent_rate` | float | Raw inconsistency rate (inconsistent_count / total_summaries) |
-| `bias_adjusted_rate` | float | Domain-weighted bias-adjusted rate |
-| `wilson_ci_lower` | float | Lower bound of 95% Wilson confidence interval |
-| `wilson_ci_upper` | float | Upper bound of 95% Wilson confidence interval |
-
-### Bias Report (JSON)
-
-**Format**: JSON
-**Location**: `data/output/bias_report.json`
-**Schema**:
-
-```json
-{
- "domain_proportions": {
- "tech": 0.25,
- "e-commerce": 0.30,
- "finance": 0.20,
- "healthcare": 0.15,
- "saas": 0.10
- },
- "raw_inconsistency_rate": 0.12,
- "bias_adjusted_rate": 0.11,
- "max_domain_proportion": 0.30,
- "dominance_warning": false
-}
-```
-
-### Subgroup Report (JSON)
-
-**Format**: JSON
-**Location**: `data/output/subgroup_report.json`
-**Schema**:
-
-```json
-{
- "subgroups": [
- {
- "domain": "tech",
- "sample_size": 75,
- "inconsistent_count": 10,
- "prevalence": 0.133,
- "fisher_p_value": 0.42,
- "bonferroni_adjusted_alpha": 0.006,
- "statistically_different": false
- },
-...
- ]
-}
-```
-
-### Manifest (JSON)
-
-**Format**: JSON
-**Location**: `data/output/manifest.json`
-**Schema**:
-
-```json
-{
- "pipeline_version": "1.0.0",
- "execution_timestamp": "2026-06-24T12:00:00Z",
- "total_summaries_processed": 300,
- "parsing_error_count": 5,
- "parsing_error_rate": 0.017,
- "checksums": {
- "audit_report.json": "sha256:abc123...",
- "summary_report.csv": "sha256:def456...",
-...
- },
- "resource_usage": {
- "cpu_time_seconds": 7200,
- "peak_memory_mb": 1500
- }
-}
+input/urls.csv
+ ↓ (FR-001)
+code/extraction.py
+ ↓ (FR-002)
+data/processed/abs_summaries.csv (ABSummary records)
+ ↓ (FR-003)
+code/reconstruction.py
+ ↓ (FR-004)
+code/inconsistency.py
+ ↓ (FR-004)
+output/audit_report.json (AuditRecord array)
+ ↓ (FR-005a, FR-027)
+code/prevalence.py, code/bias.py
+ ↓ (FR-005a, FR-027)
+output/summary_report.csv (SummaryReport)
+ ↓ (FR-032)
+code/subgroup.py
+ ↓ (FR-032)
+output/subgroup_report.json (Subgroup analysis)
 ```
 
 ## Validation Rules
 
 ### ABSummary Validation
-
-1. `url` must be a valid URL (validated via `urllib.parse.urlparse`)
-2. `variant_a_n`, `variant_b_n` must be integers ≥1
-3. `variant_a_conversions`, `variant_b_conversions` must be integers ≥0 (binary outcomes only)
-4. `variant_a_mean`, `variant_b_mean` must be floats (continuous outcomes only)
-5. `variant_a_std`, `variant_b_std` must be floats (continuous outcomes only)
-6. `reported_p` must be 0 < p ≤ 1, or null for inequality bounds
-7. `outcome_type` must be one of: `binary`, `continuous`
-8. If `confidence_interval` is present, `lower` and `upper` must be floats
+- `variant_a_n` and `variant_b_n` must be ≥1 (non-zero sample sizes).
+- `variant_a_conversions` and `variant_b_conversions` must be ≥0 and ≤ variant_n respectively.
+- `reported_p` must be in (0, 1] if not null.
+- `outcome_type` must be "binary" or "continuous".
 
 ### AuditRecord Validation
+- `diff_abs_p` = |reported_p - reconstructed_p| (if reported_p is not null).
+- `flag_inconsistent` is True if:
+ - `diff_abs_p` > 0.05 (absolute threshold per Constitution Principle VI), OR
+ - For inequality p-values: reconstructed_p > bound, OR
+ - `diff_abs_effect` > 5% of larger magnitude.
+- `notes` must be ≤200 characters and include ERR-### codes if applicable.
 
-1. `diff_abs_p` must equal `abs(reported_p - reconstructed_p)` (or handle null reported_p)
-2. `diff_abs_effect` must equal relative difference (% of larger magnitude)
-3. `flag_inconsistent` is True if `diff_abs_p > 0.05` OR `diff_abs_effect > 0.05`
-4. `flag_size_mismatch` is True if sample size discrepancy >5%
-5. `flag_missing_metric` is True if required metric absent
-6. `flag_unverifiable` is True if source lacks sufficient raw data
-7. `notes` must be ≤200 characters
+### SummaryReport Validation
+- `total_summaries` ≥300 (per FR-025 power analysis).
+- `parsing_error_count` ≤5% of `total_summaries` (per SC-005).
+- `wilson_ci_upper - wilson_ci_lower` ≤0.10 (per SC-014).
 
-### Output Consistency
+## File Formats
 
-1. `summary_report.csv` values must exactly match computed values in `audit_report.json` (SC-024)
-2. `manifest.json` checksums must match actual file checksums (T076, T077)
-3. Parsing error rate must be ≤5% of total summaries (SC-005)
-
-## Error Handling
-
-### Parsing Errors (FR-007)
-
-All parsing failures must be logged with:
-- Error code of form `ERR-###`
-- Affected field name
-- Concise description ≤200 characters
-
-**Example**:
+### JSON (audit_report.json)
+```json
+{
+ "audit_records": [
+ {
+ "url": "",
+ "reported_p": 0.03,
+ "reported_effect_size": 0.05,
+ "reported_sample_size_a": 1000,
+ "reported_sample_size_b": 1000,
+ "reconstructed_p": 0.032,
+ "reconstructed_effect_size": 0.048,
+ "diff_abs_p": 0.002,
+ "diff_abs_effect": 0.002,
+ "flag_inconsistent": false,
+ "notes": "All metrics within tolerance"
+ }
+ ],
+ "metadata": {
+ "generated_timestamp": "2026-06-24T12:00:00Z",
+ "pipeline_version": "1.0.0"
+ }
+}
 ```
-ERR-001: Missing field 'variant_a_n' in summary at
-ERR-002: Malformed HTML in summary at
-ERR-003: Dead URL (HTTP 404) in summary at
+
+### CSV (summary_report.csv)
+```csv
+total_summaries,inconsistent_count,inconsistent_rate,bias_adjusted_rate,wilson_ci_lower,wilson_ci_upper
+300,45,0.15,0.14,0.11,0.19
 ```
 
-### Warning Conditions
-
-- `data_quality_warning`: Sample sizes differ by >5% (FR-004b)
-- `heuristic_baseline`: Baseline conversion rate missing, using average of variants (FR-012)
-- `missing_metric`: Required metric absent (e.g., effect size without p-value)
+### YAML (schema contracts)
+See `contracts/*.schema.yaml` for full schema definitions.

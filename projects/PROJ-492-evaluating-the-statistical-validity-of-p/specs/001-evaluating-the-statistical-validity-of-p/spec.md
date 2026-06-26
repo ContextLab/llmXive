@@ -1,8 +1,8 @@
 # Feature Specification: Evaluating the Statistical Validity of Public A/B Test Summaries
 
-**Feature Branch**: `001-eval-ab-test-validity`
-**Created**: 2026-06-24
-**Status**: Draft
+**Feature Branch**: `001-eval-ab-test-validity`  
+**Created**: 2026-06-24  
+**Status**: Draft  
 **Input**: User description: "Audit publicly available A/B test summaries for statistical consistency (p‑values, effect sizes, sample sizes) and report the prevalence of inconsistencies."
 
 ## User Scenarios & Testing *(mandatory)*
@@ -13,7 +13,7 @@ A researcher wants to run a reproducible audit over a corpus of public A/B test 
 
 **Why this priority**: This is the core value‑producing function; without it the project cannot answer its primary research question.
 
-**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-004b**, **FR-005a**, **FR-005b**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR-030**, **FR-031**, **FR-031b**, **FR-032** (See US‑1)
+**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-004b**, **FR-005a**, **FR-005b**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR-030**, **FR-031**, **FR-031b**, **FR-032** (See US‑1)  
 **Anchored Success Criteria**: **SC-001**, **SC-003**, **SC-005**, **SC-008**, **SC-013**, **SC-014**, **SC-015**, **SC-024**, **SC-025**, **SC-026**, **SC-027**, **SC-028**, **SC-030**, **SC-031b**, **SC-032** (See US‑1)
 
 **Independent Test**: Provide a curated validation set of ≥ 100 manually annotated summaries (stratified across at least five major domains) and verify that the pipeline flags exactly the inconsistent entries.
@@ -22,7 +22,7 @@ A researcher wants to run a reproducible audit over a corpus of public A/B test 
 
 1. **Given** a CSV file containing URLs of public A/B test summaries, **When** the audit pipeline is executed, **Then** a JSON report is produced listing each summary with a consistency flag (`consistent` / `inconsistent`) and the computed vs. reported p‑value difference.
 2. **Given** a summary where the reported p‑value differs from the reconstructed p‑value by **0.06**, **When** the pipeline processes it, **Then** the summary is marked *inconsistent* because the absolute difference exceeds the absolute floor of **0.05** mandated by the specification.
-3. **Given** the manually annotated validation set, **When** the extraction module runs, **Then** extraction accuracy (proportion of correctly captured fields) is ≥ 95 % (**SC‑001**) and inconsistency‑detection precision is ≥ 85 % on real data (**SC‑031b**).
+3. **Given** the manually annotated validation set, **When** the extraction module runs, **Then** extraction accuracy (proportion of correctly captured fields) is ≥ 95 % (**SC‑001**) and extraction precision is ≥ 85 % on real data (**SC‑031b**).
 4. **Given** any parsing failure (missing field, malformed HTML, dead URL, etc.), **When** the pipeline logs the event, **Then** a clear error message is recorded (fulfilling **FR‑007**) and the overall parsing‑error rate stays ≤ 5 % of total summaries (**SC‑005**).
 5. **Given** the CI environment, **When** the full pipeline runs on the sample corpus, **Then** it completes within a short timeframe (see **FR‑009**) and uses resources compatible with the default GitHub Actions runner (see **SC‑008**).
 
@@ -32,7 +32,7 @@ A product manager wants a concise report summarizing the prevalence of inconsist
 
 **Why this priority**: Provides stakeholders with the essential quantitative answer to the research question without unnecessary visualisation overhead.
 
-**Anchored Requirements**: **FR-005a**, **FR-005b**, **FR-024**, **FR-025**, **FR-027**, **FR-028**, **FR-030**, **FR‑031**, **FR‑031b**, **FR‑032** (See US‑2)
+**Anchored Requirements**: **FR-005a**, **FR-005b**, **FR-024**, **FR-025**, **FR-027**, **FR-028**, **FR-030**, **FR‑031**, **FR‑031b**, **FR‑032** (See US‑2)  
 **Anchored Success Criteria**: **SC-014**, **SC-015**, **SC-024**, **SC-025**, **SC‑027**, **SC‑028**, **SC‑030**, **SC‑031b**, **SC‑032** (See US‑2)
 
 **Independent Test**: Run the audit on a representative corpus and verify that the generated CSV summary contains total counts, inconsistency rate, bias‑adjusted rate, and 95 % Wilson confidence interval matching the JSON report.
@@ -48,7 +48,7 @@ A reviewer wants to obtain the raw audit results for downstream analysis.
 
 **Why this priority**: Guarantees that the audit findings can be examined, re‑analysed, or integrated into other studies.
 
-**Anchored Requirements**: **FR-001**, **FR-002**, **FR-004**, **FR-004b**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR‑030**, **FR‑031**, **FR‑031b**, **FR‑032** (See US‑3)
+**Anchored Requirements**: **FR-001**, **FR-002**, **FR-004**, **FR-004b**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR‑030**, **FR‑031**, **FR‑031b**, **FR‑032** (See US‑3)  
 **Anchored Success Criteria**: **SC-001**, **SC-014**, **SC‑024**, **SC‑025**, **SC‑026**, **SC‑027**, **SC‑028**, **SC‑030**, **SC‑031b**, **SC‑032** (See US‑3)
 
 **Independent Test**: After running the audit, confirm that the JSON file `audit_report.json` and the CSV file `summary_report.csv` are written to the output directory and contain consistent information.
@@ -64,7 +64,7 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 
 **Why this priority**: Guarantees that the nightly audit can be automated in a cost‑effective, reproducible environment.
 
-**Anchored Requirements**: **FR-009**, **FR-001**, **FR-002**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR‑030**, **FR‑031**, **FR‑031b**, **FR‑032** (See US‑4)
+**Anchored Requirements**: **FR-009**, **FR-001**, **FR-002**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR‑030**, **FR‑031**, **FR‑031b**, **FR‑032** (See US‑4)  
 **Anchored Success Criteria**: **SC-008**, **SC-005**, **SC‑013**, **SC‑025**, **SC‑026**, **SC‑027**, **SC‑028**, **SC‑030**, **SC‑031b**, **SC‑032** (See US‑4)
 
 **Independent Test**: Trigger a GitHub Actions workflow that runs the full pipeline on a sample corpus; verify that the job completes within 6 hours, uses resources compatible with the default runner, and produces the expected JSON output.
@@ -93,23 +93,23 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
  **Inline Schema Definition**:
  ```
  ABSummary:
- url: string (required, valid URL)
- variant_a_n: integer (required, ≥1)
- variant_b_n: integer (required, ≥1)
- variant_a_conversions: integer (required, ≥0)
- variant_b_conversions: integer (required, ≥0)
- reported_p: float (required, 0 < p ≤ 1, or null for inequality bounds)
- reported_effect_size: float (required, can be negative)
- outcome_type: string (required, one of: binary, continuous)
- confidence_interval: object (optional, {lower: float, upper: float})
+   url: string (required, valid URL)
+   variant_a_n: integer (required, ≥1)
+   variant_b_n: integer (required, ≥1)
+   variant_a_conversions: integer (required, ≥0)
+   variant_b_conversions: integer (required, ≥0)
+   reported_p: float (required, 0 < p ≤ 1, or null for inequality bounds)
+   reported_effect_size: float (required, can be negative)
+   outcome_type: string (required, one of: binary, continuous)
+   confidence_interval: object (optional, {lower: float, upper: float})
  ```
 - **FR-003**: System MUST reconstruct the expected p‑value using the appropriate statistical test:
- 1. For binary conversion metrics, use a **two‑proportion z‑test** (or Fisher's exact test when any cell count ≤ 5).
- 2. For continuous metrics, use **Welch's two‑sample t‑test** (unequal variances). (See US‑1)
+  1. For binary conversion metrics, use a **two‑proportion z‑test** (or Fisher's exact test when any cell count ≤ 5).
+  2. For continuous metrics, use **Welch's two‑sample t‑test** (unequal variances). (See US‑1)
 - **FR-004**: System MUST flag a summary as *inconsistent* when **any** of the following holds (evaluated at a **95 % confidence level (α = 0.05)**):
- 1. The **absolute difference** between the reported numeric p‑value and the reconstructed p‑value exceeds **0.05**. *Justification*: Constitution Section VI mandates this absolute threshold; relative thresholds are not permitted for p‑value discrepancy.
- 2. For inequality‑reported p‑values (e.g., "p < 0.001"), the summary is flagged inconsistent **only if** the reconstructed p‑value exceeds the bound.
- 3. The **absolute relative difference** between the reported effect size and the reconstructed effect size exceeds **5 %** of the larger magnitude. *Justification*: Industry surveys of A/B testing report typical reporting variance; this relative threshold is not constrained by the Constitution which only specifies p‑value discrepancy. (See US‑1)
+  1. The **absolute difference** between the reported numeric p‑value and the reconstructed p‑value exceeds **0.05**. *Justification*: Constitution Section VI mandates this absolute threshold; relative thresholds are not permitted for p‑value discrepancy. *Constitutional Mandate*: Per Constitution Section VI, absolute threshold of 0.05 is required regardless of statistical considerations for small p-values. This is a policy choice, not a statistical optimization.
+  2. For inequality‑reported p‑values (e.g., "p < 0.001"), the summary is flagged inconsistent **only if** the reconstructed p‑value exceeds the bound.
+  3. The **absolute relative difference** between the reported effect size and the reconstructed effect size exceeds **5 %** of the larger magnitude. *Justification*: Industry surveys of A/B testing report typical reporting variance; this relative threshold is not constrained by the Constitution which only specifies p‑value discrepancy. (See US‑1)
 - **FR-004b**: System MUST emit a **data_quality_warning** when the reported sample sizes for the two variants differ from the extracted counts by more than **5 %** of the larger count; such entries are excluded from the aggregate prevalence estimate. (See US‑1)
 - **FR-005a**: System MUST perform a two‑sided binomial test of the overall inconsistency proportion against a baseline proportion of **0.05** (justified by John et al., prior reporting error meta‑analysis) at significance level **α = 0.05**. The test must report a p‑value, a 95 % Wilson confidence interval for the observed proportion, and the raw inconsistency rate. (See US‑2)
 - **FR-005b**: System MUST conduct a sensitivity analysis of the baseline proportion by repeating the binomial test for baseline values in the range **0.02 – 0.10** (step 0.01) and must report the maximum variation in the estimated prevalence. (See US‑2)
@@ -125,7 +125,7 @@ A CI engineer needs the audit pipeline to run reliably on the default GitHub Act
 
  *Limitation*: Synthetic validation cannot substitute for real‑world testing; precision/recall targets on synthetic data do not guarantee detection performance on actual public A/B test summaries.
 - **FR-031**: System MUST evaluate the inconsistency‑detection component (**FR‑004**) on the synthetic validation dataset, computing precision, recall, and F1 score, and must achieve **precision ≥ 90 %** and **recall ≥ 80 %** (F1 ≥ 0.85). *Limitation*: These targets apply only to synthetic validation; real‑world performance may differ. (See US‑1)
-- **FR-031b**: System MUST evaluate the inconsistency‑detection component (**FR‑004**) on a **manually annotated real‑world validation set** of at least **100** summaries (stratified across five major domains: tech, e‑commerce, finance, healthcare, SaaS), computing precision, recall, and F1 score, and must achieve **precision ≥ 85 %** and **recall ≥ 75 %** (F1 ≥ 0.80). Ground truth MUST be established by human annotation independent of the pipeline. *Justification*: Real‑world validation with independent ground truth is essential to confirm that the inconsistency detector performs adequately on actual public A/B test summaries, not just synthetic data. (See US‑1)
+- **FR-031b**: System MUST evaluate the extraction accuracy component on a **manually annotated real‑world validation set** of at least **100** summaries (stratified across five major domains: tech, e‑commerce, finance, healthcare, SaaS), computing precision, recall, and F1 score for field‑level extraction, and must achieve **precision ≥ 85 %** and **recall ≥ 75 %** (F1 ≥ 0.80). Ground truth MUST be established by human annotation verifying that extracted fields match the reported numbers in the source summaries (i.e., whether the extraction correctly captured the sample sizes, effect sizes, and p‑values as written). This validates the extraction module's ability to accurately capture reported statistics, NOT the inconsistency detection logic (which is validated on synthetic data per FR‑031). *Justification*: Real‑world validation with human verification of extraction accuracy is essential to confirm that the extraction component performs adequately on actual public A/B test summaries. Targets measure extraction accuracy for field‑level capture, not inconsistency detection against known ground truth. (See US‑1)
 - **FR-032**: System MUST compute inconsistency prevalence per **source domain** and per **publication year**; for any subgroup containing **≥ 10** summaries it MUST perform Fisher's exact test comparing inconsistent vs. consistent counts, reporting the subgroup p‑value and prevalence. Multiple subgroup tests MUST apply **Bonferroni correction** (adjusted α = 0.05 / number_of_subgroups) to control family‑wise error rate. (See US‑2)
 
 ### Key Entities
@@ -151,9 +151,9 @@ The original idea called for auditing public A/B test summaries and reporting th
 12. **Result export** (FR‑024) provides the required deliverable—a concise, machine‑readable report of the prevalence estimate.
 13. **Quickstart documentation** (FR‑028) lowers the barrier for reproducibility and external validation.
 14. **Synthetic validation** (FR‑030, FR‑031) supplies a controlled dataset to quantify detector precision and recall for implementation correctness; [deferred] summaries required for stable precision/recall estimates per Kohavi et al. (2020), and ground truth must use independent implementation to detect bugs.
-15. **Real‑world validation** (FR‑031b) addresses scientific soundness concerns by requiring independent manual annotation of ≥100 real summaries to validate detection performance on actual data.
+15. **Real‑world extraction validation** (FR‑031b) addresses scientific soundness concerns by requiring human verification of extraction accuracy on ≥100 real summaries to validate that the extraction module correctly captures reported numbers.
 16. **Subgroup analysis** (FR‑032) addresses the original research plan's step 7 by summarising inconsistency rates by source type and year and applying Fisher's exact test with Bonferroni correction where appropriate.
-17. **FR‑030/031/031b inclusion**: These were explicitly retained because synthetic validation detects implementation bugs while real‑world validation (FR‑031b) confirms actual detection performance—both are indispensable for demonstrating that the inconsistency‑detection component works as intended.
+17. **FR‑030/031/031b inclusion**: These were explicitly retained because synthetic validation detects implementation bugs while real‑world extraction validation (FR‑031b) confirms actual extraction performance—both are indispensable for demonstrating that the pipeline components work as intended.
 
 All listed requirements are therefore justified as essential rather than gold‑plating. The corpus size increase (100 → 300) and synthetic dataset size increase ([deferred]) are methodologically required to achieve statistical power and stable performance estimates, respectively.
 
@@ -165,7 +165,7 @@ All listed requirements are therefore justified as essential rather than gold‑
 
 **FR-030/031 Synthetic Validation**: Precision/recall targets on synthetic data cannot guarantee detection performance on real-world public A/B test summaries. Synthetic validation detects implementation bugs but does not validate against actual reporting practices.
 
-**FR-031b Real-World Validation**: Precision/recall on manually annotated summaries provides evidence of real-world detection capability but cannot guarantee performance on all future summaries outside the validation set distribution.
+**FR-031b Real-World Extraction Validation**: Precision/recall on manually annotated summaries provides evidence of extraction capability but cannot guarantee performance on all future summaries outside the validation set distribution. Ground truth is based on human verification of **extraction accuracy** (whether extracted fields match the reported numbers in the source), not inconsistency detection against known ground truth (which requires synthetic data per FR‑031). Human annotators can only verify that extraction correctly captured reported numbers; they cannot independently verify whether the statistical reconstruction is correct.
 
 ## Success Criteria *(mandatory)*
 
@@ -183,8 +183,8 @@ All listed requirements are therefore justified as essential rather than gold‑
 - **SC-026**: Monte Carlo validation passes for all statistical tests with absolute difference **≤ 0.005** (FR‑026). (See US‑1)
 - **SC-027**: Bias‑assessment report must show that **no** single domain exceeds **30 %** of the total corpus; the report must also include both the raw inconsistency rate and the bias‑adjusted inconsistency rate. (See US‑1)
 - **SC-028**: The Quickstart guide is verified by a user test where a novice follows the instructions and completes the audit on **30 URLs** in ≤ 30 minutes on the default GitHub Actions runner. (See US‑1)
-- **SC-030**: Precision on the synthetic validation dataset must be **≥ 90 %** and recall **≥ 80 %** (F1 ≥ 0.85). **This criterion applies to synthetic validation only (FR‑031)**; real-world validation is governed by SC‑031b. (See FR‑031) **(See US‑1, US‑2, US‑3, US‑4)**
-- **SC-031b**: Precision on the manually annotated real-world validation set must be **≥ 85 %** and recall **≥ 75 %** (F1 ≥ 0.80). Ground truth MUST be established by human annotation independent of the pipeline. (See US‑1)
+- **SC-030**: Precision on the synthetic validation dataset must be **≥ 90 %** and recall **≥ 80 %** (F1 ≥ 0.85). **This criterion applies to synthetic validation only (FR‑031)**; real-world extraction validation is governed by SC‑031b. (See FR‑031) **(See US‑1, US‑2, US‑3, US‑4)**
+- **SC-031b**: Extraction precision on the manually annotated real-world validation set must be **≥ 85 %** and recall **≥ 75 %** (F1 ≥ 0.80). Ground truth MUST be established by human annotation verifying that extracted fields match the reported numbers in the source summaries (whether extraction correctly captured sample sizes, effect sizes, and p‑values as written). Precision/recall measure extraction accuracy for field‑level capture, not inconsistency detection against known ground truth. (See US‑1)
 - **SC-032**: For each subgroup (domain or year) with ≥ 10 summaries, the generated report must include the subgroup inconsistency prevalence, Fisher's exact test p‑value (with Bonferroni adjustment), and indicate whether the subgroup prevalence is statistically different from the overall rate (adjusted α). (See US‑2)
 
 ## Assumptions
@@ -199,7 +199,7 @@ All listed requirements are therefore justified as essential rather than gold‑
 - If only a total sample size `N` is present and per‑variant counts are absent, the pipeline **does not impute** equal allocation. Instead, the entry is flagged as "missing metric" and recorded in the audit notes.
 - All computation is performed on CPU‑only resources; no GPU‑specific libraries or large‑model inference are required, satisfying the GitHub Actions free‑tier constraints.
 - Validation‑set ground‑truth p‑values are computed using analytical formulas (or an independent library such as **statsmodels**) to ensure independence from the pipeline implementation.
-- Manual annotation for real-world validation (FR‑031b, SC‑031b) is performed by at least two independent annotators with agreement ≥ 85 %; discrepancies are resolved by a third annotator.
+- Manual annotation for real-world extraction validation (FR‑031b, SC‑031b) is performed by at least two independent annotators with agreement ≥ 85 %; discrepancies are resolved by a third annotator. Ground truth verification is based on extraction accuracy (whether extracted fields match reported numbers), not inconsistency detection against known ground truth.
 
 ## References
 
@@ -242,11 +242,11 @@ All listed requirements are therefore justified as essential rather than gold‑
  - Bias assessment and bias‑adjusted prevalence (FR‑027)
  - Subgroup prevalence analysis with Fisher's exact test (FR‑032)
  - Generation of:
- - `output/audit_report.json`
- - `output/summary_report.csv`
- - `output/bias_report.json` (domain proportions and adjusted rate)
- - `output/subgroup_report.json` (per‑domain/year prevalence and Fisher p‑values)
- - `README_QUICKSTART.md` (see FR‑028)
+   - `output/audit_report.json`
+   - `output/summary_report.csv`
+   - `output/bias_report.json` (domain proportions and adjusted rate)
+   - `output/subgroup_report.json` (per‑domain/year prevalence and Fisher p‑values)
+   - `README_QUICKSTART.md` (see FR‑028)
 
 4. **Check resource usage**
  The pipeline logs CPU time and memory; ensure the run stays within **≤ 6 hours** and uses resources typical of the default GitHub Actions runner (see **SC‑008**).
@@ -259,6 +259,9 @@ All listed requirements are therefore justified as essential rather than gold‑
 - **T026**: *Synthetic Validation Dataset Generation*
  Generate a synthetic validation dataset of exactly **10 000** A/B test summaries (mix of binary and continuous outcomes) with known ground‑truth p‑values and effect sizes using analytical formulas or an independent library (NOT the same implementation as FR‑003). Output a CSV file `synthetic_validation.csv` and a JSON file `synthetic_ground_truth.json`. No placeholder values; the count is fixed.
 
+- **T044**: *Domain Bias Subsampling*
+ When any domain exceeds **30%** of the total corpus, subsample that domain to equalize domain proportions. Trigger threshold explicitly set to **30%** per **FR‑027**. Action: subsample to equalize domain proportions. Output: bias_report.json with domain proportions and adjustment notes. (See FR‑027)
+
 - **T062**: *Monte Carlo Validation of Statistical Tests*
  For each statistical test (two‑proportion z‑test, Fisher's exact test, Welch's t‑test, binomial test) run **10 000** Monte Carlo replicates, compare the library implementation result to the Monte Carlo estimate, and verify that the absolute difference is **≤ 0.005**. Record results in `monte_carlo_validation_report.json`. This task directly satisfies **FR‑026**.
 
@@ -266,8 +269,8 @@ All listed requirements are therefore justified as essential rather than gold‑
 
 - **T077**: Extend `manifest.json` to include the checksum entries produced by T076.
 
-- **T081**: *Real-World Validation Set Annotation*
- Create a manually annotated validation set of at least **100** public A/B test summaries with ground‑truth inconsistency labels determined by independent human annotators. Two annotators must independently label each summary; discrepancies are resolved by a third annotator. Store annotations in `real_world_validation_labels.csv` with fields: `url`, `ground_truth_inconsistent` (boolean), `annotator_1`, `annotator_2`, `annotator_3`, `resolution_notes`. This task directly satisfies **FR‑031b**.
+- **T081**: *Real-World Extraction Validation Set Annotation*
+ Create a manually annotated validation set of at least **100** public A/B test summaries with ground‑truth extraction labels determined by independent human annotators. Two annotators must independently extract fields from each summary; discrepancies are resolved by a third annotator. Store annotations in `real_world_validation_labels.csv` with fields: `url`, `ground_truth_sample_size_a`, `ground_truth_sample_size_b`, `ground_truth_effect_size`, `ground_truth_p`, `annotator_1`, `annotator_2`, `annotator_3`, `resolution_notes`. This task directly satisfies **FR‑031b**.
 
-- **T082**: *Real-World Validation Evaluation*
- Run the inconsistency detector on the real-world validation set from T081 and compute precision, recall, and F1 score. Verify that precision ≥ 85 % and recall ≥ 75 % (F1 ≥ 0.80) as required by **FR‑031b** and **SC‑031b**. Record results in `real_world_validation_report.json`.
+- **T082**: *Real-World Extraction Validation Evaluation*
+ Run the extraction module on the real-world validation set from T081 and compute precision, recall, and F1 score for field‑level extraction. Verify that precision ≥ 85 % and recall ≥ 75 % (F1 ≥ 0.80) as required by **FR‑031b** and **SC‑031b**. Record results in `real_world_validation_report.json`.

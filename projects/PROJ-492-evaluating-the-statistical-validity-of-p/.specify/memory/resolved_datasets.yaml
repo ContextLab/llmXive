@@ -1,26 +1,26 @@
-resolved_at: '2026-06-25T22:06:44.981021+00:00'
+resolved_at: '2026-06-26T04:36:07.876068+00:00'
 datasets:
 - intent: 10.1037/xap0000421
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+  - url: https://dro.deakin.edu.au/articles/chapter/Preface/32798829
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+  - url: https://acs.figshare.com/articles/dataset/Enzymatic_Deacetylation_as_a_Selective_Strategy_for_O_GlcNAc_Identification/32798843
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+  - url: https://acs.figshare.com/articles/journal_contribution/Enzymatic_Deacetylation_as_a_Selective_Strategy_for_O_GlcNAc_Identification/32798840
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+  - url: https://acs.figshare.com/articles/journal_contribution/High-Density_Ultrafine_Nucleation_on_Discontinuous_Residual_Ag_Suppresses_Localized_Growth_for_Stable_Lithium_Metal_Deposition/32798837
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+  - url: https://acs.figshare.com/articles/journal_contribution/LLM-Assembled_Multiscale_Cascades_for_High-Throughput_Screening_The_Case_of_Thermoelectric_Materials/32798834
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,23 +28,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+  - url: https://dro.deakin.edu.au/articles/chapter/Preface/32798829
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+  - url: https://acs.figshare.com/articles/dataset/Enzymatic_Deacetylation_as_a_Selective_Strategy_for_O_GlcNAc_Identification/32798843
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+  - url: https://acs.figshare.com/articles/journal_contribution/Enzymatic_Deacetylation_as_a_Selective_Strategy_for_O_GlcNAc_Identification/32798840
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+  - url: https://acs.figshare.com/articles/journal_contribution/High-Density_Ultrafine_Nucleation_on_Discontinuous_Residual_Ag_Suppresses_Localized_Growth_for_Stable_Lithium_Metal_Deposition/32798837
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+  - url: https://acs.figshare.com/articles/journal_contribution/LLM-Assembled_Multiscale_Cascades_for_High-Throughput_Screening_The_Case_of_Thermoelectric_Materials/32798834
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -60,11 +60,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10316233
+  - url: https://zenodo.org/records/10298172
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10332095
+  - url: https://zenodo.org/records/10316233
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -117,23 +117,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Immunosuppression_after_pediatric_liver_transplantation_may_lead_to_early_and_prolonged_acute_thymic_involution_findings_from_a_pilot_longitudinal_study_docx/32798892
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Remote_diffusion-weighted_imaging_lesions_in_spontaneous_intracerebral_hemorrhage_research_progress_and_new_perspectives_docx/32798898
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Knowledge_gaps_psychological_burden_and_patient-reported_symptom_severity_and_daily_functioning_in_autoimmune_gastritis_a_observational_survey_of_Chinese_patients_docx/32798907
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Energy_landscapes_and_synergetic_state_transitions_in_frustrated_Stuart_Landau_oscillator_networks_a_homotopy_continuation_study_pdf/32798877
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Radiographic_outcomes_of_stick-assisted_manipulation_in_adolescent_idiopathic_scoliosis_a_retrospective_study_of_57_patients_docx/32798880
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -157,23 +157,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20457089
+  - url: https://osf.io/4ne93/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20457089
+  - url: https://osf.io/97qaj/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931/1
+  - url: https://osf.io/ac78q/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+  - url: https://osf.io/zh38v/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20871447
+  - url: https://osf.io/hb9m5/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -214,31 +214,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/NHSEDataScience/synthetic_clinical_notes/resolve/main/silver/admissions.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798940
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_pdf/32798910
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798925
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_png/32798883
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -258,7 +254,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4578581
+  - url: https://zenodo.org/records/4578377
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -307,23 +303,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798940
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_pdf/32798910
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798925
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_png/32798883
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -331,15 +327,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8274050
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8280037
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8274053
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8274050
+  - url: https://zenodo.org/records/8278866
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -347,23 +343,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.mendeley.com/datasets/mw9sn8m4n5/1
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://data.mendeley.com/datasets/mw9sn8m4n5
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/20856187
+  - url: https://zenodo.org/records/20897937
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20856187
+  - url: https://zenodo.org/records/20897937
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20853203
+  - url: https://arxiv.org/abs/2606.23603
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.22592
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.28118
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -371,23 +367,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798940
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_pdf/32798910
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798925
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_png/32798883
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -403,11 +399,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10217711
+  - url: https://zenodo.org/records/10344963
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10344963
+  - url: https://zenodo.org/records/10217711
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -426,8 +422,7 @@ datasets:
   - url: https://zenodo.org/records/20470525
     source: datacite
     status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    reason: unrecognized/non-dataset content
   - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
     status: unreachable
@@ -437,23 +432,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_xls/32795955
+  - url: https://figshare.com/articles/poster/_i_Redeemer_s_University_Ede_2026_2027_APPLICATION_ADMISSION_FORM_Out_i_b_into_Jupeb_Is_Out_07O40-964654_FAITH_ADMIN_07047903330_See_Requirements_Courses_How_to_Apply_b_/32798826
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795958
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Tumor_enucleation_versus_conventional_partial_nephrectomy_for_localized_renal_tumors_a_systematic_review_and_meta-analysis_of_functional_perioperative_and_margin_outcomes_docx/32799012
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_A_comparative_study_of_SNPscan_CNVplex_assay_and_routine_PCR_in_genetic_analysis_of_thalassemia_pdf/32795952
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Tumor_enucleation_versus_conventional_partial_nephrectomy_for_localized_renal_tumors_a_systematic_review_and_meta-analysis_of_functional_perioperative_and_margin_outcomes_docx/32799021
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Gut_microbiota-derived_equol_mediates_the_therapeutic_effects_of_aucubin_on_DSS-induced_colitis_via_inhibition_of_the_ASS1_iNOS_axis_b_/32287935
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Tumor_enucleation_versus_conventional_partial_nephrectomy_for_localized_renal_tumors_a_systematic_review_and_meta-analysis_of_functional_perioperative_and_margin_outcomes_pdf/32799024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/thesis/Metals_Craft_Products_and_Urban_Economy_in_Late_Antique_Rome/32795931
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Tumor_enucleation_versus_conventional_partial_nephrectomy_for_localized_renal_tumors_a_systematic_review_and_meta-analysis_of_functional_perioperative_and_margin_outcomes_docx/32799000
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -465,11 +460,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10316233
+  - url: https://zenodo.org/records/10298172
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10332095
+  - url: https://zenodo.org/records/10316233
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -490,6 +485,10 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20653276
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
