@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T21:22:00.531924Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-223-statistical-analysis-of-publicly-availab
-last_run_id: 8f5987e5-cd71-4689-bdf1-97854c2c5cd3
+last_run_id: 67c7e402-35c5-4534-a3a1-0b4fdd1ca72e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Statistical Analysis of Publicly Available Traffic Accident Data
-updated_at: '2026-06-14T12:26:34.771752Z'
+updated_at: '2026-06-26T21:59:36.998754Z'

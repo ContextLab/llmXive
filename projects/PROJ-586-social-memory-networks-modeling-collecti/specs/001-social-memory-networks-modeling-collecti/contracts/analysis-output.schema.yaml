@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for validating statistical analysis outputs (anova_output.json, scaling_output.json)"
+type: "object"
+properties:
+  analysis_type:
+    type: "string"
+    description: "Type of analysis performed"
+    enum:
+      - "anova"
+      - "sensitivity"
+      - "power"
+      - "scaling"
+  metric_name:
+    type: "string"
+    description: "Name of the metric analyzed"
+    enum:
+      - "specialization_index"
+      - "retrieval_efficiency"
+  statistic:
+    type: "number"
+    description: "Test statistic (F-value, exponent, etc.)"
+  p_value:
+    type: "number"
+    description: "P-value for hypothesis test"
+    minimum: 0
+    maximum: 1
+  corrected_alpha:
+    type: "number"
+    description: "Bonferroni-corrected significance threshold"
+    minimum: 0
+    maximum: 1
+  significance_flag:
+    type: "boolean"
+    description: "True if p < corrected_alpha"
+  confidence_interval:
+    type: "array"
+    description: "95% confidence interval (lower, upper)"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+required:
+  - analysis_type
+  - metric_name
+  - statistic
+  - p_value
+  - corrected_alpha
+  - significance_flag
+additionalProperties: false

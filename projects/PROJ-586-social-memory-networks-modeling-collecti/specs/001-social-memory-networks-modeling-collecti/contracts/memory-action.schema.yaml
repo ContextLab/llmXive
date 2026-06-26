@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Memory Action Schema"
+description: "Schema for validating memory action logs (memory_log.json)"
+type: "object"
+properties:
+  action_type:
+    type: "string"
+    description: "Type of memory action"
+    enum:
+      - "READ"
+      - "WRITE"
+  key:
+    type: "string"
+    description: "Memory key being accessed"
+  value:
+    type: "string"
+    description: "Value being written or query being made"
+  agent_id:
+    type: "string"
+    description: "Agent performing the action"
+  timestamp:
+    type: "number"
+    description: "Unix timestamp of the action"
+required:
+  - action_type
+  - key
+  - value
+  - agent_id
+  - timestamp
+additionalProperties: false

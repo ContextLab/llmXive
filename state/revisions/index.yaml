@@ -192,3 +192,6 @@ ready:
 - project_id: PROJ-568-identifying-stimulus-driven-neural-activ
   revision_spec_path: specs/auto-revisions/PROJ-568-identifying-stimulus-driven-neural-activ/round-1
   queued_at: '2026-06-26T14:42:33.176450+00:00'
+- project_id: PROJ-618-bench-evaluating-proactive-personal-assi
+  revision_spec_path: specs/auto-revisions/PROJ-618-bench-evaluating-proactive-personal-assi/round-2
+  queued_at: '2026-06-26T22:59:33.825813+00:00'
