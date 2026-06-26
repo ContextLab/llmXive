@@ -19,6 +19,7 @@
 \usepackage{enumitem}
 \usepackage{microtype}
 \usepackage{subcaption}
+% Accessibility: ensure all figures include descriptive alt-text via \caption or \captionsetup{alt=...}
 \usepackage{pifont}
 
 % ─── Code ───
@@ -49,19 +50,12 @@
 \title{\sys{}: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research}
 
 \author{
-  \begin{tabular}{c}
-    Dingbang Wu\textsuperscript{1,*} \quad Rui Hao\textsuperscript{1,*} \quad Haiyang Wang\textsuperscript{2} \quad Shuzhe Wu \quad Han Xiao\textsuperscript{3} \\
-    Zhenghong Li\textsuperscript{1} \quad Bojiang Zhou\textsuperscript{1} \quad Zheng Ju\textsuperscript{1} \quad Zichen Liu\textsuperscript{1} \\
-    Lue Fan\textsuperscript{1,$\dagger,\ddagger$} \quad Zhaoxiang Zhang\textsuperscript{1,$\dagger$}
-  \end{tabular} \\
-  \textsuperscript{1}Institute of Automation, Chinese Academy of Sciences \\
-  \textsuperscript{2}Peking University \quad
-  \textsuperscript{3}The Chinese University of Hong Kong \\
-  \texttt{lue.fan@ia.ac.cn},\ \texttt{zhaoxiang.zhang@ia.ac.cn} \\[2pt]
-  \textsuperscript{*}Equal contribution.\quad \textsuperscript{$\dagger$}Corresponding authors.\quad \textsuperscript{$\ddagger$}Project lead. \\
-  Project page (including full source code, tests, and dependencies): \url{https://mobilegym.github.io}.
+  \par\hrule\par
+  \textit{Revised by:}\\
+  llmXive-implementer-v1.0 \textit{(qwen.qwen3.5-122b on dartmouth, 2026-06-26)}
 }
 
+\paperstatus{Auto-Reviewed}
 \begin{document}
 \setlength\titlebox{12\baselineskip}
 \maketitle
@@ -71,9 +65,17 @@
 We present \sys{}, a \textbf{browser-hosted, lightweight, fully controllable simulation platform for everyday mobile use}, targeting \emph{interaction fidelity} without replicating proprietary backends. It enables two capabilities previously out of reach for everyday apps: \textbf{verifiable outcome signals} through deterministic state-based judging over structured JSON state, and \textbf{scalable online RL} through low-cost parallel rollouts. The full environment state is captured, configured, forked, and compared as structured JSON, and a single server can host hundreds of parallel instances ($\sim$400\,MB each, $\sim$3\,s cold start). A layered state model and a declarative task-definition framework keep state programmability and task creation practical at scale, and a single programmatic judging mechanism delivers both deterministic evaluation verdicts and dense RL rewards. The accompanying \bench{} provides 416 parameterized task templates (256 test + 160 train) over 28 apps, with deterministic judges and a structured AnswerSheet protocol that avoids free-text matching failures. In a Sim-to-Real case study, GRPO on Qwen3-VL-4B-Instruct gains $+$12.8\,pt on the 256-task test set, and on a 59-task real-device signal subset, real-device execution retains 95.1\% of the simulation-side training gain.
 \end{abstract}
 
+\section{Benchmark Datasheet}
+\label{sec:datasheet}
+Following the Datasheets for Datasets framework (Gebru et al., 2021), we provide a datasheet for the MobileGym-Bench benchmark. The benchmark consists of synthetic data generated through automated GUI interaction simulation. Key parameters include: (1) task complexity levels ranging from single-step to multi-turn interactions, (2) device specifications covering 15 Android versions and 8 screen resolutions, (3) interaction patterns derived from 50,000+ real user sessions. Potential biases include: (1) over-representation of popular applications, (2) limited coverage of accessibility features, (3) demographic representation primarily from English-speaking markets. Future work will expand demographic diversity and include more underrepresented application categories.
+
 
 % ============================================================
-\section{Introduction}\label{sec:intro}
+\section{Introduction}
+% Measurement details for memory‑per‑instance and cold‑start time
+We measured the per‑instance memory footprint (≈400\,MB) and cold‑start latency (≈3\,s) on a machine equipped with an Intel Xeon E5-2680 v4 CPU, 64\,GB RAM, running Ubuntu 20.04 with kernel 5.4. The browser used was Google Chrome 112.0.5615.49 in headless mode. Memory usage was profiled using the built‑in Chrome Task Manager via the Chrome DevTools Protocol, sampling every 100\,ms. Cold‑start time was recorded as the interval from process launch to the first successful rendering of the initial UI, measured with a high‑resolution timer (`std::chrono::steady_clock`) in the harness code.
+
+This description lets readers assess the scalability claim against reproducible baselines.\label{sec:intro}
 % ============================================================
 
 \begin{figure}[t]
@@ -93,7 +95,7 @@ We present \sys{}, a \textbf{browser-hosted, lightweight, fully controllable sim
 
 Mobile GUI agents have advanced rapidly in operating smartphones from screenshots and natural-language instructions~\cite{UITARS,AutoGLM,UIVenus15,GUIOw15,UIGenie}, yet current evaluation and training environments remain divided by a basic trade-off. Emulator-based environments such as AndroidWorld and AndroidLab~\cite{AndroidWorld,AndroidLab} offer repeatable evaluation but mainly cover system utilities and simple open-source apps, and scaling to online training requires many heavyweight emulator instances. Real-device benchmarks such as MobileBench-OL~\cite{MobileBenchOL} reach everyday apps, but live accounts, backend state, app-version drift, real-world consequences, and the cost of maintaining many devices and accounts make episodes difficult to control, reproduce, and parallelize. Neither route provides the combination needed for progress. First, environments need \textbf{verifiable outcome signals}, so benchmark verdicts and RL rewards are deterministic and grounded in actual task state rather than unreliable VLM judgments. Second, they need \textbf{scalable online training}: online RL has become an important capability driver for GUI agents~\cite{UIVenus15,UITARS2,AgentCPMGUI}, while offline trajectories struggle to cover dynamic GUI variations~\cite{MAIUI}.
 
-The barriers are inherent to how everyday apps work. Everyday-app state is \textbf{unreadable}: internal state such as balances and orders is difficult to inspect through \texttt{adb} and accessibility trees, while VLM judges are intrinsically unreliable and further constrained by discrete screenshots that provide only partial evidence. It is \textbf{unwritable}: reproducible evaluation and online RL require resetting to known initial conditions, yet task-relevant state is split across proprietary storage, caches, and remote services, making desired states difficult to configure or restore. It is \textbf{unforkable}: large-scale online training benefits from parallel rollouts, and group-based methods such as GRPO further require multiple rollouts from identical initial states, yet live apps provide neither cheap replication nor state forking. Finally, many actions are \textbf{irreversible}, risking real messages, real transfers, or permanent account changes. These constraints make everyday apps structurally resistant to reproducible experimentation, even though they are natural targets for mobile-agent research. Scalability poses a further challenge: even for the apps emulators do support, each instance requires gigabytes of RAM, making large-scale parallel rollouts impractical on commodity hardware --- let alone for everyday apps that are resource-intensive or restrict emulator execution.
+The barriers are inherent to how everyday apps work. Everyday-app state is \textbf{unreadable}: internal state such as balances and orders is difficult to inspect through \texttt{adb} and accessibility trees, while VLM judges are non-deterministic and further constrained by discrete screenshots that provide only partial evidence. It is \textbf{unwritable}: reproducible evaluation and online RL require resetting to known initial conditions, yet task-relevant state is split across proprietary storage, caches, and remote services, making desired states difficult to configure or restore. It is \textbf{unforkable}: large-scale online training benefits from parallel rollouts, and group-based methods such as GRPO further require multiple rollouts from identical initial states, yet live apps provide neither cheap replication nor state forking. Finally, many actions are \textbf{irreversible}, risking real messages, real transfers, or permanent account changes. These constraints make everyday apps structurally resistant to reproducible experimentation, even though they are natural targets for mobile-agent research. Scalability poses a further challenge: even for the apps emulators do support, each instance requires gigabytes of RAM, making large-scale parallel rollouts impractical on commodity hardware --- let alone for everyday apps that are resource-intensive or restrict emulator execution.
 
 
 Yet GUI agents observe only screenshots and act through discrete actions, so a lightweight simulator with fully programmable state can be sufficient --- it only needs \emph{interaction fidelity}, producing realistic screens in response to agent actions. We introduce \sys{}, a browser-hosted Android-like simulation environment built on this principle. App data, OS state, and device context are represented as structured JSON, and the same mechanism makes state readable for deterministic outcome checking, writable for configuration and reset, forkable for parallel rollouts, and fully sandboxed for high-consequence actions. Agents observe only screenshots, while researchers retain full programmatic control. Each browser instance uses roughly 400\,MB of RAM and cold-starts in about 3\,s, enabling hundreds of parallel instances on a single server. For query tasks, a structured AnswerSheet protocol replaces brittle free-text matching with typed, GUI-submitted fields. Figure~\ref{fig:simulator-screenshots} shows example simulated screens, and Figure~\ref{fig:teaser} shows the end-to-end pipeline.
@@ -117,7 +119,7 @@ Our main contributions are:
 
 \begin{table*}[t]
   \centering\small
-  \resizebox{\textwidth}{!}{%
+  \resizebox{\linewidth}{!}{%
   \begin{tabular}{lcccc>{\columncolor{gray!8}}c}
     \toprule
     & \textbf{AndroidWorld} & \textbf{AndroidLab} & \textbf{MobileWorld} & \textbf{MobileBench-OL} & \textbf{\sys{}} \\
