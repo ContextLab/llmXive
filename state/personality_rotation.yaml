@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-26T22:55:45.082963+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-06-26T23:31:12.075283+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: rosalind-franklin
-  started_at: '2026-06-16T03:07:40.154179+00:00'
-  ended_at: '2026-06-16T05:16:09.069096+00:00'
-  outcome: abstained
-  action: abstain
 - slug: stephen-wolfram
   started_at: '2026-06-16T05:16:09.069096+00:00'
   ended_at: '2026-06-16T07:19:05.530673+00:00'
@@ -1158,5 +1153,10 @@ history:
 - slug: albert-einstein
   started_at: '2026-06-26T22:27:55.410233+00:00'
   ended_at: '2026-06-26T22:55:45.082963+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-26T22:55:45.082963+00:00'
+  ended_at: '2026-06-26T23:31:12.075283+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
