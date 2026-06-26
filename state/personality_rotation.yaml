@@ -1,12 +1,7 @@
-last_used: linus-pauling
-last_used_at: '2026-06-26T16:41:43.099014+00:00'
+last_used: marie-curie
+last_used_at: '2026-06-26T17:36:02.132584+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: eric-kandel
-  started_at: '2026-06-15T03:09:21.308213+00:00'
-  ended_at: '2026-06-15T05:17:43.359901+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: freeman-dyson
   started_at: '2026-06-15T05:17:43.359901+00:00'
   ended_at: '2026-06-15T07:18:29.933102+00:00'
@@ -1150,5 +1145,10 @@ history:
 - slug: linus-pauling
   started_at: '2026-06-26T15:48:00.665758+00:00'
   ended_at: '2026-06-26T16:41:43.099014+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: marie-curie
+  started_at: '2026-06-26T16:41:43.099014+00:00'
+  ended_at: '2026-06-26T17:36:02.132584+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
