@@ -1259,6 +1259,9 @@ a:hover { color: var(--accent-2); }
 }
 .activity-row .outcome.ok { background: oklch(0.95 0.05 150); color: oklch(0.4 0.15 150); }
 .activity-row .outcome.bad { background: oklch(0.95 0.05 30);  color: oklch(0.5 0.18 30); }
+/* `warn` = expected pipeline mechanics that did not advance (a convergence
+   kickback, a librarian hold) — amber, distinct from a hard error's red. */
+.activity-row .outcome.warn { background: oklch(0.95 0.06 75);  color: oklch(0.48 0.12 65); }
 .activity-row .outcome.muted { background: var(--bg-2); color: var(--muted); }
 .activity-row .dur {
   font-family: var(--mono); font-size: 10.5px; color: var(--muted);

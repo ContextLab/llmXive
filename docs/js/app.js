@@ -581,14 +581,27 @@
     } catch (e) { return "—"; }
   }
 
-  function _outcomeBadge(outcome) {
-    // success/committed → ok; abstained → muted; failures → bad.
-    const bad = ["rate_limited", "model_error", "malformed_response",
-                 "target_missing", "librarian_held", "timeout", "failure", "failed"];
-    let cls = "ok";
-    if (bad.includes(outcome)) cls = "bad";
-    if (outcome === "abstained") cls = "muted";
-    return '<span class="outcome ' + cls + '">' + escapeHtml(outcome || "—") + '</span>';
+  function _outcomeBadge(row) {
+    // Prefer the server-computed severity (ok | soft | hard) so EXPECTED pipeline
+    // mechanics — a convergence panel kicking back for revision, the librarian
+    // holding an artifact, an agent abstaining — render amber "soft" rather than
+    // the same alarming red as a genuine crash. A healthy project converging
+    // through its gates should not read as a wall of failures.
+    const outcome = (typeof row === "object" && row) ? (row.outcome || "") : (row || "");
+    const sev = (typeof row === "object" && row) ? row.severity : null;
+    const reason = (typeof row === "object" && row) ? (row.failure_reason || "") : "";
+    let cls;
+    if (sev === "hard") cls = "bad";
+    else if (sev === "soft") cls = "warn";
+    else if (sev === "ok") cls = "ok";
+    else {
+      // Legacy fallback for payloads built before severity was added.
+      const bad = ["rate_limited", "model_error", "malformed_response",
+                   "target_missing", "librarian_held", "timeout", "failure", "failed"];
+      cls = bad.includes(outcome) ? "bad" : (outcome === "abstained" ? "muted" : "ok");
+    }
+    const title = reason ? ' title="' + escapeHtml(reason) + '"' : "";
+    return '<span class="outcome ' + cls + '"' + title + '>' + escapeHtml(outcome || "—") + '</span>';
   }
 
   function _activityContributorKey(r) {
@@ -703,7 +716,7 @@
       return '<div class="activity-row" data-cat="' + _activityCategory(r) + '">'
         + '<span class="when" title="' + escapeHtml(r.ended_at || r.started_at || "") + '">'
         + escapeHtml(_relTime(r.ended_at || r.started_at)) + '</span>'
-        + actor + actionTag + project + _outcomeBadge(r.outcome) + dur
+        + actor + actionTag + project + _outcomeBadge(r) + dur
         + '</div>';
     }).join("");
     root.insertAdjacentHTML("beforeend", html);
