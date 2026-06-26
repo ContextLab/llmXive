@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.13567",
+  "judged_at": "2026-06-26T23:41:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "collectionlora: collecting 50 effects in 1 lora via multi-teacher on-policy distillation computer science",
+  "rationale": "This paper shares the knowledge distillation mechanism in the LLM domain with the user's research question, satisfying criterion (a) for same-mechanism evidence. While DistillLens focuses on standard KD with Logit Lens rather than LoRA-specific multi-teacher on-policy distillation, it represents relevant prior work on distillation methods that would be expected in a literature review on LLM distillation techniques.",
+  "relevant": true
+}

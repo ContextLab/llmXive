@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-30T08:50:36.787454Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-643-collectionlora-collecting-50-effects-in
-last_run_id: 2e5706ab-9c99-4381-8950-ad209b63de6d
+last_run_id: c956201b-6062-4ae6-98b8-2fef78562171
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy
   Distillation'
-updated_at: '2026-06-26T11:46:53.908770Z'
+updated_at: '2026-06-26T23:42:40.019627Z'

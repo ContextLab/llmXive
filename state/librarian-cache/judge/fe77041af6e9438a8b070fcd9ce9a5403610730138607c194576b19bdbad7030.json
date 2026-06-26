@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.25378",
+  "judged_at": "2026-06-26T23:39:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "collectionlora: collecting 50 effects in 1 lora via multi-teacher on-policy distillation computer science",
+  "rationale": "The paper is the exact match for the query and serves as the foundational/canonical reference for the specific method and topic named in the user's question (Category d). It defines the core technique that any research on this topic would need to cite in a literature review.",
+  "relevant": true
+}

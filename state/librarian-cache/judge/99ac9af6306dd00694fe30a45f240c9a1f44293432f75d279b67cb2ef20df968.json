@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.01064",
+  "judged_at": "2026-06-26T23:40:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "collectionlora: collecting 50 effects in 1 lora via multi-teacher on-policy distillation computer science",
+  "rationale": "This paper satisfies criterion (a) same-mechanism evidence and (b) independent-or-dependent variable on the same domain, as it directly studies multi-teacher knowledge distillation for LLMs—the core mechanism underlying the user's CollectionLoRA approach—even though it focuses on knowledge purification rather than LoRA specifically. For a literature review on multi-teacher distillation methods for LLMs, this would be a canonical reference that reviewers would expect to see cited.",
+  "relevant": true
+}

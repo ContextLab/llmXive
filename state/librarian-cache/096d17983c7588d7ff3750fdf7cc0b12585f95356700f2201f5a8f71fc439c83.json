@@ -1,0 +1,661 @@
+{
+  "fetched_at": "2026-06-26T23:42:07Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation",
+      "target_n": 5
+    },
+    "duration_seconds": 387.765,
+    "ended_at": "2026-06-26T23:42:07Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Multi-teacher knowledge distillation LLM"
+        ],
+        [
+          2,
+          "LoRA adapter merging techniques"
+        ],
+        [
+          3,
+          "Parameter-efficient fine-tuning fusion"
+        ],
+        [
+          4,
+          "Single LoRA multiple tasks"
+        ],
+        [
+          5,
+          "On-policy distillation language models"
+        ],
+        [
+          6,
+          "Multi-task low-rank adaptation"
+        ],
+        [
+          7,
+          "Multiple teacher knowledge distillation"
+        ],
+        [
+          8,
+          "Linear interpolation LoRA weights"
+        ],
+        [
+          9,
+          "Task arithmetic PEFT"
+        ],
+        [
+          10,
+          "Model merging fine-tuned adapters"
+        ],
+        [
+          11,
+          "Distillation based adapter fusion"
+        ],
+        [
+          12,
+          "Capability aggregation PEFT"
+        ],
+        [
+          13,
+          "Unified LoRA training"
+        ],
+        [
+          14,
+          "Weight interpolation low-rank adapters"
+        ],
+        [
+          15,
+          "Model merging via distillation"
+        ],
+        [
+          16,
+          "Multi-capability PEFT"
+        ],
+        [
+          17,
+          "Adapter consolidation distillation"
+        ],
+        [
+          18,
+          "Weight space merging LoRA"
+        ],
+        [
+          19,
+          "Compressing adapters into one"
+        ],
+        [
+          20,
+          "Ensemble parameter efficient tuning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation computer science": 0,
+        "Multi-teacher knowledge distillation LLM": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "skill composition adapter fusion",
+      "multitask instruction tuning datasets LLM",
+      "LoRA merging task arithmetic",
+      "multitask PEFT performance metrics",
+      "on-policy distillation gradient alignment"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2004.08116"
+      ]
+    },
+    "per_query_hit_count": {
+      "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation computer science": 3,
+      "LoRA merging task arithmetic": 3,
+      "multitask PEFT performance metrics": 3,
+      "multitask instruction tuning datasets LLM": 3,
+      "on-policy distillation gradient alignment": 3,
+      "skill composition adapter fusion": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2606.18332",
+          "rationale": "This paper is off-domain entirely, focusing on astrophysics and astronomical instrumentation (spectroscopic surveys, telescopes, dark matter) rather than computer science, machine learning, or parameter-efficient fine-tuning (LoRA, distillation). It shares no measurable connection to the user's mechanism, domain, variables, or empirical setting.",
+          "title": "The Via Project: Overview of the Science, Instrument, and Survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T23:35:39Z",
+    "term_input": {
+      "normalized": "collectionlora: collecting 50 effects in 1 lora via multi-teacher on-policy distillation computer science",
+      "raw": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Infrared and visible image fusion (IVIF) is essential for integrating thermal saliency with textural details to support downstream perception. However, most existing approaches suffer from \"semantic blindness,\" leading to the erroneous suppression of thermal targets and the introduction of visual artifacts. To address this, we propose SAM-Guided Diffusion Fusion Network (SGDFuse), a novel Semantic-Guided Generation (SGG) framework that reframes IVIF as a semantically-steered generative task rather than simplistic pixel mapping. Our method uniquely couples high-level semantic priors from the Segment Anything Model (SAM) with the high-fidelity generative power of a conditional diffusion model. We employ a deliberate two-stage strategy to decouple multimodal alignment from iterative refinement: Stage I establishes a robust structural foundation via preliminary fusion, while Stage II utilizes dual-modality semantic masks as spatial anchors to guide the diffusion process toward a semantically coherent, high-fidelity reconstruction. Comprehensive experiments demonstrate that SGDFuse not only delivers state-of-the-art image quality but also enhances downstream task performance, confirming its effectiveness as a new Methodological Framework for semantically aware image fusion. The code is available at https://github.com/boshizhang123/SGDFuse.",
+          "claimed_authors": [
+            "Xiaoyang Zhang",
+            "jinjiang Li",
+            "Guodong Fan",
+            "Yakun Ju",
+            "Linwei Fan",
+            "Jun Liu",
+            "Alex C. Kot"
+          ],
+          "claimed_title": "SGDFuse: SAM-Guided Diffusion Model for High-Fidelity Infrared and Visible Image Fusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.05264"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='SGDFuse: SAM-Guided Diffusion Model for High-Fidelity Infrared and Visible Image Fusion')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There is great potential for the application of AI tools in fusion research, and substantial worldwide benefit if fusion power is realised. However, using AI comes with its own challenges, many of which can be mitigated if responsible and robust methodologies are built into existing approaches. To do that requires close, long-term collaborations between fusion domain experts and AI developers and awareness of the fact that not all problems in fusion research are best tackled with AI tools. In April 2025, experts from academia, industry, UKAEA and STFC discussed how AI can be used to advance R&D in fusion energy at the first edition of The Economist FusionFest event. This Perspective is an expanded and updated summary of the round table discussion, providing more context and examples.",
+          "claimed_authors": [
+            "Adriano Agnello",
+            "Helen Brooks",
+            "Cyd Cowley",
+            "Iulia Georgescu",
+            "Alex Higginbottom",
+            "Richard Pearson",
+            "Tara Shears",
+            "Melanie Windridge"
+          ],
+          "claimed_title": "Challenges and opportunities for AI to help deliver fusion energy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.25777"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='Challenges and opportunities for AI to help deliver fusion energy')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recognizing facial activity is a well-understood (but non-trivial) computer vision problem. However, reliable solutions require a camera with a good view of the face, which is often unavailable in wearable settings. Furthermore, in wearable applications, where systems accompany users throughout their daily activities, a permanently running camera can be problematic for privacy (and legal) reasons. This work presents an alternative solution based on the fusion of wearable inertial sensors, planar pressure sensors, and acoustic mechanomyography (muscle sounds). The sensors were placed unobtrusively in a sports cap to monitor facial muscle activities related to facial expressions. We present our integrated wearable sensor system, describe data fusion and analysis methods, and evaluate the system in an experiment with thirteen subjects from different cultural backgrounds (eight countries) and both sexes (six women and seven men). In a one-model-per-user scheme and using a late fusion approach, the system yielded an average F1 score of 85.00% for the case where all sensing modalities are combined. With a cross-user validation and a one-model-for-all-user scheme, an F1 score of 79.00% was obtained for thirteen participants (six females and seven males). Moreover, in a hybrid fusion (cross-user) approach and six classes, an average F1 score of 82.00% was obtained for eight users. The results are competitive with state-of-the-art non-camera-based solutions for a cross-user study. In addition, our unique set of participants demonstrates the inclusiveness and generalizability of the approach.",
+          "claimed_authors": [
+            "Hymalai Bello",
+            "Luis Alfredo Sanchez Marin",
+            "Sungho Suh",
+            "Bo Zhou",
+            "Paul Lukowicz"
+          ],
+          "claimed_title": "InMyFace: Inertial and Mechanomyography-Based Sensor Fusion for Wearable Facial Activity Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.04024"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='InMyFace: Inertial and Mechanomyography-Based Sensor Fusion for Wearable Facial Activity Recognition')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
+          "claimed_authors": [
+            "Neng Wang",
+            "Hongyang Yang",
+            "Christina Dan Wang"
+          ],
+          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.04793"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
+          "claimed_authors": [
+            "Zhiyang Xu",
+            "Chao Feng",
+            "Rulin Shao",
+            "Trevor Ashby",
+            "Ying Shen",
+            "Di Jin",
+            "Yu Cheng",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11690"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Low-Rank Adaptation (LoRA) is a popular technique for parameter-efficient fine-tuning of Large Language Models (LLMs). We study how different LoRA modules can be merged to achieve skill composition -- testing the performance of the merged model on a target task that involves combining multiple skills, each skill coming from a single LoRA. This setup is favorable when it is difficult to obtain training data for the target task and when it can be decomposed into multiple skills. First, we identify practically occurring use-cases that can be studied under the realm of skill composition, e.g. solving hard math-word problems with code, creating a bot to answer questions on proprietary manuals or about domain-specialized corpora. Our main contribution is to show that concatenation of LoRAs (CAT), which optimally weights LoRAs that were individually trained on different skills, outperforms existing model- and data- merging techniques; for instance on math-word problems, CAT beats these methods by an average of 43% and 12% respectively. Thus, this paper advocates model merging as an efficient way to solve compositional tasks and underscores CAT as a simple, compute-friendly and effective procedure. To our knowledge, this is the first work demonstrating the superiority of model merging over data mixing for binary skill composition tasks. Code and data are available at https://github.com/aksh555/LoRA-Soups",
+          "claimed_authors": [
+            "Akshara Prabhakar",
+            "Yuanzhi Li",
+            "Karthik Narasimhan",
+            "Sham Kakade",
+            "Eran Malach",
+            "Samy Jelassi"
+          ],
+          "claimed_title": "LoRA Soups: Merging LoRAs for Practical Skill Composition Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.13025"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='LoRA Soups: Merging LoRAs for Practical Skill Composition Tasks')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This note is an expansion of three lectures given at the workshop \"Topology, Complex Analysis and Arithmetic of Hyperbolic Spaces\" held at Kyoto University in December of 2006 and will appear in the proceedings for this workshop.",
+          "claimed_authors": [
+            "D. B. McReynolds"
+          ],
+          "claimed_title": "Arithmetic lattices and weak spectral geometry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0706.3841"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='Arithmetic lattices and weak spectral geometry')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Foundation models (FMs) achieve strong performance across diverse tasks with task-specific fine-tuning, yet full parameter fine-tuning is often computationally prohibitive for large models. Parameter-efficient fine-tuning (PEFT) methods like Low-Rank Adaptation (LoRA) reduce this cost by introducing low-rank matrices for tuning fewer parameters. While LoRA allows for efficient fine-tuning, it requires significant data for adaptation, making Federated Learning (FL) an appealing solution due to its privacy-preserving collaborative framework. However, combining LoRA with FL introduces two key challenges: the \\textbf{Server-Side Aggregation Bias}, where server-side averaging of LoRA matrices diverges from the ideal global update, and the \\textbf{Client-Side Initialization Lag}, emphasizing the need for consistent initialization across rounds. Existing approaches address these challenges individually, limiting their effectiveness. We propose LoRA-FAIR, a novel method that tackles both issues by introducing a correction term on the server, enhancing aggregation efficiency and accuracy. LoRA-FAIR maintains computational and communication efficiency, yielding superior performance over state-of-the-art methods. Experimental results on ViT and MLP-Mixer models across large-scale datasets demonstrate that LoRA-FAIR consistently achieves performance improvements in FL settings.",
+          "claimed_authors": [
+            "Jieming Bian",
+            "Lei Wang",
+            "Letian Zhang",
+            "Jie Xu"
+          ],
+          "claimed_title": "LoRA-FAIR: Federated LoRA Fine-Tuning with Aggregation and Initialization Refinement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.14961"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='LoRA-FAIR: Federated LoRA Fine-Tuning with Aggregation and Initialization Refinement')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the growing popularity of wearable devices, the ability to utilize physiological data collected from these devices to predict the wearer's mental state such as mood and stress suggests great clinical applications, yet such a task is extremely challenging. In this paper, we present a general platform for personalized predictive modeling of behavioural states like students' level of stress. Through the use of Auto-encoders and Multitask learning we extend the prediction of stress to both sequences of passive sensor data and high-level covariates. Our model outperforms the state-of-the-art in the prediction of stress level from mobile sensor data, obtaining a 45.6 % improvement in F1 score on the StudentLife dataset.",
+          "claimed_authors": [
+            "Abhinav Shaw",
+            "Natcha Simsiri",
+            "Iman Deznaby",
+            "Madalina Fiterau",
+            "Tauhidur Rahaman"
+          ],
+          "claimed_title": "Personalized Student Stress Prediction with Deep Multitask Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.11356"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='Personalized Student Stress Prediction with Deep Multitask Network')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large models such as Large Language Models (LLMs) and Vision Language Models (VLMs) have transformed artificial intelligence, powering applications in natural language processing, computer vision, and multimodal learning. However, fully fine-tuning these models remains expensive, requiring extensive computational resources, memory, and task-specific data. Parameter-Efficient Fine-Tuning (PEFT) has emerged as a promising solution that allows adapting large models to downstream tasks by updating only a small portion of parameters. This survey presents a comprehensive overview of PEFT techniques, focusing on their motivations, design principles, and effectiveness. We begin by analyzing the resource and accessibility challenges posed by traditional fine-tuning and highlight key issues, such as overfitting, catastrophic forgetting, and parameter inefficiency. We then introduce a structured taxonomy of PEFT methods -- grouped into additive, selective, reparameterized, hybrid, and unified frameworks -- and systematically compare their mechanisms and trade-offs. Beyond taxonomy, we explore the impact of PEFT across diverse domains, including language, vision, and generative modeling, showing how these techniques offer strong performance with lower resource costs. We also discuss important open challenges in scalability, interpretability, and robustness, and suggest future directions such as federated learning, domain adaptation, and theoretical grounding. Our goal is to provide a unified understanding of PEFT and its growing role in enabling practical, efficient, and sustainable use of large models.",
+          "claimed_authors": [
+            "Nusrat Jahan Prottasha",
+            "Upama Roy Chowdhury",
+            "Shetu Mohanto",
+            "Tasfia Nuzhat",
+            "Abdullah As Sami",
+            "Md Shamol Ali",
+            "Md Shohanur Islam Sobuj",
+            "Hafijur Raman",
+            "Md Kowsher",
+            "Ozlem Ozmen Garibay"
+          ],
+          "claimed_title": "PEFT A2Z: Parameter-Efficient Fine-Tuning Survey for Large Language and Vision Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.14117"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='PEFT A2Z: Parameter-Efficient Fine-Tuning Survey for Large Language and Vision Models')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The popularity of pre-trained large models has revolutionized downstream tasks across diverse fields, such as language, vision, and multi-modality. To minimize the adaption cost for downstream tasks, many Parameter-Efficient Fine-Tuning (PEFT) techniques are proposed for language and 2D image pre-trained models. However, the specialized PEFT method for 3D pre-trained models is still under-explored. To this end, we introduce Point-PEFT, a novel framework for adapting point cloud pre-trained models with minimal learnable parameters. Specifically, for a pre-trained 3D model, we freeze most of its parameters, and only tune the newly added PEFT modules on downstream tasks, which consist of a Point-prior Prompt and a Geometry-aware Adapter. The Point-prior Prompt adopts a set of learnable prompt tokens, for which we propose to construct a memory bank with domain-specific knowledge, and utilize a parameter-free attention to enhance the prompt tokens. The Geometry-aware Adapter aims to aggregate point cloud features within spatial neighborhoods to capture fine-grained geometric information through local interactions. Extensive experiments indicate that our Point-PEFT can achieve better performance than the full fine-tuning on various downstream tasks, while using only 5% of the trainable parameters, demonstrating the efficiency and effectiveness of our approach. Code is released at https://github.com/Ivan-Tang-3D/Point-PEFT.",
+          "claimed_authors": [
+            "Yiwen Tang",
+            "Ray Zhang",
+            "Zoey Guo",
+            "Dong Wang",
+            "Zhigang Wang",
+            "Bin Zhao",
+            "Xuelong Li"
+          ],
+          "claimed_title": "Point-PEFT: Parameter-Efficient Fine-Tuning for 3D Pre-trained Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.03059"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='Point-PEFT: Parameter-Efficient Fine-Tuning for 3D Pre-trained Models')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
+          "claimed_authors": [
+            "Andrew Konya",
+            "Deger Turan",
+            "Aviv Ovadya",
+            "Lina Qui",
+            "Daanish Masood",
+            "Flynn Devine",
+            "Lisa Schirch",
+            "Isabella Roberts",
+            "Deliberative Alignment Forum"
+          ],
+          "claimed_title": "Deliberative Technology for Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.03893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='Deliberative Technology for Alignment')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Frictive Policy Optimization (FPO), a framework for learning language model policies that regulate not only what to say, but when and how to intervene in order to manage epistemic and normative risk. Unlike standard alignment methods that optimize surface-level preference or task utility, FPO treats clarification, verification, challenge, redirection, and refusal as explicit control actions whose purpose is to shape the evolution of belief, commitment, and uncertainty over time. We formalize alignment as a risk-sensitive epistemic control problem in which intervention decisions are selected based on their expected effect on downstream epistemic quality rather than on immediate reward alone. We introduce a compact taxonomy of frictive interventions, a structured friction functional that operationalizes multiple alignment failure modes, and a unified family of FPO methods spanning reward shaping, preference pairing, group-relative ranking, and risk-conditioned trust regions. We further propose an evaluation framework that measures epistemic competence directly through clarification behavior, calibration, contradiction repair, refusal proportionality, and information efficiency. Together, these results provide a formal and algorithmic foundation for learning agents that are aligned not only in outcome, but in epistemic conduct.",
+          "claimed_authors": [
+            "James Pustejovsky",
+            "Nikhil Krishnaswamy"
+          ],
+          "claimed_title": "Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25136"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Dist', candidate_title='Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment')",
+        "failed_at": "2026-06-26T23:37:50Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fangtai Wu",
+            "Hailong Guo",
+            "Shijie Huang",
+            "Jiayi Song",
+            "Yubo Huang",
+            "Mushui Liu",
+            "Zhao Wang",
+            "Yunlong Yu",
+            "Jiaming Liu",
+            "Ruihua Huang"
+          ],
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.25378",
+        "summary": "Customized image editing aims to equip pre-trained diffusion models with specific visual effects using limited paired data, typically via Low-Rank Adaptation (LoRA). As the number of desired effects grows, storing and dynamically loading numerous these effect LoRAs significantly increases deployment overhead. Furthermore, current pipelines typically cascade these effect LoRAs with acceleration modules for fast generation, which triggers severe parameter interference and results in concept bleeding and style degradation. We propose CollectionLoRA, a multi-teacher on-policy distillation framework capable of distilling the concepts of up to 50 different effect LoRAs along with few-step generation capabilities into a single LoRA. This fundamentally resolves the feature interference issue and significantly reduces deployment costs. Specifically, the method introduces (i) a Probabilistic Dual-Stream Routing mechanism that enables the model to randomly switch between data sources during training, effectively enhancing its generalization in unseen scenarios; (ii) an Asymmetric Orthogonal Prompting strategy to achieve concept isolation within the prompt space; (iii) a Coarse-to-Fine Distillation Objective to mitigate the distribution gap between the teacher and student models. Extensive evaluations show that CollectionLoRA distills all customized effects and few-step generation into a single LoRA, reducing deployment overhead while achieving concept fidelity comparable to or better than independently trained teacher models. Code: https://github.com/Qwen-Applications/CollectionLoRA",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.25378",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T23:37:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Konrad Zuchniak"
+          ],
+          "title": "Multi-teacher knowledge distillation as an effective method for compressing ensembles of neural networks",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.07215",
+        "summary": "Deep learning has contributed greatly to many successes in artificial intelligence in recent years. Today, it is possible to train models that have thousands of layers and hundreds of billions of parameters. Large-scale deep models have achieved great success, but the enormous computational complexity and gigantic storage requirements make it extremely difficult to implement them in real-time applications. On the other hand, the size of the dataset is still a real problem in many domains. Data are often missing, too expensive, or impossible to obtain for other reasons. Ensemble learning is partially a solution to the problem of small datasets and overfitting. However, ensemble learning in its basic version is associated with a linear increase in computational complexity. We analyzed the impact of the ensemble decision-fusion mechanism and checked various methods of sharing the decisions including voting algorithms. We used the modified knowledge distillation framework as a decision-fusion mechanism which allows in addition compressing of the entire ensemble model into a weight space of a single model. We showed that knowledge distillation can aggregate knowledge from multiple teachers in only one student model and, with the same computational complexity, obtain a better-performing model compared to a model trained in the standard manner. We have developed our own method for mimicking the responses of all teachers at the same time, simultaneously. We tested these solutions on several benchmark datasets. In the end, we presented a wide application use of the efficient multi-teacher knowledge distillation framework. In the first example, we used knowledge distillation to develop models that could automate corrosion detection on aircraft fuselage. The second example describes detection of smoke on observation cameras in order to counteract wildfires in forests.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.07215",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T23:37:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yifeng Liu",
+            "Shiyuan Zhang",
+            "Yifan Zhang",
+            "Quanquan Gu"
+          ],
+          "title": "Self-Distilled Policy Gradient",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.04036",
+        "summary": "On-policy self-distillation, where a language model conditions on privileged context to supervise its own generations, is a promising source of dense supervision for sparse-reward reinforcement learning. Actually, it can be instantiated as an auxiliary full-vocabulary student-to-teacher reverse Kullback-Leibler divergence loss. We therefore propose SDPG, a self-distilled policy-gradient framework that combines group-relative verifier advantages with normalized standard deviation, exact full-vocabulary on-policy self-distillation, as well as reference-policy KL regularization. Empirically, SDPG improves stability and performance over RLVR and self-distillation baselines. The code is available at https://github.com/lauyikfung/SDPG.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.04036",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T23:37:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ruihan Jin",
+            "Pengpeng Shao",
+            "Zhengqi Wen",
+            "Jinyang Wu",
+            "Mingkuan Feng",
+            "Shuo Yang",
+            "Chu Yuan Zhang",
+            "Jianhua Tao"
+          ],
+          "title": "Exploring Knowledge Purification in Multi-Teacher Knowledge Distillation for LLMs",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.01064",
+        "summary": "Knowledge distillation has emerged as a pivotal technique for transferring knowledge from stronger large language models (LLMs) to smaller, more efficient models. However, traditional distillation approaches face challenges related to knowledge conflicts and high resource demands, particularly when leveraging multiple teacher models. In this paper, we introduce the concept of \\textbf{Knowledge Purification}, which consolidates the rationales from multiple teacher LLMs into a single rationale, thereby mitigating conflicts and enhancing efficiency. To investigate the effectiveness of knowledge purification, we further propose five purification methods from various perspectives. Our experiments demonstrate that these methods not only improve the performance of the distilled model but also effectively alleviate knowledge conflicts. Moreover, router-based methods exhibit robust generalization capabilities, underscoring the potential of innovative purification techniques in optimizing multi-teacher distillation and facilitating the practical deployment of powerful yet lightweight models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.01064",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T23:38:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.13567",
+        "summary": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.13567",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T23:38:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
+          ],
+          "title": "Triplet Loss for Knowledge Distillation",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2004.08116",
+        "summary": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2004.08116",
+          "http_status": 200,
+          "pdf_sample_score": 0.3794,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T23:38:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chuanguang Yang",
+            "Xinqiang Yu",
+            "Zhulin An",
+            "Yongjun Xu"
+          ],
+          "title": "Categories of Response-Based, Feature-Based, and Relation-Based Knowledge Distillation",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.10687",
+        "summary": "Deep neural networks have achieved remarkable performance for artificial intelligence tasks. The success behind intelligent systems often relies on large-scale models with high computational complexity and storage costs. The over-parameterized networks are often easy to optimize and can achieve better performance. However, it is challenging to deploy them over resource-limited edge-devices. Knowledge Distillation (KD) aims to optimize a lightweight network from the perspective of over-parameterized training. The traditional offline KD transfers knowledge from a cumbersome teacher to a small and fast student network. When a sizeable pre-trained teacher network is unavailable, online KD can improve a group of models by collaborative or mutual learning. Without needing extra models, Self-KD boosts the network itself using attached auxiliary architectures. KD mainly involves knowledge extraction and distillation strategies these two aspects. Beyond KD schemes, various KD algorithms are widely used in practical applications, such as multi-teacher KD, cross-modal KD, attention-based KD, data-free KD and adversarial KD. This paper provides a comprehensive KD survey, including knowledge categories, distillation schemes and algorithms, as well as some empirical studies on performance comparison. Finally, we discuss the open challenges of existing KD works and prospect the future directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.10687",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T23:38:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "collectionlora: collecting 50 effects in 1 lora via multi-teacher on-policy distillation computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

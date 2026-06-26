@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T22:30:05.227838Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-415-predicting-the-impact-of-alloying-on-the
-last_run_id: 6b9d3a22-0c0a-4979-b3b5-8d53cd9db055
+last_run_id: 68260791-18c3-4289-b7cc-33ee313afed8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC
   Metals
-updated_at: '2026-06-12T02:39:24.859946Z'
+updated_at: '2026-06-26T23:44:12.305891Z'

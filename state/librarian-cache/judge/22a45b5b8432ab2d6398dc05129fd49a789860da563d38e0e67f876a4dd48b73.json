@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.08116",
+  "judged_at": "2026-06-26T23:41:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "collectionlora: collecting 50 effects in 1 lora via multi-teacher on-policy distillation computer science",
+  "rationale": "This paper qualifies under rule (a) as same-mechanism evidence: both the user's question and the candidate paper measure knowledge distillation as the core algorithmic mechanism, even though the candidate paper uses triplet loss methodology rather than multi-teacher on-policy distillation with LoRA. For a literature review, this would serve as relevant background on distillation techniques that the user's work builds upon.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.07215",
+  "judged_at": "2026-06-26T23:40:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "collectionlora: collecting 50 effects in 1 lora via multi-teacher on-policy distillation computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for multi-teacher knowledge distillation, which is a core mechanism component of the user's research question. While it doesn't address the LoRA-specific aspect, literature reviews cite partial-match papers that establish the distillation framework being applied, even when the parameter-efficient fine-tuning component (LoRA) is studied separately.",
+  "relevant": true
+}

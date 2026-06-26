@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.18332",
+  "judged_at": "2026-06-26T23:40:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "collectionlora: collecting 50 effects in 1 lora via multi-teacher on-policy distillation computer science",
+  "rationale": "This paper is off-domain entirely, focusing on astrophysics and astronomical instrumentation (spectroscopic surveys, telescopes, dark matter) rather than computer science, machine learning, or parameter-efficient fine-tuning (LoRA, distillation). It shares no measurable connection to the user's mechanism, domain, variables, or empirical setting.",
+  "relevant": false
+}

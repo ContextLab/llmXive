@@ -351,6 +351,10 @@
     "classified_at": "2026-06-20T05:48:03Z",
     "verdict": false
   },
+  "PROJ-643-collectionlora-collecting-50-effects-in::1.6.0": {
+    "classified_at": "2026-06-26T23:37:48Z",
+    "verdict": false
+  },
   "PROJ-645-qwen-vla-unifying-vision-language-action::1.6.0": {
     "classified_at": "2026-06-04T03:36:21Z",
     "verdict": false
