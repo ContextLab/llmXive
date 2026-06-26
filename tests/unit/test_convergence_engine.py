@@ -215,12 +215,23 @@ def test_producer_reviewer_excluded():
     assert revA.rereview_calls == 0
 
 
-def test_new_concern_in_r3_is_tracked_and_resolved():
+def test_new_concern_in_r3_is_recorded_but_not_reopened_closed_set():
+    """CLOSED-SET re-review (the single shared review protocol): a NEW concern a
+    reviewer surfaces during re-review — one that was NOT among its round-1
+    concerns — is recorded for provenance but does NOT reopen the loop. The
+    open-concern set can only SHRINK across rounds, which is what GUARANTEES
+    convergence within the cap. (The old OPEN-SET behavior re-admitted c2 and ran
+    an extra round to chase it; that moving-goalposts re-injection is precisely the
+    doc-gate non-convergence this protocol fixes — a fresh critique is deferred to
+    the NEXT stage's round-1 panel instead.)"""
     rev = FakeReviewer(r1=[_c("c1")], add_in_round={1: [_c("c2", sev=Severity.WRITING)]})
     res = run_convergence(_spec([rev], FakeReviser()), {"a.md": "x"})
     assert res.converged is True
-    assert res.rounds_used == 2           # c1 round1, c2 surfaced then resolved round2
+    # c2 is recorded for provenance/carry-forward...
     assert any(c.id == "c2" for c in res.concern_history)
+    # ...but it did NOT reopen the loop: convergence is reached as soon as the
+    # agreed round-1 concern (c1) is resolved — c2 never drives another round.
+    assert res.rounds_used == 1
 
 
 class _NoOpReviser:
@@ -239,24 +250,27 @@ class _NoOpReviser:
         ]
 
 
-def test_accepter_rereviews_when_r2_changed_artifact_catches_silent_breakage():
-    """FR-012: an R1-accepter MUST re-review when R2 changed an artifact,
-    to catch NEW breakage the revision introduced in its lens. Lens A
-    (dissenter) raises c1 which the reviser resolves in round 1; lens B
-    accepted in R1 but the R2 edit broke B's lens, so B surfaces a new
-    concern on re-review. The engine must NOT silently converge round 1.
+def test_accepter_does_not_rereview_closed_set():
+    """CLOSED-SET (the single shared review protocol): an R1-accepter (no own
+    concerns) does NOT re-review — it has no round-1 action items to sign off on,
+    and a fresh critique it might raise is intentionally NOT admitted back into the
+    loop (the open-set re-injection was the moving-goalposts non-convergence).
 
-    Regression: before the fix the engine did `if not own: continue`,
-    skipping ALL accepters, so B never re-reviewed and the engine
-    reported `converged` over the silent breakage."""
+    Tradeoff (deliberate, per the unified protocol): a regression a fix introduces
+    in an accepter's lens is therefore NOT caught at THIS stage — it is deferred to
+    the next stage's round-1 panel. The OBJECTIVE defects (fabricated citations,
+    unresolved claims, unfilled placeholders) are still hard-blocked this stage by
+    the deterministic backstops, so nothing factual slips through. Dissenter A's c1
+    is resolved → the stage converges on the agreed round-1 set."""
     dissenter = FakeReviewer(name="A", r1=[_c("c1", reviewer="A")])  # passes round 1
     breakage = _c("b1", reviewer="B", sev=Severity.METHODOLOGY)
     accepter = FakeReviewer(name="B", r1=[], add_in_round={1: [breakage]})
     res = run_convergence(
         _spec([dissenter, accepter], FakeReviser(), max_rounds=3), {"a.md": "x"})
-    assert accepter.rereview_calls >= 1   # re-reviewed (would be 0 without the fix)
-    assert any(c.id == "b1" for c in res.concern_history)  # breakage caught
-    assert res.rounds_used >= 2           # not silently converged in round 1
+    assert res.converged is True
+    assert accepter.rereview_calls == 0   # accepter has nothing to sign off on
+    # The accepter's would-be breakage is NOT admitted to this stage's loop.
+    assert not any(c.id == "b1" for c in res.concern_history)
 
 
 def test_accepter_not_rereviewed_when_r2_is_noop():

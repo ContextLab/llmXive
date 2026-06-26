@@ -440,7 +440,6 @@ def run_convergence(
         # --- R2: revise (the reviser addresses EVERY open concern) ---
         if spec.reviser is None:
             break  # nothing can resolve the concerns -> kickback
-        prev_artifacts = artifacts
         with _abort_provenance(rounds_used + 1):
             # Spec 023 defect #12: ONE malformed LLM reply (reviser output
             # parsed to zero artifacts / unparseable JSON) used to kill the
@@ -469,17 +468,6 @@ def run_convergence(
         response_history.extend(responses)
         seen = _present(artifacts)
 
-        # Which artifact keys did R2 actually change? (FR-012: an
-        # R1-accepter re-reviews ONLY if R2 changed an artifact relevant
-        # to its lens.) Every panel lens reviews the whole artifact set
-        # (there is no per-lens artifact restriction), so "relevant to
-        # its lens" == "any artifact content changed". When R2 is a
-        # no-op (nothing changed), accepters are skipped — no wasted
-        # re-reviews, satisfying the design's optimization.
-        r2_changed_artifacts = any(
-            prev_artifacts.get(k) != v for k, v in new_arts.items()
-        )
-
         # --- R3: re-review ---
         # Dissenters (panelists with open concerns) ALWAYS re-review,
         # judging their OWN concerns against the R2 change-log. An
@@ -500,8 +488,20 @@ def run_convergence(
         own_by_reviewer: list[list[Concern]] = []
         for r in panel:
             own = [c for c in open_concerns if c.reviewer == r.name]
-            if not own and not r2_changed_artifacts:
-                continue  # accepter + nothing changed -> no wasted re-review
+            # CLOSED-SET re-review (the single shared review protocol): a reviewer
+            # re-reviews ONLY to adjudicate whether ITS OWN round-1 concerns were
+            # addressed — a sign-off, not a fresh critique. An accepter (no own
+            # concerns) has nothing to sign off on, so it does not re-review, and
+            # any new issue it might raise is intentionally NOT admitted back into
+            # the loop (see the new-concern handling below). This is what GUARANTEES
+            # convergence: the open-concern set can only shrink across rounds, so a
+            # well-revised artifact reaches zero in <= cap rounds instead of the
+            # reviewer finding fresh nits every round (the open-set "moving
+            # goalposts" that stalled doc gates to the kickback cap). The OBJECTIVE
+            # backstops (claims / citation / spec-quality gates near convergence)
+            # still hard-block regardless, so factual defects never slip through.
+            if not own:
+                continue
             rereviewers.append(r)
             own_by_reviewer.append(own)
 
@@ -540,6 +540,7 @@ def run_convergence(
         unaddressed = {
             resp.concern_id for resp in responses if resp.response == "<missing>"
         }
+        carried_new: list[Concern] = []
         for own, verdicts in zip(own_by_reviewer, verdict_lists, strict=True):
             round_verdicts.extend(verdicts)
             judged = {v.concern_id: v for v in verdicts}
@@ -547,8 +548,24 @@ def run_convergence(
                 v = judged.get(c.id)
                 if c.id in unaddressed or v is None or not _resolved(v):
                     next_open.append(c)  # unresolved (unaddressed, failed, stale, self-review, or unjudged)
+            # CLOSED-SET: a concern the re-reviewer surfaces that is NOT one of its
+            # round-1 concerns is a FRESH critique, not a sign-off on the agreed
+            # action items. Re-admitting it (the old `next_open.extend`) was the
+            # open-set "moving goalposts" that prevented convergence. Record it for
+            # provenance + defer it to the NEXT stage's round-1 panel, but do NOT
+            # reopen this loop over it. (Objective defects are still caught this
+            # stage by the deterministic claims/citation/spec-quality backstops.)
             for v in verdicts:
-                next_open.extend(v.new_concerns)
+                carried_new.extend(v.new_concerns)
+        for c in carried_new:
+            if c.id not in {h.id for h in concern_history}:
+                concern_history.append(c)  # provenance only; does NOT reopen the loop
+        if carried_new:
+            logger.info(
+                "convergence: stage %s round %d — %d new re-review concern(s) "
+                "deferred to the next stage (closed-set sign-off; not reopened)",
+                spec.stage, rounds_used + 1, len(carried_new),
+            )
         verdict_history.extend(round_verdicts)
         # dedupe by concern id, preserving order
         deduped: list[Concern] = []

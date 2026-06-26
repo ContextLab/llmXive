@@ -43,7 +43,7 @@ from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_model_fallback
 
 from . import review_cache
-from .types import Concern, Severity, Verdict, coerce_severity
+from .types import Concern, Verdict, coerce_severity
 
 logger = logging.getLogger(__name__)
 
@@ -763,6 +763,15 @@ class LLMReviewer:
 
     # --- public Protocol methods --------------------------------------
 
+    # A verdict that REQUESTS revision. The R1 action-items gate fires only when
+    # the reviewer explicitly asked for changes yet enumerated NO concerns — a
+    # self-contradictory review. (An unparsed/empty verdict with no concerns is
+    # treated as an accept, not re-prompted.)
+    _NONACCEPT_VERDICTS = frozenset({
+        "minor_revision", "major_revision", "reject", "rejected", "revise",
+        "needs_revision", "changes_requested", "request_changes",
+    })
+
     def identify(
         self,
         artifacts: dict[str, str],
@@ -795,12 +804,40 @@ class LLMReviewer:
         ]
         response_text = self._call_backend(messages)
         default_artifact = self._pick_default_artifact(artifacts)
-        _, concerns = _parse_response(
+        verdict, concerns = _parse_response(
             response_text,
             lens=self._lens,
             stage=self._stage,
             default_artifact=default_artifact,
         )
+        # R1 ACTION-ITEMS GATE (the single shared review protocol): a reviewer that
+        # requests revision but enumerates ZERO concerns is self-contradictory —
+        # it says "change this" with nothing to act on. Such a review is REJECTED
+        # and RESUBMITTED ONCE with an explicit instruction; if it still produces
+        # no actionable items it is taken as an accept (the reviewer had nothing
+        # concrete to say). This guarantees every round-1 non-accept carries the
+        # action items round 2 will address and round 3 will sign off on.
+        if not concerns and (verdict or "").strip().lower() in self._NONACCEPT_VERDICTS:
+            resubmit = [
+                *messages,
+                ChatMessage(role="assistant", content=response_text),
+                ChatMessage(role="user", content=(
+                    "Your verdict requests revision but you listed NO concerns / "
+                    "action items. A review that asks for changes MUST enumerate "
+                    "specific, actionable items — one concern per item, each naming "
+                    "the artifact + location and the concrete change required. "
+                    "Re-issue the review now with those explicit action items; OR, "
+                    "if you have nothing actionable, return `verdict: accept`. "
+                    "Output ONLY the review document."
+                )),
+            ]
+            response_text = self._call_backend(resubmit)
+            _, concerns = _parse_response(
+                response_text,
+                lens=self._lens,
+                stage=self._stage,
+                default_artifact=default_artifact,
+            )
         review_cache.store(self._repo_root, cache_key, concerns)
         return concerns
 
