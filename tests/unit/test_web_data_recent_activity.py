@@ -125,3 +125,54 @@ class TestRecentActivity:
         ])
         out = _recent_activity(tmp_path)
         assert out[0]["duration_s"] == 42.0
+
+
+def test_activity_severity_classifies_soft_vs_hard():
+    """The feed must distinguish EXPECTED pipeline mechanics (a convergence
+    kickback, a librarian hold, an abstain) from genuine ERRORS (crashes,
+    malformed output, backend failures), so a healthy converging pipeline does
+    not read as a wall of red failures. The dashboard renders soft amber, hard red."""
+    from llmxive.web_data import _activity_severity
+
+    assert _activity_severity("success", "") == "ok"
+    assert _activity_severity("committed", "") == "ok"
+    # Expected, self-healing mechanics → soft.
+    assert _activity_severity("abstained", "") == "soft"
+    assert _activity_severity("librarian_held", "") == "soft"
+    assert _activity_severity("triage_rejected_advanced_as_abstain", "") == "soft"
+    assert _activity_severity(
+        "failed", "StagePanelKickback: plan panel did not converge: 9 concern(s)"
+    ) == "soft"
+    # Genuine errors → hard.
+    assert _activity_severity(
+        "failed", "StagePanelEscalation: tasks panel engine failure: RuntimeError"
+    ) == "hard"
+    assert _activity_severity("failed", "ValueError: round 1 already recorded") == "hard"
+    assert _activity_severity("malformed_response", "") == "hard"
+    assert _activity_severity("model_error", "") == "hard"
+
+
+def test_recent_activity_rows_carry_severity_and_reason(tmp_path: Path):
+    """Each activity row exposes a `severity` (ok|soft|hard) and a truncated
+    `failure_reason` so the UI can colour-code without re-deriving on the client."""
+    month = tmp_path / "state" / "run-log" / "2026-06"
+    month.mkdir(parents=True)
+    rows = [
+        {"agent_name": "planner", "project_id": "PROJ-1", "outcome": "failed",
+         "failure_reason": "StagePanelKickback: plan panel did not converge: 5 concern(s)",
+         "started_at": "2026-06-01T00:00:00Z", "ended_at": "2026-06-01T00:01:00Z"},
+        {"agent_name": "reviewer", "project_id": "PROJ-1", "outcome": "failed",
+         "failure_reason": "RuntimeError: boom",
+         "started_at": "2026-06-01T00:02:00Z", "ended_at": "2026-06-01T00:03:00Z"},
+        {"agent_name": "brainstormer", "project_id": "PROJ-1", "outcome": "committed",
+         "started_at": "2026-06-01T00:04:00Z", "ended_at": "2026-06-01T00:05:00Z"},
+    ]
+    (month / "a.jsonl").write_text(
+        "\n".join(json.dumps(r) for r in rows), encoding="utf-8"
+    )
+    out = _recent_activity(tmp_path)
+    by_outcome = {(r["agent"], r["outcome"]): r for r in out}
+    assert by_outcome[("planner", "failed")]["severity"] == "soft"
+    assert by_outcome[("reviewer", "failed")]["severity"] == "hard"
+    assert by_outcome[("brainstormer", "committed")]["severity"] == "ok"
+    assert "StagePanelKickback" in by_outcome[("planner", "failed")]["failure_reason"]

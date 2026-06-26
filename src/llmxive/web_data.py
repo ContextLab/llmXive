@@ -567,6 +567,47 @@ def _last_run_log(repo: Path, project_id: str, *, limit: int = 10) -> list[dict[
     return out
 
 
+# Activity-feed outcome severity. Distinguishes EXPECTED pipeline mechanics
+# (a convergence panel kicking back for revision, the librarian holding an
+# artifact, an agent abstaining) from genuine ERRORS (crashes, malformed model
+# output, backend failures). The dashboard renders `soft` amber and `hard` red,
+# so the healthy pipeline doing its job (e.g. a project converging through its
+# review gates) is not misread as a wall of failures.
+_OK_OUTCOMES = frozenset({
+    "success", "committed", "contributed", "proposed", "advanced",
+    "proposed_arxiv", "triage_accepted",
+})
+_SOFT_OUTCOMES = frozenset({
+    "abstained", "librarian_held", "skipped", "deferred",
+    "triage_rejected_advanced_as_abstain",
+})
+_HARD_OUTCOMES = frozenset({
+    "malformed_response", "model_error", "rate_limited", "timeout",
+    "target_missing", "backend_error",
+})
+
+
+def _activity_severity(outcome: str, failure_reason: str) -> str:
+    """Classify an activity row as ``ok`` | ``soft`` | ``hard`` for the feed."""
+    o = (outcome or "").strip().lower()
+    fr = failure_reason or ""
+    if o in _OK_OUTCOMES:
+        return "ok"
+    if o in _SOFT_OUTCOMES:
+        return "soft"
+    if o in ("failed", "failure"):
+        # A panel that did not CONVERGE within its round cap kicks back for an
+        # in-place revision — expected, self-healing mechanics, NOT an error. A
+        # panel ENGINE failure (a RuntimeError crash) IS a hard error; the
+        # failure_reason prefix distinguishes them.
+        if fr.startswith("StagePanelKickback"):
+            return "soft"
+        return "hard"
+    if o in _HARD_OUTCOMES:
+        return "hard"
+    return "ok"
+
+
 def _recent_activity(repo: Path, *, limit: int = 500) -> list[dict[str, Any]]:
     """Aggregate the most recent agent runs across ALL projects.
 
@@ -642,6 +683,13 @@ def _recent_activity(repo: Path, *, limit: int = 500) -> list[dict[str, Any]]:
             "started_at": e.get("started_at", ""),
             "ended_at": e.get("ended_at", ""),
             "outcome": e.get("outcome", ""),
+            # Soft (expected mechanics) vs hard (real error) so the feed can
+            # render a kickback/hold amber instead of red, plus a short reason
+            # hint for context. See _activity_severity.
+            "severity": _activity_severity(
+                e.get("outcome", ""), e.get("failure_reason", "") or ""
+            ),
+            "failure_reason": (e.get("failure_reason", "") or "")[:200],
             "duration_s": float(dur),
             # Tag with project's current stage (looked up at payload-build
             # time) so the activity UI can filter by stage.
@@ -950,7 +998,13 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
                         continue
                     if e.get("project_id") != project_id:
                         continue
-                    if e.get("outcome") != "success":
+                    # A run that produced a committed artifact counts as a
+                    # contribution. Personality (spec 008) and several other
+                    # agents log a SUCCESSFUL committing run as `committed`, not
+                    # `success` — filtering on `success` alone silently dropped
+                    # every persona (and other committed contributor) from the
+                    # project's Contributors block.
+                    if e.get("outcome") not in ("success", "committed"):
                         continue
                     model = (e.get("model_name") or "").strip()
                     role = (e.get("agent_name") or "").strip()
