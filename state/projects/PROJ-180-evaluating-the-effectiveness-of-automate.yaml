@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T03:17:33.982360Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-180-evaluating-the-effectiveness-of-automate
-last_run_id: 789b730a-8289-47e9-8589-8d77c8d543a6
+last_run_id: d4e871da-0019-4786-baef-eee0c3eaa6d8
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate
 title: Evaluating the Effectiveness of Automated Code Review Tools on Open-Source
   Projects
-updated_at: '2026-06-24T18:02:07.389985Z'
+updated_at: '2026-06-26T18:46:55.993750Z'
