@@ -1,0 +1,87 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Audit Report"
+type: "object"
+properties:
+  audit_records:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        url:
+          type: "string"
+          format: "uri"
+          description: "Source URL of the A/B test summary"
+        reported_p:
+          type: ["number", "null"]
+          description: "Reported p-value (null if inequality bound)"
+        reported_effect_size:
+          type: "number"
+          description: "Reported effect size"
+        reported_sample_size_a:
+          type: "integer"
+          minimum: 1
+          description: "Reported sample size for variant A"
+        reported_sample_size_b:
+          type: "integer"
+          minimum: 1
+          description: "Reported sample size for variant B"
+        reconstructed_p:
+          type: "number"
+          description: "Reconstructed p-value from stats"
+        reconstructed_effect_size:
+          type: "number"
+          description: "Reconstructed effect size from stats"
+        diff_abs_p:
+          type: "number"
+          description: "Absolute difference between reported and reconstructed p-value"
+        diff_abs_effect:
+          type: "number"
+          description: "Absolute difference between reported and reconstructed effect size"
+        flag_inconsistent:
+          type: "boolean"
+          description: "True if diff_abs_p > 0.05 OR diff_abs_effect > 5% of larger magnitude"
+        notes:
+          type: "string"
+          description: "Audit notes, warnings, or error codes (FR-007)"
+      required:
+        - url
+        - reported_p
+        - reported_effect_size
+        - reported_sample_size_a
+        - reported_sample_size_b
+        - reconstructed_p
+        - reconstructed_effect_size
+        - diff_abs_p
+        - diff_abs_effect
+        - flag_inconsistent
+        - notes
+  metadata:
+    type: "object"
+    properties:
+      total_summaries:
+        type: "integer"
+      inconsistent_count:
+        type: "integer"
+      inconsistent_rate:
+        type: "number"
+      bias_adjusted_rate:
+        type: "number"
+      wilson_ci_lower:
+        type: "number"
+      wilson_ci_upper:
+        type: "number"
+      timestamp:
+        type: "string"
+        format: "date-time"
+    required:
+      - total_summaries
+      - inconsistent_count
+      - inconsistent_rate
+      - bias_adjusted_rate
+      - wilson_ci_lower
+      - wilson_ci_upper
+      - timestamp
+required:
+  - audit_records
+  - metadata
+description: "Detailed audit results for each A/B test summary and aggregate metadata."

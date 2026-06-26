@@ -1,0 +1,25 @@
+- Real-world extraction validation (FR-031b) measures field-level capture accuracy, not inconsistency detection accuracy (ground truth is human verification of reported numbers, not statistical correctness).
+
+## Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| HTML structure varies across sources | High extraction failure rate | Implement robust parsing with multiple fallback strategies; log ERR-### codes (FR-007) |
+| Corpus N<300 achievable | Insufficient power (FR-025) | Power analysis shows N≥300 required; if unavailable, document power limitation explicitly |
+| Domain dominance (>30% from single source) | Biased prevalence estimate | Subsample dominant domain (FR-027); report bias-adjusted rate |
+| CI runtime exceeds 6 hours | Pipeline fails (SC-008) | Optimize extraction parallelization; limit corpus to N=300-500 for CI sample |
+| Memory exceeds 2GB | OOM on GitHub Actions | Process summaries in batches; stream data where possible |
+| Synthetic validation targets not met | Implementation bugs | Debug reconstruction logic; verify against analytical formulas |
+| **Missing metrics selection bias** | Prevalence estimate biased if missing metrics correlate with inconsistency | Perform sensitivity analysis (T022b) comparing prevalence with/without missing-metric entries; document bias magnitude |
+
+## Timeline
+
+| Phase | Duration | Milestone |
+|-------|----------|-----------|
+| Phase 0 | Week 1 | CI environment ready, statistical tests validated |
+| Phase 1 | Week 2 | Extraction pipeline functional, validation sets created |
+| Phase 2 | Week 3 | Inconsistency detection operational |
+| Phase 3 | Week 4 | Reports generated, bias adjustment complete |
+| Phase 4 | Week 5 | All validation targets met, documentation complete |
+
+**Total Duration**: 5 weeks to `research_complete` stage.

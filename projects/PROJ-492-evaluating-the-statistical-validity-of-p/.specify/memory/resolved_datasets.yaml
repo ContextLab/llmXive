@@ -1,26 +1,26 @@
-resolved_at: '2026-06-26T04:36:07.876068+00:00'
+resolved_at: '2026-06-26T14:51:16.558511+00:00'
 datasets:
 - intent: 10.1037/xap0000421
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://dro.deakin.edu.au/articles/chapter/Preface/32798829
+  - url: https://figshare.com/articles/dataset/Tinospora_crispa_Crude_Alkaloidal_Extract_and_Fractions_-_MTT_Assay_Results/32805431
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Enzymatic_Deacetylation_as_a_Selective_Strategy_for_O_GlcNAc_Identification/32798843
+  - url: https://diabetesjournals.figshare.com/articles/figure/_b_A_Novel_Electronic_Medical_Record_Search_Method_to_Identify_Patients_with_Ketosis-prone_Diabetes_Implications_for_Discovery_of_Atypical_Diabetes_b_/32569341
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Enzymatic_Deacetylation_as_a_Selective_Strategy_for_O_GlcNAc_Identification/32798840
+  - url: https://ore.exeter.ac.uk/articles/report/Child-Centred_Police_Intervention_Clinics_A_Report_for_Devon_Cornwall_Police/32802998
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/High-Density_Ultrafine_Nucleation_on_Discontinuous_Residual_Ag_Suppresses_Localized_Growth_for_Stable_Lithium_Metal_Deposition/32798837
+  - url: https://tandf.figshare.com/articles/journal_contribution/QbD-driven_development_and_validation_of_an_HPTLC_method_for_simultaneous_estimation_of_berberine_from_i_Berberis_aristata_i_DC_i_Berberidaceae_i_and_conessine_from_i_Holarrhena_pubescens_i_Wall_i_Apocynaceae_i_in_herbal_capsule_formulation/32805941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/LLM-Assembled_Multiscale_Cascades_for_High-Throughput_Screening_The_Case_of_Thermoelectric_Materials/32798834
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Shear-wave_velocity_prediction_in_organic-rich_rocks_incorporating_kerogen_morphology_and_pore_geometry_docx/32805869
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,23 +28,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://dro.deakin.edu.au/articles/chapter/Preface/32798829
+  - url: https://figshare.com/articles/dataset/Tinospora_crispa_Crude_Alkaloidal_Extract_and_Fractions_-_MTT_Assay_Results/32805431
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Enzymatic_Deacetylation_as_a_Selective_Strategy_for_O_GlcNAc_Identification/32798843
+  - url: https://diabetesjournals.figshare.com/articles/figure/_b_A_Novel_Electronic_Medical_Record_Search_Method_to_Identify_Patients_with_Ketosis-prone_Diabetes_Implications_for_Discovery_of_Atypical_Diabetes_b_/32569341
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Enzymatic_Deacetylation_as_a_Selective_Strategy_for_O_GlcNAc_Identification/32798840
+  - url: https://ore.exeter.ac.uk/articles/report/Child-Centred_Police_Intervention_Clinics_A_Report_for_Devon_Cornwall_Police/32802998
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/High-Density_Ultrafine_Nucleation_on_Discontinuous_Residual_Ag_Suppresses_Localized_Growth_for_Stable_Lithium_Metal_Deposition/32798837
+  - url: https://tandf.figshare.com/articles/journal_contribution/QbD-driven_development_and_validation_of_an_HPTLC_method_for_simultaneous_estimation_of_berberine_from_i_Berberis_aristata_i_DC_i_Berberidaceae_i_and_conessine_from_i_Holarrhena_pubescens_i_Wall_i_Apocynaceae_i_in_herbal_capsule_formulation/32805941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/LLM-Assembled_Multiscale_Cascades_for_High-Throughput_Screening_The_Case_of_Thermoelectric_Materials/32798834
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Shear-wave_velocity_prediction_in_organic-rich_rocks_incorporating_kerogen_morphology_and_pore_geometry_docx/32805869
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -60,11 +60,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10298172
+  - url: https://zenodo.org/records/10235525
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10316233
+  - url: https://zenodo.org/records/10298172
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,11 +81,10 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.20469943
+  - url: https://zenodo.org/records/20469943
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://doi.org/10.5281/zenodo.20453648
     source: datacite
     status: unreachable
@@ -117,23 +116,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Immunosuppression_after_pediatric_liver_transplantation_may_lead_to_early_and_prolonged_acute_thymic_involution_findings_from_a_pilot_longitudinal_study_docx/32798892
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Psychological_predictors_of_adolescent_depression_and_anxiety_symptoms_across_one_season_in_grassroots_netball/32756343
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Remote_diffusion-weighted_imaging_lesions_in_spontaneous_intracerebral_hemorrhage_research_progress_and_new_perspectives_docx/32798898
+  - url: https://opticapublishing.figshare.com/articles/software/Optical_U-QPSK_carrier_synchronization_algorithm_2_zip/32795037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Knowledge_gaps_psychological_burden_and_patient-reported_symptom_severity_and_daily_functioning_in_autoimmune_gastritis_a_observational_survey_of_Chinese_patients_docx/32798907
+  - url: https://figshare.com/articles/dataset/Tinospora_crispa_Crude_Alkaloidal_Extract_and_Fractions_-_MTT_Assay_Results/32805431
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Energy_landscapes_and_synergetic_state_transitions_in_frustrated_Stuart_Landau_oscillator_networks_a_homotopy_continuation_study_pdf/32798877
+  - url: https://diabetesjournals.figshare.com/articles/figure/_b_A_Novel_Electronic_Medical_Record_Search_Method_to_Identify_Patients_with_Ketosis-prone_Diabetes_Implications_for_Discovery_of_Atypical_Diabetes_b_/32569341
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Radiographic_outcomes_of_stick-assisted_manipulation_in_adolescent_idiopathic_scoliosis_a_retrospective_study_of_57_patients_docx/32798880
+  - url: https://ore.exeter.ac.uk/articles/report/Child-Centred_Police_Intervention_Clinics_A_Report_for_Devon_Cornwall_Police/32802998
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -157,23 +156,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/4ne93/
+  - url: https://napier-repository.worktribe.com/output/250889
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20933157
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/97qaj/
+  - url: https://zenodo.org/records/20921374
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/ac78q/
+  - url: https://zenodo.org/records/20921374
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/zh38v/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/hb9m5/
+  - url: https://zenodo.org/records/20933120
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -187,13 +186,6 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/aisc-team-a1/augmented-clinical-notes/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     format: parquet
@@ -201,15 +193,18 @@ datasets:
     sample_check:
       downloaded_bytes: 11945
       parsed: true
+  - url: https://huggingface.co/datasets/NHSEDataScience/synthetic_clinical_notes/resolve/main/silver/admissions.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 19651
+      parsed: true
   candidates_tried:
   - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://huggingface.co/datasets/aisc-team-a1/augmented-clinical-notes/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     status: verified
@@ -218,23 +213,27 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798940
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1835ac/f813331e385a1262352d21b9bc0a6152170575b5e627b54ce0a54f73daeaf5fd?X-Xet-Cas-Uid=public&user_id=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&Expires=1782488894&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNWFjL2Y4MTMzMzFlMzg1YTEyNjIzNTJkMjFiOWJjMGE2MTUyMTcwNTc1YjVlNjI3YjU0Y2UwYTU0ZjczZGFlYWY1ZmRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNDg4ODk0fX19XX0_&Signature=MEQCID7a27LRVuaRvsfclhngPEsR-7X~c-ge9lJVRP7gb1lPAiAPYS6GuM-VpdlO7Zuj7dTk27cr1dP~zIvhEDOIwgDtig__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_van_der_Krieken_i_et_al_i_Supporting_Datasets/32791557
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798946
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Psychological_predictors_of_adolescent_depression_and_anxiety_symptoms_across_one_season_in_grassroots_netball/32756343
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_pdf/32798910
+  - url: https://opticapublishing.figshare.com/articles/software/Optical_U-QPSK_carrier_synchronization_algorithm_2_zip/32795037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798925
+  - url: https://figshare.com/articles/dataset/Tinospora_crispa_Crude_Alkaloidal_Extract_and_Fractions_-_MTT_Assay_Results/32805431
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_png/32798883
+  - url: https://diabetesjournals.figshare.com/articles/figure/_b_A_Novel_Electronic_Medical_Record_Search_Method_to_Identify_Patients_with_Ketosis-prone_Diabetes_Implications_for_Discovery_of_Atypical_Diabetes_b_/32569341
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -250,11 +249,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16039952
+  - url: https://zenodo.org/records/5105584
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4578377
+  - url: https://zenodo.org/records/16039952
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -303,23 +302,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798940
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Computational_QSAR_and_structure-based_identification_of_plerixafor-derived_PIM-1_kinase_inhibitors_in_diffuse_large_B-Cell_lymphoma_docx/32805950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798946
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Computational_QSAR_and_structure-based_identification_of_plerixafor-derived_PIM-1_kinase_inhibitors_in_diffuse_large_B-Cell_lymphoma_docx/32805953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_pdf/32798910
+  - url: https://figshare.com/articles/dataset/_van_der_Krieken_i_et_al_i_Supporting_Datasets/32791557
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798925
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Psychological_predictors_of_adolescent_depression_and_anxiety_symptoms_across_one_season_in_grassroots_netball/32756343
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_png/32798883
+  - url: https://opticapublishing.figshare.com/articles/software/Optical_U-QPSK_carrier_synchronization_algorithm_2_zip/32795037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -335,31 +334,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8278866
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8276995
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20897937
+  - url: https://zenodo.org/records/8278866
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/86925
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20897937
+  - url: https://zenodo.org/records/20918005
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.23603
+  - url: https://zenodo.org/records/20918005
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.22592
+  - url: https://zenodo.org/records/20811861
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2604.28118
+  - url: https://zenodo.org/records/20811861
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -367,23 +366,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798940
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Computational_QSAR_and_structure-based_identification_of_plerixafor-derived_PIM-1_kinase_inhibitors_in_diffuse_large_B-Cell_lymphoma_docx/32805950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798946
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Computational_QSAR_and_structure-based_identification_of_plerixafor-derived_PIM-1_kinase_inhibitors_in_diffuse_large_B-Cell_lymphoma_docx/32805953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_pdf/32798910
+  - url: https://figshare.com/articles/dataset/_van_der_Krieken_i_et_al_i_Supporting_Datasets/32791557
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_docx/32798925
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Psychological_predictors_of_adolescent_depression_and_anxiety_symptoms_across_one_season_in_grassroots_netball/32756343
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Serum_uric_acid-to-HDL_cholesterol_ratio_and_stroke_prevalence_NHANES_1999_2018_with_external_support_from_an_imaging-confirmed_hemorrhagic_stroke_dataset_png/32798883
+  - url: https://opticapublishing.figshare.com/articles/software/Optical_U-QPSK_carrier_synchronization_algorithm_2_zip/32795037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -395,15 +394,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10381038
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10217153
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10344963
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10217711
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -422,33 +421,33 @@ datasets:
   - url: https://zenodo.org/records/20470525
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20469943
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/20469943
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: SC-030
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/poster/_i_Redeemer_s_University_Ede_2026_2027_APPLICATION_ADMISSION_FORM_Out_i_b_into_Jupeb_Is_Out_07O40-964654_FAITH_ADMIN_07047903330_See_Requirements_Courses_How_to_Apply_b_/32798826
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Computational_QSAR_and_structure-based_identification_of_plerixafor-derived_PIM-1_kinase_inhibitors_in_diffuse_large_B-Cell_lymphoma_docx/32805950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Tumor_enucleation_versus_conventional_partial_nephrectomy_for_localized_renal_tumors_a_systematic_review_and_meta-analysis_of_functional_perioperative_and_margin_outcomes_docx/32799012
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Computational_QSAR_and_structure-based_identification_of_plerixafor-derived_PIM-1_kinase_inhibitors_in_diffuse_large_B-Cell_lymphoma_docx/32805953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Tumor_enucleation_versus_conventional_partial_nephrectomy_for_localized_renal_tumors_a_systematic_review_and_meta-analysis_of_functional_perioperative_and_margin_outcomes_docx/32799021
+  - url: https://figshare.com/articles/dataset/_van_der_Krieken_i_et_al_i_Supporting_Datasets/32791557
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Tumor_enucleation_versus_conventional_partial_nephrectomy_for_localized_renal_tumors_a_systematic_review_and_meta-analysis_of_functional_perioperative_and_margin_outcomes_pdf/32799024
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Psychological_predictors_of_adolescent_depression_and_anxiety_symptoms_across_one_season_in_grassroots_netball/32756343
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Tumor_enucleation_versus_conventional_partial_nephrectomy_for_localized_renal_tumors_a_systematic_review_and_meta-analysis_of_functional_perioperative_and_margin_outcomes_docx/32799000
+  - url: https://opticapublishing.figshare.com/articles/software/Optical_U-QPSK_carrier_synchronization_algorithm_2_zip/32795037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -460,35 +459,19 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10298172
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10316233
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10235525
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20653280
-    source: datacite
+  - url: https://zenodo.org/records/10298172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10332095
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20653280
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20653276
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20653276
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635092
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

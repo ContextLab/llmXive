@@ -1,232 +1,192 @@
 # Implementation Plan: Evaluating the Statistical Validity of Public A/B Test Summaries
 
-**Branch**: `001-eval-ab-test-validity` | **Date**: 2026-06-24 | **Spec**: `/specs/001-eval-ab-test-validity/spec.md`
-**Input**: Feature specification from `/specs/001-eval-ab-test-validity/spec.md`
+**Branch**: `001-eval-ab-test-validity` | **Date**: 2026-06-24 | **Spec**: `specs/001-evaluating-the-statistical-validity-of-p/spec.md`
+**Input**: Feature specification from `/specs/001-evaluating-the-statistical-validity-of-p/spec.md`
 
 ## Summary
 
-This project audits publicly available A/B test summaries for statistical consistency between reported metrics (p-values, effect sizes, sample sizes) and reconstructed values. The pipeline extracts metrics from HTML summaries, reconstructs p-values using appropriate statistical tests (two-proportion z-test for binary outcomes, Welch's t-test for continuous), flags inconsistencies exceeding an absolute 0.05 p-value threshold (Constitution Principle VI), and reports prevalence with bias-adjustment for domain dominance. All computation runs on CPU-only GitHub Actions free-tier resources (2 vCPUs, ≤2GB RAM, ≤6h).
+This project implements an automated pipeline to audit publicly available A/B test summaries for **statistical consistency** (p-values, effect sizes, sample sizes). The system extracts reported metrics, reconstructs the statistical tests (two-proportion z-test, Welch's t-test), and flags inconsistencies based on an **absolute threshold of 0.05** for p-value discrepancy (Constitution VI). It generates JSON/CSV reports, performs power analysis (N≥300), validates implementations via Monte Carlo simulation, and adjusts for domain bias. The pipeline is designed to run within GitHub Actions free-tier constraints (CPU-only, ≤7GB RAM, ≤6h).
 
-**Methodological Limitations** (CRITICAL): Internal consistency ≠ external accuracy. This audit validates whether reported numbers are mathematically consistent with each other, NOT whether they accurately reflect the actual experiment. A summary can be internally consistent but externally inaccurate (e.g., fabricated data that happens to satisfy statistical relationships). This constraint MUST be prominently acknowledged when interpreting prevalence estimates.
+> **Construct Validity Limitation**: This project tests **internal consistency** of reported statistics, not ground-truth statistical validity. Without access to raw data, we cannot verify whether the reported p-values correctly reflect the actual statistical evidence. This limitation is acknowledged per methodology-c014d2d7.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11+  
-**Primary Dependencies**: scipy, pandas, requests, beautifulsoup4, pytest, statsmodels (for independent validation per FR-030)  
-**Storage**: Local files (CSV, JSON, YAML) under `data/`, `output/`  
-**Testing**: pytest with contract tests against inline schema definitions  
-**Target Platform**: Ubuntu-latest GitHub Actions runner  
-**Project Type**: CLI data analysis pipeline  
-**Performance Goals**: ≤6 hours total runtime, ≤2GB RAM peak, ≤2 vCPUs  
-**Constraints**: No GPU usage, no deep learning, no external API rate-limit violations  
-**Scale/Scope**: N≥300 audited summaries (per FR-025), 10,000 synthetic validation samples (per FR-030), Multiple real-world validation samples (per FR-031b)
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `scipy`, `pandas`, `requests`, `beautifulsoup4`, `pytest`, `pyyaml`  
+**Storage**: Local filesystem (`data/` for inputs, `output/` for artifacts)  
+**Testing**: `pytest` (unit, contract, integration)  
+**Target Platform**: Ubuntu-latest (GitHub Actions)  
+**Project Type**: CLI/Data Pipeline  
+**Performance Goals**: ≤6 hours runtime, ≤7GB RAM peak, ≤2 vCPUs  
+**Constraints**: No GPU, no heavy LLM inference, **absolute p-value threshold 0.05** (Constitution VI)  
+**Scale/Scope**: N ≥ 300 summaries (FR-025), 10,000 synthetic samples (FR-030)
 
-> Dataset sizes and corpus counts are mandated by the specification (FR-025, FR-030, FR-031b), not empirically measured.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Action | Status |
-|-----------|-------------------|--------|
-| I. Reproducibility | Pin random seeds in `code/`; `requirements.txt` at `projects/PROJ-492/code/`; run in isolated venv | ✅ |
-| II. Verified Accuracy | Reference-Validator Agent verifies citations before review points; title-token-overlap ≥0.7 | ✅ |
-| III. Data Hygiene | All `data/` files checksummed; no in-place modification; PII scan passes | ✅ |
-| IV. Single Source of Truth | All statistics trace to one row in `data/` and one code block; no hand-typed numbers | ✅ |
-| V. Versioning Discipline | Content hashes for all artifacts; `state/*.yaml` updated on artifact changes | ✅ |
-| VI. Statistical Consistency Verification | Absolute 0.05 p-value threshold enforced (per Constitution Section VI); discrepancies flagged and documented | ✅ |
-| VII. Source Provenance & Transparency | URL and provenance metadata recorded for every summary in `data/` | ✅ |
+| Principle | Compliance Strategy |
+|-----------|---------------------|
+| **I. Reproducibility** | All code in `code/` uses pinned `requirements.txt`. Random seeds set in `config.yaml`. CI runs on isolated GitHub Actions runner. |
+| **II. Verified Accuracy** | Citations (e.g., Kohavi et al., John et al.) validated by Reference-Validator Agent before inclusion in reports. |
+| **III. Data Hygiene** | All files in `data/` (including synthetic validation data) checksummed and recorded in `data/checksums.txt` (T076). Raw data preserved; derivations written to new files. |
+| **IV. Single Source of Truth** | Final statistics in paper/reports trace to `output/audit_report.json`. Checksums for run artifacts written to `output/checksums.txt` (T077). |
+| **V. Versioning Discipline** | Content hashes tracked in `state/projects/PROJ-492-...yaml`. Artifact changes update `updated_at`. |
+| **VI. Statistical Consistency** | Hard-coded threshold 0.05 for p-value discrepancy (FR-004). Reconstruction logic validated via Monte Carlo (FR-026). |
+| **VII. Source Provenance** | URL metadata recorded in every `ABSummary` entity (FR-002). |
 
-**Gates determined**: All seven principles are satisfied by design. No violations requiring justification.
+*Resolution of Unresolved Concerns:*
+- **T005 (Constitution Compliance)**: T099 (Constitution Compliance Audit) verifies all Constitution Principles I-VII are implemented in code and data flows, not just CI.
+- **T083 (Quickstart Runner)**: Updated to explicitly verify execution on "default GitHub Actions runner (2 vCPU, 7GB RAM)" per FR-028.
+- **T076/T077 Checksum Separation**: T076 writes INPUT data checksums to `data/checksums.txt` (Constitution III). T077 writes OUTPUT artifact checksums to `output/checksums.txt` (Constitution IV). Both locations required per different principles. T096 removed to eliminate duplication.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-eval-ab-test-validity/
-├── plan.md              # This file (/speckit-plan command output)
-├── research.md          # Phase 0 output (/speckit-plan command)
-├── data-model.md        # Phase 1 output (/speckit-plan command)
-├── quickstart.md        # Phase 1 output (/speckit-plan command)
-├── contracts/           # Phase 1 output (/speckit-plan command)
-│   ├── abs_summary.schema.yaml
-│   ├── audit_record.schema.yaml
-│   └── summary_report.schema.yaml
-└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
+specs/[###-feature]/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-492-evaluating-the-statistical-validity-of-p/
-├── code/
-│   ├── __init__.py
-│   ├── extraction.py           # HTML parsing, field extraction (FR-002)
-│   ├── reconstruction.py       # Statistical test reconstruction (FR-003)
-│   ├── inconsistency.py        # Inconsistency detection logic (FR-004, FR-004b)
-│   ├── prevalence.py           # Binomial test, Wilson CI (FR-005a, FR-005b)
-│   ├── bias.py                 # Domain bias assessment & adjustment (FR-027)
-│   ├── validation.py           # Monte Carlo validation (FR-026)
-│   ├── synthetic.py            # Synthetic dataset generation (FR-030)
-│   ├── subgroup.py             # Subgroup analysis with Bonferroni (FR-032)
-│   ├── cli.py                  # Command-line interface (FR-001)
-│   └── main.py                 # Pipeline orchestration
-├── data/
-│   ├── raw/                    # Raw downloaded HTML (checksummed)
-│   ├── processed/              # Extracted ABSummary records
-│   ├── synthetic_validation.csv
-│   ├── synthetic_ground_truth.json
-│   └── real_world_validation_labels.csv
-├── output/
-│   ├── audit_report.json       # Per-summary audit results (FR-024)
-│   ├── summary_report.csv      # Aggregate CSV (FR-024)
-│   ├── bias_report.json        # Domain proportions & adjusted rate
-│   ├── subgroup_report.json    # Per-domain/year prevalence
-│   ├── monte_carlo_validation_report.json
-│   ├── real_world_validation_report.json
-│   ├── synthetic_validation_report.json
-│   ├── checksums.txt           # File checksums (T076)
-│   └── manifest.json           # Run manifest with checksums (T077)
-├── tests/
-│   ├── contract/               # Schema validation tests
-│   ├── integration/            # Pipeline integration tests
-│   └── unit/                   # Unit tests for statistical functions
-└── requirements.txt            # Pinned dependencies (Constitution Principle I)
+src/
+├── extraction/          # Web scraping and field extraction (FR-001, FR-002)
+├── statistics/          # Reconstruction logic (FR-003, FR-004)
+├── validation/          # Monte Carlo, Synthetic Data, Real-world Validation (FR-026, FR-030, FR-031b)
+├── reporting/           # JSON/CSV export, Bias adjustment (FR-005a, FR-024, FR-027)
+├── cli/                 # Entry point
+└── config/              # Constants, Thresholds (Constitution VI)
+
+tests/
+├── contract/            # Schema validation
+├── integration/         # Pipeline end-to-end
+└── unit/                # Statistical function tests
+
+data/
+├── input/               # User-provided URLs (FR-001)
+├── synthetic/           # Generated validation data (FR-030)
+├── real_world/          # Manually annotated set (FR-031b)
+└── checksums.txt        # Input data checksums (Constitution III, T076)
+
+output/
+├── audit_report.json    # Detailed results (FR-024)
+├── summary_report.csv   # Aggregate results (FR-024)
+├── bias_report.json     # Domain proportions (FR-027)
+├── subgroup_report.json # Domain/Year analysis (FR-032)
+└── checksums.txt        # Output artifact checksums (T077)
 ```
 
-**Structure Decision**: Single project under `projects/PROJ-492/` with modular `code/` directory. This structure satisfies Constitution Principle III (Data Hygiene) by separating raw/processed data, enables reproducibility (Principle I) via pinned `requirements.txt`, and supports single source of truth (Principle IV) by keeping all artifacts under version control with content hashes.
+**Structure Decision**: Single project structure (`src/`, `tests/`, `data/`, `output/`) selected to minimize complexity and align with CLI tool requirements. Data and Output directories separated to satisfy Constitution Principles III (Data Hygiene) and IV (Single Source of Truth for artifacts).
 
-## Phase Breakdown
+## Complexity Tracking
 
-### Phase 0: Research & Environment Setup (Week 1)
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| None | Plan adheres to all constraints and principles. | N/A |
 
-**Objective**: Verify statistical methodology, confirm dataset availability, establish CI environment.
+## Implementation Phases
 
-| Task ID | Description | FR/SC Coverage | Deliverable |
-|---------|-------------|----------------|-------------|
-| T000 | Implement CLI interface to accept URLs from `input/urls.csv` | FR-001 | `code/cli.py` |
-| T001 | Set up GitHub Actions workflow with Python 3.11, pin dependencies | FR-009, SC-008 | `.github/workflows/audit.yml` |
-| T002 | Implement Monte Carlo validation framework (sufficient replicates) | FR-026, SC-003, SC-026 | `tests/unit/test_monte_carlo.py` |
-| T003 | Verify statistical test implementations (z-test, Fisher's, Welch's) | FR-003, FR-026 | `code/validation.py` |
-| T004 | Document power analysis for N≥300 corpus size | FR-025, SC-025 | `research.md` section |
-| T005 | Confirm Constitution Principles I-VII compliance in CI | All Principles | CI check script |
+### Phase 0: Research & Validation Setup
+1.  **R01**: Verify statistical libraries (`scipy`) run within 7GB RAM on CPU.
+2.  **R02**: Design synthetic data generator (FR-030) using independent logic from reconstruction (FR-026).
+3.  **R03**: Define manual annotation protocol for real-world validation set (FR-031b, ≥100 samples).
+4.  **R04**: Confirm power analysis calculation (FR-025) for N≥300.
 
-**Statistical Rigor Notes**:
-- Multiple-comparison correction: Bonferroni applied to subgroup tests (FR-032) AND sensitivity analysis (FR-005b); baseline binomial test (FR-005a) is single test requiring no correction.
-- Power justification: N≥300 calculated for power≥0.80 at α=0.05 to detect inconsistency proportion≥0.10 (double baseline 0.05 from FR-005a).
-- Causal framing: Audit is observational; claims are associational (internal consistency only, not external accuracy per Methodological Limitations).
-- Measurement validity: Statistical test implementations validated via Monte Carlo (FR-026); extraction accuracy validated via human annotation (FR-031b).
-- Collinearity: No predictor collinearity issues (no regression model; direct reconstruction from reported numbers).
-- Sensitivity analysis: Testing a range of baseline proportions (0.02–0.10, with incremental steps) requires Bonferroni correction (adjusted α = 0.05/9 ≈ 0.0056) to control family-wise error rate.
+### Phase 1: Data Model & Contracts
+1.  **D01**: Define `ABSummary`, `AuditRecord` schemas (FR-002).
+2.  **D02**: Create YAML contracts for `audit_report.json` and `summary_report.csv`.
+3.  **D03**: Document Quickstart guide (FR-028) with explicit GitHub Actions runner verification (T083).
 
-### Phase 1: Data Extraction & Validation (Week 2)
+### Phase 2: Core Implementation
+1.  **I01**: Implement URL ingestion and HTML extraction (FR-001, FR-002).
+2.  **I02**: Implement statistical reconstruction (z-test, t-test, Fisher) (FR-003).
+3.  **I03**: Implement inconsistency flagging logic (FR-004, Constitution VI). **Note**: Uses **absolute threshold 0.05 only** (no log-scale dual-criterion per methodology-5bca6076 resolution).
+4.  **I04**: Implement bias adjustment and domain subsampling (FR-027). **Note**: Uses equal weighting per domain (scientific_soundness-64bd4091 resolution).
+5.  **I05a**: Implement binomial test (FR-005a) and sensitivity analysis (FR-005b, SC-014, SC-015). **Note**: Explicitly quantifies effect size reconstruction uncertainty when baseline heuristic is used (FR-012, scientific_soundness-ad85a63f resolution).
+6.  **I05b**: Implement report generation (JSON/CSV) (FR-024).
 
-**Objective**: Build extraction pipeline, create synthetic validation dataset, annotate real-world validation set.
+### Phase 3: Validation & Testing
+1.  **V01**: Run Monte Carlo validation (a large number of replicates) to validate statistical reconstruction logic (two-proportion z-test, Welch's t-test) per Constitution VI (FR-026, SC-003). Acceptance criterion: absolute difference ≤ 0.005 between reconstructed and ground-truth p-values.
+2.  **V02**: Generate synthetic dataset (10,000 rows) (FR-030, T026).
+3.  **V03**: Evaluate extraction accuracy on real-world set (≥100 samples, FR-031b, SC-031b). **Note**: Human verification ensures ≥85% precision (methodology-42b0e48f resolution).
+4.  **V04**: Execute Constitution Compliance Audit (T099) to verify all Principles I-VII in code and data flows.
 
-| Task ID | Description | FR/SC Coverage | Deliverable |
-|---------|-------------|----------------|-------------|
-| T006 | Implement HTML extraction for sample sizes, effect sizes, p-values | FR-002, FR-007 | `code/extraction.py` |
-| T007 | Generate synthetic validation dataset (10,000 samples) | FR-030, T026 | `data/synthetic_validation.csv` |
-| T008 | Compute ground-truth p-values using independent implementation | FR-030 | `data/synthetic_ground_truth.json` |
-| T009 | Create manually annotated real-world validation set (multiple summaries) | FR-031b, T081 | `data/real_world_validation_labels.csv` |
-| T010 | Implement extraction accuracy evaluation (precision/recall/F1) | FR-031b, SC-001, SC-031b | `tests/integration/test_extraction_accuracy.py` |
-| T011 | Validate extraction precision≥85%, recall≥75% (F1≥0.80) | FR-031b, SC-031b | `output/real_world_validation_report.json` |
-| T011b | Validate extraction accuracy ≥95% on 100 summaries across 5 domains | SC-001 | `output/sc001_validation_report.json` |
+### Phase 4: CI & Documentation
+1.  **C01**: Configure GitHub Actions workflow (Ubuntu-latest).
+2.  **C02**: Implement Input Data Checksumming Task (T076) writing to `data/checksums.txt`.
+3.  **C03**: Implement Output Artifact Checksumming Task (T077) writing to `output/checksums.txt`.
+4.  **C04**: Verify Quickstart execution time on **default GitHub Actions runner (2 vCPU, 7GB RAM, 14GB disk)** (T083).
+5.  **C05**: Execute Constitution Compliance Audit (T099) to verify all Principles I-VII.
+6.  **C06**: Final resource usage logging (SC-008).
 
-**Dataset-Variable Fit**:
-- Synthetic dataset: Programmatically generated with known ground truth (FR-030); no external dataset required.
-- Real-world validation: Requires manual annotation of 100 public A/B test summaries from multiple domains (tech, e-commerce, finance, healthcare, SaaS per the relevant requirement specification). **NO external dataset URL available** (verified datasets list shows "NO verified source found" for FR-031b, FR-031, SC-030, T026). Summaries must be manually sourced from public engineering blogs, GitHub archives, or OpenML experiment reports.
-- Corpus collection: URLs provided via `input/urls.csv` (FR-001); no pre-existing dataset URL required.
+## Compute Feasibility
 
-### Phase 2: Statistical Reconstruction & Inconsistency Detection (Week 3)
+- **Memory**: Data subset to ≤7GB. `pandas` operations on N=300 summaries are negligible. Synthetic data (10k rows) fits in RAM.
+- **CPU**: Statistical tests (`scipy.stats`) are CPU-bound but lightweight. No GPU required.
+- **Time**: Extraction (network bound) + Stats (CPU bound). 300 URLs estimated at <1 hour. Monte Carlo (10k reps) estimated at <2 hours. Total <6 hours.
+- **Disk**: Output files <10MB. Synthetic data <50MB. Well within 14GB limit.
 
-**Objective**: Implement reconstruction logic, flag inconsistencies, handle edge cases.
+## FR/SC Coverage Map
 
-| Task ID | Description | FR/SC Coverage | Deliverable |
-|---------|-------------|----------------|-------------|
-| T012 | Implement two-proportion z-test for binary outcomes | FR-003 | `code/reconstruction.py` |
-| T013 | Implement Fisher's exact test when cell count≤5 | FR-003 | `code/reconstruction.py` |
-| T014 | Implement Welch's t-test for continuous outcomes | FR-003 | `code/reconstruction.py` |
-| T015 | Implement inconsistency flagging (|Δp|>0.05 absolute threshold) | FR-004, Constitution Principle VI | `code/inconsistency.py` |
-| T016 | Handle inequality p-values (e.g., "p<0.001") | FR-004 | `code/inconsistency.py` |
-| T017 | Handle missing baseline conversion rate (average of variants) | FR-012 | `code/reconstruction.py` |
-| T018 | Flag sample size mismatches (>5% difference) | FR-004b | `code/inconsistency.py` |
-| T019 | Log parsing failures with ERR-### codes, field names, ≤200 char descriptions | FR-007, SC-005 | `code/extraction.py` |
+| ID | Status | Plan Location |
+|----|--------|---------------|
+| FR-001 | Covered | Phase 2, I01 |
+| FR-002 | Covered | Phase 2, I01; Data Model |
+| FR-003 | Covered | Phase 2, I02 |
+| FR-004 | Covered | Phase 2, I03; Constitution VI |
+| FR-004b | Covered | Phase 2, I03 |
+| FR-005a | Covered | Phase 2, I05a; Binomial Test |
+| FR-005b | Covered | Phase 2, I05a; Sensitivity Analysis |
+| FR-007 | Covered | Phase 2, I01; Logging |
+| FR-009 | Covered | Phase 4, C01; Compute Feasibility |
+| FR-012 | Covered | Phase 2, I05a; Baseline Handling (uncertainty impact documented) |
+| FR-024 | Covered | Phase 2, I05b; Contracts |
+| FR-025 | Covered | Phase 0, R04 |
+| FR-026 | Covered | Phase 3, V01 |
+| FR-027 | Covered | Phase 2, I04; Equal Domain Weighting |
+| FR-028 | Covered | Phase 1, D03; Quickstart (T083 verification) |
+| FR-030 | Covered | Phase 3, V02 |
+| FR-031 | Covered | Phase 3, V02/V03 |
+| FR-031b | Covered | Phase 3, V03 (≥100 real-world samples) |
+| FR-032 | Covered | Phase 2, I05b; Subgroup |
+| SC-001 | Covered | Phase 3, V03 |
+| SC-003 | Covered | Phase 3, V01 |
+| SC-005 | Covered | Phase 2, I01 |
+| SC-008 | Covered | Phase 4, C06 |
+| SC-013 | Covered | Phase 4, C02/C03 |
+| SC-014 | Covered | Phase 2, I05a; Wilson CI |
+| SC-015 | Covered | Phase 2, I05a; Sensitivity Analysis |
+| SC-024 | Covered | Phase 2, I05b; Contracts |
+| SC-025 | Covered | Phase 0, R04 |
+| SC-026 | Covered | Phase 3, V01 |
+| SC-027 | Covered | Phase 2, I04 |
+| SC-028 | Covered | Phase 1, D03; T083 |
+| SC-030 | Covered | Phase 3, V02 |
+| SC-031b | Covered | Phase 3, V03 |
+| SC-032 | Covered | Phase 2, I05b |
 
-**Statistical Rigor Notes**:
-- Absolute p-value threshold of 0.05 is mandated by Constitution Principle VI (not statistical optimization).
-- Relative threshold of 5% for effect size difference is per spec (FR-004); not constrained by Constitution.
-- For inequality p-values, reconstructed p-value must exceed bound to flag inconsistent (FR-004).
-- Missing baseline handling (FR-012) is heuristic; flagged in audit notes with reduced statistical rigor caveat.
-- **Construct validity limitation**: The absolute 0.05 threshold creates non-uniform inconsistency detection across the p-value distribution (50x difference for p=0.001 vs [deferred] for p=0.4). This biases prevalence estimates toward studies with smaller p-values. Documented as policy choice per Constitution Principle VI, not statistical optimization.
+## Task Registry
 
-### Phase 3: Prevalence Estimation & Reporting (Week 4)
+| Task ID | Description | Phase | Status |
+|---------|-------------|-------|--------|
+| T026 | Synthetic Validation Dataset Generation ([deferred] rows) | Phase 3, V02 | Planned |
+| T044 | Power Analysis Calculation (N≥300) | Phase 0, R04 | Planned |
+| T062 | Monte Carlo Validation (10,000 replicates) | Phase 3, V01 | Planned |
+| T076 | Input Data Checksumming (data/checksums.txt) | Phase 4, C02 | Planned |
+| T077 | Output Artifact Checksumming (output/checksums.txt) | Phase 4, C03 | Planned |
+| T081 | Constitution Compliance Audit (Principles I-VII) | Phase 4, C05 | Planned |
+| T082 | Real-World Validation Set Annotation (≥100 samples) | Phase 3, V03 | Planned |
+| T083 | Quickstart Runner Verification (default GitHub Actions runner standard vCPU, 7GB RAM) | Phase 4, C04 | Planned |
+| T099 | Constitution Compliance Audit (code/data verification of Principles I-VII) | Phase 4, C05 | Planned |
 
-**Objective**: Compute inconsistency prevalence, bias-adjustment, subgroup analysis, export reports.
-
-| Task ID | Description | FR/SC Coverage | Deliverable |
-|---------|-------------|----------------|-------------|
-| T020 | Implement two-sided binomial test vs. baseline 0.05 | FR-005a, SC-014 | `code/prevalence.py` |
-| T021 | Compute Wilson 95% CI for inconsistency proportion | FR-005a, SC-014 | `code/prevalence.py` |
-| T022 | Sensitivity analysis for baseline 0.02–0.10 (step 0.01) | FR-005b, SC-015 | `code/prevalence.py` |
-| T022b | Sensitivity analysis: compare prevalence with/without missing-metric entries | SC-005, FR-004b | `output/missing_metric_sensitivity.json` |
-| T023 | Implement domain bias assessment (no domain>30%) | FR-027, SC-027 | `code/bias.py` |
-| T024 | Compute bias-adjusted inconsistency rate (domain-weighted) | FR-027 | `output/bias_report.json` |
-| T025 | Implement domain subsampling if any domain>30% | FR-027, T044 | `code/bias.py` |
-| T026 | Subgroup analysis by domain/year with Fisher's exact test | FR-032, SC-032 | `code/subgroup.py` |
-| T027 | Apply Bonferroni correction to subgroup tests | FR-032, SC-032 | `code/subgroup.py` |
-| T028 | Export JSON audit report with all required fields | FR-024, SC-024 | `output/audit_report.json` |
-| T029 | Export CSV summary report with Wilson CI | FR-024, SC-024 | `output/summary_report.csv` |
-| T030 | Compute and record file checksums | T076, SC-013 | `output/checksums.txt` |
-| T031 | Extend manifest.json with checksum entries | T077, SC-013 | `output/manifest.json` |
-
-**Statistical Rigor Notes**:
-- Baseline binomial test (FR-005a) is single test; no multiple-comparison correction needed.
-- Subgroup tests (FR-032) require Bonferroni correction (adjusted α = 0.05 / number_of_subgroups).
-- **Sensitivity analysis (FR-005b)**: Testing 9 baseline proportions (0.02–0.10 step 0.01) inflates Type I error rate without correction. Apply Bonferroni correction (adjusted α = 0.05/9 ≈ 0.0056) to all 9 binomial tests.
-- Wilson CI width must be ≤0.10 (SC-014); if exceeded, N≥300 corpus may need expansion.
-- Sensitivity analysis must show prevalence variation <0.02 across baseline range (SC-015).
-- **Unaddressed confounds**: Domain bias control (FR-027) addresses one confound but not others like publication year trends, company size, or industry-specific reporting practices. Subgroup analysis by year (FR-032) partially addresses this, but no adjustment is made for these factors in the overall prevalence estimate. Documented in Methodological Limitations.
-
-### Phase 4: Validation & Documentation (Week 5)
-
-**Objective**: Validate synthetic detection performance, complete documentation, CI verification.
-
-| Task ID | Description | FR/SC Coverage | Deliverable |
-|---------|-------------|----------------|-------------|
-| T032 | Evaluate inconsistency detection on synthetic dataset | FR-031, SC-030 | `output/synthetic_validation_report.json` |
-| T033 | Verify precision≥90%, recall≥80% (F1≥0.85) on synthetic data | FR-031, SC-030 | `output/synthetic_validation_report.json` |
-| T034 | Create Quickstart guide (README) with CLI examples | FR-028, SC-028 | `quickstart.md` |
-| T035 | Verify Quickstart: novice completes 30 URLs in ≤30 minutes | FR-028, SC-028 | User test report |
-| T036 | CI end-to-end test on sample corpus (≤6 hours) | FR-009, SC-008 | GitHub Actions run |
-| T037 | Verify manifest.json created in ≥99% of CI runs | SC-013 | CI logs |
-| T038 | Verify parsing error rate ≤5% of total summaries | FR-007, SC-005 | CI logs |
-
-**Statistical Rigor Notes**:
-- Synthetic validation precision/recall targets apply only to synthetic data (FR-031); real-world performance may differ (Methodological Limitations).
-- Real-world extraction validation (FR-031b) measures field-level capture accuracy, not inconsistency detection accuracy (ground truth is human verification of reported numbers, not statistical correctness).
-
-## Risk Mitigation
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| HTML structure varies across sources | High extraction failure rate | Implement robust parsing with multiple fallback strategies; log ERR-### codes (FR-007) |
-| Corpus N<300 achievable | Insufficient power (FR-025) | Power analysis shows N≥300 required; if unavailable, document power limitation explicitly |
-| Domain dominance (>30% from single source) | Biased prevalence estimate | Subsample dominant domain (FR-027); report bias-adjusted rate |
-| CI runtime exceeds 6 hours | Pipeline fails (SC-008) | Optimize extraction parallelization; limit corpus to N=300-500 for CI sample |
-| Memory exceeds 2GB | OOM on GitHub Actions | Process summaries in batches; stream data where possible |
-| Synthetic validation targets not met | Implementation bugs | Debug reconstruction logic; verify against analytical formulas |
-| **Missing metrics selection bias** | Prevalence estimate biased if missing metrics correlate with inconsistency | Perform sensitivity analysis (T022b) comparing prevalence with/without missing-metric entries; document bias magnitude |
-
-## Timeline
-
-| Phase | Duration | Milestone |
-|-------|----------|-----------|
-| Phase 0 | Week 1 | CI environment ready, statistical tests validated |
-| Phase 1 | Week 2 | Extraction pipeline functional, validation sets created |
-| Phase 2 | Week 3 | Inconsistency detection operational |
-| Phase 3 | Week 4 | Reports generated, bias adjustment complete |
-| Phase 4 | Week 5 | All validation targets met, documentation complete |
-
-**Total Duration**: 5 weeks to `research_complete` stage.
+**Note**: T076 handles input data checksums (Constitution III), T077 handles output artifact checksums (Constitution IV). Both locations required per different principles. T096 removed to eliminate duplication. T083 and T099 now explicitly verify default GitHub Actions runner and code-level Constitution compliance respectively.

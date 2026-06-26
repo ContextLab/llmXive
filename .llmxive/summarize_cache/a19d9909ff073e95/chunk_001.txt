@@ -1,0 +1,88 @@
+- Collinearity: No predictor collinearity issues (no regression model; direct reconstruction from reported numbers).
+- Sensitivity analysis: Testing a range of baseline proportions (across varying magnitudes, with incremental steps) requires Bonferroni correction (adjusted α = 0.05/9 ≈ 0.0056) to control family-wise error rate.
+
+### Phase 1: Data Extraction & Validation (Week 2)
+
+**Objective**: Build extraction pipeline, create synthetic validation dataset, annotate real-world validation set.
+
+| Task ID | Description | FR/SC Coverage | Deliverable |
+|---------|-------------|----------------|-------------|
+| T006 | Implement HTML extraction for sample sizes, effect sizes, p-values | FR-002, FR-007 | `code/extraction.py` |
+| T007 | Generate synthetic validation dataset (10,000 samples) | FR-030, T026 | `data/synthetic_validation.csv` |
+| T008 | Compute ground-truth p-values using independent implementation | FR-030 | `data/synthetic_ground_truth.json` |
+| T009 | Create manually annotated real-world validation set (multiple summaries) | FR-031b, T081 | `data/real_world_validation_labels.csv` |
+| T010 | Implement extraction accuracy evaluation (precision/recall/F1) | FR-031b, SC-001, SC-031b | `tests/integration/test_extraction_accuracy.py` |
+| T011 | Validate extraction precision≥85%, recall≥75% (F1≥0.80) | FR-031b, SC-031b | `output/real_world_validation_report.json` |
+| T011b | Validate extraction accuracy ≥95% on 100 summaries across 5 domains | SC-001 | `output/sc001_validation_report.json` |
+
+**Dataset-Variable Fit**:
+- Synthetic dataset: Programmatically generated with known ground truth (FR-030); no external dataset required.
+- Real-world validation: Requires manual annotation of 100 public A/B test summaries from multiple domains (tech, e-commerce, finance, healthcare, SaaS per the relevant requirement specification). **NO external dataset URL available** (verified datasets list shows "NO verified source found" for FR-031b, FR-031, SC-030, T026). Summaries must be manually sourced from public engineering blogs, GitHub archives, or OpenML experiment reports.
+- Corpus collection: URLs provided via `input/urls.csv` (FR-001); no pre-existing dataset URL required.
+
+### Phase 2: Statistical Reconstruction & Inconsistency Detection (Week 3)
+
+**Objective**: Implement reconstruction logic, flag inconsistencies, handle edge cases.
+
+| Task ID | Description | FR/SC Coverage | Deliverable |
+|---------|-------------|----------------|-------------|
+| T012 | Implement two-proportion z-test for binary outcomes | FR-003 | `code/reconstruction.py` |
+| T013 | Implement Fisher's exact test when cell count≤5 | FR-003 | `code/reconstruction.py` |
+| T014 | Implement Welch's t-test for continuous outcomes | FR-003 | `code/reconstruction.py` |
+| T015 | Implement inconsistency flagging (|Δp|>0.05 absolute threshold) | FR-004, Constitution Principle VI | `code/inconsistency.py` |
+| T016 | Handle inequality p-values (e.g., "p<0.001") | FR-004 | `code/inconsistency.py` |
+| T017 | Handle missing baseline conversion rate (average of variants) | FR-012 | `code/reconstruction.py` |
+| T018 | Flag sample size mismatches (>5% difference) | FR-004b | `code/inconsistency.py` |
+| T019 | Log parsing failures with ERR-### codes, field names, ≤200 char descriptions | FR-007, SC-005 | `code/extraction.py` |
+
+**Statistical Rigor Notes**:
+- Absolute p-value threshold of 0.05 is mandated by Constitution Principle VI (not statistical optimization).
+- Relative threshold of 5% for effect size difference is per spec (FR-004); not constrained by Constitution.
+- For inequality p-values, reconstructed p-value must exceed bound to flag inconsistent (FR-004).
+- Missing baseline handling (FR-012) is heuristic; flagged in audit notes with reduced statistical rigor caveat.
+- **Construct validity limitation**: The absolute 0.05 threshold creates non-uniform inconsistency detection across the p-value distribution (50x difference for p=0.001 vs [deferred] for p=0.4). This biases prevalence estimates toward studies with smaller p-values. Documented as policy choice per Constitution Principle VI, not statistical optimization.
+
+### Phase 3: Prevalence Estimation & Reporting (Week 4)
+
+**Objective**: Compute inconsistency prevalence, bias-adjustment, subgroup analysis, export reports.
+
+| Task ID | Description | FR/SC Coverage | Deliverable |
+|---------|-------------|----------------|-------------|
+| T020 | Implement two-sided binomial test vs. baseline 0.05 | FR-005a, SC-014 | `code/prevalence.py` |
+| T021 | Compute Wilson 95% CI for inconsistency proportion | FR-005a, SC-014 | `code/prevalence.py` |
+| T022 | Sensitivity analysis for baseline 0.02–0.10 (step 0.01) | FR-005b, SC-015 | `code/prevalence.py` |
+| T022b | Sensitivity analysis: compare prevalence with/without missing-metric entries | SC-005, FR-004b | `output/missing_metric_sensitivity.json` |
+| T023 | Implement domain bias assessment (no domain>30%) | FR-027, SC-027 | `code/bias.py` |
+| T024 | Compute bias-adjusted inconsistency rate (domain-weighted) | FR-027 | `output/bias_report.json` |
+| T025 | Implement domain subsampling if any domain>30% | FR-027, T044 | `code/bias.py` |
+| T026 | Subgroup analysis by domain/year with Fisher's exact test | FR-032, SC-032 | `code/subgroup.py` |
+| T027 | Apply Bonferroni correction to subgroup tests | FR-032, SC-032 | `code/subgroup.py` |
+| T028 | Export JSON audit report with all required fields | FR-024, SC-024 | `output/audit_report.json` |
+| T029 | Export CSV summary report with Wilson CI | FR-024, SC-024 | `output/summary_report.csv` |
+| T030 | Compute and record file checksums | T076, SC-013 | `output/checksums.txt` |
+| T031 | Extend manifest.json with checksum entries | T077, SC-013 | `output/manifest.json` |
+
+**Statistical Rigor Notes**:
+- Baseline binomial test (FR-005a) is single test; no multiple-comparison correction needed.
+- Subgroup tests (FR-032) require Bonferroni correction (adjusted α = 0.05 / number_of_subgroups).
+- **Sensitivity analysis (FR-005b)**: Testing multiple baseline proportions (0.02–0.10 step 0.01) inflates Type I error rate without correction. Apply Bonferroni correction (adjusted α = 0.05/9 ≈ 0.0056) to all 9 binomial tests.
+- Wilson CI width must be ≤0.10 (SC-014); if exceeded, N≥300 corpus may need expansion.
+- Sensitivity analysis must show prevalence variation <0.02 across baseline range (SC-015).
+- **Unaddressed confounds**: Domain bias control (FR-027) addresses one confound but not others like publication year trends, company size, or industry-specific reporting practices. Subgroup analysis by year (FR-032) partially addresses this, but no adjustment is made for these factors in the overall prevalence estimate. Documented in Methodological Limitations.
+
+### Phase 4: Validation & Documentation (Week 5)
+
+**Objective**: Validate synthetic detection performance, complete documentation, CI verification.
+
+| Task ID | Description | FR/SC Coverage | Deliverable |
+|---------|-------------|----------------|-------------|
+| T032 | Evaluate inconsistency detection on synthetic dataset | FR-031, SC-030 | `output/synthetic_validation_report.json` |
+| T033 | Verify precision≥90%, recall≥80% (F1≥0.85) on synthetic data | FR-031, SC-030 | `output/synthetic_validation_report.json` |
+| T034 | Create Quickstart guide (README) with CLI examples | FR-028, SC-028 | `quickstart.md` |
+| T035 | Verify Quickstart: novice completes 30 URLs in ≤30 minutes | FR-028, SC-028 | User test report |
+| T036 | CI end-to-end test on sample corpus (≤6 hours) | FR-009, SC-008 | GitHub Actions run |
+| T037 | Verify manifest.json created in ≥99% of CI runs | SC-013 | CI logs |
+| T038 | Verify parsing error rate ≤5% of total summaries | FR-007, SC-005 | CI logs |
+
+**Statistical Rigor Notes**:
+- Synthetic validation precision/recall targets apply only to synthetic data (FR-031); real-world performance may differ (Methodological Limitations).

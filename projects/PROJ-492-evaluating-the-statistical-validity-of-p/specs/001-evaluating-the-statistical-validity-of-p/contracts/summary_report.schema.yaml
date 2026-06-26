@@ -1,7 +1,26 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "SummaryReport Schema"
-description: "Schema for aggregate audit results (FR-024)"
+title: "Summary Report"
 type: "object"
+description: "CSV-compatible schema for summary_report.csv (FR-024, SC-024)"
+properties:
+  total_summaries:
+    type: "integer"
+    description: "Total number of summaries processed"
+  inconsistent_count:
+    type: "integer"
+    description: "Number of summaries flagged as inconsistent"
+  inconsistent_rate:
+    type: "number"
+    description: "Raw inconsistency rate (count / total)"
+  bias_adjusted_rate:
+    type: "number"
+    description: "Domain-weighted bias-adjusted rate (FR-027)"
+  wilson_ci_lower:
+    type: "number"
+    description: "Lower bound of 95% Wilson confidence interval"
+  wilson_ci_upper:
+    type: "number"
+    description: "Upper bound of 95% Wilson confidence interval"
 required:
   - total_summaries
   - inconsistent_count
@@ -9,47 +28,4 @@ required:
   - bias_adjusted_rate
   - wilson_ci_lower
   - wilson_ci_upper
-properties:
-  total_summaries:
-    type: "integer"
-    minimum: 300
-    description: "Total number of audited summaries (N≥300 per FR-025)"
-  inconsistent_count:
-    type: "integer"
-    minimum: 0
-    description: "Number of summaries flagged as inconsistent"
-  inconsistent_rate:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Proportion of inconsistent summaries"
-  bias_adjusted_rate:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Domain-weighted bias-adjusted inconsistency rate"
-  wilson_ci_lower:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Lower bound of 95% Wilson confidence interval"
-  wilson_ci_upper:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Upper bound of 95% Wilson confidence interval"
-  parsing_error_count:
-    type: "integer"
-    minimum: 0
-    description: "Number of parsing failures (must be ≤5% of total_summaries per SC-005)"
-  bias_report_url:
-    type: "string"
-    description: "Path to bias_report.json"
-  subgroup_report_url:
-    type: "string"
-    description: "Path to subgroup_report.json"
-  generated_timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO 8601 timestamp of report generation"
 additionalProperties: false

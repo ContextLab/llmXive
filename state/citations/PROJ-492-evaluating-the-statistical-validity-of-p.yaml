@@ -10,43 +10,9 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1037/xap0000421
   verified_at: '2026-06-26T04:29:10.133870Z'
-- artifact_hash: dcbb9e7f4dff765107ed7c04751ddcc936d837f7a726976f05106ee4b9e815a5
-  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: "Examining the efficacy of STD testing public health messages tailored\
-    \ to youth\u2019s regulatory focus."
-  kind: doi
-  value: 10.1037/xap0000421
-  verification_status: verified
-  verified_against_url: https://doi.org/10.1037/xap0000421
-  verified_at: '2026-06-26T05:49:05.527809Z'
-- artifact_hash: ee58576ef7fcfa1621e296b68a445f7b0b1e67293e47d8cbeea43674a60ce0ca
-  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/data-model.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://example.com/ab-test
-  verification_status: mismatch
-  verified_against_url: https://example.com/ab-test
-  verified_at: '2026-06-26T05:51:12.361753Z'
-- artifact_hash: 0cb1b066680d0e9ebed16ea55571b9aca95cc6bad77c57bae8acc0fbcb00f510
+- artifact_hash: 017493b0fd4a43e7ae7840a4bea1ebbd79a5f7f678de578420e00047181769dc
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/quickstart.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/ab-test-audit.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/ab-test-audit
-  verified_at: '2026-06-26T05:51:24.918317Z'
-- artifact_hash: 0cb1b066680d0e9ebed16ea55571b9aca95cc6bad77c57bae8acc0fbcb00f510
-  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/quickstart.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -54,10 +20,10 @@
   value: https://example.com/ab-test-1
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-1
-  verified_at: '2026-06-26T05:51:24.918317Z'
-- artifact_hash: 0cb1b066680d0e9ebed16ea55571b9aca95cc6bad77c57bae8acc0fbcb00f510
+  verified_at: '2026-06-26T16:18:59.020483Z'
+- artifact_hash: 017493b0fd4a43e7ae7840a4bea1ebbd79a5f7f678de578420e00047181769dc
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/quickstart.md
-  cite_id: c-003
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -65,4 +31,4 @@
   value: https://example.com/ab-test-2
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-2
-  verified_at: '2026-06-26T05:51:24.918317Z'
+  verified_at: '2026-06-26T16:18:59.020483Z'
