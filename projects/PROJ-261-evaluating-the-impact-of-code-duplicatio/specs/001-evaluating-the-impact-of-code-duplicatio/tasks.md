@@ -71,10 +71,10 @@
 - [X] T020 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/model_metrics.py` to load `Salesforce/codegen-350M-mono` in 8‑bit quantization using bitsandbytes and compute perplexity
 - [X] T021 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/main.py` pipeline orchestration to join clone‑density and perplexity metrics, saving to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/processed/clone_metrics.csv` and `.../perplexity_scores.csv`
 - [X] T022 [US1] Add error handling for parse failures (log to `data/parse_failures.csv`), NaN/infinite perplexity values, network interruptions, and syntax errors (implementation layer - distinct from test tasks T012, T013, T015a, T016a-c)
-- [ ] T023 [US1] Add explicit memory‑monitoring to validate 7 GB limit throughout model inference (SC‑002)
-- [ ] T024 [US1] Add validation task to verify **SC‑001** (24‑hour completion) AND **500MB corpus requirement** on the full dataset (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`) using pytest
-- [ ] T025 [US1] Add checksum computation for all output files AND intermediate files/logs, record in `artifact_hashes` state manifest
-- [ ] T026 [US1] Add validation task to verify **SC‑003** (at least 1000 code segments processed with valid clone density and perplexity measurements) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
+- [X] T023 [US1] Add explicit memory‑monitoring to validate 7 GB limit throughout model inference (SC‑002)
+- [X] T024 [US1] Add validation task to verify **SC‑001** (24‑hour completion) AND **500MB corpus requirement** on the full dataset (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`) using pytest
+- [X] T025 [US1] Add checksum computation for all output files AND intermediate files/logs, record in `artifact_hashes` state manifest
+- [X] T026 [US1] Add validation task to verify **SC‑003** (at least 1000 code segments processed with valid clone density and perplexity measurements) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently
 
@@ -88,8 +88,8 @@
 
 ### Test Tasks
 
-- [ ] T027 [US2] Contract test for correlation schema (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/contract/test_correlation_schema.py`) using pytest
-- [ ] T028 [US2] Integration test for end‑to‑end correlation pipeline (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_pipeline_end_to_end.py`) using pytest
+- [X] T027 [US2] Contract test for correlation schema (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/contract/test_correlation_schema.py`) using pytest
+- [X] T028 [US2] Integration test for end‑to‑end correlation pipeline (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_pipeline_end_to_end.py`) using pytest
 - [ ] T029 [US2] Unit test for bug_detection.py pass@1 accuracy calculation (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_bug_detection.py`) using pytest
 - [ ] T030 [US2] Unit test for correlation_analysis.py Spearman coefficient computation (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_correlation_analysis.py`) using pytest
 
