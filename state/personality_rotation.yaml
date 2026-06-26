@@ -1,12 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-06-26T20:35:59.152351+00:00'
+last_used: ada-lovelace
+last_used_at: '2026-06-26T21:32:17.146266+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: linus-pauling
-  started_at: '2026-06-15T12:04:23.737295+00:00'
-  ended_at: '2026-06-15T16:38:19.410444+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-15T16:38:19.410444+00:00'
   ended_at: '2026-06-15T18:36:15.741636+00:00'
@@ -1154,5 +1149,10 @@ history:
 - slug: stephen-wolfram
   started_at: '2026-06-26T19:35:24.894093+00:00'
   ended_at: '2026-06-26T20:35:59.152351+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: ada-lovelace
+  started_at: '2026-06-26T20:35:59.152351+00:00'
+  ended_at: '2026-06-26T21:32:17.146266+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
