@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.07090",
+  "judged_at": "2026-06-26T00:53:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of sentiment drift in social media during economic recessions statistics",
+  "rationale": "This paper satisfies criterion (b) as it measures the same dependent variable (sentiment/narrative drift on social media over time) on the same domain (social media platforms), even though it studies a different societal event (Wagner mutiny vs. economic recessions). For a literature review, this provides relevant methodological precedent for analyzing sentiment drift in social media during major societal events, which is the core measurement approach the user's question requires.",
+  "relevant": true
+}

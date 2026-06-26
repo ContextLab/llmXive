@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-30T08:50:34.643446Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-642-minwm-a-full-stack-open-source-framework
-last_run_id: ec6c8904-41a8-4a21-b856-50da33bf9f89
+last_run_id: a13082bc-05db-4aed-a3ce-83070130214f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video
   World Models'
-updated_at: '2026-06-20T06:09:18.131284Z'
+updated_at: '2026-06-26T00:56:52.067328Z'

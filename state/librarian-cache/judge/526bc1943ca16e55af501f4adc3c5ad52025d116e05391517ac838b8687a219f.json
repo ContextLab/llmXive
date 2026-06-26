@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0706.1485",
+  "judged_at": "2026-06-26T00:52:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of sentiment drift in social media during economic recessions statistics",
+  "rationale": "This paper is a generic methodological study on time-series change-point detection using simulation, lacking any connection to the specific domain (Social Media, Economic Recessions) or variables (Sentiment) required for the literature review of this applied research question. It falls under the rejection rule for being \"Off-domain entirely\" regarding the empirical setting and variables, as it does not address the socio-economic phenomenon or provide a canonical reference for sentiment analysis ",
+  "relevant": false
+}

@@ -180,3 +180,6 @@ ready:
 - project_id: PROJ-648-representation-forcing-for-bottleneck-fr
   revision_spec_path: specs/auto-revisions/PROJ-648-representation-forcing-for-bottleneck-fr/round-1
   queued_at: '2026-06-25T07:14:27.503267+00:00'
+- project_id: PROJ-620-perception-or-prejudice-can-mllms-go-bey
+  revision_spec_path: specs/auto-revisions/PROJ-620-perception-or-prejudice-can-mllms-go-bey/round-2
+  queued_at: '2026-06-26T01:11:54.021359+00:00'

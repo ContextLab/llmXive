@@ -1,0 +1,364 @@
+project_id: PROJ-620-perception-or-prejudice-can-mllms-go-bey
+round: 2
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 17b7aecc1a0b
+  text: Code artifacts (evaluation scripts, annotation pipeline, config files) are
+    not included in the review input, preventing assessment of reproducibility, modularity,
+    and test coverage.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: c619818dd2f5
+  text: Explicitly state the SPDX license identifier for the MM-OCEAN annotations
+    (e.g., CC-BY-NC 4.0) rather than 'research-only' (Appendix D).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 08d3f811dd8f
+  text: Replace the anonymized Hugging Face URL with a permanent DOI or stable repository
+    link for publication (Title page).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 1fb3faaae287
+  text: Verify and resolve all [PLEASE-VERIFY] and [TBD] flags in references.bib to
+    ensure citation integrity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: d603ca5cbd8e
+  text: Report the exact number of videos dropped due to the <3 MCQs filter in Stage
+    5 for full data transparency (Section 4.3).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 9f7b1c51deef
+  text: Add accessibility alt-text attributes to all figure environments to comply
+    with modern conference standards for screen readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 9593c6b6aa3f
+  text: Review color palette in Figure 5 (radarv3.pdf) and Figure 6 (prg_archetypesv2.pdf)
+    for colorblind accessibility; Red/Green distinctions (openc/humanc) may be indistinguishable
+    to deuteranopes.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 022581bde093
+  text: Resolve redundancy between Figure 1 (pipelinev4.png) and Figure 3 (agentv5b.png).
+    Both depict the annotation pipeline; consolidate to save space or differentiate
+    content clearly.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 95dbc52fe5dc
+  text: Define 'CV' (Coefficient of Variation) at first use in Section 5.3 (Line 269)
+    to aid non-statisticians.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 050fbc0c79fe
+  text: Replace informal shorthand 'bbox' with 'bounding box' in Section 3.1 (Line
+    333) and Appendix.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 965007845b2b
+  text: Define 'pp' (percentage points) when first used in Section 5.2 (Line 477).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 37ad26ebf9e2
+  text: Expand 'ASR' to 'automatic speech recognition (ASR)' upon first mention in
+    Section 3.3 (Line 463).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 982a6081bc12
+  text: "The Prejudice Rate (PR) is defined as Pr[r3=0 | r1=1] where r3 comes from\
+    \ T3 MCQs. This does not directly measure whether a specific T1 rating was grounded\
+    \ in the model's actual evidence\u2014it measures separate MCQ performance. The\
+    \ claim '51% of correct ratings are ungrounded' requires clarification or a revised\
+    \ metric that links T1 and T3 on the same sample."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 405327bf8043
+  text: The 'Reasoning-capable MLLMs dominate' finding (Appendix Table) is explicitly
+    marked as observational and confounded (different sizes, families, generations).
+    Yet the abstract and conclusion present this as a finding without qualification.
+    Either reframe as correlational pattern or remove causal language.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 3013d8917269
+  text: "The T3 vs T1/T2 closed-vs-open gap comparison (\u0394_T3 = -26.6pp vs \u0394\
+    _T1 = -5.6pp) uses different scales (6-option MCQ vs 5-level ordinal). Report\
+    \ normalized gaps (e.g., relative to chance) to make the comparison logically\
+    \ valid."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: e112cc84234f
+  text: The AI-as-Judge for T2 shows +1.0 point self-preference for GPT-family models
+    (Table A.12), yet GPT-4o-mini is the primary judge. This circularity should be
+    acknowledged in the main text with sensitivity analysis showing whether it affects
+    the HR ranking.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 574dbc83404c
+  text: Temper the claim '51% of correct ratings are not grounded' in Abstract/Intro
+    to acknowledge MCQ limitations (Appendix E).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 4df4c142ef16
+  text: Align 'Reasoning-capable models dominate' claim in Abstract/Intro with 'observational/confounded'
+    language in Appendix H.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 52de3d5e996d
+  text: Clarify EU AI Act claim regarding 'per-prediction explainability' to avoid
+    over-interpreting the regulation (Intro).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: cef8ce5ea2d2
+  text: Explicitly state IRB/ethics committee approval status for the 24 human annotators
+    involved in Stage 1 and Stage 5 of the pipeline (Appendix \ref{app:human}).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: bb7d57584347
+  text: Clarify the consent scope of the source ChaLearn V2 data regarding personality
+    inference and ensure the new annotation layer does not exceed original consent
+    terms.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 0697d5f6500d
+  text: Strengthen the limitation statement in Appendix \ref{app:ethics} to explicitly
+    prohibit using the benchmark for high-stakes decision-making (e.g., hiring) without
+    regulatory approval.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 2b3faa972803
+  text: Add statistical significance tests (e.g. bootstrap confidence intervals) for
+    the central 'Prejudice Gap' (51% PR) and the Closed-Open T3 gap (-26.6%) to quantify
+    uncertainty.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 2f6f71faf752
+  text: Report confidence intervals for the PR/HR metrics across the 27 models to
+    assess the stability of the failure-mode rates beyond point estimates.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: eecdd483931e
+  text: Report 95% confidence intervals (e.g., via bootstrapping) for all primary
+    metrics (T1 Acc, T3 Acc, HR) in Table 1 to quantify estimation uncertainty.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: dc39e97bf514
+  text: Perform statistical significance testing (e.g., paired t-test or McNemar's)
+    for top-model comparisons rather than relying solely on point-estimate rankings.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 549731ad4227
+  text: Address multiple-comparisons correction when claiming specific performance
+    gaps (e.g., the -26.6% open-vs-closed T3 gap) are statistically significant.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 0e71572a152d
+  text: "Replace the custom author block (centerline + tabular) with the standard\
+    \ LaTeX \author macro to avoid potential alignment issues and to comply with the\
+    \ conference template's author formatting guidelines."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 6817b4bc904e
+  text: "Remove or reduce the numerous negative \vspace commands (e.g., \\vspace{-0.6cm},\
+    \ \\vspace{-0.2cm}) placed before sections and inside figures; they can cause\
+    \ overlapping text and inconsistent vertical spacing across pages."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 4bd387f5315e
+  text: Ensure that figure captions are placed immediately after the \includegraphics
+    line and before any manual vertical spacing adjustments; the current \vspace{-0.6cm}
+    after \caption may truncate the caption or cause it to collide with surrounding
+    text.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: f93c6e078043
+  text: 'Standardize list formatting: the itemize environments use custom leftmargin
+    and itemsep settings; verify that these do not exceed the template''s margin limits
+    and that bullet alignment is consistent throughout the manuscript.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 67937c547343
+  text: Check table scaling commands (e.g., \scalebox{0.85}{...}) for readability;
+    excessive scaling can make column headers too small and may violate the minimum
+    font size requirement of the venue.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 22bbc2a0093d
+  text: "Confirm that all citation commands follow the numeric style set by \\setcitestyle;\
+    \ some in\u2011text citations appear without surrounding parentheses (e.g., \"\
+    AI\u2011powered interview screening~\\cite{naim2016automated}\") which may be\
+    \ inconsistent with the bibliography style."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 1db95116e9ea
+  text: Review the use of \begin{center} environments after \maketitle; they introduce
+    additional vertical space that may conflict with the template's title block layout.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: e5f59698aa3b
+  text: Section 4.4 states 'We define five quantities' but lists 'two population-level
+    signals and four sample-level rates' (total 6). Correct the count or the list.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 0aeac965c67e
+  text: 'Section 5.3 contains a comma splice: ''Informative exceptions exist, Gemma-4-31B-it
+    ranks...''. Use a semicolon or period. Also clarify the ''13.5th'' rank, as ranks
+    are typically integers.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 5762fa6a0a72
+  text: "Appendix (Open-Source Size Scaling) starts with a sentence fragment: 'Open-source\
+    \ MLLMs at three parameter scales (Table~\ref{tab:scaling}).'. Complete the sentence."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 5082664d8109
+  text: 'Appendix (Worked Example) uses ''+'' informally: ''GPT-4o''s matching T1
+    + plausible T2 reasoning''. Replace with ''and''.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+- id: 36cb42b668e2
+  text: 'Introduction (Section 5.2) has a missing relative pronoun: ''even at the
+    closed-source frontier, $\sim\!15\%$ of correct ratings remain ungrounded.'' Add
+    ''where'' before the percentage.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 39 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-26T01:11:54.006596+00:00'

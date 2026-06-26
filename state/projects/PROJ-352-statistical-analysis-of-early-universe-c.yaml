@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T10:49:55.866396Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-352-statistical-analysis-of-early-universe-c
-last_run_id: 244f0487-7bd7-4220-a6a6-5767b57d7b15
+last_run_id: 19a5bc08-5ae6-4ba8-b859-2d1ef0f21845
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Statistical Analysis of Early Universe CMB Fluctuations and Topological Defects
-updated_at: '2026-06-12T15:50:52.354699Z'
+updated_at: '2026-06-26T00:56:22.428741Z'

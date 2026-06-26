@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.14295",
+  "judged_at": "2026-06-26T00:50:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of sentiment drift in social media during economic recessions statistics",
+  "rationale": "This paper analyzes GDP and population time series using energy distance clustering, which does not measure the user's dependent variable (sentiment drift) or domain (social media), failing criteria (a) and (b). It is not a foundational method for sentiment analysis or the specific correlation between economic conditions and social media sentiment.",
+  "relevant": false
+}

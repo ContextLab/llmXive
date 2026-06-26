@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2105.04900",
+  "judged_at": "2026-06-26T00:53:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of sentiment drift in social media during economic recessions statistics",
+  "rationale": "This paper satisfies criterion (a) as it measures the same underlying mechanism linking online textual sentiment to economic perception, despite using news data instead of social media. It establishes the empirical baseline for the relationship between digital text and economic confidence, which is the core construct of the user's question.",
+  "relevant": true
+}

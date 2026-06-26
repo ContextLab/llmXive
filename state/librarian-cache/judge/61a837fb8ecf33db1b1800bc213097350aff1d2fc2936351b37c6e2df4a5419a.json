@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1802.05737",
+  "judged_at": "2026-06-26T00:49:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of sentiment drift in social media during economic recessions statistics",
+  "rationale": "The paper focuses on NLP classification performance for code-mixed text rather than the socio-economic correlation between sentiment and economic recessions, representing a distinct construct despite sharing keywords like \"sentiment\" and \"social media\". It does not measure sentiment drift, economic variables, or the causal mechanism of interest.",
+  "relevant": false
+}

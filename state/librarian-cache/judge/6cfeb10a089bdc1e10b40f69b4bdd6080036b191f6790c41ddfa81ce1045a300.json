@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.16503",
+  "judged_at": "2026-06-26T00:50:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of sentiment drift in social media during economic recessions statistics",
+  "rationale": "The paper investigates sentiment during geopolitical crises affecting market volatility using news data, which constitutes a distinct construct from the user's focus on sentiment drift during economic recessions in social media. It fails to meet inclusion criteria (a)-(f) as the independent variable (war vs. recession) and data source (news vs. social media) do not align with the user's specific domain and variables.",
+  "relevant": false
+}

@@ -1,0 +1,754 @@
+{
+  "fetched_at": "2026-06-26T00:53:34Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions",
+      "target_n": 5
+    },
+    "duration_seconds": 543.251,
+    "ended_at": "2026-06-26T00:53:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Temporal sentiment analysis during financial crises"
+        ],
+        [
+          2,
+          "Time series analysis of online consumer confidence"
+        ],
+        [
+          3,
+          "Public mood fluctuations in economic downturns"
+        ],
+        [
+          4,
+          "Social media opinion volatility and macroeconomic indicators"
+        ],
+        [
+          5,
+          "Econometric modeling of social media sentiment trends"
+        ],
+        [
+          6,
+          "Longitudinal study of digital discourse during recessions"
+        ],
+        [
+          7,
+          "Correlation between social sentiment and GDP decline"
+        ],
+        [
+          8,
+          "Digital sentiment indices as leading economic indicators"
+        ],
+        [
+          9,
+          "Regression analysis of public sentiment and unemployment rates"
+        ],
+        [
+          10,
+          "NLP-based sentiment tracking in economic instability"
+        ],
+        [
+          11,
+          "Emotional valence shifts on social platforms during crises"
+        ],
+        [
+          12,
+          "Statistical methods for detecting sentiment regime changes"
+        ],
+        [
+          13,
+          "Social media data mining for economic forecasting"
+        ],
+        [
+          14,
+          "Volatility in online affective tone during market crashes"
+        ],
+        [
+          15,
+          "Quantitative analysis of Twitter sentiment during economic stress"
+        ],
+        [
+          16,
+          "Macroeconomic impact on social networking discourse"
+        ],
+        [
+          17,
+          "Sentiment polarity changes in response to financial news"
+        ],
+        [
+          18,
+          "Public perception shifts during periods of high inflation"
+        ],
+        [
+          19,
+          "Online community mood tracking during business cycle contractions"
+        ],
+        [
+          20,
+          "Comparative analysis of sentiment before and after economic shocks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions statistics": 0,
+        "Temporal sentiment analysis during financial crises": 1,
+        "Time series analysis of online consumer confidence": 4
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "public opinion shift financial downturn",
+      "Twitter financial crisis dataset",
+      "structural break sentiment time series",
+      "sentiment index economic forecasting",
+      "behavioral finance mood contagion"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2403.07090"
+      ]
+    },
+    "per_query_hit_count": {
+      "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions statistics": 3,
+      "Twitter financial crisis dataset": 3,
+      "behavioral finance mood contagion": 3,
+      "public opinion shift financial downturn": 3,
+      "sentiment index economic forecasting": 3,
+      "structural break sentiment time series": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1802.05737",
+          "rationale": "The paper focuses on NLP classification performance for code-mixed text rather than the socio-economic correlation between sentiment and economic recessions, representing a distinct construct despite sharing keywords like \"sentiment\" and \"social media\". It does not measure sentiment drift, economic variables, or the causal mechanism of interest.",
+          "title": "JU_KS@SAIL_CodeMixed-2017: Sentiment Analysis for Indian Code Mixed Social Media Texts"
+        },
+        {
+          "primary_pointer": "2510.16503",
+          "rationale": "The paper investigates sentiment during geopolitical crises affecting market volatility using news data, which constitutes a distinct construct from the user's focus on sentiment drift during economic recessions in social media. It fails to meet inclusion criteria (a)-(f) as the independent variable (war vs. recession) and data source (news vs. social media) do not align with the user's specific domain and variables.",
+          "title": "Sentiment and Volatility in Financial Markets: A Review of BERT and GARCH Applications during Geopolitical Crises"
+        },
+        {
+          "primary_pointer": "2303.14295",
+          "rationale": "This paper analyzes GDP and population time series using energy distance clustering, which does not measure the user's dependent variable (sentiment drift) or domain (social media), failing criteria (a) and (b). It is not a foundational method for sentiment analysis or the specific correlation between economic conditions and social media sentiment.",
+          "title": "Clustering Multivariate Time Series using Energy Distance"
+        },
+        {
+          "primary_pointer": "0706.1485",
+          "rationale": "This paper is a generic methodological study on time-series change-point detection using simulation, lacking any connection to the specific domain (Social Media, Economic Recessions) or variables (Sentiment) required for the literature review of this applied research question. It falls under the rejection rule for being \"Off-domain entirely\" regarding the empirical setting and variables, as it does not address the socio-economic phenomenon or provide a canonical reference for sentiment analysis ",
+          "title": "Bootstrapping confidence intervals for the change-point of time series"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T00:44:31Z",
+    "term_input": {
+      "normalized": "statistical analysis of sentiment drift in social media during economic recessions statistics",
+      "raw": "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Stress and depression are prevalent nowadays across people of all ages due to the quick paces of life. People use social media to express their feelings. Thus, social media constitute a valuable form of information for the early detection of stress and depression. Although many research works have been introduced targeting the early recognition of stress and depression, there are still limitations. There have been proposed multi-task learning settings, which use depression and emotion (or figurative language) as the primary and auxiliary tasks respectively. However, although stress is inextricably linked with depression, researchers face these two tasks as two separate tasks. To address these limitations, we present the first study, which exploits two different datasets collected under different conditions, and introduce two multitask learning frameworks, which use depression and stress as the main and auxiliary tasks respectively. Specifically, we use a depression dataset and a stressful dataset including stressful posts from ten subreddits of five domains. In terms of the first approach, each post passes through a shared BERT layer, which is updated by both tasks. Next, two separate BERT encoder layers are exploited, which are updated by each task separately. Regarding the second approach, it consists of shared and task-specific layers weighted by attention fusion networks. We conduct a series of experiments and compare our approaches with existing research initiatives, single-task learning, and transfer learning. Experiments show multiple advantages of our approaches over state-of-the-art ones.",
+          "claimed_authors": [
+            "Loukas Ilias",
+            "Dimitris Askounis"
+          ],
+          "claimed_title": "Multitask learning for recognizing stress and depression in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.18907"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Multitask learning for recognizing stress and depression in social media')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Politicization is a social phenomenon studied by political science characterized by the extent to which ideas and facts are given a political tone. A range of topics, such as climate change, religion and vaccines has been subject to increasing politicization in the media and social media platforms. In this work, we propose a computational method for assessing politicization in online conversations based on topic shifts, i.e., the degree to which people switch topics in online conversations. The intuition is that topic shifts from a non-political topic to politics are a direct measure of politicization -- making something political, and that the more people switch conversations to politics, the more they perceive politics as playing a vital role in their daily lives. A fundamental challenge that must be addressed when one studies politicization in social media is that, a priori, any topic may be politicized. Hence, any keyword-based method or even machine learning approaches that rely on topic labels to classify topics are expensive to run and potentially ineffective. Instead, we learn from a seed of political keywords and use Positive-Unlabeled (PU) Learning to detect political comments in reaction to non-political news articles posted on Twitter, YouTube, and TikTok during the 2022 Brazilian presidential elections. Our findings indicate that all platforms show evidence of politicization as discussion around topics adjacent to politics such as economy, crime and drugs tend to shift to politics. Even the least politicized topics had the rate in which their topics shift to politics increased in the lead up to the elections and after other political events in Brazil -- an evidence of politicization.",
+          "claimed_authors": [
+            "Marcelo Sartori Locatelli",
+            "Pedro Calais",
+            "Matheus Prado Miranda",
+            "João Pedro Junho",
+            "Tomas Lacerda Muniz",
+            "Wagner Meira",
+            "Virgilio Almeida"
+          ],
+          "claimed_title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11326"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Topic Shifts as a Proxy for Assessing Politicization in Social Media')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent election surprises, regime changes, and political shocks indicate that political agendas have become more fast-moving and volatile. The ability to measure the complex dynamics of agenda change and capture the nature and extent of volatility in political systems is therefore more crucial than ever before. This study proposes a definition and operationalization of volatility that combines insights from political science, communications, information theory, and computational techniques. The proposed measures of fractionalization and agenda change encompass the shifting salience of issues in the agenda as a whole and allow the study of agendas across different domains. We evaluate these metrics and compare them to other measures such as issue-level survival rates and the Pedersen Index, which uses public-opinion poll data to measure public agendas, as well as traditional media content to measure media agendas in the UK and Germany. We show how these measures complement existing approaches and could be employed in future agenda-setting research.",
+          "claimed_authors": [
+            "Chico Q. Camargo",
+            "Scott A. Hale",
+            "Peter John",
+            "Helen Z. Margetts"
+          ],
+          "claimed_title": "Measuring the Volatility of the Political agenda in Public Opinion and News Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.09037"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Measuring the Volatility of the Political agenda in Public Opinion and News Media')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Node centrality is one of the most important and widely used concepts in the study of complex networks. Here, we extend the paradigm of node centrality in financial and economic networks to consider the changes of node \"importance\" produced not only by the variation of the topology of the system but also as a consequence of the external levels of risk to which the network as a whole is submitted. Starting from the \"Susceptible-Infected\" (SI) model of epidemics and its relation to the communicability functions of networks we develop a series of risk-dependent centralities for nodes in (financial and economic) networks. We analyze here some of the most important mathematical properties of these risk-dependent centrality measures. In particular, we study the newly observed phenomenon of ranking interlacement, by means of which two entities may interlace their ranking positions in terms of risk in the network as a consequence of the change in the external conditions only, i.e., without any change in the topology. We test the risk-dependent centralities by studying two real-world systems: the network generated by collecting assets of the S\\&P 100 and the corporate board network of the US top companies, according to Forbes in 1999. We found that a high position in the ranking of the analyzed financial companies according to their risk-dependent centrality corresponds to companies more sensitive to the external market variations during the periods of crisis.",
+          "claimed_authors": [
+            "Paolo Bartesaghi",
+            "Michele Benzi",
+            "Gian Paolo Clemente",
+            "Rosanna Grassi",
+            "Ernesto Estrada"
+          ],
+          "claimed_title": "Risk-dependent centrality in economic and financial networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.07908"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Risk-dependent centrality in economic and financial networks')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "During the past twelve years, NASA's Fermi Gamma-ray Space Telescope has supported a wide range of Education and Public Outreach (E/PO) activities, targeting K-14 students and the general public. The purpose of the Fermi E/PO program is to increase student and public understanding of the science of the high-energy Universe, through inspiring, engaging and educational activities linked to the mission's science objectives. The E/PO program has additional more general goals, including increasing the diversity of students in the Science, Technology, Engineering and Mathematics (STEM) pipeline, and increasing public awareness and understanding of Fermi science and technology. Fermi's multi-faceted E/PO program includes elements in each major outcome category: Higher Education; Elementary and Secondary Education; Informal Education and Public Outreach.",
+          "claimed_authors": [
+            "Lynn Cominsky",
+            "Kevin McLin",
+            "Aurore Simonnet",
+            "the Fermi Education",
+            "Public Outreach Team"
+          ],
+          "claimed_title": "Twelve Years of Education and Public Outreach with the Fermi Gamma-ray Space Telescope",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0042"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Twelve Years of Education and Public Outreach with the Fermi Gamma-ray Space Telescope')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Online social networks such as Twitter and Weibo play an important role in how people stay informed and exchange reactions. Each crisis encompasses a new opportunity to study the portability of models for various tasks (e.g., information extraction, complex event understanding, misinformation detection, etc.), due to differences in domain, entities, and event types. We present the Russia-Ukraine Crisis Weibo (RUW) dataset, with over 3.5M user posts and comments in the first release. Our data is available at https://github.com/yrf1/RussiaUkraine_weibo_dataset.",
+          "claimed_authors": [
+            "Yi R. Fung",
+            "Heng Ji"
+          ],
+          "claimed_title": "A Weibo Dataset for the 2022 Russo-Ukrainian Crisis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.05967"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='A Weibo Dataset for the 2022 Russo-Ukrainian Crisis')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The financial crisis of 2008, which started with an initially well-defined epicenter focused on mortgage backed securities (MBS), has been cascading into a global economic recession, whose increasing severity and uncertain duration has led and is continuing to lead to massive losses and damage for billions of people. Heavy central bank interventions and government spending programs have been launched worldwide and especially in the USA and Europe, with the hope to unfreeze credit and boltster consumption. Here, we present evidence and articulate a general framework that allows one to diagnose the fundamental cause of the unfolding financial and economic crisis: the accumulation of several bubbles and their interplay and mutual reinforcement has led to an illusion of a \"perpetual money machine\" allowing financial institutions to extract wealth from an unsustainable artificial process. Taking stock of this diagnostic, we conclude that many of the interventions to address the so-called liquidity crisis and to encourage more consumption are ill-advised and even dangerous, given that precautionary reserves were not accumulated in the \"good times\" but that huge liabilities were. The most \"interesting\" present times constitute unique opportunities but also great challenges, for which we offer a few recommendations.",
+          "claimed_authors": [
+            "Didier Sornette",
+            "Ryan Woodard"
+          ],
+          "claimed_title": "Financial Bubbles, Real Estate bubbles, Derivative Bubbles, and the Financial and Economic Crisis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0905.0220"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Financial Bubbles, Real Estate bubbles, Derivative Bubbles, and the Financial and Economic Crisis')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A novel methodology is proposed for clustering multivariate time series data using energy distance defined in Székely and Rizzo (2013). Specifically, a dissimilarity matrix is formed using the energy distance statistic to measure separation between the finite dimensional distributions for the component time series. Once the pairwise dissimilarity matrix is calculated, a hierarchical clustering method is then applied to obtain the dendrogram. This procedure is completely nonparametric as the dissimilarities between stationary distributions are directly calculated without making any model assumptions. In order to justify this procedure, asymptotic properties of the energy distance estimates are derived for general stationary and ergodic time series. The method is illustrated in a simulation study for various component time series that are either linear or nonlinear. Finally the methodology is applied to two examples; one involves GDP of selected countries and the other is population size of various states in the U.S.A. in the years 1900 -1999.",
+          "claimed_authors": [
+            "Richard A. Davis",
+            "Leon Fernandes",
+            "Konstantinos Fokianos"
+          ],
+          "claimed_title": "Clustering Multivariate Time Series using Energy Distance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.14295"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Clustering Multivariate Time Series using Energy Distance')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an efficient alternating direction method of multipliers (ADMM) algorithm for segmenting a multivariate non-stationary time series with structural breaks into stationary regions. We draw from recent work where the series is assumed to follow a vector autoregressive model within segments and a convex estimation procedure may be formulated using group fused lasso penalties. Our ADMM approach first splits the convex problem into a global quadratic program and a simple group lasso proximal update. We show that the global problem may be parallelized over rows of the time dependent transition matrices and furthermore that each subproblem may be rewritten in a form identical to the log-likelihood of a Gaussian state space model. Consequently, we develop a Kalman smoothing algorithm to solve the global update in time linear in the length of the series.",
+          "claimed_authors": [
+            "Alex Tank",
+            "Emily B. Fox",
+            "Ali Shojaie"
+          ],
+          "claimed_title": "An Efficient ADMM Algorithm for Structural Break Detection in Multivariate Time Series",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.08392"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='An Efficient ADMM Algorithm for Structural Break Detection in Multivariate Time Series')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Space-time distributions')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We adopt Gaussian Processes (GPs) as latent functions for probabilistic forecasting of intermittent time series. The model is trained in a Bayesian framework that accounts for the uncertainty about the latent function. We couple the latent GP variable with two types of forecast distributions: the negative binomial (NegBinGP) and the Tweedie distribution (TweedieGP). While the negative binomial has already been used in forecasting intermittent time series, this is the first time in which a fully parameterized Tweedie density is used for intermittent time series. We properly evaluate the Tweedie density, which has both a point mass at zero and heavy tails, avoiding simplifying assumptions made in existing models. We test our models on thousands of intermittent count time series. Results show that our models provide consistently better probabilistic forecasts than the competitors. In particular, TweedieGP obtains the best estimates of the highest quantiles, thus showing that it is more flexible than NegBinGP.",
+          "claimed_authors": [
+            "Stefano Damato",
+            "Dario Azzimonti",
+            "Giorgio Corani"
+          ],
+          "claimed_title": "Forecasting intermittent time series with Gaussian Processes and Tweedie likelihood",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.19086"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Forecasting intermittent time series with Gaussian Processes and Tweedie likelihood')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a simple quantile regression-based forecasting method that was applied in a probabilistic load forecasting framework of the Global Energy Forecasting Competition 2017 (GEFCom2017). The hourly load data is log transformed and split into a long-term trend component and a remainder term. The key forecasting element is the quantile regression approach for the remainder term that takes into account weekly and annual seasonalities such as their interactions. Temperature information is only used to stabilize the forecast of the long-term trend component. Public holidays information is ignored. Still, the forecasting method placed second in the open data track and fourth in the definite data track with our forecasting method, which is remarkable given simplicity of the model. The method also outperforms the Vanilla benchmark consistently.",
+          "claimed_authors": [
+            "Florian Ziel"
+          ],
+          "claimed_title": "Quantile Regression for Qualifying Match of GEFCom2017 Probabilistic Load Forecasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.03561"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Quantile Regression for Qualifying Match of GEFCom2017 Probabilistic Load Forecasting')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a methodology for probabilistic load forecasting that is based on lasso (least absolute shrinkage and selection operator) estimation. The model considered can be regarded as a bivariate time-varying threshold autoregressive(AR) process for the hourly electric load and temperature. The joint modeling approach incorporates the temperature effects directly, and reflects daily, weekly, and annual seasonal patterns and public holiday effects. We provide two empirical studies, one based on the probabilistic load forecasting track of the Global Energy Forecasting Competition 2014 (GEFCom2014-L), and the other based on another recent probabilistic load forecasting competition that follows a setup similar to that of GEFCom2014-L. In both empirical case studies, the proposed methodology outperforms two multiple linear regression based benchmarks from among the top eight entries to GEFCom2014-L.",
+          "claimed_authors": [
+            "Florian Ziel",
+            "Bidong Liu"
+          ],
+          "claimed_title": "Lasso estimation for GEFCom2014 probabilistic electric load forecasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.01376"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Lasso estimation for GEFCom2014 probabilistic electric load forecasting')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep reinforcement learning (DRL) has been envisioned to have a competitive edge in quantitative finance. However, there is a steep development curve for quantitative traders to obtain an agent that automatically positions to win in the market, namely \\textit{to decide where to trade, at what price} and \\textit{what quantity}, due to the error-prone programming and arduous debugging. In this paper, we present the first open-source framework \\textit{FinRL} as a full pipeline to help quantitative traders overcome the steep learning curve. FinRL is featured with simplicity, applicability and extensibility under the key principles, \\textit{full-stack framework, customization, reproducibility} and \\textit{hands-on tutoring}.\n  Embodied as a three-layer architecture with modular structures, FinRL implements fine-tuned state-of-the-art DRL algorithms and common reward functions, while alleviating the debugging workloads. Thus, we help users pipeline the strategy design at a high turnover rate. At multiple levels of time granularity, FinRL simulates various markets as training environments using historical data and live trading APIs. Being highly extensible, FinRL reserves a set of user-import interfaces and incorporates trading constraints such as market friction, market liquidity and investor's risk-aversion. Moreover, serving as practitioners' stepping stones, typical trading tasks are provided as step-by-step tutorials, e.g., stock trading, portfolio allocation, cryptocurrency trading, etc.",
+          "claimed_authors": [
+            "Xiao-Yang Liu",
+            "Hongyang Yang",
+            "Jiechao Gao",
+            "Christina Dan Wang"
+          ],
+          "claimed_title": "FinRL: Deep Reinforcement Learning Framework to Automate Trading in Quantitative Finance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.09395"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='FinRL: Deep Reinforcement Learning Framework to Automate Trading in Quantitative Finance')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This is a short review of the background and recent development in quantum game theory and its possible application in economics and finance. The intersection of science and society is also discussed. The review is addressed to non--specialists.",
+          "claimed_authors": [
+            "Edward W. Piotrowski",
+            "J. Sladkowski"
+          ],
+          "claimed_title": "Quantum Game Theory in Finance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "quant-ph/0406129"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Quantum Game Theory in Finance')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we address three main objections of behavioral finance to the theory of rational finance, considered as anomalies the theory of rational finance cannot explain: Predictability of asset returns, The Equity Premium, (The Volatility Puzzle. We offer resolutions of those objections within the rational finance. We do not claim that those are the only possible explanations of the anomalies, but offer statistical models within the rational theory of finance which can be used without relying on behavioral finance assumptions when searching for explanations of those anomalies.",
+          "claimed_authors": [
+            "Svetlozar Rachev",
+            "Stoyan Stoyanov",
+            "Stefan Mittnik",
+            "Frank J. Fabozzi",
+            "Abootaleb Shirvani"
+          ],
+          "claimed_title": "Behavioral Finance -- Asset Prices Predictability, Equity Premium Puzzle, Volatility Puzzle: The Rational Finance Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.03211"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Behavioral Finance -- Asset Prices Predictability, Equity Premium Puzzle, Volatility Puzzle: The Rational Finance Approach')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study the parametric online changepoint detection problem, where the underlying distribution of the streaming data changes from a known distribution to an alternative that is of a known parametric form but with unknown parameters. We propose a joint detection/estimation scheme, which we call Window-Limited CUSUM, that combines the cumulative sum (CUSUM) test with a sliding window-based consistent estimate of the post-change parameters. We characterize the optimal choice of the window size and show that the Window-Limited CUSUM enjoys first-order asymptotic optimality as average run length approaches infinity under the optimal choice of window length. Compared to existing schemes with similar asymptotic optimality properties, our test can be much faster computed because it can recursively update the CUSUM statistic by employing the estimate of the post-change parameters. A parallel variant is also proposed that facilitates the practical implementation of the test. Numerical simulations corroborate our theoretical findings.",
+          "claimed_authors": [
+            "Liyan Xie",
+            "George V. Moustakides",
+            "Yao Xie"
+          ],
+          "claimed_title": "Window-Limited CUSUM for Sequential Change Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.06777"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Window-Limited CUSUM for Sequential Change Detection')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper proposes new specification tests for conditional models with discrete responses, which are key to apply efficient maximum likelihood methods, to obtain consistent estimates of partial effects and to get appropriate predictions of the probability of future events. In particular, we test the static and dynamic ordered choice model specifications and can cover infinite support distributions for e.g. count data. The traditional approach for specification testing of discrete response models is based on probability integral transforms of a jittered discrete data which leads to continuous uniform iid series under the true conditional distribution. Then, standard specification testing techniques for continuous variables could be applied to the transformed series, but the extra randomness from jitters affects the power properties of these methods. We investigate in this paper an alternative transformation based only on original discrete data that avoids any randomization. We analyze the asymptotic properties of goodness-of-fit tests based on this new transformation and explore the properties in finite samples of a bootstrap algorithm to approximate the critical values of test statistics which are model and parameter dependent. We show analytically and in simulations that our approach dominates the methods based on randomization in terms of power. We apply the new tests to models of the monetary policy conducted by the Federal Reserve.",
+          "claimed_authors": [
+            "Igor Kheifets",
+            "Carlos Velasco"
+          ],
+          "claimed_title": "New goodness-of-fit diagnostics for conditional discrete response models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.00378"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='New goodness-of-fit diagnostics for conditional discrete response models')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Large reasoning models (LRMs) have heterogeneous inference energy costs based on which model is used and how much it reasons. To reduce energy, it is important to choose the right LRM and operate it in the right way. As a result, the performance of systems that dispatch tasks to different individual LRMs depend on the balance between mean energy provisioning and stochastic fluctuations. The critical regime is the unique operating point at which neither auxiliary energy nor baseline energy is systematically wasted. Increasing baseline supply shifts the system toward persistent over-supply and baseline-energy waste, while reducing supply induces persistent reliance on auxiliary energy. Yet in this regime, performance remains volatility-limited and so a second-order characterization provides further insights that we develop. Here, performance is governed by how variability is absorbed across time, models, and execution choices. This perspective highlights variance-aware routing and dispatch as a principled design axis, and provides a theoretical basis for developing energy-aware model routing policies. Routing behavior is characterized when dispatch policies are based on training-compute and inference-compute scaling laws for LRMs.",
+          "claimed_authors": [
+            "Austin R. Ellis-Mohr",
+            "Max Hartman",
+            "Lav R. Varshney"
+          ],
+          "claimed_title": "Energy-Aware Routing to Large Reasoning Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2601.00823"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Energy-Aware Routing to Large Reasoning Models')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Determining accurately when regime and structural changes occur in various time-series data is critical in many social and natural sciences. We develop and show further the equivalence of two consistent estimation techniques in locating the change point under the framework of a generalised version of the Ornstein-Uhlehnbeck process. Our methods are based on the least sum of squared error and the maximum log-likelihood approaches. The case where both the existence and the location of the change point are unknown is investigated and an informational methodology is employed to address these issues. Numerical illustrations are presented to assess the performance of the methods.",
+          "claimed_authors": [
+            "Fuqi Chen",
+            "Rogemar Mamon",
+            "Severien Nkurunziza"
+          ],
+          "claimed_title": "Determination of a structural break in a mean-reverting process",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.03153"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Determination of a structural break in a mean-reverting process')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider a Markov modulated fluid network with a finite number of stations. We are interested in the tail asymptotics behavior of the stationary distribution of its buffer content process. Using two different approaches, we derive upper and lower bounds for the stationary tail decay rate in various directions. Both approaches are based on a well-known time-evolution formula of a Markov process, so-called Dynkin's formula, where a key ingredient is a suitable choice of test functions. Those results show how multidimensional tail asymptotics can be studied for the more than two-dimensional case, which is known as a hard problem.",
+          "claimed_authors": [
+            "Masakiyo Miyazawa"
+          ],
+          "claimed_title": "Markov modulated fluid network process: Tail asymptotics of the stationary distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.05177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Markov modulated fluid network process: Tail asymptotics of the stationary distribution')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "For a given data set the problem of selecting either Lindley or xgamma distribution with unknown parameter is investigated in this article. Both these distributions can be used quite effectively for analyzing skewed non-negative data and in modeling time-to-event data sets. We have used the ratio of the maximized likelihoods in choosing between the Lindley and xgamma distributions. Asymptotic distributions of the ratio of the maximized likelihoods are obtained and those are utilized to determine the minimum sample size required to discriminate between these two distributions for user specified probability of correct selection and tolerance limit.",
+          "claimed_authors": [
+            "Subhradev Sen",
+            "Hazem Al-Mofleh",
+            "Sudhansu S. Maiti"
+          ],
+          "claimed_title": "On discrimination between the Lindley and xgamma distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.10042"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='On discrimination between the Lindley and xgamma distributions')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Self-interacting diffusions are processes living on a compact Riemannian manifold defined by a stochastic differential equation with a drift term depending on the past empirical measure of the process. The asymptotics of this measure is governed by a deterministic dynamical system and under certain conditions it converges almost surely towards a deterministic measure (see Benaïm, Ledoux, Raimond (2002) and Benaïm, Raimond (2005)). We are interested here in the rate of this convergence. A central limit theorem is proved. In particular, this shows that greater is the interaction repelling faster is the convergence.",
+          "claimed_authors": [
+            "Michel Benaim",
+            "Olivier Raimond"
+          ],
+          "claimed_title": "Self-interacting diffusions IV: Rate of convergence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0907.5468"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Self-interacting diffusions IV: Rate of convergence')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Even in the face of deteriorating and highly volatile demand, firms often invest in, rather than discard, aging technologies. In order to study this phenomenon, we model the firm's profit stream as a Brownian motion with negative drift. At each point in time, the firm can continue operations, or it can stop and exit the project. In addition, there is a one-time option to make an investment which boosts the project's profit rate. Using stochastic analysis, we show that the optimal policy always exists and that it is characterized by three thresholds. There are investment and exit thresholds before investment, and there is a threshold for exit after investment. We also effect a comparative statics analysis of the thresholds with respect to the drift and the volatility of the Brownian motion. When the profit boost upon investment is sufficiently large, we find a novel result: the investment threshold decreases in volatility.",
+          "claimed_authors": [
+            "H. Dharma Kwon"
+          ],
+          "claimed_title": "Invest or Exit? Optimal Decisions in the Face of a Declining Profit Stream",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.01486"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Invest or Exit? Optimal Decisions in the Face of a Declining Profit Stream')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In the quickest change detection problem in which both nuisance and critical changes may occur, the objective is to detect the critical change as quickly as possible without raising an alarm when either there is no change or a nuisance change has occurred. A window-limited sequential change detection procedure based on the generalized likelihood ratio test statistic is proposed. A recursive update scheme for the proposed test statistic is developed and is shown to be asymptotically optimal under mild technical conditions. In the scenario where the post-change distribution belongs to a parametrized family, a generalized stopping time and a lower bound on its average run length are derived. The proposed stopping rule is compared with the FMA stopping time and the naive 2-stage procedure that detects the nuisance or critical change using separate CuSum stopping procedures for the nuisance and critical changes. Simulations demonstrate that the proposed rule outperforms the FMA stopping time and the 2-stage procedure, and experiments on a real dataset on bearing failure verify the performance of the proposed stopping time.",
+          "claimed_authors": [
+            "Tze Siong Lau",
+            "Wee Peng Tay"
+          ],
+          "claimed_title": "Quickest Change Detection in the Presence of a Nuisance Change",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.03460"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='Quickest Change Detection in the Presence of a Nuisance Change')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper we study the asymptotic behavior of the normalized weighted empirical occupation measures of a diffusion process on a compact manifold which is killed at a smooth rate and then regenerated at a random location, distributed according to the weighted empirical occupation measure. We show that the weighted occupation measures almost surely comprise an asymptotic pseudo-trajectory for a certain deterministic measure-valued semiflow, after suitably rescaling the time, and that with probability one they converge to the quasi-stationary distribution of the killed diffusion. These results provide theoretical justification for a scalable quasi-stationary Monte Carlo method for sampling from Bayesian posterior distributions.",
+          "claimed_authors": [
+            "Andi Q. Wang",
+            "Gareth O. Roberts",
+            "David Steinsaltz"
+          ],
+          "claimed_title": "An approximation scheme for quasi-stationary distributions of killed diffusions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.07086"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Sentiment Drift in Social Media During Economic Recessio', candidate_title='An approximation scheme for quasi-stationary distributions of killed diffusions')",
+        "failed_at": "2026-06-26T00:47:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. Fronzetti Colladon",
+            "F. Grippa",
+            "B. Guardabascio",
+            "G. Costante",
+            "F. Ravazzolo"
+          ],
+          "title": "Forecasting consumer confidence through semantic network analysis of online news",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2105.04900",
+        "summary": "This research studies the impact of online news on social and economic consumer perceptions through semantic network analysis. Using over 1.8 million online articles on Italian media covering four years, we calculate the semantic importance of specific economic-related keywords to see if words appearing in the articles could anticipate consumers' judgments about the economic situation and the Consumer Confidence Index. We use an innovative approach to analyze big textual data, combining methods and tools of text mining and social network analysis. Results show a strong predictive power for the judgments about the current households and national situation. Our indicator offers a complementary approach to estimating consumer confidence, lessening the limitations of traditional survey-based methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2105.04900",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T00:48:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andy Skumanich",
+            "Han Kyul Kim"
+          ],
+          "title": "Time Series Analysis of Key Societal Events as Reflected in Complex Social Media Data Streams",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.07090",
+        "summary": "Social media platforms hold valuable insights, yet extracting essential information can be challenging. Traditional top-down approaches often struggle to capture critical signals in rapidly changing events. As global events evolve swiftly, social media narratives, including instances of disinformation, become significant sources of insights. To address the need for an inductive strategy, we explore a niche social media platform GAB and an established messaging service Telegram, to develop methodologies applicable on a broader scale. This study investigates narrative evolution on these platforms using quantitative corpus-based discourse analysis techniques. Our approach is a novel mode to study multiple social media domains to distil key information which may be obscured otherwise, allowing for useful and actionable insights. The paper details the technical and methodological aspects of gathering and preprocessing GAB and Telegram data for a keyness (Log Ratio) metric analysis, identifying crucial nouns and verbs for deeper exploration. Empirically, this approach is applied to a case study of a well defined event that had global impact: the 2023 Wagner mutiny. The main findings are: (1) the time line can be deconstructed to provide useful data features allowing for improved interpretation; (2) a methodology is applied which provides a basis for generalization. The key contribution is an approach, that in some cases, provides the ability to capture the dynamic narrative shifts over time with elevated confidence. The approach can augment near-real-time assessment of key social movements, allowing for informed governance choices. This research is important because it lays out a useful methodology for time series relevant info-culling, which can enable proactive modes for positive social engagement.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.07090",
+          "http_status": 200,
+          "pdf_sample_score": 0.3042,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T00:48:22Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical analysis of sentiment drift in social media during economic recessions statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
