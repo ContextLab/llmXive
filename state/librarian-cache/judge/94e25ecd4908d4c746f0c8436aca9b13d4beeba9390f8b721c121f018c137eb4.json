@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.10842",
+  "judged_at": "2026-06-26T07:23:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of lottery number frequency and player behavior statistics",
+  "rationale": "This paper addresses the \"Lottery Ticket Hypothesis\" in machine learning (neural network pruning and subnetworks), which is a distinct construct from the user's question about real-world gambling lottery statistics and player behavior, fitting the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

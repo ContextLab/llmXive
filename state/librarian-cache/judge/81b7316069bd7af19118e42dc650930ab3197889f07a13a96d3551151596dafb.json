@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0906.3662",
+  "judged_at": "2026-06-26T07:22:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of lottery number frequency and player behavior statistics",
+  "rationale": "This paper is off-domain entirely, focusing on neuroimaging (fMRI) and brain activity analysis rather than lottery systems or gambling behavior. It shares only the general keyword \"statistics\" but addresses a distinct construct with no measurable connection to the user's variables.",
+  "relevant": false
+}

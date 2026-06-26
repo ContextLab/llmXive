@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2005.03454",
+  "judged_at": "2026-06-26T07:23:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of lottery number frequency and player behavior statistics",
+  "rationale": "This paper addresses the \"Lottery Ticket Hypothesis\" in deep learning (neural network pruning), which is a distinct construct sharing only the homonym keyword \"Lottery\" with the user's question about gambling statistics and player behavior. It falls under the rejection rule for distinct constructs sharing only homonym keywords or being off-domain entirely.",
+  "relevant": false
+}

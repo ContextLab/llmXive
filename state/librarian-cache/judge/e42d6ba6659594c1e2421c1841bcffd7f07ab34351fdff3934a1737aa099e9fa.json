@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.12496",
+  "judged_at": "2026-06-26T07:22:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of lottery number frequency and player behavior statistics",
+  "rationale": "This paper is off-domain entirely, focusing on quantum cryptographic protocols for lottery security rather than the statistical analysis of traditional lottery number frequencies and player behavior; it shares only the keyword \"lottery\" but addresses a distinct construct.",
+  "relevant": false
+}

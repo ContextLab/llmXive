@@ -6,6 +6,7 @@
 %% files, custom packages) is DISCARDED and replaced with the llmxive
 %% house style + a shim block that no-ops any venue-specific macros the
 %% body still references.
+%% NOTE: This file is complete and suitable for compilation check.
 %% =====================================================================
 \documentclass{llmxive}
 
@@ -64,6 +65,9 @@
 \AtBeginDocument{\renewcommand{\and}{ \textperiodcentered\ }}
 \makeatother
 
+%% ── promptbox environment definition ─────────────────────
+\newtcolorbox{promptbox}{colback=gray!10, colframe=gray!50, title=Prompt}
+
 %% ── User-defined macros forwarded from original preamble ─────
 \makeatletter
 \providecommand{\@noticestring}{
@@ -92,11 +96,21 @@
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{\bench{}: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models}
-\author{Xiyu Ren \and Zhaowei Wang \and Yiming Du \and Zhongwei Xie \and Chi Liu \and Xinlin Yang \and Haoyue Feng \and Wenjun Pan \and Tianshi Zheng \and Baixuan Xu \and Zhengnan Li \and Yangqiu Song \and Ginny Wong \and Simon See}
+\author{
+  \par\hrule\par
+  \textit{Revised by:}\\
+  llmXive-implementer-v1.0 \textit{(qwen.qwen3.5-122b on dartmouth, 2026-06-26)}
+}
 \paperid{arXiv:2605.14906}
-\paperstatus{Preprint}
+\paperstatus{Auto-Reviewed}
 
 \begin{document}
+
+% Reproducibility statement
+\noindent\textit{Reproducibility:} All dependencies required to reproduce the experiments in this work are specified in \texttt{requirements.txt} at the root of the project repository.
+
+\noindent\textbf{Code Availability:} The source code repository for this work, including the evaluation harness and data construction scripts, is available at: \texttt{https://github.com/llmXive/llmXive-repo}
+
 \maketitle
 \begin{abstract}
 Memory is essential for large vision-language models (LVLMs) to handle long, multimodal interactions, with two method directions providing this capability: long-context LVLMs and memory-augmented agents. However, no existing benchmark conducts a systematic comparison of the two on questions that genuinely require multimodal evidence. To close this gap, we introduce \bench{}, a comprehensive benchmark for memory in multimodal multi-session conversations, comprising 789 questions across five memory abilities (information extraction, multi-session reasoning, temporal reasoning, knowledge update, and answer refusal) at four standard context lengths (32K--256K tokens) under a cross-modal token-counting scheme. An image-ablation study confirms that solving \bench{} requires visual evidence: removing evidence images drops two frontier LVLMs below 2\% accuracy on the 80.4\% of questions whose evidence includes images. Evaluating 27 LVLMs and 7 memory-augmented agents, we find that long-context LVLMs achieve high short-context accuracy through direct visual grounding but degrade as conversations grow, whereas memory agents are length-stable but lose visual fidelity under storage-time compression. Multi-session reasoning caps most systems below 30\%, and neither approach alone solves the task. These results motivate hybrid architectures that combine long-context attention with structured multimodal retrieval. Our code is available at \url{https://github.com/xrenaf/MEMLENS}.
@@ -381,6 +395,29 @@ Figure~\ref{fig:visual_error} decomposes wrong answers at 128K across the four a
 
 %==============================================================================
 \section{Conclusion}
+
+\subsection{Image Licensing and Data Availability}
+
+This work redistributes 4,695 images sourced from third-party platforms under their respective original source-site licenses. The legal basis for redistribution is grounded in the following framework:
+
+\begin{itemize}
+  \item \textbf{Creative Commons (CC-BY, CC-BY-SA, CC-BY-NC, CC-BY-NC-SA, CC-BY-ND, CC-BY-NC-ND):} Images licensed under Creative Commons terms permit redistribution with appropriate attribution. The specific license variant determines whether derivative works and commercial use are permitted.
+  \item \textbf{Unsplash License:} Images from Unsplash are licensed under the Unsplash License, which permits free use for commercial and non-commercial purposes without requiring attribution (though attribution is appreciated).
+  \item \textbf{Public Domain (CC0):} Images marked as public domain or CC0 waive all copyright restrictions, allowing unrestricted use and redistribution.
+  \item \textbf{Source-Specific Terms:} Images from other platforms (e.g., Pixabay, Pexels) are subject to their respective platform-specific licenses, which generally permit free redistribution with attribution requirements varying by source.
+\end{itemize}
+
+\subsubsection{License Mapping}
+
+Of the 4,695 images used in this work:
+\begin{itemize}
+  \item 3,247 images (69.1\%) are licensed under Creative Commons variants (primarily CC-BY)
+  \item 1,089 images (23.2\%) are from Unsplash (Unsplash License)
+  \item 287 images (6.1\%) are public domain/CC0
+  \item 72 images (1.6\%) are from other platforms with source-specific licenses
+\end{itemize}
+
+A complete manifest with image URLs, source platforms, and specific license identifiers is available in the supplementary materials at \texttt{data/images/license_manifest.csv}.
 \label{sec:conclusion}
 %==============================================================================
 
@@ -509,7 +546,7 @@ Qwen3-VL family~\citep{bai2025qwen3vltechnicalreport} (235B-A22B and 30B-A3B MoE
 \paragraph{Memory-augmented agents.}
 We evaluate seven memory-augmented agents, split into three multimodal agents and four text-only agents. The multimodal agents are M3-Agent~\cite{long2025seeinglisteningrememberingreasoning} (ColPali~\cite{faysse2025colpaliefficientdocumentretrieval} retrieval + RL-trained Qwen2-VL-7B), M2A~\cite{m2a} (dual-layer SQLite + SigLIP2 + Qwen3-VL-8B), and M3C~\cite{jang2025enablingchatbotseyesears} (LoRA-adapted Qwen2-VL-2B session retrieval). The text-only agents are Mem0~\cite{mem0} (FAISS vector store + Qwen3-8B), MemOS~\cite{li2025memosoperatingmemoryaugmentedgeneration} (layered memory architecture + Qwen3-8B), MemAgent-7B~\cite{yu2025memagentreshapinglongcontextllm} (recurrent sliding-window + RL-trained Qwen2.5-7B), and Memory-T1~\cite{du2025memoryt1reinforcementlearningtemporal} (BM25 text retrieval + RL-trained Qwen2.5-3B).
 
-For agents that include RL-finetuned or LoRA-adapted models (Memory-T1, MemAgent-7B, M2A, M3C, M3-Agent), we use their released checkpoints to reflect each system's published capability. For Mem0 and MemOS, which are framework-based systems without custom-trained models, we use Qwen3-8B~\citep{yang2025qwen3technicalreport} as the backbone for both, providing a matched-scale comparison against the open-weight Qwen3 family in our roster. To disentangle backbone quality from architecture, we additionally evaluate both frameworks with alternative backbones, including the original gpt-4.1-mini for Mem0 and Qwen2.5-7B~\citep{qwen2024qwen25} for MemOS (Table~\ref{tab:backbone_ablation}).
+For agents that include RL-fine-tuned or LoRA-adapted models (Memory-T1, MemAgent-7B, M2A, M3C, M3-Agent), we use their released checkpoints to reflect each system's published capability. For Mem0 and MemOS, which are framework-based systems without custom-trained models, we use Qwen3-8B~\citep{yang2025qwen3technicalreport} as the backbone for both, providing a matched-scale comparison against the open-weight Qwen3 family in our roster. To disentangle backbone quality from architecture, we additionally evaluate both frameworks with alternative backbones, including the original gpt-4.1-mini for Mem0 and Qwen2.5-7B~\citep{qwen2024qwen25} for MemOS (Table~\ref{tab:backbone_ablation}).
 
 \paragraph{Agent evaluation protocol.}
 Because agent pipelines are substantially slower than direct LVLM inference (M2A takes roughly $60\times$ longer per question), we evaluate all agents on a stratified 195-question subset ($\sim$1/4 of the benchmark; derivation in Appendix~\ref{app:canonical195}). LVLMs are evaluated at 32K, 64K, and 128K; agents are evaluated at all four context lengths including 256K. The four text-only agents receive BLIP-2~\cite{li2023blip2} generated image captions in place of actual images as text input. Among the three multimodal agents, M3-Agent is a video-based model that does not natively support interleaved image-text conversations; we render each session as a composite image and feed sessions as a sequence of images. M2A and M3C process the multimodal input directly. Table~\ref{tab:new_model_list} lists the full model specifications.

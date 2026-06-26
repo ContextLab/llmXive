@@ -12,9 +12,9 @@ points_paper:
   paper_review: 1.0
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-578-https-arxiv-org-abs-2605-14906/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language
   Models'
-updated_at: '2026-05-18T14:33:41.042556Z'
+updated_at: '2026-06-26T07:47:31.002597Z'
