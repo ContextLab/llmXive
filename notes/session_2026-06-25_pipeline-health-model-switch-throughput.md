@@ -186,3 +186,49 @@ missing-YAML, ReviewRecord-validation — all stopped before/at the fixes.
 ### RESUME: error campaign COMPLETE (#50-#57 pushed). Next frontier = 492 tasks-gate convergence
 (the next wall after spec+plan, same class as the earlier spec/plan oscillations) + the in_progress
 execute_and_gate beyond it. Let the crons drive; watch for a NEW fixable bug vs genuine non-converge.
+
+## CONTINUED 2026-06-26 (cont.) — TASKS-GATE structural wall fixed (#58/#59)
+
+Goal not yet met (492 stuck at tasks gate). Dug into WHY, with a real qwen analyze
+observation on 492's committed spec/plan/tasks (2 trials).
+
+**ROOT CAUSE of the tasks-gate oscillation (general, hit EVERY project):**
+`is_clean(report)` (analyze_cmd) returned True ONLY if the LLM analyze report literally
+STARTS WITH "CLEAN". `/speckit.analyze` is an eager LLM critic — it reliably finds some
+nit and almost never emits "CLEAN" — so the tasks gate could essentially NEVER converge
+(planned↔tasked↔clarified forever), with NO two-tier relief, unlike the spec/plan gates.
+
+- **#58** added `analyze_advance_ok`: doc-authoring tasks stage ADVANCES on writing-level
+  residue (CLEAN, or only MEDIUM/LOW findings); a CRITICAL/HIGH cross-artifact issue
+  always kicks back (science bar never relaxed); malformed (no parseable severity) kicks
+  back. Wired into all 4 analyze gates (research engine early-exit + final + legacy +
+  paper). Mirrors engine.py's two-tier bar. Verified vs the REAL 492 reports.
+
+**The observation also proved 492's findings are GENUINE (not noise), stable across
+trials:** T070/T071 evaluate the wrong component (inconsistency-detection vs FR-031b's
+mandated extraction-accuracy); "[deferred]" where FR-027's 30% / FR-030's 10,000 are
+mandated; scope creep (logistic-regression vs FR-027's domain-weighted averaging);
+duplicated tasks. So the tasks gate was CORRECTLY blocking 492 on real CRITICAL/HIGH —
+#58 alone does NOT push 492 through; it unblocks projects whose tasks.md is good enough
+that only nits remain.
+
+- **#59** strip_empirical_values kept a bound-led design target only for the SYMBOL form
+  (">30%"); the WORD form ("any domain exceeds 30%") was deferred → the same FR-027 30%
+  inconsistently stripped within one sentence → analyze flags it CRITICAL → reviser
+  can't durably fix (strip re-defers what it restores). Added word-form bound operators
+  (exceed(s|ing)/greater|less|fewer|more than) to `_BOUND_LEAD`. Symbol+word forms now
+  both kept; empirical world-claims still defer.
+
+**execute_and_gate (in_progress, the NEXT wall) audited — NO structural is_clean-style
+bug:** it's a legitimate real-execution gate (run the analysis scripts, bounded fix-loop,
+GPU/CUDA/OOM failures flagged distinctly for CPU re-scoping per PROJ-261/262, honest
+escalation at MAX_EXECUTION_FIX_ROUNDS). A CPU-tractable project whose code runs crosses it.
+
+### STATE: tasks gate now STRUCTURALLY passable. Remaining walls are QUALITY, not
+structure: (a) the reviser fixing real tasks.md defects (492's T070/scope-creep), (b) the
+implementer generating runnable CPU analysis code at execute_and_gate, (c) the untested
+research_review→paper track. These need the crons to drive projects through to observe +
+fix the next real bug. Manual dispatch thrashes the queue ([[ci-concurrency-queue-thrash]]),
+so let the SCHEDULED crons (research-speckit 4h etc.) drive with #58/#59 in place.
+RESUME: watch the run-log for a project crossing tasked→analyzed→in_progress; fix the next
+structural bug as it surfaces. Fixes this session: #42-#59 (18 general fixes).
