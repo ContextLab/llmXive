@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-26T21:59:00.055625+00:00'
-last_outcome: librarian_held
+last_used: alan-turing
+last_used_at: '2026-06-26T22:27:55.410233+00:00'
+last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-06-15T18:36:15.741636+00:00'
-  ended_at: '2026-06-15T20:13:51.016688+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: richard-feynman
   started_at: '2026-06-15T20:13:51.016688+00:00'
   ended_at: '2026-06-16T03:07:40.154179+00:00'
@@ -1158,3 +1153,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/_held/alan-turing-simulated__2026-06-26__research.md
+- slug: alan-turing
+  started_at: '2026-06-26T21:59:00.055625+00:00'
+  ended_at: '2026-06-26T22:27:55.410233+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/alan-turing-simulated__2026-06-26__research.md
