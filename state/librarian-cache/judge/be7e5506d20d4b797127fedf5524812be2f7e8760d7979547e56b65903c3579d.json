@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1710.05423",
+  "judged_at": "2026-06-26T19:50:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multi-property trade-offs in alloy design using public compositional data materials science",
+  "rationale": "This paper is off-domain entirely, focusing on control theory and adaptive controllers for MIMO systems rather than materials science and alloy design. It shares only generic optimization terminology (\"multi-objective\", \"trade-offs\") without addressing the specific physical variables, compositional data, or empirical population required for the user's question.",
+  "relevant": false
+}

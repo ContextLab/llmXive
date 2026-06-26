@@ -1,0 +1,673 @@
+{
+  "fetched_at": "2026-06-26T19:50:33Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data",
+      "target_n": 5
+    },
+    "duration_seconds": 434.708,
+    "ended_at": "2026-06-26T19:50:33Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Multi-objective optimization for metallic alloys"
+        ],
+        [
+          2,
+          "Pareto optimal alloy design"
+        ],
+        [
+          3,
+          "Data-driven multi-property materials selection"
+        ],
+        [
+          4,
+          "Public materials databases for alloy discovery"
+        ],
+        [
+          5,
+          "Conflicting property optimization in metallurgy"
+        ],
+        [
+          6,
+          "Machine learning guided alloy composition screening"
+        ],
+        [
+          7,
+          "Strength-ductility balance in alloy development"
+        ],
+        [
+          8,
+          "High-throughput computational alloy design"
+        ],
+        [
+          9,
+          "Open access materials property datasets"
+        ],
+        [
+          10,
+          "Inverse design of multi-functional alloys"
+        ],
+        [
+          11,
+          "Compositional space search for trade-off analysis"
+        ],
+        [
+          12,
+          "Materials informatics for property prediction"
+        ],
+        [
+          13,
+          "Multi-criteria optimization in materials engineering"
+        ],
+        [
+          14,
+          "Genetic algorithms for alloy property balancing"
+        ],
+        [
+          15,
+          "Corrosion-strength trade-offs in metallic systems"
+        ],
+        [
+          16,
+          "Accelerated materials discovery using public data"
+        ],
+        [
+          17,
+          "Composition-property relationships in alloys"
+        ],
+        [
+          18,
+          "Bayesian optimization for alloy design"
+        ],
+        [
+          19,
+          "Materials Genome Initiative alloy datasets"
+        ],
+        [
+          20,
+          "Collaborative platforms for materials data sharing"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materials science": 0,
+        "Multi-objective optimization for metallic alloys": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Pareto optimization alloy design properties",
+      "Materials Project OQMD alloy composition",
+      "Materials informatics machine learning descriptors",
+      "yield strength elongation hardness alloys",
+      "inverse design Bayesian optimization alloys"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1710.05423"
+      ]
+    },
+    "per_query_hit_count": {
+      "Materials Project OQMD alloy composition": 3,
+      "Materials informatics machine learning descriptors": 3,
+      "Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materials science": 3,
+      "Pareto optimization alloy design properties": 3,
+      "inverse design Bayesian optimization alloys": 2,
+      "yield strength elongation hardness alloys": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1605.07009",
+          "rationale": "The paper is a general computer science benchmarking platform for optimization solvers and does not study alloy properties, compositional data, or materials science domains, failing the domain-specific relevance required for a literature review on alloy design (Rule b / Off-domain). While it addresses multi-objective optimization, it does not measure the physical observables or mechanisms specific to the user's materials science question.",
+          "title": "BMOBench: Black-Box Multi-Objective Optimization Benchmarking Platform"
+        },
+        {
+          "primary_pointer": "2410.05787",
+          "rationale": "The paper focuses on dynamic multi-objective optimization algorithms using mathematical benchmarks, lacking any application to materials science, alloy design, or public compositional data, which renders it off-domain for a review specifically targeting data-driven alloy design trade-offs. While it addresses multi-objective optimization generally, it does not satisfy the domain-specific requirements (alloys, compositional data) or the static nature of the user's design problem (versus dynamic ti",
+          "title": "An accelerate Prediction Strategy for Dynamic Multi-Objective Optimization"
+        },
+        {
+          "primary_pointer": "2301.09166",
+          "rationale": "The paper is off-domain as it focuses on machining parameters (face milling) rather than alloy composition or material properties, sharing only the 'multi-objective optimization' keyword with the user's question. This falls under the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "Multi-objective Optimization: A Case Study"
+        },
+        {
+          "primary_pointer": "cond-mat/0408068",
+          "rationale": "This paper does not satisfy any acceptance criteria (a-f) because it focuses on specific magnetic properties (half-metallicity, Slater-Pauling behavior) in a single alloy class (Heusler alloys) rather than addressing multi-property trade-offs in alloy design using public compositional data. While it shares the broad materials science domain, it lacks the core methodological focus (public compositional data for multi-property optimization) and does not establish baselines or foundational methodol",
+          "title": "Half-metallicity and Slater-Pauling behavior in the ferromagnetic Heusler alloys"
+        },
+        {
+          "primary_pointer": "1710.05423",
+          "rationale": "This paper is off-domain entirely, focusing on control theory and adaptive controllers for MIMO systems rather than materials science and alloy design. It shares only generic optimization terminology (\"multi-objective\", \"trade-offs\") without addressing the specific physical variables, compositional data, or empirical population required for the user's question.",
+          "title": "Optimal Tuning of Fuzzy Feedback filter for L1 Adaptive Controller Using Multi-Objective Particle Swarm Optimization for Uncertain Nonlinear MIMO Systems"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T19:43:18Z",
+    "term_input": {
+      "normalized": "multi-property trade-offs in alloy design using public compositional data materials science",
+      "raw": "Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Compositional data analysis is carried out either by neglecting the compositional constraint and applying standard multivariate data analysis, or by transforming the data using the logs of the ratios of the components. In this work we examine a more general transformation which includes both approaches as special cases. It is a power transformation and involves a single parameter, α. The transformation has two equivalent versions. The first is the stay-in-the-simplex version, which is the power transformation as defined by Aitchison in 1986. The second version, which is a linear transformation of the power transformation, is a Box-Cox type transformation. We discuss a parametric way of estimating the value of α, which is maximization of its profile likelihood (assuming multivariate normality of the transformed data) and the equivalence between the two versions is exhibited. Other ways include maximization of the correct classification probability in discriminant analysis and maximization of the pseudo R-squared (as defined by Aitchison in 1986) in linear regression. We examine the relationship between the α-transformation, the raw data approach and the isometric log-ratio transformation. Furthermore, we also define a suitable family of metrics corresponding to the family of α-transformation and consider the corresponding family of Frechet means.",
+          "claimed_authors": [
+            "Michail T. Tsagris",
+            "Simon Preston",
+            "Andrew T. A. Wood"
+          ],
+          "claimed_title": "A data-based power transformation for compositional data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.1451"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='A data-based power transformation for compositional data')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In optimizing real-world structures, due to fabrication or budgetary restraints, the design variables may be restricted to a set of standard engineering choices. Such variables, commonly called categorical variables, are discrete and unordered in essence, precluding the utilization of gradient-based optimizers for the problems containing them. In this paper, incorporating the Gumbel-Softmax (GSM) method, we propose a new gradient-based optimizer for handling such variables in the optimal design of large-scale frame structures. The GSM method provides a means to draw differentiable samples from categorical distributions, thereby enabling sensitivity analysis for the variables generated from such distributions. The sensitivity information can greatly reduce the computational cost of traversing high-dimensional and discrete design spaces in comparison to employing gradient-free optimization methods. In addition, since the developed optimizer is gradient-based, it can naturally handle the simultaneous optimization of categorical and continuous design variables. Through three numerical case studies, different aspects of the proposed optimizer are studied and its advantages over population-based optimizers, specifically a genetic algorithm, are demonstrated.",
+          "claimed_authors": [
+            "Mehran Ebrahimi",
+            "Hyunmin Cheong",
+            "Pradeep Kumar Jayaraman",
+            "Farhad Javid"
+          ],
+          "claimed_title": "Optimal design of frame structures with mixed categorical and continuous design variables using the Gumbel-Softmax method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2501.00258"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Optimal design of frame structures with mixed categorical and continuous design variables using the Gumbel-Softmax method')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this progress report we present a new approach to the ab-initio guided bottom up design of beta-Ti alloys for biomedical applications using a quantum mechanical simulation method in conjunction with experiments. Parameter-free density functional theory calculations are used to provide theoretical guidance in selecting and optimizing Ti-based alloys with respect to three constraints: (i) the use of non-toxic alloy elements; (ii) the stabilization of the body centered cubic beta phase at room temperature; (iii) the reduction of the elastic stiffness compared to existing Ti-based alloys. Following the theoretical predictions, the alloys of interest are cast and characterized with respect to their crystallographic structure, microstructure, texture, and elastic stiffness. Due to the complexity of the ab initio calculations, the simulations have been focused on a set of binary systems of Ti with two different high melting bcc metals, namely, Nb and Mo. Various levels of model approximations to describe mechanical and thermodynamic properties are tested and critically evaluated. The experiments are conducted both, on some of the binary alloys and on two more complex engineering alloy variants, namely, Ti-35wt.%Nb-7wt.%Zr-5wt.%Ta and a Ti-20wt.%Mo-7wt.%Zr-5wt.%Ta.",
+          "claimed_authors": [
+            "D. Raabe",
+            "B. Sander",
+            "M. Friak",
+            "D. Ma",
+            "J. Neugebauer"
+          ],
+          "claimed_title": "Ab-initio simulation and experimental validation of beta-titanium alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0811.0157"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Ab-initio simulation and experimental validation of beta-titanium alloys')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate \\emph{magnitude} as a new unary and strictly Pareto-compliant quality indicator for finite approximation sets to the Pareto front in multiobjective optimization. Magnitude originates in enriched category theory and metric geometry, where it is a notion of size or point content for compact metric spaces and a generalization of cardinality. For dominated regions in the \\(\\ell_1\\) box setting, magnitude is close to hypervolume but not identical: it contains the top-dimensional hypervolume term together with positive lower-dimensional projection and boundary contributions.\n  This paper gives a first theoretical study of magnitude as an indicator. We consider multiobjective maximization with a common anchor point. For dominated sets generated by finite approximation sets, we derive an all-dimensional projection formula, prove weak and strict set monotonicity on finite unions of anchored boxes, and thereby obtain weak and strict Pareto compliance. Unlike hypervolume, magnitude assigns positive value to boundary points sharing one or more coordinates with the anchor point, even when their top-dimensional hypervolume contribution vanishes. We then formulate projected set-gradient methods and compare hypervolume and magnitude on biobjective and three-dimensional simplex examples. Numerically, magnitude favors boundary-including populations and, for suitable cardinalities, complete Das--Dennis grids, whereas hypervolume prefers more interior-filling configurations. Computationally, magnitude reduces to hypervolume on coordinate projections; for fixed dimension this yields the same asymptotic complexity up to a factor \\(2^d-1\\), and in dimensions two and three \\(Θ(n\\log n)\\) time. These results identify magnitude as a mathematically natural and computationally viable alternative to hypervolume for finite Pareto front approximations.",
+          "claimed_authors": [
+            "Michael T. M. Emmerich"
+          ],
+          "claimed_title": "The Magnitude of Dominated Sets: A Pareto Compliant Indicator Grounded in Metric Geometry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.18147"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='The Magnitude of Dominated Sets: A Pareto Compliant Indicator Grounded in Metric Geometry')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proposed as blanket structural materials for fusion power reactors, reduced activation ferritic/martensitic (RAFM) steel undergoes volume expanding and contracting in a cyclic mode under service environment. Particularly, being subjected to significant fluxes of fusion neutrons RAFM steel suffers considerable local volume variations in the radiation damage involved regions. It is necessary to study the structure properties of the alloying elements in contraction and expansion states. In this paper we studied local substitution structures of thirteen alloying elements Al, Co, Cr, Cu, Mn, Mo, Nb, Ni, Si, Ta, Ti, V, and W in bcc Fe and calculated their substitutional energies in the volume variation range from -1.0% to 1.0%. From the structure relaxation results of the first five neighbor shells around the substitutional atom we find the relaxation in each neighbor shell keeps approximately uniform within the volume variation from -1.0% to 1.0% except those of Mn and the relaxation of the fifth neighbor shell is stronger than that of the third and forth, indicating that the lattice distortion due to the substitution atom is easier to spread in <111> direction than in other direction. The relaxation pattern and intensity are related to the size and electron structure of the substitutional atom. For some alloying elements, such as Mo, Nb, Ni, Ta, Ti and W, the substitutional energy decreases noticeably when the volume increases. Further analysis show that the substitutional energy comprises the energy variation originated from local structure relaxation and the chemical potential difference of the substitutional atom between its elemental crystalline state and the solid solution phase in bcc Fe. We think the approximately uniform relaxation of each neighbor shell around a substitutional atom give rise to a linear decrease in the substitutional energy with the increasing volume.",
+          "claimed_authors": [
+            "Wei Liu",
+            "Wei-Lu Wang",
+            "C. S. Liu",
+            "Q. F. Fang",
+            "Qun-Ying Huang",
+            "Yi-Can Wu",
+            "Key Laboratory of Materials Physics",
+            "Institute of Solid State Physics",
+            "Chinese Academy of Sciences",
+            "P. O. Box 1129",
+            "Hefei 230031",
+            "P. R. China",
+            "Institute of Plasma Physics",
+            "Chinese Academy of Sciences",
+            "Hefei 230031",
+            "P. R. China"
+          ],
+          "claimed_title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.3001"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ATLAS experiment, at the Large Hadron Collider, will incorporate discrete, high-resolution tracking sub-systems in the form of segmented silicon detectors with 40MHz radiation-hard readout electronics. In the region closest to the pp interaction point, the thin silicon tiles will be segmented into a pixel geometry providing two-dimensional space-point information. The current status of the ATLAS pixel project will be presented with an emphasis on the performance of the front-end electronics and prototype sensors.",
+          "claimed_authors": [
+            "John Richardson",
+            "representing the ATLAS Pixel Project"
+          ],
+          "claimed_title": "The ATLAS Pixel Project",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "hep-ex/9903035"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='The ATLAS Pixel Project')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The effect of pre-ageing deformation on the size and distribution of beta-prime precipitates and subsequently on the resulting strength and ductility have been measured in a Mg-3.0at.%Zn-0.5at.%Y alloy. The alloy was extruded and then subjected to a T8 heat treatment comprised of a solution-treatment, cold-work and artificial ageing. Extrusion was used to introduce texture, ensuring that deformation occurred via slip rather than twinning. Samples were subjected to controlled uniaxial deformation and then isothermally aged to peak hardness. Precipitate length, diameter and number density were measured and evaluated in terms of the strength and ductility of the alloy. The nucleation of the beta-prime precipitates in peak-aged condition without pre-ageing deformation (i.e.T6 treatment) was poor, with only 0.5% volume fraction, compared to approximately 3.5% in T6 treated binary Mg-3.0at.%Zn alloy. The microstructure of the Mg-Zn-Y alloy was less refined, with larger diameter precipitates and lower beta-prime number densities compared to a binary Mg-3.0at.%Zn alloy. Deformation to 5% plastic strain increased the volume fraction of beta-prime precipitates to approximately 2.3% and refined the beta-prime precipitate length and diameter. The combination of these effects increased the yield strength after isothermal ageing from 217MPa (0% cold-work) to 287 MPa (5% cold-work). The yield stress increased linearly with reciprocal interparticle spacing on the basal and prismatic planes and the alloy showed similar strengthening against basal slip to Mg-Zn. The elongation increased linearly with particle spacing. The ductility of Mg-Zn-Y alloys was similar to that of Mg-Zn for equivalently spaced particles.",
+          "claimed_authors": [
+            "Julian M. Rosalie",
+            "Hidetoshi Somekawa",
+            "Alok Singh",
+            "Toshiji Mukai"
+          ],
+          "claimed_title": "The effect of precipitation on strength and ductility in a Mg-Zn-Y alloy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.0079"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='The effect of precipitation on strength and ductility in a Mg-Zn-Y alloy')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We analyze the computational complexity of Tetris clearing (determining whether the player can clear an initial board using a given sequence of pieces) and survival (determining whether the player can avoid losing before placing all the given pieces in an initial board) when restricted to a single polyomino piece type. We prove, for any tetromino piece type $P$ except for O, the NP-hardness of Tetris clearing and survival under the standard Super Rotation System (SRS), even when the input sequence consists of only a specified number of $P$ pieces. These surprising results disprove a 23-year-old conjecture on the computational complexity of Tetris with only I pieces (although our result is only for a specific rotation system). As a corollary, we prove the NP-hardness of Tetris clearing when the sequence of pieces has to be able to be generated from a $7k$-bag randomizer for any positive integer $k\\geq 1$. On the positive side, we give polynomial-time algorithms for Tetris clearing and survival when the input sequence consists of only dominoes, assuming a particular rotation model, solving a version of a 9-year-old open problem. Along the way, we give polynomial-time algorithms for Tetris clearing and survival with $1\\times k$ pieces (for any fixed $k$), provided the top $k-1$ rows are initially empty, showing that our I NP-hardness result needs to have filled cells in the top three rows.",
+          "claimed_authors": [
+            " MIT Hardness Group",
+            "Josh Brunner",
+            "Erik D. Demaine",
+            "Della Hendrickson",
+            "Jeffery Li"
+          ],
+          "claimed_title": "Tetris is Hard with Just One Piece Type",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.09958"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Tetris is Hard with Just One Piece Type')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We explored quinary body-centered cubic (bcc) high-entropy alloy (HEA) superconductors with valence electron concentrations (VECs) ranging from 4.6 to 5.0, a domain that has received limited attention in prior research. Our search has led to the discovery of new bcc Ti-Hf-Nb-Ta-Re superconducting alloys, which exhibit an interesting phenomenon of phase segregation into two bcc phases with slightly different chemical compositions, as the VEC increases. The enthalpy of the formation of each binary compound explains the phase segregation. All the alloys investigated were categorized as type-II superconductors, with superconducting critical temperatures ($T_\\mathrm{c}$) ranging from 3.25 K to 4.38 K. We measured the Vickers microhardness, which positively correlated with the Debye temperature, and compared it with the hardness values of other bcc HEA superconductors. Our results indicate that $T_\\mathrm{c}$ systematically decreases with an increase in hardness beyond a threshold of approximately 350 HV. Additionally, we plotted $T_\\mathrm{c}$ vs. VEC for representative quinary bcc HEAs. The plot revealed the asymmetric VEC dependence. The correlation between the hardness and $T_\\mathrm{c}$, as well as the asymmetric dependence of $T_\\mathrm{c}$ on VEC can be attributed to the simultaneous effects of the electronic density of states at the Fermi level and electron-phonon coupling under the uncertainty principle, especially in the higher VEC region.",
+          "claimed_authors": [
+            "Takuma Hattori",
+            "Yuto Watanabe",
+            "Terukazu Nishizaki",
+            "Koki Hiraoka",
+            "Masato Kakihara",
+            "Kazuhisa Hoshi",
+            "Yoshikazu Mizuguchi",
+            "Jiro Kitagawa"
+          ],
+          "claimed_title": "Metallurgy, superconductivity, and hardness of a new high-entropy alloy superconductor Ti-Hf-Nb-Ta-Re",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.01958"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Metallurgy, superconductivity, and hardness of a new high-entropy alloy superconductor Ti-Hf-Nb-Ta-Re')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We address the problem of synthetic gene design using Bayesian optimization. The main issue when designing a gene is that the design space is defined in terms of long strings of characters of different lengths, which renders the optimization intractable. We propose a three-step approach to deal with this issue. First, we use a Gaussian process model to emulate the behavior of the cell. As inputs of the model, we use a set of biologically meaningful gene features, which allows us to define optimal gene designs rules. Based on the model outputs we define a multi-task acquisition function to optimize simultaneously severals aspects of interest. Finally, we define an evaluation function, which allow us to rank sets of candidate gene sequences that are coherent with the optimal design strategy. We illustrate the performance of this approach in a real gene design experiment with mammalian cells.",
+          "claimed_authors": [
+            "Javier González",
+            "Joseph Longworth",
+            "David C. James",
+            "Neil D. Lawrence"
+          ],
+          "claimed_title": "Bayesian Optimization for Synthetic Gene Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1505.01627"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Bayesian Optimization for Synthetic Gene Design')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In typical applications of Bayesian optimization, minimal assumptions are made about the objective function being optimized. This is true even when researchers have prior information about the shape of the function with respect to one or more argument. We make the case that shape constraints are often appropriate in at least two important application areas of Bayesian optimization: (1) hyperparameter tuning of machine learning algorithms and (2) decision analysis with utility functions. We describe a methodology for incorporating a variety of shape constraints within the usual Bayesian optimization framework and present positive results from simple applications which suggest that Bayesian optimization with shape constraints is a promising topic for further research.",
+          "claimed_authors": [
+            "Michael Jauch",
+            "Víctor Peña"
+          ],
+          "claimed_title": "Bayesian Optimization with Shape Constraints",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.08915"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data materi', candidate_title='Bayesian Optimization with Shape Constraints')",
+        "failed_at": "2026-06-26T19:45:12Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdullah Al-Dujaili",
+            "S. Suresh"
+          ],
+          "title": "BMOBench: Black-Box Multi-Objective Optimization Benchmarking Platform",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1605.07009",
+        "summary": "This document briefly describes the Black-Box Multi-Objective Optimization Benchmarking (BMOBench) platform. It presents the test problems, evaluation procedure, and experimental setup. To this end, the BMOBench is demonstrated by comparing recent multi-objective solvers from the literature, namely SMS-EMOA, DMS, and MO-SOO.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1605.07009",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T19:45:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ru Lei",
+            "Lin Li",
+            "Rustam Stolkin",
+            "Bin Feng"
+          ],
+          "title": "An accelerate Prediction Strategy for Dynamic Multi-Objective Optimization",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.05787",
+        "summary": "This paper addresses the challenge of dynamic multi-objective optimization problems (DMOPs) by introducing novel approaches for accelerating prediction strategies within the evolutionary algorithm framework. Since the objectives of DMOPs evolve over time, both the Pareto optimal set (PS) and the Pareto optimal front (PF) are dynamic. To effectively track the changes in the PS and PF in both decision and objective spaces, we propose an adaptive prediction strategy that incorporates second-order derivatives to predict and adjust the algorithms search behavior. This strategy enhances the algorithm's ability to anticipate changes in the environment, allowing for more efficient population re-initialization. We evaluate the performance of the proposed method against four state-of-the-art algorithms using standard DMOPs benchmark problems. Experimental results demonstrate that the proposed approach significantly outperforms the other algorithms across most test problems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.05787",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T19:45:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nazmul Hasan"
+          ],
+          "title": "Multi-objective Optimization: A Case Study",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.09166",
+        "summary": "The aim of this literature is to illustrate the application of multi-objective optimization routines through a case study of face milling operation. For this purpose, the face milling operation is designed as a multi-objective optimization problem and then solved to obtain optimum values for the machining parameters - cutting speed (Vc), feed rate (fz) and depth of cut (t) using the optimization routines. The formulated problem of face milling operation includes two conflicting objectives - to maximize Material Removal Rate (MRR) and to minimize surface roughness (Ra). Among various multi-objective optimization routines, five of them namely Global Criterion Method, Lexicographic Method, Weighted Sum Method, Epsilon Constraint Method and Genetic Algorithm are used in this literature. The outcomes of these multi-objective optimization routines are then compared to reflect their relative attractiveness.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.09166",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T19:45:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "I. Galanakis",
+            "P. H. Dederichs"
+          ],
+          "title": "Half-metallicity and Slater-Pauling behavior in the ferromagnetic Heusler alloys",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "cond-mat/0408068",
+        "summary": "Introductory chapter for the book \"Halfmetallic Alloys - Fundamentals and Applications\" to be published in the series Springer Lecture Notes on Physics, P. H. Dederichs and I. Galanakis (eds). It contains a review of the theoretical work on the half-metallic Heusler alloys.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0408068",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T19:45:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hashim A. Hashim",
+            "Sami El-Ferik",
+            "Babajide O. Ayinde",
+            "Mohamed A. Abido"
+          ],
+          "title": "Optimal Tuning of Fuzzy Feedback filter for L1 Adaptive Controller Using Multi-Objective Particle Swarm Optimization for Uncertain Nonlinear MIMO Systems",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1710.05423",
+        "summary": "This paper proposes an efficient approach for tuning L1 feedback filter of adaptive controller for multi-input multi-output (MIMO) systems. The feedback filter provides performance that trades off fast closed loop dynamics, robustness margin, and control signal range. Thus appropriate tuning of the filter's parameters is crucial to achieve optimal performance. For MIMO systems, the parameters tuning is challenging and requires a multi-objective performance indices to avoid instability. This paper proposes a fuzzy-based L1 feedback filter design tuned with multi-objective particle swarm optimization (MOPSO) to remove these bottlenecks. MOPSO guarantees the appropriate selection of the fuzzy membership functions. The proposed approach is validated using twin rotor MIMO system and simulation results demonstrate the efficacy of here proposed while preserving the system stabilizability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1710.05423",
+          "http_status": 200,
+          "pdf_sample_score": 0.2016,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T19:45:39Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "multi-property trade-offs in alloy design using public compositional data materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
