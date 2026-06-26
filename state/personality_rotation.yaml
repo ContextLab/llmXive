@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-26T23:31:12.075283+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: daniel-kahneman
+last_used_at: '2026-06-26T23:53:08.658130+00:00'
+last_outcome: committed
 history:
-- slug: stephen-wolfram
-  started_at: '2026-06-16T05:16:09.069096+00:00'
-  ended_at: '2026-06-16T07:19:05.530673+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-600-https-arxiv-org-abs-2605-15298/paper/reviews/stephen-wolfram-simulated__2026-06-16__paper.md
 - slug: ada-lovelace
   started_at: '2026-06-16T07:19:05.530673+00:00'
   ended_at: '2026-06-16T09:19:20.453100+00:00'
@@ -1160,3 +1153,10 @@ history:
   ended_at: '2026-06-26T23:31:12.075283+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-26T23:31:12.075283+00:00'
+  ended_at: '2026-06-26T23:53:08.658130+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-06-26__paper.md
