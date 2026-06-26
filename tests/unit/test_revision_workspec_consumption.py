@@ -163,3 +163,26 @@ def test_repeated_zero_rounds_feed_bounded_failsafe(repo: Path) -> None:
             "after the failsafe cap the project must carry either a "
             "diagnosed work-spec or an AGENT_BLOCKED halt — never a bare loop"
         )
+
+
+def test_derive_round_number_fallback_uses_next_free_not_hardcoded_one(repo: Path) -> None:
+    """Regression: a kickback whose revision_spec_path has NO `round-N` segment
+    (an idea/spec file, not a planner round dir) must derive the NEXT FREE round,
+    never a hardcoded 1 — which collides with an already-recorded round 1 and
+    raises `ValueError: round 1 already recorded`, applying the work but never
+    crediting it and permanently blocking the project (the live 31x PROJ-552 stall)."""
+    entry = registry_loader.get("llmxive_implementer", repo_root=repo)
+    agent = LLMXiveImplementer(entry)
+
+    # A revision_spec_path WITH a `round-N` segment is parsed verbatim.
+    assert agent._derive_round_number(
+        f"specs/auto-revisions/{PROJ_ID}/round-3", project_id=PROJ_ID, repo_root=repo
+    ) == 3
+    # Simulate a completed round 1 — _next_round_number counts on-disk round-N/
+    # dirs (the same source the implementer numbers rounds from). A no-round-segment
+    # revision_spec_path must now derive 2 (next free), NOT a hardcoded 1 that would
+    # collide with the already-recorded round 1 in append_round and brick the project.
+    (repo / "specs" / "auto-revisions" / PROJ_ID / "round-1").mkdir(parents=True)
+    assert agent._derive_round_number(
+        f"projects/{PROJ_ID}/idea/idea.md", project_id=PROJ_ID, repo_root=repo
+    ) == 2

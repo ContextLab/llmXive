@@ -1102,7 +1102,9 @@ class LLMXiveImplementer(Agent):
             # share the same `round-N` directory; the implementer writes
             # its log INTO that directory next to the planner's
             # tasks.md + action items.
-            round_number = self._derive_round_number(project.revision_spec_path)
+            round_number = self._derive_round_number(
+                project.revision_spec_path, project_id=project.id, repo_root=repo
+            )
             self._round_n_cached = round_number
             project_dir = repo / "projects" / project.id
             paper_dir = project_dir / "paper"
@@ -1983,15 +1985,24 @@ class LLMXiveImplementer(Agent):
         self._round_n_cached = n
         return n
 
-    def _derive_round_number(self, revision_spec_path: str) -> int:
+    def _derive_round_number(
+        self, revision_spec_path: str, *, project_id: str, repo_root: Path
+    ) -> int:
         """Parse the trailing `round-N` segment of the planner's
-        revision_spec_path. Falls back to `_next_round_number` if the
-        path doesn't end in `round-<int>`."""
+        revision_spec_path. Falls back to `_next_round_number` (the next
+        free on-disk round) when the path has no `round-<int>` segment.
+
+        The fallback MUST read actual round state, never a hardcoded ``1``:
+        a kickback whose revision_spec_path is an idea/spec file (no round
+        segment) would otherwise re-derive round 1 on every cron tick,
+        collide with the already-recorded round 1, and raise
+        ``ValueError: round 1 already recorded`` — applying the work but
+        never crediting it and permanently blocking the project (the live
+        31x PROJ-552 stall)."""
         m = re.search(r"round-(\d+)/?$", revision_spec_path or "")
         if m:
             return int(m.group(1))
-        # Defensive fallback — uses dir-count discovery.
-        return 1
+        return self._next_round_number(project_id, repo_root=repo_root)
 
     def _emit_run_log(
         self,
