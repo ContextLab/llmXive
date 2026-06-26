@@ -13,9 +13,14 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # Paper spec/plan/tasks convergence on slow qwen can exceed the old 35-min cap
+    # and time out mid-convergence (cancelled, work lost). 120 min fits one slow
+    # convergence; LLMXIVE_RUN_WALL_BUDGET_S=2400 (40 min) breaks the loop early so
+    # a final long step + commit always land before this timeout (clean exit).
+    timeout-minutes: 120
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_RUN_WALL_BUDGET_S: "2400"
       # Guarded paid fallback (claude-haiku) for when ALL free models flap;
       # globally hard-capped by the daily ~$2 credit budget (backends/credits.py).
       LLMXIVE_PAID_OPT_IN: "1"

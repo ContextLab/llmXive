@@ -13,9 +13,18 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # A single spec/plan/tasks convergence on the slow qwen reasoning model can
+    # take ~80 min (panel identify + revise + re-review across the cap); the old
+    # 35-min cap timeout-CANCELLED the run mid-convergence (~27% of recent runs),
+    # losing the work so the gate never completed — the bottleneck behind the
+    # specified/planned pile-up. 120 min fits one slow convergence with headroom;
+    # LLMXIVE_RUN_WALL_BUDGET_S=2400 (40 min) breaks the multi-step loop early so a
+    # final long step + commit always land before this timeout (a clean exit, not
+    # a cancel). Fast convergences still batch several per run within the budget.
+    timeout-minutes: 120
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_RUN_WALL_BUDGET_S: "2400"
       # Guarded paid fallback (claude-haiku) for when ALL free models flap;
       # globally hard-capped by the daily ~$2 credit budget (backends/credits.py).
       LLMXIVE_PAID_OPT_IN: "1"

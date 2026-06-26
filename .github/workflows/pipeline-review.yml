@@ -13,9 +13,15 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # A research_review / paper_review convergence runs an 8-12 lens panel across
+    # the 3-round cap on the slow qwen model — it can exceed the old 60-min cap and
+    # time out mid-review (cancelled, work lost → the paper_review pile-up).
+    # 150 min fits one slow review; LLMXIVE_RUN_WALL_BUDGET_S=2400 (40 min) breaks
+    # the loop early so a final long review + commit land before this timeout.
+    timeout-minutes: 150
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_RUN_WALL_BUDGET_S: "2400"
       # Guarded paid fallback (claude-haiku) for when ALL free models flap;
       # globally hard-capped by the daily ~$2 credit budget (backends/credits.py).
       LLMXIVE_PAID_OPT_IN: "1"
