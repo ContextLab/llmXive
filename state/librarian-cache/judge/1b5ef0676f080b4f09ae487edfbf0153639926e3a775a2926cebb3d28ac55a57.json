@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.05991",
+  "judged_at": "2026-06-26T21:26:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the impact of data filtering on gravitational lens detection rates physics",
+  "rationale": "This paper is off-domain entirely, focusing on e-commerce search relevance and multi-agent systems rather than astrophysics, gravitational lensing, or astronomical data filtering, which matches the rejection rule for distinct domains.",
+  "relevant": false
+}

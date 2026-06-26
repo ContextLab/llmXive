@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1402.3065",
+  "judged_at": "2026-06-26T21:45:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of epigenetic drift in adaptive landscape exploration biology",
+  "rationale": "This paper belongs in the literature review because it establishes the canonical theoretical framework (fitness landscape models like RMF and MLM) and empirical baseline for \"Adaptive Landscape Exploration\" (Rule d and Rule c), which is the necessary domain context for studying alternative mechanisms like epigenetic drift. While the paper focuses on genetic mutation, it defines the landscape topology and adaptation dynamics that the user's research on epigenetic drift would contrast against or e",
+  "relevant": true
+}

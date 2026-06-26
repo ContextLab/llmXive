@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.24427",
+  "judged_at": "2026-06-26T21:40:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of epigenetic drift in adaptive landscape exploration biology",
+  "rationale": "This paper investigates how epigenetic modifications reshape dynamical (Waddington) landscapes in gene regulatory networks, satisfying criterion (a) for same-mechanism evidence and (b) for measuring the relevant variables in the same biological domain. It provides the canonical theoretical framework for understanding how epigenetic factors alter potential landscapes governing cell fate, which is essential for a literature review on epigenetic landscape exploration.",
+  "relevant": true
+}

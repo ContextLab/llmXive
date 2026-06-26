@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.08919",
+  "judged_at": "2026-06-26T21:21:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the impact of data filtering on gravitational lens detection rates physics",
+  "rationale": "The paper forecasts total lens yields based on observatory capabilities but does not measure the specific variable of interest (detection rates as a function of data filtering) or analyze the mechanism of filtering itself, which is the core focus of the user's question.",
+  "relevant": false
+}

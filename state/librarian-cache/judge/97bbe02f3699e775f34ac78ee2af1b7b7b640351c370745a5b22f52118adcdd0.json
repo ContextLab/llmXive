@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1211.3133",
+  "judged_at": "2026-06-26T21:42:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of epigenetic drift in adaptive landscape exploration biology",
+  "rationale": "This paper qualifies under criterion (d) as a foundational reference for the epigenetic landscape framework that the user's question references. While it doesn't specifically study \"epigenetic drift\" as a mechanism, it establishes the canonical landscape framework for cellular identity and fate exploration that anyone writing about adaptive landscape exploration in epigenetics would cite.",
+  "relevant": true
+}

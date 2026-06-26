@@ -1,0 +1,618 @@
+{
+  "fetched_at": "2026-06-26T21:45:34Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "The Role of Epigenetic Drift in Adaptive Landscape Exploration",
+      "target_n": 5
+    },
+    "duration_seconds": 701.246,
+    "ended_at": "2026-06-26T21:45:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "epigenetic variation and evolutionary adaptation"
+        ],
+        [
+          2,
+          "fitness landscape dynamics with epigenetic inheritance"
+        ],
+        [
+          3,
+          "transgenerational epigenetic effects on fitness"
+        ],
+        [
+          4,
+          "plasticity-led evolution mechanisms"
+        ],
+        [
+          5,
+          "non-genetic inheritance in population evolution"
+        ],
+        [
+          6,
+          "stochastic epigenetic changes in populations"
+        ],
+        [
+          7,
+          "epigenetic facilitation of genetic evolution"
+        ],
+        [
+          8,
+          "DNA methylation variability and adaptation"
+        ],
+        [
+          9,
+          "evolutionary trajectories under epigenetic influence"
+        ],
+        [
+          10,
+          "soft inheritance and adaptive peaks"
+        ],
+        [
+          11,
+          "epigenetic buffering of environmental change"
+        ],
+        [
+          12,
+          "phenotypic plasticity and fitness landscapes"
+        ],
+        [
+          13,
+          "evolutionary rescue via epigenetic variation"
+        ],
+        [
+          14,
+          "genetic assimilation of epigenetic traits"
+        ],
+        [
+          15,
+          "epigenetic diversity within populations"
+        ],
+        [
+          16,
+          "epigenetic landscape theory in evolution"
+        ],
+        [
+          17,
+          "non-genetic variation in evolutionary dynamics"
+        ],
+        [
+          18,
+          "epigenetic marks as evolutionary substrates"
+        ],
+        [
+          19,
+          "Waddington landscape and epigenetic drift"
+        ],
+        [
+          20,
+          "epigenetic mutation rates and selection"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Role of Epigenetic Drift in Adaptive Landscape Exploration biology": 0,
+        "epigenetic variation and evolutionary adaptation": 2,
+        "fitness landscape dynamics with epigenetic inheritance": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "epigenetic variation fitness landscape evolution",
+      "transgenerational epigenetic inheritance somatic mosaicism",
+      "evolvability bet hedging phenotypic plasticity",
+      "fitness trajectory methylation entropy quantification",
+      "Waddington landscape stochastic tunneling evolutionary dynamics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1212.0465"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Role of Epigenetic Drift in Adaptive Landscape Exploration biology": 3,
+      "Waddington landscape stochastic tunneling evolutionary dynamics": 3,
+      "epigenetic variation fitness landscape evolution": 3,
+      "evolvability bet hedging phenotypic plasticity": 3,
+      "fitness trajectory methylation entropy quantification": 3,
+      "transgenerational epigenetic inheritance somatic mosaicism": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1102.3709",
+          "rationale": "The paper discusses the historical controversy regarding the adaptive landscape concept in genetic evolution but does not address the specific mechanism of epigenetic drift central to the user's research question. It is rejected because it has no measurable connection to the user's core variable (epigenetic drift) and shares only the homonym keyword \"adaptive landscape.\"",
+          "title": "Wright's adaptive landscape versus Fisher's fundamental theorem"
+        },
+        {
+          "primary_pointer": "2208.02809",
+          "rationale": "The paper focuses on evolutionary robotics and robot morphological variation, which is an off-domain computational simulation compared to the user's specific question about biological epigenetic drift. It shares keywords like \"evolutionary\" and \"variation\" but addresses a distinct construct in a different field (engineering vs. biology) without measuring the biological mechanism in question.",
+          "title": "The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness"
+        },
+        {
+          "primary_pointer": "2108.04546",
+          "rationale": "This paper is off-domain: it discusses epigenetic concepts applied to Evolutionary Computation (computational algorithms), whereas the user's question is specifically about biological epigenetic drift in actual organisms. This falls under the \"Distinct construct sharing only homonym keywords\" rejection rule—both use \"epigenetic\" but one is about algorithmic design while the other is about biological mechanisms in living systems.",
+          "title": "Epigenetic opportunities for Evolutionary Computation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T21:33:53Z",
+    "term_input": {
+      "normalized": "the role of epigenetic drift in adaptive landscape exploration biology",
+      "raw": "The Role of Epigenetic Drift in Adaptive Landscape Exploration biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 2023-2032 Planetary Science and Astrobiology Decadal Survey Origins, Worlds, and Life recommended that \"NASA develop scientific exploration strategies, as it has for Mars, in areas of broad scientific importance, e.g., Venus... that have an increasing number of U.S. missions and international collaboration opportunities\" (OWL, p.22-10). In NASA's initial responses to that Decadal Survey, the agency asserted that \"...specific scientific exploration strategies should be community generated by bodies such as the Analysis Groups,\" thus placing the onus on the planetary community to generate and support these exploration strategies. In late 2022, the Venus Exploration Analysis Group began a project to develop a new exploration strategy for Venus, reflecting the 2021 selections of the VERITAS, DAVINCI, and EnVision missions and the sweeping comparative planetology recommendations relevant to Venus in Origins, Worlds, and Life.\n  This is that strategy.\n  Taking a broad look at the scientific, technological, and programmatic advances required to address the key outstanding questions that Venus poses, and predicated on VERITAS, DAVINCI, and EnVision flying as planned in the early 2030s, this report outlines a set of actions available to NASA, VEXAG, and the planetary science community at large to establish a sustained program of Venus exploration in the years and decades ahead. Key to this approach is recognizing Venus as a unique setting where multiple, cross-disciplinary, Decadal-level planetary, Earth, heliophysics, and exoplanet science questions can be addressed, as well as being a worthy target of exploration in its own right.\n  This report offers Assessments of the current state of Venus exploration, and Actions for the U.S. and international Venus community, as well as NASA, to consider. This strategy is a living document and should be updated as warranted.",
+          "claimed_authors": [
+            "The VEXAG Exploration Strategy Study Analysis Workgroup"
+          ],
+          "claimed_title": "A New Strategy for the Exploration of Venus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06830"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='A New Strategy for the Exploration of Venus')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The tempo and mode of an adaptive process is strongly determined by the structure of the fitness landscape that underlies it. In order to be able to predict evolutionary outcomes (even on the short term), we must know more about the nature of realistic fitness landscapes than we do today. For example, in order to know whether evolution is predominantly taking paths that move upwards in fitness and along neutral ridges, or else entails a significant number of valley crossings, we need to be able to visualize these landscapes: we must determine whether there are peaks in the landscape, where these peaks are located with respect to one another, and whether evolutionary paths can connect them. This is a difficult task because genetic fitness landscapes (as opposed to those based on traits) are high-dimensional, and tools for visualizing such landscapes are lacking. In this contribution, we focus on the predictability of evolution on rugged genetic fitness landscapes, and determine that peaks in such landscapes are highly clustered: high peaks are predominantly close to other high peaks. As a consequence, the valleys separating such peaks are shallow and narrow, such that evolutionary trajectories towards the highest peak in the landscape can be achieved via a series of valley crossings",
+          "claimed_authors": [
+            "Bjørn Østman",
+            "Christoph Adami"
+          ],
+          "claimed_title": "Predicting evolution and visualizing high-dimensional fitness landscapes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1302.2906"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Predicting evolution and visualizing high-dimensional fitness landscapes')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Darwinian evolution can be illustrated as an uphill walk in a landscape, where the surface consists of genotypes, the height coordinates represent fitness, and each step corresponds to a point mutation. Epistasis, roughly defined as the dependence between the fitness effects of mutations, is a key concept in the theory of adaptation. Important recent approaches depend on graphs and polytopes. Fitness graphs are useful for describing coarse properties of a landscape, such as mutational trajectories and the number of peaks. The graphs have been used for relating global and local properties of fitness landscapes. The geometric theory of gene interaction, or the shape theory, is the most fine-scaled approach to epistasis. Shapes, defined as triangulations of polytopes for any number of loci, replace the well established concepts of positive and negative epistasis for two mutations. From the shape one can identify the fittest populations, i.e., populations where allele shuffling (recombination) will not increase the mean fitness. Shapes and graphs provide complementary information. The approaches make no structural assumptions about the underlying fitness landscapes, which make them well suited for empirical work.",
+          "claimed_authors": [
+            "Kristina Crona"
+          ],
+          "claimed_title": "Polytopes, graphs and fitness landscapes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.0465"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Polytopes, graphs and fitness landscapes')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Much of the current theory of adaptation is based on Gillespie's mutational landscape model (MLM), which assumes that the fitness values of genotypes linked by single mutational steps are independent random variables. On the other hand, a growing body of empirical evidence shows that real fitness landscapes, while possessing a considerable amount of ruggedness, are smoother than predicted by the MLM. In the present article we propose and analyse a simple fitness landscape model with tunable ruggedness based on the Rough Mount Fuji (RMF) model originally introduced by Aita et al. [Biopolymers 54:64-79 (2000)] in the context of protein evolution. We provide a comprehensive collection of results pertaining to the topographical structure of RMF landscapes, including explicit formulae for the expected number of local fitness maxima, the location of the global peak, and the fitness correlation function. The statistics of single and multiple adaptive steps on the RMF landscape are explored mainly through simulations, and the results are compared to the known behavior in the MLM model. Finally, we show that the RMF model can explain the large number of second-step mutations observed on a highly-fit first step backgound in a recent evolution experiment with a microvirid bacteriophage [Miller et al., Genetics 187:185-202 (2011)].",
+          "claimed_authors": [
+            "Johannes Neidhart",
+            "Ivan G. Szendro",
+            "Joachim Krug"
+          ],
+          "claimed_title": "Adaptation in tunably rugged fitness landscapes: The Rough Mount Fuji Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.3065"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Adaptation in tunably rugged fitness landscapes: The Rough Mount Fuji Model')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A previous report claimed no evidence of transgenerational epigenetic inheritance in a mouse model of in utero environmental exposure, based on the observation that gene expression changes observed in the germ cells of G1 and G2 male fetus were not in the same direction. A subsequent data reanalysis however showed a statistically significant overlap between G1 and G2 genes irrespective of direction, leading to the suggestion that, as phenotypic variability in epigenetic transmission has been observed in several other examples also, the above report provided evidence in favor of, not against, transgenerational inheritance. This criticism has recently been questioned. Here, it is shown that the questions raised are based not only on incorrect statistical calculations but also on wrong premise that gene expression changes do not constitute a phenotype.",
+          "claimed_authors": [
+            "Abhay Sharma"
+          ],
+          "claimed_title": "Reanalyzing variable directionality of gene expression in transgenerational epigenetic inheritance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.08585"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Reanalyzing variable directionality of gene expression in transgenerational epigenetic inheritance')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transgenerational inheritance of a trait is presumably affected by both genetic and environmental factors but remains poorly understood. We studied the effect of genetic polymorphisms on transgenerational inheritance of yeast segregants that were derived from a cross between a laboratory strain and a wild strain of Saccharomyces cerevisiae. For each SNP analyzed, the parental allele present in less than half of the segregants panel was called the minor allele (MA). We found a nonrandom distribution of MAs in the segregants, indicating natural selection. We compared segregants with high MA content (MAC) relative to those with less and found a more dramatic shortening of the lag phase length for the high MAC group in response to 14 days of ethanol training. Also, the short lag phase as acquired and epigenetically memorized by ethanol training was more dramatically lost after 7 days of recovery in ethanol free medium for the high MAC group. Sodium chloride treatment produced similar observations. Using public datasets, we found MAC linkage to mRNA expression of hundreds of genes. Finally, we found preferential effect of MAC on traits with high number of known additive quantitative trait loci (QTLs). These results provide evidence for the slightly deleterious nature of most MAs and a lower capacity to maintain inheritance of traits in individuals or cells with greater MAC, which have implications for disease prevention and treatment and the \"missing heritability\" problem in complex traits and diseases.",
+          "claimed_authors": [
+            "Zuobin Zhu",
+            "Qing Lu",
+            "Dejian Yuan",
+            "Yanke Li",
+            "Xian Man",
+            "Yueran Zhu",
+            "Shi Huang"
+          ],
+          "claimed_title": "Role of genetic polymorphisms in transgenerational inheritance in budding yeast",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1302.7276"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Role of genetic polymorphisms in transgenerational inheritance in budding yeast')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurately predicting chronological age from DNA methylation patterns is crucial for advancing biological age estimation. However, this task is made challenging by Epigenetic Correlation Drift (ECD) and Heterogeneity Among CpGs (HAC), which reflect the dynamic relationship between methylation and age across different life stages. To address these issues, we propose a novel two-phase algorithm. The first phase employs similarity searching to cluster methylation profiles by age group, while the second phase uses Explainable Boosting Machines (EBM) for precise, group-specific prediction. Our method not only improves prediction accuracy but also reveals key age-related CpG sites, detects age-specific changes in aging rates, and identifies pairwise interactions between CpG sites. Experimental results show that our approach outperforms traditional epigenetic clocks and machine learning models, offering a more accurate and interpretable solution for biological age estimation with significant implications for aging research.",
+          "claimed_authors": [
+            "Zipeng Wu",
+            "Daniel Herring",
+            "Fabian Spill",
+            "James Andrews"
+          ],
+          "claimed_title": "iTARGET: Interpretable Tailored Age Regression for Grouped Epigenetic Traits",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.02401"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='iTARGET: Interpretable Tailored Age Regression for Grouped Epigenetic Traits')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Irreversible plastic forming of B19$^\\prime$ martensite of the NiTi shape memory alloy is discussed within the framework of continuum mechanics. It is suggested that the main mechanism arises from coupling between martensite reorientation and coordinated $[100](001)_{\\rm M}$ dislocation slip. A heuristic model is proposed, showing that the ${(20\\bar{1})_{\\rm M}}$ deformation-twin bands, commonly observed in experiments, can be interpreted as a combination of dislocation-mediated kink bands, appearing due to strong plastic anisotropy, and reversible twinning of martensite. We introduce a term 'kwinking' for this combination of reversible twinning and irreversible plastic kinking. The model is subsequently formulated using the tools of nonlinear elasticity theory of martensite and crystal plasticity, introducing 'kwink interfaces' as planar, kinematically compatible interfaces between two differently plastically slipped variants of martensite. It is shown that the ${(20\\bar{1})_{\\rm M}}$ kwink bands may be understood as resultsing from energy minimization, and that their nucleation and growth and their pairing with $(100)_{\\rm M}$ twins into specific patterns enables low-energy plastic forming of NiTi martensite. We conclude that kwinking makes plastic deformation of B19$^\\prime$ martensite in polycrystalline NiTi possible despite only one slip system being available.",
+          "claimed_authors": [
+            "Hanuš Seiner",
+            "Petr Sedlák",
+            "Miroslav Frost",
+            "Petr Šittner"
+          ],
+          "claimed_title": "Kwinking as the plastic forming mechanism of B19' NiTi martensite",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.07125"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title=\"Kwinking as the plastic forming mechanism of B19' NiTi martensite\")",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Thermal cycle environments involving repeated temperature changes are common conditions observed in modern engineering processes. Under such conditions, materials undergo repeated thermal expansion and contraction, forming complex thermal stress fields. Thermal-crystal plasticity simulations that account for stress fields and thermal conduction at the polycrystalline microstructure scale are an effective method for numerically reproducing thermal cycle environments. However, the influence of thermal cycle frequency on the temporal behavior of the stress field and plastic response has not yet been fully understood, partly because a systematic analysis method capable of simultaneously capturing spatial heterogeneity and temporal evolution remains limited. In this study, we predicted the thermal stress field generated under different thermal cycle frequencies using thermal-crystal plasticity simulations and investigated the effect of frequency on the spatiotemporal structure of the stress response. The present framework illustrates that the resulting thermal-mechanical response can be represented as a superposition of multiple effective temporal components, reflecting the increased complexity of the system behavior. By employing dynamic mode decomposition (DMD) as a diagnostic and post-processing technique, we demonstrate that the spatiotemporal structure of the stress field under thermal cycle conditions can be systematically extracted and compactly represented. This approach enables a quantitative characterization of frequency-dependent changes in the thermal stress response beyond conventional averaging or snapshot-based analyses. The results highlight the utility of DMD as a framework for organizing complex simulation data and for interpreting the temporal structure of plastic response under cyclic thermal loading.",
+          "claimed_authors": [
+            "Haruki Ohashi",
+            "Yoshiteru Aoyagi"
+          ],
+          "claimed_title": "Frequency-dependent stress response under thermal cycle: A thermal-crystal plasticity and dynamic mode decomposition study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.19280"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Frequency-dependent stress response under thermal cycle: A thermal-crystal plasticity and dynamic mode decomposition study')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fluctuating environments pose tremendous challenges to bacterial populations. It is observed in numerous bacterial species that individual cells can stochastically switch among multiple phenotypes for the population to survive in rapidly changing environments. This kind of phenotypic heterogeneity with stochastic phenotype switching is generally understood to be an adaptive bet-hedging strategy. Mathematical models are essential to gain a deeper insight into the principle behind bet-hedging and the pattern behind experimental data. Traditional deterministic models cannot provide a correct description of stochastic phenotype switching and bet-hedging, and traditional Markov chain models at the cellular level fail to explain their underlying molecular mechanisms. In this paper, we propose a nonlinear stochastic model of multistable bacterial systems at the molecular level. It turns out that our model not only provides a clear description of stochastic phenotype switching and bet-hedging within isogenic bacterial populations, but also provides a deeper insight into the analysis of multidimensional experimental data. Moreover, we use some deep mathematical theories to show that our stochastic model and traditional Markov chain models are essentially consistent and reflect the dynamic behavior of the bacterial system at two different time scales. In addition, we provide a quantitative characterization of the critical state of multistable bacterial systems and develop an effective data-driven method to identify the critical state without resorting to specific mathematical models.",
+          "claimed_authors": [
+            "Chen Jia",
+            "Min-Ping Qian",
+            "Yu Kang",
+            "Da-Quan Jiang"
+          ],
+          "claimed_title": "Modeling stochastic phenotype switching and bet-hedging in bacteria: stochastic nonlinear dynamics and critical state identification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.2216"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Modeling stochastic phenotype switching and bet-hedging in bacteria: stochastic nonlinear dynamics and critical state identification')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The entropy for a black hole in a de Sitter space is approached within the framework of spacetime foam. A simple model, made by $N$ wormholes in a semiclassical approximation, is taken under examination to compute the entropy for such a case. An extension to the extreme case when the black hole and cosmological horizons are equal is discussed.",
+          "claimed_authors": [
+            "Remo Garattini"
+          ],
+          "claimed_title": "A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "gr-qc/0003089"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the description of open quantum systems with probability sinks (or sources) in terms of general non-Hermitian Hamiltonians.~Within such a framework, we study novel possible definitions of the quantum linear entropy as an indicator of the flow of information during the dynamics. Such linear entropy functionals are necessary in the case of a partially Wigner-transformed non-Hermitian Hamiltonian (which is typically useful within a mixed quantum-classical representation). Both the case of a system represented by a pure non-Hermitian Hamiltonian as well as that of the case of non-Hermitian dynamics in a classical bath are explicitly considered.",
+          "claimed_authors": [
+            "Alessandro Sergi",
+            "Paolo V. Giaquinta"
+          ],
+          "claimed_title": "Linear Quantum Entropy and Non-Hermitian Hamiltonians",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.05917"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Linear Quantum Entropy and Non-Hermitian Hamiltonians')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Approximate entropy (ApEn) and sample entropy (SampEn) are widely used for temporal complexity analysis of real-world phenomena. However, their relationship with the Hurst exponent as a measure of self-similarity is not widely studied. Additionally, ApEn and SampEn are susceptible to signal amplitude changes. A common practice for addressing this issue is to correct their input signal amplitude by its standard deviation. In this study, we first show, using simulations, that ApEn and SampEn are related to the Hurst exponent in their tolerance r and embedding dimension m parameters. We then propose a modification to ApEn and SampEn called range entropy or RangeEn. We show that RangeEn is more robust to nonstationary signal changes, and it has a more linear relationship with the Hurst exponent, compared to ApEn and SampEn. RangeEn is bounded in the tolerance r-plane between 0 (maximum entropy) and 1 (minimum entropy) and it has no need for signal amplitude correction. Finally, we demonstrate the clinical usefulness of signal entropy measures for characterisation of epileptic EEG data as a real-world example.",
+          "claimed_authors": [
+            "Amir Omidvarnia",
+            "Mostefa Mesbah",
+            "Mangor Pedersen",
+            "Graeme Jackson"
+          ],
+          "claimed_title": "Range entropy: A bridge between signal complexity and self-similarity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.06500"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Range entropy: A bridge between signal complexity and self-similarity')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Exposing an Evolutionary Algorithm that is used to evolve robot controllers to variable conditions is necessary to obtain solutions which are robust and can cross the reality gap. However, we do not yet have methods for analyzing and understanding the impact of the varying morphological conditions which impact the evolutionary process, and therefore for choosing suitable variation ranges. By morphological conditions, we refer to the starting state of the robot, and to variations in its sensor readings during operation due to noise. In this article, we introduce a method that permits us to measure the impact of these morphological variations and we analyze the relation between the amplitude of variations, the modality with which they are introduced, and the performance and robustness of evolving agents. Our results demonstrate that (i) the evolutionary algorithm can tolerate morphological variations which have a very high impact, (ii) variations affecting the actions of the agent are tolerated much better than variations affecting the initial state of the agent or of the environment, and (iii) improving the accuracy of the fitness measure through multiple evaluations is not always useful. Moreover, our results show that morphological variations permit generating solutions which perform better both in varying and non-varying conditions.",
+          "claimed_authors": [
+            "Jonata Tyska Carvalho",
+            "Stefano Nolfi"
+          ],
+          "claimed_title": "The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.02809"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data-efficient image classification is a challenging task that aims to solve image classification using small training data. Neural network-based deep learning methods are effective for image classification, but they typically require large-scale training data and have major limitations such as requiring expertise to design network architectures and having poor interpretability. Evolutionary deep learning is a recent hot topic that combines evolutionary computation with deep learning. However, most evolutionary deep learning methods focus on evolving architectures of neural networks, which still suffer from limitations such as poor interpretability. To address this, this paper proposes a new genetic programming-based evolutionary deep learning approach to data-efficient image classification. The new approach can automatically evolve variable-length models using many important operators from both image and classification domains. It can learn different types of image features from colour or gray-scale images, and construct effective and diverse ensembles for image classification. A flexible multi-layer representation enables the new approach to automatically construct shallow or deep models/trees for different tasks and perform effective transformations on the input data via multiple internal nodes. The new approach is applied to solve five image classification tasks with different training set sizes. The results show that it achieves better performance in most cases than deep learning methods for data-efficient image classification. A deep analysis shows that the new approach has good convergence and evolves models with high interpretability, different lengths/sizes/shapes, and good transferability.",
+          "claimed_authors": [
+            "Ying Bi",
+            "Bing Xue",
+            "Mengjie Zhang"
+          ],
+          "claimed_title": "Genetic Programming-Based Evolutionary Deep Learning for Data-Efficient Image Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.13233"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Genetic Programming-Based Evolutionary Deep Learning for Data-Efficient Image Classification')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Physics-informed neural networks (PINNs) are at the forefront of scientific machine learning, making possible the creation of machine intelligence that is cognizant of physical laws and able to accurately simulate them. However, today's PINNs are often trained for a single physics task and require computationally expensive re-training for each new task, even for tasks from similar physics domains. To address this limitation, this paper proposes a pioneering approach to advance the generalizability of PINNs through the framework of Baldwinian evolution. Drawing inspiration from the neurodevelopment of precocial species that have evolved to learn, predict and react quickly to their environment, we envision PINNs that are pre-wired with connection strengths inducing strong biases towards efficient learning of physics. A novel two-stage stochastic programming formulation coupling evolutionary selection pressure (based on proficiency over a distribution of physics tasks) with lifetime learning (to specialize on a sampled subset of those tasks) is proposed to instantiate the Baldwin effect. The evolved Baldwinian-PINNs demonstrate fast and physics-compliant prediction capabilities across a range of empirically challenging problem instances with more than an order of magnitude improvement in prediction accuracy at a fraction of the computation cost compared to state-of-the-art gradient-based meta-learning methods. For example, when solving the diffusion-reaction equation, a 70x improvement in accuracy was obtained while taking 700x less computational time. This paper thus marks a leap forward in the meta-learning of PINNs as generalizable physics solvers. Sample codes are available at https://github.com/chiuph/Baldwinian-PINN.",
+          "claimed_authors": [
+            "Jian Cheng Wong",
+            "Chin Chun Ooi",
+            "Abhishek Gupta",
+            "Pao-Hsiung Chiu",
+            "Joshua Shao Zheng Low",
+            "My Ha Dao",
+            "Yew-Soon Ong"
+          ],
+          "claimed_title": "Evolutionary Optimization of Physics-Informed Neural Networks: Advancing Generalizability by the Baldwin Effect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.03243"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Epigenetic Drift in Adaptive Landscape Exploration biology', candidate_title='Evolutionary Optimization of Physics-Informed Neural Networks: Advancing Generalizability by the Baldwin Effect')",
+        "failed_at": "2026-06-26T21:36:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sascha H. Hauck",
+            "Sandip Saha",
+            "Narsis A. Kiani",
+            "Jesper N. Tegner"
+          ],
+          "title": "Epigenetic feedback reshapes dynamical landscapes in gene regulatory networks",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.24427",
+        "summary": "Understanding how gene regulatory networks (GRNs) give rise to stable and dynamic cellular states remains a central challenge in theoretical biology, particularly when slow epigenetic feedback reshapes the underlying regulatory landscape. While experimental approaches such as single-cell transcriptomics reveal rich dynamical behaviour, a tractable theoretical framework that links gene expression, epigenetic control, and collective dynamics remains challenging. Here, we develop an extended Dynamical Mean Field Theory (DMFT) framework for GRNs that incorporates epigenetic modifications as slow, feedback-driven variables. Building on the analogy between Hopfield networks and spin glass systems, we derive effective stochastic equations that reduce high-dimensional dynamics to a tractable form across multiple timescales. This formulation enables quantitative characterization of both stable and oscillatory regimes and reveals how epigenetic feedback reshapes the effective potential landscape governing cell fate decisions. Our model shows how epigenetic feedback regulation dynamically reshapes the Waddington landscape. Our results and methodology provide a unified theoretical framework for understanding developmental dynamics and epigenetic reprogramming in complex biological systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.24427",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:37:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kristina Crona"
+          ],
+          "title": "Polytopes, graphs and fitness landscapes",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1212.0465",
+        "summary": "Darwinian evolution can be illustrated as an uphill walk in a landscape, where the surface consists of genotypes, the height coordinates represent fitness, and each step corresponds to a point mutation. Epistasis, roughly defined as the dependence between the fitness effects of mutations, is a key concept in the theory of adaptation. Important recent approaches depend on graphs and polytopes. Fitness graphs are useful for describing coarse properties of a landscape, such as mutational trajectories and the number of peaks. The graphs have been used for relating global and local properties of fitness landscapes. The geometric theory of gene interaction, or the shape theory, is the most fine-scaled approach to epistasis. Shapes, defined as triangulations of polytopes for any number of loci, replace the well established concepts of positive and negative epistasis for two mutations. From the shape one can identify the fittest populations, i.e., populations where allele shuffling (recombination) will not increase the mean fitness. Shapes and graphs provide complementary information. The approaches make no structural assumptions about the underlying fitness landscapes, which make them well suited for empirical work.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1212.0465",
+          "http_status": 200,
+          "pdf_sample_score": 0.2797,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:37:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alex H. Lang",
+            "Hu Li",
+            "James J. Collins",
+            "Pankaj Mehta"
+          ],
+          "title": "Epigenetic landscapes explain partially reprogrammed cells and identify key reprogramming genes",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1211.3133",
+        "summary": "A common metaphor for describing development is a rugged \"epigenetic landscape\" where cell fates are represented as attracting valleys resulting from a complex regulatory network. Here, we introduce a framework for explicitly constructing epigenetic landscapes that combines genomic data with techniques from spin-glass physics. Each cell fate is a dynamic attractor, yet cells can change fate in response to external signals. Our model suggests that partially reprogrammed cells are a natural consequence of high-dimensional landscapes, and predicts that partially reprogrammed cells should be hybrids that co-express genes from multiple cell fates. We verify this prediction by reanalyzing existing datasets. Our model reproduces known reprogramming protocols and identifies candidate transcription factors for reprogramming to novel cell fates, suggesting epigenetic landscapes are a powerful paradigm for understanding cellular identity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1211.3133",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:37:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuuki Matsushita",
+            "Kunihiko Kaneko"
+          ],
+          "title": "Homeorhesis in Waddington's Landscape by Epigenetic Feedback Regulation",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1912.11994",
+        "summary": "In multicellular organisms, cells differentiate into several distinct types during early development. Determination of each cellular state, along with the ratio of each cell type, as well as the developmental course during cell differentiation are highly regulated processes that are robust to noise and environmental perturbations throughout development. Waddington metaphorically depicted this robustness as the epigenetic landscape in which the robustness of each cellular state is represented by each valley in the landscape. This robustness is now conceptualized as an approach toward an attractor in a gene-expression dynamical system. However, there is still an incomplete understanding of the origin of landscape change, which is accompanied by branching of valleys that corresponds to the differentiation process. Recent progress in developmental biology has unveiled the molecular processes involved in epigenetic modification, which will be a key to understanding the nature of slow landscape change. Nevertheless, the contribution of the interplay between gene expression and epigenetic modification to robust landscape changes, known as homeorhesis, remains elusive. Here, we introduce a theoretical model that combines epigenetic modification with gene expression dynamics driven by a regulatory network. In this model, epigenetic modification changes the feasibility of expression, i.e., the threshold for expression dynamics, and a slow positive-feedback process from expression to the threshold level is introduced. Under such epigenetic feedback, several fixed-point attractors with distinct expression patterns are generated hierarchically shaping the epigenetic landscape with successive branching of valleys. This theory provides a quantitative framework for explaining homeorhesis in development as postulated by Waddington, based on dynamical-system theory with slow feedback reinforcement.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1912.11994",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:37:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Johannes Neidhart",
+            "Ivan G. Szendro",
+            "Joachim Krug"
+          ],
+          "title": "Adaptation in tunably rugged fitness landscapes: The Rough Mount Fuji Model",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1402.3065",
+        "summary": "Much of the current theory of adaptation is based on Gillespie's mutational landscape model (MLM), which assumes that the fitness values of genotypes linked by single mutational steps are independent random variables. On the other hand, a growing body of empirical evidence shows that real fitness landscapes, while possessing a considerable amount of ruggedness, are smoother than predicted by the MLM. In the present article we propose and analyse a simple fitness landscape model with tunable ruggedness based on the Rough Mount Fuji (RMF) model originally introduced by Aita et al. [Biopolymers 54:64-79 (2000)] in the context of protein evolution. We provide a comprehensive collection of results pertaining to the topographical structure of RMF landscapes, including explicit formulae for the expected number of local fitness maxima, the location of the global peak, and the fitness correlation function. The statistics of single and multiple adaptive steps on the RMF landscape are explored mainly through simulations, and the results are compared to the known behavior in the MLM model. Finally, we show that the RMF model can explain the large number of second-step mutations observed on a highly-fit first step backgound in a recent evolution experiment with a microvirid bacteriophage [Miller et al., Genetics 187:185-202 (2011)].",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1402.3065",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:37:15Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the role of epigenetic drift in adaptive landscape exploration biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

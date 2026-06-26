@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.05141",
+  "judged_at": "2026-06-26T21:25:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the impact of data filtering on gravitational lens detection rates physics",
+  "rationale": "The paper focuses on \"observing strategy\" (telescope scheduling and seeing requirements) rather than \"data filtering\" (post-processing cuts or selection algorithms), representing a distinct construct in the survey pipeline that shares only the domain and outcome keywords (lensing, detection). It does not measure the specific impact of filtering on detection rates, failing to satisfy the inclusion criteria for same-mechanism evidence or variable measurement.",
+  "relevant": false
+}

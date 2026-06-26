@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.11994",
+  "judged_at": "2026-06-26T21:43:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of epigenetic drift in adaptive landscape exploration biology",
+  "rationale": "This paper qualifies as a foundational canonical reference (Criterion d) for the theoretical framework of the epigenetic landscape (Waddington's), which is the core conceptual domain of the user's question, and it measures the relationship between epigenetic mechanisms and landscape dynamics (Criterion b) even if the specific mechanism (feedback vs. drift) differs.",
+  "relevant": true
+}

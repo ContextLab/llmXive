@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/0303381",
+  "judged_at": "2026-06-26T21:21:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the impact of data filtering on gravitational lens detection rates physics",
+  "rationale": "This paper is in the same domain (gravitational lensing physics) but does not address the core mechanism of the user's question—data filtering's impact on detection rates. It focuses on cluster selection science using shear measurements rather than methodology for how filtering affects detection sensitivity or rates, which is the specific variable relationship the user is investigating.",
+  "relevant": false
+}

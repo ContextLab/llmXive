@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T01:44:04.311361Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-335-investigating-the-relationship-between-a
-last_run_id: 15c1bbbc-07d2-4e98-be0b-efa0e95fee07
+last_run_id: 2866c144-1c65-4a92-9d49-617a012bf5bf
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a
 title: Investigating the Relationship Between Alpha Oscillations and Working Memory
   Capacity
-updated_at: '2026-06-25T09:28:49.143397Z'
+updated_at: '2026-06-26T21:15:01.343797Z'

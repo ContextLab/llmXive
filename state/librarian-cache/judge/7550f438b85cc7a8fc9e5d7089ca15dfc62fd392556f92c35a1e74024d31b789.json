@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2005.07866",
+  "judged_at": "2026-06-26T21:17:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the impact of data filtering on gravitational lens detection rates physics",
+  "rationale": "This paper is about distributed machine learning optimization with Byzantine fault tolerance, not astrophysical data analysis for gravitational lens detection. The \"data filtering\" in this paper refers to outlier-filtering for robust gradient estimation in SGD, which is a distinct construct from astronomical data filtering for lens detection (homonym keyword overlap only, per rejection rule).",
+  "relevant": false
+}

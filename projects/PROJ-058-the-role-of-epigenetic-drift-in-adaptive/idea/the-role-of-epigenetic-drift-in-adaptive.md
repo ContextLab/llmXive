@@ -9,30 +9,34 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Does epigenetic drift facilitate transitions between adaptive peaks in fitness landscapes, and can this be quantified from publicly available multi-generational genomic and epigenomic datasets?
+How does multi-generational epigenetic variance correlate with gene expression variability in model organisms exposed to fluctuating environmental conditions?
 
 ## Motivation
 
-Epigenetic drift is typically treated as genomic noise, but stochastic epigenetic changes could enable rapid phenotypic exploration without requiring de novo mutations. Understanding this mechanism would clarify how populations maintain resilience under fluctuating environmental conditions. However, empirical evidence linking epigenetic variation to adaptive landscape traversal remains sparse.
+Epigenetic drift is typically treated as genomic noise, but stochastic epigenetic changes could enable rapid phenotypic exploration without requiring de novo mutations. Understanding this mechanism would clarify how populations maintain resilience under fluctuating environmental conditions. However, empirical evidence linking epigenetic variation to adaptive landscape traversal remains sparse in multi-generational contexts.
 
 ## Related work
 
-- [Wright's adaptive landscape versus Fisher's fundamental theorem (2011)](http://arxiv.org/abs/1102.3709v1) — Provides historical and theoretical foundation for adaptive landscape concepts in evolutionary biology.
-- [Global View of Bionetwork Dynamics: Adaptive Landscape (2009)](http://arxiv.org/abs/0902.0980v1) — Discusses quantification methods for adaptive landscapes in dynamical systems, relevant to modeling epigenetic state transitions.
-- Related work: TODO — lit-search returned no results for epigenetic drift + adaptive landscape specifically; additional search recommended.
+- [Epigenetic feedback reshapes dynamical landscapes in gene regulatory networks (2025)](https://arxiv.org/abs/2512.24427) — Establishes theoretical framework for how epigenetic feedback alters stability of cellular states in regulatory networks.
+- [Epigenetic landscapes explain partially reprogrammed cells and identify key reprogramming genes (2012)](https://arxiv.org/abs/1211.3133) — Introduces epigenetic landscape metaphor for cell fate transitions, relevant to understanding phenotypic exploration mechanisms.
+- [Homeorhesis in Waddington's Landscape by Epigenetic Feedback Regulation (2019)](https://arxiv.org/abs/1912.11994) — Demonstrates how epigenetic feedback maintains developmental trajectories under perturbation, supporting plasticity hypothesis.
+- [Adaptation in tunably rugged fitness landscapes: The Rough Mount Fuji Model (2014)](https://arxiv.org/abs/1402.3065) — Provides mathematical framework for adaptation on rugged fitness landscapes, applicable to modeling peak transitions.
+- [Polytopes, graphs and fitness landscapes (2012)](https://arxiv.org/abs/1212.0465) — Discusses topological structure of fitness landscapes, relevant for quantifying adaptive peak transitions.
 
 ## Expected results
 
-We expect to detect a statistically significant correlation between epigenetic variation magnitude and phenotypic plasticity measures across generations. If epigenetic drift facilitates adaptive exploration, populations under fluctuating conditions should show higher epigenetic variance without corresponding genetic divergence. Evidence at the p < 0.05 level with effect size d > 0.5 would support the hypothesis.
+We expect to detect a statistically significant positive correlation between multi-generational epigenetic variance and gene expression variability under fluctuating environmental conditions. If epigenetic drift facilitates adaptive exploration, populations exposed to environmental fluctuations should show higher epigenetic variance without corresponding genetic divergence. Evidence at the p < 0.05 level with Spearman's rho > 0.3 would support the hypothesis.
 
 ## Methodology sketch
 
-- **Data acquisition**: Download multi-generational epigenomic datasets from HuggingFace Datasets (e.g., `epigenome-collections`), ENCODE (https://www.encodeproject.org/), and GEO (Gene Expression Omnibus) using `wget`/`curl`. Target datasets with ≥3 generations and matched expression data.
-- **Data preprocessing**: Filter to model organisms (mouse, C. elegans, Drosophila) with complete methylation/CUT&Tag profiles. Normalize using `limma` or `DESeq2` in R (≤7GB RAM).
-- **Epigenetic drift quantification**: Calculate per-gene epigenetic variance across generations using coefficient of variation (CV) for methylation levels and chromatin accessibility peaks.
-- **Phenotypic proxy extraction**: Use gene expression variance as proxy for phenotypic plasticity; extract from same samples where available.
+- **Data acquisition**: Download multi-generational epigenomic datasets from GEO (Gene Expression Omnibus) and ENCODE using `wget`/`curl`. Target datasets with ≥3 generations and matched methylation/CUT&Tag profiles (e.g., GSE series with longitudinal design).
+- **Data preprocessing**: Filter to model organisms (mouse, C. elegans, Drosophilla) with complete methylation and gene expression profiles. Normalize using `limma` or `DESeq2` in R (≤7GB RAM).
+- **Environmental metadata extraction**: Identify samples from fluctuating vs. constant condition experiments from GEO metadata; stratify analysis accordingly.
+- **Epigenetic drift quantification**: Calculate per-gene epigenetic variance across generations using coefficient of variation (CV) for methylation levels at CpG sites.
+- **Gene expression variability extraction**: Compute per-gene expression variance from RNA-seq data in the same samples; this is an independent molecular measurement layer.
 - **Statistical analysis**: Perform Spearman correlation between epigenetic variance and expression variance across genes; apply permutation testing (10,000 iterations) to assess significance.
-- **Environmental condition stratification**: If metadata available, compare drift rates under constant vs. fluctuating conditions using two-sample t-tests.
+- **Environmental stratification**: Compare correlation coefficients between fluctuating vs. constant conditions using Fisher's z-transformation test.
+- **Validation independence**: Epigenetic variance (predictor) and expression variance (outcome) are measured from distinct molecular assays (bisulfite sequencing vs. RNA-seq) on the same biological samples, ensuring independent data sources.
 - **Visualization**: Generate heatmaps and scatter plots with `ggplot2` or `matplotlib`; save to PNG (≤5MB each).
 - **Feasibility check**: All steps target ≤30-minute execution per dataset; parallelize across ≤3 datasets to fit 6-hour GHA limit.
 
@@ -41,3 +45,45 @@ We expect to detect a statistically significant correlation between epigenetic v
 - Reviewed existing ideas: [access to existing_idea_paths not provided in input]
 - Closest match: [not determinable without corpus access]
 - Verdict: NOT a duplicate (pending corpus review)
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-26T21:45:34Z
+**Outcome**: success_after_expansion
+**Original term**: The Role of Epigenetic Drift in Adaptive Landscape Exploration biology
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | The Role of Epigenetic Drift in Adaptive Landscape Exploration biology | 0 |
+| 1 | epigenetic variation and evolutionary adaptation | 2 |
+| 2 | fitness landscape dynamics with epigenetic inheritance | 5 |
+| 3 | transgenerational epigenetic effects on fitness | 0 |
+| 4 | plasticity-led evolution mechanisms | 0 |
+| 5 | non-genetic inheritance in population evolution | 0 |
+| 6 | stochastic epigenetic changes in populations | 0 |
+| 7 | epigenetic facilitation of genetic evolution | 0 |
+| 8 | DNA methylation variability and adaptation | 0 |
+| 9 | evolutionary trajectories under epigenetic influence | 0 |
+| 10 | soft inheritance and adaptive peaks | 0 |
+| 11 | epigenetic buffering of environmental change | 0 |
+| 12 | phenotypic plasticity and fitness landscapes | 0 |
+| 13 | evolutionary rescue via epigenetic variation | 0 |
+| 14 | genetic assimilation of epigenetic traits | 0 |
+| 15 | epigenetic diversity within populations | 0 |
+| 16 | epigenetic landscape theory in evolution | 0 |
+| 17 | non-genetic variation in evolutionary dynamics | 0 |
+| 18 | epigenetic marks as evolutionary substrates | 0 |
+| 19 | Waddington landscape and epigenetic drift | 0 |
+| 20 | epigenetic mutation rates and selection | 0 |
+
+### Verified citations
+
+1. **Epigenetic feedback reshapes dynamical landscapes in gene regulatory networks** (2025). Sascha H. Hauck, Sandip Saha, Narsis A. Kiani, Jesper N. Tegner. arXiv. [2512.24427](https://arxiv.org/abs/2512.24427). PDF-sampled: No.
+2. **Polytopes, graphs and fitness landscapes** (2012). Kristina Crona. arXiv. [1212.0465](https://arxiv.org/abs/1212.0465). PDF-sampled: No.
+3. **Epigenetic landscapes explain partially reprogrammed cells and identify key reprogramming genes** (2012). Alex H. Lang, Hu Li, James J. Collins, Pankaj Mehta. arXiv. [1211.3133](https://arxiv.org/abs/1211.3133). PDF-sampled: No.
+4. **Homeorhesis in Waddington's Landscape by Epigenetic Feedback Regulation** (2019). Yuuki Matsushita, Kunihiko Kaneko. arXiv. [1912.11994](https://arxiv.org/abs/1912.11994). PDF-sampled: No.
+5. **Adaptation in tunably rugged fitness landscapes: The Rough Mount Fuji Model** (2014). Johannes Neidhart, Ivan G. Szendro, Joachim Krug. arXiv. [1402.3065](https://arxiv.org/abs/1402.3065). PDF-sampled: No.

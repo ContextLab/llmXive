@@ -1,0 +1,646 @@
+{
+  "fetched_at": "2026-06-26T21:33:15Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Plant Disease Resistance from Publicly Available Metabolomic Data",
+      "target_n": 5
+    },
+    "duration_seconds": 305.743,
+    "ended_at": "2026-06-26T21:33:15Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Machine learning classification of plant metabolomics"
+        ],
+        [
+          2,
+          "Metabolic biomarkers for plant pathogen resistance"
+        ],
+        [
+          3,
+          "Computational prediction of plant immune response"
+        ],
+        [
+          4,
+          "Plant-pathogen interaction metabolite profiling"
+        ],
+        [
+          5,
+          "Secondary metabolites and disease susceptibility modeling"
+        ],
+        [
+          6,
+          "Predictive modeling of plant phenotypes from metabolites"
+        ],
+        [
+          7,
+          "Metabolite signature detection in infected plants"
+        ],
+        [
+          8,
+          "Chemometric analysis of plant defense compounds"
+        ],
+        [
+          9,
+          "Bioinformatics approaches to plant resistance screening"
+        ],
+        [
+          10,
+          "Metabolomic fingerprinting of resistant plant varieties"
+        ],
+        [
+          11,
+          "Public metabolomics repositories for plant pathology"
+        ],
+        [
+          12,
+          "Open access plant metabolomics datasets"
+        ],
+        [
+          13,
+          "Plant metabolomics data mining for disease traits"
+        ],
+        [
+          14,
+          "Statistical learning on plant metabolic profiles"
+        ],
+        [
+          15,
+          "Integrative omics for plant disease prediction"
+        ],
+        [
+          16,
+          "Pathogen stress response metabolomics"
+        ],
+        [
+          17,
+          "Phytoalexin profiling and resistance prediction"
+        ],
+        [
+          18,
+          "Automated classification of plant health via metabolites"
+        ],
+        [
+          19,
+          "Open science resources for plant metabolite data"
+        ],
+        [
+          20,
+          "Computational plant pathology and metabolomics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Machine learning classification of plant metabolomics": 5,
+        "Predicting Plant Disease Resistance from Publicly Available Metabolomic Data biology": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "metabolite fingerprinting immune response prediction",
+      "MetaboLights Arabidopsis pathogen metabolomics",
+      "machine learning feature selection metabolomics",
+      "sensitivity specificity disease resistance model",
+      "secondary metabolites phytoalexins defense pathways"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2006.16189"
+      ]
+    },
+    "per_query_hit_count": {
+      "MetaboLights Arabidopsis pathogen metabolomics": 3,
+      "Predicting Plant Disease Resistance from Publicly Available Metabolomic Data biology": 3,
+      "machine learning feature selection metabolomics": 3,
+      "metabolite fingerprinting immune response prediction": 3,
+      "secondary metabolites phytoalexins defense pathways": 3,
+      "sensitivity specificity disease resistance model": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "This paper is off-domain entirely, focusing on machine learning risks in official government statistics rather than plant biology, metabolomics, or disease resistance prediction. It shares only generic keywords like \"machine learning\" and \"data\" without addressing the specific biological mechanism, domain, or variables required for the user's literature review.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper provides general recommendations for machine learning validation in biology but does not measure the specific variables (plant disease resistance, metabolomics) or establish an empirical baseline for the prediction task, failing to meet inclusion criteria (a)-(f). It represents a distinct methodological construct regarding reporting standards rather than relevant prior work on the specific scientific question of plant disease prediction.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is off-domain entirely as it focuses on general machine learning methodology without addressing the specific biological domain, plant disease resistance, or metabolomic data central to the user's question. It fails to meet any inclusion criteria (a-f) because it lacks a measurable connection to the user's specific variables, mechanism, or empirical population.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "This paper is a general computer science survey on active learning strategies for data streams and does not address the specific biological domain (plant disease resistance), data type (metabolomics), or prediction task required by the user's question. It falls under the rejection rule for being \"Off-domain entirely\" as it lacks any measurable connection to the user's mechanism, variables, or empirical setting.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "This paper is about general machine learning interpretability methodology using energy landscape methods, with examples from medicine, cybersecurity, and autonomous driving. It does not address plant biology, disease resistance prediction, or metabolomic data at all, failing to satisfy any acceptance criteria (a-f) and falling under the \"distinct construct sharing only homonym keywords\" rejection rule (both involve ML, but the paper's domain and variables are entirely unrelated to the user's pla",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T21:28:10Z",
+    "term_input": {
+      "normalized": "predicting plant disease resistance from publicly available metabolomic data biology",
+      "raw": "Predicting Plant Disease Resistance from Publicly Available Metabolomic Data biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Alzheimer's disease (AD) exhibits substantial clinical and biological heterogeneity, complicating efforts in treatment and intervention development. While new computational methods offer insights into AD progression, the reproducibility of these subtypes across datasets remains understudied, particularly concerning the robustness of subtype definitions when validated on diverse databases. This study evaluates the consistency of AD progression subtypes identified by the Subtype and Stage Inference (SuStaIn) algorithm using T1-weighted MRI data across 5,444 subjects from ANMerge, OASIS, and ADNI datasets, forming four independent cohorts. Each cohort was analyzed under two conditions: one using the full cohort, including cognitively normal controls, and another excluding controls to test subtype robustness. Results confirm the three primary atrophy subtypes identified in earlier studies: Typical, Cortical, and Subcortical, as well as the emergence of rare and atypical AD variants such as posterior cortical atrophy (PCA). Notably, each subtype displayed varying robustness to the inclusion of controls, with certain subtypes, like Subcortical, more influenced by cohort composition. This investigation underscores SuStaIn's reliability for defining stable AD subtypes and suggests its utility in clinical stratification for trials and diagnosis. However, our findings also highlight the need for improved dataset diversity, particularly in terms of ethnic representation, to enhance generalizability and support broader clinical application.",
+          "claimed_authors": [
+            "Emma Prevot",
+            "Cameron Shand",
+            "Neil Oxtoby",
+            "for Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "How reproducible are data-driven subtypes of Alzheimer's disease atrophy?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.00160"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title=\"How reproducible are data-driven subtypes of Alzheimer's disease atrophy?\")",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Progressive cognitive decline spanning across decades is characteristic of Alzheimer's disease (AD). Various predictive models have been designed to realize its early onset and study the long-term trajectories of cognitive test scores across populations of interest. Research efforts have been geared towards superimposing patients' cognitive test scores with the long-term trajectory denoting gradual cognitive decline, while considering the heterogeneity of AD. Multiple trajectories representing cognitive assessment for the long-term have been developed based on various parameters, highlighting the importance of classifying several groups based on disease progression patterns. In this study, a novel method capable of self-organized prediction, classification, and the overlay of long-term cognitive trajectories based on short-term individual data was developed, based on statistical and differential equation modeling. We validated the predictive accuracy of the proposed method for the long-term trajectory of cognitive test score results on two cohorts: the Alzheimer's Disease Neuroimaging Initiative (ADNI) study and the Japanese ADNI study. We also presented two practical illustrations of the simultaneous evaluation of risk factor associated with both the onset and the longitudinal progression of AD, and an innovative randomized controlled trial design for AD that standardizes the heterogeneity of patients enrolled in a clinical trial. These resources would improve the power of statistical hypothesis testing and help evaluate the therapeutic effect. The application of predicting the trajectory of longitudinal disease progression goes beyond AD, and is especially relevant for progressive and neurodegenerative disorders.",
+          "claimed_authors": [
+            "Hiroyuki Sato",
+            "Keisuke Suzuki",
+            "Atsushi Hashizume",
+            "Ryoichi Hanazawa",
+            "Masanao Sasaki",
+            "Akihiro Hirakawa",
+            "the Japanese Alzheimer's Disease Neuroimaging Initiative",
+            "the Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "Self-organized clustering, prediction, and superposition of long-term cognitive decline from short-term individual cognitive test scores in Alzheimer's disease",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.12205"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title=\"Self-organized clustering, prediction, and superposition of long-term cognitive decline from short-term individual cognitive test scores in Alzheimer's disease\")",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Natural Immune System (NIS) is a distributed system that solves challenging search and response problems while operating under constraints imposed by physical space and resource availability. Remarkably, NIS search and response times do not scale appreciably with the physical size of the animal in which its search is conducted. Many distributed systems are engineered to solve analogous problems, and the NIS demonstrates how such engineered systems can achieve desirable scalability. We hypothesize that the architecture of the NIS, composed of a hierarchical decentralized detection network of lymph nodes (LN) facilitates efficient search and response. A sub-modular architecture in which LN numbers and size both scale with organism size is shown to efficiently balance tradeoffs between local antigen detection and global antibody production, leading to nearly scale-invariant detection and response. We characterize the tradeoffs as balancing local and global communication and show that similar tradeoffs exist in distributed systems like LN inspired artificial immune system (AIS) applications and peer-to-peer (P2P) systems. Taking inspiration from the architecture of the NIS, we propose a modular RADAR (Robust Adaptive Decentralized search with Automated Response) strategy for distributed systems. We demonstrate how two existing distributed systems (a LN inspired multi-robot control application and a P2P system) can be improved by a modular RADAR strategy. Such a sub-modular architecture is shown to balance the tradeoffs between local communication (within artificial LNs and P2P clusters) and global communication (between artificial LNs and P2P clusters), leading to efficient search and response.",
+          "claimed_authors": [
+            "Soumya Banerjee",
+            "Melanie Moses"
+          ],
+          "claimed_title": "Modular RADAR: An Immune System Inspired Search and Response Strategy for Distributed Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1006.3394"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Modular RADAR: An Immune System Inspired Search and Response Strategy for Distributed Systems')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In a previous paper the authors argued the case for incorporating ideas from innate immunity into artificial immune systems (AISs) and presented an outline for a conceptual framework for such systems. A number of key general properties observed in the biological innate and adaptive immune systems were highlighted, and how such properties might be instantiated in artificial systems was discussed in detail. The next logical step is to take these ideas and build a software system with which AISs with these properties can be implemented and experimentally evaluated. This paper reports on the results of that step - the libtissue system.",
+          "claimed_authors": [
+            "Jamie Twycross",
+            "Uwe Aickelin"
+          ],
+          "claimed_title": "Experimenting with Innate Immunity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.2854"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Experimenting with Innate Immunity')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We outline initial concepts for an immune inspired algorithm to evaluate and predict oil price time series data. The proposed solution evolves a short term pool of trackers dynamically, with each member attempting to map trends and anticipate future price movements. Successful trackers feed into a long term memory pool that can generalise across repeating trend patterns. The resulting sequence of trackers, ordered in time, can be used as a forecasting tool. Examination of the pool of evolving trackers also provides valuable insight into the properties of the crude oil market.",
+          "claimed_authors": [
+            "WIlliam Wilson",
+            "Phil Birkin",
+            "Uwe Aickelin"
+          ],
+          "claimed_title": "Oil Price Trackers Inspired by Immune Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.3884"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Oil Price Trackers Inspired by Immune Memory')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This technical report presents an evaluation of the ontology annotations in the metadata of a subset of entries of MetaboLights, a database for Metabolomics experiments and derived information. The work includes a manual analysis of the entries and a comprehensive qualitative evaluation of their annotations, together with the evaluation guide and its rationale, that was defined and followed. The approach was also implemented as a software script that given a MetaboLights entry returns a quantitative evaluation of the quality of its annotations (available on request).",
+          "claimed_authors": [
+            "Camila Ramos",
+            "Marco Louro",
+            "Miguel Santos",
+            "Francisco M. Couto"
+          ],
+          "claimed_title": "Knowledge Ratings in MetaboLights",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.07997"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Knowledge Ratings in MetaboLights')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Gene expression levels exhibit stochastic variations among genetically identical organisms under the same environmental conditions (called gene expression \"noise\" or phenotype \"fluctuation\"). In yeast and Escherichia coli, positive correlations have been found between such gene expression noise and \"plasticity\" with environmental variations. To determine the universality of such correlations in both unicellular and multicellular organisms, we focused on the relationships between gene expression \"noise\" and \"plasticity\" in Arabidopsis thaliana, a multicellular model organism. In recent studies on yeast and E. coli, only some gene groups with specific properties of promoter architecture, average expression levels, and functions exhibited strong noise-plasticity correlations. However, we found strong noise-plasticity correlations for most gene groups in Arabidopsis; additionally, promoter architecture, functional essentiality of genes, and circadian rhythm appeared to have only a weak influence on the correlation strength. The differences in the characteristics of noise-plasticity correlations may result from three-dimensional chromosomal structures and/or circadian rhythm.",
+          "claimed_authors": [
+            "Koudai Hirao",
+            "Atsushi J Nagano",
+            "Akinori Awazu"
+          ],
+          "claimed_title": "Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.03840"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "High-throughput metabolomics investigations, when conducted in large human cohorts, represent a potentially powerful tool for elucidating the biochemical diversity and mechanisms underlying human health and disease. Large-scale metabolomics data, generated using targeted or nontargeted platforms, are increasingly more common. Appropriate statistical analysis of these complex high-dimensional data is critical for extracting meaningful results from such large-scale human metabolomics studies. Herein, we consider the main statistical analytical approaches that have been employed in human metabolomics studies. Based on the lessons learned and collective experience to date in the field, we propose a step-by-step framework for pursuing statistical analyses of human metabolomics data. We discuss the range of options and potential approaches that may be employed at each stage of data management, analysis, and interpretation, and offer guidance on analytical considerations that are important for implementing an analysis workflow. Certain pervasive analytical challenges facing human metabolomics warrant ongoing research. Addressing these challenges will allow for more standardization in the field and lead to analytical advances in metabolomics investigations with the potential to elucidate novel mechanisms underlying human health and disease.",
+          "claimed_authors": [
+            "Joseph Antonelli",
+            "Brian Claggett",
+            "Mir Henglin",
+            "Jeramie D. Watrous",
+            "Kim A. Lehmann",
+            "Pavel Hushcha",
+            "Olga Demler",
+            "Samia Mora",
+            "Teemu Niiranen",
+            "Alexandre C. Pereira",
+            "Mohit Jain",
+            "Susan Cheng"
+          ],
+          "claimed_title": "Statistical Methods and Workflow for Analyzing Human Metabolomics Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.03436"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Statistical Methods and Workflow for Analyzing Human Metabolomics Data')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider high-dimensional regression over subgroups of observations. Our work is motivated by biomedical problems, where disease subtypes, for example, may differ with respect to underlying regression models, but sample sizes at the subgroup-level may be limited. We focus on the case in which subgroup-specific models may be expected to be similar but not necessarily identical. Our approach is to treat subgroups as related problem instances and jointly estimate subgroup-specific regression coefficients. This is done in a penalized framework, combining an $\\ell_1$ term with an additional term that penalizes differences between subgroup-specific coefficients. This gives solutions that are globally sparse but that allow information-sharing between the subgroups. We present algorithms for estimation and empirical results on simulated data and using Alzheimer's disease, amyotrophic lateral sclerosis and cancer datasets. These examples demonstrate the gains our approach can offer in terms of prediction and the ability to estimate subgroup-specific sparsity patterns.",
+          "claimed_authors": [
+            "Frank Dondelinger",
+            "Sach Mukherjee",
+            "The Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "High-dimensional regression over disease subgroups",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.00953"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='High-dimensional regression over disease subgroups')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The diverse metabolic pathways are fundamental to all living organisms, as they harvest energy, synthesize biomass components, produce molecules to interact with the microenvironment, and neutralize toxins. While discovery of new metabolites and pathways continues, the prediction of pathways for new metabolites can be challenging. It can take vast amounts of time to elucidate pathways for new metabolites; thus, according to HMDB only 60% of metabolites get assigned to pathways. Here, we present an approach to identify pathways based on metabolite structure. We extracted 201 features from SMILES annotations, and identified new metabolites from PubMed abstracts and HMDB. After applying clustering algorithms to both groups of features, we quantified correlations between metabolites, and found the clusters accurately linked 92% of known metabolites to their respective pathways. Thus, this approach could be valuable for predicting metabolic pathways for new metabolites.",
+          "claimed_authors": [
+            "Thiru Siddharth",
+            "Nathan Lewis"
+          ],
+          "claimed_title": "Predicting pathways for old and new metabolites through clustering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.15720"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Predicting pathways for old and new metabolites through clustering')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "International and U.S. strategies and protocols have identified the need to develop rapid-response spacecraft reconnaissance capabilities as a priority to advance planetary defense readiness. A space-based reconnaissance response is recommended for potential impactors as small as 50 m, making these small objects the most likely to trigger a space-based response and the ones that drive the reconnaissance capabilities needed. Even following the successful completion of the NEO Surveyor mission and Rubin Observatory survey efforts, roughly half of the 50-m near-Earth object (NEO) population will remain undiscovered. As a result, 50-m impactors may not be found with long warning times, and a rapid-response flyby mission may be the only reconnaissance possible. To develop a robust flyby reconnaissance capability for planetary defense, four major requirements are defined for a demonstration mission. 1. Enable a flyby of greater than 90 percent of the potential asteroid threat population. 2. Demonstrate the flyby reconnaissance for a 50 m NEO. 3. Obtain the information needed to determine if and where it would impact the Earth. 4. Determine key properties of the asteroid to inform decision makers. As commonly noted in the planetary defense community, in planetary defense, you do not pick the asteroid, the asteroid picks you. Thus, a planetary defense flyby reconnaissance demonstration mission is not about just flying by an asteroid, but rather it is about developing a robust capability for the objects that are most likely to require a short-warning-time, space-based response.",
+          "claimed_authors": [
+            "Nancy L. Chabot",
+            "Justin A. Atchison",
+            "Rylie Bull",
+            "Andrew S. Rivkin",
+            "R. Terik Daly",
+            "Ronald-L. Ballouz",
+            "Olivier S. Barnouin",
+            "Andrew F. Cheng",
+            "Carolyn M. Ernst",
+            "Angela M. Stickle",
+            "Evan J. Smith",
+            "Joseph J. Linden",
+            "Benjamin F. Villac",
+            "Jodi R. Berdis",
+            "Dawn M. Graninger",
+            "Sarah Hefter"
+          ],
+          "claimed_title": "A Mission to Demonstrate Rapid-Response Flyby Reconnaissance for Planetary Defense",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.15321"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='A Mission to Demonstrate Rapid-Response Flyby Reconnaissance for Planetary Defense')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To understand the system-wide organization of metabolism, different lines of study have devised different categorizations of metabolites. The relationship and difference between categories can provide new insights for a more detailed description of the organization of metabolism. In this study, we investigate the relative organization of three categorizations of metabolites -- pathways, subcellular localizations and network clusters, by block-model techniques borrowed from social-network studies and further characterize the categories from topological point of view. The picture of the metabolism we obtain is that of peripheral modules, characterized both by being dense network clusters and localized to organelles, connected by a central, highly connected core. Pathways typically run through several network clusters and localizations, connecting them laterally. The strong overlap between organelles and network clusters suggest that these are natural \"modules\" -- relatively independent sub-systems. The different categorizations divide the core metabolism differently suggesting that this, if possible, should be not be treated as a module on par with the organelles. Although overlapping more than chance, none of the pathways correspond very closely to a network cluster or localization. This, we believe, highlights the benefits of different orthogonal classifications and future experimental categorizations based on simple principles.",
+          "claimed_authors": [
+            "Jing Zhao",
+            "Petter Holme"
+          ],
+          "claimed_title": "Three faces of metabolites: Pathways, localizations and network positions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0907.3927"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Resistance from Publicly Available Metabolomic Data bio', candidate_title='Three faces of metabolites: Pathways, localizations and network positions')",
+        "failed_at": "2026-06-26T21:29:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:30:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16189",
+        "summary": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16189",
+          "http_status": 200,
+          "pdf_sample_score": 0.1858,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:30:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:30:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "title": "Active learning for data streams: a survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.08893",
+        "summary": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.08893",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:30:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Maximilian P Niroomand",
+            "David J Wales"
+          ],
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.02381",
+        "summary": "The ability to explain decisions made by machine learning models remains one of the most significant hurdles towards widespread adoption of AI in highly sensitive areas such as medicine, cybersecurity or autonomous driving. Great interest exists in understanding which features of the input data prompt model decision making. In this contribution, we propose a novel approach to identify relevant features of the input data, inspired by methods from the energy landscapes field, developed in the physical sciences. By identifying conserved weights within groups of minima of the loss landscapes, we can identify the drivers of model decision making. Analogues to this idea exist in the molecular sciences, where coordinate invariants or order parameters are employed to identify critical features of a molecule. However, no such approach exists for machine learning loss landscapes. We will demonstrate the applicability of energy landscape methods to machine learning models and give examples, both synthetic and from the real world, for how these methods can help to make models more interpretable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.02381",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:30:24Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting plant disease resistance from publicly available metabolomic data biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

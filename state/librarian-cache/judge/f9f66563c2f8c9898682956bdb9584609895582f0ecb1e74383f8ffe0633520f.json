@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.04216",
+  "judged_at": "2026-06-26T21:22:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the impact of data filtering on gravitational lens detection rates physics",
+  "rationale": "This paper is off-domain entirely, focusing on general AutoML pipeline optimization in computer science rather than the specific astrophysics domain of gravitational lens detection or the impact of data filtering on physical signal rates. It does not measure the relevant variables (lens detection rates, filtering impact) on the user's domain (physics/astrophysics), failing to meet any inclusion criteria.",
+  "relevant": false
+}

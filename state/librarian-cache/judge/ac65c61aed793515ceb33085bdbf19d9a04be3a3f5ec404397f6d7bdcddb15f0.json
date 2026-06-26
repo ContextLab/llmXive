@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-26T21:31:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant disease resistance from publicly available metabolomic data biology",
+  "rationale": "The paper provides general recommendations for machine learning validation in biology but does not measure the specific variables (plant disease resistance, metabolomics) or establish an empirical baseline for the prediction task, failing to meet inclusion criteria (a)-(f). It represents a distinct methodological construct regarding reporting standards rather than relevant prior work on the specific scientific question of plant disease prediction.",
+  "relevant": false
+}

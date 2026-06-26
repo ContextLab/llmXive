@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1212.0465",
+  "judged_at": "2026-06-26T21:41:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of epigenetic drift in adaptive landscape exploration biology",
+  "rationale": "This paper provides the foundational theoretical framework (fitness landscapes, graphs, polytopes) for the \"Adaptive Landscape Exploration\" component of the user's question, satisfying criterion (d) as a canonical reference for the methodology and concepts being applied, even though it focuses on genetic rather than epigenetic mechanisms.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-06-26T21:33:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant disease resistance from publicly available metabolomic data biology",
+  "rationale": "This paper is a general computer science survey on active learning strategies for data streams and does not address the specific biological domain (plant disease resistance), data type (metabolomics), or prediction task required by the user's question. It falls under the rejection rule for being \"Off-domain entirely\" as it lacks any measurable connection to the user's mechanism, variables, or empirical setting.",
+  "relevant": false
+}

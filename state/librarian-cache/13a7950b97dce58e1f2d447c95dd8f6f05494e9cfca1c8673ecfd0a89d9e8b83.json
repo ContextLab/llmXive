@@ -1,0 +1,580 @@
+{
+  "fetched_at": "2026-06-26T21:26:33Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates",
+      "target_n": 5
+    },
+    "duration_seconds": 691.302,
+    "ended_at": "2026-06-26T21:26:33Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Strong lens search pipeline selection effects"
+        ],
+        [
+          2,
+          "Impact of image preprocessing on lens finding"
+        ],
+        [
+          3,
+          "Survey data quality cuts for gravitational lenses"
+        ],
+        [
+          4,
+          "Selection bias in lens surveys"
+        ],
+        [
+          5,
+          "Completeness of gravitational lens samples"
+        ],
+        [
+          6,
+          "False positive rates in lens searches"
+        ],
+        [
+          7,
+          "Signal-to-noise ratio thresholds for lens identification"
+        ],
+        [
+          8,
+          "Automated gravitational lens detection algorithms"
+        ],
+        [
+          9,
+          "Machine learning gravitational lens classification"
+        ],
+        [
+          10,
+          "Mock lens catalog injection tests"
+        ],
+        [
+          11,
+          "Pipeline validation for lens surveys"
+        ],
+        [
+          12,
+          "Data cleaning protocols for astronomical imaging"
+        ],
+        [
+          13,
+          "Noise reduction techniques in lens detection"
+        ],
+        [
+          14,
+          "Observational selection functions in cosmology"
+        ],
+        [
+          15,
+          "Gravitational arc detection sensitivity"
+        ],
+        [
+          16,
+          "Photometric data filtering for strong lenses"
+        ],
+        [
+          17,
+          "LSST Euclid gravitational lens detection"
+        ],
+        [
+          18,
+          "Systematic errors in lens detection rates"
+        ],
+        [
+          19,
+          "Spectral energy distribution filtering in lens studies"
+        ],
+        [
+          20,
+          "Image masking effects on lens recovery"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates physics": 0,
+        "Strong lens search pipeline selection effects": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "image cleaning masking denoising strong lensing",
+      "strong lensing survey LSST Euclid catalog",
+      "lens search completeness purity metrics",
+      "detection efficiency sensitivity signal noise",
+      "selection bias systematic errors gravitational lensing"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.05991"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates physics": 3,
+      "detection efficiency sensitivity signal noise": 3,
+      "image cleaning masking denoising strong lensing": 3,
+      "lens search completeness purity metrics": 3,
+      "selection bias systematic errors gravitational lensing": 0,
+      "strong lensing survey LSST Euclid catalog": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "2005.07866",
+          "rationale": "This paper is about distributed machine learning optimization with Byzantine fault tolerance, not astrophysical data analysis for gravitational lens detection. The \"data filtering\" in this paper refers to outlier-filtering for robust gradient estimation in SGD, which is a distinct construct from astronomical data filtering for lens detection (homonym keyword overlap only, per rejection rule).",
+          "title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data"
+        },
+        {
+          "primary_pointer": "2411.15497",
+          "rationale": "This paper focuses on remote sensing object detection (e.g., planes, buildings in satellite imagery) using diffusion models, which is an off-domain application compared to the user's question about gravitational lens detection in astrophysics. It falls under the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"detection,\" \"data filtering\") without sharing the underlying physical mechanism or empirical population.",
+          "title": "AeroGen: Enhancing Remote Sensing Object Detection with Diffusion-Driven Data Generation"
+        },
+        {
+          "primary_pointer": "2406.08919",
+          "rationale": "The paper forecasts total lens yields based on observatory capabilities but does not measure the specific variable of interest (detection rates as a function of data filtering) or analyze the mechanism of filtering itself, which is the core focus of the user's question.",
+          "title": "Strong gravitational lenses from the Vera C. Rubin Observatory"
+        },
+        {
+          "primary_pointer": "astro-ph/0303381",
+          "rationale": "This paper is in the same domain (gravitational lensing physics) but does not address the core mechanism of the user's question—data filtering's impact on detection rates. It focuses on cluster selection science using shear measurements rather than methodology for how filtering affects detection sensitivity or rates, which is the specific variable relationship the user is investigating.",
+          "title": "Shear-selected clusters from the Deep Lens Survey"
+        },
+        {
+          "primary_pointer": "2006.04216",
+          "rationale": "This paper is off-domain entirely, focusing on general AutoML pipeline optimization in computer science rather than the specific astrophysics domain of gravitational lens detection or the impact of data filtering on physical signal rates. It does not measure the relevant variables (lens detection rates, filtering impact) on the user's domain (physics/astrophysics), failing to meet any inclusion criteria.",
+          "title": "Efficient AutoML Pipeline Search with Matrix and Tensor Factorization"
+        },
+        {
+          "primary_pointer": "1206.5801",
+          "rationale": "The paper focuses on post-detection **model selection** for cosmological parameter inference (H_0), whereas the user's question concerns the impact of filtering on **detection rates** (survey efficiency/completeness). While both involve \"selection\" in the gravitational lensing domain, they address distinct constructs (sample purity for physics vs. detection efficiency for survey counts), failing to measure the user's specific dependent variable or the underlying mechanism of detection rates.",
+          "title": "Bayesian approach to gravitational lens model selection: constraining H_0 with a selected sample of strong lenses"
+        },
+        {
+          "primary_pointer": "1902.05141",
+          "rationale": "The paper focuses on \"observing strategy\" (telescope scheduling and seeing requirements) rather than \"data filtering\" (post-processing cuts or selection algorithms), representing a distinct construct in the survey pipeline that shares only the domain and outcome keywords (lensing, detection). It does not measure the specific impact of filtering on detection rates, failing to satisfy the inclusion criteria for same-mechanism evidence or variable measurement.",
+          "title": "Strong Lensing considerations for the LSST observing strategy"
+        },
+        {
+          "primary_pointer": "2605.05991",
+          "rationale": "This paper is off-domain entirely, focusing on e-commerce search relevance and multi-agent systems rather than astrophysics, gravitational lensing, or astronomical data filtering, which matches the rejection rule for distinct domains.",
+          "title": "A Case-Driven Multi-Agent Framework for E-Commerce Search Relevance"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T21:15:02Z",
+    "term_input": {
+      "normalized": "assessing the impact of data filtering on gravitational lens detection rates physics",
+      "raw": "Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The accurate determination of the position-dependent energy fluence rate of scattered light (which is proportional to the energy density) is crucial to the understanding of transport in anisotropically scattering and absorbing samples, such as biological tissue, seawater, atmospheric turbulent layers, and light-emitting diodes. While Monte Carlo simulations are precise, their long computation time is not desirable. Common analytical approximations to the radiative transfer equation (RTE) fail to predict light transport and could even give unphysical results. Therefore, we experimentally probe the position-dependent energy fluence rate of light inside scattering samples where the widely used P1 and P3 approximations to the RTE fail. The samples are three-dimensional (3D) aqueous suspensions of anisotropically scattering and both absorbing and non-absorbing spherical scatterers, namely, microspheres (r = 0.5 um) with and without absorbing dye. To probe the energy fluence rate, we detect the emission of quantum-dot reporter particles that are excited by the incident light and that are contained in a thin capillary. By scanning the capillary through the sample, we access the position dependence. We present a comprehensive discussion of experimental limitations and of both random and systematic errors. Our observations agree well with the Monte Carlo simulations and the P3 approximation of the RTE with a correction for forward scattering. In contrast, the P1 and the P3 approximations deviate increasingly from our observations, ultimately even predicting unphysical negative energies.",
+          "claimed_authors": [
+            "Ozan Akdemir",
+            "Minh Duy Truong",
+            "Alfredo Rates",
+            "Ad Lagendijk",
+            "Willem L. Vos"
+          ],
+          "claimed_title": "Probing the position-dependent optical energy fluence rate in three-dimensional scattering samples",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.14748"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates phy', candidate_title='Probing the position-dependent optical energy fluence rate in three-dimensional scattering samples')",
+        "failed_at": "2026-06-26T21:17:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Strong gravitational lensing enables a wide range of science: probing cosmography; testing dark matter models; understanding galaxy evolution; and magnifying the faint, small and distant Universe. However to date exploiting strong lensing as a tool for these numerous cosmological and astrophysical applications has been severely hampered by limited sample sized. LSST will drive studies of strongly lensed galaxies, galaxy groups and galaxy clusters into the statistical age. Time variable lensing events, e.g. measuring cosmological time delays from strongly lensed supernovae and quasars, place the strongest constraints on LSST's observing strategy and have been considered in the DESC observing strategy white papers. Here we focus on aspects of `static' lens discovery that will be affected by the observing strategy. In summary, we advocate (1) ensuring comparable (sub-arcsecond) seeing in the g-band as in r and i to facilitate discovery of gravitational lenses, and (2) initially surveying the entire observable extragalactic sky as rapidly as possible to enable early science spanning a broad range of static and transient interests.",
+          "claimed_authors": [
+            "Aprajita Verma",
+            "Thomas Collett",
+            "Graham P. Smith",
+            "Strong Lensing Science Collaboration",
+            "the DESC Strong Lensing Science Working Group"
+          ],
+          "claimed_title": "Strong Lensing considerations for the LSST observing strategy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.05141"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates phy', candidate_title='Strong Lensing considerations for the LSST observing strategy')",
+        "failed_at": "2026-06-26T21:17:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The upcoming Vera Rubin Observatory Legacy Survey of Space and Time (LSST) will dramatically increase the number of strong gravitational lensing systems, requiring precise modeling of line-of-sight (LOS) effects to mitigate biases in lensing observations and cosmological inferences. We develop a method to construct joint distributions of external convergence ($κ_{\\mathrm{ext}}$) and shear ($γ_{\\mathrm{ext}}$) for strong lensing LOS by aggregating large-scale structure simulations with high-resolution halo renderings and non-linear correction. Our approach captures both smooth background matter and perturbations from halos, enabling accurate modeling of LOS effects. We apply non-linear LOS corrections to $κ_{\\mathrm{ext}}$ and $γ_{\\mathrm{ext}}$ that address the non-additive lensing effects caused by objects along the LOS in strong lensing. We find that, with a minimum image separation of $1.0^{\\prime\\prime}$, non-linear LOS correction due to the presence of a dominant deflector slightly increases the ratio of quadruple to double lenses; this non-linear LOS correction also introduces systematic biases of $\\sim 0.1\\%$ for galaxy-AGN lenses in the inferred Hubble constant ($H_0$) if not accounted for. We also observe a $0.66\\%$ bias for galaxy-galaxy lenses on $H_0$, and even larger biases up to $1.02\\%$ for galaxy-AGN systems if LOS effects are not accounted for. These results highlight the importance of LOS for precision cosmology. The publicly available code and datasets provide tools for incorporating LOS effects in future analyses.",
+          "claimed_authors": [
+            "Xianzhe TZ Tang",
+            "Simon Birrer",
+            "Anowar J. Shajib",
+            "Narayan Khadka",
+            "the LSST Strong Gravitational Lensing Science Collaboration",
+            "the LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Analyzing Line-of-sight selection biases in galaxy-scale strong lensing with external convergence and shear",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.04201"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates phy', candidate_title='Analyzing Line-of-sight selection biases in galaxy-scale strong lensing with external convergence and shear')",
+        "failed_at": "2026-06-26T21:17:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we investigate possible extensions of the idea of geodesic completeness in complex manifolds, following two directions: metrics are somewhere allowed not to be of maximum rank, or to have 'poles' somewhere else. Geodesics are eventually defined on Riemann surfaces over regions in the Riemann sphere. Completeness theorems are given in the framework of warped products of Riemann surfaces.",
+          "claimed_authors": [
+            "Claudio Meneghini"
+          ],
+          "claimed_title": "Geodesic completeness for some meromorphic metrics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "math/0204061"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates phy', candidate_title='Geodesic completeness for some meromorphic metrics')",
+        "failed_at": "2026-06-26T21:17:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Relevance is a foundation of user experience in e-commerce search. We view relevance optimization as a closed-loop ecosystem involving multiple human roles: users who provide feedback, product managers who define standards, annotators who label data, algorithm engineers who optimize models, and evaluators who assess performance. Because improving relevance in practice means systematically resolving user-perceived bad cases, we ask a system-level question: can this ecosystem be reimagined by replacing its human roles with autonomous agents? To answer this question, we propose a case-driven multi-agent framework that automates the pipeline from bad-case identification to resolution. The framework instantiates an Annotator Agent for multi-turn annotation, an Optimizer Agent for autonomous bad-case analysis and resolution, and a User Agent that identifies bad cases through conversational interaction, together forming an autonomous and continually evolving system. To make the framework practical in production, we further adopt a harness-engineering paradigm and build a unified retrieval-and-ranking relevance model for efficient training, an instruction-following relevance model for real-time case resolution, Global Memory to reduce information asymmetry across agents, a Deep Search Agent to target underestimation failures, and an agent-based chatbot for human--agent collaboration. Extensive human evaluation shows that the framework performs relevance-related tasks effectively, improves annotation accuracy, and enables more timely and generalizable bad-case resolution, indicating a practical paradigm for industrial search relevance optimization.",
+          "claimed_authors": [
+            "Global E-Commerce Search Relevance Team"
+          ],
+          "claimed_title": "A Case-Driven Multi-Agent Framework for E-Commerce Search Relevance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.05991"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates phy', candidate_title='A Case-Driven Multi-Agent Framework for E-Commerce Search Relevance')",
+        "failed_at": "2026-06-26T21:17:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The dichotomy between noise-stable and (completely) noise-sensitive stochastic models is of recent interest in probability theory. Of particular interest is the study of lattice models coming from statistical physics. The Fourier transform of noise-sensitive lattice models is concentrated on high eigenvalues and is described by \"large\" stochastic geometric objects. Noise sensitivity occurs quite surprisingly in various models like critical percolation, and is forced by certain symmetry conditions.\n  It appears that basic models from high-energy physics are noise stable; This is the impression from the basic mathematical frameworks used for describing them, and also from the description in terms of particles and interactions involving a small number of particles.\n  More general stochastic models with noise-sensitive components will not make a difference in measurements involving particles and their interactions, but may provide additional modeling power to proceed where current models are insufficient.",
+          "claimed_authors": [
+            "Gil Kalai"
+          ],
+          "claimed_title": "Is the Universe Noise-Sensitive?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "hep-th/0703092"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates phy', candidate_title='Is the Universe Noise-Sensitive?')",
+        "failed_at": "2026-06-26T21:17:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose an interpretable denoising method for graph signals using regularization by denoising (RED). RED is a technique developed for image restoration that uses an efficient (and sometimes black-box) denoiser in the regularization term of the optimization problem. By using RED, optimization problems can be designed with the explicit use of the denoiser, and the gradient of the regularization term can be easily computed under mild conditions. We adapt RED for denoising of graph signals beyond image processing. We show that many graph signal denoisers, including graph neural networks, theoretically or practically satisfy the conditions for RED. We also study the effectiveness of RED from a graph filter perspective. Furthermore, we propose supervised and unsupervised parameter estimation methods based on deep algorithm unrolling. These methods aim to enhance the algorithm applicability, particularly in the unsupervised setting. Denoising experiments for synthetic and real-world datasets show that our proposed method improves signal denoising accuracy in mean squared error compared to existing graph signal denoising methods.",
+          "claimed_authors": [
+            "Hayate Kojima",
+            "Hiroshi Higashi",
+            "Yuichi Tanaka"
+          ],
+          "claimed_title": "Graph Signal Denoising Using Regularization by Denoising and Its Parameter Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.14213"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates phy', candidate_title='Graph Signal Denoising Using Regularization by Denoising and Its Parameter Estimation')",
+        "failed_at": "2026-06-26T21:17:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this letter, we consider the detection of sparse stochastic signals with sensor networks (SNs), where the fusion center (FC) collects 1-bit data from the local sensors and then performs global detection. For this problem, a newly developed 1-bit locally most powerful test (LMPT) detector requires 3.3Q sensors to asymptotically achieve the same detection performance as the centralized LMPT (cLMPT) detector with Q sensors. This 1-bit LMPT detector is based on 1-bit quantized observations without any additional processing at the local sensors. However, direct quantization of observations is not the most efficient processing strategy at the sensors since it incurs unnecessary information loss. In this letter, we propose an improved-1-bit LMPT (Im-1-bit LMPT) detector that fuses local 1-bit quantized likelihood ratios (LRs) instead of directly quantized local observations. In addition, we design the quantization thresholds at the local sensors to ensure asymptotically optimal detection performance of the proposed detector. It is shown theoretically and numerically that, with the designed quantization thresholds, the proposed Im-1-bit LMPT detector for the detection of sparse signals requires less number of sensor nodes to compensate for the performance loss caused by 1-bit quantization.",
+          "claimed_authors": [
+            "Chengxi Li",
+            "You He",
+            "Xueqian Wang",
+            "Gang Li",
+            "Pramod K. Varshney"
+          ],
+          "claimed_title": "Distributed Detection of Sparse Stochastic Signals via Fusion of 1-bit Local Likelihood Ratios",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.09656"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates phy', candidate_title='Distributed Detection of Sparse Stochastic Signals via Fusion of 1-bit Local Likelihood Ratios')",
+        "failed_at": "2026-06-26T21:17:05Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2005.07866",
+        "summary": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2005.07866",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:17:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Datao Tang",
+            "Xiangyong Cao",
+            "Xuan Wu",
+            "Jialin Li",
+            "Jing Yao",
+            "Xueru Bai",
+            "Dongsheng Jiang",
+            "Yin Li",
+            "Deyu Meng"
+          ],
+          "title": "AeroGen: Enhancing Remote Sensing Object Detection with Diffusion-Driven Data Generation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.15497",
+        "summary": "Remote sensing image object detection (RSIOD) aims to identify and locate specific objects within satellite or aerial imagery. However, there is a scarcity of labeled data in current RSIOD datasets, which significantly limits the performance of current detection algorithms. Although existing techniques, e.g., data augmentation and semi-supervised learning, can mitigate this scarcity issue to some extent, they are heavily dependent on high-quality labeled data and perform worse in rare object classes. To address this issue, this paper proposes a layout-controllable diffusion generative model (i.e. AeroGen) tailored for RSIOD. To our knowledge, AeroGen is the first model to simultaneously support horizontal and rotated bounding box condition generation, thus enabling the generation of high-quality synthetic images that meet specific layout and object category requirements. Additionally, we propose an end-to-end data augmentation framework that integrates a diversity-conditioned generator and a filtering mechanism to enhance both the diversity and quality of generated data. Experimental results demonstrate that the synthetic data produced by our method are of high quality and diversity. Furthermore, the synthetic RSIOD data can significantly improve the detection performance of existing RSIOD models, i.e., the mAP metrics on DIOR, DIOR-R, and HRSC datasets are improved by 3.7%, 4.3%, and 2.43%, respectively. The code is available at https://github.com/Sonettoo/AeroGen.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.15497",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:17:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anowar J. Shajib",
+            "Graham P. Smith",
+            "Simon Birrer",
+            "Aprajita Verma",
+            "Nikki Arendse",
+            "Thomas E. Collett",
+            "Tansu Daylan",
+            "Stephen Serjeant",
+            "the LSST Strong Lensing Science Collaboration"
+          ],
+          "title": "Strong gravitational lenses from the Vera C. Rubin Observatory",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.08919",
+        "summary": "Like many areas of astrophysics and cosmology, the Vera C. Rubin Observatory will be transformational for almost all the applications of strong lensing, thanks to the dramatic increase in the number of known strong lenses by two orders of magnitude or more and the readily available time-domain data for the lenses with transient sources. In this article, we provide an overview of the forecasted number of discovered lenses of different types and describe the primary science cases these large lens samples will enable. We provide an updated forecast on the joint constraint for the dark energy equation-of-state parameters, $w_0$ and $w_a$, from combining all strong lensing probes of dark energy. We update the previous forecast from the Rubin Observatory Dark Energy Science Collaboration's Science Review Document by adding two new crucial strong lensing samples: lensed Type Ia supernovae and single-deflector lenses with measured stellar kinematics. Finally, we describe the current and near-future activities and collaborative efforts within the strong lensing community in preparation for the arrival of the first real dataset from Rubin in early 2026.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.08919",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:17:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "V. E. Margoniner",
+            "the Deep Lens Survey Team"
+          ],
+          "title": "Shear-selected clusters from the Deep Lens Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2003
+        },
+        "primary_pointer": "astro-ph/0303381",
+        "summary": "Weak gravitational lensing has the potential to select clusters independently of their baryon content, dynamical state, and star formation history. We present steps toward the first shear-selected sample of clusters, from the Deep Lens Survey (DLS), a deep BVRz' imaging survey of 28 square degrees. Cluster redshifts are determined from photometric redshifts of members and from lensing tomography, and in some cases have been confirmed spectroscopically. DLS imaging data are also used to derive mass-to-light ratios, and upcoming Chandra and XMM time will yield X-ray luminosities and temperatures for a subsample of 12 clusters. Thus we can begin to address any baryon or luminous-matter bias which may be present in current optical and X-ray samples. When the DLS is complete, we expect to have a sample of ~ 100 shear-selected clusters from z ~ 0.2-1.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/astro-ph/0303381",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:17:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chengrun Yang",
+            "Jicong Fan",
+            "Ziyang Wu",
+            "Madeleine Udell"
+          ],
+          "title": "Efficient AutoML Pipeline Search with Matrix and Tensor Factorization",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.04216",
+        "summary": "Data scientists seeking a good supervised learning model on a new dataset have many choices to make: they must preprocess the data, select features, possibly reduce the dimension, select an estimation algorithm, and choose hyperparameters for each of these pipeline components. With new pipeline components comes a combinatorial explosion in the number of choices! In this work, we design a new AutoML system to address this challenge: an automated system to design a supervised learning pipeline. Our system uses matrix and tensor factorization as surrogate models to model the combinatorial pipeline search space. Under these models, we develop greedy experiment design protocols to efficiently gather information about a new dataset. Experiments on large corpora of real-world classification problems demonstrate the effectiveness of our approach.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.04216",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:17:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Irène Balmès",
+            "Pier-Stefano Corasaniti"
+          ],
+          "title": "Bayesian approach to gravitational lens model selection: constraining H_0 with a selected sample of strong lenses",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1206.5801",
+        "summary": "Bayesian model selection methods provide a self-consistent probabilistic framework to test the validity of competing scenarios given a set of data. We present a case study application to strong gravitational lens parametric models. Our goal is to select a homogeneous lens subsample suitable for cosmological parameter inference. To this end we apply a Bayes factor analysis to a synthetic catalog of 500 lenses with power-law potential and external shear. For simplicity we focus on double-image lenses (the largest fraction of lens in the simulated sample) and select a subsample for which astrometry and time-delays provide strong evidence for a simple power-law model description. Through a likelihood analysis we recover the input value of the Hubble constant to within 3σstatistical uncertainty. We apply this methodology to a sample of double image lensed quasars. In the case of B1600+434, SBS 1520+530 and SDSS J1650+4251 the Bayes' factor analysis favors a simple power-law model description with high statistical significance. Assuming a flat \\LambdaCDM cosmology, the combined likelihood data analysis of such systems gives the Hubble constant H_0=76+15-5 km/s/Mpc having marginalized over the lens model parameters, the cosmic matter density and consistently propagated the observational errors on the angular position of the images. The next generation of cosmic structure surveys will provide larger lens datasets and the method described here can be particularly useful to select homogeneous lens subsamples adapted to perform unbiased cosmological parameter inference",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1206.5801",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:17:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aprajita Verma",
+            "Thomas Collett",
+            "Graham P. Smith",
+            "Strong Lensing Science Collaboration",
+            "the DESC Strong Lensing Science Working Group"
+          ],
+          "title": "Strong Lensing considerations for the LSST observing strategy",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1902.05141",
+        "summary": "Strong gravitational lensing enables a wide range of science: probing cosmography; testing dark matter models; understanding galaxy evolution; and magnifying the faint, small and distant Universe. However to date exploiting strong lensing as a tool for these numerous cosmological and astrophysical applications has been severely hampered by limited sample sized. LSST will drive studies of strongly lensed galaxies, galaxy groups and galaxy clusters into the statistical age. Time variable lensing events, e.g. measuring cosmological time delays from strongly lensed supernovae and quasars, place the strongest constraints on LSST's observing strategy and have been considered in the DESC observing strategy white papers. Here we focus on aspects of `static' lens discovery that will be affected by the observing strategy. In summary, we advocate (1) ensuring comparable (sub-arcsecond) seeing in the g-band as in r and i to facilitate discovery of gravitational lenses, and (2) initially surveying the entire observable extragalactic sky as rapidly as possible to enable early science spanning a broad range of static and transient interests.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1902.05141",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:17:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Global E-Commerce Search Relevance Team"
+          ],
+          "title": "A Case-Driven Multi-Agent Framework for E-Commerce Search Relevance",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.05991",
+        "summary": "Relevance is a foundation of user experience in e-commerce search. We view relevance optimization as a closed-loop ecosystem involving multiple human roles: users who provide feedback, product managers who define standards, annotators who label data, algorithm engineers who optimize models, and evaluators who assess performance. Because improving relevance in practice means systematically resolving user-perceived bad cases, we ask a system-level question: can this ecosystem be reimagined by replacing its human roles with autonomous agents? To answer this question, we propose a case-driven multi-agent framework that automates the pipeline from bad-case identification to resolution. The framework instantiates an Annotator Agent for multi-turn annotation, an Optimizer Agent for autonomous bad-case analysis and resolution, and a User Agent that identifies bad cases through conversational interaction, together forming an autonomous and continually evolving system. To make the framework practical in production, we further adopt a harness-engineering paradigm and build a unified retrieval-and-ranking relevance model for efficient training, an instruction-following relevance model for real-time case resolution, Global Memory to reduce information asymmetry across agents, a Deep Search Agent to target underestimation failures, and an agent-based chatbot for human--agent collaboration. Extensive human evaluation shows that the framework performs relevance-related tasks effectively, improves annotation accuracy, and enables more timely and generalizable bad-case resolution, indicating a practical paradigm for industrial search relevance optimization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.05991",
+          "http_status": 200,
+          "pdf_sample_score": 0.2913,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T21:17:42Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing the impact of data filtering on gravitational lens detection rates physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
