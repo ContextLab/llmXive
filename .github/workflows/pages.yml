@@ -58,5 +58,25 @@ jobs:
             echo "no changes"
           else
             git commit -m "deploy: sync web/ -> docs/ for GitHub Pages [skip ci]"
-            git push
+            # The ~10 cron workflows commit to main constantly, so a bare push
+            # races and is rejected non-fast-forward (the dominant Deploy Pages
+            # failure). Rebase-retry: this commit only touches docs/ (regenerated
+            # wholesale from web/), so rebasing onto sibling non-docs commits is
+            # conflict-free. Check the push exit code DIRECTLY (never through a
+            # pipe, which would mask a rejection) and fail honestly if it can't
+            # land after retries.
+            pushed=0
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:main; then pushed=1; break; fi
+              echo "push rejected (main advanced) — fetch+rebase, attempt $attempt"
+              git fetch origin main
+              if ! git rebase origin/main; then
+                git rebase --abort || true
+                sleep $((attempt * 3))
+              fi
+            done
+            if [ "$pushed" != "1" ]; then
+              echo "::error::deploy: failed to push docs after 5 rebase-retry attempts (main moving too fast)"
+              exit 1
+            fi
           fi
