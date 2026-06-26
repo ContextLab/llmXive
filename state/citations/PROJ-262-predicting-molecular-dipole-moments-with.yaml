@@ -42,7 +42,7 @@
   value: https://arxiv.org/abs/2305.18454
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2305.18454
-  verified_at: '2026-06-25T19:16:33.788141Z'
+  verified_at: '2026-06-26T10:07:06.953886Z'
 - artifact_hash: 3602417deae24e71d7492a54aa6a5c26756dd5283e2e1cd4d7e2700ea0b25ec7
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-002
@@ -53,4 +53,4 @@
   value: 10.1038/sdata.2014.22
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-06-25T19:16:33.788141Z'
+  verified_at: '2026-06-26T10:07:06.953886Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.19147",
+  "judged_at": "2026-06-26T10:15:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the influence of network topology on spontaneous brain activity patterns neuroscience",
+  "rationale": "This paper satisfies acceptance criterion (b) as it measures the user's dependent variable (spontaneous brain activity patterns via rs-fMRI BOLD signals) within the same domain (neuroscience/functional networks), providing empirical data on the variables of interest even though the specific application is clinical classification. It also aligns with criterion (f) by operating within the canonical vocabulary cluster for functional network analysis (DMN, SN, ECN, rs-fMRI).",
+  "relevant": true
+}

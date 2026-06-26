@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1710.04056",
+  "judged_at": "2026-06-26T10:12:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the influence of network topology on spontaneous brain activity patterns neuroscience",
+  "rationale": "This paper measures network topology variables (network turnover, local network structure) and spontaneous activity patterns (fMRI spatiotemporal consistency) within the neuroscience domain, satisfying criterion (b) for independent/dependent variables on the same domain. It also serves as foundational methodological context (d) regarding how network topology is defined and measured in dynamic brain activity, which is essential prior work for the user's research.",
+  "relevant": true
+}

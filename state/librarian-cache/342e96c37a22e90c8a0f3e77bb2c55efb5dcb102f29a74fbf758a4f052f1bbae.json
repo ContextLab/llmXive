@@ -1,0 +1,541 @@
+{
+  "fetched_at": "2026-06-26T10:16:35Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns",
+      "target_n": 5
+    },
+    "duration_seconds": 548.727,
+    "ended_at": "2026-06-26T10:16:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "resting-state functional connectivity"
+        ],
+        [
+          2,
+          "structure-function coupling in brain networks"
+        ],
+        [
+          3,
+          "graph theoretical analysis of brain networks"
+        ],
+        [
+          4,
+          "intrinsic brain activity patterns"
+        ],
+        [
+          5,
+          "connectome topology and neural dynamics"
+        ],
+        [
+          6,
+          "structural connectivity constraints on functional activity"
+        ],
+        [
+          7,
+          "topological properties of functional brain networks"
+        ],
+        [
+          8,
+          "resting-state fMRI graph metrics"
+        ],
+        [
+          9,
+          "intrinsic connectivity networks and structural scaffolding"
+        ],
+        [
+          10,
+          "small-world architecture of the human connectome"
+        ],
+        [
+          11,
+          "structural connectome influence on resting-state"
+        ],
+        [
+          12,
+          "brain network efficiency and spontaneous activity"
+        ],
+        [
+          13,
+          "correlation between structural and functional connectivity"
+        ],
+        [
+          14,
+          "dynamic functional connectivity and network topology"
+        ],
+        [
+          15,
+          "brain network modularity and spontaneous fluctuations"
+        ],
+        [
+          16,
+          "spontaneous neural oscillations and network structure"
+        ],
+        [
+          17,
+          "network neuroscience of resting state"
+        ],
+        [
+          18,
+          "functional network topology prediction"
+        ],
+        [
+          19,
+          "scale-free dynamics in spontaneous brain activity"
+        ],
+        [
+          20,
+          "neural mass models of spontaneous activity"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns neuroscience": 0,
+        "resting-state functional connectivity": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "structural connectivity resting state functional connectivity",
+      "rs-fMRI BOLD signal Human Connectome Project",
+      "structure function coupling neural communication models",
+      "functional connectivity strength spectral power",
+      "network control theory brain dynamics generation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2410.19147"
+      ]
+    },
+    "per_query_hit_count": {
+      "Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns neuroscience": 3,
+      "functional connectivity strength spectral power": 3,
+      "network control theory brain dynamics generation": 1,
+      "rs-fMRI BOLD signal Human Connectome Project": 3,
+      "structural connectivity resting state functional connectivity": 3,
+      "structure function coupling neural communication models": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T10:07:26Z",
+    "term_input": {
+      "normalized": "investigating the influence of network topology on spontaneous brain activity patterns neuroscience",
+      "raw": "Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The characterisation of CMB polarisation is one of the next challenge in observationnal cosmology. This is especially true for the so-called B-modes that are at least 3 order of magnitude lower than CMB temperature fluctuations. A precise measurement of the angular power spectrum of these B-modes will give important constraints on inflation parameters. In this talk, I will describe two complementary experiments, BRAIN and CLOVER, dedicated to CMB polarisation measurement. These experiments are proposed to be installed in Dome-C, Antarctica, to take advantage of the extreme dryness of the atmosphere and to allow long integration time.",
+          "claimed_authors": [
+            "M. Piat",
+            "C. Rosset",
+            "the BRAIN",
+            "CLOVER Collaboration"
+          ],
+          "claimed_title": "Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0412590"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments')",
+        "failed_at": "2026-06-26T10:09:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessing centrality in network systems is critical for understanding node importance and guiding decision-making processes. In dynamic networks, incorporating a controllability perspective is essential for identifying key nodes. In this paper, we study two control theoretic centrality measures -- the Volumetric Controllability Score (VCS) and Average Energy Controllability Score (AECS) -- to quantify node importance in linear time-invariant network systems. We prove the uniqueness of VCS and AECS for almost all specified terminal times, thereby enhancing their applicability beyond previously recognized cases. This ensures their interpretability, comparability, and reproducibility. Our analysis reveals substantial differences between VCS and AECS in linear systems with symmetric and skew-symmetric transition matrices. We also investigate the dependence of VCS and AECS on the terminal time and prove that when this parameter is extremely small, both scores become essentially uniform. Additionally, we prove that a sequence generated by a projected gradient method for computing VCS and AECS converges linearly to both measures under several assumptions. Finally, evaluations on brain networks modeled via Laplacian dynamics using real data reveal contrasting evaluation tendencies and correlations for VCS and AECS, with AECS favoring brain regions associated with cognitive and motor functions, while VCS emphasizes sensory and emotional regions.",
+          "claimed_authors": [
+            "Kazuhiro Sato",
+            "Ryohei Kawamura"
+          ],
+          "claimed_title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.03023"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks')",
+        "failed_at": "2026-06-26T10:09:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Autism spectrum disorder is a neuro-developmental disorder characterized by abnormalities of neural synchronization. In this study, functional near infrared spectroscopy (fNIRS) is used to study the difference in functional connectivity in left and right inferior frontal cortices (IFC) and temporal cortices (TC) between autistic and typically developing children between 8-11 years of age. 10 autistic children and 10 typical ones were recruited in our study for 8-min resting state measurement. Results show that the overall interhemispheric correlation of HbO was significantly lower in autistic children than in the controls. In particular, reduced connectivity was found to be most significant in TC area of autism. Autistic children lose the symmetry in the patterns of correlation maps. These results suggest the feasibility of using the fNIRS method to assess abnormal functional connectivity of the autistic brain and its potential application in autism diagnosis.",
+          "claimed_authors": [
+            "Huilin Zhu",
+            "Yuebo Fan",
+            "Huan Guo",
+            "Dan Huang",
+            "Sailing He"
+          ],
+          "claimed_title": "Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.5840"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies')",
+        "failed_at": "2026-06-26T10:09:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-26T10:09:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accounting for inter-individual variability in brain function is key to precision medicine. Here, by considering functional inter-individual variability as meaningful data rather than noise, we introduce VarCoNet, an enhanced self-supervised framework for robust functional connectome (FC) extraction from resting-state fMRI (rs-fMRI) data. VarCoNet employs self-supervised contrastive learning to exploit inherent functional inter-individual variability, serving as a brain function encoder that generates FC embeddings readily applicable to downstream tasks even in the absence of labeled data. Contrastive learning is facilitated by a novel augmentation strategy based on segmenting rs-fMRI signals. At its core, VarCoNet integrates a 1D-CNN-Transformer encoder for advanced time-series processing, enhanced with a robust Bayesian hyperparameter optimization. Our VarCoNet framework is evaluated on two downstream tasks: (i) subject fingerprinting, using rs-fMRI data from the Human Connectome Project, and (ii) autism spectrum disorder (ASD) classification, using rs-fMRI data from the ABIDE I and ABIDE II datasets. Using different brain parcellations, our extensive testing against state-of-the-art methods, including 13 deep learning methods, demonstrates VarCoNet's superiority, robustness, interpretability, and generalizability. Overall, VarCoNet provides a versatile and robust framework for FC analysis in rs-fMRI.",
+          "claimed_authors": [
+            "Charalampos Lamprou",
+            "Aamna Alshehhi",
+            "Leontios J. Hadjileontiadis",
+            "Mohamed L. Seghier"
+          ],
+          "claimed_title": "VarCoNet: A variability-aware self-supervised framework for functional connectome extraction from resting-state fMRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.02120"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='VarCoNet: A variability-aware self-supervised framework for functional connectome extraction from resting-state fMRI')",
+        "failed_at": "2026-06-26T10:09:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This survey presents the most relevant neural network models of autism spectrum disorder and schizophrenia, from the first connectionist models to recent deep network architectures. We analyzed and compared the most representative symptoms with its neural model counterpart, detailing the alteration introduced in the network that generates each of the symptoms, and identifying their strengths and weaknesses. We additionally cross-compared Bayesian and free-energy approaches, as they are widely applied to modeling psychiatric disorders and share basic mechanisms with neural networks. Models of schizophrenia mainly focused on hallucinations and delusional thoughts using neural dysconnections or inhibitory imbalance as the predominating alteration. Models of autism rather focused on perceptual difficulties, mainly excessive attention to environment details, implemented as excessive inhibitory connections or increased sensory precision. We found an excessive tight view of the psychopathologies around one specific and simplified effect, usually constrained to the technical idiosyncrasy of the used network architecture. Recent theories and evidence on sensorimotor integration and body perception combined with modern neural network architectures could offer a broader and novel spectrum to approach these psychopathologies. This review emphasizes the power of artificial neural networks for modeling some symptoms of neurological disorders but also calls for further developing these techniques in the field of computational psychiatry.",
+          "claimed_authors": [
+            "Pablo Lanillos",
+            "Daniel Oliva",
+            "Anja Philippsen",
+            "Yuichi Yamashita",
+            "Yukie Nagai",
+            "Gordon Cheng"
+          ],
+          "claimed_title": "A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.10015"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder')",
+        "failed_at": "2026-06-26T10:09:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-06-26T10:09:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Monte Carlo simulations show that long-range interactions play a major role in determining the folding rates of 48-mer three-dimensional lattice polymers modelled by the Go potential. For three target structures with different native geometries we found a sharp increase in the folding time when the relative contribution of the long-range interactions to the native state's energy is decreased from ~50% towards zero. However, the dispersion of the simulated folding times depends strongly on the native geometry and Go polymers folding to one of the target structures exhibit folding times spanning three orders of magnitude. We have also found that, depending on the target geometry, a strong geometric coupling may exist between local and long-range contacts meaning that, when this coupling exists, the formation of long-range contacts is forced by the previous formation of local contacts. The absence of a strong geometric coupling leads to kinetics that are more sensitive to the interaction energy parameters; in this case the formation of local contacts is not sufficient to promote the establishment of long-range ones when these are strongly penalized energetically, leading to longer folding times.",
+          "claimed_authors": [
+            "P. F. N. Faisca",
+            "M. M. Telo da Gama",
+            "A. Nunes"
+          ],
+          "claimed_title": "The Go model revisited: Native structure and the geometric coupling between local and long-range contacts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "q-bio/0411046"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='The Go model revisited: Native structure and the geometric coupling between local and long-range contacts')",
+        "failed_at": "2026-06-26T10:09:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider an elliptic self-adjoint first order pseudodifferential operator acting on columns of complex-valued half-densities over a connected compact manifold without boundary. The eigenvalues of the principal symbol are assumed to be simple but no assumptions are made on their sign, so the operator is not necessarily semi-bounded. We study the following objects: the propagator (time-dependent operator which solves the Cauchy problem for the dynamic equation), the spectral function (sum of squares of Euclidean norms of eigenfunctions evaluated at a given point of the manifold, with summation carried out over all eigenvalues between zero and a positive lambda) and the counting function (number of eigenvalues between zero and a positive lambda). We derive explicit two-term asymptotic formulae for all three. For the propagator \"asymptotic\" is understood as asymptotic in terms of smoothness, whereas for the spectral and counting functions \"asymptotic\" is understood as asymptotic with respect to lambda tending to plus infinity.",
+          "claimed_authors": [
+            "Olga Chervova",
+            "Robert J. Downes",
+            "Dmitri Vassiliev"
+          ],
+          "claimed_title": "The spectral function of a first order elliptic system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.6015"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='The spectral function of a first order elliptic system')",
+        "failed_at": "2026-06-26T10:09:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The spectral behavior of the difference between the resolvents of two realizations $\\tilde A_1$ and $\\tilde A_2$ of a second-order strongly elliptic symmetric differential operator $A$, defined by different Robin conditions $νu=b_1γ_0u$ and $νu=b_2γ_0u$, can in the case where all coefficients are $C^\\infty$ be determined by use of a general result by the author in 1984 on singular Green operators. We here treat the problem for nonsmooth $b_i$. Using a Krein resolvent formula, we show that if $b_1$ and $b_2$ are in $L_\\infty$, the s-numbers $s_j$ of $(\\tilde A_1 -λ)^{-1}-(\\tilde A_2 -λ)^{-1}$ satisfy $s_j j^{3/(n-1)}\\le C$ for all $j$; this improves a recent result for $A=-Δ$ by Behrndt et al., that $\\sum_js_j ^p<\\infty$ for $p>(n-1)/3$. A sharper estimate is obtained when $b_1$ and $b_2$ are in $C^ε$ for some $ε>0$, with jumps at a smooth hypersurface, namely that $s_j j^{3/(n-1)}\\to c$ for $j\\to \\infty$, with a constant $c$ defined from the principal symbol of $A$ and $b_2-b_1$.\n  As an auxiliary result we show that the usual principal spectral asymptotic estimate for pseudodifferential operators of negative order on a closed manifold extends to products of pseudodifferential operators interspersed with piecewise continuous functions.",
+          "claimed_authors": [
+            "Gerd Grubb"
+          ],
+          "claimed_title": "Spectral asymptotics for Robin problems with a discontinuous coefficient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.0997"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='Spectral asymptotics for Robin problems with a discontinuous coefficient')",
+        "failed_at": "2026-06-26T10:09:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider an elliptic self-adjoint pseudodifferential operator $A$ acting on $m$-columns of half-densities on a closed manifold $M$, whose principal symbol is assumed to have simple eigenvalues. We show that the spectrum of $A$ decomposes, up to an error with superpolynomial decay, into $m$ distinct series, each associated with one of the eigenvalues of the principal symbol of $A$. These spectral results are then applied to the study of propagation of singularities in hyperbolic systems. The key technical ingredient is the use of the carefully devised pseudodifferential projections introduced in the first part of this work, which decompose $L^2(M)$ into almost-orthogonal almost-invariant subspaces under the action of both $A$ and the hyperbolic evolution.",
+          "claimed_authors": [
+            "Matteo Capoferri",
+            "Dmitri Vassiliev"
+          ],
+          "claimed_title": "Invariant subspaces of elliptic systems II: spectral theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14334"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='Invariant subspaces of elliptic systems II: spectral theory')",
+        "failed_at": "2026-06-26T10:09:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider a network of identical, first-order linear systems, and investigate how replacing a subset of the systems composing the network with higher-order ones, either taken to be generic or specifically designed, may affect its controllability. After establishing a correspondence between state controllability in networks of first-order systems with output controllability in networks of higher-order systems, we show that adding higher-order dynamics may require significantly fewer subsystem modifications to achieve structural controllability, when compared to first-order heterogeneous subsystems. Furthermore, we characterize the topology of networks (which we call X-networks) in which the introduction of heterogeneous local dynamics is not necessary for structural output controllability, as the latter can be attained by suitable higher-order subsystems with homogeneous internal dynamics.",
+          "claimed_authors": [
+            "Marco Peruzzo",
+            "Giacomo Baggio",
+            "Francesco Ticozzi"
+          ],
+          "claimed_title": "Obtaining Structural Network Controllability with Higher-Order Local Dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.17417"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Influence of Network Topology on Spontaneous Brain Activity Pa', candidate_title='Obtaining Structural Network Controllability with Higher-Order Local Dynamics')",
+        "failed_at": "2026-06-26T10:09:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Elisa Ryyppö",
+            "Enrico Glerean",
+            "Elvira Brattico",
+            "Jari Saramäki",
+            "Onerva Korhonen"
+          ],
+          "title": "Regions of Interest as nodes of dynamic functional brain networks",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1710.04056",
+        "summary": "The properties of functional brain networks strongly depend on how their nodes are chosen. Commonly, nodes are defined by Regions of Interest (ROIs), pre-determined groupings of fMRI measurement voxels. Earlier, we have demonstrated that the functional homogeneity of ROIs, captured by their spatial consistency, varies widely across ROIs in commonly-used brain atlases. Here, we ask how ROIs behave as nodes of dynamic brain networks. To this end, we use two measures: spatiotemporal consistency measures changes in spatial consistency across time and network turnover quantifies the changes in the local network structure around a ROI. We find that spatial consistency varies non-uniformly in space and time, which is reflected in the variation of spatiotemporal consistency across ROIs. Further, we see time-dependent changes in the network neighborhoods of the ROIs, reflected in high network turnover. Network turnover is nonuniformly distributed across ROIs: ROIs with high spatiotemporal consistency have low network turnover. Finally, we reveal that there is rich voxel-level correlation structure inside ROIs. Because the internal structure and the connectivity of ROIs vary in time, the common approach of using static node definitions may be surprisingly inaccurate. Therefore, network neuroscience would greatly benefit from node definition strategies tailored for dynamical networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1710.04056",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T10:09:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.0924",
+        "summary": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.0924",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T10:09:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1202.4751",
+        "summary": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1202.4751",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T10:09:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ahmed Temtam",
+            "Megan A. Witherow",
+            "Liangsuo Ma",
+            "M. Shibly Sadique",
+            "F. Gerard Moeller",
+            "Khan M. Iftekharuddin"
+          ],
+          "title": "Functional Brain Network Identification in Opioid Use Disorder Using Machine Learning Analysis of Resting-State fMRI BOLD Signals",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.19147",
+        "summary": "Understanding the neurobiology of opioid use disorder (OUD) using resting-state functional magnetic resonance imaging (rs-fMRI) may help inform treatment strategies to improve patient outcomes. Recent literature suggests time-frequency characteristics of rs-fMRI blood oxygenation level-dependent (BOLD) signals may offer complementary information to traditional analysis techniques. However, existing studies of OUD analyze BOLD signals using measures computed across all time points. This study, for the first time in the literature, employs data-driven machine learning (ML) for time-frequency analysis of local neural activity within key functional networks to differentiate OUD subjects from healthy controls (HC). We obtain time-frequency features based on rs-fMRI BOLD signals from the default mode network (DMN), salience network (SN), and executive control network (ECN) for 31 OUD and 45 HC subjects. Then, we perform 5-fold cross-validation classification (OUD vs. HC) experiments to study the discriminative power of functional network features while taking into consideration significant demographic features. The DMN and SN show the most discriminative power, significantly (p < 0.05) outperforming chance baselines with mean F1 scores of 0.7097 and 0.7018, respectively, and mean AUCs of 0.8378 and 0.8755, respectively. Follow-up Boruta ML analysis of selected time-frequency (wavelet) features reveals significant (p < 0.05) detail coefficients for all three functional networks, underscoring the need for ML and time-frequency analysis of rs-fMRI BOLD signals in the study of OUD.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.19147",
+          "http_status": 200,
+          "pdf_sample_score": 0.3208,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T10:09:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Huilin Zhu",
+            "Yuebo Fan",
+            "Huan Guo",
+            "Dan Huang",
+            "Sailing He"
+          ],
+          "title": "Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1309.5840",
+        "summary": "Autism spectrum disorder is a neuro-developmental disorder characterized by abnormalities of neural synchronization. In this study, functional near infrared spectroscopy (fNIRS) is used to study the difference in functional connectivity in left and right inferior frontal cortices (IFC) and temporal cortices (TC) between autistic and typically developing children between 8-11 years of age. 10 autistic children and 10 typical ones were recruited in our study for 8-min resting state measurement. Results show that the overall interhemispheric correlation of HbO was significantly lower in autistic children than in the controls. In particular, reduced connectivity was found to be most significant in TC area of autism. Autistic children lose the symmetry in the patterns of correlation maps. These results suggest the feasibility of using the fNIRS method to assess abnormal functional connectivity of the autistic brain and its potential application in autism diagnosis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1309.5840",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T10:10:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the influence of network topology on spontaneous brain activity patterns neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

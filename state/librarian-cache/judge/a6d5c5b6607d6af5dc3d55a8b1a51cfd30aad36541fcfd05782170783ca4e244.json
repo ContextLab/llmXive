@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1304.7929",
+  "judged_at": "2026-06-26T10:02:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the elastic moduli of 2d materials from first-principles calculations materials science",
+  "rationale": "The paper investigates chemical reaction energetics and catalysis on graphene oxide, not the mechanical property (elastic moduli) specified in the user's question. While it shares the domain (2D materials) and method (DFT), it addresses a distinct physical construct and variable, failing to provide evidence or baseline for predicting elastic moduli.",
+  "relevant": false
+}

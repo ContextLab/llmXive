@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1704.08862",
+  "judged_at": "2026-06-26T10:04:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the elastic moduli of 2d materials from first-principles calculations materials science",
+  "rationale": "The paper investigates electronic and magnetic properties (resistance, ferromagnetism) of a specific 2D material rather than the mechanical properties (elastic moduli) or first-principles prediction methods specified in the user's question. It fails to measure the relevant dependent variable or utilize the required methodology, representing a distinct construct sharing only the broad domain keyword \"2D Materials.\"",
+  "relevant": false
+}

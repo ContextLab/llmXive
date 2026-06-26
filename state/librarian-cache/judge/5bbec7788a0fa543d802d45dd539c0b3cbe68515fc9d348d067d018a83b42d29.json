@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.5840",
+  "judged_at": "2026-06-26T10:16:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the influence of network topology on spontaneous brain activity patterns neuroscience",
+  "rationale": "The paper measures functional connectivity (a proxy for network topology) during resting state (spontaneous brain activity), satisfying criteria (a) and (b) by addressing the core variables within the neuroscience domain. It provides empirical data on the organization of spontaneous brain activity patterns relevant to the user's literature review.",
+  "relevant": true
+}

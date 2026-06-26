@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.05891",
+  "judged_at": "2026-06-26T10:02:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the elastic moduli of 2d materials from first-principles calculations materials science",
+  "rationale": "This paper satisfies criterion (a) as it measures the same physical observable (elastic moduli) using the same methodology (first-principles/DFT) on the same domain (2D materials, specifically TMDs), providing the canonical ground-truth data required for a literature review on predicting these properties. It also meets criterion (b) by establishing the dependent variable values for the specific material class the user is investigating.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.15820",
+  "judged_at": "2026-06-26T10:03:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the elastic moduli of 2d materials from first-principles calculations materials science",
+  "rationale": "This paper focuses on electronic properties (Fermi level, band structure, Schottky barriers) and metal-semiconductor contact behavior in 2D materials, not on predicting elastic moduli. While it uses first-principles calculations on 2D materials (SnO), the mechanical analysis (out-of-plane compression) is only to assess contact performance under deformation, not to measure or predict elastic moduli as the user's question requires. This falls under the rejection rule: the paper has no measurable c",
+  "relevant": false
+}

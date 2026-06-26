@@ -1,0 +1,632 @@
+{
+  "fetched_at": "2026-06-26T10:05:13Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations",
+      "target_n": 5
+    },
+    "duration_seconds": 455.964,
+    "ended_at": "2026-06-26T10:05:13Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Density Functional Theory elastic constants 2D materials"
+        ],
+        [
+          2,
+          "Ab initio mechanical properties of monolayer materials"
+        ],
+        [
+          3,
+          "Elastic stiffness tensor of van der Waals crystals"
+        ],
+        [
+          4,
+          "Computational prediction of Young's modulus in 2D crystals"
+        ],
+        [
+          5,
+          "DFT calculation of shear and bulk modulus in layered materials"
+        ],
+        [
+          6,
+          "First-principles study of atomically thin material elasticity"
+        ],
+        [
+          7,
+          "Machine learning assisted prediction of 2D material stiffness"
+        ],
+        [
+          8,
+          "Mechanical stability criteria for two-dimensional materials"
+        ],
+        [
+          9,
+          "Anisotropic elastic constants of transition metal dichalcogenides"
+        ],
+        [
+          10,
+          "High-throughput screening of 2D material elastic properties"
+        ],
+        [
+          11,
+          "Quantum mechanical modeling of nanosheet elastic response"
+        ],
+        [
+          12,
+          "Strain-dependent elastic moduli of 2D materials DFT"
+        ],
+        [
+          13,
+          "Theoretical calculation of Poisson's ratio in monolayers"
+        ],
+        [
+          14,
+          "Ab initio stress-strain relationships in 2D compounds"
+        ],
+        [
+          15,
+          "Computational materials science 2D elasticity prediction"
+        ],
+        [
+          16,
+          "Elasticity tensor derivation from density functional theory"
+        ],
+        [
+          17,
+          "Mechanical characterization of MXenes using first-principles"
+        ],
+        [
+          18,
+          "Phonon stability and elastic constants in 2D structures"
+        ],
+        [
+          19,
+          "Virtual screening of novel 2D material mechanical properties"
+        ],
+        [
+          20,
+          "Electronic structure based prediction of material stiffness"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Density Functional Theory elastic constants 2D materials": 3,
+        "Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations materials science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "stiffness tensor compliance matrix",
+      "graphene transition metal dichalcogenides elastic",
+      "high throughput computational screening elasticity",
+      "Young's modulus bulk modulus 2D materials",
+      "density functional theory ab initio"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2505.05891"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations materials science": 3,
+      "Young's modulus bulk modulus 2D materials": 3,
+      "density functional theory ab initio": 3,
+      "graphene transition metal dichalcogenides elastic": 3,
+      "high throughput computational screening elasticity": 3,
+      "stiffness tensor compliance matrix": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1304.7929",
+          "rationale": "The paper investigates chemical reaction energetics and catalysis on graphene oxide, not the mechanical property (elastic moduli) specified in the user's question. While it shares the domain (2D materials) and method (DFT), it addresses a distinct physical construct and variable, failing to provide evidence or baseline for predicting elastic moduli.",
+          "title": "Carbon mono and dioxide hydrogenation over pure and metal oxide decorated graphene oxide substrates: insight from DFT"
+        },
+        {
+          "primary_pointer": "2308.15820",
+          "rationale": "This paper focuses on electronic properties (Fermi level, band structure, Schottky barriers) and metal-semiconductor contact behavior in 2D materials, not on predicting elastic moduli. While it uses first-principles calculations on 2D materials (SnO), the mechanical analysis (out-of-plane compression) is only to assess contact performance under deformation, not to measure or predict elastic moduli as the user's question requires. This falls under the rejection rule: the paper has no measurable c",
+          "title": "Fermi level depinning via insertion of a graphene buffer layer at the gold-2D tin monoxide contact"
+        },
+        {
+          "primary_pointer": "1704.08862",
+          "rationale": "The paper investigates electronic and magnetic properties (resistance, ferromagnetism) of a specific 2D material rather than the mechanical properties (elastic moduli) or first-principles prediction methods specified in the user's question. It fails to measure the relevant dependent variable or utilize the required methodology, representing a distinct construct sharing only the broad domain keyword \"2D Materials.\"",
+          "title": "Electric Field Effect in Multilayer Cr2Ge2Te6: a Ferromagnetic Two-Dimensional Material"
+        },
+        {
+          "primary_pointer": "2512.14973",
+          "rationale": "The paper focuses on quantum technological applications (e.g., spin defects, superconductivity) rather than mechanical properties or first-principles methods for elasticity, constituting a distinct construct that shares only the broad '2D materials' domain keyword.",
+          "title": "Roadmap: 2D Materials for Quantum Technologies"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T09:57:37Z",
+    "term_input": {
+      "normalized": "predicting the elastic moduli of 2d materials from first-principles calculations materials science",
+      "raw": "Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-06-26T10:00:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the past two decades, 2D materials have rapidly evolved into a diverse and expanding family of material platforms. Many members of this materials class have demonstrated their potential to deliver transformative impact on fundamental research and technological applications across different fields. In this roadmap, we provide an overview of the key aspects of 2D material research and development, spanning synthesis, properties and commercial applications. We specifically present roadmaps for high impact 2D materials, including graphene and its derivatives, transition metal dichalcogenides, MXenes as well as their heterostructures and moiré systems. The discussions are organized into thematic sections covering emerging research areas (e.g., twisted electronics, moiré nano-optoelectronics, polaritronics, quantum photonics, and neuromorphic computing), breakthrough applications in key technologies (e.g., 2D transistors, energy storage, electrocatalysis, filtration and separation, thermal management, flexible electronics, sensing, electromagnetic interference shielding, and composites) and other important topics (computational discovery of novel materials, commercialization and standardization). This roadmap focuses on the current research landscape, future challenges and scientific and technological advances required to address, with the intent to provide useful references for promoting the development of 2D materials.",
+          "claimed_authors": [
+            "Wencai Ren",
+            "Peter Bøggild",
+            "Joan Redwing",
+            "Kostya Novoselov",
+            "Luzhao Sun",
+            "Yue Qi",
+            "Kaicheng Jia",
+            "Zhongfan Liu",
+            "Oliver Burton",
+            "Jack Alexander-Webber",
+            "Stephan Hofmann",
+            "Yang Cao",
+            "Yu Long",
+            "Quan-Hong Yang",
+            "Dan Li",
+            "Soo Ho Choi",
+            "Ki Kang Kim",
+            "Young Hee Lee",
+            "Mian Li",
+            "Qing Huang",
+            "Yury Gogotsi",
+            "Nicholas Clark",
+            "Amy Carl",
+            "Roman Gorbachev",
+            "Thomas Olsen",
+            "Johanna Rosen",
+            "Kristian Sommer Thygesen",
+            "Dmitri K. Efetov",
+            "Bjarke S. Jessen",
+            "Matthew Yankowitz",
+            "Julien Barrier",
+            "Roshan Krishna Kumar",
+            "Frank H. L. Koppens",
+            "Hui Deng",
+            "Xiaoqin Li",
+            "Siyuan Dai",
+            "D. N. Basov",
+            "Xinran Wang",
+            "Saptarshi Das",
+            "Xiangfeng Duan",
+            "Zhihao Yu",
+            "Markus Borsch",
+            "Andrea C. Ferrari",
+            "Rupert Huber",
+            "Mackillo Kira",
+            "Fengnian Xia",
+            "Xiao Wang",
+            "Zhong-Shuai Wu",
+            "Xinliang Feng",
+            "Patrice Simon",
+            "Hui-Ming Cheng",
+            "Bilu Liu",
+            "Yi Xie",
+            "Wanqin Jin",
+            "Rahul Raveendran Nair",
+            "Yan Xu",
+            "Qing Zhang",
+            "Ajit K. Katiyar",
+            "Jong-Hyun Ahn",
+            "Igor Aharonovich",
+            "Mark C. Hersam",
+            "Stephan Roche",
+            "Qilin Hua",
+            "Guozhen Shen",
+            "Tianling Ren",
+            "Hao-Bin Zhang",
+            "Chong Min Koo",
+            "Nikhil Koratkar",
+            "Vittorio Pellegrini",
+            "Robert J. Young",
+            "Bill Qu",
+            "Max Lemme",
+            "Andrew J. Pollard"
+          ],
+          "claimed_title": "The 2D Materials Roadmap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.22476"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='The 2D Materials Roadmap')",
+        "failed_at": "2026-06-26T10:00:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the first-principles design and subsequent synthesis of a new material with the specific functionalities required for a solid-state-based search for the permanent electric dipole moment of the electron. We show computationally that perovskite-structure europium barium titanate should exhibit the required large and pressure-dependent ferroelectric polarization, local magnetic moments, and absence of magnetic ordering even at liquid helium temperature. Subsequent synthesis and characterization of Eu$_{0.5}$Ba$_{0.5}$TiO$_3$ ceramics confirm the predicted desirable properties.",
+          "claimed_authors": [
+            "K. Z. Rushchanskii",
+            "S. Kamba",
+            "V. Goian",
+            "P. Vanvek",
+            "M. Savinov",
+            "J. Provlevska",
+            "D. Nuzhnyy",
+            "K. Knivsek",
+            "F. Laufek",
+            "S. Eckel",
+            "S. K. Lamoreaux",
+            "A. O. Sushkov",
+            "M. Lezaic",
+            "N. A. Spaldin"
+          ],
+          "claimed_title": "First-principles design and subsequent synthesis of a material to search for the permanent electric dipole moment of the electron",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.0376"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='First-principles design and subsequent synthesis of a material to search for the permanent electric dipole moment of the electron')",
+        "failed_at": "2026-06-26T10:00:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In teleoperation of contact-rich manipulation tasks, selecting robot impedance is critical but difficult. The robot must be compliant to avoid damaging the environment, but stiff to remain responsive and to apply force when needed. In this paper, we present Stiffness Copilot, a vision-based policy for shared-control teleoperation in which the operator commands robot pose and the policy adjusts robot impedance online. To train Stiffness Copilot, we first infer direction-dependent stiffness matrices in simulation using privileged contact information. We then use these matrices to supervise a lightweight vision policy that predicts robot stiffness from wrist-camera images and transfers zero-shot to real images at runtime. In a human-subject study, Stiffness Copilot achieved safety comparable to using a constant low stiffness while matching the efficiency of using a constant high stiffness.",
+          "claimed_authors": [
+            "Yeping Wang",
+            "Zhengtong Xu",
+            "Pornthep Preechayasomboon",
+            "Ben Abbatematteo",
+            "Amirhossein H. Memar",
+            "Nick Colonnese",
+            "Sonny Chan"
+          ],
+          "claimed_title": "Stiffness Copilot: An Impedance Policy for Contact-Rich Teleoperation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.14068"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='Stiffness Copilot: An Impedance Policy for Contact-Rich Teleoperation')",
+        "failed_at": "2026-06-26T10:00:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Compliance control is essential for safe physical interaction, yet its adoption is limited by hardware requirements such as force torque sensors. While recent reinforcement learning approaches aim to bypass these constraints, they often suffer from sim-to-real gaps, lack safety guarantees, and add system complexity. We propose Minimalist Compliance Control, which enables compliant behavior using only motor current or voltage signals readily available in modern servos and quasi-direct-drive motors, without force sensors, current control, or learning. External wrenches are estimated from actuator signals and Jacobians and incorporated into a task-space admittance controller, preserving sufficient force measurement accuracy for stable and responsive compliance control. Our method is embodiment-agnostic and plug-and-play with diverse high-level planners. We validate our approach on a robot arm, a dexterous hand, and two humanoid robots across multiple contact-rich tasks, using vision-language models, imitation learning, and model-based planning. The results demonstrate robust, safe, and compliant interaction across embodiments and planning paradigms.",
+          "claimed_authors": [
+            "Haochen Shi",
+            "Songbo Hu",
+            "Yifan Hou",
+            "Weizhuo Wang",
+            "Karen Liu",
+            "Shuran Song"
+          ],
+          "claimed_title": "Minimalist Compliance Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.00913"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='Minimalist Compliance Control')",
+        "failed_at": "2026-06-26T10:00:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Compliance of organizations with internal and external norms is a highly relevant topic for both practitioners and academics nowadays. However, the substantive, elementary compliance tactics that organizations can use for achieving internal compliance have been described in a fragmented manner and in the literatures of distinct academic disciplines. Using a multidisciplinary structured literature review of 134 publications, this study offers three contributions. First, we present a typology of 45 compliance tactics, which constitutes a comprehensive and rich overview of elementary ways for bringing the organization into compliance. Secondly, we provide an overview of fundamental concepts in the theory of compliance, which forms the basis for the framework we developed for positioning compliance tactics and for analyzing or developing compliance strategies. Thirdly, we present insights for moving from compliance tactics to compliance strategies. In the process, and using the multidisciplinary literature review to take a bird's-eye view, we demonstrate that compliance strategies need to be regarded as a richer concept than perceived hitherto. We also show that opportunities for innovation exist.",
+          "claimed_authors": [
+            "Ralph Foorthuis"
+          ],
+          "claimed_title": "Tactics for Internal Compliance: A Literature Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.03775"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='Tactics for Internal Compliance: A Literature Review')",
+        "failed_at": "2026-06-26T10:00:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Low-valent Group 13 fragments can serve as neutral two-electron L-type metalloligands to transition-metal (TM) centers, enabling heterometallic M-TM platforms with bonding and reactivity patterns distinct from classical CO, phosphine, and carbene ligation. This chapter develops a unifying, descriptor-based view of aluminylene Al(I), gallylene Ga(I), and indylene In(I) donors, and contrasts them with the limited L-type behavior of Tl(I). We map synthetic gateways to isolable M(I) donors, analyze their sigma-donation/pi-acceptance profiles, and extract periodic design rules in which the sigma-donor strength decreases Al > Ga > In, whereas Tl(I) has not yet been convincingly shown to engage in neutral L-type Tl->TM coordination. Borderline cases that blur L-, X-, and Z-type classifications are also examined to clarify descriptors and guide consistent usage across the series. This contribution links ligand sterics/electronics, ambiphilicity at M(I), and the chosen TM fragment to guide the rational design of M-TM platforms that harness Group-13 M(I) donors for small-molecule activation and cooperative catalysis.",
+          "claimed_authors": [
+            "Hellen Videa",
+            "M. Angeles Fuentes",
+            "Antonio J. Martinez-Martinez"
+          ],
+          "claimed_title": "Group 13 Metals as L-Type Ligands for Transition Metals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.03513"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='Group 13 Metals as L-Type Ligands for Transition Metals')",
+        "failed_at": "2026-06-26T10:00:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reviews the application of fragment descriptors at different stages of virtual screening: filtering, similarity search, and direct activity assessment using QSAR/QSPR models. Several case studies are considered. It is demonstrated that the power of fragment descriptors stems from their universality, very high computational efficiency, simplicity of interpretation and versatility.",
+          "claimed_authors": [
+            "Igor I. Baskin",
+            "Alexandre Varnek"
+          ],
+          "claimed_title": "Fragment Descriptors in Virtual Screening",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.3723"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='Fragment Descriptors in Virtual Screening')",
+        "failed_at": "2026-06-26T10:00:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The removal of leaked radioactive iodine isotopes in humid environments holds significant importance in nuclear waste management and nuclear accident mitigation. In this study, high-throughput computational screening and machine learning were combined to reveal the iodine capture performance of 1816 metal-organic framework (MOF) materials under humid air conditions. Firstly, the relationship between the structural characteristics of MOFs and their adsorption properties was explored, with the aim of identifying the optimal structural parameters for iodine capture. Subsequently, two machine learning regression algorithms - Random Forest and CatBoost, were employed to predict the iodine adsorption capabilities of MOFs. In addition to 6 structural features, 25 molecular features and 8 chemical features were incorporated to enhance the prediction accuracy of the machine learning algorithms. Feature importance was assessed to determine the relative influence of various features on iodine adsorption performance, in which the Henry's coefficient and heat of adsorption to iodine were found the two most crucial chemical factors. Furthermore, four types of molecular fingerprints were introduced for providing comprehensive and detailed structural information of MOF materials. The top 20 most significant MACCS molecular fingerprints were picked out, revealing that the presence of six-membered ring structures and nitrogen atoms in the MOFs were the key structural factors that enhanced iodine adsorption, followed by the existence of oxygen atoms. This work combined high-throughput computation, machine learning, and molecular fingerprints to comprehensively elucidate the multifaceted factors influencing the iodine adsorption performance of MOFs, offering profound insightful guidelines for screening and structural design of advanced MOF materials.",
+          "claimed_authors": [
+            "Haoyi Tan",
+            "Yukun Teng",
+            "Guangcun Shan"
+          ],
+          "claimed_title": "High-Throughput Computational Screening and Interpretable Machine Learning of Metal-organic Frameworks for Iodine Capture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.15764"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='High-Throughput Computational Screening and Interpretable Machine Learning of Metal-organic Frameworks for Iodine Capture')",
+        "failed_at": "2026-06-26T10:00:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A robotic swarm may encounter traffic congestion when many robots simultaneously attempt to reach the same area. For solving that efficiently, robots must execute decentralised traffic control algorithms. In this work, we propose a measure for evaluating the access efficiency of a common target area as the number of robots in the swarm rises: the common target area throughput. We also employ here the target area asymptotic throughput -- that is, the throughput of a target region with a limited area as the time tends to infinity -- because it is always finite as the number of robots grows, opposed to the relation arrival time at the target per number of robots that tends to infinity. Using this measure, we can analytically compare the effectiveness of different algorithms. In particular, we propose and formally evaluate three different theoretical strategies for getting to a circular target area: (i) forming parallel queues towards the target area, (ii) forming a hexagonal packing through a corridor going to the target, and (iii) making multiple curved trajectories towards the boundary of the target area. We calculate the throughput for a fixed time and the asymptotic throughput for these strategies. Additionally, we corroborate these results by simulations, showing that when a strategy has higher throughput, its arrival time per number of robots is lower. Thus, we conclude that using throughput is well suited for comparing congestion algorithms for a common target area in robotic swarms even if we do not have their closed asymptotic equation.",
+          "claimed_authors": [
+            "Yuri Tavares dos Passos",
+            "Xavier Duquesne",
+            "Leandro Soriano Marcolino"
+          ],
+          "claimed_title": "On the throughput of the common target area for robotic swarm strategies -- extended version",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.09335"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='On the throughput of the common target area for robotic swarm strategies -- extended version')",
+        "failed_at": "2026-06-26T10:00:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We derive an analytic formula for the elastic bending modulus of single-layer black phosphorus (SLBP) based on the valence force field model. The obtained elastic bending modulus is 4.8028 eV and 7.9905 eV along the armchair and zigzag directions in the SLBP, respectively. These values are obviously larger than the bending modulus of 1.4 eV in graphene due to the intrinsic finite thickness for SLBP. Our derivation analytically illustrates that the elastic bending modulus of the SLBP is proportional to the square of the intrinsic thickness of the SLBP.",
+          "claimed_authors": [
+            "Hao-Yu Zhang",
+            "Jin-Wu Jiang"
+          ],
+          "claimed_title": "Elastic Bending Modulus for Single-Layer Black Phosphorus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.3545"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='Elastic Bending Modulus for Single-Layer Black Phosphorus')",
+        "failed_at": "2026-06-26T10:00:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Measuring the mechanical properties of two-dimensional materials is a formidable task. While regular electrical and optical probing techniques are suitable even for atomically thin materials, conventional mechanical tests cannot be directly applied. Therefore, new mechanical testing techniques need to be developed. Up to now, the most widespread approaches require micro-fabrication to create freely suspended membranes, rendering their implementation complex and costly. Here, we revisit a simple yet powerful technique to measure the mechanical properties of thin films. The buckling metrology method, that does not require the fabrication of freely suspended structures, is used to determine the Young's modulus of several transition metal dichalcogenides (MoS2, MoSe2, WS2 and WSe2) with thicknesses ranging from 3 to 10 layers. We critically compare the obtained values for the Young's modulus and their uncertainty, finding that this simple technique provides results, which are in good agreement with those reported using other highly sophisticated testing methods. By comparing the cost, complexity and time required for the different methods reported in the literature, the buckling metrology method presents certain advantages that makes it an interesting mechanical test tool for 2D materials.",
+          "claimed_authors": [
+            "Nestor Iguiñiz",
+            "Riccardo Frisenda",
+            "Rudolf Bratschitsch",
+            "Andres Castellanos-Gomez"
+          ],
+          "claimed_title": "Revisiting the buckling metrology method to determine the Young's modulus of 2D materials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.02803"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title=\"Revisiting the buckling metrology method to determine the Young's modulus of 2D materials\")",
+        "failed_at": "2026-06-26T10:00:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Due to their atomic-scale thickness, the resonances of 2D material membranes show signatures of nonlinearities at amplitudes of only a few nanometers. While the linear dynamics of membranes is well understood, the exact relation between the nonlinear response and the resonator's material properties has remained elusive. In this work, we propose a method to determine the Young's modulus of suspended 2D material membranes from their nonlinear dynamic response. The method is demonstrated by interferometric measurements on graphene and MoS2 resonators, which are electrostatically driven into the nonlinear regime at multiple driving forces. It is shown that a set of response curves can be fitted by the solutions of the Duffing equation using only one fit parameter, from which the Young's modulus is extracted using membrane theory. Our method is fast, contactless, and provides a platform for high-frequency characterization of the mechanical properties of 2D materials.",
+          "claimed_authors": [
+            "Dejan Davidovikj",
+            "Farbod Alijani",
+            "Santiago J. Cartamil-Bueno",
+            "Herre S. J. van der Zant",
+            "Marco Amabili",
+            "Peter G. Steeneken"
+          ],
+          "claimed_title": "Young's modulus of 2D materials extracted from their nonlinear dynamic response",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1704.05433"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title=\"Young's modulus of 2D materials extracted from their nonlinear dynamic response\")",
+        "failed_at": "2026-06-26T10:00:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this progress report we present a new approach to the ab-initio guided bottom up design of beta-Ti alloys for biomedical applications using a quantum mechanical simulation method in conjunction with experiments. Parameter-free density functional theory calculations are used to provide theoretical guidance in selecting and optimizing Ti-based alloys with respect to three constraints: (i) the use of non-toxic alloy elements; (ii) the stabilization of the body centered cubic beta phase at room temperature; (iii) the reduction of the elastic stiffness compared to existing Ti-based alloys. Following the theoretical predictions, the alloys of interest are cast and characterized with respect to their crystallographic structure, microstructure, texture, and elastic stiffness. Due to the complexity of the ab initio calculations, the simulations have been focused on a set of binary systems of Ti with two different high melting bcc metals, namely, Nb and Mo. Various levels of model approximations to describe mechanical and thermodynamic properties are tested and critically evaluated. The experiments are conducted both, on some of the binary alloys and on two more complex engineering alloy variants, namely, Ti-35wt.%Nb-7wt.%Zr-5wt.%Ta and a Ti-20wt.%Mo-7wt.%Zr-5wt.%Ta.",
+          "claimed_authors": [
+            "D. Raabe",
+            "B. Sander",
+            "M. Friak",
+            "D. Ma",
+            "J. Neugebauer"
+          ],
+          "claimed_title": "Ab-initio simulation and experimental validation of beta-titanium alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0811.0157"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='Ab-initio simulation and experimental validation of beta-titanium alloys')",
+        "failed_at": "2026-06-26T10:00:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We survey approaches to nonrelativistic density functional theory (DFT) for nuclei using progress toward ab initio DFT for Coulomb systems as a guide. Ab initio DFT starts with a microscopic Hamiltonian and is naturally formulated using orbital-based functionals, which generalize the conventional local-density-plus-gradients form. The orbitals satisfy single-particle equations with multiplicative (local) potentials. The DFT functionals can be developed starting from internucleon forces using wave-function based methods or by Legendre transform via effective actions. We describe known and unresolved issues for applying these formulations to the nuclear many-body problem and discuss how ab initio approaches can help improve empirical energy density functionals.",
+          "claimed_authors": [
+            "J. E. Drut",
+            "R. J. Furnstahl",
+            "L. Platter"
+          ],
+          "claimed_title": "Toward ab initio density functional theory for nuclei",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0906.1463"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='Toward ab initio density functional theory for nuclei')",
+        "failed_at": "2026-06-26T10:00:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The interaction potential energy surface (PES) of He-H2 is of great importance for quantum chemistry, as the simplest test case for interactions between a molecule and a closed-shell atom. It is also required for a detailed understanding of certain astrophysical processes, namely collisional excitation and dissociation of H2 in molecular clouds, at densities too low to be accessible experimentally. A new set of 23703 ab initio energies was computed, for He-H2 geometries where the interaction energy was expected to be non-negligible. These have an estimated rms \"random\" error of about 0.2 millihartree and a systematic error of about 0.6 millihartree (0.4 kcal/mol). A new analytic He-H2 PES, with 112 parameters, was fitted to 20203 of these new ab initio energies (and to an additional 4862 points generated at large separations). This yielded an improvement by better than an order of magnitude in the fit to the interaction region, relative to the best previous surfaces (which were accurate only for near-equilibrium H2 molecule sizes). This new PES has an rms error of 0.95 millihartree (0.60 kcal/mole) relative to the the 14585 ab initio energies that lie below twice the H2 dissociation energy, and 2.97 millihartree (1.87 kcal/mole) relative to the full set of 20203 ab initio energies (the fitting procedure used a reduced weight for high energies, yielding a weighted rms error of 1.42 millihartree, i.e., 0.89 kcal/mole). These rms errors are comparable to the estimated error in the ab initio energies themselves; the conical intersection between the ground state and the first excited state is the largest source of error in the PES.",
+          "claimed_authors": [
+            "Arnold I. Boothroyd",
+            "Peter G. Martin",
+            "Michael R. Peterson"
+          ],
+          "claimed_title": "An accurate analytic He-H2 potential energy surface from a greatly expanded set of ab initio energies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "astro-ph/0305386"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations', candidate_title='An accurate analytic He-H2 potential energy surface from a greatly expanded set of ab initio energies')",
+        "failed_at": "2026-06-26T10:00:12Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "S. Azadi",
+            "A. Azhar",
+            "R. V. Belosludov",
+            "T. D. Kühne",
+            "M. S. Bahramy"
+          ],
+          "title": "Elastic properties of transition metal dichalcogenides",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.05891",
+        "summary": "We present a comprehensive first-principles study of the structural and elastic properties of 2H-MX$_2$ transition metal dichalcogenides (TMDs) (M = W, Mo, Ta, Nb; X = S, Se). Using density functional theory with various van der Waals exchange-correlation functionals, we systematically investigate the influence of nonlocal interactions on lattice parameters, elastic constants, and mechanical moduli. Our results reveal a fundamental distinction between semiconducting and metallic TMDs: metallic compounds exhibit larger in-plane lattice parameters and reduced interlayer spacing, consistent with their bonding characteristics. We find that metallic TMDs display significantly lower in-plane stiffness and shear modulus compared to their semiconducting counterparts. We discuss this behaviour in the context of the observed charge density waves. In addition, we establish clear trends in the bulk, Young's, and shear moduli, demonstrating the role of atomic number and chemical composition in determining mechanical stability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.05891",
+          "http_status": 200,
+          "pdf_sample_score": 0.2008,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T10:00:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the elastic moduli of 2d materials from first-principles calculations materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
