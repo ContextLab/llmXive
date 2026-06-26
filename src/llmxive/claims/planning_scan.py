@@ -65,7 +65,15 @@ _BOUND_LEAD = re.compile(
     r"(?:[≥≤<>±=]\s*|"
     r"\b(?:up\s+to|at\s+least|at\s+most|within|minimum(?:\s+of)?|"
     r"maximum(?:\s+of)?|no\s+more\s+than|no\s+fewer\s+than|"
-    r"no\s+less\s+than)\s+)$",
+    r"no\s+less\s+than|"
+    # WORD-form bound operators — the twins of the ≥≤<> symbols above. A
+    # constraint like "no domain exceeds 30% of corpus" / "fewer than 5 retries"
+    # is a CHOSEN DESIGN THRESHOLD, not an empirical world-claim; keep it
+    # concrete. Without these, only the SYMBOL form (">30%") survived while the
+    # word form ("exceeds 30%") was deferred — the same value, inconsistently
+    # stripped, which the analyze gate then flags CRITICAL (live PROJ-492:
+    # tasks.md "any domain exceeds [deferred] of corpus" vs FR-027's 30%).
+    r"exceed(?:s|ing)?|greater\s+than|less\s+than|fewer\s+than|more\s+than)\s+)$",
     re.IGNORECASE,
 )
 

@@ -270,3 +270,26 @@ def test_synthetic_and_procedure_design_counts_not_deferred() -> None:
     # Real/observed counts (no synthetic/procedure context) still defer.
     assert "[deferred]" in strip_empirical_values("the corpus contained 27,635 real papers")
     assert "[deferred]" in strip_empirical_values("we collected 2,500 publicly available summaries")
+
+
+def test_word_form_bound_operators_keep_design_thresholds():
+    """A design threshold stated with a WORD-form bound operator ("no domain
+    exceeds 30%", "fewer than 5 retries") is a chosen constraint, not an
+    empirical world-claim — keep it concrete, just like the symbol form (">30%").
+    Without this the symbol form survived while the word form was deferred — the
+    same value inconsistently stripped, which the analyze gate flags CRITICAL
+    (live PROJ-492: tasks.md "any domain exceeds [deferred] of corpus" vs FR-027's
+    30%). Empirical values must still defer."""
+    from llmxive.claims.planning_scan import strip_empirical_values as strip
+
+    # Design thresholds — KEPT concrete.
+    assert "[deferred]" not in strip("ensure no single source domain exceeds 30% of the total corpus")
+    assert "[deferred]" not in strip("retry fewer than 5 times before failing")
+    assert "[deferred]" not in strip("flag any domain that is greater than 30% of the corpus")
+    # The same value twice in one sentence — BOTH kept (the regression).
+    out = strip("sample down to 30% threshold when any domain exceeds 30% of corpus")
+    assert "[deferred]" not in out and out.count("30%") == 2
+
+    # Empirical world-claims — still deferred.
+    assert "[deferred]" in strip("the analysis found that approximately 27,635 papers matched")
+    assert "[deferred]" in strip("a total of 1,701,936 records were processed")
