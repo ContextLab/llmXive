@@ -1,7 +1,7 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (uninitialized template) → 1.0.0 → 1.1.0 → 1.2.0
+Version change: (uninitialized template) → 1.0.0 → 1.1.0 → 1.2.0 → 1.3.0
 Rationale: 1.0.0 = initial ratification (MAJOR bump from template-only state).
 1.1.0 (2026-05-27, spec 015 / issue #239) = MINOR — added Principle VI
 (Convergent Review, NON-NEGOTIABLE) and replaced the point-based "Review
@@ -13,6 +13,14 @@ doc-authoring stages (spec/plan/tasks) advance on writing-level-only residue so
 prose-polish nits cannot escalate a sound project (the PROJ-552 doc-panel
 cap-exhaustion). The scientific-quality gate is unchanged — this only documents
 the existing, science-preserving relief valve so the constitution matches code.
+1.3.0 (2026-06-26, SSOT review unification) = MINOR — made Principle VI's
+three-round protocol explicit as the SINGLE shared mechanism: R1 reviews MUST
+carry actionable items (a non-accept with zero action items is rejected +
+resubmitted) and R3 is CLOSED-SET (sign off only on the round-1 concerns; new
+re-review critiques carry forward to the next stage, never re-inject). Aligns the
+constitution with the engine after closing the open-set "moving goalposts" gap in
+`convergence/engine.py` (the re-review used to re-admit fresh concerns every round
+→ non-convergence) and unifying the `tasked` gate onto the same engine verdict.
 
 Modified principles:
   - [PRINCIPLE_1_NAME] → I. Single Source of Truth (NON-NEGOTIABLE)
@@ -180,11 +188,29 @@ budget.
 
 ### VI. Convergent Review (NON-NEGOTIABLE)
 
-Every step that produces reviewable work MUST run a disciplined
-**identify → revise → re-review** convergence cycle driven by that step's
-review panel: each panelist raises structured critical concerns (R1); the
-step's reviser addresses every concern and emits a per-concern change-log
-(R2); each panelist re-judges its own concerns against the change-log (R3).
+Every step that produces reviewable work MUST run the SAME disciplined
+**identify → revise → re-review** convergence cycle — ONE shared mechanism
+(`llmxive.convergence.run_convergence`), never re-implemented per stage
+(Principle I). The three rounds are:
+
+- **R1 (identify)** — each panelist raises structured critical concerns. A
+  non-accept review MUST carry at least one **actionable** concern; a "revise"
+  verdict with zero action items is REJECTED and RESUBMITTED before the round
+  proceeds (a review that asks for changes must say what to change).
+- **R2 (revise)** — the step's reviser addresses every open concern and emits a
+  per-concern change-log.
+- **R3 (sign-off)** — each panelist signs off ONLY on whether ITS OWN round-1
+  concerns were addressed. R3 is **CLOSED-SET**: it is an adjudication of the
+  agreed action items, NOT a fresh critique. A genuinely new issue surfaced
+  during re-review is recorded and **carried forward to the next stage's R1**,
+  never re-injected into this loop. This closed set is what GUARANTEES
+  convergence — the open-concern set can only shrink — so a well-revised
+  artifact passes within the cap instead of the reviewer finding fresh nits
+  every round (the open-set "moving goalposts" that stalled doc gates to the
+  kickback cap). The OBJECTIVE deterministic backstops (fabricated-citation /
+  unresolved-claim / spec-quality gates) still hard-block at convergence
+  regardless, so factual defects never slip through.
+
 A step's gate is **unanimous acceptance by its LLM review panel** within a
 3-round per-step cap; on non-convergence the project is **kicked back** to the
 appropriate prior stage carrying full provenance (the unresolved concerns +
@@ -321,4 +347,4 @@ reasons. Unjustified violations block merge.
 here, contributors should consult the project `README.md` and the
 repository-level `CLAUDE.md`.
 
-**Version**: 1.2.0 | **Ratified**: 2026-04-28 | **Last Amended**: 2026-06-25
+**Version**: 1.3.0 | **Ratified**: 2026-04-28 | **Last Amended**: 2026-06-26

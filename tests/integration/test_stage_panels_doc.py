@@ -52,6 +52,13 @@ class _FakeBackend:
         sys_text = getattr(messages[0], "content", "") if messages else ""
         if "auditing a revision you just produced" in sys_text:
             return _FakeResponse(text="ok: true\nproblems: []\n")
+        if "claim extractor" in sys_text:
+            # The claims-extraction backstop fires INSIDE the engine (a
+            # deterministic gate), and how many times it calls depends on the
+            # claims-cache state — which leaks across a combined test run. It
+            # must NOT consume the queued reviewer/reviser responses, so answer
+            # it with an empty-claims doc regardless of how often it's called.
+            return _FakeResponse(text="claims: []\n")
         if not self.responses:
             raise RuntimeError("_FakeBackend ran out of canned responses")
         return _FakeResponse(text=self.responses.pop(0))

@@ -22,20 +22,29 @@ validator) → `specified` → `clarified` → `planned` → `tasked` (+ analyze
 `in progress` (the implementer writes code, runs real tests, collects data; the
 librarian verifies citations) → `research review`.
 
-Research review (spec 015 / #239) runs as an **identify → revise → re-review**
-convergence loop driven by the 8-reviewer panel (idea quality, creativity,
-implementation correctness, completeness, code quality, data quality,
-filesystem hygiene, plus the generic research reviewer). Each panelist raises
-critical concerns; the implementer addresses every concern with a per-concern
-change-log; each panelist re-judges its own concerns. The gate is **unanimous
+Every reviewable stage runs the SAME **identify → revise → re-review** convergence
+loop — ONE shared engine (`llmxive.convergence.run_convergence`), never
+re-implemented per stage (Constitution I + VI). **R1**: each panelist raises
+critical concerns, and a non-accept review MUST carry an actionable item (a
+"revise" with zero action items is rejected and resubmitted). **R2**: the reviser
+addresses every concern with a per-concern change-log. **R3**: each panelist signs
+off ONLY on whether its own R1 concerns were addressed — **closed-set**: re-review
+does not introduce new concerns (a genuinely new issue is carried forward to the
+next stage's R1, never re-injected), which is what guarantees convergence within
+the cap rather than the reviewer finding fresh nits every round. Deterministic
+backstops (fabricated-citation / unresolved-claim / spec-quality) still hard-block
+at convergence. Research review's panel is the 8 reviewers (idea quality,
+creativity, implementation correctness, completeness, code quality, data quality,
+filesystem hygiene, plus the generic research reviewer). The gate is **unanimous
 panel acceptance** within the 3-round cap; otherwise the project is **kicked
 back** to the appropriate prior stage (adaptive by worst unresolved severity)
 carrying full provenance. There is no accumulated point system. The bar is
-**two-tier** (Constitution VI, v1.2.0): the review stages (`research_review`,
+**two-tier** (Constitution VI, v1.3.0): the review stages (`research_review`,
 `paper_review`) require zero open concerns, while doc-authoring stages
 (`specified`/`planned`/`tasked`) may advance on writing-level-only residue — a
 `requirement`-or-worse concern always kicks back, so the scientific-quality gate
-is never relaxed.
+is never relaxed. (The `tasked` gate takes its verdict from the engine's
+closed-set panel, not a separate open-set re-analyze.)
 
 ### The paper pipeline
 

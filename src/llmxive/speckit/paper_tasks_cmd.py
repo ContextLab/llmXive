@@ -11,13 +11,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import yaml
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
-from llmxive.backends.router import chat_with_fallback
-from llmxive.config import TASKER_MAX_REVISION_ROUNDS
-from llmxive.speckit.analyze_cmd import analyze_advance_ok, run_analyze
+from llmxive.speckit.analyze_cmd import run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
 
@@ -114,95 +111,32 @@ class PaperTaskerAgent(SlashCommandAgent):
             if _paper_const_path.exists()
             else None
         )
-        for round_idx in range(TASKER_MAX_REVISION_ROUNDS):
-            report = run_analyze(
-                spec_text=spec_path.read_text(encoding="utf-8"),
-                plan_text=plan_path.read_text(encoding="utf-8"),
-                tasks_text=tasks_path.read_text(encoding="utf-8"),
-                default_backend=ctx.default_backend,
-                fallback_backends=ctx.fallback_backends,
-                default_model=ctx.default_model,
-                repo_root=repo,
-                project_dir=ctx.project_dir,
-                kind="paper",
-                constitution_text=_paper_const_text,
-            )
-            if analyze_advance_ok(report):
-                round_record = (
-                    self._paper_dir(ctx) / ".specify" / "memory" / "tasker_rounds.yaml"
-                )
-                round_record.parent.mkdir(parents=True, exist_ok=True)
-                round_record.write_text(
-                    yaml.safe_dump({"rounds_used": round_idx + 1}),
-                    encoding="utf-8",
-                )
-                # --- paper-tasks convergence panel (spec-015 / #239) -------
-                # Analyze is clean; now run the live paper-tasks panel
-                # (coverage / ordering / executability /
-                # constraint_preservation) before advancing.
-                self._run_paper_tasks_panel(
-                    ctx, spec_path, plan_path, tasks_path, repo,
-                    analyze_report_text=str(report),
-                )
-                return written
-
-            mode_b_system = render_prompt(
-                "agents/prompts/paper_tasker.md",
-                {"project_id": ctx.project_id, "mode": "B"},
-                repo_root=repo,
-            )
-            mode_b_user = (
-                "Mode: B (resolve paper analyze findings)\n\n"
-                f"# Analyze report\n\n{report}\n\n"
-                f"# spec.md\n\n{spec_path.read_text(encoding='utf-8')}\n\n"
-                f"# plan.md\n\n{plan_path.read_text(encoding='utf-8')}\n\n"
-                f"# tasks.md\n\n{tasks_path.read_text(encoding='utf-8')}\n\n"
-                "Return the YAML patch document per the contract."
-            )
-            patch_response = chat_with_fallback(
-                [
-                    ChatMessage(role="system", content=mode_b_system),
-                    ChatMessage(role="user", content=mode_b_user),
-                ],
-                default_backend=ctx.default_backend.value,
-                fallback_backends=[b.value for b in ctx.fallback_backends],
-                model=ctx.default_model,
-            )
-            try:
-                doc = yaml.safe_load(patch_response.text)
-            except yaml.YAMLError:
-                continue
-            if not isinstance(doc, dict):
-                continue
-            for issue in doc.get("issues_resolved", []) or []:
-                f = issue.get("file")
-                patch = issue.get("patch", "")
-                if f == "spec.md":
-                    spec_path.write_text(patch, encoding="utf-8")
-                elif f == "plan.md":
-                    plan_path.write_text(patch, encoding="utf-8")
-                elif f == "tasks.md":
-                    tasks_path.write_text(patch, encoding="utf-8")
-            if doc.get("verdict") == "escalate":
-                escalate_marker = (
-                    self._paper_dir(ctx) / ".specify" / "memory" / "human_input_needed.yaml"
-                )
-                escalate_marker.parent.mkdir(parents=True, exist_ok=True)
-                escalate_marker.write_text(
-                    yaml.safe_dump({"reason": "paper tasker analyze did not converge",
-                                    "rounds_used": round_idx + 1}),
-                    encoding="utf-8",
-                )
-                return written
-
-        escalate_marker = (
-            self._paper_dir(ctx) / ".specify" / "memory" / "human_input_needed.yaml"
+        # Run the SAME shared convergence engine as every other review stage
+        # (Constitution I + VI — one mechanism, never re-implemented per gate). The
+        # live paper-tasks panel (coverage / ordering / executability /
+        # constraint_preservation lenses + its reviser) does round-1 identify,
+        # round-2 revise, and round-3 CLOSED-SET sign-off, and emits the kickback
+        # itself on non-convergence. A single analyze pass supplies the
+        # cross-artifact report as panel context. This REPLACES the legacy
+        # Mode-A/Mode-B analyze-revise loop that re-implemented review/revise for
+        # this one stage and re-critiqued OPEN-SET every round (the moving-goalposts
+        # non-convergence #60 fixes engine-wide); non-convergence is now a kickback
+        # (consistent with every other stage), not a bespoke human-input escalation.
+        report = run_analyze(
+            spec_text=spec_path.read_text(encoding="utf-8"),
+            plan_text=plan_path.read_text(encoding="utf-8"),
+            tasks_text=tasks_path.read_text(encoding="utf-8"),
+            default_backend=ctx.default_backend,
+            fallback_backends=ctx.fallback_backends,
+            default_model=ctx.default_model,
+            repo_root=repo,
+            project_dir=ctx.project_dir,
+            kind="paper",
+            constitution_text=_paper_const_text,
         )
-        escalate_marker.parent.mkdir(parents=True, exist_ok=True)
-        escalate_marker.write_text(
-            yaml.safe_dump({"reason": "paper tasker reached max rounds",
-                            "rounds_used": TASKER_MAX_REVISION_ROUNDS}),
-            encoding="utf-8",
+        self._run_paper_tasks_panel(
+            ctx, spec_path, plan_path, tasks_path, repo,
+            analyze_report_text=str(report),
         )
         return written
 

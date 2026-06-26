@@ -42,17 +42,27 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
 ## Key Workflows
 
 ### Project status management
-- Each reviewable stage runs an identify → revise → re-review convergence
-  cycle with its LLM panel; advancement requires **unanimous panel
+- Every reviewable stage runs the SAME identify → revise → re-review convergence
+  cycle — ONE shared mechanism (`llmxive.convergence.run_convergence`), never
+  re-implemented per stage (Constitution I + VI). The three rounds:
+  **R1** every reviewer raises concerns and a non-accept review MUST carry an
+  actionable item (a "revise" with zero action items is rejected + resubmitted);
+  **R2** the reviser addresses every concern; **R3** each reviewer signs off ONLY
+  on whether its own R1 concerns were addressed — **closed-set**: re-review does
+  NOT inject new concerns (a genuinely new issue is carried forward to the next
+  stage's R1), which is what guarantees convergence within the cap. The
+  deterministic backstops (fabricated-citation / unresolved-claim / spec-quality)
+  still hard-block at convergence. Advancement requires **unanimous panel
   acceptance** within the 3-round per-step cap, else adaptive kickback to the
-  prior stage (spec 015 / Constitution VI). The bar is **two-tier**
-  (Constitution 1.2.0): review stages (`research_review`/`paper_review`)
-  require zero open concerns, while doc-authoring stages
-  (`specified`/`planned`/`tasked`) may advance on writing-level-only residue
-  (a `requirement`-or-worse concern always kicks back — the science gate is
-  never relaxed). There is NO accumulated point system; do not re-introduce
-  one. Human and simulated-personality reviews are advisory inputs routed
-  through stage-aware triage.
+  prior stage. The bar is **two-tier** (Constitution 1.2.0): review stages
+  (`research_review`/`paper_review`) require zero open concerns, while
+  doc-authoring stages (`specified`/`planned`/`tasked`) may advance on
+  writing-level-only residue (a `requirement`-or-worse concern always kicks back —
+  the science gate is never relaxed). The `tasked` gate takes its verdict from the
+  engine's closed-set panel (NOT a separate open-set re-analyze). There is NO
+  accumulated point system; do not re-introduce one. Human and
+  simulated-personality reviews are advisory inputs routed through stage-aware
+  triage.
 - Review records are written under `projects/<id>/reviews/research/` (research)
   and `projects/<id>/paper/reviews/` (paper) as
   `<reviewer_name>__<YYYY-MM-DD>__<stage>.md` with YAML frontmatter validated
