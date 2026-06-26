@@ -10,5 +10,5 @@
     "log_excerpt": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source"
   },
   "paper_id": "PROJ-719-data-journalist-agent-transforming-data",
-  "updated_at": "2026-06-26T15:51:42.602911+00:00"
+  "updated_at": "2026-06-26T16:45:04.704278+00:00"
 }
