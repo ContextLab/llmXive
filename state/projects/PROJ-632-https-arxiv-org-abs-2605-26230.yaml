@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-632-https-arxiv-org-abs-2605-26230
-last_run_id: null
+last_run_id: dcc5b481-32ef-4fa9-ad35-2bacae5bd22b
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-632-https-arxiv-org-abs-2605-26230/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Geometry-Aware Representation Denoising for Robust Multi-view 3D Reconstruction
-updated_at: '2026-05-28T17:17:35.688107Z'
+updated_at: '2026-06-26T01:51:56.686835Z'
