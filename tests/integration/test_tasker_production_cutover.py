@@ -223,7 +223,7 @@ def test_engine_path_reraises_transient_backend_error(tmp_path, monkeypatch):
 
     # First analyze runs but is NOT clean → the engine resolve loop is entered.
     monkeypatch.setattr(tasks_cmd, "run_analyze", lambda **kw: "NOT CLEAN: issues")
-    monkeypatch.setattr(tasks_cmd, "is_clean", lambda report: False)
+    monkeypatch.setattr(tasks_cmd, "analyze_advance_ok", lambda report: False)
     # The engine resolve hits a flapping endpoint and raises a transient error.
     def _boom(**kw):
         raise TransientBackendError("qwen hung past deadline; retries exhausted")
@@ -286,7 +286,7 @@ def test_engine_path_non_transient_failure_escalates_not_advances(tmp_path, monk
         p.write_text("# doc\n", encoding="utf-8")
 
     monkeypatch.setattr(tasks_cmd, "run_analyze", lambda **kw: "NOT CLEAN: issues")
-    monkeypatch.setattr(tasks_cmd, "is_clean", lambda report: False)
+    monkeypatch.setattr(tasks_cmd, "analyze_advance_ok", lambda report: False)
     # The engine resolve raises the exact reviser-parse failure seen live.
     def _boom(**kw):
         raise RuntimeError(

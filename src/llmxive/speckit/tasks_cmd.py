@@ -650,30 +650,30 @@ class TaskerAgent(SlashCommandAgent):
             for fn in _files_rewritten
         }
 
-        # ---- Final analyze + honest reporting (FR-016) ----
-        try:
-            final_report = run_analyze(
-                spec_text=spec_path.read_text(encoding="utf-8"),
-                plan_text=plan_path.read_text(encoding="utf-8"),
-                tasks_text=tasks_path.read_text(encoding="utf-8"),
-                default_backend=ctx.default_backend,
-                fallback_backends=ctx.fallback_backends,
-                default_model=ctx.default_model,
-                repo_root=repo,
-                project_dir=ctx.project_dir,
-                kind="research",
-                constitution_text=_const_text,
+        # ---- Convergence verdict = the engine's CLOSED-SET result (FR-016) ----
+        # The tasks gate uses the SAME convergence engine + 3-round closed-set
+        # protocol as every other review stage (Constitution I — one shared review
+        # mechanism, not re-implemented per gate). build_tasks_reviewspec wires the
+        # live 4-lens panel (coverage / ordering / executability /
+        # constraint_preservation) that re-verifies tasks.md against spec+plan in
+        # round 3, and the round-1 analyze findings are injected as additional
+        # concerns. The engine's `converged` flag — those concerns resolved within
+        # the cap, the deterministic claims/spec-quality backstops satisfied — IS
+        # the verdict. We no longer run a SEPARATE post-engine analyze: that fresh
+        # re-critique was OPEN-SET (a new nit every round -> the moving-goalposts
+        # non-convergence) and duplicated the panel's coverage lens. A new
+        # cross-artifact issue a revision introduces is deferred to the next
+        # stage's round-1 panel.
+        final_clean = engine_result.convergence.converged
+        final_report = (
+            "engine converged (closed-set panel: all round-1 concerns resolved)"
+            if final_clean
+            else (
+                "engine did not converge after "
+                f"{engine_result.convergence.rounds_used} round(s); "
+                "kickback per the panel's routing"
             )
-            final_clean = analyze_advance_ok(final_report)
-        except _BackendError as exc:
-            # If the final analyze can't run, fall back to the engine's
-            # `converged` flag for the honest verdict.
-            print(
-                f"[tasker/engine] final analyze failed: {exc}; "
-                "trusting engine convergence flag for verdict"
-            )
-            final_report = "ANALYZER_UNAVAILABLE"
-            final_clean = engine_result.convergence.converged
+        )
 
         rounds_used = max(1, engine_result.convergence.rounds_used + 1)
         self._inspection_rounds.append({
