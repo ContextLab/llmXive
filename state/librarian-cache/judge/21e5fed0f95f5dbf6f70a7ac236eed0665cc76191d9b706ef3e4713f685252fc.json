@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.06610",
+  "judged_at": "2026-06-26T06:16:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+  "rationale": "This paper is off-domain entirely, focusing on natural language processing (document classification) rather than chemistry or materials science, and does not address molecular permeability, porous materials, or graph neural networks applied to molecular structures. It fails to meet any inclusion criteria (a-f) as it shares no relevant mechanism, variables, or empirical population with the user's research question.",
+  "relevant": false
+}

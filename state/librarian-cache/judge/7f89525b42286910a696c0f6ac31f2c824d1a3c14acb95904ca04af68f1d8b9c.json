@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.05660",
+  "judged_at": "2026-06-26T06:17:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+  "rationale": "This paper qualifies under criterion (d) as it represents foundational methodology for GNN-based material property prediction (CGCNN is the canonical reference for crystal graph neural networks in materials chemistry), which is the methodological foundation anyone studying GNNs for molecular permeability would need to cite in their literature review, even though it predicts different properties (formation energy, band gap) rather than permeability specifically.",
+  "relevant": true
+}

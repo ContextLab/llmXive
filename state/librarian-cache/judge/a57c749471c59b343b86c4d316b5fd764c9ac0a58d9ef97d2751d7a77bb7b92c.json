@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.12792",
+  "judged_at": "2026-06-26T06:16:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+  "rationale": "The paper proposes a general heterogeneous graph neural network architecture evaluated on unspecified datasets, lacking any connection to the chemistry domain, molecular permeability, or porous materials central to the user's specific research question (Rejection: Off-domain entirely). It does not satisfy the foundational methodology criterion as it is not a canonical reference for GNNs in chemistry applications.",
+  "relevant": false
+}

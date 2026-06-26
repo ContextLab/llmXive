@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05639",
+  "judged_at": "2026-06-26T06:14:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+  "rationale": "The paper focuses on Gaussian Radial Basis Function Neural Networks for general interpretability and feature selection, lacking any connection to Graph Neural Networks, molecular permeability, or porous materials chemistry. This constitutes an off-domain rejection as there is no measurable connection to the user's mechanism, domain, or variables.",
+  "relevant": false
+}

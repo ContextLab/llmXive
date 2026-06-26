@@ -43,6 +43,10 @@
     "classified_at": "2026-06-24T21:09:51Z",
     "verdict": false
   },
+  "PROJ-159-predicting-molecular-permeability-throug::1.6.0": {
+    "classified_at": "2026-06-26T06:12:18Z",
+    "verdict": false
+  },
   "PROJ-170-predicting-catalytic-activity-from-elect::1.6.0": {
     "classified_at": "2026-06-24T21:08:19Z",
     "verdict": false

@@ -1,0 +1,672 @@
+{
+  "fetched_at": "2026-06-26T06:18:17Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Permeability Through Porous Materials Using Graph Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 490.85,
+    "ended_at": "2026-06-26T06:18:17Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "graph neural networks for gas transport in MOFs"
+        ],
+        [
+          2,
+          "machine learning prediction of molecular diffusion in porous materials"
+        ],
+        [
+          3,
+          "message passing neural networks for permeability"
+        ],
+        [
+          4,
+          "graph deep learning for membrane separation"
+        ],
+        [
+          5,
+          "computational screening of nanoporous materials using deep learning"
+        ],
+        [
+          6,
+          "geometric deep learning for molecular sieving"
+        ],
+        [
+          7,
+          "machine learning models for zeolite permeability"
+        ],
+        [
+          8,
+          "graph convolutional networks for transport properties"
+        ],
+        [
+          9,
+          "structure-property relationships porous frameworks AI"
+        ],
+        [
+          10,
+          "deep learning diffusion coefficients solids"
+        ],
+        [
+          11,
+          "AI prediction gas selectivity porous materials"
+        ],
+        [
+          12,
+          "graph representations molecular permeation"
+        ],
+        [
+          13,
+          "neural network models COF gas separation"
+        ],
+        [
+          14,
+          "high-throughput screening membranes graph networks"
+        ],
+        [
+          15,
+          "molecular dynamics graph neural networks"
+        ],
+        [
+          16,
+          "transport properties fluids confined nanopores"
+        ],
+        [
+          17,
+          "machine learning design porous membranes"
+        ],
+        [
+          18,
+          "graph representation learning crystal transport"
+        ],
+        [
+          19,
+          "data-driven modeling molecular permeation nanopores"
+        ],
+        [
+          20,
+          "end-to-end learning molecular transport porous solids"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Molecular Permeability Through Porous Materials Using Graph Neural Networks chemistry": 0,
+        "graph neural networks for gas transport in MOFs": 4,
+        "machine learning prediction of molecular diffusion in porous materials": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "transport properties diffusion coefficient machine learning",
+      "CoRE MOF zeolite molecular dynamics",
+      "structure property relationship materials informatics",
+      "permeability selectivity benchmark dataset",
+      "solution diffusion mechanism free volume theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.26100"
+      ]
+    },
+    "per_query_hit_count": {
+      "CoRE MOF zeolite molecular dynamics": 3,
+      "Predicting Molecular Permeability Through Porous Materials Using Graph Neural Networks chemistry": 3,
+      "permeability selectivity benchmark dataset": 3,
+      "solution diffusion mechanism free volume theory": 3,
+      "structure property relationship materials informatics": 3,
+      "transport properties diffusion coefficient machine learning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper proposes a theoretical architecture for general Deep Neural Networks using Polynomial Chaos, lacking any connection to Graph Neural Networks, molecular permeability, or porous materials chemistry. It falls under the \"Off-domain entirely\" rejection rule as it does not address the specific mechanism, domain, or variables of interest.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "The paper focuses on Gaussian Radial Basis Function Neural Networks for general interpretability and feature selection, lacking any connection to Graph Neural Networks, molecular permeability, or porous materials chemistry. This constitutes an off-domain rejection as there is no measurable connection to the user's mechanism, domain, or variables.",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        },
+        {
+          "primary_pointer": "2211.12792",
+          "rationale": "The paper proposes a general heterogeneous graph neural network architecture evaluated on unspecified datasets, lacking any connection to the chemistry domain, molecular permeability, or porous materials central to the user's specific research question (Rejection: Off-domain entirely). It does not satisfy the foundational methodology criterion as it is not a canonical reference for GNNs in chemistry applications.",
+          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks"
+        },
+        {
+          "primary_pointer": "1901.06610",
+          "rationale": "This paper is off-domain entirely, focusing on natural language processing (document classification) rather than chemistry or materials science, and does not address molecular permeability, porous materials, or graph neural networks applied to molecular structures. It fails to meet any inclusion criteria (a-f) as it shares no relevant mechanism, variables, or empirical population with the user's research question.",
+          "title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "This paper is off-domain entirely, focusing on machine learning governance and data quality for official statistics rather than chemistry or materials science. It has no measurable connection to the user's specific variables (molecular permeability, porous materials) or methodology (Graph Neural Networks for property prediction).",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "This paper focuses on general machine learning validation guidelines in biology, which is off-domain from the user's specific focus on molecular permeability prediction in porous materials using Graph Neural Networks, and lacks any measurable connection to the specific mechanism, variables, or empirical setting required for the literature review.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper surveys general machine learning learning curves for model selection and decision making, lacking any connection to molecular permeability, porous materials, or Graph Neural Networks applied to chemistry. It is rejected because it has no measurable connection to the user's specific mechanism, domain, variables, or empirical setting.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T06:10:06Z",
+    "term_input": {
+      "normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+      "raw": "Predicting Molecular Permeability Through Porous Materials Using Graph Neural Networks chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a framework for estimating the remaining useful life (RUL) of mechanical systems. The framework consists of a multi-layer perceptron and an evolutionary algorithm for optimizing the data-related parameters. The framework makes use of a strided time window to estimate the RUL for mechanical components. Tuning the data-related parameters can become a very time consuming task. The framework presented here automatically reshapes the data such that the efficiency of the model is increased. Furthermore, the complexity of the model is kept low, e.g. neural networks with few hidden layers and few neurons at each layer. Having simple models has several advantages like short training times and the capacity of being in environments with limited computational resources such as embedded systems. The proposed method is evaluated on the publicly available C-MAPSS dataset, its accuracy is compared against other state-of-the art methods for the same dataset.",
+          "claimed_authors": [
+            "David Laredo",
+            "Zhaoyin Chen",
+            "Oliver Schütze",
+            "Jian-Qiao Sun"
+          ],
+          "claimed_title": "A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.05918"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The CO2 emissions from major industries cause serious global environment problems and their mitigation is urgently needed. The use of zeolite membranes is a very efficient way in order to capture CO2 from some flue gases. The dominant transport mechanism at low temperature andor high pressure is the diffusion through the membrane. This procedure can be divided in three steps: Adsorption of the molecules of the species in the surface of the membrane, then a driving force gives a path where the species follow inside the membrane and finally the species desorbed from the surface of the membrane. The current work is aimed at developing a simulation model for the CO2 transport through a zeolite membrane and estimate the diffusion phenomenon through a very thin membrane of 150 nm in a Wicke-Kallenbach cell. The cell is cylindrical in shape with diameter of 19 mm and consists of a retentate gas chamber, a permeate gas chamber which are separated by a cylindrical zeolite membrane. This apparatus have been modeled with Comsol Multiphysics software. The gas chosen to insert in the retentate gas chamber is CO2 and the inert gas is Argon. The Maxwell-Stefan surface equations used in order to calculate the velocity gradients inside the zeolite membrane and in order to solve the velocity profile within the permeate and retentate gas chamber, the incompressible Navier-Stokes equations were solved. Finally, the mass balance equation for both gases solved with the mass balance differential equations. Validation of our model has been obtained at low and high temperatures suggesting that higher the temperature the better the results.",
+          "claimed_authors": [
+            "Evangelos I. Gkanas",
+            "Theodore Steriotis",
+            "Athanasios K. Stubos",
+            "Sofoklis S. Makridis"
+          ],
+          "claimed_title": "A Complete Transport Validated Model on a Zeolite Membrane for Carbon Dioxide Permeance and Capture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.6560"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='A Complete Transport Validated Model on a Zeolite Membrane for Carbon Dioxide Permeance and Capture')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
+          "claimed_authors": [
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
+          ],
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There has been an increasing demand for materials with special thermal properties, whereas experimental discovery is high-cost and time-consuming. The emerging discipline `Materials Informatics' is an effective approach that can accelerate materials development by combining material science and big data technique. Recently materials informatics has been applied to the design of novel materials such as thermal interface materials for heat-dissipation, and thermoelectric materials for power generation. This mini-review summarized the research progress on the applications of materials informatics for the thermal transport properties prediction and discovery of materials with special thermal properties, including optimal thermal conductivity, interfacial thermal conductance and thermoelectricity efficiency. In addition, some perspectives are given for the outlook of materials informatics in the field of thermal transport.",
+          "claimed_authors": [
+            "Xiao Wan",
+            "Wentao Feng",
+            "Yunpeng Wang",
+            "Chengcheng Deng",
+            "Nuo Yang"
+          ],
+          "claimed_title": "Materials discovery and properties prediction in thermal transport via materials informatics: a mini-review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.04133"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Materials discovery and properties prediction in thermal transport via materials informatics: a mini-review')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Topological aspects of the geometry of DNA and similar chiral molecules have received a lot of attention, while the topology of their electronic structure is less explored. Previous experiments have revealed that DNA can efficiently filter spin-polarized electrons between metal contacts, a process called chiral-induced spin-selectivity (CISS). However, the underlying correlation between chiral structure and electronic spin remains elusive. In this work, we reveal an orbital texture in the band structure, a topological characteristic induced by the chirality. We find that this orbital texture enables the chiral molecule to polarize the quantum orbital. This orbital polarization effect (OPE) induces spin polarization assisted by the spin-orbit interaction from a metal contact and leads to magnetorestistance and chiral separation. The orbital angular momentum of photoelectrons also plays an essential role in related photoemission experiments. Beyond CISS, we predict that OPE can induce spin-selective phenomena even in achiral but inversion-breaking materials.",
+          "claimed_authors": [
+            "Yizhou Liu",
+            "Jiewen Xiao",
+            "Jahyun Koo",
+            "Binghai Yan"
+          ],
+          "claimed_title": "Chirality driven topological electronic structure of DNA-like materials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.08881"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Chirality driven topological electronic structure of DNA-like materials')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The relationship between material properties and independent variables such as temperature, external field or time, is usually represented by a curve or surface in a multi-dimensional space. Determining such a curve or surface requires a series of experiments or calculations which are often time and cost consuming. A general strategy uses an appropriate utility function to sample the space to recommend the next optimal experiment or calculation within an active learning loop. However, knowing what the optimal sampling strategy to use to minimize the number of experiments is an outstanding problem. We compare a number of strategies based on directed exploration on several materials problems of varying complexity using a Kriging based model. These include one dimensional curves such as the fatigue life curve for 304L stainless steel and the Liquidus line of the Fe-C phase diagram, surfaces such as the Hartmann 3 function in 3D space and the fitted intermolecular potential for Ar-SH, and a four dimensional data set of experimental measurements for BaTiO3 based ceramics. We also consider the effects of experimental noise on the Hartmann 3 function. We find that directed exploration guided by maximum variance provides better performance overall, converging faster across several data sets. However, for certain problems, the trade-off methods incorporating exploitation can perform at least as well, if not better than maximum variance. Thus, we discuss how the choice of the utility function depends on the distribution of the data, the model performance and uncertainties, additive noise as well as the budget.",
+          "claimed_authors": [
+            "Yuan Tian",
+            "Dezhen Xue",
+            "Ruihao Yuan",
+            "Yumei Zhou",
+            "Xiangdong Ding",
+            "Jun Sun",
+            "Turab Lookman"
+          ],
+          "claimed_title": "Efficient Estimation of Material Property Curves and Surfaces via Active Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.06896"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Efficient Estimation of Material Property Curves and Surfaces via Active Learning')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The past decade has witnessed great strides in video recovery by specialist technologies, like video inpainting, completion, and error concealment. However, they typically simulate the missing content by manual-designed error masks, thus failing to fill in the realistic video loss in video communication (e.g., telepresence, live streaming, and internet video) and multimedia forensics. To address this, we introduce the bitstream-corrupted video (BSCV) benchmark, the first benchmark dataset with more than 28,000 video clips, which can be used for bitstream-corrupted video recovery in the real world. The BSCV is a collection of 1) a proposed three-parameter corruption model for video bitstream, 2) a large-scale dataset containing rich error patterns, multiple corruption levels, and flexible dataset branches, and 3) a plug-and-play module in video recovery framework that serves as a benchmark. We evaluate state-of-the-art video inpainting methods on the BSCV dataset, demonstrating existing approaches' limitations and our framework's advantages in solving the bitstream-corrupted video recovery problem. The benchmark and dataset are released at https://github.com/LIUTIGHE/BSCV-Dataset.",
+          "claimed_authors": [
+            "Tianyi Liu",
+            "Kejun Wu",
+            "Yi Wang",
+            "Wenyang Liu",
+            "Kim-Hui Yap",
+            "Lap-Pui Chau"
+          ],
+          "claimed_title": "Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.13890"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of path generation for the spherical 4R mechanism is solved using the Differential Evolution algorithm (DE). Formulas for the spherical geodesics are employed in order to obtain the parametric equation for the generated trajectory. Direct optimization of the objective function gives the solution to the path generation task without prescribed timing. Therefore, there is no need to separate this task into two stages to make the optimization. Moreover, the order defect problem can be solved without difficulty by means of manipulations of the individuals in the DE algorithm. Two examples of optimum synthesis showing the simplicity and effectiveness of this approach are included.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "Carlos A. Cruz-Villar"
+          ],
+          "claimed_title": "Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.2954"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The optimal dimensional synthesis for planar mechanisms using differential evolution (DE) is demonstrated. Four examples are included: in the first case, the synthesis of a mechanism for hybrid-tasks, considering path generation, function generation, and motion generation, is carried out. The second and third cases pertain to path generation, with and without prescribed timing. Finally, the synthesis of an Ackerman mechanism is reported. Order defect problem is solved by manipulating individuals instead of penalizing or discretizing the search space for the parameters. A technique that consists in applying a transformation in order to satisfy the Grashof and crank conditions to generate an initial elitist population is introduced. As a result, the evolutionary algorithm increases its efficiency.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "D. Pech-Oy"
+          ],
+          "claimed_title": "Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.2017"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Permeability Through Porous Materials Using Graph Neural Ne', candidate_title='Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution')",
+        "failed_at": "2026-06-26T06:12:18Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Soumya Sanyal",
+            "Janakiraman Balachandran",
+            "Naganand Yadati",
+            "Abhishek Kumar",
+            "Padmini Rajagopalan",
+            "Suchismita Sanyal",
+            "Partha Talukdar"
+          ],
+          "title": "MT-CGCNN: Integrating Crystal Graph Convolutional Neural Network with Multitask Learning for Material Property Prediction",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1811.05660",
+        "summary": "Developing accurate, transferable and computationally inexpensive machine learning models can rapidly accelerate the discovery and development of new materials. Some of the major challenges involved in developing such models are, (i) limited availability of materials data as compared to other fields, (ii) lack of universal descriptor of materials to predict its various properties. The limited availability of materials data can be addressed through transfer learning, while the generic representation was recently addressed by Xie and Grossman [1], where they developed a crystal graph convolutional neural network (CGCNN) that provides a unified representation of crystals. In this work, we develop a new model (MT-CGCNN) by integrating CGCNN with transfer learning based on multi-task (MT) learning. We demonstrate the effectiveness of MT-CGCNN by simultaneous prediction of various material properties such as Formation Energy, Band Gap and Fermi Energy for a wide range of inorganic crystals (46774 materials). MT-CGCNN is able to reduce the test error when employed on correlated properties by upto 8%. The model prediction has lower test error compared to CGCNN, even when the training data is reduced by 10%. We also demonstrate our model's better performance through prediction of end user scenario related to metal/non-metal classification. These results encourage further development of machine learning approaches which leverage multi-task learning to address the aforementioned challenges in the discovery of new materials. We make MT-CGCNN's source code available to encourage reproducible research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1811.05660",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T06:13:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hongtao Guo Shuai Li Shu Li"
+          ],
+          "title": "Applications of Machine Learning in Polymer Materials: Property Prediction, Material Design, and Systematic Processes",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.26100",
+        "summary": "This paper systematically reviews the research progress and application prospects of machine learning technologies in the field of polymer materials. Currently, machine learning methods are developing rapidly in polymer material research; although they have significantly accelerated material prediction and design, their complexity has also caused difficulties in understanding and application for researchers in traditional fields. In response to the above issues, this paper first analyzes the inherent challenges in the research and development of polymer materials, including structural complexity and the limitations of traditional trial-and-error methods. To address these problems, it focuses on introducing key basic technologies such as molecular descriptors and feature representation, data standardization and cleaning, and records a number of high-quality polymer databases. Subsequently, it elaborates on the key role of machine learning in polymer property prediction and material design, covering the specific applications of algorithms such as traditional machine learning, deep learning, and transfer learning; further, it deeply expounds on data-driven design strategies, such as reverse design, high-throughput virtual screening, and multi-objective optimization. The paper also systematically introduces the complete process of constructing high-reliability machine learning models and summarizes effective experimental verification, model evaluation, and optimization methods. Finally, it summarizes the current technical challenges in research, such as data quality and model generalization ability, and looks forward to future development trends including multi-scale modeling, physics-informed machine learning, standardized data sharing, and interpretable machine learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.26100",
+          "http_status": 200,
+          "pdf_sample_score": 0.2895,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T06:13:02Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

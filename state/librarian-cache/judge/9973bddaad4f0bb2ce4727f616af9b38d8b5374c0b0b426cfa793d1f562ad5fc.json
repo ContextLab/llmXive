@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-26T06:13:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+  "rationale": "The paper proposes a theoretical architecture for general Deep Neural Networks using Polynomial Chaos, lacking any connection to Graph Neural Networks, molecular permeability, or porous materials chemistry. It falls under the \"Off-domain entirely\" rejection rule as it does not address the specific mechanism, domain, or variables of interest.",
+  "relevant": false
+}

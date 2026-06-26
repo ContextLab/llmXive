@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.26100",
+  "judged_at": "2026-06-26T06:18:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+  "rationale": "This paper satisfies criterion (b) as it covers property prediction in polymer materials using machine learning/deep learning methods, which shares the same domain (chemistry/materials science) and at least one variable (material property prediction, where permeability is a specific property). While it doesn't specifically address GNNs or permeability, it provides relevant background on ML applications in materials property prediction that would be expected in a literature review section for thi",
+  "relevant": true
+}

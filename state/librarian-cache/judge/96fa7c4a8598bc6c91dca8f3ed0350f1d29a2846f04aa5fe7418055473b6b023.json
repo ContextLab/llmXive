@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-26T06:16:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+  "rationale": "This paper is off-domain entirely, focusing on machine learning governance and data quality for official statistics rather than chemistry or materials science. It has no measurable connection to the user's specific variables (molecular permeability, porous materials) or methodology (Graph Neural Networks for property prediction).",
+  "relevant": false
+}

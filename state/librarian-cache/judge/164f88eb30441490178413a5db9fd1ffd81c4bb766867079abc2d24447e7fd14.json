@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-06-26T06:17:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability through porous materials using graph neural networks chemistry",
+  "rationale": "The paper surveys general machine learning learning curves for model selection and decision making, lacking any connection to molecular permeability, porous materials, or Graph Neural Networks applied to chemistry. It is rejected because it has no measurable connection to the user's specific mechanism, domain, variables, or empirical setting.",
+  "relevant": false
+}
