@@ -31,6 +31,7 @@ signal — no silent acceptance of a malformed review.
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 import uuid
 from pathlib import Path
@@ -43,6 +44,48 @@ from llmxive.backends.router import chat_with_model_fallback
 
 from . import review_cache
 from .types import Concern, Severity, Verdict, coerce_severity
+
+logger = logging.getLogger(__name__)
+
+
+# Last-resort line-scan extractors: when a lens's frontmatter fails ALL YAML
+# repairs (the temp=0 reviewers are deterministic, so a single malformed review
+# would otherwise hard-stall the project — the live PROJ-492 tasks-panel
+# "[ordering]: frontmatter is not valid YAML: while scanning a simple key").
+_SALVAGE_VERDICT_RE = re.compile(r"(?mi)^[ \t]*verdict:[ \t]*([a-z_]+)")
+_SALVAGE_SEV_RE = re.compile(r"^[ \t]*-?[ \t]*severity:[ \t]*([A-Za-z_]+)")
+_SALVAGE_TEXT_RE = re.compile(r"^[ \t]*-?[ \t]*text:[ \t]*(\S.*?)[ \t]*$")
+
+
+def _salvage_review(frontmatter: str) -> dict | None:
+    """Best-effort extraction of verdict + concern (severity, text) pairs by
+    line-scan when YAML parsing fails entirely. ONLY rescues a NON-accept review
+    (>=1 concern with text): it never manufactures a clean accept from
+    unparseable YAML, so it cannot cause a false convergence. Returns None when
+    no concern can be recovered (the caller then raises honestly)."""
+    vm = _SALVAGE_VERDICT_RE.search(frontmatter)
+    verdict = vm.group(1).strip().lower() if vm else None
+    concerns: list[dict] = []
+    cur: dict | None = None
+    for raw in frontmatter.splitlines():
+        sm = _SALVAGE_SEV_RE.match(raw)
+        tm = _SALVAGE_TEXT_RE.match(raw)
+        if sm:
+            if cur and cur.get("text"):
+                concerns.append(cur)
+            cur = {"severity": sm.group(1)}
+        elif tm:
+            val = tm.group(1).strip().strip("\"'")
+            if cur is None:
+                cur = {"severity": "requirement", "text": val}
+            elif not cur.get("text"):
+                cur["text"] = val
+    if cur and cur.get("text"):
+        concerns.append(cur)
+    concerns = [c for c in concerns if c.get("text")]
+    if concerns:
+        return {"verdict": verdict or "minor_revision", "concerns": concerns}
+    return None
 
 # --- prompt loading -------------------------------------------------------
 
@@ -549,9 +592,22 @@ def _parse_response(
         try:
             meta = _safe_yaml_load(frontmatter) or {}
         except yaml.YAMLError as exc:
-            raise RuntimeError(
-                f"LLMReviewer[{lens}]: frontmatter is not valid YAML: {exc}"
-            ) from exc
+            # All YAML repairs failed. Before crashing the whole panel on ONE
+            # lens's malformed output (deterministic at temp=0 → hard-stall),
+            # line-scan for verdict + concerns. Salvage rescues only a NON-accept
+            # review, so it cannot rubber-stamp garbage as a clean accept.
+            salvaged = _salvage_review(frontmatter)
+            if salvaged is not None:
+                logger.warning(
+                    "LLMReviewer[%s]: frontmatter YAML invalid (%s); salvaged "
+                    "%d concern(s) by line-scan (treated as non-accept)",
+                    lens, str(exc).splitlines()[0], len(salvaged["concerns"]),
+                )
+                meta = salvaged
+            else:
+                raise RuntimeError(
+                    f"LLMReviewer[{lens}]: frontmatter is not valid YAML: {exc}"
+                ) from exc
     if not isinstance(meta, dict):
         raise RuntimeError(
             f"LLMReviewer[{lens}]: frontmatter must be a YAML mapping; "

@@ -244,3 +244,40 @@ class TestContentlessReviewGuard:
         )
         assert len(concerns) == 1
         assert "unverified" in concerns[0].text
+
+
+class TestMalformedYamlSalvage:
+    """A single lens's UNPARSEABLE frontmatter (after all YAML repairs fail) must
+    not crash the whole panel — the temp=0 reviewers are deterministic, so it
+    would hard-stall the project (the live PROJ-492 tasks-panel '[ordering]:
+    frontmatter is not valid YAML: while scanning a simple key'). The parser
+    line-scans for verdict + concerns, but rescues only a NON-accept review."""
+
+    def test_malformed_yaml_with_concern_is_salvaged_not_crashed(self):
+        resp = (
+            "---\n"
+            "verdict: minor_revision\n"
+            "reason: ordering: tasks depend wrongly here\n"  # bare colon -> YAML fails
+            "concerns:\n"
+            "  - severity: requirement\n"
+            "    text: T012 must run after T011 not before\n"
+            "---\nprose\n"
+        )
+        verdict, concerns = _parse_response(
+            resp, lens="ordering", stage="tasked", default_artifact="tasks.md",
+        )
+        assert verdict == "minor_revision"
+        assert len(concerns) == 1
+        assert "T012" in concerns[0].text
+
+    def test_malformed_clean_accept_still_raises_no_false_convergence(self):
+        resp = (
+            "---\n"
+            "verdict: accept\n"
+            "reason: all good: nothing to flag\n"  # bare colon -> YAML fails
+            "concerns: []\n"
+            "---\nprose\n"
+        )
+        # No concern to salvage + an accept verdict -> must NOT be rubber-stamped.
+        with pytest.raises(RuntimeError):
+            _parse_response(resp, lens="ordering", stage="tasked", default_artifact="t.md")
