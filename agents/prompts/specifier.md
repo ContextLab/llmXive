@@ -125,4 +125,14 @@ Assumptions`:
   Reference-Validator fetches every cited URL — fabricated URLs
   flip the project's review verdict to mismatch and waste a
   review cycle.
+- DELETE every scaffold bullet copied from the spec template. The
+  template seeds `## Assumptions` (and similar sections) with bracketed
+  example slots like `[Assumption about data/environment]`,
+  `[Assumption about scope boundaries]`, or `[Assumption about target
+  users, e.g., …]`. These are fill-in prompts, NOT content: replace each
+  with a concrete, project-specific assumption drawn from the idea, or
+  remove it. NEVER emit a `[Assumption about …]` (or any other
+  `[Description …]`) example bullet verbatim — the template-vs-real audit
+  classifies three or more surviving template phrases as an unfilled
+  template and refuses the whole spec, wasting a full cycle.
 - Output ONLY the Markdown document.

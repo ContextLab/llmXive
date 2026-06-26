@@ -28,13 +28,16 @@ PLACEHOLDER_BRACKET_RE = re.compile(r"\[[A-Z][^\]]{2,80}\]")  # [FEATURE NAME], 
 # format markers, not fill-in placeholders. They MUST NOT be learned as template
 # phrases, or every correctly-formatted tasks.md would mis-classify 'template'.
 STRUCTURAL_LABEL_RE = re.compile(r"^\[(Story\??|US\d+|TaskID|ID|P\??)\]$")
-# A bracket that names a CONCRETE task id — e.g. "[DEPENDS ON: T011]",
-# "[AFTER T016]", "[BLOCKED BY: T024]" — is a FILLED task-dependency annotation
-# the tasker legitimately emits (the explicit form of a removed [P] marker), not
-# an unfilled placeholder. Without this exclusion a correctly-dependency-annotated
-# tasks.md is mis-classified 'template' on bracket density and refused — the live
-# PROJ-492 tasker refusal (sample=['[DEPENDS ON: T011]', '[DEPENDS ON: T016]', …]).
-FILLED_TASK_REF_RE = re.compile(r"\bT\d{2,4}\b")
+# A bracket that names a CONCRETE artifact id is a FILLED cross-reference the
+# agents legitimately emit, NOT an unfilled placeholder:
+#   - "[DEPENDS ON: T011]", "[AFTER T016]", "[BLOCKED BY: T024]" — task-dependency
+#     annotations the tasker emits (the explicit form of a removed [P] marker);
+#     the live PROJ-492 tasker refusal (sample=['[DEPENDS ON: T011]', …]).
+#   - "[See US-1]", "[per US-2]" — User-Story back-references the SPECIFIER emits
+#     on every FR/SC (specifier.md mandates citing the story each serves); the
+#     live PROJ-530/PROJ-118 spec refusals (sample=['[See US-1]', '[See US-2]']).
+# Both name a concrete id (T### / US-#), so neither is a fill-in-the-blank slot.
+FILLED_TASK_REF_RE = re.compile(r"\bT\d{2,4}\b|\bUS-?\d+\b")
 ACTION_REQUIRED_RE = re.compile(r"ACTION REQUIRED:", re.IGNORECASE)
 META_INSTRUCTION_RE = re.compile(
     r"(fill (?:them|it|this|out|in) (?:out )?with the right|placeholders\?|REMOVE IF UNUSED)",

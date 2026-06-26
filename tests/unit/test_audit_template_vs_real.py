@@ -332,3 +332,19 @@ def test_genuine_unfilled_template_still_classifies_template(tmp_path):
     p.write_text(tmpl, encoding="utf-8")
     classification, _ = classify(p, templates_dir=Path(".specify/templates"))
     assert classification == "template"
+
+
+def test_see_us_story_backrefs_are_not_template_placeholders(tmp_path):
+    """`[See US-1]` is a FILLED User-Story cross-reference the specifier emits on
+    every FR/SC (specifier.md mandates citing the story each serves), exactly
+    analogous to `[DEPENDS ON: T011]` — NOT an unfilled placeholder. Live
+    PROJ-530/PROJ-118 spec refusals: sample=['[See US-1]','[See US-1]','[See US-2]']."""
+    from llmxive.audit.template_vs_real import classify
+
+    spec = "# Spec\n\n## Requirements\n" + "".join(
+        f"- FR-00{i} The system does thing {i} [See US-{(i % 3) + 1}]\n" for i in range(1, 9)
+    ) + "\n## User Stories\n- US-1 As a user I can do things\n"
+    p = tmp_path / "spec.md"
+    p.write_text(spec, encoding="utf-8")
+    classification, rules = classify(p, templates_dir=Path(".specify/templates"))
+    assert classification == "real", [r.rule_id for r in rules]
