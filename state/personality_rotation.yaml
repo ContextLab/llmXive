@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-26T04:59:04.362074+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: alan-turing
+last_used_at: '2026-06-26T06:26:31.804328+00:00'
+last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-06-14T17:04:01.924219+00:00'
-  ended_at: '2026-06-14T18:31:34.015118+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: richard-feynman
   started_at: '2026-06-14T18:31:34.015118+00:00'
   ended_at: '2026-06-14T19:35:19.326781+00:00'
@@ -1138,3 +1133,10 @@ history:
   ended_at: '2026-06-26T04:59:04.362074+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: alan-turing
+  started_at: '2026-06-26T04:59:04.362074+00:00'
+  ended_at: '2026-06-26T06:26:31.804328+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/reviews/research/alan-turing-simulated__2026-06-26__research.md
