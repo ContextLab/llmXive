@@ -1,0 +1,570 @@
+{
+  "fetched_at": "2026-06-26T05:52:30Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines",
+      "target_n": 5
+    },
+    "duration_seconds": 507.928,
+    "ended_at": "2026-06-26T05:52:30Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Eye-tracking and misinformation susceptibility"
+        ],
+        [
+          2,
+          "Gaze patterns and fake news credibility"
+        ],
+        [
+          3,
+          "Visual attention bias in media consumption"
+        ],
+        [
+          4,
+          "Eye movements and belief formation in news"
+        ],
+        [
+          5,
+          "Cognitive processing of misleading headlines"
+        ],
+        [
+          6,
+          "Fixation duration and headline evaluation"
+        ],
+        [
+          7,
+          "Visual salience and disinformation detection"
+        ],
+        [
+          8,
+          "Attentional bias and false information acceptance"
+        ],
+        [
+          9,
+          "Reading behavior and online misinformation"
+        ],
+        [
+          10,
+          "Eye-tracking studies in media psychology"
+        ],
+        [
+          11,
+          "Saccadic eye movements and news verification"
+        ],
+        [
+          12,
+          "Visual processing and truth discernment"
+        ],
+        [
+          13,
+          "Selective attention and political misinformation"
+        ],
+        [
+          14,
+          "Cognitive load and headline credibility assessment"
+        ],
+        [
+          15,
+          "Visual cues and fake news perception"
+        ],
+        [
+          16,
+          "Media literacy and visual attention patterns"
+        ],
+        [
+          17,
+          "Heuristic processing and misleading information"
+        ],
+        [
+          18,
+          "Digital information evaluation and gaze behavior"
+        ],
+        [
+          19,
+          "Visual attention and judgment accuracy"
+        ],
+        [
+          20,
+          "Online news consumption and cognitive bias"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Eye-tracking and misinformation susceptibility": 5,
+        "The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines psychology": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "eye tracking misinformation gaze behavior",
+      "MTurk headline credibility judgment",
+      "motivated reasoning fake news belief revision",
+      "truthfulness rating sharing intention",
+      "dual process theory attentional mechanisms"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1805.02399"
+      ]
+    },
+    "per_query_hit_count": {
+      "MTurk headline credibility judgment": 3,
+      "The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines psychology": 3,
+      "dual process theory attentional mechanisms": 3,
+      "eye tracking misinformation gaze behavior": 3,
+      "motivated reasoning fake news belief revision": 3,
+      "truthfulness rating sharing intention": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2604.19397",
+          "rationale": "The paper describes a software tool for eye-tracking stimulus presentation rather than providing empirical evidence on the relationship between visual attention and misinformation susceptibility, falling under the rejection rule for papers with no measurable connection to the user's mechanism, domain, variables, or empirical setting.",
+          "title": "VIVA Stimuli: A Web-Based Platform for Eye Tracking Stimuli"
+        },
+        {
+          "primary_pointer": "2404.12083",
+          "rationale": "This paper is off-domain entirely for the user's psychology research question. While both involve \"eye tracking\" terminology, this paper is a computer vision/machine learning engineering paper about event-camera eye tracking algorithms and technical performance metrics, not a psychology study measuring visual attention patterns in relation to misinformation susceptibility. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (eye tracking as a technical meas",
+          "title": "MambaPupil: Bidirectional Selective Recurrent model for Event-based Eye tracking"
+        },
+        {
+          "primary_pointer": "2404.00620",
+          "rationale": "The paper focuses on data quality reporting standards for eye-tracking datasets rather than the psychological mechanism linking attention patterns to misinformation susceptibility. It falls under the rejection rule for having no measurable connection to the user's mechanism or dependent variable.",
+          "title": "Reporting Eye-Tracking Data Quality: Towards a New Standard"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T05:44:02Z",
+    "term_input": {
+      "normalized": "the impact of visual attention patterns on susceptibility to misleading headlines psychology",
+      "raw": "The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While originally designed for natural language processing tasks, the self-attention mechanism has recently taken various computer vision areas by storm. However, the 2D nature of images brings three challenges for applying self-attention in computer vision. (1) Treating images as 1D sequences neglects their 2D structures. (2) The quadratic complexity is too expensive for high-resolution images. (3) It only captures spatial adaptability but ignores channel adaptability. In this paper, we propose a novel linear attention named large kernel attention (LKA) to enable self-adaptive and long-range correlations in self-attention while avoiding its shortcomings. Furthermore, we present a neural network based on LKA, namely Visual Attention Network (VAN). While extremely simple, VAN surpasses similar size vision transformers(ViTs) and convolutional neural networks(CNNs) in various tasks, including image classification, object detection, semantic segmentation, panoptic segmentation, pose estimation, etc. For example, VAN-B6 achieves 87.8% accuracy on ImageNet benchmark and set new state-of-the-art performance (58.2 PQ) for panoptic segmentation. Besides, VAN-B2 surpasses Swin-T 4% mIoU (50.1 vs. 46.1) for semantic segmentation on ADE20K benchmark, 2.6% AP (48.8 vs. 46.2) for object detection on COCO dataset. It provides a novel method and a simple yet strong baseline for the community. Code is available at https://github.com/Visual-Attention-Network.",
+          "claimed_authors": [
+            "Meng-Hao Guo",
+            "Cheng-Ze Lu",
+            "Zheng-Ning Liu",
+            "Ming-Ming Cheng",
+            "Shi-Min Hu"
+          ],
+          "claimed_title": "Visual Attention Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09741"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Visual Attention Network')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accuracy is one of the basic principles of journalism. However, it is increasingly hard to manage due to the diversity of news media. Some editors of online news tend to use catchy headlines which trick readers into clicking. These headlines are either ambiguous or misleading, degrading the reading experience of the audience. Thus, identifying inaccurate news headlines is a task worth studying. Previous work names these headlines \"clickbaits\" and mainly focus on the features extracted from the headlines, which limits the performance since the consistency between headlines and news bodies is underappreciated. In this paper, we clearly redefine the problem and identify ambiguous and misleading headlines separately. We utilize class sequential rules to exploit structure information when detecting ambiguous headlines. For the identification of misleading headlines, we extract features based on the congruence between headlines and bodies. To make use of the large unlabeled data set, we apply a co-training method and gain an increase in performance. The experiment results show the effectiveness of our methods. Then we use our classifiers to detect inaccurate headlines crawled from different sources and conduct a data analysis.",
+          "claimed_authors": [
+            "Wei Wei",
+            "Xiaojun Wan"
+          ],
+          "claimed_title": "Learning to Identify Ambiguous and Misleading News Headlines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.06031"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Learning to Identify Ambiguous and Misleading News Headlines')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There are numerous opportunities for engaging in research at the intersection of psychology and visualization. While most opportunities taken up by the VIS community will likely focus on the psychology of users, there are also opportunities for studying the psychology of designers. In this position paper, I argue the importance of studying design cognition as a necessary component of a holistic program of research on visualization psychology. I provide a brief overview of research on design cognition in other disciplines, and discuss opportunities for VIS to build an analogous research program. Doing so can lead to a stronger integration of research and design practice, can provide a better understanding of how to educate and train future designers, and will likely surface both challenges and opportunities for future research.",
+          "claimed_authors": [
+            "Paul Parsons"
+          ],
+          "claimed_title": "How do Visualization Designers Think? Design Cognition as a Core Aspect of Visualization Psychology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.13758"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='How do Visualization Designers Think? Design Cognition as a Core Aspect of Visualization Psychology')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We conducted an eye-tracking study where 30 participants performed searches on the web. We measured their topical knowledge before and after each task. Their eye-fixations were labelled as \"reading\" or \"scanning\". The series of reading fixations in a line, called \"reading-sequences\" were characterized by their length in pixels, fixation duration, and the number of fixations making up the sequence. We hypothesize that differences in knowledge-change of participants are reflected in their eye-tracking measures related to reading. Our results show that the participants with higher change in knowledge differ significantly in terms of their total reading-sequence-length, reading-sequence-duration, and number of reading fixations, when compared to participants with lower knowledge-change.",
+          "claimed_authors": [
+            "Nilavra Bhattacharya",
+            "Jacek Gwizdka"
+          ],
+          "claimed_title": "Relating Eye-Tracking Measures With Changes In Knowledge on Search Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.02399"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Relating Eye-Tracking Measures With Changes In Knowledge on Search Tasks')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Comparing mobile eye tracking data from multiple participants without information about areas of interest (AOIs) is challenging because of individual timing and coordinate systems. We present a technique, the gaze spiral, that visualizes individual recordings based on image content of the stimulus. The spiral layout of the slitscan visualization is used to create a compact representation of scanpaths. The visualization provides an overview of multiple recordings even for long time spans and helps identify and annotate recurring patterns within recordings. The gaze spirals can also serve as glyphs that can be projected to 2D space based on established scanpath metrics in order to interpret the metrics and identify groups of similar viewing behavior. We present examples based on two egocentric datasets to demonstrate the effectiveness of our approach for annotation and comparison tasks. Our examples show that the technique has the potential to let users compare even long-term recordings of pervasive scenarios without manual annotation.",
+          "claimed_authors": [
+            "Maurice Koch",
+            "Daniel Weiskopf",
+            "Kuno Kurzhals"
+          ],
+          "claimed_title": "A Spiral into the Mind: Gaze Spiral Visualization for Mobile Eye Tracking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.13494"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='A Spiral into the Mind: Gaze Spiral Visualization for Mobile Eye Tracking')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A single digital newsletter usually contains many messages (regions). Users' reading time spent on, and read level (skip/skim/read-in-detail) of each message is important for platforms to understand their users' interests, personalize their contents, and make recommendations. Based on accurate but expensive-to-collect eyetracker-recorded data, we built models that predict per-region reading time based on easy-to-collect Javascript browser tracking data.\n  With eye-tracking, we collected 200k ground-truth datapoints on participants reading news on browsers. Then we trained machine learning and deep learning models to predict message-level reading time based on user interactions like mouse position, scrolling, and clicking. We reached 27\\% percentage error in reading time estimation with a two-tower neural network based on user interactions only, against the eye-tracking ground truth data, while the heuristic baselines have around 46\\% percentage error. We also discovered the benefits of replacing per-session models with per-timestamp models, and adding user pattern features. We concluded with suggestions on developing message-level reading estimation techniques based on available data.",
+          "claimed_authors": [
+            "Ruoyan Kong",
+            "Ruixuan Sun",
+            "Charles Chuankai Zhang",
+            "Chen Chen",
+            "Sneha Patri",
+            "Gayathri Gajjela",
+            "Joseph A. Konstan"
+          ],
+          "claimed_title": "Getting the Most from Eye-Tracking: User-Interaction Based Reading Region Estimation Dataset and Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.07455"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Getting the Most from Eye-Tracking: User-Interaction Based Reading Region Estimation Dataset and Models')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the problem of finding fake online news. This is an important problem as news of questionable credibility have recently been proliferating in social media at an alarming scale. As this is an understudied problem, especially for languages other than English, we first collect and release to the research community three new balanced credible vs. fake news datasets derived from four online sources. We then propose a language-independent approach for automatically distinguishing credible from fake news, based on a rich feature set. In particular, we use linguistic (n-gram), credibility-related (capitalization, punctuation, pronoun use, sentiment polarity), and semantic (embeddings and DBPedia data) features. Our experiments on three different testsets show that our model can distinguish credible from fake news with very high accuracy.",
+          "claimed_authors": [
+            "Momchil Hardalov",
+            "Ivan Koychev",
+            "Preslav Nakov"
+          ],
+          "claimed_title": "In Search of Credible News",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.08125"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='In Search of Credible News')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reaching some form of consensus is often necessary for autonomous agents that want to coordinate their actions or otherwise engage in joint activities. One way to reach a consensus is by aggregating individual information, such as decisions, beliefs, preferences and constraints. Judgment aggregation is a social choice method, which generalises voting, that studies the aggregation of individual judgments regarding the truth-value of logically related propositions. As such, judgment aggregation is applicable for consensus reaching problems in multi agent systems. As other social choice theory, judgment aggregation research is abundant with impossibility results. However, the aim of this tutorial is to give an introduction to the methods of judgment aggregation, not the impossibility results. In particular, the tutorial will introduce the basic frameworks that model judgment aggregation problems and give an overview of the judgment aggregation functions so far developed as well as their social theoretic and computational complexity properties. The focus of the tutorial are consensus reaching problems in multi agent systems that can be modelled as judgment aggregation problems. The desirable properties of a judgment aggregation method applied to these problems are not necessarily the same as properties desirable in legal or political contexts, which is considered to be the native domain of judgment aggregation. After this tutorial the participants are expected to be able to read and understand judgment aggregation literature and have a grasp on the state-of-the-art and open questions in judgment aggregation research of interest to multi agent systems.",
+          "claimed_authors": [
+            "Marija Slavkovik"
+          ],
+          "claimed_title": "An Introductory Course to Judgment Aggregation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.03307"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='An Introductory Course to Judgment Aggregation')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present MediaSpin, a large-scale language resource capturing how major news outlets modify headlines after publication, and MediaSpin-in-the-Wild, a complementary dataset linking these revised headlines to their downstream engagement on social media. The increasing editability of online news headlines offers new opportunities to study linguistic framing and bias through the lens of editorial revisions. The dataset contains 78,910 headline pairs annotated for 13 types of media bias, grounded in established media-bias taxonomies, covering both subjective (e.g., sensationalism, spin) and objective (e.g., omission, slant) forms, with annotation conducted through a human-supervised large-language-model pipeline with expert validation and quality control. We describe the annotation schema and demonstrate three downstream applications: (1) cross-national analysis of how country references are added or removed during editing, (2) transformer-based bias classification at both binary and fine-grained levels, and (3) behavioral analysis of biased headlines on X (Twitter) using 180,786 news-related tweets from 819 consenting users. The results reveal regional asymmetries in representational framing, measurable linguistic markers, and consistently higher engagement with biased content. MediaSpin and MediaSpin-in-the-Wild together provide a reproducible benchmark for bias detection and the study of editorial and behavioral dynamics in contemporary media ecosystems.",
+          "claimed_authors": [
+            "Preetika Verma",
+            "Kokil Jaidka"
+          ],
+          "claimed_title": "The MediaSpin Dataset: Post-Publication News Headline Edits Annotated for Media Bias",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.02271"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='The MediaSpin Dataset: Post-Publication News Headline Edits Annotated for Media Bias')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The increasing popularity of social media promotes the proliferation of fake news, which has caused significant negative societal effects. Therefore, fake news detection on social media has recently become an emerging research area of great concern. With the development of multimedia technology, fake news attempts to utilize multimedia content with images or videos to attract and mislead consumers for rapid dissemination, which makes visual content an important part of fake news. Despite the importance of visual content, our understanding of the role of visual content in fake news detection is still limited. This chapter presents a comprehensive review of the visual content in fake news, including the basic concepts, effective visual features, representative detection methods and challenging issues of multimedia fake news detection. This chapter can help readers to understand the role of visual content in fake news detection, and effectively utilize visual content to assist in detecting multimedia fake news.",
+          "claimed_authors": [
+            "Juan Cao",
+            "Peng Qi",
+            "Qiang Sheng",
+            "Tianyun Yang",
+            "Junbo Guo",
+            "Jintao Li"
+          ],
+          "claimed_title": "Exploring the Role of Visual Content in Fake News Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.05096"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Exploring the Role of Visual Content in Fake News Detection')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "SNePS is a mature knowledge representation, reasoning, and acting system that has long contained a belief revision subsystem, called SNeBR. SNeBR is triggered when an explicit contradiction is introduced into the SNePS belief space, either because of a user's new assertion, or because of a user's query. SNeBR then makes the user decide what belief to remove from the belief space in order to restore consistency, although it provides information to help the user in making that decision. We have recently added automatic belief revision to SNeBR, by which, under certain circumstances, SNeBR decides by itself which belief to remove, and then informs the user of the decision and its consequences. We have used the well-known belief revision integrity constraints as a guide in designing automatic belief revision, taking into account, however, that SNePS's belief space is not deductively closed, and that it would be infeasible to form the deductive closure in order to decide what belief to remove. This paper briefly describes SNeBR both before and after this revision, discusses how we adapted the integrity constraints for this purpose, and gives an example of the new SNeBR in action.",
+          "claimed_authors": [
+            "Frances L. Johnson",
+            "Stuart C. Shapiro"
+          ],
+          "claimed_title": "Implementing Integrity Constraints in an Existing Belief Revision System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "cs/0003040"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Implementing Integrity Constraints in an Existing Belief Revision System')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language generation maps a rich, high-dimensional internal state to a single token sequence. We study this many-to-one mapping through the lens of intention collapse: the projection from an internal intention space I to an external language space L. We introduce three cheap, model-agnostic metrics computed on a pre-collapse state I: (i) intention entropy Hint(I), (ii) effective dimensionality deff(I), and (iii) recoverability Recov(I), operationalized as probe AUROC for predicting eventual success. We evaluate these metrics in a 3x3 study across models (Mistral-7B, LLaMA-3.1-8B, Qwen-2.5-7B) and benchmarks (GSM8K, ARC-Challenge, AQUA-RAT), comparing baseline, chain-of-thought (CoT), and a babble control (n=200 items per cell). CoT increases average accuracy from 34.2% to 47.3% (+13.1 pp), driven by large gains on GSM8K but consistent degradations on ARC-Challenge. Across models, CoT induces distinct entropy regimes relative to baseline, dH = Hint(CoT) - Hint(Base): Mistral shows dH < 0 (lower-entropy CoT), whereas LLaMA shows dH > 0 (higher-entropy CoT), highlighting heterogeneity in CoT-induced internal uncertainty. Finally, probe AUROC is significantly above chance in a subset of settings and can dissociate from behavioral accuracy (e.g., high AUROC alongside lower CoT accuracy on ARC-Challenge for Qwen), suggesting that informative internal signal is not always reliably converted into a final discrete decision under constrained response formats.",
+          "claimed_authors": [
+            "Patricio Vera"
+          ],
+          "claimed_title": "Intention Collapse: Intention-Level Metrics for Reasoning in Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.01011"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Intention Collapse: Intention-Level Metrics for Reasoning in Language Models')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ability to communicate intention enables decentralized multi-agent robots to collaborate while performing physical tasks. In this work, we present spatial intention maps, a new intention representation for multi-agent vision-based deep reinforcement learning that improves coordination between decentralized mobile manipulators. In this representation, each agent's intention is provided to other agents, and rendered into an overhead 2D map aligned with visual observations. This synergizes with the recently proposed spatial action maps framework, in which state and action representations are spatially aligned, providing inductive biases that encourage emergent cooperative behaviors requiring spatial coordination, such as passing objects to each other or avoiding collisions. Experiments across a variety of multi-agent environments, including heterogeneous robot teams with different abilities (lifting, pushing, or throwing), show that incorporating spatial intention maps improves performance for different mobile manipulation tasks while significantly enhancing cooperative behaviors.",
+          "claimed_authors": [
+            "Jimmy Wu",
+            "Xingyuan Sun",
+            "Andy Zeng",
+            "Shuran Song",
+            "Szymon Rusinkiewicz",
+            "Thomas Funkhouser"
+          ],
+          "claimed_title": "Spatial Intention Maps for Multi-Agent Mobile Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.12710"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Spatial Intention Maps for Multi-Agent Mobile Manipulation')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sharing diverse genomic and other biomedical datasets is critical to advance scientific discoveries and their equitable translation to improve human health. However, data sharing remains challenging in the context of legacy datasets, evolving policies, multi-institutional consortium science, and international stakeholders. The NIH-funded Polygenic Risk Methods in Diverse Populations (PRIMED) Consortium was established to improve the performance of polygenic risk estimates for a broad range of health and disease outcomes with global impacts. Improving polygenic risk score performance across genetically diverse populations requires access to large, diverse cohorts. We report on the design and implementation of data sharing policies and procedures developed in PRIMED to aggregate and analyze data from multiple, heterogeneous sources while adhering to existing data sharing policies for each integrated dataset. We describe two primary data sharing mechanisms: coordinated dbGaP applications and a Consortium Data Sharing Agreement, as well as provide alternatives when individual-level data cannot be shared within the Consortium (e.g., federated analyses). We also describe technical implementation of Consortium data sharing in the NHGRI Analysis Visualization and Informatics Lab-space (AnVIL) cloud platform, to share derived individual-level data, genomic summary results, and methods workflows with appropriate permissions. As a Consortium making secondary use of pre-existing data sources, we also discuss challenges and propose solutions for release of individual- and summary-level data products to the broader scientific community. We make recommendations for ongoing and future policymaking with the goal of informing future consortia and other research activities.",
+          "claimed_authors": [
+            "Johanna L. Smith",
+            "Quenna Wong",
+            "Whitney Hornsby",
+            "Matthew P. Conomos",
+            "Benjamin D. Heavner",
+            "Iftikhar J. Kullo",
+            "Bruce M. Psaty",
+            "Stephen S. Rich",
+            "Bamidele Tayo",
+            "Pradeep Natarajan",
+            "Sarah C. Nelson",
+            "Polygenic Risk Methods in Diverse Populations PRIMED Consortium Data Sharing Working Group",
+            "Polygenic Risk Methods in Diverse Populations PRIMED Consortium"
+          ],
+          "claimed_title": "Data Sharing in the PRIMED Consortium: Design, implementation, and recommendations for future policymaking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.09351"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Data Sharing in the PRIMED Consortium: Design, implementation, and recommendations for future policymaking')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Jupiter-Saturn 2:5 near-commensurability is analyzed in a fully analytic Hamiltonian planetary theory. Computations for the Sun-Jupiter-Saturn system, extending to the third order of the masses and to the 8th degree in the eccentricities and inclinations, reveal an unexpectedly sensitive dependence of the solution on initial data and its likely nonconvergence. The source of the sensitivity and apparent lack of convergence is this near-commensurability, the so-called great inequality. This indicates that simple averaging, still common in current semi-analytic planetary theories, may not be an adequate technique to obtain information on the long-term dynamics of the Solar System.\n  Preliminary results suggest that these difficulties can be overcome by using resonant normal forms.",
+          "claimed_authors": [
+            "F. Varadi",
+            "M. Ghil",
+            "W. M. Kaula",
+            " Keywords",
+            " :",
+            "Hamiltonian systems",
+            "planetary motion",
+            "perturbation theory",
+            " resonances"
+          ],
+          "claimed_title": "The Great Inequality In A Hamiltonian Planetary Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1993,
+          "primary_pointer": "chao-dyn/9311011"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='The Great Inequality In A Hamiltonian Planetary Theory')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Dual Cross-Attention (DCA), a simple yet effective attention module that is able to enhance skip-connections in U-Net-based architectures for medical image segmentation. DCA addresses the semantic gap between encoder and decoder features by sequentially capturing channel and spatial dependencies across multi-scale encoder features. First, the Channel Cross-Attention (CCA) extracts global channel-wise dependencies by utilizing cross-attention across channel tokens of multi-scale encoder features. Then, the Spatial Cross-Attention (SCA) module performs cross-attention to capture spatial dependencies across spatial tokens. Finally, these fine-grained encoder features are up-sampled and connected to their corresponding decoder parts to form the skip-connection scheme. Our proposed DCA module can be integrated into any encoder-decoder architecture with skip-connections such as U-Net and its variants. We test our DCA module by integrating it into six U-Net-based architectures such as U-Net, V-Net, R2Unet, ResUnet++, DoubleUnet and MultiResUnet. Our DCA module shows Dice Score improvements up to 2.05% on GlaS, 2.74% on MoNuSeg, 1.37% on CVC-ClinicDB, 1.12% on Kvasir-Seg and 1.44% on Synapse datasets. Our codes are available at: https://github.com/gorkemcanates/Dual-Cross-Attention",
+          "claimed_authors": [
+            "Gorkem Can Ates",
+            "Prasoon Mohan",
+            "Emrah Celik"
+          ],
+          "claimed_title": "Dual Cross-Attention for Medical Image Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.17696"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Visual Attention Patterns on Susceptibility to Misleading Headline', candidate_title='Dual Cross-Attention for Medical Image Segmentation')",
+        "failed_at": "2026-06-26T05:46:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nilavra Bhattacharya",
+            "Jacek Gwizdka"
+          ],
+          "title": "Relating Eye-Tracking Measures With Changes In Knowledge on Search Tasks",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1805.02399",
+        "summary": "We conducted an eye-tracking study where 30 participants performed searches on the web. We measured their topical knowledge before and after each task. Their eye-fixations were labelled as \"reading\" or \"scanning\". The series of reading fixations in a line, called \"reading-sequences\" were characterized by their length in pixels, fixation duration, and the number of fixations making up the sequence. We hypothesize that differences in knowledge-change of participants are reflected in their eye-tracking measures related to reading. Our results show that the participants with higher change in knowledge differ significantly in terms of their total reading-sequence-length, reading-sequence-duration, and number of reading fixations, when compared to participants with lower knowledge-change.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1805.02399",
+          "http_status": 200,
+          "pdf_sample_score": 0.1435,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T05:46:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ruoyan Kong",
+            "Ruixuan Sun",
+            "Charles Chuankai Zhang",
+            "Chen Chen",
+            "Sneha Patri",
+            "Gayathri Gajjela",
+            "Joseph A. Konstan"
+          ],
+          "title": "Getting the Most from Eye-Tracking: User-Interaction Based Reading Region Estimation Dataset and Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.07455",
+        "summary": "A single digital newsletter usually contains many messages (regions). Users' reading time spent on, and read level (skip/skim/read-in-detail) of each message is important for platforms to understand their users' interests, personalize their contents, and make recommendations. Based on accurate but expensive-to-collect eyetracker-recorded data, we built models that predict per-region reading time based on easy-to-collect Javascript browser tracking data.\n  With eye-tracking, we collected 200k ground-truth datapoints on participants reading news on browsers. Then we trained machine learning and deep learning models to predict message-level reading time based on user interactions like mouse position, scrolling, and clicking. We reached 27\\% percentage error in reading time estimation with a two-tower neural network based on user interactions only, against the eye-tracking ground truth data, while the heuristic baselines have around 46\\% percentage error. We also discovered the benefits of replacing per-session models with per-timestamp models, and adding user pattern features. We concluded with suggestions on developing message-level reading estimation techniques based on available data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.07455",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T05:46:44Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of visual attention patterns on susceptibility to misleading headlines psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

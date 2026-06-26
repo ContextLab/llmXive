@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1805.02399",
+  "judged_at": "2026-06-26T05:48:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of visual attention patterns on susceptibility to misleading headlines psychology",
+  "rationale": "This paper satisfies acceptance criterion (a) as it measures the same physical observable and independent variable (visual attention patterns via eye-tracking) in a related online text-processing context, establishing the measurability of the mechanism even though the dependent variable (knowledge change vs. misinformation susceptibility) differs.",
+  "relevant": true
+}

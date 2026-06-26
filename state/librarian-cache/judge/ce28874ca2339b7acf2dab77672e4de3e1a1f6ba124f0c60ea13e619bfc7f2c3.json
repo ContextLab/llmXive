@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.00620",
+  "judged_at": "2026-06-26T05:52:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of visual attention patterns on susceptibility to misleading headlines psychology",
+  "rationale": "The paper focuses on data quality reporting standards for eye-tracking datasets rather than the psychological mechanism linking attention patterns to misinformation susceptibility. It falls under the rejection rule for having no measurable connection to the user's mechanism or dependent variable.",
+  "relevant": false
+}

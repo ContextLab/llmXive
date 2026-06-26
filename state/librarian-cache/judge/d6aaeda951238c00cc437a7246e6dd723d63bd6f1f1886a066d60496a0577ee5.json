@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.07455",
+  "judged_at": "2026-06-26T05:50:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of visual attention patterns on susceptibility to misleading headlines psychology",
+  "rationale": "This paper satisfies criterion (b) as it measures the user's independent variable (visual attention patterns via eye-tracking) on the user's domain (news content/headlines), providing relevant empirical data on attention metrics in the specific context of news reading even though it focuses on engagement prediction rather than misinformation susceptibility.",
+  "relevant": true
+}

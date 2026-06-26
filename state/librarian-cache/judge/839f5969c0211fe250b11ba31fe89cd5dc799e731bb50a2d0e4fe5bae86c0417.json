@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.19397",
+  "judged_at": "2026-06-26T05:51:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of visual attention patterns on susceptibility to misleading headlines psychology",
+  "rationale": "The paper describes a software tool for eye-tracking stimulus presentation rather than providing empirical evidence on the relationship between visual attention and misinformation susceptibility, falling under the rejection rule for papers with no measurable connection to the user's mechanism, domain, variables, or empirical setting.",
+  "relevant": false
+}

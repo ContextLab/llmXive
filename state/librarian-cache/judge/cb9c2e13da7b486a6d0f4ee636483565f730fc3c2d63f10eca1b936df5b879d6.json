@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.12083",
+  "judged_at": "2026-06-26T05:51:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of visual attention patterns on susceptibility to misleading headlines psychology",
+  "rationale": "This paper is off-domain entirely for the user's psychology research question. While both involve \"eye tracking\" terminology, this paper is a computer vision/machine learning engineering paper about event-camera eye tracking algorithms and technical performance metrics, not a psychology study measuring visual attention patterns in relation to misinformation susceptibility. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (eye tracking as a technical meas",
+  "relevant": false
+}

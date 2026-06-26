@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T01:43:21.272198Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-119-statistical-modeling-of-temporal-depende
-last_run_id: a933d01d-1d7f-452b-8509-c98b6232da7f
+last_run_id: d39ec8af-95bf-4cd8-bb66-b6e807010306
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations
-updated_at: '2026-06-24T18:04:13.574716Z'
+updated_at: '2026-06-26T05:42:04.925183Z'
