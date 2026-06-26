@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-26T07:49:22.992290+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-06-26T09:09:45.922567+00:00'
 last_outcome: committed
 history:
-- slug: rosalind-franklin
-  started_at: '2026-06-14T19:35:19.326781+00:00'
-  ended_at: '2026-06-14T20:30:59.251024+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: stephen-wolfram
   started_at: '2026-06-14T20:30:59.251024+00:00'
   ended_at: '2026-06-14T21:30:11.809954+00:00'
@@ -1142,3 +1137,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-499-reconstructing-early-universe-phase-tran/reviews/research/albert-einstein-simulated__2026-06-26__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-26T07:49:22.992290+00:00'
+  ended_at: '2026-06-26T09:09:45.922567+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-361-investigating-the-relationship-between-b/reviews/research/dan-rockmore-simulated__2026-06-26__research.md
