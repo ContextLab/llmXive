@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.11090",
+  "judged_at": "2026-06-26T19:23:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+  "rationale": "The paper addresses causal effect estimation and synthetic data generation rather than anomaly detection, and employs Prior-data fitted networks instead of Bayesian Nonparametrics, representing a distinct construct that shares only domain keywords without measuring the user's target variables or mechanisms.",
+  "relevant": false
+}

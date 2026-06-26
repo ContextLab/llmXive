@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.18998",
+  "judged_at": "2026-06-26T19:18:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+  "rationale": "This paper satisfies rule (b) as it measures the same dependent variable (anomaly detection performance) on the user's specified domain (time series), providing a necessary empirical baseline or competitor context for a literature review on Bayesian Nonparametrics in this task. While the methodology differs (autoencoders vs. Bayesian Nonparametrics), the shared task and domain make it relevant for positioning the new research within the broader landscape of time series anomaly detection.",
+  "relevant": true
+}

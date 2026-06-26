@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "Results Schema"
+description: "Schema for validating statistical results output"
+required:
+  - summary_id
+  - metric_name
+  - condition_heterogeneous
+  - condition_unified
+  - absolute_diff
+  - t_statistic
+  - p_value
+  - wilcoxon_statistic
+  - wilcoxon_p_value
+  - effect_size
+  - ci_lower
+  - ci_upper
+  - bootstrap_resamples
+  - alpha_threshold
+  - generated_at
+properties:
+  summary_id:
+    type: "string"
+    description: "Unique summary identifier"
+    pattern: "^summary-[0-9]{3}$"
+  metric_name:
+    type: "string"
+    enum:
+      - "F1"
+      - "MAPE"
+    description: "Metric being summarized"
+  condition_heterogeneous:
+    type: "number"
+    description: "Mean accuracy for heterogeneous condition (A)"
+  condition_unified:
+    type: "number"
+    description: "Mean accuracy for unified condition (B)"
+  absolute_diff:
+    type: "number"
+    description: "Absolute percentage difference (A - B)"
+  t_statistic:
+    type: "number"
+    description: "Paired t-test statistic"
+  p_value:
+    type: "number"
+    description: "Paired t-test p-value"
+    minimum: 0
+    maximum: 1
+  wilcoxon_statistic:
+    type: "number"
+    description: "Wilcoxon signed-rank statistic"
+  wilcoxon_p_value:
+    type: "number"
+    description: "Wilcoxon p-value"
+    minimum: 0
+    maximum: 1
+  effect_size:
+    type: "number"
+    description: "Cohen's d effect size"
+  ci_lower:
+    type: "number"
+    description: "95% bootstrap CI lower bound"
+  ci_upper:
+    type: "number"
+    description: "95% bootstrap CI upper bound"
+  bootstrap_resamples:
+    type: "integer"
+    description: "Number of bootstrap resamples"
+    enum:
+      - 1000
+  alpha_threshold:
+    type: "number"
+    description: "Significance threshold"
+    enum:
+      - 0.05
+  generated_at:
+    type: "string"
+    description: "ISO 8601 timestamp"
+    format: "date-time"
+additionalProperties: false

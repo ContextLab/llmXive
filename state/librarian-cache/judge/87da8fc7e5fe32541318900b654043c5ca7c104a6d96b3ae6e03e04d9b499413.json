@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.15597",
+  "judged_at": "2026-06-26T19:19:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+  "rationale": "This paper addresses the core domain (time series/data streams) and task (anomaly/change-point detection) using canonical alternative vocabulary, satisfying criteria (b) and (f) for literature review inclusion as a baseline for the problem space despite differing statistical methodology (Higher-Criticism vs. Bayesian Nonparametrics).",
+  "relevant": true
+}

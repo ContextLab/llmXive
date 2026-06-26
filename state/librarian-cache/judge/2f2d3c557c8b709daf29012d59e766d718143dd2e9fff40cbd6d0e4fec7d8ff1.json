@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.10544",
+  "judged_at": "2026-06-26T19:22:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+  "rationale": "This paper addresses time series forecasting using mixture-of-experts and wavelet methods, not anomaly detection using Bayesian Nonparametrics. While both share the time series domain, the task (forecasting vs. anomaly detection) and methodology (MoE/wavelets vs. Bayesian Nonparametrics) are fundamentally different constructs, failing to satisfy any acceptance criteria (a-f).",
+  "relevant": false
+}

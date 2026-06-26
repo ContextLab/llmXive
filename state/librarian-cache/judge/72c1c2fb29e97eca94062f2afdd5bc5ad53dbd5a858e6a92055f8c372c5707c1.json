@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.14295",
+  "judged_at": "2026-06-26T19:21:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+  "rationale": "The paper employs frequentist nonparametric clustering using energy distance rather than the requested Bayesian Nonparametric framework, and focuses on clustering rather than anomaly detection, sharing only the broad time series domain. This constitutes a distinct construct sharing only broad keywords without addressing the specific mechanism or task required for the literature review.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2104.02056",
+  "judged_at": "2026-06-26T19:20:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+  "rationale": "This paper does not use Bayesian Nonparametrics methodology (it uses change-point detection and maximum likelihood estimation), which is the core methodological focus of the user's research question. While it addresses anomaly detection on time series data, it falls under the rejection rule for \"no measurable connection to the user's mechanism\" since the statistical framework (Bayesian Nonparametrics) is entirely absent.",
+  "relevant": false
+}

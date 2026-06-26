@@ -1,0 +1,638 @@
+{
+  "fetched_at": "2026-06-26T19:23:21Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Bayesian Nonparametrics for Anomaly Detection in Time Series",
+      "target_n": 5
+    },
+    "duration_seconds": 561.888,
+    "ended_at": "2026-06-26T19:23:21Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Dirichlet Process mixture models for time series"
+        ],
+        [
+          2,
+          "Gaussian process anomaly detection"
+        ],
+        [
+          3,
+          "Bayesian change point detection"
+        ],
+        [
+          4,
+          "Nonparametric Bayes time series modeling"
+        ],
+        [
+          5,
+          "Hierarchical Dirichlet Process for sequential data"
+        ],
+        [
+          6,
+          "Outlier detection in temporal data using Bayesian methods"
+        ],
+        [
+          7,
+          "Novelty detection in time series statistics"
+        ],
+        [
+          8,
+          "Infinite mixture models for anomaly detection"
+        ],
+        [
+          9,
+          "Bayesian structural time series with nonparametric priors"
+        ],
+        [
+          10,
+          "Gaussian process regression for outlier identification"
+        ],
+        [
+          11,
+          "Unsupervised learning for time series irregularities"
+        ],
+        [
+          12,
+          "Probabilistic forecasting for anomaly identification"
+        ],
+        [
+          13,
+          "Hidden Markov Models with nonparametric extensions"
+        ],
+        [
+          14,
+          "Robust Bayesian time series analysis"
+        ],
+        [
+          15,
+          "Bayesian nonparametric clustering for time series"
+        ],
+        [
+          16,
+          "Sequential anomaly detection using Dirichlet processes"
+        ],
+        [
+          17,
+          "Nonparametric statistical process control"
+        ],
+        [
+          18,
+          "Bayesian online change point detection"
+        ],
+        [
+          19,
+          "Time series novelty detection methods"
+        ],
+        [
+          20,
+          "Flexible Bayesian models for temporal outliers"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Bayesian Nonparametrics for Anomaly Detection in Time Series statistics": 0,
+        "Dirichlet Process mixture models for time series": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Dirichlet process mixture novelty detection",
+      "Multivariate time series streaming data",
+      "Bayesian change point detection sequential",
+      "Posterior predictive check anomaly threshold",
+      "Nonparametric prior time series inference"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.18998"
+      ]
+    },
+    "per_query_hit_count": {
+      "Bayesian Nonparametrics for Anomaly Detection in Time Series statistics": 3,
+      "Bayesian change point detection sequential": 3,
+      "Dirichlet process mixture novelty detection": 3,
+      "Multivariate time series streaming data": 2,
+      "Nonparametric prior time series inference": 2,
+      "Posterior predictive check anomaly threshold": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2104.02056",
+          "rationale": "This paper does not use Bayesian Nonparametrics methodology (it uses change-point detection and maximum likelihood estimation), which is the core methodological focus of the user's research question. While it addresses anomaly detection on time series data, it falls under the rejection rule for \"no measurable connection to the user's mechanism\" since the statistical framework (Bayesian Nonparametrics) is entirely absent.",
+          "title": "Quick Line Outage Identification in Urban Distribution Grids via Smart Meters"
+        },
+        {
+          "primary_pointer": "2303.14295",
+          "rationale": "The paper employs frequentist nonparametric clustering using energy distance rather than the requested Bayesian Nonparametric framework, and focuses on clustering rather than anomaly detection, sharing only the broad time series domain. This constitutes a distinct construct sharing only broad keywords without addressing the specific mechanism or task required for the literature review.",
+          "title": "Clustering Multivariate Time Series using Energy Distance"
+        },
+        {
+          "primary_pointer": "2604.10544",
+          "rationale": "This paper addresses time series forecasting using mixture-of-experts and wavelet methods, not anomaly detection using Bayesian Nonparametrics. While both share the time series domain, the task (forecasting vs. anomaly detection) and methodology (MoE/wavelets vs. Bayesian Nonparametrics) are fundamentally different constructs, failing to satisfy any acceptance criteria (a-f).",
+          "title": "WaveMoE: A Wavelet-Enhanced Mixture-of-Experts Foundation Model for Time Series Forecasting"
+        },
+        {
+          "primary_pointer": "2603.11090",
+          "rationale": "The paper addresses causal effect estimation and synthetic data generation rather than anomaly detection, and employs Prior-data fitted networks instead of Bayesian Nonparametrics, representing a distinct construct that shares only domain keywords without measuring the user's target variables or mechanisms.",
+          "title": "Interventional Time Series Priors for Causal Foundation Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-26T19:13:59Z",
+    "term_input": {
+      "normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+      "raw": "Bayesian Nonparametrics for Anomaly Detection in Time Series statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This extended preface [to the Book `Bayesian Nonparametrics', Cambridge University Press, 2010, by NL Hjort, CC Holmes, P Mueller, SG Walker] is meant to explain why you are right to be curious about Bayesian nonparametrics -- why you may actually need it and how you can manage to understand it and use it. The preface also serves as an introductory chapter, giving an overview of the aims and contents of the book. We also explain the background for how the book came into existence, delve briefly on the history of the still relatively young field of Bayesian nonparametrics, and offer some concluding remarks, pertaining to various challenges and likely future developments of the area.",
+          "claimed_authors": [
+            "Nils Lid Hjort",
+            "Chris Holmes",
+            "Peter Mueller",
+            "Stephen G. Walker"
+          ],
+          "claimed_title": "Bayesian Nonparametrics: Principles and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.22253"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Bayesian Nonparametrics: Principles and Practice')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A novel methodology is proposed for clustering multivariate time series data using energy distance defined in Székely and Rizzo (2013). Specifically, a dissimilarity matrix is formed using the energy distance statistic to measure separation between the finite dimensional distributions for the component time series. Once the pairwise dissimilarity matrix is calculated, a hierarchical clustering method is then applied to obtain the dendrogram. This procedure is completely nonparametric as the dissimilarities between stationary distributions are directly calculated without making any model assumptions. In order to justify this procedure, asymptotic properties of the energy distance estimates are derived for general stationary and ergodic time series. The method is illustrated in a simulation study for various component time series that are either linear or nonlinear. Finally the methodology is applied to two examples; one involves GDP of selected countries and the other is population size of various states in the U.S.A. in the years 1900 -1999.",
+          "claimed_authors": [
+            "Richard A. Davis",
+            "Leon Fernandes",
+            "Konstantinos Fokianos"
+          ],
+          "claimed_title": "Clustering Multivariate Time Series using Energy Distance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.14295"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Clustering Multivariate Time Series using Energy Distance')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sentence level novelty detection aims at reducing redundant sentences from a sentence list. In the task, sentences appearing later in the list with no new meanings are eliminated. Aiming at a better accuracy for detecting redundancy, this paper reveals the nature of the novelty detection task currently overlooked by the Novelty community $-$ Novelty as a combination of the partial overlap (PO, two sentences sharing common facts) and complete overlap (CO, the first sentence covers all the facts of the second sentence) relations. By formalizing novelty detection as a combination of the two relations between sentences, new viewpoints toward techniques dealing with Novelty are proposed. Among the methods discussed, the similarity, overlap, pool and language modeling approaches are commonly used. Furthermore, a novel approach, selected pool method is provided, which is immediate following the nature of the task. Experimental results obtained on all the three currently available novelty datasets showed that selected pool is significantly better or no worse than the current methods. Knowledge about the nature of the task also affects the evaluation methodologies. We propose new evaluation measures for Novelty according to the nature of the task, as well as possible directions for future study.",
+          "claimed_authors": [
+            "Le Zhao",
+            "Min Zhang",
+            "Shaoping Ma"
+          ],
+          "claimed_title": "The Nature of Novelty Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cs/0510054"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='The Nature of Novelty Detection')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In many applications, a finite mixture is a natural model, but it can be difficult to choose an appropriate number of components. To circumvent this choice, investigators are increasingly turning to Dirichlet process mixtures (DPMs), and Pitman-Yor process mixtures (PYMs), more generally. While these models may be well-suited for Bayesian density estimation, many investigators are using them for inferences about the number of components, by considering the posterior on the number of components represented in the observed data. We show that this posterior is not consistent --- that is, on data from a finite mixture, it does not concentrate at the true number of components. This result applies to a large class of nonparametric mixtures, including DPMs and PYMs, over a wide variety of families of component distributions, including essentially all discrete families, as well as continuous exponential families satisfying mild regularity conditions (such as multivariate Gaussians).",
+          "claimed_authors": [
+            "Jeffrey W. Miller",
+            "Matthew T. Harrison"
+          ],
+          "claimed_title": "Inconsistency of Pitman-Yor process mixtures for the number of components",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.0024"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Inconsistency of Pitman-Yor process mixtures for the number of components')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a novel Artificial Intelligence approach for Beyond the Standard Model parameter space scans by augmenting an Evolutionary Strategy with Novelty Detection. Our approach leverages the power of Evolutionary Strategies, previously shown to quickly converge to the valid regions of the parameter space, with a \\emph{novelty reward} to continue exploration once converged. Taking the $Z_3$ 3HDM as our Physics case, we show how our methodology allows us to quickly explore highly constrained multidimensional parameter spaces, providing up to eight orders of magnitude higher sampling efficiency when compared with pure random sampling and up to four orders of magnitude when compared to random sampling around the alignment limit. In turn, this enables us to explore regions of the parameter space that have been hitherto overlooked, leading to the possibility of novel phenomenological realisations of the $Z_3$ 3HDM that had not been considered before.",
+          "claimed_authors": [
+            "Jorge Crispim Romão",
+            "Miguel Crispim Romão"
+          ],
+          "claimed_title": "Combining Evolutionary Strategies and Novelty Detection to go Beyond the Alignment Limit of the $Z_3$ 3HDM",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.07661"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Combining Evolutionary Strategies and Novelty Detection to go Beyond the Alignment Limit of the $Z_3$ 3HDM')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Our study investigates the impact of data augmentation on the performance of multivariate time series models, focusing on datasets from the UCR archive. Despite the limited size of these datasets, we achieved classification accuracy improvements in 10 out of 13 datasets using the Rocket and InceptionTime models. This highlights the essential role of sufficient data in training effective models, paralleling the advancements seen in computer vision. Our work delves into adapting and applying existing methods in innovative ways to the domain of multivariate time series classification. Our comprehensive exploration of these techniques sets a new standard for addressing data scarcity in time series analysis, emphasizing that diverse augmentation strategies are crucial for unlocking the potential of both traditional and deep learning models. Moreover, by meticulously analyzing and applying a variety of augmentation techniques, we demonstrate that strategic data enrichment can enhance model accuracy. This not only establishes a benchmark for future research in time series analysis but also underscores the importance of adopting varied augmentation approaches to improve model performance in the face of limited data availability.",
+          "claimed_authors": [
+            "Romain Ilbert",
+            "Thai V. Hoang",
+            "Zonghua Zhang"
+          ],
+          "claimed_title": "Data Augmentation for Multivariate Time Series Classification: An Experimental Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.06518"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Data Augmentation for Multivariate Time Series Classification: An Experimental Study')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Our understanding of a variety of phenomena in physics, biology and economics crucially depends on the analysis of multivariate time series. While a wide range of tools and techniques for time series analysis already exist, the increasing availability of massive data structures calls for new approaches for multidimensional signal processing. We present here a non-parametric method to analyse multivariate time series, based on the mapping of a multidimensional time series into a multilayer network, which allows to extract information on a high dimensional dynamical system through the analysis of the structure of the associated multiplex network. The method is simple to implement, general, scalable, does not require ad hoc phase space partitioning, and is thus suitable for the analysis of large, heterogeneous and non-stationary time series. We show that simple structural descriptors of the associated multiplex networks allow to extract and quantify nontrivial properties of coupled chaotic maps, including the transition between different dynamical phases and the onset of various types of synchronization. As a concrete example we then study financial time series, showing that a multiplex network analysis can efficiently discriminate crises from periods of financial stability, where standard methods based on time-series symbolization often fail.",
+          "claimed_authors": [
+            "Lucas Lacasa",
+            "Vincenzo Nicosia",
+            "Vito Latora"
+          ],
+          "claimed_title": "Network structure of multivariate time series",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1408.0925"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Network structure of multivariate time series')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Point cloud has drawn more and more research attention as well as real-world applications. However, many of these applications (e.g. autonomous driving and robotic manipulation) are actually based on sequential point clouds (i.e. four dimensions) because the information of the static point cloud data could provide is still limited. Recently, researchers put more and more effort into sequential point clouds. This paper presents an extensive review of the deep learning-based methods for sequential point cloud research including dynamic flow estimation, object detection \\& tracking, point cloud segmentation, and point cloud forecasting. This paper further summarizes and compares the quantitative results of the reviewed methods over the public benchmark datasets. Finally, this paper is concluded by discussing the challenges in the current sequential point cloud research and pointing out insightful potential future research directions.",
+          "claimed_authors": [
+            "Haiyan Wang",
+            "Yingli Tian"
+          ],
+          "claimed_title": "Sequential Point Clouds: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.09337"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Sequential Point Clouds: A Survey')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter overviews some of the work on detecting and estimating the location of a single change. We first consider the most common change-point problem, namely that of detecting a change in mean, before looking at extensions to detecting other types of change. The intuition from the problem of detecting a single change-point is helpful for understanding the variety of methods for detecting multiple changes.",
+          "claimed_authors": [
+            "Paul Fearnhead",
+            "Piotr Fryzlewicz"
+          ],
+          "claimed_title": "Detecting A Single Change-point",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.07066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Detecting A Single Change-point')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we consider the problem of quickest change point detection and identification over a linear array of $N$ sensors, where the change pattern could first reach any of these sensors, and then propagate to the other sensors. Our goal is not only to detect the presence of such a change as quickly as possible, but also to identify which sensor that the change pattern first reaches. We jointly design two decision rules: a stopping rule, which determines when we should stop sampling and claim a change occurred, and a terminal decision rule, which decides which sensor that the change pattern reaches first, with the objective to strike a balance among the detection delay, the false alarm probability, and the false identification probability. We show that this problem can be converted to a Markov optimal stopping time problem, from which some technical tools could be borrowed. Furthermore, to avoid the high implementation complexity issue of the optimal rules, we develop a scheme with a much simpler structure and certain performance guarantee.",
+          "claimed_authors": [
+            "Di Li",
+            "Lifeng Lai",
+            "Shuguang Cui"
+          ],
+          "claimed_title": "Quickest Change Point Detection and Identification Across a Generic Sensor Array",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.4199"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Quickest Change Point Detection and Identification Across a Generic Sensor Array')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Checking how well a fitted model explains the data is one of the most fundamental parts of a Bayesian data analysis. However, existing model checking methods suffer from trade-offs between being well-calibrated, automated, and computationally efficient. To overcome these limitations, we propose split predictive checks (SPCs), which combine the ease-of-use and speed of posterior predictive checks with the good calibration properties of predictive checks that rely on model-specific derivations or inference schemes. We develop an asymptotic theory for two types of SPCs: single SPCs and the divided SPCs. Our results demonstrate that they offer complementary strengths. Single SPCs work well with smaller datasets and provide excellent power when there is substantial misspecification, such as when the estimate uncertainty in the test statistic is significantly underestimated. When the sample size is large, divided SPCs can provide better power and are able to detect more subtle form of misspecification. We validate the finite-sample utility of SPCs through extensive simulation experiments in exponential family and hierarchical models, and provide three real-data examples where SPCs offer novel insights and additional flexibility beyond what is available when using posterior predictive checks.",
+          "claimed_authors": [
+            "Jiawei Li",
+            "Jonathan H. Huggins"
+          ],
+          "claimed_title": "Calibrated Model Criticism Using Split Predictive Checks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.15897"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Calibrated Model Criticism Using Split Predictive Checks')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With flexible modeling software - such as the probabilistic programming language Stan - growing in popularity, quantities of interest (QOIs) calculated post-estimation are increasingly desired and customly implemented, both by statistical software developers and applied scientists. Examples of QOI include the marginal expectation of a multilevel model with a non-linear link function, or an ANOVA decomposition of a bivariate regression spline. For this, the QOI-Check is introduced, a systematic approach to ensure proper calibration and correct interpretation of QOIs. It contributes to Bayesian Workflow, and aims to improve the interpretability and trust in post-estimation conclusions based on QOIs. The QOI-Check builds upon Simulation Based Calibration (SBC), and the Holdout Predictive Check (HPC). SBC verifies computational reliability of Bayesian inference algorithms by consistency check of posterior with prior when the posterior is estimated on prior-predicted data, while HPC ensures robust inference by assessing consistency of model predictions with holdout data. SBC and HPC are combined in QOI-Checking for validating post-estimation QOI calculation and interpretation in the context of a (hypothetical) population definition underlying the QOI.",
+          "claimed_authors": [
+            "Holger Sennhenn-Reulen"
+          ],
+          "claimed_title": "Prior-Posterior Derived-Predictive Consistency Checks for Post-Estimation Calculated Quantities of Interest (QOI-Check)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.15809"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Prior-Posterior Derived-Predictive Consistency Checks for Post-Estimation Calculated Quantities of Interest (QOI-Check)')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study posterior rates of contraction in Gaussian process regression with unbounded covariate domain. Our argument relies on developing a Gaussian approximation to the posterior of the leading coefficients of a Karhunen--Loéve expansion of the Gaussian process. The salient feature of our result is deriving such an approximation in the $L^2$ Wasserstein distance and relating the speed of the approximation to the posterior contraction rate using a coupling argument. Specific illustrations are provided for the Gaussian or squared-exponential covariance kernel.",
+          "claimed_authors": [
+            "Anirban Bhattacharya",
+            "Debdeep Pati"
+          ],
+          "claimed_title": "Posterior contraction in Gaussian process regression using Wasserstein approximations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1502.02336"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Posterior contraction in Gaussian process regression using Wasserstein approximations')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A nonparametric model using a sequence of Bernstein polynomials is constructed to approximate arbitrary isotropic covariance functions valid in $\\mathbb{R}^\\infty$ and related approximation properties are investigated using the popular $L_{\\infty}$ norm and $L_2$ norms. A computationally efficient sieve maximum likelihood (sML) estimation is then developed to nonparametrically estimate the unknown isotropic covaraince function valid in $\\mathbb{R}^\\infty$. Consistency of the proposed sieve ML estimator is established under increasing domain regime. The proposed methodology is compared numerically with couple of existing nonparametric as well as with commonly used parametric methods. Numerical results based on simulated data show that our approach outperforms the parametric methods in reducing bias due to model misspecification and also the nonparametric methods in terms of having significantly lower values of expected $L_{\\infty}$ and $L_2$ norms. Application to precipitation data is illustrated to showcase a real case study. Additional technical details and numerical illustrations are also made available.",
+          "claimed_authors": [
+            "Yiming Wang",
+            "Sujit K. Ghosh"
+          ],
+          "claimed_title": "Nonparametric Estimation of Isotropic Covariance Function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.22320"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Nonparametric Estimation of Isotropic Covariance Function')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Prior-data fitted networks (PFNs) have emerged as powerful foundation models for tabular causal inference, yet their extension to time series remains limited by the absence of synthetic data generators that provide interventional targets. Existing time series benchmarks generate observational data with ground-truth causal graphs but lack the interventional data required for training causal foundation models. To address this, we propose \\textbf{CausalTimePrior}, a principled framework for generating synthetic temporal structural causal models (TSCMs) with paired observational and interventional time series. Our prior supports configurable causal graph structures, nonlinear autoregressive mechanisms, regime-switching dynamics, and multiple intervention types (hard, soft, time-varying). We demonstrate that PFNs trained on CausalTimePrior can perform in-context causal effect estimation on held-out TSCMs, establishing a pathway toward foundation models for time series causal inference.",
+          "claimed_authors": [
+            "Dennis Thumm",
+            "Ying Chen"
+          ],
+          "claimed_title": "Interventional Time Series Priors for Causal Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.11090"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Interventional Time Series Priors for Causal Foundation Models')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose Narrowest Significance Pursuit (NSP), a general and flexible methodology for automatically detecting localised regions in data sequences which each must contain a change-point (understood as an abrupt change in the parameters of an underlying linear model), at a prescribed global significance level. NSP works with a wide range of distributional assumptions on the errors, and guarantees important stochastic bounds which directly yield exact desired coverage probabilities, regardless of the form or number of the regressors. In contrast to the widely studied \"post-selection inference\" approach, NSP paves the way for the concept of \"post-inference selection\". An implementation is available in the R package nsp (see https://CRAN.R-project.org/package=nsp ).",
+          "claimed_authors": [
+            "Piotr Fryzlewicz"
+          ],
+          "claimed_title": "Narrowest Significance Pursuit: inference for multiple change-points in linear models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.05431"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Narrowest Significance Pursuit: inference for multiple change-points in linear models')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "A nonparametric anomalous hypothesis testing problem is investigated, in which there are totally n sequences with s anomalous sequences to be detected. Each typical sequence contains m independent and identically distributed (i.i.d.) samples drawn from a distribution p, whereas each anomalous sequence contains m i.i.d. samples drawn from a distribution q that is distinct from p. The distributions p and q are assumed to be unknown in advance. Distribution-free tests are constructed using maximum mean discrepancy as the metric, which is based on mean embeddings of distributions into a reproducing kernel Hilbert space. The probability of error is bounded as a function of the sample size m, the number s of anomalous sequences and the number n of sequences. It is then shown that with s known, the constructed test is exponentially consistent if m is greater than a constant factor of log n, for any p and q, whereas with s unknown, m should has an order strictly greater than log n. Furthermore, it is shown that no test can be consistent for arbitrary p and q if m is less than a constant factor of log n, thus the order-level optimality of the proposed test is established. Numerical results are provided to demonstrate that our tests outperform (or perform as well as) the tests based on other competitive approaches under various cases.",
+          "claimed_authors": [
+            "Shaofeng Zou",
+            "Yingbin Liang",
+            "H. Vincent Poor",
+            "Xinghua Shi"
+          ],
+          "claimed_title": "Nonparametric Detection of Anomalous Data Streams",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1405.2294"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Nonparametric Detection of Anomalous Data Streams')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We present a simple reduction from sequential estimation to sequential changepoint detection (SCD). In short, suppose we are interested in detecting changepoints in some parameter or functional $θ$ of the underlying distribution. We demonstrate that if we can construct a confidence sequence (CS) for $θ$, then we can also successfully perform SCD for $θ$. This is accomplished by checking if two CSs -- one forwards and the other backwards -- ever fail to intersect. Since the literature on CSs has been rapidly evolving recently, the reduction provided in this paper immediately solves several old and new change detection problems. Further, our \"backward CS\", constructed by reversing time, is new and potentially of independent interest. We provide strong nonasymptotic guarantees on the frequency of false alarms and detection delay, and demonstrate numerical effectiveness on several problems.",
+          "claimed_authors": [
+            "Shubhanshu Shekhar",
+            "Aaditya Ramdas"
+          ],
+          "claimed_title": "Sequential change detection via backward confidence sequences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.02544"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Sequential change detection via backward confidence sequences')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper reviews recent developments in fundamental limits and optimal algorithms for change point analysis. We focus on minimax optimal rates in change point detection and localisation, in both parametric and nonparametric models. We start with the univariate mean change point analysis problem and review the state-of-the-art results in the literature. We then move on to more complex data types and investigate general principles behind the optimal procedures that lead to minimax rate-optimal results.",
+          "claimed_authors": [
+            "Yi Yu"
+          ],
+          "claimed_title": "A review on minimax rates in change point detection and localisation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.01857"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='A review on minimax rates in change point detection and localisation')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "High-dimensional data has become popular due to the easy accessibility of sensors in modern industrial applications. However, one specific challenge is that it is often not easy to obtain complete measurements due to limited sensing powers and resource constraints. Furthermore, distinct failure patterns may exist in the systems, and it is necessary to identify the true failure pattern. This work focuses on the online adaptive monitoring of high-dimensional data in resource-constrained environments with multiple potential failure modes. To achieve this, we propose to apply the Shiryaev-Roberts procedure on the failure mode level and utilize the multi-arm bandit to balance the exploration and exploitation. We further discuss the theoretical property of the proposed algorithm to show that the proposed method can correctly isolate the failure mode. Finally, extensive simulations and two case studies demonstrate that the change point detection performance and the failure mode isolation accuracy can be greatly improved.",
+          "claimed_authors": [
+            "Xinyu Zhao",
+            "Jiuyun Hu",
+            "Yajun Mei",
+            "Hao Yan"
+          ],
+          "claimed_title": "Adaptive Partially-Observed Sequential Change Detection and Isolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.08855"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series statistics', candidate_title='Adaptive Partially-Observed Sequential Change Detection and Isolation')",
+        "failed_at": "2026-06-26T19:16:49Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Buang Zhang",
+            "Tung Kieu",
+            "Xiangfei Qiu",
+            "Chenjuan Guo",
+            "Jilin Hu",
+            "Aoying Zhou",
+            "Christian S. Jensen",
+            "Bin Yang"
+          ],
+          "title": "An Encode-then-Decompose Approach to Unsupervised Time Series Anomaly Detection on Contaminated Training Data--Extended Version",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.18998",
+        "summary": "Time series anomaly detection is important in modern large-scale systems and is applied in a variety of domains to analyze and monitor the operation of diverse systems. Unsupervised approaches have received widespread interest, as they do not require anomaly labels during training, thus avoiding potentially high costs and having wider applications. Among these, autoencoders have received extensive attention. They use reconstruction errors from compressed representations to define anomaly scores. However, representations learned by autoencoders are sensitive to anomalies in training time series, causing reduced accuracy. We propose a novel encode-then-decompose paradigm, where we decompose the encoded representation into stable and auxiliary representations, thereby enhancing the robustness when training with contaminated time series. In addition, we propose a novel mutual information based metric to replace the reconstruction errors for identifying anomalies. Our proposal demonstrates competitive or state-of-the-art performance on eight commonly used multi- and univariate time series benchmarks and exhibits robustness to time series with different contamination ratios.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.18998",
+          "http_status": 200,
+          "pdf_sample_score": 0.2558,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T19:16:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tingnan Gong",
+            "Alon Kipnis",
+            "Yao Xie"
+          ],
+          "title": "Higher-criticism for sparse multi-stream change-point detection",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.15597",
+        "summary": "We study a statistical procedure based on higher criticism (HC) to address the sparse multi-stream quickest change-point detection problem. Namely, we aim to detect a potential change in the distribution of multiple data streams at some unknown time. If a change occurs, only a few streams are affected, whereas the identity of the affected streams is unknown. The HC-based procedure involves testing for a change point in individual streams and combining multiple tests using higher criticism. Relying on HC thresholding, the procedure also indicates a set of streams suspected to be affected by the change. We provide a theoretical analysis under a sparse heteroscedastic normal change-point model. We establish an information-theoretic detection delay lower bound when individual tests are based on the likelihood ratio or the generalized likelihood ratio statistics and show that the delay of the HC-based method converges in distribution to this bound. In the special case of constant variance, our bound coincides with known results in (Chan, 2017). We demonstrate the effectiveness of the HC-based method compared to other methods in detecting sparse changes through extensive numerical evaluations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2409.15597",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T19:16:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Liyan Xie",
+            "Ruizhi Zhang"
+          ],
+          "title": "Sequential Change Detection with Differential Privacy",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.02768",
+        "summary": "Sequential change detection is a fundamental problem in statistics and signal processing, with the CUSUM procedure widely used to achieve minimax detection delay under a prescribed false-alarm rate when pre- and post-change distributions are fully known. However, releasing CUSUM statistics and the corresponding stopping time directly can compromise individual data privacy. We therefore introduce a differentially private (DP) variant, called DP-CUSUM, that injects calibrated Laplace noise into both the vanilla CUSUM statistics and the detection threshold, preserving the recursive simplicity of the classical CUSUM statistics while ensuring per-sample differential privacy. We derive closed-form bounds on the average run length to false alarm and on the worst-case average detection delay, explicitly characterizing the trade-off among privacy level, false-alarm rate, and detection efficiency. Our theoretical results imply that under a weak privacy constraint, our proposed DP-CUSUM procedure achieves the same first-order asymptotic optimality as the classical, non-private CUSUM procedure. Numerical simulations are conducted to demonstrate the detection efficiency of our proposed DP-CUSUM under different privacy constraints, and the results are consistent with our theoretical findings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2509.02768",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T19:16:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jeffrey W. Miller",
+            "Matthew T. Harrison"
+          ],
+          "title": "Inconsistency of Pitman-Yor process mixtures for the number of components",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1309.0024",
+        "summary": "In many applications, a finite mixture is a natural model, but it can be difficult to choose an appropriate number of components. To circumvent this choice, investigators are increasingly turning to Dirichlet process mixtures (DPMs), and Pitman-Yor process mixtures (PYMs), more generally. While these models may be well-suited for Bayesian density estimation, many investigators are using them for inferences about the number of components, by considering the posterior on the number of components represented in the observed data. We show that this posterior is not consistent --- that is, on data from a finite mixture, it does not concentrate at the true number of components. This result applies to a large class of nonparametric mixtures, including DPMs and PYMs, over a wide variety of families of component distributions, including essentially all discrete families, as well as continuous exponential families satisfying mild regularity conditions (such as multivariate Gaussians).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1309.0024",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-26T19:17:22Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

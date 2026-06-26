@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.0024",
+  "judged_at": "2026-06-26T19:22:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+  "rationale": "This paper is a foundational theoretical reference for the Bayesian Nonparametric models (DPM/PYM) central to the user's methodology, satisfying criterion (d) for canonical methodological references. It also addresses the suitability of these models for density estimation, which is the core mechanism for anomaly detection, satisfying criterion (a).",
+  "relevant": true
+}

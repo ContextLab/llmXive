@@ -9,35 +9,77 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can Bayesian nonparametric models, specifically Gaussian process priors with Dirichlet process mixtures, detect distributional shifts in non-stationary univariate time series more effectively than traditional Statistical Process Control (SPC) charts?
+What characteristics of distributional shifts in non-stationary univariate time series (e.g., abrupt variance changes vs. gradual mean drifts) make them detectable using Bayesian nonparametric approaches, and how does shift detectability relate to the underlying data-generating process?
 
 ## Motivation
 
-Traditional SPC charts assume stationarity and parametric distributions, often failing in modern complex environments where data drifts. Bayesian nonparametrics offer flexibility without fixed assumptions, but their computational cost needs evaluation against standard benchmarks to ensure practical utility within standard compute resources.
+Traditional Statistical Process Control (SPC) methods assume stationarity and parametric distributions, limiting their effectiveness in modern complex environments where data drifts. Bayesian nonparametrics offer flexible modeling without fixed assumptions, but their practical utility depends on understanding which types of distributional shifts they can reliably detect under realistic computational constraints.
 
 ## Related work
 
-- [An Explicit Link between Gaussian Fields and Gaussian Markov Random Fields: The Stochastic Partial Differential Equation Approach (2011)](https://doi.org/10.1111/j.1467-9868.2011.00777.x) — Provides the SPDE approximation for Gaussian Processes, enabling scalable inference on CPU which is critical for this project's resource constraints.
-- [Unsupervised Anomaly Detection via Variational Auto-Encoder for Seasonal KPIs in Web Applications (2018)](https://doi.org/10.1145/3178876.3185996) — Establishes a deep learning baseline for time series anomaly detection against which Bayesian methods will be compared.
-- [Statistics of extremes in hydrology (2002)](https://doi.org/10.1016/s0309-1708(02)00056-8) — Discusses statistical treatment of outliers and extremes in time-dependent environmental data, relevant for defining anomaly thresholds.
-- [Non-Parametric Estimation of a Multivariate Probability Density (1969)](https://doi.org/10.1137/1114019) — Foundational work on non-parametric density estimation (Epanechnikov kernel) informing the mixture model component.
+- [An Encode-then-Decompose Approach to Unsupervised Time Series Anomaly Detection on Contaminated Training Data--Extended Version (2025)](https://arxiv.org/abs/2510.18998) — Establishes unsupervised time series anomaly detection as a relevant problem setting and provides a modern baseline for comparison with Bayesian approaches.
+- [Higher-criticism for sparse multi-stream change-point detection (2024)](https://arxiv.org/abs/2409.15597) — Provides statistical procedures for detecting distributional changes in time series, relevant for benchmarking against Bayesian nonparametric methods.
+- [Sequential Change Detection with Differential Privacy (2025)](https://arxiv.org/abs/2509.02768) — Discusses CUSUM procedures and minimax detection delay, providing theoretical grounding for traditional SPC chart comparison.
+- [Inconsistency of Pitman-Yor process mixtures for the number of components (2013)](https://arxiv.org/abs/1309.0024) — Warns of potential inconsistencies in Bayesian nonparametric mixture models, informing careful evaluation of model selection and component estimation.
 
 ## Expected results
 
-We expect Bayesian nonparametric models to yield higher precision on non-stationary shifts compared to Shewhart charts, particularly when variance changes abruptly. Performance will be measured using F1-score and AUC-ROC on synthetic anomalies injected into public datasets, with evidence requiring statistical significance (p < 0.05) across multiple datasets.
+We expect Bayesian nonparametric models to show higher sensitivity to abrupt variance changes compared to gradual mean drifts, with detectability governed by the signal-to-noise ratio and the flexibility of the prior. Performance will be measured using F1-score and AUC-ROC on synthetic anomalies injected into public datasets, with evidence requiring consistent patterns across multiple datasets rather than single-dataset significance.
 
 ## Methodology sketch
 
 - **Data Acquisition**: Download univariate time series datasets from the UCR Time Series Archive or UCI Machine Learning Repository (e.g., `wget` from official mirrors).
-- **Preprocessing**: Normalize data and segment into windows; inject synthetic anomalies (mean shifts, variance spikes) at known indices to create ground truth labels.
+- **Preprocessing**: Normalize data and segment into windows; inject synthetic anomalies at known indices (mean shifts, variance spikes, gradual drifts) to create ground truth labels independent of model predictions.
 - **Model Implementation**: Implement Gaussian Process regression with Sparse Variational Inference using `PyMC` or `NumPyro` to ensure CPU compatibility and memory limits (<7GB).
-- **Baseline Comparison**: Implement traditional Shewhart control charts and a lightweight Variational Auto-Encoder (VAE) using `scikit-learn` and `PyTorch` (CPU mode).
-- **Inference**: Run MCMC or VI with limited iterations (e.g., 1000 steps) to respect the 6-hour GitHub Actions job limit.
-- **Evaluation**: Calculate Precision, Recall, and F1-score for anomaly detection on held-out test windows.
-- **Statistical Testing**: Apply a paired t-test on F1-scores across datasets to determine if the Bayesian method significantly outperforms baselines.
+- **Baseline Comparison**: Implement traditional Shewhart control charts and CUSUM procedures using `scipy` and `statsmodels` for fair comparison with traditional SPC methods.
+- **Inference**: Run variational inference with limited iterations (e.g., 500-1000 steps) to respect the 6-hour GitHub Actions job limit.
+- **Evaluation**: Calculate Precision, Recall, and F1-score for anomaly detection on held-out test windows with injected anomalies.
+- **Statistical Testing**: Apply a paired t-test on F1-scores across datasets to compare Bayesian vs. traditional methods; verify independence between evaluation targets and model inputs.
+- **Detectability Analysis**: Correlate detection performance with shift characteristics (magnitude, duration, type) to identify which distributional changes are most amenable to Bayesian nonparametric detection.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None in current context.
 - Closest match: None identified.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-26T19:23:21Z
+**Outcome**: exhausted
+**Original term**: Bayesian Nonparametrics for Anomaly Detection in Time Series statistics
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Bayesian Nonparametrics for Anomaly Detection in Time Series statistics | 0 |
+| 1 | Dirichlet Process mixture models for time series | 4 |
+| 2 | Gaussian process anomaly detection | 0 |
+| 3 | Bayesian change point detection | 0 |
+| 4 | Nonparametric Bayes time series modeling | 0 |
+| 5 | Hierarchical Dirichlet Process for sequential data | 0 |
+| 6 | Outlier detection in temporal data using Bayesian methods | 0 |
+| 7 | Novelty detection in time series statistics | 0 |
+| 8 | Infinite mixture models for anomaly detection | 0 |
+| 9 | Bayesian structural time series with nonparametric priors | 0 |
+| 10 | Gaussian process regression for outlier identification | 0 |
+| 11 | Unsupervised learning for time series irregularities | 0 |
+| 12 | Probabilistic forecasting for anomaly identification | 0 |
+| 13 | Hidden Markov Models with nonparametric extensions | 0 |
+| 14 | Robust Bayesian time series analysis | 0 |
+| 15 | Bayesian nonparametric clustering for time series | 0 |
+| 16 | Sequential anomaly detection using Dirichlet processes | 0 |
+| 17 | Nonparametric statistical process control | 0 |
+| 18 | Bayesian online change point detection | 0 |
+| 19 | Time series novelty detection methods | 0 |
+| 20 | Flexible Bayesian models for temporal outliers | 0 |
+
+### Verified citations
+
+1. **An Encode-then-Decompose Approach to Unsupervised Time Series Anomaly Detection on Contaminated Training Data--Extended Version** (2025). Buang Zhang, Tung Kieu, Xiangfei Qiu, Chenjuan Guo, Jilin Hu, et al.. arXiv. [2510.18998](https://arxiv.org/abs/2510.18998). PDF-sampled: No.
+2. **Higher-criticism for sparse multi-stream change-point detection** (2024). Tingnan Gong, Alon Kipnis, Yao Xie. arXiv. [2409.15597](https://arxiv.org/abs/2409.15597). PDF-sampled: No.
+3. **Sequential Change Detection with Differential Privacy** (2025). Liyan Xie, Ruizhi Zhang. arXiv. [2509.02768](https://arxiv.org/abs/2509.02768). PDF-sampled: No.
+4. **Inconsistency of Pitman-Yor process mixtures for the number of components** (2013). Jeffrey W. Miller, Matthew T. Harrison. arXiv. [1309.0024](https://arxiv.org/abs/1309.0024). PDF-sampled: No.

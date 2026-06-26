@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.02768",
+  "judged_at": "2026-06-26T19:19:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series statistics",
+  "rationale": "This paper satisfies criterion (b) as it measures the same dependent variable (anomaly/change detection) on the same domain (time series/sequential data), even though it uses a different methodology (CUSUM/frequentist vs. Bayesian Nonparametrics). For a literature review, this classical approach provides relevant context for the task and domain landscape.",
+  "relevant": true
+}
