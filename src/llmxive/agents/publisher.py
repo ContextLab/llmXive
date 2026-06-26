@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
+import shutil
 import subprocess
 from collections.abc import Sequence
 from datetime import UTC, datetime
@@ -40,6 +42,8 @@ from llmxive.types import (
     Stage,
     VolumeIssue,
 )
+
+logger = logging.getLogger(__name__)
 
 _PUBLISH_BLOCKED_AFTER = 5  # FR-030
 
@@ -116,6 +120,17 @@ def _compile_full(source_dir: Path) -> tuple[bool, bytes | None]:
     publisher's final compile."""
     primary = _find_primary_tex(source_dir)
     if primary is None:
+        return False, None
+    # Defence in depth: the publisher runs in a TeX-equipped lane
+    # (pipeline-paper-write.yml installs TeX Live), but if it is ever dispatched
+    # somewhere without lualatex, fail with a clear (False, None) the caller turns
+    # into "final paper compile failed" — never a raw FileNotFoundError that reads
+    # as a mystery crash (mirrors the implementer's shutil.which compile guard).
+    if shutil.which("lualatex") is None:
+        logger.warning(
+            "publisher: lualatex absent — cannot produce the final PDF in this "
+            "lane; deferring (retry where TeX Live is installed)"
+        )
         return False, None
     stem = primary.stem
 
