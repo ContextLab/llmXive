@@ -651,7 +651,10 @@ class PaperReviewerAgent(Agent):
             items = []
         import re as _re
 
-        from llmxive.types import action_item_id  # local import to avoid cycle at module load
+        from llmxive.types import (  # local import to avoid cycle at module load
+            action_item_id,
+            action_items_from_text,
+        )
         normalized: list[dict[str, Any]] = []
         for raw in items:
             if not isinstance(raw, dict):
@@ -665,6 +668,26 @@ class PaperReviewerAgent(Agent):
                 raw_id = action_item_id(text)
             normalized.append({"id": raw_id, "text": text, "severity": severity})
         front["action_items"] = normalized
+
+        # A non-accept verdict with NO structured action_items stalls the
+        # convergence engine (advancement finds nothing to revise) AND is
+        # rejected outright by the ReviewRecord schema at prompt_version
+        # >= 1.1.0 (the live `frontmatter failed ReviewRecord schema`
+        # crash on paper reviews). Weak models reliably write findings as
+        # body prose while leaving the YAML list empty — reshape that prose
+        # into items BEFORE validation. This mirrors research_reviewer +
+        # advancement (single source of truth: the same action_items_from_text
+        # for every review path); it invents nothing — each item is verbatim
+        # body text.
+        if (
+            isinstance(verdict, str)
+            and verdict != "accept"
+            and not normalized
+            and body
+        ):
+            synth = action_items_from_text(body, verdict=verdict)
+            if synth:
+                front["action_items"] = [it.model_dump() for it in synth]
 
         # Compute artifact_hash + artifact_path. Two paths:
         #   (a) Home-grown paper pipeline: tasks.md under paper/specs/<n>-<slug>/

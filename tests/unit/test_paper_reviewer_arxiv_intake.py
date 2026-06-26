@@ -148,6 +148,79 @@ class TestArxivIntakeFigureDiscovery:
         assert any("pics/" in line for line in lines)
 
 
+class TestNonAcceptEmptyActionItemsDerived:
+    """Real-world failure (PROJ-562/564 etc., 06-24→06-26): a paper review
+    with a non-accept verdict (e.g. ``minor_revision``) but an EMPTY
+    ``action_items`` YAML list crashed with ``frontmatter failed ReviewRecord
+    schema validation: ... must include at least one action_item`` (the
+    prompt_version>=1.1.0 R1 action-items rule from the unified review
+    protocol). Weak models reliably write findings as body prose while
+    leaving the structured list empty. paper_reviewer must reshape that prose
+    into action_items BEFORE validation — exactly as research_reviewer +
+    advancement already do (single source of truth: action_items_from_text).
+    """
+
+    def _agent_and_ctx(self, tmp_path: Path, monkeypatch):
+        from dataclasses import dataclass
+
+        from llmxive.agents.base import AgentContext
+        from llmxive.agents.paper_reviewer import PaperReviewerAgent
+
+        proj_id = "PROJ-997-nonaccept-derive"
+        _make_arxiv_intake_project(tmp_path, proj_id)
+        monkeypatch.setattr(
+            "llmxive.agents.paper_reviewer._repo_root", lambda: tmp_path
+        )
+
+        @dataclass
+        class _E:
+            name: str = "paper_reviewer"
+            prompt_version: str = "1.1.0"  # the version that ENFORCES the rule
+
+        agent = object.__new__(PaperReviewerAgent)
+        agent.entry = _E()
+        ctx = AgentContext(project_id=proj_id, run_id="r", task_id="t", inputs=[])
+        return agent, ctx, tmp_path, proj_id
+
+    def test_minor_revision_with_empty_list_derives_from_body(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        from llmxive.backends.base import ChatResponse
+        from llmxive.convergence.llm_reviewer import _safe_yaml_load
+
+        agent, ctx, repo, proj_id = self._agent_and_ctx(tmp_path, monkeypatch)
+        # verdict=minor_revision, action_items EMPTY, but substantive prose body.
+        text = (
+            "---\n"
+            "verdict: minor_revision\n"
+            "action_items: []\n"
+            "feedback: see body\n"
+            "---\n\n"
+            "The manuscript needs revision before it can be accepted:\n\n"
+            "1. The abstract overstates the contribution; soften the "
+            "state-of-the-art claim to match the reported numbers.\n"
+            "2. Figure 2 is missing axis labels and a legend.\n"
+            "3. Section 4 omits the statistical test used to establish "
+            "significance — name the test and report the exact p-value.\n"
+        )
+        resp = ChatResponse(text=text, model="openai.gpt-oss-120b", backend="dartmouth")
+
+        # BEFORE the fix this raised MalformedResponseError; now it must write
+        # a schema-valid record whose action_items were derived from the prose.
+        paths = agent.handle_response(ctx, resp)
+        assert len(paths) == 1
+        written = repo / paths[0]
+        front = _safe_yaml_load(
+            written.read_text(encoding="utf-8").split("---", 2)[1]
+        )
+        assert front["verdict"] == "minor_revision"
+        items = front.get("action_items") or []
+        assert len(items) >= 1, "non-accept review must carry derived action_items"
+        # invents nothing — derived text comes verbatim from the body findings
+        joined = " ".join(str(it.get("text", "")) for it in items).lower()
+        assert "axis labels" in joined or "statistical test" in joined or "abstract" in joined
+
+
 class TestTexConcatPrefersEntryPoint:
     """Real-world failure on PROJ-578: the prompt sent to the reviewer
     was 3,390 chars of *package declarations only* (extra_pkgs.tex sorts
