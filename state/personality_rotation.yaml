@@ -1,12 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-06-26T17:36:02.132584+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: richard-feynman
+last_used_at: '2026-06-26T18:38:12.863817+00:00'
+last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-15T05:17:43.359901+00:00'
-  ended_at: '2026-06-15T07:18:29.933102+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: geoffrey-west
   started_at: '2026-06-15T07:18:29.933102+00:00'
   ended_at: '2026-06-15T09:40:01.492888+00:00'
@@ -1152,3 +1147,10 @@ history:
   ended_at: '2026-06-26T17:36:02.132584+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: richard-feynman
+  started_at: '2026-06-26T17:36:02.132584+00:00'
+  ended_at: '2026-06-26T18:38:12.863817+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/reviews/research/richard-feynman-simulated__2026-06-26__research.md
