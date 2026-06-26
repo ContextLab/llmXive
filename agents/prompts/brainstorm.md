@@ -57,6 +57,15 @@ that would need:
 - **HPC / cluster compute / GPUs** (no MPI, no CUDA, no SLURM, no
   multi-node training, no >7&nbsp;GB models in RAM, no fine-tuning of
   models > 1B parameters).
+- **Live LLM / model API calls at execution time** — no querying
+  GPT/Claude/embedding/generation models AT RUNTIME to score outputs,
+  build features, or label data. The execute gate runs on free CI with
+  NO API keys and NO GPU, so any analysis whose *execution* needs a live
+  model call cannot run. Evaluate ALREADY-PUBLISHED model outputs instead.
+- **Raw neuroimaging / signal preprocessing** — no preprocessing raw fMRI
+  BOLD or EEG/MEG signals (files exceed 7&nbsp;GB and FSL / MNE-CUDA need a
+  GPU). Use ALREADY-PROCESSED connectivity matrices / derivatives published
+  with a paper instead.
 - **New experimental data collection** (no wet-lab, no human
   subjects studies, no telescope time, no field measurements).
   Stick to **publicly downloadable datasets** the runner can pull
