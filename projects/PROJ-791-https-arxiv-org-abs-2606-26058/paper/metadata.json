@@ -1,0 +1,49 @@
+{
+  "arxiv_id": "2606.26058",
+  "arxiv_url": "https://arxiv.org/abs/2606.26058",
+  "title": "https://arxiv.org/abs/2606.26058",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #369",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/HKUST-C4G/DomainShuttle"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "assets",
+    "assets/logo-c4g.pdf",
+    "assets/logo-c4g.png",
+    "assets/logo-yb.png",
+    "assets/logo.pdf",
+    "figures",
+    "figures/ablation_study_2.pdf",
+    "figures/model_overview.png",
+    "figures/nano_clip_pipeline.pdf",
+    "figures/teaser.png",
+    "figures/user_study_2.png",
+    "figures/visual_case_1.pdf",
+    "figures/visual_case_2_changed.pdf",
+    "figures/visual_case_3.pdf",
+    "figures/visual_case_5.pdf",
+    "figures/visual_case_6.pdf",
+    "paper.bbl",
+    "paper.tex",
+    "reference.bib",
+    "sections",
+    "sections/0abstract.tex",
+    "sections/1introduction.tex",
+    "sections/2related.tex",
+    "sections/3method.tex",
+    "sections/4exp.tex",
+    "sections/5conclusion.tex",
+    "sections/7appendix.tex",
+    "unifiedreward.cls"
+  ]
+}

@@ -1,0 +1,17 @@
+\section{Related Work}
+
+\subsection{Video Foundation Model}
+
+Video diffusion models have attracted substantial attention in academia and industry in recent years, profoundly advancing video creation. Early approaches \cite{ho2022video, svd,guo2024animatediff} are mainly based on UNet, augmenting image diffusion models with temporal modules to synthesize videos. With the advent of the DiT architecture \cite{DiT}, visual generative models have scaled in both capacity and capability. Currently, an increasing number of video diffusion models adopt DiT to further improve generation quality and controllability, such as CogVideoX \cite{yang2024cogvideox}, HuanyuanVideo \cite{kong2024hunyuanvideo}, Seedance \cite{chen2025seedance}, and the Wan series \cite{wan2025wan}. As the base models of video diffusion improve, application scenarios\cite{phantom,hunyuancustom,chen2025humo,ye2026unified,ye2026visual,cai2026foundation,ye2025stylemaster,yang2025infinitetalk,ditto1m,insvie,reco} for video generation are becoming increasingly diverse, such as subject-driven video generation \cite{phantom,hunyuancustom,chen2025humo}, audio-visual generation \cite{chen2025humo,yang2025infinitetalk}, and reference video-based video editing \cite{ditto1m,insvie,reco}. 
+
+
+\subsection{Subject-driven Video Generation}
+
+Subject-driven text-to-video generation aims to synthesize videos based on user-provided reference images by preserving specified subject features (\eg, identity, domain semantics, style, and attribute features) under textual guidance. Early studies \cite{ID-Animator, ConsisID, PersonalVideo, MagicID} primarily focus on human-centered single-identity generation. Recent research \cite{phantom,chen2025humo,deng2026magref,chen2025first,li2026bindweave,hunyuancustom,fei2025skyreels,deng2025cinema, ConceptMaster, VideoAlchemist} has shifted towards more general scenarios, focusing on multi-subject video personalization (\eg, human, object, and background). Phantom \cite{phantom} proposes a dynamic injection scheme to support the generation of multiple subjects. Some studies \cite{chen2025humo,deng2026magref,chen2025first} leverage the inherent subject-preserving capabilities of I2V models to achieve multi-subject preservation more quickly, but this approach often suffers from copy-paste issues. Several studies \cite{li2026bindweave,hunyuancustom,deng2025cinema} incorporate features from multimodal large language models (MLLM) to enhance the understanding of spatiotemporal instructions. However, existing methods only consider maintaining identity fidelity while neglecting the preservation of the inherent flexible cross-domain capabilities of base models, which weakens the flexibility and creative potential in complex open-domain scenarios. Based on this, we seek to effectively preserve open-domain generation capabilities while ensuring high identity fidelity in this work.
+
+
+\begin{figure*}[t]
+    \includegraphics[width=0.98\linewidth]{figures/model_overview.png}
+    \caption{Overview of \textit{DomainShuttle}. (a) The reference images and videos are injected into the decoupled branches of Domain-MoT, facilitating domain-aware AdaLN guidance in the reference branch. (b)  Video-Reference DualRoPE disentangles the RoPE spaces of reference images and videos for precise subject-level spatial distance relationships. (c) Cross-Pair Consistent Loss aligns the features of two sets of reference images, enabling the model to learn intrinsic subject features rather than redundant features.}
+    \label{fig:method_overview}
+\end{figure*}

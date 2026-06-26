@@ -1,0 +1,122 @@
+\documentclass[]{unifiedreward}
+\usepackage{fix-cm}
+\usepackage{helvet}           
+
+\usepackage{nicefrac}         
+\usepackage{siunitx}         
+
+\usepackage{longtable}
+\usepackage{booktabs}
+
+\usepackage{tabularx}         
+\usepackage{array}           
+\usepackage{makecell}         
+\usepackage{threeparttable}  
+\usepackage{xspace}
+
+\usepackage{wrapfig}          
+\usepackage{float}            
+\usepackage[export]{adjustbox}
+
+
+\usepackage{tikz}             
+\usepackage{pgfplots}         
+\usepackage{pgf-pie}          
+
+
+\usepackage{listings}        
+\usepackage{ragged2e}        
+\usepackage{comment}          
+
+
+\usepackage{pifont}           
+\usepackage{fontawesome}      
+
+
+\usepackage{enumitem}        
+\usepackage{titletoc}         
+\usepackage{minitoc}          
+\usepackage[toc,page,header]{appendix}  
+
+
+\usepackage{url}              
+\usepackage[hang,flushmargin]{footmisc}  
+\pgfplotsset{compat=1.18}
+
+\usepackage{amsmath} % 加载数学宏包（多数论文已加载）
+\newcommand{\eg}{\textit{e.g.}\xspace} % 定义\eg命令
+\newcommand{\ie}{\textit{i.e.}\xspace}
+
+\definecolor{lightblue}{RGB}{200, 230, 255}  
+\definecolor{headerblue}{RGB}{150, 200, 255}
+
+
+\newcommand{\maxbold}[1]{\textbf{#1}}
+\newcounter{examplebox}
+\renewcommand{\theexamplebox}{\arabic{examplebox}}
+\makeatletter
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+\makeatother
+% ============================================================
+
+\title{
+   \textit{DomainShuttle}: Freeform Open Domain Subject-driven Text-to-video Generation
+}
+
+
+\author{
+    Nan Chen\textsuperscript{*}, 
+    Yiyang Cai\textsuperscript{*},   
+    Rongchang Xie,
+    Junwen Pan, 
+    Cheng Chen,
+    Weinan Jia, \\
+    Zhuowei Chen ,
+    Wen Zhou\textsuperscript{$\ddagger$},
+     Zhenbang Sun,
+     Wenhan Luo\textsuperscript{$\dagger$}
+}
+
+\affiliation[1]{\mbox{Hong Kong University of Science and Technology}}
+
+
+\newcommand{\ourmethod}{{\textsc {UnifiedReward-Flex}}\xspace}
+
+\abstract{\input{sections/0abstract}
+}
+
+% \correspondence{\email{mingzhang23@m.fudan.edu.cn},  \email{qz@fudan.edu.cn}}
+\checkdata[Website]{\url{https://cn-makers.github.io/DomainShuttle/}}
+\checkdata[Code]{\url{https://github.com/HKUST-C4G/DomainShuttle}}
+
+\begin{document}
+\maketitle
+
+\blfootnote{$^\dagger$ Corresponding Authors.}
+\blfootnote{$\ddagger$ Project Leader.}
+\blfootnote{\textsuperscript{*} Equal Contribution.}
+
+
+\input{sections/1introduction}
+\input{sections/2related}
+\input{sections/3method}
+\input{sections/4exp}
+\input{sections/5conclusion}
+
+% \input{sections/5conclusion}
+
+\bibliographystyle{unsrtnat}
+\bibliography{reference}
+
+
+\clearpage
+\beginappendix
+
+\input{sections/7appendix}
+
+\end{document}

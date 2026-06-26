@@ -1,0 +1,282 @@
+\begin{thebibliography}{53}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Achiam et~al.(2023)Achiam, Adler, Agarwal, Ahmad, Akkaya, Aleman, Almeida, Altenschmidt, Altman, Anadkat, et~al.]{achiam2023gpt}
+Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ahmad, Ilge Akkaya, Florencia~Leoni Aleman, Diogo Almeida, Janko Altenschmidt, Sam Altman, Shyamal Anadkat, et~al.
+\newblock Gpt-4 technical report.
+\newblock \emph{arXiv preprint arXiv:2303.08774}, 2023.
+
+\bibitem[Alayrac et~al.(2022)Alayrac, Donahue, Luc, Miech, Barr, Hasson, Lenc, Mensch, Millican, Reynolds, et~al.]{alayrac2022flamingo}
+Jean-Baptiste Alayrac, Jeff Donahue, Pauline Luc, Antoine Miech, Iain Barr, Yana Hasson, Karel Lenc, Arthur Mensch, Katherine Millican, Malcolm Reynolds, et~al.
+\newblock Flamingo: a visual language model for few-shot learning.
+\newblock \emph{Advances in neural information processing systems}, 35:\penalty0 23716--23736, 2022.
+
+\bibitem[Bai et~al.(2023)Bai, Bai, Yang, Wang, Tan, Wang, Lin, Zhou, and Zhou]{bai2023qwenvlversatilevisionlanguagemodel}
+Jinze Bai, Shuai Bai, Shusheng Yang, Shijie Wang, Sinan Tan, Peng Wang, Junyang Lin, Chang Zhou, and Jingren Zhou.
+\newblock Qwen-vl: A versatile vision-language model for understanding, localization, text reading, and beyond, 2023.
+\newblock URL \url{https://arxiv.org/abs/2308.12966}.
+
+\bibitem[Bai et~al.(2025)Bai, Cai, Chen, Chen, Chen, Cheng, Deng, Ding, Gao, Ge, et~al.]{bai2025qwen3}
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang Gao, Chunjiang Ge, et~al.
+\newblock Qwen3-vl technical report.
+\newblock \emph{arXiv preprint arXiv:2511.21631}, 2025.
+
+\bibitem[Cao et~al.(2025)Cao, Ma, Li, Li, Shao, Zhu, Zhou, Pu, Wu, Wang, et~al.]{cao2025artimuse}
+Shuo Cao, Nan Ma, Jiayang Li, Xiaohui Li, Lihao Shao, Kaiwen Zhu, Yu~Zhou, Yuandong Pu, Jiarui Wu, Jiaquan Wang, et~al.
+\newblock Artimuse: Fine-grained image aesthetics assessment with joint scoring and expert-level understanding.
+\newblock \emph{arXiv preprint arXiv:2507.14533}, 2025.
+
+\bibitem[Chen et~al.(2023)Chen, Jiang, Liu, Huang, Fu, Chen, and Yu]{chen2023executing}
+Xin Chen, Biao Jiang, Wen Liu, Zilong Huang, Bin Fu, Tao Chen, and Gang Yu.
+\newblock Executing your commands via motion diffusion in latent space.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pp.\  18000--18010, 2023.
+
+\bibitem[Chen et~al.(2017)Chen, Huang, Chang, Tsai, Chen, and Chen]{chen2017quantitative}
+Yi-Ling Chen, Tzu-Wei Huang, Kai-Han Chang, Yu-Chen Tsai, Hwann-Tzong Chen, and Bing-Yu Chen.
+\newblock Quantitative analysis of automatic image cropping algorithms: A dataset and comparative study.
+\newblock In \emph{2017 IEEE winter conference on applications of computer vision (WACV)}, pp.\  226--234. IEEE, 2017.
+
+\bibitem[Dai et~al.(2023)Dai, Li, Li, Tiong, Zhao, Wang, Li, Fung, and Hoi]{dai2023instructblip}
+Wenliang Dai, Junnan Li, Dongxu Li, Anthony Tiong, Junqi Zhao, Weisheng Wang, Boyang Li, Pascale~N Fung, and Steven Hoi.
+\newblock Instructblip: Towards general-purpose vision-language models with instruction tuning.
+\newblock \emph{Advances in neural information processing systems}, 36:\penalty0 49250--49267, 2023.
+
+\bibitem[Du et~al.(2026)Du, He, and Peng]{du2026venus}
+Tianxiang Du, Hulingxiao He, and Yuxin Peng.
+\newblock Venus: Benchmarking and empowering multimodal large language models for aesthetic guidance and cropping.
+\newblock \emph{arXiv preprint arXiv:2602.23980}, 2026.
+
+\bibitem[Fang et~al.(2014)Fang, Lin, Mech, and Shen]{fang2014automatic}
+Chen Fang, Zhe Lin, Radomir Mech, and Xiaohui Shen.
+\newblock Automatic image cropping using visual composition, boundary simplicity and content preservation models.
+\newblock In \emph{Proceedings of the 22nd ACM international conference on Multimedia}, pp.\  1105--1108, 2014.
+
+\bibitem[{Google}(2025{\natexlab{a}})]{google2025gemini3}
+{Google}.
+\newblock {Gemini 3}.
+\newblock \url{https://blog.google/products-and-platforms/products/gemini/gemini-3/}, 2025{\natexlab{a}}.
+\newblock Accessed: 2026-06-14.
+
+\bibitem[{Google}(2025{\natexlab{b}})]{google2025gemini3flash}
+{Google}.
+\newblock {Gemini 3 Flash}.
+\newblock \url{https://blog.google/products-and-platforms/products/gemini/gemini-3-flash/}, 2025{\natexlab{b}}.
+\newblock Accessed: 2026-06-14.
+
+\bibitem[{Google}(2025{\natexlab{c}})]{google_nanobananapro}
+{Google}.
+\newblock {Nano Banana Pro}.
+\newblock \url{https://blog.google/innovation-and-ai/products/nano-banana-pro/}, 2025{\natexlab{c}}.
+\newblock Accessed: 2026-06-14.
+
+\bibitem[{Google}(2026{\natexlab{a}})]{google2026gemini31pro}
+{Google}.
+\newblock {Gemini 3.1 Pro}.
+\newblock \url{https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro}, 2026{\natexlab{a}}.
+\newblock Accessed: 2026-06-14.
+
+\bibitem[{Google}(2026{\natexlab{b}})]{google2026gemini35flash}
+{Google}.
+\newblock {Gemini 3.5 Flash}.
+\newblock \url{https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5/\#gemini-3-5-flash}, 2026{\natexlab{b}}.
+\newblock Accessed: 2026-06-14.
+
+\bibitem[Guo et~al.(2024)Guo, Mu, Javed, Wang, and Cheng]{guo2024momask}
+Chuan Guo, Yuxuan Mu, Muhammad~Gohar Javed, Sen Wang, and Li~Cheng.
+\newblock Momask: Generative masked modeling of 3d human motions.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pp.\  1900--1910, 2024.
+
+\bibitem[Hong et~al.(2021)Hong, Du, Xian, Lu, Cao, and Zhong]{hong2021composing}
+Chaoyi Hong, Shuaiyuan Du, Ke~Xian, Hao Lu, Zhiguo Cao, and Weicai Zhong.
+\newblock Composing photos like a photographer.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pp.\  7057--7066, 2021.
+
+\bibitem[Hong et~al.(2024)Hong, Yuan, Gharbi, Fisher, and Fatahalian]{hong2024learning}
+James Hong, Lu~Yuan, Micha{\"e}l Gharbi, Matthew Fisher, and Kayvon Fatahalian.
+\newblock Learning subject-aware cropping by outpainting professional photos.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial Intelligence}, pp.\  2175--2183, 2024.
+
+\bibitem[Huang et~al.(2024{\natexlab{a}})Huang, Li, Chen, Wu, Lin, and Shi]{huang2024multi}
+Yipo Huang, Leida Li, Pengfei Chen, Haoning Wu, Weisi Lin, and Guangming Shi.
+\newblock Multi-modality multi-attribute contrastive pre-training for image aesthetics computing.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine Intelligence}, 47\penalty0 (2):\penalty0 1205--1218, 2024{\natexlab{a}}.
+
+\bibitem[Huang et~al.(2024{\natexlab{b}})Huang, Sheng, Yang, Yuan, Duan, Chen, Li, Lin, and Shi]{huang2024aesexpert}
+Yipo Huang, Xiangfei Sheng, Zhichao Yang, Quan Yuan, Zhichao Duan, Pengfei Chen, Leida Li, Weisi Lin, and Guangming Shi.
+\newblock Aesexpert: Towards multi-modality foundation model for image aesthetics perception.
+\newblock In \emph{Proceedings of the 32nd ACM International Conference on Multimedia}, pp.\  5911--5920, 2024{\natexlab{b}}.
+
+\bibitem[Jiang et~al.(2023)Jiang, Chen, Liu, Yu, Yu, and Chen]{jiang2023motiongpt}
+Biao Jiang, Xin Chen, Wen Liu, Jingyi Yu, Gang Yu, and Tao Chen.
+\newblock Motiongpt: Human motion as a foreign language.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:\penalty0 20067--20079, 2023.
+
+\bibitem[Jocher et~al.(2026)Jocher, Qiu, Liu, Lyu, Akyon, and Kalfaoglu]{jocher2026ultralyticsyolo26unifiedrealtime}
+Glenn Jocher, Jing Qiu, Mengyu Liu, Shuai Lyu, Fatih~Cagatay Akyon, and Muhammet~Esat Kalfaoglu.
+\newblock Ultralytics yolo26: Unified real-time end-to-end vision models, 2026.
+\newblock URL \url{https://arxiv.org/abs/2606.03748}.
+
+\bibitem[Kwon et~al.(2023)Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez, Zhang, and Stoica]{kwon2023efficient}
+Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody~Hao Yu, Joseph Gonzalez, Hao Zhang, and Ion Stoica.
+\newblock Efficient memory management for large language model serving with pagedattention.
+\newblock In \emph{Proceedings of the 29th symposium on operating systems principles}, pp.\  611--626, 2023.
+
+\bibitem[Li et~al.(2023)Li, Li, Savarese, and Hoi]{li2023blip}
+Junnan Li, Dongxu Li, Silvio Savarese, and Steven Hoi.
+\newblock Blip-2: Bootstrapping language-image pre-training with frozen image encoders and large language models.
+\newblock In \emph{International conference on machine learning}, pp.\  19730--19742. PMLR, 2023.
+
+\bibitem[Lin et~al.(2014)Lin, Maire, Belongie, Hays, Perona, Ramanan, Doll{\'a}r, and Zitnick]{lin2014microsoft}
+Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Doll{\'a}r, and C~Lawrence Zitnick.
+\newblock Microsoft coco: Common objects in context.
+\newblock In \emph{European conference on computer vision}, pp.\  740--755. Springer, 2014.
+
+\bibitem[Liu et~al.(2023{\natexlab{a}})Liu, Li, Wu, and Lee]{liu2023visual}
+Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong~Jae Lee.
+\newblock Visual instruction tuning.
+\newblock \emph{Advances in neural information processing systems}, 36:\penalty0 34892--34916, 2023{\natexlab{a}}.
+
+\bibitem[Liu et~al.(2023{\natexlab{b}})Liu, Liu, Li, Liu, Wang, Lei, and Zuo]{liu2023beyond}
+Xiaoyu Liu, Ming Liu, Junyi Li, Shuai Liu, Xiaotao Wang, Lei Lei, and Wangmeng Zuo.
+\newblock Beyond image borders: Learning feature extrapolation for unbounded image composition.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, pp.\  13023--13032, 2023{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2025)Liu, Liu, Gao, Jiang, Zhang, Chen, and Li]{liu2025advancing}
+Yuti Liu, Shice Liu, Junyuan Gao, Peng-tao Jiang, Hao Zhang, Jinwei Chen, and Bo~Li.
+\newblock Advancing comprehensive aesthetic insight with multi-scale text-guided self-supervised learning.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial Intelligence}, pp.\  5748--5756, 2025.
+
+\bibitem[{Moonshot AI}(2025)]{moonshotai2025kimik26}
+{Moonshot AI}.
+\newblock {Kimi K2.6: Moonshot AI Technical Blog}.
+\newblock \url{https://www.kimi.com/blog/kimi-k2-6}, 2025.
+\newblock Accessed: 2026-06-14.
+
+\bibitem[Ni et~al.(2013)Ni, Xu, Cheng, Wang, Yan, and Tian]{ni2013learning}
+Bingbing Ni, Mengdi Xu, Bin Cheng, Meng Wang, Shuicheng Yan, and Qi~Tian.
+\newblock Learning to photograph: A compositional perspective.
+\newblock \emph{IEEE Transactions on Multimedia}, 15\penalty0 (5):\penalty0 1138--1151, 2013.
+
+\bibitem[{OpenAI}(2026{\natexlab{a}})]{openai2026gpt54}
+{OpenAI}.
+\newblock {Introducing GPT-5.4}.
+\newblock \url{https://openai.com/index/introducing-gpt-5-4/}, 2026{\natexlab{a}}.
+\newblock Accessed: 2026-06-14.
+
+\bibitem[{OpenAI}(2026{\natexlab{b}})]{openai2026gpt55}
+{OpenAI}.
+\newblock {Introducing GPT-5.5}.
+\newblock \url{https://openai.com/index/introducing-gpt-5-5/}, 2026{\natexlab{b}}.
+\newblock Accessed: 2026-06-14.
+
+\bibitem[{OpenAI}(2026{\natexlab{c}})]{openai_chatgptimages20}
+{OpenAI}.
+\newblock {Introducing ChatGPT Images 2.0}.
+\newblock \url{https://openai.com/index/introducing-chatgpt-images-2-0/}, 2026{\natexlab{c}}.
+\newblock Accessed: 2026-06-14.
+
+\bibitem[Pan et~al.(2021)Pan, Xian, Lu, and Cao]{pan2021robust}
+Zhiyu Pan, Ke~Xian, Hao Lu, and Zhiguo Cao.
+\newblock Robust image cropping by filtering composition irrelevant factors.
+\newblock In \emph{International Conference on Image and Graphics}, pp.\  277--289. Springer, 2021.
+
+\bibitem[Qi et~al.(2025)Qi, Zhao, Shi, Jenni, Fan, Dernoncourt, Cohen, and Li]{qi2025photographer}
+Daiqing Qi, Handong Zhao, Jing Shi, Simon Jenni, Yifei Fan, Franck Dernoncourt, Scott Cohen, and Sheng Li.
+\newblock The photographer's eye: Teaching multimodal large language models to see, and critique like photographers.
+\newblock In \emph{Proceedings of the Computer Vision and Pattern Recognition Conference}, pp.\  24807--24816, 2025.
+
+\bibitem[{Qwen Team}(2026)]{qwen36_27b}
+{Qwen Team}.
+\newblock {Qwen3.6-27B}: Flagship-level coding in a 27b dense model, April 2026.
+\newblock URL \url{https://qwen.ai/blog?id=qwen3.6-27b}.
+
+\bibitem[Sheng et~al.(2025)Sheng, Xie, Zou, Chen, Zhu, and Li]{sheng2025instructcrop}
+Xiangfei Sheng, Pangu Xie, Weidong Zou, Pengfei Chen, Tong Zhu, and Leida Li.
+\newblock Instructcrop: Teaching multimodal large language models to crop aesthetic images.
+\newblock In \emph{Proceedings of the 33rd ACM International Conference on Multimedia}, pp.\  6830--6839, 2025.
+
+\bibitem[Su et~al.(2024)Su, Cao, Deng, Rao, and Wu]{su2024spatial}
+Yukun Su, Yiwen Cao, Jingliang Deng, Fengyun Rao, and Qingyao Wu.
+\newblock Spatial-semantic collaborative cropping for user generated content.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial Intelligence}, pp.\  4988--4997, 2024.
+
+\bibitem[Team et~al.(2023)Team, Anil, Borgeaud, Alayrac, Yu, Soricut, Schalkwyk, Dai, Hauth, Millican, et~al.]{team2023gemini}
+Gemini Team, Rohan Anil, Sebastian Borgeaud, Jean-Baptiste Alayrac, Jiahui Yu, Radu Soricut, Johan Schalkwyk, Andrew~M Dai, Anja Hauth, Katie Millican, et~al.
+\newblock Gemini: a family of highly capable multimodal models.
+\newblock \emph{arXiv preprint arXiv:2312.11805}, 2023.
+
+\bibitem[Team(2026)]{qwen35blog}
+Qwen Team.
+\newblock Qwen3.5: Accelerating productivity with native multimodal agents, February 2026.
+\newblock URL \url{https://qwen.ai/blog?id=qwen3.5}.
+
+\bibitem[Tevet et~al.(2022)Tevet, Raab, Gordon, Shafir, Cohen-Or, and Bermano]{tevet2022human}
+Guy Tevet, Sigal Raab, Brian Gordon, Yonatan Shafir, Daniel Cohen-Or, and Amit~H Bermano.
+\newblock Human motion diffusion model.
+\newblock \emph{arXiv preprint arXiv:2209.14916}, 2022.
+
+\bibitem[Wang et~al.(2025)Wang, Gao, Gu, Pu, Cui, Wei, Liu, Jing, Ye, Shao, et~al.]{wang2025internvl3}
+Weiyun Wang, Zhangwei Gao, Lixin Gu, Hengjun Pu, Long Cui, Xingguang Wei, Zhaoyang Liu, Linglin Jing, Shenglong Ye, Jie Shao, et~al.
+\newblock Internvl3. 5: Advancing open-source multimodal models in versatility, reasoning, and efficiency.
+\newblock \emph{arXiv preprint arXiv:2508.18265}, 2025.
+
+\bibitem[Wei et~al.(2018)Wei, Zhang, Shen, Lin, Mech, Hoai, and Samaras]{wei2018good}
+Zijun Wei, Jianming Zhang, Xiaohui Shen, Zhe Lin, Radomir Mech, Minh Hoai, and Dimitris Samaras.
+\newblock Good view hunting: Learning photo composition from dense view pairs.
+\newblock In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, pp.\  5437--5446, 2018.
+
+\bibitem[Wu et~al.(2023)Wu, Zhang, Zhang, Chen, Liao, Li, Gao, Wang, Zhang, Sun, et~al.]{wu2023q}
+Haoning Wu, Zicheng Zhang, Weixia Zhang, Chaofeng Chen, Liang Liao, Chunyi Li, Yixuan Gao, Annan Wang, Erli Zhang, Wenxiu Sun, et~al.
+\newblock Q-align: Teaching lmms for visual scoring via discrete text-defined levels.
+\newblock \emph{arXiv preprint arXiv:2312.17090}, 2023.
+
+\bibitem[Yan et~al.(2013)Yan, Lin, Bing~Kang, and Tang]{yan2013learning}
+Jianzhou Yan, Stephen Lin, Sing Bing~Kang, and Xiaoou Tang.
+\newblock Learning the change for automatic image cropping.
+\newblock In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, pp.\  971--978, 2013.
+
+\bibitem[Yang et~al.(2023)Yang, Zhou, Cai, Zhang, and Zhang]{yang2023focusing}
+Guo-Ye Yang, Wen-Yang Zhou, Yun Cai, Song-Hai Zhang, and Fang-Lue Zhang.
+\newblock Focusing on your subject: Deep subject-aware image composition recommendation networks.
+\newblock \emph{Computational Visual Media}, 9\penalty0 (1):\penalty0 87--107, 2023.
+
+\bibitem[Zeng et~al.(2019)Zeng, Li, Cao, and Zhang]{zeng2019reliable}
+Hui Zeng, Lida Li, Zisheng Cao, and Lei Zhang.
+\newblock Reliable and efficient image cropping: A grid anchor based approach.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pp.\  5949--5957, 2019.
+
+\bibitem[Zhang et~al.(2022)Zhang, Niu, Zhao, and Zhang]{zhang2022human}
+Bo~Zhang, Li~Niu, Xing Zhao, and Liqing Zhang.
+\newblock Human-centric image cropping with partition-aware and content-preserving features.
+\newblock In \emph{European Conference on Computer Vision}, pp.\  181--197. Springer, 2022.
+
+\bibitem[Zhang et~al.(2023{\natexlab{a}})Zhang, Zhang, Cun, Zhang, Zhao, Lu, Shen, and Shan]{zhang2023generating}
+Jianrong Zhang, Yangsong Zhang, Xiaodong Cun, Yong Zhang, Hongwei Zhao, Hongtao Lu, Xi~Shen, and Ying Shan.
+\newblock Generating human motion from textual descriptions with discrete representations.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pp.\  14730--14740, 2023{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2026)Zhang, Ding, Jiang, Chen, Zharkov, Patel, and Liang]{zhang2026procrop}
+Ke~Zhang, Tianyu Ding, Jiachen Jiang, Tianyi Chen, Ilya Zharkov, Vishal~M Patel, and Luming Liang.
+\newblock Procrop: Learning aesthetic image cropping from professional compositions.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial Intelligence}, pp.\  12600--12608, 2026.
+
+\bibitem[Zhang et~al.(2023{\natexlab{b}})Zhang, Li, Cai, Ren, Yang, and Liu]{zhang2023finemogen}
+Mingyuan Zhang, Huirong Li, Zhongang Cai, Jiawei Ren, Lei Yang, and Ziwei Liu.
+\newblock Finemogen: Fine-grained spatio-temporal motion generation and editing.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:\penalty0 13981--13992, 2023{\natexlab{b}}.
+
+\bibitem[Zheng et~al.(2024)Zheng, Gao, Fan, Liu, Laaksonen, Ouyang, and Sebe]{zheng2024bilateral}
+Peng Zheng, Dehong Gao, Deng-Ping Fan, Li~Liu, Jorma Laaksonen, Wanli Ouyang, and Nicu Sebe.
+\newblock Bilateral reference for high-resolution dichotomous image segmentation.
+\newblock \emph{arXiv preprint arXiv:2401.03407}, 2024.
+
+\bibitem[Zhu et~al.(2024)Zhu, Shen, Li, Elhoseiny, et~al.]{zhu2024minigpt}
+Deyao Zhu, Xiaoqian Shen, Xiang Li, Mohamed Elhoseiny, et~al.
+\newblock Minigpt-4: Enhancing vision-language understanding with advanced large language models.
+\newblock In \emph{International Conference on Learning Representations}, volume 2024, pp.\  18378--18394, 2024.
+
+\end{thebibliography}

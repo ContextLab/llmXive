@@ -1,0 +1,37 @@
+\section{Introduction}
+
+Subject-driven video generation (S2V) is an important task in video generation, with broad applications in advertising, creative design, and AI filmmaking. These diverse applications require S2V to acquire ``open-domain'' capabilities, which can precisely extract subject features from reference images and flexibly generate videos regardless of domain types. Specifically, given reference images of subjects  (\eg, humans, objects, fantasy IPs, and backgrounds), the open-domain S2V model can retain the original appearance of these subjects in in-domain videos, as shown on the left of Fig. \ref{fig:teaser}, or flexibly transform them into cross-domain videos while preserving their intrinsic subject features, as shown on the right of Fig. \ref{fig:teaser}. The key challenge of open-domain S2V lies in how to achieve flexible and consistent subject generation across both in-domain and cross-domain scenarios while precisely preserving their distinctive subject features, rather than just mimicking reference images.
+
+
+
+\begin{figure*}[t]
+    \includegraphics[width=0.98\linewidth]{figures/teaser.png}
+    \caption{\textit{DomainShuttle} demonstrates strong performance in both in-domain and cross-domain scenarios. Existing S2V methods typically focus on in-domain scenarios, with limited effectiveness in cross-domain scenarios. In contrast, \textit{DomainShuttle} can achieve high subject consistency and flexible generation in both scenarios.}
+    \label{fig:teaser}
+\end{figure*}
+
+
+
+Existing S2V studies primarily aim to improve subject fidelity in in-domain scenarios, \ie, preserving as many subject features as possible without altering their attributes or style. In-domain examples are shown on the left of Fig. \ref{fig:teaser}. Early studies \cite{ID-Animator, ConsisID, PersonalVideo, MagicID} investigate identity preservation for single-subject S2V. With the emergence of numerous personalized datasets, recent studies have shifted towards multi-subject S2V. Phantom \cite{phantom} and VACE \cite{vace} design novel reference feature injection schemes to improve multi-subject fidelity. Some methods \cite{chen2025humo,deng2026magref,chen2025first} leverage image-to-video (I2V) models for strong subject fidelity priors. Additionally, some studies \cite{li2026bindweave,hunyuancustom,deng2025cinema} utilize multimodal large language models to enhance subject fidelity in in-domain scenarios. In summary, existing methods mainly focus on improving subject fidelity in in-domain scenarios.
+
+
+
+However, existing methods usually neglect more diverse and creative cross-domain scenarios. Such cross-domain scenarios involve generating real-world subjects in different fantasy domains, mapping fantasy domain subjects to various real-world objects, and constructing complex interactions between real-world subjects and fantastic subjects, as shown on the right of Fig. \ref{fig:teaser}. Restricting modeling to in-domain scenarios sacrifices a certain degree of editability and flexibility in complex scenarios, making it difficult for models to simultaneously preserve subject consistency and flexible adaptability to new styles, semantic combinations, and domain attributes in cross-domain scenarios. As a result, the generalization and creative potential of existing methods in open domain scenarios are limited to some extent.
+
+
+We propose that an ideal S2V method could freely \textbf{shuttle} between different domains, which should achieve a dual optimization of high fidelity of the reference subject and generation flexibility in open-domain scenarios (including in-domain and cross-domain). Specifically, subject features of the reference images should only affect intrinsic subject attributes in the generated video (\eg, hairstyle, skin color, and clothing), while the subject-irrelevant features (\eg, lighting, style, and domain attributes) should flexibly adapt according to the text instructions.
+
+
+
+
+
+Based on the above analysis, we propose a novel S2V framework, \textit{\textbf{DomainShuttle}}, which achieves joint optimization of subject consistency and generation flexibility by designing independent information processing paths for video and reference branches, along with additional domain-aware modeling in the reference image branch. \textit{DomainShuttle} includes three key components: (1) \textbf{DomainMoT} (Mixture-of-Transformers), which aims to decouple videos and reference features to facilitate domain-aware reference modeling; (2) \textbf{Video-Reference DualRoPE}, which assigns reference image tokens to a separate RoPE space from video tokens, enabling precise subject-level spatial distance relationships; and (3) \textbf{Cross-Pair Consistent Loss}, which aims to extract intrinsic subject features unaffected by irrelevant features. Specifically, DomainMoT introduces an independent attention mapping pathway for reference image features within the in-context self-attention to effectively disentangle them from video features, and further introduces a domain-aware AdaLN to distinguish different domains in the reference feature space. Furthermore, Video-Reference DualRoPE assigns reference image tokens to a separate RoPE space independent of the video, enabling precise subject-level control by explicitly separating different subjects in the latent space while pulling representations of the same subject closer together. Cross-Pair Consistent Loss aligns two sets of reference images corresponding to the same video to better capture the intrinsic subject features, which are unaffected by irrelevant features such as lighting, composition, or style. We conduct comprehensive evaluations in both in-domain and cross-domain scenarios using video quality, text alignment, and subject consistency metrics. The experimental results show that \textit{DomainShuttle} achieves competitive performance, with a significant 18.7\% improvement in Cross-Domain Score over the SOTA methods.
+
+
+Our main contributions are summarized as follows:
+\begin{itemize}[label=\textbullet]
+    \item  We propose a novel S2V framework termed \textit{DomainShuttle}, which decouples video and reference images into independent branches via the DomainMoT module. Within DomainMoT, the domain-aware AdaLN is introduced to facilitate domain-specific modeling of reference images, thereby enabling high subject fidelity and flexible controllability in open-domain scenarios.
+    \item   Building on DomainMoT, we further design the Video-Reference DualRoPE mechanism to accurately distinguish subject-level spatial distance, and Cross-Pair Consistent Loss to precisely extract the intrinsic subject features.
+    \item   Extensive experiments show that \textit{DomainShuttle} comprehensively outperforms existing methods in terms of subject consistency and text controllability across various complex scenarios, especially achieving an 18.7\% improvement in Cross-Domain Score over the SOTA methods. 
+
+\end{itemize}

@@ -1,0 +1,54 @@
+{
+  "arxiv_id": "2606.25763",
+  "arxiv_url": "https://arxiv.org/abs/2606.25763",
+  "title": "ShutterMuse: Capture-Time Photography Guidance with MLLMs",
+  "authors": [
+    "Jiayu Li",
+    "Yixiao Fang",
+    "Tianyu Hu",
+    "Wei Cheng",
+    "Ping Huang",
+    "Zheheng Fan",
+    "Gang Yu",
+    "Xingjun Ma"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Real-world photography requires capture-time guidance for both camera framing and subject pose. Yet existing aesthetic cropping benchmarks mainly evaluate post-hoc crop prediction and overlook subject-side recommendations, leaving the capture-time guidance capabilities of multimodal large language models (MLLMs) underexplored. To address this gap, we introduce CaptureGuide-Bench, a benchmark with two complementary tasks: photographer-side composition decision and refinement, and subject-side scene-conditioned pose recommendation. Our evaluation reveals limitations: general-purpose MLLMs can make composition decisions but lack precise refinement localization, while specialized aesthetic cropping models localize crops effectively but are limited to refinement; neither provides actionable pose guidance. To support model development, we further construct CaptureGuide-Dataset, comprising 130K samples with textual rationales and structured visual annotations, and develop ShutterMuse, a unified MLLM trained with supervised and reinforcement fine-tuning. Experiments on CaptureGuide-Bench show that ShutterMuse achieves the best overall photographer-side performance among evaluated baselines and competitive subject-side pose recommendation with substantially lower inference cost, demonstrating the potential of MLLMs as interactive assistants for photography during image capture.",
+  "submitted_via": "llmXive dashboard, GitHub issue #371",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/goodfeli/dlbook_notation.",
+    "https://github.com/lijayuTnT/ShutterMuse"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "iclr2026_conference.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "fancyhdr.sty",
+    "Fig",
+    "Fig/Failure_case_Subject_side.pdf",
+    "Fig/Qualitative_comparison_photographer.pdf",
+    "Fig/Qualitative_comparison_subject.pdf",
+    "Fig/ShutterMuse_logo.pdf",
+    "Fig/annotation_guidance.pdf",
+    "Fig/composition_data_construction.pdf",
+    "Fig/data_distribution.pdf",
+    "Fig/github_logo.pdf",
+    "Fig/home_logo.pdf",
+    "Fig/huggingface_logo.pdf",
+    "Fig/pose_data_composition.pdf",
+    "Fig/pose_data_construction.pdf",
+    "Fig/self_distill_iteration_curves.pdf",
+    "Fig/teaser.pdf",
+    "iclr2026_conference.bbl",
+    "iclr2026_conference.bib",
+    "iclr2026_conference.bst",
+    "iclr2026_conference.sty",
+    "iclr2026_conference.tex",
+    "main.bib",
+    "natbib.sty"
+  ]
+}
