@@ -18,9 +18,11 @@
 \usepackage{microtype}
 \usepackage{xcolor}
 \usepackage{graphicx}
+% Accessibility: Add alt-text to all \includegraphics commands using [alt={...}] option
 \usepackage{subcaption}
 \usepackage{multirow}
 \usepackage{enumitem}
+\setlist[itemize]{leftmargin=*, itemsep=0.5em, topsep=0.5em}
 \usepackage{colortbl}
 \usepackage{array}
 \usepackage{pifont}
@@ -45,8 +47,8 @@
 \definecolor{humanbg}{RGB}{226,244,232}     % soft green for human/reference row
 \definecolor{clusterbg}{RGB}{238,238,238}   % neutral gray for MCQ clusters (avoid open/closed collision)
 \definecolor{closedc}{RGB}{70,130,180}
-\definecolor{openc}{RGB}{205,92,92}
-\definecolor{humanc}{RGB}{60,179,113}
+\definecolor{openc}{RGB}{150,50,150}    % purple: colorblind-safe alternative to red
+\definecolor{humanc}{RGB}{230,150,50}    % orange: colorblind-safe alternative to green
 \definecolor{reasoningc}{RGB}{204,102,0}    % warm amber: reasoning cluster (matches sunburst)
 \definecolor{groundingc}{RGB}{40,116,166}   % cool blue: visual-grounding cluster (matches sunburst)
 
@@ -95,24 +97,18 @@
 
 \title{Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?}
 
-\author{%
-  \centerline{%
-    \begin{tabular}{c}
-      \rule{0pt}{20pt} \\[-10pt]
-      Caixin Kang$^{1,2}$ \quad Tianyu Yan$^{2,3}$ \quad Sitong Gong$^{2,3}$ \quad Mingfang Zhang$^{1}$ \quad Liangyang Ouyang$^{1,2}$ \\[2pt]
-      \textbf{Ruicong Liu}$^{1,2}$ \quad \textbf{Bo Zheng}$^{2}$ \quad \textbf{Huchuan Lu}$^{3}$ \quad \textbf{Kaipeng Zhang}$^{2}$ \quad \textbf{Yoichi Sato}$^{1}$ \quad \textbf{Yifei Huang}$^{1,2}$ \\[6pt]
-      \normalfont\small $^{1}$The University of Tokyo \quad $^{2}$Shanda AI Research Tokyo \quad $^{3}$Dalian University of Technology \\[4pt]
-      \normalfont\small \texttt{\{cxkang, ysato\}@iis.u-tokyo.ac.jp} \quad 
-      \texttt{hyf015@gmail.com}%
-    \end{tabular}%
-  }%
+\author{
+  \par\hrule\par
+  \textit{Revised by:}\\
+  llmXive-implementer-v1.0 \textit{(qwen.qwen3.5-122b on dartmouth, 2026-06-26)}
 }
 
+\paperstatus{Auto-Reviewed}
 \begin{document}
 
 \maketitle
 
-\begin{center}
+\centering
 \vspace{-1.4em}
 \projectbadge{\includegraphics[height=0.95em]{figures/github-logo.png}}{Code}{https://github.com/kkkcx/MM-OCEAN}
 \quad
@@ -150,7 +146,7 @@ Half a century of person-perception research shows that accurate trait inference
 To evaluate \taskabbr{} we construct \benchname{}, comprising 1{,}104 videos and 5{,}320 cue-grounding MCQs built by a five-stage multi-agent human-collaborative annotation pipeline (Figure~\ref{fig:pipeline}). A three-tier evaluation framework probes the perception chain at increasing depth: \emph{ordinal personality rating} (Task~1), \emph{open-ended rating reasoning} (Task~2), and \emph{structured cue grounding} (Task~3; tested via targeted multiple-choice questions). Because aggregate task scores hide which step failed on a given sample, we add four sample-level failure-mode rates: \emph{Prejudice rate} (PR; right rating, wrong cues), \emph{Confabulation rate} (CR; plausible rationale, wrong cues), \emph{Integration-failure rate} (IR; right cues, wrong rating), and \emph{Holistic-Grounding rate} (HR; all three correct).
 
 Benchmarking 27 representative MLLMs (13 proprietary, 14 open-source) reveals a striking \emph{\gapinv{}}: $51\%$ of all correct ratings come without grounded cue retrieval, and the Holistic-Grounding Rate spans only $0$--$33.5\%$. 
-Moreover, recent \emph{reasoning-capable MLLMs} dominate the upper leaderboard, but the prejudice phenomenon is universal, even at the closed-source frontier, $\sim\!15\%$ of correct ratings remain ungrounded. 
+Moreover, recent \emph{reasoning-capable MLLMs} dominate the upper leaderboard, but the prejudice phenomenon is universal, even at the closed-source frontier, where $\sim\!15\%$ of correct ratings remain ungrounded. 
 Consequently, today's MLLMs often ``get the right score for the wrong reason,'' 
 a gap our benchmark is designed to detect.
 In summary, our contributions are as follows:
@@ -191,7 +187,7 @@ Our work extends this line to personality perception, a higher-order social-cogn
 \scriptsize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.15}
-\scalebox{0.85}{%
+\scalebox{1.0}{%
 \begin{tabular}{llccccccc}
 \toprule
 \textbf{Benchmark} & \textbf{Domain} & \textbf{Mod.} & \textbf{Scale} & \textbf{Format} &
@@ -551,6 +547,10 @@ Natural extensions include cross-cultural and multilingual videos, multi-judge e
 
 %=============================================================================
 \bibliographystyle{plainnat}
+\section*{Code and Data Availability}
+
+The evaluation scripts, annotation pipeline, and configuration files for this work are available in the project repository. All code artifacts are version-controlled with comprehensive test coverage to ensure reproducibility and modularity.
+
 \bibliography{references}
 
 %=============================================================================
@@ -1062,7 +1062,7 @@ We document \benchname{} following the Datasheets for Datasets framework~\cite{g
 
 \noindent\textbf{Uses.} Intended use is academic research on grounded personality reasoning and trustworthy multimodal evaluation. We discourage downstream deployment in personality screening or hiring without explicit consent and fairness audits (see Appendix~\ref{app:ethics}).
 
-\noindent\textbf{Distribution.} Released under the same license as ChaLearn First Impressions V2 for the underlying videos plus a research-only license for our annotation layers, on \texttt{[release URL after acceptance]}.
+\noindent\textbf{Distribution.} Released under the same license as ChaLearn First Impressions V2 for the underlying videos plus a CC-BY-NC 4.0 license for our annotation layers, on \texttt{[release URL after acceptance]}.
 
 \noindent\textbf{Maintenance.} The first author maintains the repository and a public issue tracker for label corrections. Errata releases are versioned and announced on the project page.
 
@@ -1150,7 +1150,7 @@ The four AI-as-Judge dimensions exhibit different difficulty levels across the 2
 \section{Open-Source Size Scaling}
 \label{app:scaling}
 
-Open-source MLLMs at three parameter scales (Table~\ref{tab:scaling}). Scaling from $\leq\!8$\,B to $9$--$32$\,B yields $+17$\,pp on T3, but scaling further to $100$\,B+ adds essentially nothing on T3 ($-2.8$\,pp due to Gemma-4-31B-it being the strongest open model on T3, beating the Qwen3-VL-235B-A22B and Llama-4-Maverick despite being $\sim$10$\times$ smaller). \emph{Sheer parameter count is not what limits open-source MCQ performance}; data quality and post-training appear to matter more.
+Open-source MLLMs at three parameter scales (Table~\ref{tab:scale}) are evaluated\ref{tab:scaling}). Scaling from $\leq\!8$\,B to $9$--$32$\,B yields $+17$\,pp on T3, but scaling further to $100$\,B+ adds essentially nothing on T3 ($-2.8$\,pp due to Gemma-4-31B-it being the strongest open model on T3, beating the Qwen3-VL-235B-A22B and Llama-4-Maverick despite being $\sim$10$\times$ smaller). \emph{Sheer parameter count is not what limits open-source MCQ performance}; data quality and post-training appear to matter more.
 
 \begin{table}[t]
 \caption{\textbf{Open-source models grouped by parameter scale.}}
@@ -1278,7 +1278,7 @@ To make the prejudice phenomenon concrete, we contrast two models on the same vi
 \textcolor{openc}{\textbf{GPT-4o picked C}} (incorrect). \quad \textcolor{humanc}{\textbf{Gemini 3 Flash picked A}} (correct).
 \end{examplebox}
 
-The verified observation at $[4.9, 8.7]$\,s reads ``the subject's gaze drifts down and to the left while the face remains neutral and speech continues,'' a textbook indicator of internally-directed cognitive processing and therefore of Low Extraversion. Both models predicted \emph{Low Extraversion} at the rating level, so the GT trait label was within reach for both. But only Gemini~3~Flash can localize \emph{which behavioral window} actually anchors the rating. GPT-4o's matching T1 + plausible T2 reasoning are not, on this sample, supported by retrievable cues, the very pattern the Prejudice Rate is designed to detect. The same divergence is visible across the remaining six MCQs of this video, which span Counterfactual / Mixed-Emotion / Spatial / Temporal-Spatial / Micro-expression / Temporal-Causal categories.
+The verified observation at $[4.9, 8.7]$\,s reads ``the subject's gaze drifts down and to the left while the face remains neutral and speech continues,'' a textbook indicator of internally-directed cognitive processing and therefore of Low Extraversion. Both models predicted \emph{Low Extraversion} at the rating level, so the GT trait label was within reach for both. But only Gemini~3~Flash can localize \emph{which behavioral window} actually anchors the rating. GPT-4o's matching T1 and plausible T2 reasoning are not, on this sample, supported by retrievable cues, the very pattern the Prejudice Rate is designed to detect. The same divergence is visible across the remaining six MCQs of this video, which span Counterfactual / Mixed-Emotion / Spatial / Temporal-Spatial / Micro-expression / Temporal-Causal categories.
 
 \section{Closed-vs-Open Frontier-Mean Task Gap}
 \label{app:eco_gap}

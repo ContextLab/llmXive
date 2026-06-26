@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-620-perception-or-prejudice-can-mllms-go-bey/round-2
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?'
-updated_at: '2026-06-26T01:11:54.046325Z'
+updated_at: '2026-06-26T18:34:54.389763Z'
