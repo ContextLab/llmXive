@@ -4,31 +4,28 @@
 
 **Verdict**: pass
 
-The question asks about a biological relationship between metabolite profiles and disease resistance, independent of any specific machine learning architecture or algorithm. The core inquiry targets the predictive power of chemical phenotypes, which is a substantive scientific question.
+The question asks about a substantive biological relationship between constitutive metabolite profiles and genetic disease resistance in plants. The research question is framed around whether pre-challenge chemistry encodes resistance mechanisms, independent of any specific machine learning method. The methodology (Random Forest, cross-validation) appears only in the implementation details, not in the core question itself.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (metabolite abundances) and the predicted variable (resistance scores from infection assays) are derived from distinct measurement modalities (mass spectrometry vs. phenotypic/pathological scoring). They are not both summaries of the same primary signal, so the relationship is not mechanically guaranteed by construction.
+The predictor (constitutive metabolite profiles) is measured via mass-spectrometry-based metabolomics on healthy tissue prior to pathogen exposure. The predicted variable (genetic disease resistance) is determined through separate phenotypic infection assays and breeding records. These are independent measurement modalities with no shared primary signal, avoiding mechanical guarantees of prediction.
 
 ### Triviality check
 
-**Verdict**: fail
+**Verdict**: pass
 
-The timing of metabolite measurement relative to infection is unspecified. If metabolites are measured post-infection, their correlation with resistance is mechanistically expected (defense compounds are part of the resistance response), making the prediction trivial. If measured pre-infection, the question is informative, but the current ambiguity renders the project outcome potentially predetermined.
+A positive result would establish constitutive metabolomics as a viable early-screening biomarker for breeding pipelines, with practical utility. A null result would suggest that disease resistance is not encoded in pre-challenge chemistry (e.g., relies on induced responses or genetic markers alone), which constrains theoretical models of plant defense. Either outcome provides informative scientific conclusions.
 
 ### Question-narrowing check
 
-**Verdict**: fail
+**Verdict**: pass
 
-The question is framed around the constraint "publicly available... datasets" rather than the domain relationship itself. This narrows the scientific inquiry to a data-availability feasibility study (can *these* datasets work?) rather than a generalizable biological question (do metabolites predict resistance?).
+The question names a domain relationship (metabolite profiles → disease resistance across germplasm) rather than implementation constraints. Specific methodological choices (Random Forest, 4-hour runtime, GitHub Actions limits) are relegated to the methodology sketch and do not appear in the research question itself.
 
 ### Overall verdict
 
-**Verdict**: validator_revise
+**Verdict**: validated
 
-[REVISED]
-Do constitutive metabolite profiles measured prior to pathogen challenge predict genetic disease resistance across diverse tomato and wheat germplasm?
-[/REVISED]
-Reframing removes the data-availability constraint from the core question and clarifies the timing (baseline vs. post-infection) to ensure the prediction task is non-trivial and scientifically generalizable.
+All four checks pass. The research question is well-formed, asking about a substantive biological relationship between independent measurements. The question is not fixated on method performance, avoids circularity, and would yield informative results regardless of outcome. The project can proceed to initialization without reframing.

@@ -1,203 +1,234 @@
+#!/usr/bin/env python3
+"""
+Random Forest training for molecular dipole moment prediction.
+
+Trains a Random Forest baseline model on 2D molecular descriptors with
+reproducibility via multiple random seeds.
+
+Output:
+    - data/checkpoints/rf_seed_{N}.pkl (model checkpoints)
+    - results/metrics.csv (performance metrics across seeds)
+"""
+
 from __future__ import annotations
 
 import argparse
 import csv
 import os
+import pickle
 import random
-import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-import joblib
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
-# Import from sibling modules per API surface
-from training.evaluate import mae, rmse
-from utils.reproducibility import set_seed
-
-
-def set_global_seed(seed: int) -> None:
-    """Set global random seed for reproducibility."""
-    set_seed(seed)
+# Import from training module for reproducibility (consistent with train_gnn.py)
+from training.train_gnn import set_global_seed
 
 
 def ensure_data_available() -> bool:
-    """Verify required input data files exist."""
-    features_2d_path = Path("data/processed/features_2d.parquet")
-    molecules_path = Path("data/processed/molecules_10k.parquet")
-
-    if not features_2d_path.exists():
-        print(f"ERROR: Missing {features_2d_path}", file=sys.stderr)
-        return False
-    if not molecules_path.exists():
-        print(f"ERROR: Missing {molecules_path}", file=sys.stderr)
-        return False
-
+    """Verify that required input data files exist."""
+    required_files = [
+        "data/processed/features_2d.parquet",
+    ]
+    
+    for file_path in required_files:
+        if not Path(file_path).exists():
+            print(f"ERROR: Required file not found: {file_path}")
+            return False
+    
     return True
 
 
-def load_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Load 2D features and molecule metadata.
-    Returns features DataFrame and targets (dipole moments) from molecules file.
-    """
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
+    """Load 2D molecular features and dipole moment targets."""
     features_df = pd.read_parquet("data/processed/features_2d.parquet")
-    molecules_df = pd.read_parquet("data/processed/molecules_10k.parquet")
-
-    # Extract target variable (dipole moment magnitude) from molecules
-    # The molecules file contains 'dipole_moment' column
-    if 'dipole_moment' not in molecules_df.columns:
-        raise ValueError(
-            f"molecules_10k.parquet missing 'dipole_moment' column. "
-            f"Available columns: {list(molecules_df.columns)}"
-        )
-
-    # Ensure feature columns are numeric
-    feature_cols = [col for col in features_df.columns if col != 'molecule_id']
+    
+    # Features are all columns except dipole_moment
+    feature_cols = [col for col in features_df.columns if col != "dipole_moment"]
     X = features_df[feature_cols].values
-
-    # Align targets with features using molecule_id
-    # Merge on molecule_id to ensure proper alignment
-    merged = molecules_df.merge(
-        features_df[['molecule_id']],
-        on='molecule_id',
-        how='inner'
-    )
-    y = merged['dipole_moment'].values
-
+    y = features_df["dipole_moment"].values
+    
     return X, y
 
 
-def train_one_seed(seed: int, test_size: float = 0.2) -> Dict:
+def train_one_seed(
+    X: np.ndarray,
+    y: np.ndarray,
+    seed: int,
+    test_size: float = 0.2,
+    n_estimators: int = 100,
+    max_depth: int = 10,
+) -> Tuple[RandomForestRegressor, Dict[str, float]]:
     """
-    Train Random Forest model with given seed.
-
+    Train a Random Forest model with a specific random seed.
+    
     Args:
+        X: Feature matrix (n_samples, n_features)
+        y: Target vector (n_samples,) - dipole moments
         seed: Random seed for reproducibility
-        test_size: Fraction of data to hold out for testing
-
+        test_size: Fraction of data for test set
+        n_estimators: Number of trees in the forest
+        max_depth: Maximum depth of each tree
+        
     Returns:
-        Dictionary with model, metrics, and seed info
+        Tuple of (trained model, metrics dict with 'mae' and 'rmse')
     """
+    # Set seed for reproducibility
     set_global_seed(seed)
-
-    # Load data
-    X, y = load_data()
-
-    # Split data
+    
+    # Split data with stratified sampling if possible
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y,
-        test_size=test_size,
-        random_state=seed,
-        stratify=None  # Regression, no stratification needed
+        X, y, test_size=test_size, random_state=seed
     )
-
+    
     # Train Random Forest
     rf_model = RandomForestRegressor(
-        n_estimators=100,
-        max_depth=10,
-        min_samples_split=5,
-        min_samples_leaf=2,
+        n_estimators=n_estimators,
+        max_depth=max_depth,
         random_state=seed,
-        n_jobs=2  # Respect CPU constraint FR-010
+        n_jobs=-1,
+        verbose=0,
     )
     rf_model.fit(X_train, y_train)
-
-    # Evaluate
+    
+    # Evaluate on test set
     y_pred = rf_model.predict(X_test)
-    mae_score = mae(y_test, y_pred)
-    rmse_score = rmse(y_test, y_pred)
-
-    # Save checkpoint
-    checkpoint_path = Path(f"data/checkpoints/rf_seed_{seed}.pkl")
-    checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(rf_model, checkpoint_path)
-
-    return {
-        'model': 'random_forest',
-        'seed': seed,
-        'mae': mae_score,
-        'rmse': rmse_score,
-        'n_train': len(X_train),
-        'n_test': len(X_test)
+    
+    # Compute metrics
+    mae = np.mean(np.abs(y_test - y_pred))
+    rmse = np.sqrt(np.mean((y_test - y_pred) ** 2))
+    
+    metrics = {
+        "mae": float(mae),
+        "rmse": float(rmse),
     }
+    
+    return rf_model, metrics
 
 
-def write_metrics_csv(metrics_list: List[Dict], output_path: Path) -> None:
-    """
-    Write metrics to CSV with correct column names for downstream consumers.
-
-    Downstream scripts (generate_performance_plots.py, generate_significance.py)
-    expect columns: model, seed, mae, rmse
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=['model', 'seed', 'mae', 'rmse'],
-            extrasaction='ignore'
-        )
+def write_metrics_csv(metrics_list: List[Dict[str, float]], output_path: str) -> None:
+    """Write metrics to CSV file with standard column names."""
+    # Ensure results directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Write with standard column names expected by analysis scripts
+    with open(output_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["seed", "model", "mae", "rmse"])
         writer.writeheader()
         for metrics in metrics_list:
-            writer.writerow(metrics)
+            writer.writerow({
+                "seed": metrics["seed"],
+                "model": "random_forest",
+                "mae": metrics["mae"],
+                "rmse": metrics["rmse"],
+            })
 
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Train Random Forest baseline on molecular dipole moment data"
+        description="Train Random Forest model for dipole moment prediction"
     )
     parser.add_argument(
-        '--seeds',
+        "--seeds",
         type=int,
-        nargs='+',
+        nargs="+",
         default=[42, 123, 456, 789, 1011],
-        help="Random seeds to use (default: 5 seeds)"
+        help="Random seeds to use (default: 5 seeds for reproducibility)",
     )
     parser.add_argument(
-        '--output',
-        type=Path,
-        default=Path("results/metrics.csv"),
-        help="Output path for metrics CSV"
+        "--n-estimators",
+        type=int,
+        default=100,
+        help="Number of trees in Random Forest (default: 100)",
     )
+    parser.add_argument(
+        "--max-depth",
+        type=int,
+        default=10,
+        help="Maximum depth of trees (default: 10)",
+    )
+    parser.add_argument(
+        "--test-size",
+        type=float,
+        default=0.2,
+        help="Test set fraction (default: 0.2)",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/checkpoints",
+        help="Directory for model checkpoints (default: data/checkpoints)",
+    )
+    parser.add_argument(
+        "--metrics-file",
+        type=str,
+        default="results/metrics.csv",
+        help="Output path for metrics CSV (default: results/metrics.csv)",
+    )
+    
     return parser.parse_args()
 
 
 def main() -> None:
-    """Main entry point for Random Forest training pipeline."""
+    """Main entry point for Random Forest training."""
     args = parse_args()
-
-    # Verify data availability
+    
+    print("=" * 60)
+    print("Random Forest Training for Molecular Dipole Moments")
+    print("=" * 60)
+    
+    # Check data availability
     if not ensure_data_available():
-        print("Data availability check failed. Exiting.", file=sys.stderr)
+        print("ERROR: Required data files not found. Exiting.")
         sys.exit(1)
-
-    print(f"Training Random Forest with seeds: {args.seeds}")
-
-    metrics_list = []
+    
+    # Load data
+    print("Loading 2D molecular features...")
+    X, y = load_data()
+    print(f"  Loaded {len(X)} samples with {X.shape[1]} features")
+    
+    # Train for each seed
+    all_metrics = []
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     for seed in args.seeds:
-        print(f"  Training seed {seed}...")
-        try:
-            metrics = train_one_seed(seed)
-            metrics_list.append(metrics)
-            print(f"    MAE: {metrics['mae']:.4f}, RMSE: {metrics['rmse']:.4f}")
-        except Exception as e:
-            print(f"    FAILED: {e}", file=sys.stderr)
-            raise
-
-    # Write metrics CSV with correct column names
-    write_metrics_csv(metrics_list, args.output)
-    print(f"Metrics written to {args.output}")
-
-    # Also save individual seed metrics for checkpoint tracking
-    rf_metrics_path = Path("data/checkpoints/rf_metrics.csv")
-    write_metrics_csv(metrics_list, rf_metrics_path)
-    print(f"Seed metrics written to {rf_metrics_path}")
-
-
-if __name__ == "__main__":
-    main()
+        print(f"\nTraining seed {seed}...")
+        
+        # Train model
+        rf_model, metrics = train_one_seed(
+            X, y, seed,
+            test_size=args.test_size,
+            n_estimators=args.n_estimators,
+            max_depth=args.max_depth,
+        )
+        
+        # Save checkpoint
+        checkpoint_path = output_dir / f"rf_seed_{seed}.pkl"
+        with open(checkpoint_path, "wb") as f:
+            pickle.dump(rf_model, f)
+        print(f"  Saved checkpoint to {checkpoint_path}")
+        
+        # Store metrics
+        metrics["seed"] = seed
+        all_metrics.append(metrics)
+        
+        print(f"  Test MAE: {metrics['mae']:.4f}")
+        print(f"  Test RMSE: {metrics['rmse']:.4f}")
+    
+    # Write metrics CSV to results/ directory (expected by analysis scripts)
+    write_metrics_csv(all_metrics, args.metrics_file)
+    print(f"\nMetrics written to {args.metrics_file}")
+    
+    # Summary
+    print("\n" + "=" * 60)
+    print(f"Completed training for {len(args.seeds)} seeds")
+    print(f"Checkpoints saved to: {output_dir}/")
+    print(f"Metrics saved to: {args.metrics_file}")
+    print("=" * 60)

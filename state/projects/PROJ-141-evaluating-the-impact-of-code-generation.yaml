@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T11:22:08.935448Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-141-evaluating-the-impact-of-code-generation
-last_run_id: 226b1c98-2c69-4b87-8671-c69d4d65a51d
+last_run_id: b7311273-c46e-4e53-8fa4-4b6b744d23fc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation Models on Developer Productivity
-updated_at: '2026-06-26T12:32:25.305045Z'
+updated_at: '2026-06-27T08:06:07.728067Z'

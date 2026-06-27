@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
   "ok": false,
-  "reason": "4 command(s) failed: python code/training/train_rf.py (rc=1); python code/analysis/generate_performance_plots.py (rc=1); python code/analysis/generate_significance.py (rc=1)",
+  "reason": "3 command(s) failed: python code/analysis/generate_performance_plots.py (rc=1); python code/analysis/generate_significance.py (rc=1); python code/generate_summary.py (rc=1)",
   "artifacts": [
     "data/checkpoints/model_seed_0.pt.npy",
     "data/checkpoints/model_seed_1.pt.npy",
@@ -13,11 +13,10 @@
     "data/processed/molecules_10k.parquet"
   ],
   "failures": [
-    "python code/training/train_rf.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py\", line 19, in <module>\n    from utils.reproducibility import set_seed\nModuleNotFoundError: No module named 'utils.reproducibility'",
-    "python code/analysis/generate_performance_plots.py -> rc=1\n     line 138, in generate_plots\n    df = load_metrics(metrics_csv)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py\", line 51, in load_metrics\n    raise ValueError(f\"Metrics CSV missing columns: {missing}\")\nValueError: Metrics CSV missing columns: {'rmse', 'model', 'mae'}",
-    "python code/analysis/generate_significance.py -> rc=1\n    ric_data = _load_metrics(metrics_path)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py\", line 54, in _load_metrics\n    raise ValueError(f\"Metrics CSV missing required columns: {missing}\")\nValueError: Metrics CSV missing required columns: {'model', 'rmse', 'mae'}",
+    "python code/analysis/generate_performance_plots.py -> rc=1\n     line 138, in generate_plots\n    df = load_metrics(metrics_csv)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py\", line 51, in load_metrics\n    raise ValueError(f\"Metrics CSV missing columns: {missing}\")\nValueError: Metrics CSV missing columns: {'mae', 'model', 'rmse'}",
+    "python code/analysis/generate_significance.py -> rc=1\n    ric_data = _load_metrics(metrics_path)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py\", line 54, in _load_metrics\n    raise ValueError(f\"Metrics CSV missing required columns: {missing}\")\nValueError: Metrics CSV missing required columns: {'model', 'mae', 'rmse'}",
     "python code/generate_summary.py -> rc=1\n    ary\n    significance = load_csv_as_dicts(significance_path)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 25, in load_csv_as_dicts\n    raise FileNotFoundError(f\"CSV file not found: {csv_path}\")\nFileNotFoundError: CSV file not found: results/significance.csv"
   ],
-  "fix_rounds": 7,
-  "updated_at": "2026-06-27T06:14:14Z"
+  "fix_rounds": 9,
+  "updated_at": "2026-06-27T08:07:34Z"
 }

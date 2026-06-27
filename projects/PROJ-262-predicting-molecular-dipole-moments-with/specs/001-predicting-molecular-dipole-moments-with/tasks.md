@@ -99,7 +99,7 @@ description: "Task list template for feature implementation"
 - [X] T026 [P] [US2] Implement SchNet-style GNN architecture in `projects/001-predicting-molecular-dipole-moments/code/models/schnet_gnn.py` (FR-004, CPU-only mode)
 - [X] T027 [P] [US2] Implement Random Forest baseline in `projects/001-predicting-molecular-dipole-moments/code/models/random_forest_baseline.py` (FR-005)
 - [X] T028 [US2] Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10) in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py` (FR-005)
-- [ ] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
+- [X] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/001-predicting-molecular-dipole-moments/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
 - [X] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)

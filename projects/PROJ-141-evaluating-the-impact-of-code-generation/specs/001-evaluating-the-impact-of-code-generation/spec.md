@@ -9,17 +9,20 @@
 
 ### User Story 1 - Core Experiment Execution (Priority: P1)
 
-A researcher can execute the controlled within-subject experiment where 30 participants complete coding tasks under two conditions: (a) LLM-assisted and (b) baseline (no assistance). The system presents problems, records timestamps, and streams code submissions to the server.
+A researcher can execute the controlled within-subject experiment where a group of participants complete coding tasks under two conditions: (a) LLM-assisted and (b) baseline (no assistance). The system presents problems, records timestamps, and streams code submissions to the server.
 
 **Why this priority**: This is the foundational functionality—without the experiment running, no data can be collected, and no research question can be answered. All downstream analysis depends on this.
 
-**Independent Test**: Can be fully tested by running the experiment interface with a single participant through both conditions and verifying that timestamps and code are logged correctly.
+**Independent Test**: Can be fully tested by running the experiment interface with a single participant through both conditions and verifying that timestamps, code, consent, and randomization are logged correctly.
 
 **Acceptance Scenarios**:
 
+0. **Given** the study has received IRB/ethics committee approval, **When** a participant begins the experiment, **Then** the system verifies informed consent has been collected and recorded before allowing experiment execution to proceed (See Constitution VII)
 1. **Given** a participant with ≥1 year programming experience has been recruited and assigned to the study, **When** they complete the first coding problem in the LLM-assisted condition, **Then** the system records start_time and end_time in seconds with ≥1 second precision
 2. **Given** a participant has submitted source code for a problem, **When** the submission is received, **Then** the system stores the UTF‑8 source file and logs it with a unique submission ID
 3. **Given** a participant has completed all problems in the LLM-assisted condition, **When** they begin the baseline condition, **Then** the LLM assistant is disabled and the system logs the condition switch
+4. **Given** a participant has been assigned to a condition, **When** randomization is performed, **Then** the system logs the participant ID, condition assignment, and randomization seed for reproducibility
+5. **Given** a participant is assigned to complete problems in both conditions, **When** problem order is determined, **Then** the system applies counterbalancing (Latin square or random order swap) to mitigate carryover effects between LLM-assisted and baseline conditions
 
 ---
 
@@ -53,6 +56,7 @@ A researcher can run statistical analysis comparing LLM-assisted vs baseline con
 1. **Given** a CSV dataset with paired completion times from both conditions for all 30 participants, **When** the statistical analysis is executed, **Then** a paired t-test (or Wilcoxon if non-normal) produces a p-value and Cohen's d effect size
 2. **Given** multiple quality metrics are tested (pass rate, complexity, coverage, warnings), **When** the analysis is executed, **Then** multiple-comparison correction (e.g., Bonferroni or Holm) is applied to control family-wise error rate at α ≤ 0.05
 3. **Given** the analysis is complete, **When** results are exported, **Then** all statistics include 95% confidence intervals with ±0.01 precision
+4. **Given** a time reduction threshold (15-30%) is being evaluated, **When** sensitivity analysis is executed, **Then** the system sweeps absolute diff ∈ {0.01, 0.05, 0.1} and reports coefficient of variation in the effect size estimate across threshold values
 
 ---
 
@@ -78,8 +82,10 @@ A researcher can run statistical analysis comparing LLM-assisted vs baseline con
 - **FR-008**: System MUST perform paired t-tests (or Wilcoxon signed-rank if non-normal) comparing LLM-assisted vs baseline conditions for all metrics (See US-3)
 - **FR-009**: System MUST apply multiple-comparison correction (Bonferroni or Holm) to control family-wise error rate at α ≤ 0.05 when testing >1 hypothesis (See US-3)
 - **FR-010**: System MUST compute effect sizes (Cohen's d) with 95% confidence intervals (±0.01 precision) for all comparisons (See US-3)
-- **FR-011**: System MUST support sensitivity analysis for the 15-30% time reduction threshold by sweeping absolute diff ∈ {0.01, 0.05, 0.1} and reporting how false-positive/false-negative rates vary (See US-3)
+- **FR-011**: System MUST support sensitivity analysis for the 15-30% time reduction threshold by sweeping absolute diff ∈ {0.01, 0.05, 0.1} and reporting coefficient of variation in effect size estimate across threshold values (See US-3); justified as essential for validating threshold robustness against sampling variability per methodology panel requirements
 - **FR-012**: System MUST log all participant IDs, condition assignments, and randomization seeds for reproducibility (See US-1)
+- **FR-013**: System MUST use JaCoText model for Java code generation and StarCoder model for Python code generation during the LLM-assisted condition (See US-1)
+- **FR-014**: System MUST validate that selected problems (HumanEval or Codeforces) are appropriate for human developer evaluation by confirming average solution time ≥5 minutes and problem statement complexity matches medium-difficulty level (See US-1)
 
 ### Key Entities
 
@@ -98,19 +104,21 @@ A researcher can run statistical analysis comparing LLM-assisted vs baseline con
 - **SC-002**: Code quality (pass rate, cyclomatic complexity, coverage, warnings) is measured against the baseline condition mean for each metric (See US-3)
 - **SC-003**: Statistical significance is measured against α ≤ 0.05 with multiple-comparison correction applied (See US-3)
 - **SC-004**: Multiple-comparison correction is measured against family-wise error rate ≤ 0.05 using Bonferroni or Holm method (See US-3)
-- **SC-005**: Sensitivity analysis is measured against absolute diff ∈ {0.01, 0.05, 0.1} for the time reduction threshold, reporting variation in false-positive/false-negative rates (See US-3)
+- **SC-005**: Sensitivity analysis is measured against absolute diff ∈ {0.01, 0.05, 0.1} for the time reduction threshold, reporting coefficient of variation in effect size estimate across threshold values (See US-3)
 
 ## Assumptions
 
 - Participants have stable internet connectivity and a modern web browser (Chrome/Firefox/Edge) to access the Flask web app
 - GitHub Actions free-tier runner (2 CPU, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h) can execute the full analysis pipeline end-to-end
-- HumanEval benchmark and Codeforces problems are publicly accessible and can be downloaded without authentication
+- HumanEval benchmark and a set of medium-difficulty Codeforces problems are publicly accessible and can be downloaded without authentication
 - JaCoText (Java) and StarCoder (Python) models are ≤1 GB and can run on CPU without CUDA or GPU acceleration
 - 30 participants with ≥1 year programming experience can be recruited via Prolific or similar crowdsourcing platform
-- Within-subject design (each participant completes both LLM-assisted and baseline conditions) is feasible without carryover effects
+- Within-subject design (each participant completes both LLM-assisted and baseline conditions) is feasible with counterbalancing to mitigate carryover effects
 - Test suites from HumanEval and Codeforces are compatible with the execution environment on the GitHub Actions runner
 - No participant dropout rate >20% (incomplete within-subject data will be excluded from paired analysis)
-- The 15-30% time reduction target is based on industry expectations for LLM code-generation tools as stated in the idea
+- The substantial time reduction target is based on industry expectations for LLM code-generation tools as stated in the idea
 - All quality assessment tools (`radon`, `coverage.py`, `pylint`, `checkstyle`) are available and compatible with Python 3.9+
 - Randomization is performed using Python's `random` module with fixed seed for reproducibility
 - All code submissions are syntactically valid and can be parsed by the quality assessment tools
+- HumanEval problems may be <10 lines and require validation (FR-014) to ensure they reflect real-world development tasks for construct validity
+- IRB/ethics committee approval is obtained before participant recruitment begins (Constitution VII)
