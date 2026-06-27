@@ -205,6 +205,23 @@ a:hover { color: var(--accent-2); }
 
 /* ── Cards (papers / plans / designs) ───────────────────────── */
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+
+/* ── In-Progress tab: one section per lifecycle stage ───────── */
+.ip-sections { display: flex; flex-direction: column; gap: 32px; }
+.ip-section-head {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.ip-section-head h3 {
+  font-family: var(--serif); font-size: 18px; font-weight: 500;
+  margin: 0; color: var(--text);
+}
+.ip-count {
+  font-size: 11px; color: var(--accent);
+  background: var(--accent-tint); padding: 2px 8px; border-radius: 999px;
+}
+.ip-empty { text-align: center; padding: 40px; color: var(--muted); }
 .card {
   position: relative;
   background: var(--surface);

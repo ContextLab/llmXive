@@ -14,48 +14,40 @@
     contributors: [],
   };
 
-  // Stage → tab mapping (FR-005). Mirrors src/llmxive/web_data.py.
-  //
-  // The dashboard now exposes just TWO project tabs: `papers` (Published) and
-  // a single consolidated `inProgress` (In Progress) tab. The In-Progress tab
-  // is the UNION of every non-published, non-archived project stage — what
-  // used to be the separate "paper pipeline", "in progress", "research plans",
-  // "research specs", and "backlog" tabs. Any project that is not yet
-  // published (and is not a terminal/archived state) shows up under In
-  // Progress, so a project never silently falls off the board between stages.
+  // SINGLE ordered list of every non-published lifecycle stage, top-to-bottom
+  // in pipeline progression order (research lane → paper lane → needs-attention
+  // states). This is the SSoT: the In-Progress TAB membership is DERIVED from
+  // it (see TAB_STAGE_SETS below) and the In-Progress tab renders one section
+  // per stage in this order — so a project can never be in the tab without a
+  // section (or vice-versa), and no drift check is needed. Mirrors the live
+  // Stage enum in src/llmxive/types.py: every value EXCEPT `posted` (which is
+  // the Published tab). Keeping the needs-attention states here means no
+  // project is ever hidden — empty stages simply render no section.
+  const IN_PROGRESS_STAGE_ORDER = [
+    // research lane
+    "brainstormed", "flesh_out_in_progress", "flesh_out_complete",
+    "validator_revise", "validated", "project_initialized",
+    "specified", "clarify_in_progress", "clarified",
+    "planned", "tasked", "analyze_in_progress", "analyzed",
+    "in_progress", "research_complete", "research_review",
+    "research_full_revision", "research_accepted",
+    // paper lane
+    "paper_drafting_init", "paper_specified", "paper_clarified", "paper_planned",
+    "paper_tasked", "paper_analyzed", "paper_in_progress", "paper_complete",
+    "paper_review", "paper_accepted", "awaiting_publication_signoff",
+    // needs-attention / terminal-but-not-published states (kept visible so no
+    // project silently disappears; only render when non-empty)
+    "validator_rejected", "research_rejected", "paper_fundamental_flaws",
+    "publish_blocked", "human_input_needed", "blocked", "agent_blocked",
+  ];
+
+  // Stage → tab mapping (FR-005). Mirrors src/llmxive/web_data.py. TWO project
+  // tabs: `papers` (Published = `posted` only) and `inProgress` (every other
+  // lifecycle stage, DERIVED from IN_PROGRESS_STAGE_ORDER so tab membership and
+  // the sectioned layout can never drift).
   const TAB_STAGE_SETS = {
-    // Published papers (FR-029): only `posted` qualifies as published.
-    // Spec 013 made `paper_accepted` a transient pre-publication state —
-    // the `paper_publisher` agent picks those up and transitions them
-    // to `posted` once Zenodo confirms the DOI. So `paper_accepted` no
-    // longer belongs on the published tab.
     papers:     new Set(["posted"]),
-    // In Progress — the union of the former backlog + research-specs +
-    // research-plans + in-progress + paper-pipeline buckets.
-    inProgress: new Set([
-      // — former "backlog" (idea + validation lane) —
-      "brainstormed", "flesh_out_in_progress", "flesh_out_complete",
-      "validated", "project_initialized",
-      // — former "research specs" —
-      "specified", "clarify_in_progress", "clarified",
-      // — former "research plans" —
-      "planned", "tasked", "analyze_in_progress", "analyzed",
-      // — former "in progress" (research execution + research review) —
-      "in_progress", "research_complete", "research_review",
-      "research_minor_revision", "research_full_revision", "research_accepted",
-      // — former "paper pipeline" —
-      "paper_drafting_init", "paper_specified", "paper_clarified", "paper_planned",
-      "paper_tasked", "paper_analyzed", "paper_in_progress", "paper_complete",
-      "paper_review", "paper_minor_revision", "paper_major_revision_writing",
-      "paper_major_revision_science", "paper_fundamental_flaws",
-      // Spec 012/013 convergence-pipeline stages (in-flight; NOT on the
-      // published papers tab):
-      "paper_revision_in_progress", "ready_for_implementation",
-      "paper_revision_blocked",
-      // Spec 013: paper_accepted is transient (waiting for publisher);
-      // publish_blocked is operator-action-needed.
-      "paper_accepted", "publish_blocked",
-    ]),
+    inProgress: new Set(IN_PROGRESS_STAGE_ORDER),
   };
 
   const STAGE_LABELS = {
@@ -100,6 +92,10 @@
     publish_blocked: "Publish blocked",
     human_input_needed: "Human input needed",
     blocked: "Blocked",
+    validator_revise: "Validation revising",
+    validator_rejected: "Rejected (validation)",
+    awaiting_publication_signoff: "Awaiting sign-off",
+    agent_blocked: "Agent blocked",
   };
 
   async function loadPayload() {
@@ -148,6 +144,30 @@
     return buckets;
   }
 
+  // Bucket the In-Progress projects by their current stage, in
+  // IN_PROGRESS_STAGE_ORDER. Returns an ordered array of
+  // { stage, label, items } sections — one per stage that HAS at least one
+  // project (empty stages are omitted by the caller / here). Items are sorted
+  // recently-updated first, matching the default card sort. Pass an optional
+  // `projects` array (e.g. a search-filtered subset); defaults to the whole
+  // payload. A project whose stage isn't in IN_PROGRESS_STAGE_ORDER is not an
+  // In-Progress project and is skipped.
+  function inProgressByStage(payload, projects) {
+    const list = projects || (payload && payload.projects) || [];
+    const byStage = Object.fromEntries(IN_PROGRESS_STAGE_ORDER.map(s => [s, []]));
+    for (const p of list) {
+      if (p.current_stage in byStage) byStage[p.current_stage].push(p);
+    }
+    const sections = [];
+    for (const stage of IN_PROGRESS_STAGE_ORDER) {
+      const items = byStage[stage];
+      if (!items.length) continue;               // skip empty stages
+      items.sort((a, b) => (b.updated_at || "").localeCompare(a.updated_at || ""));
+      sections.push({ stage, label: STAGE_LABELS[stage] || stage, items });
+    }
+    return sections;
+  }
+
   function relativeTime(iso) {
     if (!iso) return "—";
     const t = Date.parse(iso);
@@ -163,7 +183,7 @@
   }
 
   window.LlmxiveData = {
-    EMPTY, TAB_STAGE_SETS, STAGE_LABELS,
-    loadPayload, projectsByTab, relativeTime,
+    EMPTY, TAB_STAGE_SETS, IN_PROGRESS_STAGE_ORDER, STAGE_LABELS,
+    loadPayload, projectsByTab, inProgressByStage, relativeTime,
   };
 })();
