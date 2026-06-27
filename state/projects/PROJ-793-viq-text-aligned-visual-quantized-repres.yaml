@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-793-viq-text-aligned-visual-quantized-repres
-last_run_id: null
+last_run_id: 430e7f1a-9040-4cd8-85ca-8180a76134fe
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-793-viq-text-aligned-visual-quantized-repres/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'ViQ: Text-Aligned Visual Quantized Representations at Any Resolution'
-updated_at: '2026-06-27T08:58:04.935299Z'
+updated_at: '2026-06-27T16:47:08.256158Z'

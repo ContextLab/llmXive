@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T23:25:37.121749Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-279-quantifying-the-impact-of-network-struct
-last_run_id: 3227cb2f-e8ac-408e-9c03-73d72515810c
+last_run_id: d18db0a6-27ea-4d42-994d-31518526377a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Quantifying the Impact of Network Structure on Heat Transport in Amorphous
   Silicon
-updated_at: '2026-06-13T21:11:41.333795Z'
+updated_at: '2026-06-27T16:11:20.684100Z'

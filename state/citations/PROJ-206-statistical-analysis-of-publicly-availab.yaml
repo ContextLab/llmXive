@@ -1,0 +1,11 @@
+- artifact_hash: 37b2acf179c4e696c4754e33fdb3b9910778e6965839fa4a4d57a6769e52080b
+  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/fivethirtyeight/pollster-data`
+  verification_status: mismatch
+  verified_against_url: https://github.com/fivethirtyeight/pollster-data%60
+  verified_at: '2026-06-27T16:12:33.361030Z'
