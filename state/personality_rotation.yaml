@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-27T01:42:04.910457+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: freeman-dyson
+last_used_at: '2026-06-27T03:07:49.305229+00:00'
+last_outcome: committed
 history:
-- slug: alan-turing
-  started_at: '2026-06-16T11:16:45.912756+00:00'
-  ended_at: '2026-06-16T13:08:20.270505+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-294-evaluating-the-impact-of-code-generation/reviews/research/_held/alan-turing-simulated__2026-06-16__research.md
 - slug: alan-turing
   started_at: '2026-06-16T13:08:20.270505+00:00'
   ended_at: '2026-06-16T15:19:23.642570+00:00'
@@ -1158,3 +1151,10 @@ history:
   ended_at: '2026-06-27T01:42:04.910457+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: freeman-dyson
+  started_at: '2026-06-27T01:42:04.910457+00:00'
+  ended_at: '2026-06-27T03:07:49.305229+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/reviews/research/freeman-dyson-simulated__2026-06-27__research.md
