@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-746-the-topological-trouble-with-transformer
-last_run_id: ee65dbf5-fa23-4c4e-8962-ce0416e41125
+last_run_id: ca5aa931-92cc-47e9-9cc1-93e6acce30fa
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: The Topological Trouble With Transformers
-updated_at: '2026-06-26T21:53:54.864037Z'
+updated_at: '2026-06-27T09:43:34.085836Z'
