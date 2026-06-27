@@ -173,30 +173,11 @@
     return hay.includes(needle);
   }
 
-  function renderCards(kind) {
-    const el = document.getElementById(kind + "-cards");
-    if (!el) return;
-    const allItems = (buckets && buckets[kind]) || [];
-    const term = searchState[kind] || "";
-    const items = allItems.filter(it => matchesSearch(it, term));
-    if (!items.length) {
-      el.replaceChildren();
-      const empty = document.createElement("div");
-      empty.style.cssText = "grid-column: 1/-1; text-align:center; padding:40px; color:var(--muted);";
-      // Distinguish "empty lane" from "search has no matches" — the user
-      // wants to know which one to act on.
-      const msg = term
-        ? `No matches for &ldquo;${escapeHtml(term)}&rdquo;.`
-        : "No projects in this stage yet.";
-      empty.insertAdjacentHTML("beforeend",
-        '<i class="fa-regular fa-folder-open" style="font-size:32px; opacity:0.5"></i>' +
-        '<p style="margin-top:12px;">' + msg + '</p>');
-      el.appendChild(empty);
-      return;
-    }
-    el.replaceChildren();
-    el.insertAdjacentHTML("beforeend", items.map(it => cardHTML(it, kind)).join(""));
-    el.querySelectorAll(".card").forEach(card => {
+  // Wire click / keyboard activation on every `.card` inside `root` (a card
+  // grid). Shared by the flat Published grid (renderCards) and the sectioned
+  // In-Progress grids (renderInProgressSections) so both behave identically.
+  function wireCards(root) {
+    root.querySelectorAll(".card").forEach(card => {
       card.addEventListener("click", e => {
         // Clicks on the "+N more" pill toggle the author tail; they should NOT
         // also open the project modal (the most surprising behaviour we could
@@ -230,6 +211,83 @@
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); }
       });
     });
+  }
+
+  // Empty-state block for an entire tab (no matching cards at all). For the
+  // Published tab we soften the no-data copy and offer a jump to In Progress.
+  function emptyStateHTML(kind, term) {
+    if (term) {
+      return '<i class="fa-regular fa-folder-open" style="font-size:32px; opacity:0.5"></i>' +
+        '<p style="margin-top:12px;">No matches for &ldquo;' + escapeHtml(term) + '&rdquo;.</p>';
+    }
+    if (kind === "papers") {
+      // Published is the default tab and is empty until a project finishes the
+      // full research + paper pipeline. Keep the copy reassuring, not alarming,
+      // and point people at the work that IS happening.
+      return '<i class="fa-regular fa-file-lines" style="font-size:32px; opacity:0.5"></i>' +
+        '<p style="margin-top:12px;">No papers published yet — projects appear here once they complete the full research + paper pipeline.</p>' +
+        '<p style="margin-top:8px;"><a class="btn" href="#inProgress"><i class="fa-regular fa-pen-to-square"></i> See what’s in progress</a></p>';
+    }
+    return '<i class="fa-regular fa-folder-open" style="font-size:32px; opacity:0.5"></i>' +
+      '<p style="margin-top:12px;">No projects in this stage yet.</p>';
+  }
+
+  function renderCards(kind) {
+    // The In-Progress tab renders as one section per stage (see
+    // renderInProgressSections); every other tab is a flat card grid.
+    if (kind === "inProgress") { renderInProgressSections(); return; }
+    const el = document.getElementById(kind + "-cards");
+    if (!el) return;
+    const allItems = (buckets && buckets[kind]) || [];
+    const term = searchState[kind] || "";
+    const items = allItems.filter(it => matchesSearch(it, term));
+    if (!items.length) {
+      el.replaceChildren();
+      const empty = document.createElement("div");
+      empty.style.cssText = "grid-column: 1/-1; text-align:center; padding:40px; color:var(--muted);";
+      empty.insertAdjacentHTML("beforeend", emptyStateHTML(kind, term));
+      el.appendChild(empty);
+      return;
+    }
+    el.replaceChildren();
+    el.insertAdjacentHTML("beforeend", items.map(it => cardHTML(it, kind)).join(""));
+    wireCards(el);
+  }
+
+  // Render the In-Progress tab as one section per lifecycle stage (in
+  // IN_PROGRESS_STAGE_ORDER), each = a stage header (label + count badge)
+  // followed by that stage's cards. Empty stages are omitted; the tab's
+  // search input filters across every section (sections with no surviving
+  // matches disappear). Cards reuse cardHTML + wireCards, so they look and
+  // behave exactly like the Published cards.
+  function renderInProgressSections() {
+    const el = document.getElementById("inProgress-cards");
+    if (!el) return;
+    const term = searchState["inProgress"] || "";
+    const filtered = ((buckets && buckets.inProgress) || [])
+      .filter(it => matchesSearch(it, term));
+    const sections = D.inProgressByStage(payload, filtered);
+    el.replaceChildren();
+    if (!sections.length) {
+      const empty = document.createElement("div");
+      empty.className = "ip-empty";
+      empty.insertAdjacentHTML("beforeend", emptyStateHTML("inProgress", term));
+      el.appendChild(empty);
+      return;
+    }
+    const html = sections.map(sec => ''
+      + '<section class="ip-section">'
+      + '<header class="ip-section-head">'
+      + '<h3>' + escapeHtml(sec.label) + '</h3>'
+      + '<span class="ip-count">' + sec.items.length + '</span>'
+      + '</header>'
+      + '<div class="cards ip-section-cards">'
+      + sec.items.map(it => cardHTML(it, "inProgress")).join("")
+      + '</div>'
+      + '</section>'
+    ).join("");
+    el.insertAdjacentHTML("beforeend", html);
+    wireCards(el);
   }
 
   function renderTabCounts() {
