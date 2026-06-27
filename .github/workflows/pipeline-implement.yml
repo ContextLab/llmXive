@@ -26,9 +26,19 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    # The implement lane runs the project's ACTUAL execution code (analysis +
+    # gate), the longest single step in the pipeline — yet it used to carry the
+    # SHORTEST cap (35→50 min) and NO wall budget, so it timed-out-CANCELLED
+    # (3 of 4 recent runs), losing the analyzed -> in_progress -> research_complete
+    # work and starving the projects closest to done. Match the other
+    # convergence lanes (#64): 120 min fits one long execute step;
+    # LLMXIVE_RUN_WALL_BUDGET_S=2400 (40 min) breaks the multi-tick loop early so
+    # a final long step + commit always land before the timeout (clean exit, not
+    # a cancel that discards the run-log + state).
+    timeout-minutes: 120
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_RUN_WALL_BUDGET_S: "2400"
       # Guarded paid fallback (claude-haiku) for when ALL free models flap;
       # globally hard-capped by the daily ~$2 credit budget (backends/credits.py).
       LLMXIVE_PAID_OPT_IN: "1"
