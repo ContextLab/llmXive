@@ -6,14 +6,14 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-663-https-arxiv-org-abs-2606-04923
-last_run_id: null
+last_run_id: 706cde8e-7906-4272-93a1-4009cb89ea6a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-663-https-arxiv-org-abs-2606-04923/round-2
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement
   Learning
-updated_at: '2026-06-25T00:51:55.696541Z'
+updated_at: '2026-06-27T04:54:31.257340Z'

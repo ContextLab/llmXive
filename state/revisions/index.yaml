@@ -198,3 +198,6 @@ ready:
 - project_id: PROJ-773-enterpriseclawbench-benchmarking-agents
   revision_spec_path: specs/auto-revisions/PROJ-773-enterpriseclawbench-benchmarking-agents/round-1
   queued_at: '2026-06-27T01:05:47.373580+00:00'
+- project_id: PROJ-663-https-arxiv-org-abs-2606-04923
+  revision_spec_path: specs/auto-revisions/PROJ-663-https-arxiv-org-abs-2606-04923/round-2
+  queued_at: '2026-06-27T04:54:31.233442+00:00'
