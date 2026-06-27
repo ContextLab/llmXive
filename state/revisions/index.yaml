@@ -207,6 +207,6 @@ ready:
 - project_id: PROJ-599-mmskills-towards-multimodal-skills-for-g
   revision_spec_path: specs/auto-revisions/PROJ-599-mmskills-towards-multimodal-skills-for-g/round-1
   queued_at: '2026-06-27T14:52:58.695335+00:00'
-- project_id: PROJ-793-viq-text-aligned-visual-quantized-repres
-  revision_spec_path: specs/auto-revisions/PROJ-793-viq-text-aligned-visual-quantized-repres/round-1
-  queued_at: '2026-06-27T16:47:08.227951+00:00'
+- project_id: PROJ-730-ace-ego-0-unifying-egocentric-human-and
+  revision_spec_path: specs/auto-revisions/PROJ-730-ace-ego-0-unifying-egocentric-human-and/round-1
+  queued_at: '2026-06-27T17:38:59.438103+00:00'

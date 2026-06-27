@@ -1,0 +1,272 @@
+project_id: PROJ-730-ace-ego-0-unifying-egocentric-human-and
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: fc81cb2e49d6
+  text: Add missing bibliography entries for DIAL (chen2026dial), Motus (bi2025motusunifiedlatentaction),
+    LingBot-VLA (wu2026pragmatic), and Qwen3PI to support baseline claims in Section
+    5.1.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 010429502823
+  text: Correct the RoboCasa GR1 TableTop benchmark citation from bjorck2025gr00t
+    to robocasa, as the benchmark is defined in the RoboCasa paper, not the GR00T
+    model paper.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 8039ed04368a
+  text: Update the GR00T-N1.7 citation to reflect the specific version or add a new
+    entry, as the current bib entry (bjorck2025gr00t) refers to N1.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: af0bf63cdfba
+  text: Add a 'Software and Dependencies' section listing exact library versions (e.g.,
+    PyTorch, Transformers, HaMeR checkpoints) to ensure reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: c7c141098e42
+  text: Specify random seed settings and deterministic training flags in the training
+    protocol appendix.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: a1bd74a76261
+  text: Describe the repository structure (e.g., src/, scripts/, configs/) to aid
+    implementation from the provided GitHub link.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 86bdd3cf17bd
+  text: Add a Data Availability and Licensing section listing the specific licenses
+    for all 11+ external datasets (e.g., Ego4D, AgiBot) to ensure legal compliance.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: a9f65fbffe92
+  text: Provide a persistent download link or DOI for the processed 1.48K hour pseudo-action
+    dataset, not just the code repository.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: dea1d027a8d6
+  text: Include a table showing raw vs. filtered data volume per source to quantify
+    selection bias introduced by the pipeline.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 3c69d622dd9e
+  text: Fix the label mismatch in Section 5.4 where text references 'fig:human_scaling'
+    (line 825) but the active figure is labeled 'fig:action_distribution' (line 855).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 2d5875dcf883
+  text: Add alt text attributes to all figure environments for accessibility compliance.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: dd64ff2a34e2
+  text: Ensure axis labels in 'fig:action_distribution' explicitly indicate the [-1,
+    1] remapping mentioned in the caption.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: b29db9b2bce2
+  text: Define all acronyms (URDF, MANO, HaMeR, VLM, SFT, DiT, SAM3, VIPE) at first
+    occurrence to ensure accessibility for non-specialist readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: d74dbaac804b
+  text: Replace or briefly explain technical jargon (SO(3), 6D representation, flow-matching,
+    Huber, L-BFGS, A800, AdamW, RGB-D, NaN/Inf, Convex-hull, Extrinsic/Intrinsics,
+    End-effector, Kinematic chains, Pseudo-action, Morphology tokens, Camera-space
+    action) to improve readability.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 3a2f0b2fc25a
+  text: Clarify the ablation study in Section 4.4. The text conflates removing the
+    auxiliary loss (removing data) with removing the weighting mechanism (keeping
+    data but equalizing weight). This ambiguity undermines the causal claim that reliability
+    weighting specifically prevents noise-induced confusion.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 7b9eab8b26f3
+  text: Resolve the training protocol description in Section 4.2. It states training
+    on 27.5k RoboTwin demos, while the Abstract claims a unified 6K-hour pretraining
+    pool. Clarify if the RoboTwin result uses the general pretrained model or a specialized
+    run to maintain logical consistency with the unified framework claim.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 6e216d0f4919
+  text: The paper makes several strong claims that slightly exceed the evidence provided,
+    particularly regarding the completeness of the proposed solution and the fairness
+    of baseline comparisons. First, the Abstract and Introduction state that the framework
+    "resolves" representation and supervision-quality mismatches (Lines 1-10, 100-110).
+    This is an overreach. The ablation studies (Fig 2b) show performance drops when
+    components are removed, but the full model still has room for improvement (e.g.,
+    72.8
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 326a7cab317a
+  text: Clarify privacy measures for third-party individuals in egocentric videos
+    (e.g., face blurring) and confirm dataset license compliance.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 36860fdcd5e7
+  text: Describe safety protocols for real-robot experiments (e.g., emergency stops,
+    force limits) to ensure physical safety.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 18bedbc9fdf5
+  text: Explicitly confirm ethical compliance (IRB/consent) of public datasets used
+    for pretraining.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 089395f27110
+  text: Add a brief discussion on potential dual-use risks and mitigation strategies
+    for the trained policy.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: cdcbe81af5d8
+  text: Report standard deviation or confidence intervals for all benchmark success
+    rates (RoboCasa, RoboTwin, Real Robot) to establish statistical significance,
+    especially for the 0.64% margin on RoboTwin.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: e230c1c3ad3c
+  text: Explicitly clarify whether baseline models (e.g., DIAL, GR00T) were retrained
+    on the identical 6K-hour data pool or if they are original checkpoints, to rule
+    out data-scale confounding.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: fe986d4a2907
+  text: Provide quantitative validation of pseudo-action label quality (e.g., MSE
+    against ground truth on a held-out subset) to substantiate the reliability claims
+    of the human data pipeline.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 40d0904b4557
+  text: Report standard deviations or 95% confidence intervals for all success rate
+    metrics in Tables 1, 2, and Figure 1a to quantify evaluation variance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: 6f84dacb787a
+  text: Perform statistical significance tests (e.g., bootstrap or t-tests) for comparisons
+    against baselines and ablation components to validate performance claims.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: fa0cc870e9c0
+  text: Address the small sample size (N=10) in Section 5.5 by increasing trials or
+    qualifying the '4x improvement' claim to reflect high uncertainty.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+- id: fa7719f19b8a
+  text: "The manuscript demonstrates strong attention to LaTeX structure, with a clear\
+    \ heading hierarchy (Section \u2192 Subsection \u2192 Subsubsection \u2192 Paragraph)\
+    \ maintained across main.tex, data_pipeline.tex, and appendix.tex. Cross-referencing\
+    \ via \\ref and \\label is generally consistent, and the use of booktabs in the\
+    \ appendix and data pipeline sections indicates awareness of typographic best\
+    \ practices. However, several formatting inconsistencies require attention to\
+    \ ensure a polished final submission. First,"
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-730-ace-ego-0-unifying-egocentric-human-and/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 28 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-27T17:38:59.430410+00:00'

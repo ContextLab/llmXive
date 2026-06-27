@@ -18,7 +18,7 @@ ValueError: Metrics CSV missing columns: {'model', 'mae', 'rmse'}
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py", line 54, in _load_metrics
     raise ValueError(f"Metrics CSV missing required columns: {missing}")
-ValueError: Metrics CSV missing required columns: {'model', 'mae', 'rmse'}
+ValueError: Metrics CSV missing required columns: {'rmse', 'model', 'mae'}
 - python code/generate_summary.py -> rc=1
     ary
     significance = load_csv_as_dicts(significance_path)
@@ -42,7 +42,7 @@ A `missing columns` / `KeyError` / `FileNotFoundError: <file>` failure above is 
 - `data/checkpoints/rf_seed_2.pkl` (337617 bytes)
 - `data/checkpoints/rf_seed_3.pkl` (337617 bytes)
 - `data/checkpoints/rf_seed_4.pkl` (337617 bytes)
-- `data/processed/features_2d.parquet` (330681 bytes)
-- `data/processed/features_3d.parquet` (3816341 bytes)
-- `data/processed/molecules_10k.parquet` (630745 bytes)
+- `data/processed/features_2d.parquet` (330675 bytes)
+- `data/processed/features_3d.parquet` (3816337 bytes)
+- `data/processed/molecules_10k.parquet` (629751 bytes)
 - `results/metrics.csv` — actual CSV header: `seed,model_type,MAE,RMSE`

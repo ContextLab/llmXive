@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create `code/` directory structure with subpackages (agent, memory, metrics, analysis, data, utils, tests)
-- [ ] T002 [P] Create `code/requirements.txt` with pinned versions: `transformers==4.35.0`, `torch==2.1.0+cpu`, `scikit-learn==1.3.0`, `pandas==2.1.0`, `pytest==7.4.0`, `numpy==1.24.0`, `matplotlib==3.8.0`
-- [ ] T003 [P] Configure linting (flake8) and formatting (black) tools in `code/.pre-commit-config.yaml`
+- [X] T001 [P] Create `code/` directory structure with subpackages (agent, memory, metrics, analysis, data, utils, tests)
+- [X] T002 [P] Create `code/requirements.txt` with pinned versions: `transformers==4.35.0`, `torch==2.1.0+cpu`, `scikit-learn==1.3.0`, `pandas==2.1.0`, `pytest==7.4.0`, `numpy==1.24.0`, `matplotlib==3.8.0`
+- [X] T003 [P] Configure linting (flake8) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement dataset loaders with synthetic fallback only (no Hanabi/CoQA URLs as verified sources unavailable) in `code/data/loaders.py` and `code/data/synthetic.py` (FR-011)
-- [ ] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002)
-- [ ] T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token handling in `code/memory/buffer.py` (FR-003)
-- [ ] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py` (FR-010)
-- [ ] T008 [P] Configure environment management (config.yaml with seed=42, device=cpu) in `code/utils/config.py`
+- [X] T004 [P] Implement dataset loaders with synthetic fallback only (no Hanabi/CoQA URLs as verified sources unavailable) in `code/data/loaders.py` and `code/data/synthetic.py` (FR-011)
+- [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002)
+- [X] T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token handling in `code/memory/buffer.py` (FR-003)
+- [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py` (FR-010)
+- [X] T008 [P] Configure environment management (config.yaml with seed=42, device=cpu) in `code/utils/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,12 +75,12 @@
 
 > **NOTE**: Tests are written first (TDD) but depend on implementation for execution
 
-- [ ] T009 [P] [US-1] Contract test for game result schema in `code/tests/contract/test_game_result.py`
-- [ ] T010 [P] [US-1] Integration test for full-context simulation in `code/tests/integration/test_full_context.py`
+- [X] T009 [P] [US-1] Contract test for game result schema in `code/tests/contract/test_game_result.py`
+- [X] T010 [P] [US-1] Integration test for full-context simulation in `code/tests/integration/test_full_context.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and game simulation loop for 1000 games in `code/run_experiment.py` (FR-001)
+- [X] T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and game simulation loop for 1000 games in `code/run_experiment.py` (FR-001)
 - [ ] T012 [P] [US-1] Implement specialization index computation (0 to log₂(N_agents)) in `code/metrics/specialization.py` (FR-004)
 - [ ] T013 [P] [US-1] Implement cue-retrieval efficiency metric (proportion vs. 1/N_agents baseline) in `code/metrics/retrieval.py` (FR-005)
 - [ ] T014 [P] [US-1] Implement validation logic for metrics (≥95% games produce metrics, SC-001) in `code/metrics/validator.py`
@@ -156,8 +156,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Phase 6)**: Depends on all user stories being complete
 
 ### User Story Dependencies
@@ -231,9 +231,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
