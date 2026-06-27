@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-687-swe-explore-benchmarking-how-coding-agen/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SWE-Explore: Benchmarking How Coding Agents Explore Repositories'
-updated_at: '2026-06-13T21:59:46.751333Z'
+updated_at: '2026-06-27T02:02:52.996920Z'
