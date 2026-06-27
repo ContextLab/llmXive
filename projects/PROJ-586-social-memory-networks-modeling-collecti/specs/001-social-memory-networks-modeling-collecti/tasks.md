@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US-1, US-2, US-3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan at `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
-- [ ] T002 Initialize Python 3.11 project with `transformers`, `torch` (CPU-only), `scikit-learn`, `pandas`, `pytest`, `numpy`, `matplotlib` in `code/requirements.txt`
+- [ ] T001 [P] Create `code/` directory structure with subpackages (agent, memory, metrics, analysis, data, utils, tests)
+- [ ] T002 [P] Create `code/requirements.txt` with pinned versions: `transformers==4.35.0`, `torch==2.1.0+cpu`, `scikit-learn==1.3.0`, `pandas==2.1.0`, `pytest==7.4.0`, `numpy==1.24.0`, `matplotlib==3.8.0`
 - [ ] T003 [P] Configure linting (flake8) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T010 [P] Setup environment configuration management for random seed (42) and device (CPU) in `code/utils/config.py`
-- [ ] T004 [P] Setup dataset loaders with verified URLs or FR-011 synthetic fallback for Hanabi/CoQA in `code/data/loaders.py` and `code/data/synthetic.py` (FR-011)
-- [ ] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (small model, float32) in `code/agent/base_agent.py` (FR-002)
+- [ ] T004 [P] Implement dataset loaders with synthetic fallback only (no Hanabi/CoQA URLs as verified sources unavailable) in `code/data/loaders.py` and `code/data/synthetic.py` (FR-011)
+- [ ] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002)
 - [ ] T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token handling in `code/memory/buffer.py` (FR-003)
-- [ ] T009 [P] Configure error logging with timestamps in `code/utils/logging.py` (FR-010)
+- [ ] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py` (FR-010)
+- [ ] T008 [P] Configure environment management (config.yaml with seed=42, device=cpu) in `code/utils/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,18 +75,16 @@
 
 > **NOTE**: Tests are written first (TDD) but depend on implementation for execution
 
-- [ ] T011 [US1] Contract test for game result schema in `code/tests/contract/test_game_result.py`
-- [ ] T012 [US1] Integration test for full-context simulation in `code/tests/integration/test_full_context.py`
+- [ ] T009 [P] [US-1] Contract test for game result schema in `code/tests/contract/test_game_result.py`
+- [ ] T010 [P] [US-1] Integration test for full-context simulation in `code/tests/integration/test_full_context.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement specialization index computation (0 to log₂(N_agents)) in `code/metrics/specialization.py` (FR-004)
-- [ ] T014 [US1] Implement cue-retrieval efficiency metric (proportion vs. 1/N_agents baseline) in `code/metrics/retrieval.py` (FR-005)
-- [ ] T015 [US1] Implement validation logic for cue-retrieval efficiency (proportion of successful fact-retrieval queries relative to uniform chance baseline 1/N_agents) in `code/metrics/validator.py` (FR-005)
-- [ ] T016a [US1] Implement CLI flag parsing for --context, --agents, --dataset in `code/run_experiment.py` (FR-001)
-- [ ] T016 [US1] Implement game simulation loop for full context (500 games per Plan; Spec N=1000 noted) in `code/run_experiment.py`
-- [ ] T017 [US1] Add validation to ensure ≥95% of games produce metrics (SC-001) in `code/metrics/validator.py`
-- [ ] T018 [US1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+- [ ] T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and game simulation loop for 1000 games in `code/run_experiment.py` (FR-001)
+- [ ] T012 [P] [US-1] Implement specialization index computation (0 to log₂(N_agents)) in `code/metrics/specialization.py` (FR-004)
+- [ ] T013 [P] [US-1] Implement cue-retrieval efficiency metric (proportion vs. 1/N_agents baseline) in `code/metrics/retrieval.py` (FR-005)
+- [ ] T014 [P] [US-1] Implement validation logic for metrics (≥95% games produce metrics, SC-001) in `code/metrics/validator.py`
+- [ ] T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` for 1000 games
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,18 +98,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [US2] Contract test for ANOVA output schema in `code/tests/contract/test_anova.py`
-- [ ] T020 [US2] Integration test for limited-context simulation in `code/tests/integration/test_limited_context.py`
+- [ ] T016 [P] [US-2] Contract test for ANOVA output schema in `code/tests/contract/test_anova.py`
+- [ ] T017 [P] [US-2] Integration test for limited-context simulation in `code/tests/integration/test_limited_context.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement game simulation loop for limited context (500 games per Plan; Spec N=1000 noted) in `code/run_experiment.py`
-- [ ] T022 [US2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
-- [ ] T023 [US2] Implement two‑way independent‑samples ANOVA with factors Context × Metric in `code/analysis/anova.py` (FR-006)
-- [ ] T024 [US2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py` (FR-007)
-- [ ] T025 [US2] Conduct sensitivity analysis sweeping context‑truncation token limit over {128, 256, 512} in `code/analysis/sensitivity.py` (FR-008)
-- [ ] T026 [US2] Generate power‑analysis report estimating detectable effect size (N=500 per Plan; Spec N=1000 flagged) in `code/analysis/power.py` (FR-009)
-- [ ] T027 [US2] Flag "Power limitation" if estimated power < 0.70 in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md` (SC-004)
+- [ ] T018 [US-2] Implement game simulation loop for limited context (1000 games per spec) in `code/run_experiment.py`
+- [ ] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+- [ ] T020 [P] [US-2] Implement two‑way independent‑samples ANOVA with factors Context × Metric (single ANOVA, not separate) in `code/analysis/anova.py` (FR-006)
+- [ ] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py` (FR-007)
+- [ ] T022 [US-2] Conduct sensitivity analysis sweeping context‑truncation token limit over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py` (FR-008)
+- [ ] T023 [US-2] Generate power‑analysis report estimating detectable effect size (N=1000 games per spec FR-009) in `code/analysis/power.py`
+- [ ] T024 [US-2] Flag "Power limitation" if estimated power < 0.70 in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md` (SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,20 +117,21 @@
 
 ## Phase 5: User Story 3 - Scaling Analysis Across Agent Populations (Priority: P3)
 
-**Goal**: Investigate how the fidelity of collective remembering scales when the number of agents varies (3, 5, 7)
+**Goal**: Investigate how the fidelity of collective remembering scales when the number of agents varies across different group sizes.
 
 **Independent Test**: Run the experiment for each specified agent count and produce a plot of specialization index and retrieval efficiency versus number of agents, along with a fitted power‑law exponent.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [US3] Contract test for scaling plot schema in `code/tests/contract/test_scaling.py`
-- [ ] T029 [US3] Integration test for agent count variation in `code/tests/integration/test_scaling.py`
+- [ ] T025 [P] [US-3] Contract test for scaling plot schema in `code/tests/contract/test_scaling.py`
+- [ ] T026 [P] [US-3] Integration test for agent count variation in `code/tests/integration/test_scaling.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement power-law fitting for metric trends vs. agent count (3, 5, 7) in `code/analysis/scaling.py` (FR-004, US-3)
-- [ ] T031 [US3] Calculate 95% confidence interval for exponent β and note sub‑linearity (β < 1) in `code/analysis/scaling.py` (SC-005)
-- [ ] T032 [US3] Generate `scaling_plot.pdf` with fitted power‑law curves and explicit note that 3 data points limit power‑law reliability (West review) in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`
+- [ ] T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config per spec US-3) in `code/run_experiment.py`
+- [ ] T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent count (3, 5, 7) in `code/analysis/scaling.py` (US-3)
+- [ ] T029 [P] [US-3] Calculate 95% confidence interval for exponent β and note sub‑linearity (β < 1) in `code/analysis/scaling.py`
+- [ ] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves and explicit note that 3 data points limit power‑law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -140,11 +139,13 @@
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-**Purpose**: Improvements that affect multiple user stories and address remaining reviewer concerns
+**Purpose**: Improvements that affect multiple user stories and address remaining requirements
 
-- [ ] T035 [P] Run quickstart.md validation to ensure reproducibility on CPU-only CI (Plan.md constraints)
-- [ ] T036 [P] Code cleanup and refactoring to ensure no 8-bit/4-bit quantization or CUDA dependencies (Compute Feasibility)
-- [ ] T038 [P] Security hardening for file-write conflicts in `code/utils/serialization.py` (FR-012)
+- [ ] T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code 0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+- [ ] T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in all Python files (compute feasibility)
+- [ ] T033 [P] Implement file-locking with fcntl and add conflict retry logic in `code/utils/serialization.py` (FR-012)
+- [ ] T034 [P] Update `research.md` with reviewer feedback integration notes (Turing, Rockmore, Kahneman, Krakauer, Kandel, West)
+- [ ] T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` to verify ≤6h, ≤7GB RAM, ≤14GB disk constraints
 
 ---
 
@@ -154,31 +155,31 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+- **User Stories (Phase 3-5)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Polish (Phase 6)**: Depends on all user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US-1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US-1/US-2 but should be independently testable
 
-### Within Each User Story
+### Within Each Phase
 
 - Tests (if included) MUST be written and FAIL before implementation
 - Models before services
 - Services before endpoints
 - Core implementation before integration
-- Story complete before moving to next priority
+- Phase complete before moving to next priority
 
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story can run in parallel
+- All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
@@ -188,8 +189,20 @@
 
 ```bash
 # Launch all models for User Story 1 together:
+Task: "Implement CLI flag parsing and game simulation in code/run_experiment.py"
 Task: "Implement specialization index computation in code/metrics/specialization.py"
 Task: "Implement cue-retrieval efficiency metric in code/metrics/retrieval.py"
+```
+
+---
+
+## Parallel Example: User Story 2
+
+```bash
+# Launch all models for User Story 2 together:
+Task: "Implement ANOVA analysis in code/analysis/anova.py"
+Task: "Implement sensitivity analysis in code/analysis/sensitivity.py"
+Task: "Implement power analysis in code/analysis/power.py"
 ```
 
 ---
@@ -228,16 +241,15 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
+- [Story] label maps task to specific user story for traceability (US-1, US-2, US-3)
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Compute Constraint**: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU). Use small models (e.g., distilbert, opt-125m) in float32.
-- **Review Integration**: Tasks T032 explicitly addresses Prior Research-Stage Review (West review on scaling analysis).
-- **Plan.md Kickback Required**: The following issues are in spec.md or plan.md, not tasks.md:
-  - FR-009 N=1000 vs plan 500 games mismatch (Addressed in T026)
-  - SC-003, SC-004, SC-005 placeholders (Addressed in T025/T026/T032)
-  - Dataset Constraint Acknowledgement conflict with Constitution Principle II (Addressed in T004)
-  - US-1 1000 games vs plan 500 games inconsistency (Addressed in T016/T021)
+- **Compute Constraint**: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU). Use small models (e.g., opt-125m) in float32.
+- **Game Counts**: US-1/US-2 = 1000 games per condition (spec requirement); US-3 = 800 games per configuration
+- **Dataset Constraint**: Hanabi/CoQA have NO verified URLs; use synthetic fallback only (code/data/synthetic.py)
+- **ANOVA Design**: Single two-way ANOVA with Context × Metric interaction (FR-006), NOT separate ANOVAs
+- **Power Analysis**: N=1000 games (FR-009 spec requirement)
+- **Reviewer Feedback**: Phases 6-11 from prior draft removed (not in original spec); addressed in T034
