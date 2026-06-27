@@ -1,0 +1,14 @@
+requests
+beautifulsoup4
+pandas
+numpy
+scipy
+statsmodels
+tqdm
+pyyaml
+jsonschema
+psutil
+ruff
+black
+pre-commit
+pytest

@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-141-evaluating-the-impact-of-code-generation
-last_run_id: 000cecdb-70be-4126-aab8-e38b93773124
+last_run_id: cb73a09e-9d47-4c5e-8f3b-a92bba85b774
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation Models on Developer Productivity
-updated_at: '2026-06-27T18:01:46.136382Z'
+updated_at: '2026-06-27T18:16:00.920528Z'

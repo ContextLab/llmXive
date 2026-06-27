@@ -15,11 +15,11 @@
 
 ## Phase 0: Plan‑Root & Research Tasks (new PT### & T000‑T005 IDs)
 
-- [ ] T000 Create CLI interface skeleton (`src/cli/main.py`) – verify script runs with `--help`. *(Alias of PT000)*
-- [ ] T001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) – verify CI triggers on push. *(Alias of PT001)*
-- [ ] T002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) – verify core functions importable. *(Alias of PT002)*
-- [ ] T003 Add statistical verification utilities (`src/audit/stat_verification.py`) – verify functions compute z‑test, t‑test, Fisher. *(Alias of PT003)*
-- [ ] T004 Implement power‑analysis utility (`src/audit/power_analysis.py`) – verify it outputs JSON with required fields. *(Alias of PT004)*
+- [X] T000 Create CLI interface skeleton (`src/cli/main.py`) – verify script runs with `--help`. *(Alias of PT000)*
+- [X] T001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) – verify CI triggers on push. *(Alias of PT001)*
+- [X] T002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) – verify core functions importable. *(Alias of PT002)*
+- [X] T003 Add statistical verification utilities (`src/audit/stat_verification.py`) – verify functions compute z‑test, t‑test, Fisher. *(Alias of PT003)*
+- [X] T004 Implement power‑analysis utility (`src/audit/power_analysis.py`) – verify it outputs JSON with required fields. *(Alias of PT004)*
 - [ ] T005C **[P]** Implement Constitution compliance checker in `src/utils/constitution_checker.py` that validates all seven Principles (I–VII). Run this checker in CI and abort with an error if any principle fails. (verify checker script exists, runs in CI, and passes all seven checks). *(Alias of PT005C)*
 
 - [ ] PT000 Create CLI interface skeleton (`src/cli/main.py`) per plan T000 (verify script runs with `--help`).
@@ -41,7 +41,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create repository skeleton with `src/`, `tests/`, `data/`, `output/`, `contracts/`, `notebooks/`, `.github/`, `docs/` directories (verify directories exist).
-- [ ] T002 Initialize Python project: `pyproject.toml` with required dependencies (`requests`, `beautifulsoup4`, `pandas`, `numpy`, `scipy`, `statsmodels`, `tqdm`, `pyyaml`, `jsonschema`, `psutil`). 
+- [ ] T002 Initialize Python project: `pyproject.toml` with required dependencies (`requests`, `beautifulsoup4`, `pandas`, `numpy`, `scipy`, `statsmodels`, `tqdm`, `pyyaml`, `jsonschema`, `psutil`).
 - [ ] T003 Add linting and formatting tools (`ruff`, `black`) and configure pre‑commit hooks (run `pre-commit run --all-files` with zero violations).
 - [ ] T004 Create `requirements.txt` mirroring `pyproject.toml` for CI reproducibility (verify `requirements.txt` matches `pyproject.toml`).
 - [ ] T005 Create `.gitignore` excluding `__pycache__`, `*.pyc`, `data/raw/*` except URLs, `output/*` (verify git status clean).
@@ -233,7 +233,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T088 Documentation updates in `docs/` – expand API reference, data‑model description, and troubleshooting guide (verify docs build without errors).
-- [ ] T089 Code cleanup: add type hints throughout `src/` , run `mypy --strict` (verify no type errors).
+- [ ] T089 Code cleanup: add type hints throughout `src/`, run `mypy --strict` (verify no type errors).
 - [ ] T090 Performance optimization: replace in‑memory DataFrame joins with chunked processing in `src/audit/prevalence.py` to keep RAM ≤ 1.5 GB for large corpora (SC‑008) (verify memory usage).
 - [ ] T091 Add additional edge‑case unit tests (missing metric, conflicting sample sizes, dead URLs) in `tests/unit/` (verify all pass).
 - [ ] T092 Add additional edge‑case unit tests for subgroup analysis (missing domain, year, Fisher edge cases) in `tests/unit/` (verify all pass).

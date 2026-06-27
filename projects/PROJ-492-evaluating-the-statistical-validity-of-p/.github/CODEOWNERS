@@ -1,0 +1,12 @@
+# Code owners for the audit pipeline project
+# These people or teams are automatically requested for review on
+# any changes to the files they own
+
+# Project maintainers
+@audit-pipeline-maintainers *
+
+# Specific directories
+.github/ @audit-pipeline-maintainers
+src/ @audit-pipeline-maintainers
+tests/ @audit-pipeline-maintainers
+docs/ @audit-pipeline-maintainers

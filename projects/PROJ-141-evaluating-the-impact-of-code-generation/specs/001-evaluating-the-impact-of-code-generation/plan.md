@@ -17,7 +17,7 @@ This project implements a controlled within-subject experiment to evaluate how L
 **Project Type**: web-service + analysis pipeline  
 **Performance Goals**: ≤6 h total runtime for full analysis pipeline; ≤1s timestamp precision; ≥95% problem loading rate  
 **Constraints**: NO GPU/CUDA; models ≤1GB and CPU-tractable; 7 GB RAM, 14 GB disk limits; no PII in committed data  
-**Scale/Scope**: a sample of participants, within-subject design (multiple conditions), HumanEval + medium Codeforces problems
+**Scale/Scope**: A sample of participants, within-subject design (2 conditions), HumanEval + medium Codeforces problems
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

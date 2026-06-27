@@ -1,0 +1,13 @@
+{
+  "baseline_rate": 0.1,
+  "detectable_effect": 0.02,
+  "alpha": 0.05,
+  "power": 0.8,
+  "minimum_sample_size_per_group": 1934,
+  "total_minimum_sample_size": 3868,
+  "corpus_size": null,
+  "minimum_corpus_size_requirement": 300,
+  "meets_requirement": true,
+  "actual_power_if_corpus_provided": null,
+  "notes": "Corpus meets requirement (N ≥ 300 OR N ≥ 3868)"
+}
