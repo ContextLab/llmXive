@@ -188,7 +188,7 @@ class TestNonAcceptEmptyActionItemsDerived:
         from llmxive.backends.base import ChatResponse
         from llmxive.convergence.llm_reviewer import _safe_yaml_load
 
-        agent, ctx, repo, proj_id = self._agent_and_ctx(tmp_path, monkeypatch)
+        agent, ctx, repo, _proj_id = self._agent_and_ctx(tmp_path, monkeypatch)
         # verdict=minor_revision, action_items EMPTY, but substantive prose body.
         text = (
             "---\n"
@@ -506,6 +506,107 @@ class TestArxivIntakeMetadataBlock:
         assert "Paper provenance — IMPORTANT context" in text
         assert "third-party" in text or "ingested verbatim" in text
         assert "submitter field is the llmXive intake" in text
+
+
+class TestMixedAuthorsByline:
+    """Real-world failure (PROJ-746, 06-27): ALL 12 paper-reviewer
+    specialists crashed in ``build_messages`` with
+    ``TypeError: sequence item 3: expected str instance, dict found``.
+
+    ``paper/metadata.json::authors`` is heterogeneous: the original
+    arXiv-parsed authors are plain strings, while ``sync_paper_authors``
+    appends structured ``{"name": ..., "kind": "llm"}`` mappings for every
+    distinct MODEL that revised the paper. The arXiv-intake provenance
+    block did a bare ``", ".join(authors)`` that assumed all-strings, so the
+    first dict entry (here index 3) blew up the join — taking down EVERY
+    reviewer on the project identically. The byline must normalize both
+    shapes via the canonical ``author_display_name`` (Single Source of
+    Truth) and never raise.
+    """
+
+    def test_author_display_name_normalizes_both_shapes(self) -> None:
+        from llmxive.pipeline.authors import author_display_name
+        assert author_display_name("Jane Doe") == "Jane Doe"
+        assert author_display_name("  Spaced  ") == "Spaced"
+        assert (
+            author_display_name({"name": "llmXive-implementer-v1.0", "kind": "llm"})
+            == "llmXive-implementer-v1.0"
+        )
+        assert author_display_name({"no_name": "x"}) == ""
+        assert author_display_name(None) == ""
+
+    def _agent_for(self, tmp_path: Path, monkeypatch, project_id: str):
+        from dataclasses import dataclass, field
+
+        from llmxive.agents.base import AgentContext
+        from llmxive.agents.paper_reviewer import PaperReviewerAgent
+
+        monkeypatch.setattr(
+            "llmxive.agents.paper_reviewer._repo_root", lambda: tmp_path
+        )
+
+        @dataclass
+        class _E:
+            name: str = "paper_reviewer_writing_quality"
+            prompt_version: str = "1.1.0"
+            prompt_path: str | None = None
+            default_backend: object = None
+            default_model: str | None = None
+            fallback_backends: list = field(default_factory=list)
+
+        agent = object.__new__(PaperReviewerAgent)
+        agent.entry = _E()
+        ctx = AgentContext(
+            project_id=project_id, run_id="r", task_id="t", inputs=[],
+            metadata={"title": "Mixed Authors Paper"},
+        )
+        return agent, ctx
+
+    def test_build_messages_with_mixed_string_and_dict_authors(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        import shutil
+
+        proj_id = "PROJ-998-mixed-authors"
+        proj_dir = _make_arxiv_intake_project(tmp_path, proj_id)
+        # build_messages renders the reviewer system prompt from
+        # agents/prompts/ — mirror the real templates into the tmp repo so
+        # the message build runs end-to-end (the author join we're guarding
+        # against happens AFTER prompt rendering).
+        real_repo = Path(__file__).resolve().parents[2]
+        shutil.copytree(
+            real_repo / "agents" / "prompts",
+            tmp_path / "agents" / "prompts",
+        )
+        # Rewrite authors to the real-world heterogeneous shape: 3 human
+        # strings + 1 structured LLM contributor dict at index 3 (exactly
+        # the PROJ-746 layout that triggered the crash).
+        meta_path = proj_dir / "paper" / "metadata.json"
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta["authors"] = [
+            "Michael C. Mozer",
+            "Shoaib Ahmed Siddiqui",
+            "Rosanne Liu",
+            {
+                "name": "llmXive-implementer-v1.0",
+                "kind": "llm",
+                "model_name": "openai.gpt-oss-120b",
+                "backend": "dartmouth",
+            },
+        ]
+        meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
+        # BEFORE the fix this raised TypeError inside the join; now it must
+        # build the messages and render every author by display name.
+        agent, ctx = self._agent_for(tmp_path, monkeypatch, proj_id)
+        out = agent.build_messages(ctx)
+        assert len(out) == 2
+        user = out[1].content
+        assert "Michael C. Mozer" in user
+        assert "llmXive-implementer-v1.0" in user
+        # the dict repr must NOT leak into the byline
+        assert "{'name'" not in user
+        assert "'kind': 'llm'" not in user
 
 
 class TestScoreNormalization:

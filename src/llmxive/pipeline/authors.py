@@ -29,6 +29,23 @@ from typing import Any
 from llmxive.types import AuthorEntry
 
 
+def author_display_name(entry: Any) -> str:
+    """Canonical display name for ONE `metadata.json::authors[]` entry.
+
+    Authorship entries are heterogeneous on disk (Single Source of Truth for
+    rendering them anywhere a byline is built): an entry is either a plain
+    string (the original arXiv-parsed human author) OR a structured mapping
+    `{"name": ..., "kind": ...}` (a synced model/agent contributor, see
+    `sync_paper_authors`). A bare `str()` over a mapping leaks the whole dict
+    repr into the byline (`"{'name': ...}"`) and, when joined with `str.join`,
+    raises `TypeError: sequence item N: expected str instance, dict found`.
+    This normalizes BOTH shapes to the human-readable name and never raises.
+    """
+    if isinstance(entry, dict):
+        return str(entry.get("name") or "").strip()
+    return str(entry or "").strip()
+
+
 def _atomic_write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
@@ -106,10 +123,20 @@ def sync_paper_authors(
         raise ValueError(
             f"metadata.json::authors must be a list, got {type(existing).__name__}"
         )
-    humans = [
-        e for e in existing
-        if isinstance(e, dict) and e.get("kind", "human") != "llm"
-    ]
+    # Preserve EVERY original author. Entries are heterogeneous on disk: the
+    # arXiv-parsed originals are bare strings, structured humans are dicts.
+    # Keep both (normalizing strings to the structured form so the merged list
+    # is homogeneous) and drop ONLY the prior llm entries — those are rebuilt
+    # from the run-log below. Dropping string humans here would WIPE an
+    # arXiv paper's real byline.
+    humans: list[dict[str, Any]] = []
+    for e in existing:
+        if isinstance(e, dict):
+            if e.get("kind") == "llm":
+                continue  # rebuilt from the run-log below
+            humans.append(e)
+        elif isinstance(e, str) and e.strip():
+            humans.append({"name": e.strip(), "kind": "human"})
     model_authors = collect_contributor_models(
         project_id, repo_root=repo_root, also=also
     )
@@ -141,6 +168,12 @@ def list_authors(metadata_path: Path) -> list[AuthorEntry]:
     raw = data.get("authors") or []
     out: list[AuthorEntry] = []
     for r in raw:
+        if isinstance(r, str):
+            # Original arXiv-parsed author stored as a bare string — coerce to a
+            # human AuthorEntry so it is NEVER dropped from the byline/publisher.
+            if r.strip():
+                out.append(AuthorEntry(name=r.strip(), kind="human"))
+            continue
         if not isinstance(r, dict):
             continue
         try:

@@ -555,7 +555,11 @@ class PaperReviewerAgent(Agent):
                 meta = _json.loads((paper_dir / "metadata.json").read_text(encoding="utf-8"))
             except (OSError, _json.JSONDecodeError):
                 meta = {}
-            authors = ", ".join(meta.get("authors", []) or []) or "(unknown)"
+            from llmxive.pipeline.authors import author_display_name
+            authors = ", ".join(
+                n for a in (meta.get("authors") or [])
+                if (n := author_display_name(a))
+            ) or "(unknown)"
             arxiv_url = meta.get("arxiv_url") or (
                 f"https://arxiv.org/abs/{meta['arxiv_id']}" if meta.get("arxiv_id") else "(unknown)"
             )

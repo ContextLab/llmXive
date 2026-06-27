@@ -18,6 +18,7 @@ from typing import Any
 
 import yaml
 
+from llmxive.pipeline.authors import author_display_name
 from llmxive.state import project as project_store
 from llmxive.types import Project, ReviewerKind, Stage
 
@@ -949,7 +950,7 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
         try:
             meta = json.loads(paper_meta.read_text(encoding="utf-8", errors="replace"))
             if isinstance(meta, dict) and isinstance(meta.get("authors"), list):
-                metadata_authors = [str(a).strip() for a in meta["authors"]]
+                metadata_authors = [author_display_name(a) for a in meta["authors"]]
         except (json.JSONDecodeError, OSError):
             pass
 
@@ -1541,7 +1542,7 @@ def _paper_author_contributors(repo: Path, projects: Sequence[Any]) -> list[dict
             try:
                 meta = json.loads(meta_path.read_text(encoding="utf-8", errors="replace"))
                 if isinstance(meta, dict) and isinstance(meta.get("authors"), list):
-                    raw_authors = [str(a) for a in meta["authors"]]
+                    raw_authors = [author_display_name(a) for a in meta["authors"]]
             except (json.JSONDecodeError, OSError):
                 pass
         if not raw_authors:

@@ -130,6 +130,29 @@ class TestSyncPaperAuthors:
         )
         assert [a.name for a in out] == ["Alice", "model-current"]
 
+    def test_preserves_arxiv_string_authors(self, tmp_path: Path) -> None:
+        """Original arXiv authors are stored as bare STRINGS — syncing model
+        contributors must NEVER drop them (would wipe the paper's real byline)."""
+        meta = self._meta(tmp_path)
+        _write_metadata(meta, {"authors": ["Harrison F. Stropkay", "Jiayi Chen"]})
+        _log(tmp_path, agent="llmxive_implementer", model="model-alpha",
+             outputs=[f"projects/{_PROJ}/paper/source/main.tex"], minute=10)
+        out = authors_module.sync_paper_authors(meta, _PROJ, repo_root=tmp_path)
+        data = json.loads(meta.read_text())
+        # original humans preserved (normalized to dicts) + model appended
+        assert [a["name"] for a in data["authors"]] == [
+            "Harrison F. Stropkay", "Jiayi Chen", "model-alpha"]
+        assert all(a.get("kind") for a in data["authors"]), "homogeneous dicts"
+        assert [a.name for a in out] == [
+            "Harrison F. Stropkay", "Jiayi Chen", "model-alpha"]
+
+    def test_list_authors_coerces_bare_strings(self, tmp_path: Path) -> None:
+        meta = self._meta(tmp_path)
+        _write_metadata(meta, {"authors": ["Solo Human", {"name": "D", "kind": "human"}]})
+        out = authors_module.list_authors(meta)
+        assert [a.name for a in out] == ["Solo Human", "D"]
+        assert all(a.kind == "human" for a in out)
+
 
 class TestListAuthors:
     def test_legacy_untyped_entries_coerced_to_human(self, tmp_path: Path) -> None:
