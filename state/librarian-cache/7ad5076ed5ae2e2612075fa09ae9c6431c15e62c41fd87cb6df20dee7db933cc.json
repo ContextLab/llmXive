@@ -1,0 +1,756 @@
+{
+  "fetched_at": "2026-06-27T13:21:34Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies",
+      "target_n": 5
+    },
+    "duration_seconds": 472.447,
+    "ended_at": "2026-06-27T13:21:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "impact of outlier removal on regression coefficients"
+        ],
+        [
+          2,
+          "robust regression techniques"
+        ],
+        [
+          3,
+          "sensitivity analysis of statistical estimators"
+        ],
+        [
+          4,
+          "influence of extreme values on model performance"
+        ],
+        [
+          5,
+          "robustness of linear regression to data anomalies"
+        ],
+        [
+          6,
+          "data trimming effects on regression models"
+        ],
+        [
+          7,
+          "influential observations in regression analysis"
+        ],
+        [
+          8,
+          "comparative evaluation of outlier treatment methods"
+        ],
+        [
+          9,
+          "robust statistics and regression stability"
+        ],
+        [
+          10,
+          "effect of data cleaning on predictive accuracy"
+        ],
+        [
+          11,
+          "leverage points and regression sensitivity"
+        ],
+        [
+          12,
+          "M-estimators versus outlier removal"
+        ],
+        [
+          13,
+          "least trimmed squares and outlier handling"
+        ],
+        [
+          14,
+          "model stability under data perturbation"
+        ],
+        [
+          15,
+          "Cook's distance and outlier influence"
+        ],
+        [
+          16,
+          "handling outliers in statistical modeling"
+        ],
+        [
+          17,
+          "robustness checks in regression analysis"
+        ],
+        [
+          18,
+          "parameter estimate stability with outlier exclusion"
+        ],
+        [
+          19,
+          "preprocessing impact on regression inference"
+        ],
+        [
+          20,
+          "influence functions for regression diagnostics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies statistics": 0,
+        "impact of outlier removal on regression coefficients": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "robust regression trimming winsorization",
+      "Monte Carlo simulation contamination model",
+      "influence measures Cook's distance leverage",
+      "estimation efficiency mean squared error bias",
+      "breakdown point robustness theory asymptotic"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1905.09368"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies statistics": 3,
+      "Monte Carlo simulation contamination model": 3,
+      "breakdown point robustness theory asymptotic": 3,
+      "estimation efficiency mean squared error bias": 3,
+      "influence measures Cook's distance leverage": 3,
+      "robust regression trimming winsorization": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2309.15769",
+          "rationale": "This paper focuses on overparameterized OLS regression and benign overfitting theory, not on sensitivity to outlier removal strategies. While both involve regression models, the core mechanism being studied (overparameterization effects vs. outlier removal sensitivity) is distinct, and leave-k-out formulas here refer to cross-validation in overparameterized settings rather than outlier removal specifically.",
+          "title": "Benign overfitting beyond prediction: The ordinary least squares interpolator"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-27T13:13:42Z",
+    "term_input": {
+      "normalized": "evaluating the sensitivity of regression models to outlier removal strategies statistics",
+      "raw": "Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposed a new regression model called $l_1$-regularized outlier isolation and regression (LOIRE) and a fast algorithm based on block coordinate descent to solve this model. Besides, assuming outliers are gross errors following a Bernoulli process, this paper also presented a Bernoulli estimate model which, in theory, should be very accurate and robust due to its complete elimination of affections caused by outliers. Though this Bernoulli estimate is hard to solve, it could be approximately achieved through a process which takes LOIRE as an important intermediate step. As a result, the approximate Bernoulli estimate is a good combination of Bernoulli estimate's accuracy and LOIRE regression's efficiency with several simulations conducted to strongly verify this point. Moreover, LOIRE can be further extended to realize robust rank factorization which is powerful in recovering low-rank component from massive corruptions. Extensive experimental results showed that the proposed method outperforms state-of-the-art methods like RPCA and GoDec in the aspect of computation speed with a competitive performance.",
+          "claimed_authors": [
+            "Sheng Han",
+            "Suzhen Wang",
+            "Xinyu Wu"
+          ],
+          "claimed_title": "$l_1$-regularized Outlier Isolation and Regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.0156"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='$l_1$-regularized Outlier Isolation and Regression')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The popularity of algorithms based on Extreme Learning Machine (ELM), which can be used to train Single Layer Feedforward Neural Networks (SLFN), has increased in the past years. They have been successfully applied to a wide range of classification and regression tasks. The most commonly used methods are the ones based on minimizing the $\\ell_2$ norm of the error, which is not suitable to deal with outliers, essentially in regression tasks. The use of $\\ell_1$ norm was proposed in Outlier Robust ELM (OR-ELM), which is defined to one-dimensional outputs. In this paper, we generalize OR-ELM to deal with multi-target regression problems, using the error $\\ell_{2,1}$ norm and the Elastic Net theory, which can result in a more sparse network, resulting in our method, Generalized Outlier Robust ELM (GOR-ELM). We use Alternating Direction Method of Multipliers (ADMM) to solve the resulting optimization problem. An incremental version of GOR-ELM is also proposed. We chose 15 public real-world multi-target regression datasets to test our methods. Our conducted experiments show that they are statistically better than other ELM-based techniques, when considering data contaminated with outliers, and equivalent to them, otherwise.",
+          "claimed_authors": [
+            "Bruno Légora Souza da Silva",
+            "Fernando Kentaro Inaba",
+            "Evandro Ottoni Teatini Salles",
+            "Patrick Marques Ciarelli"
+          ],
+          "claimed_title": "Outlier Robust Extreme Learning Machine for Multi-Target Regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.09368"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Outlier Robust Extreme Learning Machine for Multi-Target Regression')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In survival analysis, traditional models assume all individuals will eventually experience the event of interest. However, advances in therapeutics have led to multiple clinical contexts with potentially curative therapies, and in these contexts, certain individuals may never experience the event. Statisticians have developed cure models as a methodology to address this challenge. Nonetheless, despite significant statistical advances in cure models, we have seen more limited uptake in biomedical applications, and we hypothesize that this is caused by limited guidance in the appropriate application of cure models. Cure models require specific identifiability conditions for valid parameter estimation, and previous reports have demonstrated significant issues with the inappropriate application of cure models. Existing tutorials for cure models focus on model implementation and either assume or provide only limited guidance on whether cure modeling is appropriate for the given dataset. This tutorial addresses this gap by describing a systematic procedure that integrates clinical judgment, visual inspection of Kaplan-Meier curves, and quantitative evaluation. We provide a worked example using data from a randomized clinical trial in acute myeloid leukemia, and we also summarize findings from a series of other datasets of hematopoietic cell transplantation to suggest broad practical guidance for choosing to apply cure models. By systematically evaluating cure model appropriateness before fitting these models, researchers can achieve more reliable survival analysis and improved clinical decision-making.",
+          "claimed_authors": [
+            "A Tutorial for Evaluating Cure Model Appropriateness Geethanjalee Mudunkotuwa",
+            "Durbadal Ghosh",
+            "Subodh Selukar"
+          ],
+          "claimed_title": "A Tutorial for Evaluating Cure Model Appropriateness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.04999"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='A Tutorial for Evaluating Cure Model Appropriateness')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Parameter estimation of mixture regression model using the expectation maximization (EM) algorithm is highly sensitive to outliers. Here we propose a fast and efficient robust mixture regression algorithm, called Component-wise Adaptive Trimming (CAT) method. We consider simultaneous outlier detection and robust parameter estimation to minimize the effect of outlier contamination. Robust mixture regression has many important applications including in human cancer genomics data, where the population often displays strong heterogeneity added by unwanted technological perturbations. Existing robust mixture regression methods suffer from outliers as they either conduct parameter estimation in the presence of outliers, or rely on prior knowledge of the level of outlier contamination. CAT was implemented in the framework of classification expectation maximization, under which a natural definition of outliers could be derived. It implements a least trimmed squares (LTS) approach within each exclusive mixing component, where the robustness issue could be transformed from the mixture case to simple linear regression case. The high breakdown point of the LTS approach allows us to avoid the pre-specification of trimming parameter. Compared with multiple existing algorithms, CAT is the most competitive one that can handle and adaptively trim off outliers as well as heavy tailed noise, in different scenarios of simulated data and real genomic data. CAT has been implemented in an R package `RobMixReg' available in CRAN.",
+          "claimed_authors": [
+            "Wennan Chang",
+            "Xinyu Zhou",
+            "Yong Zang",
+            "Chi Zhang",
+            "Sha Cao"
+          ],
+          "claimed_title": "Component-wise Adaptive Trimming For Robust Mixture Regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.11599"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Component-wise Adaptive Trimming For Robust Mixture Regression')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose robust sparse reduced rank regression for analyzing large and complex high-dimensional data with heavy-tailed random noise. The proposed method is based on a convex relaxation of a rank- and sparsity-constrained non-convex optimization problem, which is then solved using the alternating direction method of multipliers algorithm. We establish non-asymptotic estimation error bounds under both Frobenius and nuclear norms in the high-dimensional setting. This is a major contribution over existing results in reduced rank regression, which mainly focus on rank selection and prediction consistency. Our theoretical results quantify the tradeoff between heavy-tailedness of the random noise and statistical bias. For random noise with bounded $(1+δ)$th moment with $δ\\in (0,1)$, the rate of convergence is a function of $δ$, and is slower than the sub-Gaussian-type deviation bounds; for random noise with bounded second moment, we obtain a rate of convergence as if sub-Gaussian noise were assumed. Furthermore, the transition between the two regimes is smooth. We illustrate the performance of the proposed method via extensive numerical studies and a data application.",
+          "claimed_authors": [
+            "Kean Ming Tan",
+            "Qiang Sun",
+            "Daniela Witten"
+          ],
+          "claimed_title": "Robust Sparse Reduced Rank Regression in High Dimensions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.07913"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Robust Sparse Reduced Rank Regression in High Dimensions')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article, we introduce a new variable selection technique through trimming for finite mixture of regression models. Compared to the traditional variable selection techniques, the new method is robust and not sensitive to outliers. The estimation algorithm is introduced and numerical studies are conducted to examine the finite sample performance of the proposed procedure and to compare it with other existing methods.",
+          "claimed_authors": [
+            "Sijia Xiang",
+            "Weixin Yao"
+          ],
+          "claimed_title": "Robust Model Selection for Finite Mixture of Regression Models Through Trimming",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.01036"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Robust Model Selection for Finite Mixture of Regression Models Through Trimming')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a multilevel Monte Carlo method for a particle-based asymptotic-preserving scheme for kinetic equations. Kinetic equations model transport and collision of particles in a position-velocity phase-space. With a diffusive scaling, the kinetic equation converges to an advection-diffusion equation in the limit of zero mean free path. Classical particle-based techniques suffer from a strict time-step restriction to maintain stability in this limit. Asymptotic-preserving schemes provide a solution to this time step restriction, but introduce a first-order error in the time step size. We demonstrate how the multilevel Monte Carlo method can be used as a bias reduction technique to perform accurate simulations in the diffusive regime, while leveraging the reduced simulation cost given by the asymptotic-preserving scheme. We describe how to achieve the necessary correlation between simulation paths at different levels and demonstrate the potential of the approach via numerical experiments.",
+          "claimed_authors": [
+            "Emil Løvbak",
+            "Giovanni Samaey",
+            "Stefan Vandewalle"
+          ],
+          "claimed_title": "A Multilevel Monte Carlo Asymptotic-Preserving Particle Method for Kinetic Equations in the Diffusion Limit",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.04347"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='A Multilevel Monte Carlo Asymptotic-Preserving Particle Method for Kinetic Equations in the Diffusion Limit')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Since its first description fifty years ago, the Metropolis Monte Carlo method has been used in a variety of different ways for the simulation of continuum quantum many-body systems. This paper will consider some of the generalizations of the Metropolis algorithm employed in quantum Monte Carlo: Variational Monte Carlo, dynamical methods for projector monte carlo ({\\it i.e.} diffusion Monte Carlo with rejection), multilevel sampling in path integral Monte Carlo, the sampling of permutations, cluster methods for lattice models, the penalty method for coupled electron-ionic systems and the Bayesian analysis of imaginary time correlation functions.",
+          "claimed_authors": [
+            "D. M. Ceperley"
+          ],
+          "claimed_title": "Metropolis Methods for Quantum Monte Carlo Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "physics/0306182"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Metropolis Methods for Quantum Monte Carlo Simulations')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Monte Carlo event generators (MCEGs) are the indispensable workhorses of particle physics, bridging the gap between theoretical ideas and first-principles calculations on the one hand, and the complex detector signatures and data of the experimental community on the other hand. All collider physics experiments are dependent on simulated events by MCEG codes such as Herwig, Pythia, Sherpa, POWHEG, and MG5_aMC@NLO to design and tune their detectors and analysis strategies. The development of MCEGs is overwhelmingly driven by a vibrant community of academics at European Universities, who also train the next generations of particle phenomenologists. The new challenges posed by possible future collider-based experiments and the fact that the first analyses at Run II of the LHC are now frequently limited by theory uncertainties urge the community to invest into further theoretical and technical improvements of these essential tools. In this short contribution to the European Strategy Update, we briefly review the state of the art, and the further developments that will be needed to meet the challenges of the next generation.",
+          "claimed_authors": [
+            "Andy Buckley",
+            "Frank Krauss",
+            "Simon Plätzer",
+            "Michael Seymour",
+            "Simone Alioli",
+            "Jeppe Andersen",
+            "Johannes Bellm",
+            "Jon Butterworth",
+            "Mrinal Dasgupta",
+            "Claude Duhr",
+            "Stefano Frixione",
+            "Stefan Gieseke",
+            "Keith Hamilton",
+            "Gavin Hesketh",
+            "Stefan Hoeche",
+            "Hannes Jung",
+            "Wolfgang Kilian",
+            "Leif Lönnblad",
+            "Fabio Maltoni",
+            "Michelangelo Mangano",
+            "Stephen Mrenna",
+            "Zoltán Nagy",
+            "Paolo Nason",
+            "Emily Nurse",
+            "Thorsten Ohl",
+            "Carlo Oleari",
+            "Andreas Papaefstathiou",
+            "Tilman Plehn",
+            "Stefan Prestel",
+            "Emanuele Ré",
+            "Juergen Reuter",
+            "Peter Richardson",
+            "Gavin Salam",
+            "Marek Schoenherr",
+            "Steffen Schumann",
+            "Frank Siegert",
+            "Andrzej Siódmok",
+            "Malin Sjödahl",
+            "Torbjörn Sjöstrand",
+            "Peter Skands",
+            "Davison Soper",
+            "Gregory Soyez",
+            "Bryan Webber"
+          ],
+          "claimed_title": "Monte Carlo event generators for high energy particle physics event simulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.01674"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Monte Carlo event generators for high energy particle physics event simulation')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A comprehensive review on Cook's contribution in the theory of NP-Completeness with relations to modern mathematics.",
+          "claimed_authors": [
+            "Li Chen"
+          ],
+          "claimed_title": "Cook's Theory and the Twentieth Century Mathematics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1103.6187"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title=\"Cook's Theory and the Twentieth Century Mathematics\")",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cook's distance [Technometrics 19 (1977) 15-18] is one of the most important diagnostic tools for detecting influential individual or subsets of observations in linear regression for cross-sectional data. However, for many complex data structures (e.g., longitudinal data), no rigorous approach has been developed to address a fundamental issue: deleting subsets with different numbers of observations introduces different degrees of perturbation to the current model fitted to the data, and the magnitude of Cook's distance is associated with the degree of the perturbation. The aim of this paper is to address this issue in general parametric models with complex data structures. We propose a new quantity for measuring the degree of the perturbation introduced by deleting a subset. We use stochastic ordering to quantify the stochastic relationship between the degree of the perturbation and the magnitude of Cook's distance. We develop several scaled Cook's distances to resolve the comparison of Cook's distance for different subset deletions. Theoretical and numerical examples are examined to highlight the broad spectrum of applications of these scaled Cook's distances in a formal influence analysis.",
+          "claimed_authors": [
+            "Hongtu Zhu",
+            "Joseph G. Ibrahim",
+            "Hyunsoon Cho"
+          ],
+          "claimed_title": "Perturbation and scaled Cook's distance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.0064"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title=\"Perturbation and scaled Cook's distance\")",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This Note investigates the bias of the sampling importance resampling (SIR) filter in estimation of the state transition noise in the state space model. The SIR filter may suffer from sample impoverishment that is caused by the resampling and therefore will benefit from a sampling proposal that has a heavier tail, e.g. the state transition noise simulated for particle preparation is bigger than the true noise involved with the state dynamics. This is because a comparably big transition noise used for particle propagation can spread overlapped particles to counteract impoverishment, giving better approximation of the posterior. As such, the SIR filter tends to yield a biased (bigger-than-the-truth) estimate of the transition noise if it is unknown and needs to be estimated, at least, in the forward-only filtering estimation. The bias is elaborated via the direct roughening approach by means of both qualitative logical deduction and quantitative numerical simulation.",
+          "claimed_authors": [
+            "Tiancheng Li"
+          ],
+          "claimed_title": "Bias of the SIR filter in estimation of the state transition noise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1308.2426"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Bias of the SIR filter in estimation of the state transition noise')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The success of the multilingual automatic speech recognition systems empowered many voice-driven applications. However, measuring the performance of such systems remains a major challenge, due to its dependency on manually transcribed speech data in both mono- and multilingual scenarios. In this paper, we propose a novel multilingual framework -- eWER3 -- jointly trained on acoustic and lexical representation to estimate word error rate. We demonstrate the effectiveness of eWER3 to (i) predict WER without using any internal states from the ASR and (ii) use the multilingual shared latent space to push the performance of the close-related languages. We show our proposed multilingual model outperforms the previous monolingual word error rate estimation method (eWER2) by an absolute 9\\% increase in Pearson correlation coefficient (PCC), with better overall estimation between the predicted and reference WER.",
+          "claimed_authors": [
+            "Shammur Absar Chowdhury",
+            "Ahmed Ali"
+          ],
+          "claimed_title": "Multilingual Word Error Rate Estimation: e-WER3",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.00649"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Multilingual Word Error Rate Estimation: e-WER3')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robust inference based on the minimization of statistical divergences has proved to be a useful alternative to classical techniques based on maximum likelihood and related methods. Basu et al. (1998) introduced the density power divergence (DPD) family as a measure of discrepancy between two probability density functions and used this family for robust estimation of the parameter for independent and identically distributed data. Ghosh et al. (2017) proposed a more general class of divergence measures, namely the S-divergence family and discussed its usefulness in robust parametric estimation through several asymptotic properties and some numerical illustrations. In this paper, we develop the results concerning the asymptotic breakdown point for the minimum S-divergence estimators (in particular the minimum DPD estimator) under general model setups. The primary result of this paper provides lower bounds to the asymptotic breakdown point of these estimators which are independent of the dimension of the data, in turn corroborating their usefulness in robust inference under high dimensional data.",
+          "claimed_authors": [
+            "Subhrajyoty Roy",
+            "Abir Sarkar",
+            "Abhik Ghosh",
+            "Ayanendranath Basu"
+          ],
+          "claimed_title": "Asymptotic Breakdown Point Analysis for a General Class of Minimum Divergence Estimators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.07466"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Asymptotic Breakdown Point Analysis for a General Class of Minimum Divergence Estimators')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that there are no nontrivial surjective uniformly asymptotically regular mappings acting on a metric space and derive some consequences of this fact. In particular, we prove that a jointly continuous left amenable or left reversible semigroup generated by firmly nonexpansive mappings on a bounded $τ$-compact subset of a Banach space has a common fixed point, and give a qualitative complement to the Markov-Kakutani theorem.",
+          "claimed_authors": [
+            "Sławomir Borzdyński",
+            "Andrzej Wiśnicki"
+          ],
+          "claimed_title": "Applications of uniform asymptotic regularity to fixed point theorems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.04069"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Applications of uniform asymptotic regularity to fixed point theorems')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Prediction error is critical to assessing the performance of statistical methods and selecting statistical models. We propose the cross-validation and approximated cross-validation methods for estimating prediction error under a broad q-class of Bregman divergence for error measures which embeds nearly all of the commonly used loss functions in regression, classification procedures and machine learning literature. The approximated cross-validation formulas are analytically derived, which facilitate fast estimation of prediction error under the Bregman divergence. We then study a data-driven optimal bandwidth selector for the local-likelihood estimation that minimizes the overall prediction error or equivalently the covariance penalty. It is shown that the covariance penalty and cross-validation methods converge to the same mean-prediction-error-criterion. We also propose a lower-bound scheme for computing the local logistic regression estimates and demonstrate that it is as simple and stable as the local least-squares regression estimation. The algorithm monotonically enhances the target local-likelihood and converges. The idea and methods are extended to the generalized varying-coefficient models and semiparametric models.",
+          "claimed_authors": [
+            "Jianqing Fan",
+            "Chunming Zhang"
+          ],
+          "claimed_title": "Assessing prediction error of nonparametric regression and classification under Bregman divergence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0506028"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Assessing prediction error of nonparametric regression and classification under Bregman divergence')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study conditions under which treatment effect estimators constructed under the no-interference assumption in randomized experiments are asymptotically normal in the presence of interference. We prove that the standard Horvitz-Thompson estimator is asymptotically normal under a restricted interference condition characterized by limiting the degree of the dependency graph. The amount of interference is allowed to grow with the population size. We then provide a central limit theorem for the difference-in-means estimator that can handle interference that exists between all pairs of units, provided most of the interference is captured by a restricted-degree dependency graph. The asymptotic variance admits a decomposition into two terms: (a) the variance that is expected under no-interference and (b) the additional variance contributed by interference. We propose a conservative variance estimator based on this variance decomposition. The results arise as an application of Stein's method. For practitioners, our results show that standard estimators continue to exhibit normality in large sample sizes and that inference can be made robust to mild forms of interference.",
+          "claimed_authors": [
+            "Alex Chin"
+          ],
+          "claimed_title": "Central limit theorems via Stein's method for randomized experiments under interference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.03105"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title=\"Central limit theorems via Stein's method for randomized experiments under interference\")",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we study the problem of estimating the variance and covariance of datasets under differential privacy in the add-remove model. While estimation in the swap model has been extensively studied in the literature, the add-remove model remains less explored and more challenging, as the dataset size must also be kept private. To address this issue, we develop efficient mechanisms for variance and covariance estimation based on the \\emph{Bézier mechanism}, a novel moment-release framework that leverages Bernstein bases. We prove that our proposed mechanisms are minimax optimal in the high-privacy regime by establishing new minimax lower bounds. Moreover, beyond worst-case scenarios, we analyze instance-wise utility and show that the Bézier-based estimator consistently achieves better utility compared to alternative mechanisms. Finally, we demonstrate the effectiveness of the Bézier mechanism beyond variance and covariance estimation, showcasing its applicability to other statistical tasks.",
+          "claimed_authors": [
+            "Shokichi Takakura",
+            "Seng Pei Liew",
+            "Satoshi Hasegawa"
+          ],
+          "claimed_title": "Optimal Variance and Covariance Estimation under Differential Privacy in the Add-Remove Model and Beyond",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.04919"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Optimal Variance and Covariance Estimation under Differential Privacy in the Add-Remove Model and Beyond')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "When faced with a data set too large to be processed all at once, an obvious solution is to retain only part of it. In practice this takes a wide variety of different forms, and among them \"coresets\" are especially appealing. A coreset is a (small) weighted sample of the original data that comes with the following guarantee: a cost function can be evaluated on the smaller set instead of the larger one, with low relative error. For some classes of problems, and via a careful choice of sampling distribution (based on the so-called \"sensitivity\" metric), iid random sampling has turned to be one of the most successful methods for building coresets efficiently. However, independent samples are sometimes overly redundant, and one could hope that enforcing diversity would lead to better performance. The difficulty lies in proving coreset properties in non-iid samples. We show that the coreset property holds for samples formed with determinantal point processes (DPP). DPPs are interesting because they are a rare example of repulsive point processes with tractable theoretical properties, enabling us to prove general coreset theorems. We apply our results to both the k-means and the linear regression problems, and give extensive empirical evidence that the small additional computational cost of DPP sampling comes with superior performance over its iid counterpart. Of independent interest, we also provide analytical formulas for the sensitivity in the linear regression and 1-means cases.",
+          "claimed_authors": [
+            "Nicolas Tremblay",
+            "Simon Barthelmé",
+            "Pierre-Olivier Amblard"
+          ],
+          "claimed_title": "Determinantal Point Processes for Coresets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.08700"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Determinantal Point Processes for Coresets')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In the Bayesian reinforcement learning (RL) setting, a prior distribution over the unknown problem parameters -- the rewards and transitions -- is assumed, and a policy that optimizes the (posterior) expected return is sought. A common approximation, which has been recently popularized as meta-RL, is to train the agent on a sample of $N$ problem instances from the prior, with the hope that for large enough $N$, good generalization behavior to an unseen test instance will be obtained. In this work, we study generalization in Bayesian RL under the probably approximately correct (PAC) framework, using the method of algorithmic stability. Our main contribution is showing that by adding regularization, the optimal policy becomes stable in an appropriate sense. Most stability results in the literature build on strong convexity of the regularized loss -- an approach that is not suitable for RL as Markov decision processes (MDPs) are not convex. Instead, building on recent results of fast convergence rates for mirror descent in regularized MDPs, we show that regularized MDPs satisfy a certain quadratic growth criterion, which is sufficient to establish stability. This result, which may be of independent interest, allows us to study the effect of regularization on generalization in the Bayesian RL setting.",
+          "claimed_authors": [
+            "Aviv Tamar",
+            "Daniel Soudry",
+            "Ev Zisselman"
+          ],
+          "claimed_title": "Regularization Guarantees Generalization in Bayesian Reinforcement Learning through Algorithmic Stability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.11792"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Regularization Guarantees Generalization in Bayesian Reinforcement Learning through Algorithmic Stability')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study the following basic machine learning task: Given a fixed set of $d$-dimensional input points for a linear regression problem, we wish to predict a hidden response value for each of the points. We can only afford to attain the responses for a small subset of the points that are then used to construct linear predictions for all points in the dataset. The performance of the predictions is evaluated by the total square loss on all responses (the attained as well as the hidden ones). We show that a good approximate solution to this least squares problem can be obtained from just dimension $d$ many responses by using a joint sampling technique called volume sampling. Moreover, the least squares solution obtained for the volume sampled subproblem is an unbiased estimator of optimal solution based on all n responses. This unbiasedness is a desirable property that is not shared by other common subset selection techniques.\n  Motivated by these basic properties, we develop a theoretical framework for studying volume sampling, resulting in a number of new matrix expectation equalities and statistical guarantees which are of importance not only to least squares regression but also to numerical linear algebra in general. Our methods also lead to a regularized variant of volume sampling, and we propose the first efficient algorithms for volume sampling which make this technique a practical tool in the machine learning toolbox. Finally, we provide experimental evidence which confirms our theoretical findings.",
+          "claimed_authors": [
+            "Michał Dereziński",
+            "Manfred K. Warmuth"
+          ],
+          "claimed_title": "Reverse iterative volume sampling for linear regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.01969"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Reverse iterative volume sampling for linear regression')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper delivers improved theoretical guarantees for the convex programming approach in low-rank matrix estimation, in the presence of (1) random noise, (2) gross sparse outliers, and (3) missing data. This problem, often dubbed as robust principal component analysis (robust PCA), finds applications in various domains. Despite the wide applicability of convex relaxation, the available statistical support (particularly the stability analysis vis-à-vis random noise) remains highly suboptimal, which we strengthen in this paper. When the unknown matrix is well-conditioned, incoherent, and of constant rank, we demonstrate that a principled convex program achieves near-optimal statistical accuracy, in terms of both the Euclidean loss and the $\\ell_{\\infty}$ loss. All of this happens even when nearly a constant fraction of observations are corrupted by outliers with arbitrary magnitudes. The key analysis idea lies in bridging the convex program in use and an auxiliary nonconvex optimization algorithm, and hence the title of this paper.",
+          "claimed_authors": [
+            "Yuxin Chen",
+            "Jianqing Fan",
+            "Cong Ma",
+            "Yuling Yan"
+          ],
+          "claimed_title": "Bridging Convex and Nonconvex Optimization in Robust PCA: Noise, Outliers, and Missing Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.05484"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies st', candidate_title='Bridging Convex and Nonconvex Optimization in Robust PCA: Noise, Outliers, and Missing Data')",
+        "failed_at": "2026-06-27T13:16:14Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Martyn Plummer"
+          ],
+          "title": "Bayesian measures of leverage and influence",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.19996",
+        "summary": "Local sensitivity diagnostics for Bayesian models are described that are analogues of frequentist measures of leverage and influence. The diagnostics are simple to calculate using MCMC. A comparison between leverage and influence allows a general purpose definition of an outlier based on local perturbations. These outliers may indicate areas where the model does not fit well even if they do not influence model fit. The sensitivity diagnostics are closely related to predictive information criteria that are commonly used for Bayesian model choice. A diagnostic for prior-data conflict is proposed that may also be used to measure cross-conflict between different parts of the data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.19996",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T13:16:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sheng Han",
+            "Suzhen Wang",
+            "Xinyu Wu"
+          ],
+          "title": "$l_1$-regularized Outlier Isolation and Regression",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1406.0156",
+        "summary": "This paper proposed a new regression model called $l_1$-regularized outlier isolation and regression (LOIRE) and a fast algorithm based on block coordinate descent to solve this model. Besides, assuming outliers are gross errors following a Bernoulli process, this paper also presented a Bernoulli estimate model which, in theory, should be very accurate and robust due to its complete elimination of affections caused by outliers. Though this Bernoulli estimate is hard to solve, it could be approximately achieved through a process which takes LOIRE as an important intermediate step. As a result, the approximate Bernoulli estimate is a good combination of Bernoulli estimate's accuracy and LOIRE regression's efficiency with several simulations conducted to strongly verify this point. Moreover, LOIRE can be further extended to realize robust rank factorization which is powerful in recovering low-rank component from massive corruptions. Extensive experimental results showed that the proposed method outperforms state-of-the-art methods like RPCA and GoDec in the aspect of computation speed with a competitive performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1406.0156",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T13:17:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bruno Légora Souza da Silva",
+            "Fernando Kentaro Inaba",
+            "Evandro Ottoni Teatini Salles",
+            "Patrick Marques Ciarelli"
+          ],
+          "title": "Outlier Robust Extreme Learning Machine for Multi-Target Regression",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.09368",
+        "summary": "The popularity of algorithms based on Extreme Learning Machine (ELM), which can be used to train Single Layer Feedforward Neural Networks (SLFN), has increased in the past years. They have been successfully applied to a wide range of classification and regression tasks. The most commonly used methods are the ones based on minimizing the $\\ell_2$ norm of the error, which is not suitable to deal with outliers, essentially in regression tasks. The use of $\\ell_1$ norm was proposed in Outlier Robust ELM (OR-ELM), which is defined to one-dimensional outputs. In this paper, we generalize OR-ELM to deal with multi-target regression problems, using the error $\\ell_{2,1}$ norm and the Elastic Net theory, which can result in a more sparse network, resulting in our method, Generalized Outlier Robust ELM (GOR-ELM). We use Alternating Direction Method of Multipliers (ADMM) to solve the resulting optimization problem. An incremental version of GOR-ELM is also proposed. We chose 15 public real-world multi-target regression datasets to test our methods. Our conducted experiments show that they are statistically better than other ELM-based techniques, when considering data contaminated with outliers, and equivalent to them, otherwise.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1905.09368",
+          "http_status": 200,
+          "pdf_sample_score": 0.3026,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T13:17:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Reichel"
+          ],
+          "title": "Statistically Significant Linear Regression Coefficients Solely Driven By Outliers In Finite-sample Inference",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.10738",
+        "summary": "In this paper, we investigate the impact of outliers on the statistical significance of coefficients in linear regression. We demonstrate, through numerical simulation using R, that a single outlier can cause an otherwise insignificant coefficient to appear statistically significant. We compare this with robust Huber regression, which reduces the effects of outliers. Afterwards, we approximate the influence of a single outlier on estimated regression coefficients and discuss common diagnostic statistics to detect influential observations in regression (e.g., studentized residuals). Furthermore, we relate this issue to the optional normality assumption in simple linear regression [14], required for exact finite-sample inference but asymptotically justified for large n by the Central Limit Theorem (CLT). We also address the general dangers of relying solely on p-values without performing adequate regression diagnostics. Finally, we provide a brief overview of regression methods and discuss how they relate to the assumptions of the Gauss-Markov theorem.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.10738",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T13:17:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Takeyuki Sasai",
+            "Hironori Fujisawa"
+          ],
+          "title": "Outlier Robust and Sparse Estimation of Linear Regression Coefficients",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2208.11592",
+        "summary": "We consider outlier-robust and sparse estimation of linear regression coefficients, when the covariates and the noises are contaminated by adversarial outliers and noises are sampled from a heavy-tailed distribution. Our results present sharper error bounds under weaker assumptions than prior studies that share similar interests with this study. Our analysis relies on some sharp concentration inequalities resulting from generic chaining.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2208.11592",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T13:17:01Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the sensitivity of regression models to outlier removal strategies statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

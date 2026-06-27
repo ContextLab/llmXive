@@ -1,0 +1,45 @@
+- **Baseline Handling**: If a baseline conversion rate is missing, the pipeline reconstructs the absolute effect size by using the **average of the two variant rates** (per **FR‑012**) rather than flagging the entry as missing; only when **both** variant rates are unavailable is the entry flagged as "missing metric".
+- **Dead or Non‑HTML URLs**: URLs that are unreachable, return non‑HTML payloads, or redirect repeatedly are recorded as parsing failures (fulfilling **FR‑007**) and excluded from statistical aggregates, contributing to the parsing‑error rate (**SC‑005**).
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST accept as input a list of URLs (or file paths) pointing to publicly available A/B test summaries. (See US‑1)
+- **FR-002**: System MUST automatically extract, for each variant, the reported sample size, effect size (conversion‑rate difference, lift % or mean difference for continuous metrics), and reported p‑value or confidence interval. Extracted records MUST be instantiated as `ABSummary` entities that conform to the inline schema definition below. (See US‑1)
+
+ **Inline Schema Definition**:
+ ```
+ ABSummary:
+   url: string (required, valid URL)
+   variant_a_n: integer (required, ≥1)
+   variant_b_n: integer (required, ≥1)
+   variant_a_conversions: integer (required, ≥0)
+   variant_b_conversions: integer (required, ≥0)
+   reported_p: float (required, 0 < p ≤ 1, or null for inequality bounds)
+   reported_effect_size: float (required, can be negative)
+   outcome_type: string (required, one of: binary, continuous)
+   confidence_interval: object (optional, {lower: float, upper: float})
+ ```
+- **FR-003**: System MUST reconstruct the expected p‑value using the appropriate statistical test:
+  1. For binary conversion metrics, use a **two‑proportion z‑test** (or Fisher's exact test when any cell count ≤ 5).
+  2. For continuous metrics, use **Welch's two‑sample t‑test** (unequal variances). (See US‑1)
+- **FR-004**: System MUST flag a summary as *inconsistent* when **any** of the following holds (evaluated at a **95 % confidence level (α = 0.05)**):
+  1. The **absolute difference** between the reported numeric p‑value and the reconstructed p‑value exceeds **0.05**. *Justification*: Constitution Section VI mandates this absolute threshold; relative thresholds are not permitted for p‑value discrepancy. *Constitutional Mandate*: Per Constitution Section VI, absolute threshold of 0.05 is required regardless of statistical considerations for small p-values. This is a policy choice, not a statistical optimization.
+  2. For inequality‑reported p‑values (e.g., "p < 0.001"), the summary is flagged inconsistent **only if** the reconstructed p‑value exceeds the bound.
+  3. The **absolute relative difference** between the reported effect size and the reconstructed effect size exceeds **5 %** of the larger magnitude. *Justification*: Industry surveys of A/B testing report typical reporting variance; this relative threshold is not constrained by the Constitution which only specifies p‑value discrepancy. (See US‑1)
+- **FR-004b**: System MUST emit a **data_quality_warning** when the reported sample sizes for the two variants differ from the extracted counts by more than **5 %** of the larger count; such entries are excluded from the aggregate prevalence estimate. (See US‑1)
+- **FR-005a**: System MUST perform a two‑sided binomial test of the overall inconsistency proportion against a baseline proportion of **0.05** (justified by John et al., prior reporting error meta‑analysis) at significance level **α = 0.05**. The test must report a p‑value, a 95 % Wilson confidence interval for the observed proportion, and the raw inconsistency rate. (See US‑2)
+- **FR-005b**: System MUST conduct a sensitivity analysis of the baseline proportion by repeating the binomial test for baseline values in the range **0.02 – 0.10** (step 0.01) and must report the maximum variation in the estimated prevalence. (See US‑2)
+- **FR-007**: System MUST log any parsing failures or missing fields with **clear error messages** that (a) include an error code of the form `ERR‑###`, (b) name the affected field, and (c) provide a concise description ≤ 200 characters. (See US‑1)
+- **FR-009**: System MUST be compatible with the **Ubuntu‑latest** GitHub Actions runner, use only Python 3.11+ and pip‑installable packages, limit memory consumption to **≤ 2 GB**, CPU usage to **≤ 2 vCPUs**, avoid GPU usage and disallowed system calls, and complete within **6 hours**. (See US‑1, US‑3, US‑4)
+- **FR-012**: System MUST handle summaries lacking a baseline conversion rate by using the **average of the two variant rates** to reconstruct the absolute effect size. *Limitation*: This is a heuristic approximation; when baseline is missing, effect size reconstruction has reduced statistical rigor and should be flagged in audit notes. (See US‑1)
+- **FR-024**: System MUST export the audit results as (a) a JSON file `audit_report.json` containing a record per summary and (b) a CSV file `summary_report.csv` summarising total counts, inconsistency rate, bias‑adjusted rate, and 95 % Wilson confidence interval. The JSON records must include the fields: `url`, `reported_p`, `reported_effect_size`, `reported_sample_size_a`, `reported_sample_size_b`, `reconstructed_p`, `reconstructed_effect_size`, `diff_abs_p`, `diff_abs_effect`, `flag_inconsistent`, `notes`. (See US‑3)
+- **FR-025**: System MUST perform an a priori power analysis for the binomial prevalence test and ensure that the number of audited summaries **N ≥ 300** (or the calculated minimum) to achieve statistical power **≥ 0.80** at **α = 0.05** for detecting an inconsistency proportion of at least **0.10** (double the baseline of 0.05 from FR‑005a). This guarantees sufficient sensitivity to answer the research question. *Justification*: Power analysis is essential to avoid inconclusive prevalence estimates; N ≥ 300 is required by the power calculation parameters. (See US‑2)
+- **FR-026**: System MUST validate each statistical test implementation (two‑proportion z‑test/Fisher's exact test, Welch's t‑test, binomial test) via Monte Carlo simulation with **A large number of replicates will be used. 
+
+The research question is: Can a generative model learn to accurately simulate the dynamics of complex systems?
+The method is: We will train a recurrent neural network to predict future states of a dynamical system, using backpropagation through time.
+(Schmidt & Lipson, 2019)** and must ensure the absolute difference between the library result and the Monte Carlo estimate is **≤ 0.005**. Contract tests must be executed against the inline schema definition in FR-002. *Justification*: Independent statistical software validation is essential for trustworthy inference per best‑practice standards for statistical software validation. (See US‑1)
+- **FR-027**: System MUST ensure that **no single source domain accounts for >30 %** of the total corpus; if a domain would exceed this proportion, the pipeline must either subsample that domain or flag a violation. Additionally, the system MUST report the proportion of summaries per domain, compute a **bias‑adjusted overall inconsistency rate** using domain‑weighted averaging, and include both raw and bias‑adjusted rates in the final audit output. (See US‑1) *Justification*: Controlling domain dominance prevents confounding in the prevalence estimate.
+- **FR-028**: System MUST provide a Quickstart guide (README) with step‑by‑step instructions, including command‑line examples and expected runtime, and must enable a new user to execute the audit on a sample corpus of **30 URLs** within **30 minutes** on the default GitHub Actions runner. This documentation is essential for reproducibility and external verification. (See US‑1) *Justification*: Reproducibility is a core scientific requirement.

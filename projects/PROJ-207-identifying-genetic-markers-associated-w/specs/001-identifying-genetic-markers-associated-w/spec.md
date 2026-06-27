@@ -1,0 +1,161 @@
+# Feature Specification: Identifying Genetic Markers Associated with Honeybee Colony Collapse Disorder
+
+**Feature Branch**: `001-gene-regulation`
+**Created**: 2024-01-15
+**Status**: Draft
+**Input**: Research project to identify SNPs associated with CCD susceptibility in *Apis mellifera*
+
+## User Scenarios & Testing
+
+### User Story 1 - GWAS Pipeline Execution (Priority: P1)
+
+As a researcher, I want to execute the complete GWAS analysis pipeline on honeybee genomic data, so that I can identify SNPs associated with CCD susceptibility.
+
+**Why this priority**: This is the core research deliverable. Without the GWAS pipeline, no genetic markers can be identified. All downstream analysis depends on this.
+
+**Independent Test**: Can be fully tested by running the pipeline on a small sample dataset and verifying that SNP association statistics are produced.
+
+**Acceptance Scenarios**:
+
+1. **Given** valid VCF files and phenotype metadata exist, **When** the GWAS pipeline is executed with covariates (geographic region, sampling year, Varroa load), **Then** PLINK produces association statistics for all high-quality biallelic SNPs (QUAL > 30, depth ≥ 10).
+
+2. **Given** the pipeline completes, **When** results are written to output files, **Then** each SNP record includes chromosome, position, allele frequencies, p-values, and odds ratios.
+
+3. **Given** the GitHub Actions free-tier runner, **When** the pipeline executes, **Then** total runtime does not exceed an acceptable timeframe and peak memory usage stays within 7 GB.
+
+---
+
+### User Story 2 - Multiple Testing Correction & Threshold Sensitivity (Priority: P2)
+
+As a researcher, I want to apply Benjamini-Hochberg FDR correction and test threshold sensitivity, so that I can identify robust genetic associations while controlling for false discoveries.
+
+**Why this priority**: GWAS involves testing millions of SNPs; without proper multiple testing correction, false positives will overwhelm results. Sensitivity analysis validates threshold choices.
+
+**Independent Test**: Can be tested independently by running the correction on simulated or existing GWAS output and verifying q-values are computed correctly.
+
+**Acceptance Scenarios**:
+
+1. **Given** GWAS p-values for all SNPs, **When** Benjamini-Hochberg FDR correction is applied, **Then** q-values are computed and SNPs with q < 0.05 are flagged as significant.
+
+2. **Given** a significance threshold (p < 5×10⁻⁸), **When** sensitivity analysis sweeps the threshold across {1×10⁻⁷, 5×10⁻⁸, 1×10⁻⁸}, **Then** the pipeline reports how many SNPs cross each threshold and the false-positive rate estimates.
+
+3. **Given** multiple hypothesis tests (>1), **When** family-wise error is considered, **Then** the pipeline documents the correction method and its impact on discovery rate.
+
+4. **Given** the observational study design (no randomization), **When** results are reported, **Then** all findings are framed as ASSOCIATIONAL (not causal) with explicit documentation.
+
+---
+
+### User Story 3 - Machine Learning Validation & Polygenic Risk Scoring (Priority: P3)
+
+As a researcher, I want to validate GWAS findings using LASSO logistic regression and compute polygenic risk scores, so that I can assess predictive performance and quantify genetic contribution.
+
+**Why this priority**: This validates whether identified SNPs have predictive utility beyond statistical significance. It's essential for assessing practical utility but depends on GWAS completion.
+
+**Independent Test**: Can be tested by running LASSO on a held-out test set and verifying AUC is computed correctly.
+
+**Acceptance Scenarios**:
+
+1. **Given** GWAS-significant SNPs and phenotype data, **When** LASSO logistic regression is trained with 5-fold cross-validation, **Then** out-of-sample AUC is computed and reported.
+
+2. **Given** polygenic risk scores for each colony, **When** likelihood-ratio test is performed against covariates-only model, **Then** p-value for predictive improvement is reported.
+
+3. **Given** model predictions, **When** AUC is computed, **Then** the value is ≥ 0.75 if the genetic signal is strong (or null results are documented).
+
+4. **Given** collinearity between covariates (geographic region, sampling year), **When** diagnostics are run, **Then** VIF or correlation matrix is reported and joint relationships are framed descriptively rather than as independent effects.
+
+---
+
+### Edge Cases
+
+- What happens when the NCBI BioProject data lacks required variables (e.g., Varroa load metadata missing for some colonies)?
+- How does the system handle insufficient sample size for GWAS power (n < 100 colonies)?
+- What happens when all SNPs fail quality filters (QUAL ≤ 30 or depth < 10)?
+- How does the system handle collinearity between geographic region and sampling year covariates?
+- What happens when the GitHub Actions runner exceeds 6-hour runtime limit?
+- What happens when the Ensembl Bees API is unavailable during functional annotation?
+
+## Requirements
+
+### Functional Requirements
+
+- **FR-001**: System MUST download *Apis mellifera* whole-genome sequencing data from NCBI BioProject PRJNA... (CCD colonies) and PRJNA... (healthy controls) with associated metadata from BeeBase repository ( certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)')))]). (See US-1)
+
+- **FR-002**: System MUST align reads to reference genome Amel_HAv3.1 using `bwa mem` and call variants with `FreeBayes`, filtering to high-quality biallelic SNPs (QUAL > 30, depth ≥ 10). (See US-1)
+
+- **FR-003**: System MUST convert VCF to PLINK format, prune for linkage disequilibrium (r² < 0.2), and encode colony status as binary phenotype (CCD = 1, healthy = 0) with covariates (geographic region, sampling year, Varroa mite count). (See US-1)
+
+- **FR-004**: System MUST perform GWAS using logistic regression in PLINK with Benjamini-Hochberg FDR correction, flagging SNPs with q < 0.05. (See US-2)
+
+- **FR-005**: System MUST apply threshold sensitivity analysis sweeping p-value cutoffs across {1×10⁻⁷, 5×10⁻⁸, 1×10⁻⁸} and report false-positive rate variation across thresholds. (See US-2)
+
+- **FR-006**: System MUST train LASSO-regularized logistic regression model using scikit-learn with 5-fold cross-validation to estimate out-of-sample AUC. (See US-3)
+
+- **FR-007**: System MUST compute polygenic risk scores for each colony and test predictive improvement over covariates-only model via likelihood-ratio test. (See US-3)
+
+- **FR-008**: System MUST map significant SNPs to genes using Ensembl Bees API and query GO terms and known immune pathways. (See US-3)
+
+- **FR-009**: System MUST document that all GWAS findings are framed as ASSOCIATIONAL (not causal) given observational study design without randomization. (See US-2)
+
+- **FR-010**: System MUST perform collinearity diagnostic for covariates (geographic region, sampling year) and document any definitional relationships that preclude claims of independent predictive effects. (See US-1)
+
+- **FR-011**: System MUST use validated instruments for CCD diagnosis criteria consistent across BeeBase and NCBI metadata sources. (See US-1)
+
+- **FR-012**: System MUST implement sample-size/power consideration with method stated (e.g., G*Power calculation) or explicit acknowledgement of power limitation if n < 100. (See US-2)
+
+### Key Entities
+
+- **Colony**: Represents a honeybee colony with attributes: colony_id, health_status (CCD/healthy), geographic_region, sampling_year, Varroa_mite_count.
+
+- **SNP**: Represents a single-nucleotide polymorphism with attributes: rs_id, chromosome, position, reference_allele, alternate_allele, allele_frequency, p_value, q_value, odds_ratio.
+
+- **Colony_Pheno**: Represents phenotype metadata linking colony to covariates and CCD diagnosis.
+
+## Success Criteria
+
+### Measurable Outcomes
+
+- **SC-001**: Number of genome-wide significant SNPs (q < 0.05) is measured against the FDR-corrected association output. (See US-2)
+
+- **SC-002**: Out-of-sample AUC from LASSO cross-validation is measured against the 0.75 predictive performance threshold. (See US-3)
+
+- **SC-003**: False-positive rate estimates across threshold sensitivity sweep {1×10⁻⁷, 5×10⁻⁸, 1×10⁻⁸} are measured against the reported variation in significant SNP counts. (See US-2)
+
+- **SC-004**: Total pipeline runtime is measured against the 6-hour GitHub Actions free-tier limit. (See US-1)
+
+- **SC-005**: Peak memory usage is measured against the 7 GB RAM constraint of the CI runner. (See US-1)
+
+- **SC-006**: Collinearity diagnostics (VIF or correlation matrix) are measured against the threshold of r² > 0.8 for flagging problematic covariate relationships. (See US-1)
+
+- **SC-007**: Sample-size/power calculation is measured against the documented method (e.g., G*Power) or explicit power limitation acknowledgement. (See US-2)
+
+## Assumptions
+
+- The NCBI BioProject data contains all required variables: colony health status, geographic region, sampling year, and Varroa mite load. If any variable is missing, the pipeline will halt with explicit error message.
+
+- The reference genome Amel_HAv3.1 is compatible with the downloaded sequencing reads from the NCBI BioProject sources.
+
+- The BeeBase repository provides metadata with consistent formatting across all colonies in the dataset.
+
+- The sample size (number of colonies) is sufficient for GWAS power (≥ 100 colonies) to detect genetic associations at genome-wide significance.
+
+- The GitHub Actions free-tier runner (2 CPU, ~7 GB RAM, ~14 GB disk) can execute the full pipeline within 6 hours with data sampling/subsetting as needed.
+
+- No GPU or CUDA accelerators are required; all methods are CPU-tractable (PLINK, scikit-learn, bash scripting).
+
+- The Benjamini-Hochberg FDR correction is appropriate for the multiple testing burden of GWAS (millions of SNPs).
+
+- CCD diagnosis criteria are consistent across the BeeBase repository and NCBI metadata sources.
+
+- The Ensembl Bees API is accessible during pipeline execution for functional annotation.
+
+- Any collinearity between geographic region and sampling year covariates is documented and does not preclude their joint use as adjustment variables.
+
+- The p < 5×10⁻⁸ threshold follows the Human Genome Project genome-wide significance convention for GWAS studies.
+
+---
+
+**[NEEDS CLARIFICATION: Does the NCBI BioProject PRJNA... data contain Varroa mite load metadata for all colonies? The idea references PRJNA... with ellipses suggesting incomplete PRJNA IDs.]**
+
+**[NEEDS CLARIFICATION: Does the BeeBase repository provide consistent CCD diagnosis criteria across all colonies, or are there multiple diagnostic protocols that may introduce measurement variability?]**
+
+**[NEEDS CLARIFICATION: What is the actual sample size (number of colonies) in the NCBI BioProject data? This affects GWAS power calculations and must be confirmed before pipeline execution.]**

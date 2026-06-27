@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.19996",
+  "judged_at": "2026-06-27T13:17:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the sensitivity of regression models to outlier removal strategies statistics",
+  "rationale": "This paper directly addresses the user's research question through criteria (a) and (f): it measures the same mechanism (model sensitivity to outliers via leverage and influence diagnostics) and uses canonical statistical vocabulary (leverage, influence, local perturbations) that is the standard alternative vocabulary cluster for outlier detection and sensitivity evaluation in regression/statistical models.",
+  "relevant": true
+}

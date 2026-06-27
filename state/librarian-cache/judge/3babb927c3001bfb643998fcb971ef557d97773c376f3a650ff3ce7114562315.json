@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.10738",
+  "judged_at": "2026-06-27T13:19:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the sensitivity of regression models to outlier removal strategies statistics",
+  "rationale": "This paper investigates the impact of outliers on regression coefficients and significance, addressing the core mechanism and domain of the user's question (outliers in regression models), satisfying criteria (a) and (b). It provides foundational context on outlier influence and diagnostics necessary for evaluating removal strategies.",
+  "relevant": true
+}

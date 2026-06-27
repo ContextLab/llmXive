@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1406.0156",
+  "judged_at": "2026-06-27T13:18:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the sensitivity of regression models to outlier removal strategies statistics",
+  "rationale": "This paper satisfies criterion (b) as it measures the effect of a specific outlier removal strategy (LOIRE) on regression model performance, which is a core independent variable in the user's domain. It also aligns with criterion (a) by investigating the same algorithmic mechanism of outlier isolation and robustness within regression contexts.",
+  "relevant": true
+}

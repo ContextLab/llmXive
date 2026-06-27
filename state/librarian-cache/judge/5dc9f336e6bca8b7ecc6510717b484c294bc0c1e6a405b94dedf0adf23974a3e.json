@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.11592",
+  "judged_at": "2026-06-27T13:21:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the sensitivity of regression models to outlier removal strategies statistics",
+  "rationale": "The paper investigates outlier contamination in linear regression, satisfying criterion (b) by measuring the same dependent variable (regression coefficients) under the same independent condition (outliers) relevant to the user's sensitivity analysis domain.",
+  "relevant": true
+}

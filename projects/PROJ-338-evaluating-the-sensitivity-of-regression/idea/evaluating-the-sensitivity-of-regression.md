@@ -9,34 +9,18 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How does the presence and magnitude of outliers in observational data affect the stability of ordinary least squares regression coefficient estimates and statistical significance conclusions across different datasets?
+How does the presence and magnitude of outliers in observational data affect the stability of linear regression coefficient estimates and statistical significance conclusions across different datasets, when using outlier detection methods independent of regression influence measures (e.g., IQR, Z-score)?
 
 ## Motivation
 
 Outlier handling is a routine step in regression analysis, yet the sensitivity of inference to different removal strategies remains poorly quantified. This matters because published findings may be driven by a few extreme observations rather than genuine population relationships. Understanding this sensitivity gap helps researchers assess the robustness of their conclusions and improves reproducibility across studies.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-
-We queried arXiv and Semantic Scholar using search terms including "outlier removal regression sensitivity," "robust regression outlier impact," and "OLS coefficient stability outliers." The literature block returned 3 papers total, with 2 directly addressing outlier effects on regression inference and 1 tangentially related to regression applications in a different domain.
-
-### What is known
-
-- [Noise Statistics Oblivious GARD For Robust Regression With Sparse Outliers (2018)](http://arxiv.org/abs/1809.07222v1) — Establishes theoretical frameworks for robust regression under sparse outlier contamination in signal processing contexts.
-- [Statistically Significant Linear Regression Coefficients Solely Driven By Outliers In Finite-sample Inference (2025)](http://arxiv.org/abs/2505.10738v2) — Demonstrates through simulation that single outliers can generate statistically significant coefficients that disappear upon removal.
-
-### What is NOT known
-
-No published work systematically quantifies how common outlier detection methods (IQR, Z-score, Cook's distance) compare in their impact on regression metrics across a diverse suite of publicly available datasets. There is also no empirical benchmark showing how frequently outlier removal changes the substantive conclusions (e.g., p-value sign, effect direction) in real-world regression applications.
-
-### Why this gap matters
-
-Applied researchers across fields (economics, epidemiology, social sciences) routinely remove outliers before regression but lack evidence-based guidance on which methods preserve valid inference versus which introduce bias. Filling this gap would provide concrete best-practice recommendations and improve reproducibility in observational studies.
-
-### How this project addresses the gap
-
-This project will apply multiple outlier removal strategies to standardized datasets and measure the resulting changes in regression metrics, directly quantifying sensitivity. The methodology produces previously-unavailable empirical evidence on how often different removal methods alter substantive conclusions across diverse data contexts.
+- [Statistically Significant Linear Regression Coefficients Solely Driven By Outliers In Finite-sample Inference (2025)](https://arxiv.org/abs/2505.10738) — Demonstrates through simulation that single outliers can generate statistically significant coefficients that disappear upon removal.
+- [Outlier Robust and Sparse Estimation of Linear Regression Coefficients (2022)](https://arxiv.org/abs/2208.11592) — Provides theoretical framework for robust regression under adversarial outlier contamination in covariates and noise.
+- [$l_1$-regularized Outlier Isolation and Regression (2014)](https://arxiv.org/abs/1406.0156) — Proposes joint outlier isolation and regression using block coordinate descent optimization.
+- [Bayesian measures of leverage and influence (2025)](https://arxiv.org/abs/2503.19996) — Describes local sensitivity diagnostics for Bayesian models analogous to frequentist influence measures, providing conceptual parallels for regression stability analysis.
 
 ## Expected results
 
@@ -47,8 +31,8 @@ We expect to find that outlier removal strategies produce divergent coefficient 
 - Download 10-15 regression datasets from UCI Machine Learning Repository using `wget`/`curl` (e.g., California Housing, Bike Sharing, Concrete Strength)
 - Preprocess each dataset: handle missing values, encode categorical variables, standardize features
 - Compute initial OLS regression on raw data (no outlier removal) and record baseline metrics (R², RMSE, coefficients, p-values)
-- Apply IQR-based outlier removal: identify outliers using 1.5×IQR rule, remove rows, refit OLS
-- Apply Z-score outlier removal: identify outliers using |z|>3 threshold, remove rows, refit OLS
+- Apply IQR-based outlier removal: identify outliers using 1.5×IQR rule on each continuous feature, remove rows, refit OLS
+- Apply Z-score outlier removal: identify outliers using |z|>3 threshold on each continuous feature, remove rows, refit OLS
 - Apply Cook's distance outlier removal: identify outliers using Cook's D > 4/n threshold, remove rows, refit OLS
 - Calculate absolute and relative changes in R², RMSE, each coefficient, and p-values across removal methods
 - Perform paired statistical tests (Wilcoxon signed-rank) to assess whether metric changes differ significantly from zero across datasets
@@ -60,6 +44,44 @@ We expect to find that outlier removal strategies produce divergent coefficient 
 - Closest match: None identified.
 - Verdict: NOT a duplicate
 
----
 
-**Scope note**: All methodology steps fit within GitHub Actions free-tier constraints (2 CPU cores, 7GB RAM, 6h max). Datasets are public (UCI), computation is CPU-based OLS fitting, and no GPU/HPC resources are required. Each dataset analysis is <30 minutes, allowing batch processing within the 6-hour job limit.
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-27T13:21:34Z
+**Outcome**: success_after_expansion
+**Original term**: Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies statistics
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies statistics | 0 |
+| 1 | impact of outlier removal on regression coefficients | 4 |
+| 2 | robust regression techniques | 0 |
+| 3 | sensitivity analysis of statistical estimators | 0 |
+| 4 | influence of extreme values on model performance | 0 |
+| 5 | robustness of linear regression to data anomalies | 0 |
+| 6 | data trimming effects on regression models | 0 |
+| 7 | influential observations in regression analysis | 0 |
+| 8 | comparative evaluation of outlier treatment methods | 0 |
+| 9 | robust statistics and regression stability | 0 |
+| 10 | effect of data cleaning on predictive accuracy | 0 |
+| 11 | leverage points and regression sensitivity | 0 |
+| 12 | M-estimators versus outlier removal | 0 |
+| 13 | least trimmed squares and outlier handling | 0 |
+| 14 | model stability under data perturbation | 0 |
+| 15 | Cook's distance and outlier influence | 0 |
+| 16 | handling outliers in statistical modeling | 0 |
+| 17 | robustness checks in regression analysis | 0 |
+| 18 | parameter estimate stability with outlier exclusion | 0 |
+| 19 | preprocessing impact on regression inference | 0 |
+| 20 | influence functions for regression diagnostics | 0 |
+
+### Verified citations
+
+1. **Bayesian measures of leverage and influence** (2025). Martyn Plummer. arXiv. [2503.19996](https://arxiv.org/abs/2503.19996). PDF-sampled: No.
+2. **$l_1$-regularized Outlier Isolation and Regression** (2014). Sheng Han, Suzhen Wang, Xinyu Wu. arXiv. [1406.0156](https://arxiv.org/abs/1406.0156). PDF-sampled: No.
+3. **Outlier Robust Extreme Learning Machine for Multi-Target Regression** (2019). Bruno Légora Souza da Silva, Fernando Kentaro Inaba, Evandro Ottoni Teatini Salles, Patrick Marques Ciarelli. arXiv. [1905.09368](https://arxiv.org/abs/1905.09368). PDF-sampled: No.
+4. **Statistically Significant Linear Regression Coefficients Solely Driven By Outliers In Finite-sample Inference** (2025). Felix Reichel. arXiv. [2505.10738](https://arxiv.org/abs/2505.10738). PDF-sampled: No.
+5. **Outlier Robust and Sparse Estimation of Linear Regression Coefficients** (2022). Takeyuki Sasai, Hironori Fujisawa. arXiv. [2208.11592](https://arxiv.org/abs/2208.11592). PDF-sampled: No.

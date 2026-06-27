@@ -39,7 +39,7 @@ This project implements an automated pipeline to audit publicly available A/B te
 
 *Resolution of Unresolved Concerns:*
 - **T005 (Constitution Compliance)**: T099 (Constitution Compliance Audit) verifies all Constitution Principles I-VII are implemented in code and data flows, not just CI.
-- **T083 (Quickstart Runner)**: Updated to explicitly verify execution on "default GitHub Actions runner (2 vCPU, 7GB RAM)" per FR-028.
+- **T083 (Quickstart Runner)**: Updated to explicitly verify execution on "default GitHub Actions runner (standard vCPU, 7GB RAM)" per FR-028.
 - **T076/T077 Checksum Separation**: T076 writes INPUT data checksums to `data/checksums.txt` (Constitution III). T077 writes OUTPUT artifact checksums to `output/checksums.txt` (Constitution IV). Both locations required per different principles. T096 removed to eliminate duplication.
 
 ## Project Structure
@@ -125,7 +125,7 @@ output/
 1.  **C01**: Configure GitHub Actions workflow (Ubuntu-latest).
 2.  **C02**: Implement Input Data Checksumming Task (T076) writing to `data/checksums.txt`.
 3.  **C03**: Implement Output Artifact Checksumming Task (T077) writing to `output/checksums.txt`.
-4.  **C04**: Verify Quickstart execution time on **default GitHub Actions runner (2 vCPU, 7GB RAM, 14GB disk)** (T083).
+4.  **C04**: Verify Quickstart execution time on **default GitHub Actions runner (several vCPU, 7 GB RAM, 14 GB disk)** (T083).
 5.  **C05**: Execute Constitution Compliance Audit (T099) to verify all Principles I-VII.
 6.  **C06**: Final resource usage logging (SC-008).
 
@@ -181,7 +181,7 @@ output/
 |---------|-------------|-------|--------|
 | T026 | Synthetic Validation Dataset Generation ([deferred] rows) | Phase 3, V02 | Planned |
 | T044 | Power Analysis Calculation (N≥300) | Phase 0, R04 | Planned |
-| T062 | Monte Carlo Validation (10,000 replicates) | Phase 3, V01 | Planned |
+| T062 | Monte Carlo Validation (A sufficient number of replicates) | Phase 3, V01 | Planned |
 | T076 | Input Data Checksumming (data/checksums.txt) | Phase 4, C02 | Planned |
 | T077 | Output Artifact Checksumming (output/checksums.txt) | Phase 4, C03 | Planned |
 | T081 | Constitution Compliance Audit (Principles I-VII) | Phase 4, C05 | Planned |

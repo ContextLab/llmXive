@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.09368",
+  "judged_at": "2026-06-27T13:18:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the sensitivity of regression models to outlier removal strategies statistics",
+  "rationale": "This paper satisfies acceptance criteria (a) and (b) because it directly measures the same underlying mechanism (outlier handling/robustness in regression models) and evaluates regression model performance on data with/without outliers, which is the core empirical question the user is investigating regarding sensitivity to outlier strategies.",
+  "relevant": true
+}

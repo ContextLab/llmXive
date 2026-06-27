@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T03:18:10.895717Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-338-evaluating-the-sensitivity-of-regression
-last_run_id: cda0b72f-03b3-49d7-b6ae-d21246a6053c
+last_run_id: a1b88f2c-d8f0-4e0e-960d-564166fdee2f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Sensitivity of Regression Models to Outlier Removal Strategies
-updated_at: '2026-06-14T06:23:51.157562Z'
+updated_at: '2026-06-27T13:22:38.970343Z'

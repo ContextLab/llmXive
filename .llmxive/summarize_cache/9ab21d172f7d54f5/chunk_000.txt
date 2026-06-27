@@ -1,0 +1,82 @@
+# Feature Specification: Evaluating the Statistical Validity of Public A/B Test Summaries
+
+**Feature Branch**: `001-eval-ab-test-validity`  
+**Created**: 2026-06-24  
+**Status**: Draft  
+**Input**: User description: "Audit publicly available A/B test summaries for statistical consistency (p‑values, effect sizes, sample sizes) and report the prevalence of inconsistencies."
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 – Automated Consistency Audit (Priority: P1)
+
+A researcher wants to run a reproducible audit over a corpus of public A/B test summaries to identify statistical inconsistencies.
+
+**Why this priority**: This is the core value‑producing function; without it the project cannot answer its primary research question.
+
+**Anchored Requirements**: **FR-001**, **FR-002**, **FR-003**, **FR-004**, **FR-004b**, **FR-005a**, **FR-005b**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR-030**, **FR-031**, **FR-031b**, **FR-032** (See US‑1)  
+**Anchored Success Criteria**: **SC-001**, **SC-003**, **SC-005**, **SC-008**, **SC-013**, **SC-014**, **SC-015**, **SC-024**, **SC-025**, **SC-026**, **SC-027**, **SC-028**, **SC-030**, **SC-031b**, **SC-032** (See US‑1)
+
+**Independent Test**: Provide a curated validation set of ≥ 100 manually annotated summaries (stratified across at least five major domains) and verify that the pipeline flags exactly the inconsistent entries.
+
+**Acceptance Scenarios**:
+
+1. **Given** a CSV file containing URLs of public A/B test summaries, **When** the audit pipeline is executed, **Then** a JSON report is produced listing each summary with a consistency flag (`consistent` / `inconsistent`) and the computed vs. reported p‑value difference.
+2. **Given** a summary where the reported p‑value differs from the reconstructed p‑value by **0.06**, **When** the pipeline processes it, **Then** the summary is marked *inconsistent* because the absolute difference exceeds the absolute floor mandated by the specification.
+3. **Given** the manually annotated validation set, **When** the extraction module runs, **Then** extraction accuracy (proportion of correctly captured fields) is ≥ 95 % (**SC‑001**) and extraction precision is ≥ 85 % on real data (**SC‑031b**).
+4. **Given** any parsing failure (missing field, malformed HTML, dead URL, etc.), **When** the pipeline logs the event, **Then** a clear error message is recorded (fulfilling **FR‑007**) and the overall parsing‑error rate stays ≤ 5 % of total summaries (**SC‑005**).
+5. **Given** the CI environment, **When** the full pipeline runs on the sample corpus, **Then** it completes within a short timeframe (see **FR‑009**) and uses resources compatible with the default GitHub Actions runner (see **SC‑008**).
+
+### User Story 2 – Summary Report Generation (Priority: P2)
+
+A product manager wants a concise report summarizing the prevalence of inconsistencies across the audited corpus.
+
+**Why this priority**: Provides stakeholders with the essential quantitative answer to the research question without unnecessary visualisation overhead.
+
+**Anchored Requirements**: **FR-005a**, **FR-005b**, **FR-024**, **FR-025**, **FR-027**, **FR-028**, **FR-030**, **FR‑031**, **FR‑031b**, **FR‑032** (See US‑2)  
+**Anchored Success Criteria**: **SC-014**, **SC-015**, **SC-024**, **SC-025**, **SC‑027**, **SC‑028**, **SC‑030**, **SC‑031b**, **SC‑032** (See US‑2)
+
+**Independent Test**: Run the audit on a representative corpus and verify that the generated CSV summary contains total counts, inconsistency rate, bias‑adjusted rate, and 95 % Wilson confidence interval matching the JSON report.
+
+**Acceptance Scenarios**:
+
+1. **Given** the JSON audit output, **When** the report generator runs, **Then** a CSV file `summary_report.csv` is produced containing columns `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`, and the values match those computed by **FR‑005a**.
+2. **Given** the same CSV report, **When** a stakeholder opens it, **Then** the inconsistency rate, bias‑adjusted rate and its confidence interval are clearly presented, enabling immediate interpretation.
+
+### User Story 3 – Export Audit Results (Priority: P3)
+
+A reviewer wants to obtain the raw audit results for downstream analysis.
+
+**Why this priority**: Guarantees that the audit findings can be examined, re‑analysed, or integrated into other studies.
+
+**Anchored Requirements**: **FR-001**, **FR-002**, **FR-004**, **FR-004b**, **FR-007**, **FR-009**, **FR-012**, **FR-024**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR‑030**, **FR‑031**, **FR‑031b**, **FR‑032** (See US‑3)  
+**Anchored Success Criteria**: **SC-001**, **SC-014**, **SC‑024**, **SC‑025**, **SC‑026**, **SC‑027**, **SC‑028**, **SC‑030**, **SC‑031b**, **SC‑032** (See US‑3)
+
+**Independent Test**: After running the audit, confirm that the JSON file `audit_report.json` and the CSV file `summary_report.csv` are written to the output directory and contain consistent information.
+
+**Acceptance Scenarios**:
+
+1. **Given** the pipeline execution, **When** it finishes, **Then** `output/audit_report.json` and `output/summary_report.csv` exist, and the counts of consistent vs. inconsistent entries are identical in both files.
+2. **Given** the JSON file, **When** the reviewer parses it, **Then** each entry includes fields `url`, `reported_p`, `reported_effect_size`, `reported_sample_size_a`, `reported_sample_size_b`, `reconstructed_p`, `reconstructed_effect_size`, `diff_abs_p`, `diff_abs_effect`, `flag_inconsistent`, `notes`.
+
+### User Story 4 – Efficient CI Execution (Priority: P2)
+
+A CI engineer needs the audit pipeline to run reliably on the default GitHub Actions runner without exceeding resource limits.
+
+**Why this priority**: Guarantees that the nightly audit can be automated in a cost‑effective, reproducible environment.
+
+**Anchored Requirements**: **FR-009**, **FR-001**, **FR-002**, **FR-025**, **FR-026**, **FR-027**, **FR-028**, **FR‑030**, **FR‑031**, **FR‑031b**, **FR‑032** (See US‑4)  
+**Anchored Success Criteria**: **SC-008**, **SC-005**, **SC‑013**, **SC‑025**, **SC‑026**, **SC‑027**, **SC‑028**, **SC‑030**, **SC‑031b**, **SC‑032** (See US‑4)
+
+**Independent Test**: Trigger a GitHub Actions workflow that runs the full pipeline on a sample corpus; verify that the job completes within 6 hours, uses resources compatible with the default runner, and produces the expected JSON output.
+
+**Acceptance Scenarios**:
+
+1. **Given** the CI environment, **When** the workflow executes the pipeline, **Then** it finishes successfully under the specified time bound and logs resource usage, confirming compliance with **SC‑008**.
+2. **Given** the CI run, **When** the logs are inspected, **Then** parsing‑error messages (if any) constitute ≤ 5 % of total processed summaries (**SC‑005**).
+
+## Edge Cases
+
+- **Missing Metric**: When a summary omits one of the required metrics (e.g., reports effect size but no p‑value or confidence interval), the pipeline flags the entry as "missing metric" and records the omission in the audit notes.
+- **Non‑binary Outcomes**: For continuous outcomes (e.g., revenue lift) where a two‑proportion test is inappropriate, the pipeline uses Welch's two‑sample t‑test as defined in **FR‑003**.
+- **Rounded or Inequality p‑values**: When p‑values are reported as "p < 0.001" or rounded to two decimals, the pipeline treats the bound (0.001) as an upper limit; a summary is flagged inconsistent only if the reconstructed p‑value exceeds this bound (see **FR‑004**).
+- **Conflicting Sample Sizes**: If narrative text and tabular data disagree on sample sizes by more than **5 %** of the larger count, the entry is flagged "size mismatch" and excluded from aggregate calculations.
