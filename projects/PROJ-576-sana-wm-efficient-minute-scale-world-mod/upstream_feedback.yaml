@@ -7,3 +7,8 @@ rounds:
   verdict_class: writing
   note: ''
   action_items: []
+- round_number: 2
+  triggered_at: '2026-06-27T23:38:15.476515+00:00'
+  verdict_class: writing
+  note: ''
+  action_items: []
