@@ -12,7 +12,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
          ^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py", line 51, in load_metrics
     raise ValueError(f"Metrics CSV missing columns: {missing}")
-ValueError: Metrics CSV missing columns: {'mae', 'model', 'rmse'}
+ValueError: Metrics CSV missing columns: {'model', 'mae', 'rmse'}
 - python code/analysis/generate_significance.py -> rc=1
     ric_data = _load_metrics(metrics_path)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -42,7 +42,7 @@ A `missing columns` / `KeyError` / `FileNotFoundError: <file>` failure above is 
 - `data/checkpoints/rf_seed_2.pkl` (337617 bytes)
 - `data/checkpoints/rf_seed_3.pkl` (337617 bytes)
 - `data/checkpoints/rf_seed_4.pkl` (337617 bytes)
-- `data/processed/features_2d.parquet` (330695 bytes)
-- `data/processed/features_3d.parquet` (3816397 bytes)
-- `data/processed/molecules_10k.parquet` (630081 bytes)
+- `data/processed/features_2d.parquet` (330681 bytes)
+- `data/processed/features_3d.parquet` (3816341 bytes)
+- `data/processed/molecules_10k.parquet` (630745 bytes)
 - `results/metrics.csv` — actual CSV header: `seed,model_type,MAE,RMSE`

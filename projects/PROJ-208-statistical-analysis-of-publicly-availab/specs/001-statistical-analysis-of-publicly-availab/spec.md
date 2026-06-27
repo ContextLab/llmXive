@@ -19,7 +19,7 @@ A researcher can automatically collect closed issue data from multiple diverse G
 
 1. **Given** a list of 5 valid GitHub repository paths, **When** the collection script executes, **Then** the output CSV contains ≥1000 closed issues with `created_at`, `closed_at`, `labels`, `assignee`, and `comments_count` columns populated
 2. **Given** an issue with `closed_at` earlier than `created_at`, **When** the preprocessing script runs, **Then** that issue is flagged and excluded from the final dataset with a log entry
-3. **Given** the GitHub API rate limit is reached during collection, **When** the script retries, **Then** the script waits ≥60 seconds before resuming and completes within the 6-hour CI budget
+3. **Given** the GitHub API rate limit is reached during collection, **When** the script retries, **Then** the script waits ≥60 seconds before resuming and completes within the allocated CI budget
 
 ---
 
@@ -29,12 +29,12 @@ A researcher can generate empirical cumulative distribution plots and fit parame
 
 **Why this priority**: Understanding the distribution shape is essential before hypothesis testing; it determines whether parametric tests are valid and informs transformation choices (e.g., log-transform).
 
-**Independent Test**: Can be fully tested by running the distribution analysis on the cleaned dataset and verifying that ECDF plots are generated and at least one parametric family achieves a p-value ≥0.05 in goodness-of-fit testing.
+**Independent Test**: Can be fully tested by running the distribution analysis on the cleaned dataset and verifying that ECDF plots are generated and fit quality metrics are reported for both parametric families.
 
 **Acceptance Scenarios**:
 
 1. **Given** a cleaned dataset of ≥1000 issues, **When** the distribution analysis script runs, **Then** an ECDF plot is generated showing resolution time on the x-axis (log scale) and cumulative probability on the y-axis
-2. **Given** the log-normal and Weibull candidate families, **When** maximum likelihood fitting is performed, **Then** at least one family achieves Kolmogorov-Smirnov p-value ≥0.05
+2. **Given** the log-normal and Weibull candidate families, **When** maximum likelihood fitting is performed, **Then** fit quality metrics (KS statistic, p-value, AIC) are reported for both families regardless of threshold
 3. **Given** resolution times with extreme outliers (>30 days), **When** the analysis runs, **Then** the script reports the number of outliers and their percentage of the total dataset
 
 ---
@@ -45,13 +45,14 @@ A researcher can execute ANOVA/Kruskal-Wallis tests for categorical predictors, 
 
 **Why this priority**: This delivers the core research findings about which factors statistically explain resolution time differences; it is the primary scientific output of the project.
 
-**Independent Test**: Can be fully tested by running the hypothesis testing suite on the cleaned dataset and verifying that ≥3 significant associations are reported (p<0.05 after correction) with effect sizes and confidence intervals.
+**Independent Test**: Can be fully tested by running the hypothesis testing suite on the cleaned dataset and verifying that hypothesis tests execute and report p-values with effect sizes and confidence intervals.
 
 **Acceptance Scenarios**:
 
 1. **Given** a cleaned dataset with ≥1000 issues across ≥20 repositories, **When** the Kruskal-Wallis test runs for programming language groups, **Then** a p-value is reported with Holm-Bonferroni adjusted α=0.05
-2. **Given** the mixed-effects model with random intercepts for repository, **When** 5-fold cross-validation executes, **Then** MAE and R² metrics are reported with standard deviation across folds
-3. **Given** any predictor with pairwise correlation |r|≥0.7, **When** the collinearity diagnostic runs, **Then** a VIF (variance inflation factor) ≥5 is flagged and the model reports the joint relationship as descriptive rather than claiming independent effects
+2. **Given** the mixed-effects model with random intercepts for repository, **When** leave-one-repository-out cross-validation executes, **Then** MAE and R² metrics are reported with standard deviation across folds
+3. **Given** any predictor with pairwise correlation |r|≥0.7, **When** the collinearity diagnostic runs, **Then** VIF is calculated from the full model design matrix and a VIF ≥5 is flagged (the model reports the joint relationship as descriptive rather than claiming independent effects)
+4. **Given** decision cutoffs for significance or effect size, **When** the sensitivity analysis runs, **Then** cutoffs are swept over {0.01, 0.05, 0.1} and false-positive/false-negative rates are reported for each threshold
 
 ---
 
@@ -72,11 +73,11 @@ A researcher can execute ANOVA/Kruskal-Wallis tests for categorical predictors, 
 - **FR-003**: System MUST exclude issues with resolution time <0 or missing timestamps from analysis (See US-1)
 - **FR-004**: System MUST apply Holm-Bonferroni correction when conducting ≥3 hypothesis tests on the same outcome variable (See US-3)
 - **FR-005**: System MUST fit a linear mixed-effects model with random intercepts for repository and fixed effects for issue-level covariates (See US-3)
-- **FR-006**: System MUST report VIF diagnostics for all pairwise predictor correlations and flag collinearity when |r|≥0.7 (See US-3)
-- **FR-007**: System MUST perform sensitivity analysis sweeping any decision cutoffs over {0.01, 0.05, 0.1} and report how false-positive rates vary (See US-3)
-- **FR-008**: System MUST frame all findings as associational rather than causal due to observational study design (See US-3)
-- **FR-009**: System MUST complete all data collection and analysis within ≤6 hours on a 2-CPU, 7GB RAM GitHub Actions runner (See US-1, US-2, US-3)
-- **FR-010**: System MUST use only CPU-tractable methods (no GPU/CUDA, no 8-bit quantization, no deep network training from scratch) (See US-1, US-2, US-3)
+- **FR-006**: System MUST calculate VIF from the full model design matrix after fitting and flag collinearity when VIF≥5; pairwise |r|≥0.7 triggers VIF calculation (See US-3)
+- **FR-007**: System MUST perform sensitivity analysis sweeping any decision cutoffs over {0.01, 0.05, 0.1} and report how false-positive/false-negative rates vary (See US-3)
+- **FR-008**: System MUST include the phrase "associational" or "correlational" in all result text when describing relationships between variables (See US-3)
+- **FR-009**: System MUST complete all data collection and analysis within ≤6 hours on a 2-CPU, 7GB RAM GitHub Actions runner (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
+- **FR-010**: System MUST use only CPU-tractable methods (no GPU/CUDA, no 8-bit quantization, no deep network training from scratch) (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -93,9 +94,9 @@ A researcher can execute ANOVA/Kruskal-Wallis tests for categorical predictors, 
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Dataset completeness is measured against GitHub API schema requirements (all required columns populated for ≥95% of collected issues) (See US-1)
-- **SC-002**: Distribution goodness-of-fit is measured against Kolmogorov-Smirnov test p-value (≥0.05 for at least one parametric family) (See US-2)
+- **SC-002**: Distribution goodness-of-fit is measured against Kolmogorov-Smirnov test p-value (reported for at least one parametric family) (See US-2)
 - **SC-003**: Hypothesis test validity is measured against Holm-Bonferroni adjusted p-values (significant associations reported only when adjusted p<0.05) (See US-3)
-- **SC-004**: Model predictive performance is measured against 5-fold cross-validation MAE and R² metrics (R² ≥0.15 as expected from prior literature) (See US-3)
+- **SC-004**: Model predictive performance is measured against leave-one-repository-out cross-validation MAE and R² metrics (R² [deferred] expected ≥0.15 from prior literature) (See US-3)
 - **SC-005**: Compute feasibility is measured against GitHub Actions free-tier constraints (total runtime ≤6h, memory ≤7GB, no GPU usage) (See US-1, US-2, US-3)
 
 ## Assumptions

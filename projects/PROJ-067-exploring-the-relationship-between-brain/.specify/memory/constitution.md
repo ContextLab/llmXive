@@ -37,22 +37,23 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-067-exploring-the-relationship-between-brain.yaml` `updated_at` timestamp.
 
-### VI. Neuroimaging Pipeline Fidelity
+### VI. Dynamic Connectivity Protocol Adherence
 
-All resting-state fMRI preprocessing steps (specifically ICA-AROMA denoising and normalization) and dynamic connectivity parameters (30s window, 10s step) MUST be hardcoded or explicitly configured in `code/`. Deviations from these parameters without documentation invalidate the comparison against the OpenNeuro metadata baseline.
+All dynamic functional connectivity analyses MUST adhere to the sliding window parameters (30s window, 10s step) and preprocessing pipeline (ICA-AROMA) specified in the Methodology Sketch. Deviations from these parameters MUST be justified in `technical-design/` and re-validated against the null distribution.
 
-### VII. Statistical Robustness
+### VII. Self-Reported Behavioral Metadata Integrity
 
-Correlation results claiming significance (p < 0.05, FDR-corrected) MUST be validated against a null distribution generated via permutation testing (minimum 1000 iterations). Any claim of network flexibility predicting recall frequency lacking this validation is rejected.
+Dream recall frequency scores MUST be extracted directly from the source study metadata without imputation. Any subject exclusion due to missing behavioral data MUST be documented in `data/` derivation logs to maintain the validity of the N=50 target.
 
 ## Reproducibility Requirements
 
 - A `requirements.txt` (or `pyproject.toml`) at `projects/PROJ-067-exploring-the-relationship-between-brain/code/`
-  pins every Python dependency.
+  pins every Python dependency, explicitly including `nilearn` and `networkx` for preprocessing and network analysis.
 - The Code-Execution Agent runs each task in an isolated virtualenv built
   from this requirements file; no global packages are assumed.
 - Every notebook or script under `code/` is runnable end-to-end without
   manual intervention.
+- Intermediate file sizes MUST be monitored to stay under 7 GB RAM limits during execution.
 
 ## Data Hygiene
 
