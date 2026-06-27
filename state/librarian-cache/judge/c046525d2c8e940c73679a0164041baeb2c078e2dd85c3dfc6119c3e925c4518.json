@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.00970",
+  "judged_at": "2026-06-27T06:04:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "comparative analysis of molecular fingerprints for pesticide toxicity prediction chemistry",
+  "rationale": "The paper focuses on uncertainty quantification methods (Conformal Prediction) rather than comparing molecular fingerprint representations, which is the specific independent variable of interest in the user's question. It addresses a distinct methodological construct (output confidence intervals vs. input representation efficacy) despite sharing the general QSAR/toxicity domain.",
+  "relevant": false
+}

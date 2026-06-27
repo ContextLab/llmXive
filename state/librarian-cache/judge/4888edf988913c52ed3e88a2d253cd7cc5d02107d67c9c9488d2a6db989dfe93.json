@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2109.13918",
+  "judged_at": "2026-06-27T06:03:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "comparative analysis of molecular fingerprints for pesticide toxicity prediction chemistry",
+  "rationale": "The paper focuses on carbon nanomaterials rather than pesticides and does not address molecular fingerprinting or computational prediction methods, making it off-domain for a cheminformatics study on pesticide toxicity modeling (Rejection: Off-domain entirely).",
+  "relevant": false
+}

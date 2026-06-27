@@ -62,7 +62,7 @@ A researcher prefers a language‑only workflow and wants the system to automati
 - **FR-004**: System MUST compute task‑specific evaluation metrics (classification F1, regression MAPE) and aggregate them into a mean accuracy score for each collaboration condition. (See US-1)
 - **FR-005**: System MUST log all random seeds, model versions, and environment details to enable exact reproducibility of results. (See US-1)
 - **FR-006**: System MUST enforce a per‑task inference wall‑time ≤ 5 minutes on 2 CPU cores; tasks exceeding this limit are aborted and recorded as failures. (See US-1)
-- **FR-007**: System MUST generate a final results report (CSV + PDF) that includes (a) mean accuracy per condition, (b) percentage difference, (c) paired‑t test statistic and p‑value, and (d) bootstrap confidence interval computed with 1000 bootstrap resamples. (See US-1)
+- **FR-007**: System MUST generate a final results report (CSV + PDF) that includes (a) mean accuracy per condition, (b) percentage difference, (c) paired‑t test statistic and p‑value, and (d) bootstrap confidence interval computed with a sufficient number of bootstrap resamples. (See US-1)
 - **FR-008**: System MUST support addition of new modality configurations via a YAML file without code changes. (See US-2)
 - **FR-009**: System MUST handle missing modality inputs by either (i) skipping that modality in the heterogeneous condition or (ii) inserting a placeholder text in the unified condition. (See US-2)
 - **FR-010**: System MUST retry failed dataset downloads up to **3** times before aborting. (See US-1)

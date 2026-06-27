@@ -21,7 +21,7 @@
 **Project Type**: scientific-benchmark/cli  
 **Performance Goals**: Per-task inference ≤5 minutes on 2 CPU cores; full benchmark ≤4 hours wall-clock time  
 **Constraints**: No GPU/CUDA; no deep-net training from scratch; no 8-bit/4-bit quantization; total dataset size ≤5 GB; runtime ≤6 hours per job  
-**Scale/Scope**: 20 multi-modal tasks; multiple modalities (time-series, tabular, text); multiple random seeds for reproducibility
+**Scale/Scope**: multiple multi-modal tasks; multiple modalities (time-series, tabular, text); multiple random seeds for reproducibility
 
 > Dataset sizes and empirical performance thresholds deferred to research/implementation phase.
 
@@ -160,7 +160,7 @@ requirements.txt                  # Pinned dependencies (Constitution I)
 ### Phase 4: Validation & Reproducibility (Week 4)
 | Phase | Task | FR/SC Mapping | Deliverable |
 |-------|------|---------------|-------------|
-| 4.1 | Run benchmark with 5 random seeds | SC-004 | reproducibility logs |
+| 4.1 | Run benchmark with multiple random seeds | SC-004 | reproducibility logs |
 | 4.2 | Verify results within 95% CI across seeds | SC-004 | Phase 4 report |
 | 4.3 | Validate all outputs against contract schemas | Constitution II | contract test results |
 | 4.4 | Verify total runtime ≤4 hours on reference hardware | SC-003 | runtime benchmarks |

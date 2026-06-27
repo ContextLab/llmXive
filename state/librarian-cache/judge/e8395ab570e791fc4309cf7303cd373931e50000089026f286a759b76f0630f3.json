@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.17954",
+  "judged_at": "2026-06-27T06:01:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "comparative analysis of molecular fingerprints for pesticide toxicity prediction chemistry",
+  "rationale": "This paper evaluates molecular fingerprints (ECFPs) for molecular property prediction, satisfying criteria (a) and (b) by addressing the same algorithmic mechanism and domain variables (fingerprint representation and prediction performance) relevant to the user's toxicity prediction context. It provides essential methodological background on fingerprint vectorization that a literature review on this topic would require.",
+  "relevant": true
+}
