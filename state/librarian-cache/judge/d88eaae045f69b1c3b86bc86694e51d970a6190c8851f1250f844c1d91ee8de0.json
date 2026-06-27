@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1405.0352",
+  "judged_at": "2026-06-27T18:31:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "This paper does not satisfy any acceptance criteria (a-f). While it discusses Random Forests (the method), it is purely theoretical work on asymptotic properties of RF in general statistics, with no connection to the chemistry/molecular properties domain, Open Babel fingerprints, or molecular property prediction. It fails criterion (d) because it is not the canonical foundational RF reference (Breiman 2001 would be), and it fails all other criteria as it has no measurable connection to the user'",
+  "relevant": false
+}

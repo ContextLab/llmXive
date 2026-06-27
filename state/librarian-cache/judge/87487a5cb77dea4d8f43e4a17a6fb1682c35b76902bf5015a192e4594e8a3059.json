@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-06-27T18:32:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "This paper is about machine learning interpretability using energy landscape methods, not molecular property prediction with Open Babel fingerprints and Random Forests. While it mentions molecular sciences as an analogy, it does not measure the same mechanism, variables, or empirical setting as the user's research question, and it is not a foundational reference for the specific methodology (Random Forests + molecular fingerprints) being studied.",
+  "relevant": false
+}

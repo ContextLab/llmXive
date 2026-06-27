@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-27T18:31:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "This paper is off-domain entirely, focusing on machine learning for official government statistics rather than cheminformatics or molecular property prediction. It does not address molecular fingerprints, Random Forests applied to chemistry, or the specific empirical population (molecules) required for the user's literature review.",
+  "relevant": false
+}

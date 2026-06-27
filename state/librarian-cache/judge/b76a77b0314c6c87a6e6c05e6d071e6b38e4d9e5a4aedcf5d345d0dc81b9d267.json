@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-06-27T18:32:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "This paper is off-domain entirely for the user's research question. It is a general machine learning survey about active learning for data streams with no connection to chemistry, molecular property prediction, Open Babel fingerprints, or Random Forests applied to molecular data. It does not satisfy any of the acceptance criteria (a-f) as it lacks measurable connection to the user's mechanism, domain, variables, or empirical setting.",
+  "relevant": false
+}

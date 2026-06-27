@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2104.02604",
+  "judged_at": "2026-06-27T18:31:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the same mechanism (molecular property prediction from molecular fingerprints) in the same domain (chemistry/QSAR/drug discovery), explicitly comparing traditional fingerprints to embeddings as a baseline for fingerprint-based property prediction.",
+  "relevant": true
+}

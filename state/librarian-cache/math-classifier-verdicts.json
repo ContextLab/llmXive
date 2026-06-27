@@ -175,6 +175,10 @@
     "classified_at": "2026-06-24T22:47:38Z",
     "verdict": false
   },
+  "PROJ-324-predicting-molecular-properties-from-ope::1.6.0": {
+    "classified_at": "2026-06-27T18:30:12Z",
+    "verdict": false
+  },
   "PROJ-406-investigating-neural-signatures-of-predi::1.6.0": {
     "classified_at": "2026-06-27T00:08:07Z",
     "verdict": false

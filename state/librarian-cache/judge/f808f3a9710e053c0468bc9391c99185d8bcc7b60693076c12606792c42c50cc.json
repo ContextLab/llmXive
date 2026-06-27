@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-27T18:32:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "This paper is about general ML validation recommendations in biology (DOME framework) and does not measure molecular properties, use molecular fingerprints, apply Random Forests, or focus on chemistry. It fails all acceptance criteria (a-f) as it addresses methodology validation rather than the specific prediction task, domain, or variables in the user's question.",
+  "relevant": false
+}
