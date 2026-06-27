@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.13690",
+  "judged_at": "2026-06-27T09:26:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of temporal prediction errors in auditory scene analysis neuroscience",
+  "rationale": "This paper measures the neural correlates of prediction error in the human auditory cortex (criterion a), establishing the core biological mechanism and domain relevant to the user's question even if it focuses on frequency/FM features rather than strictly temporal or scene-analysis contexts. It provides the foundational evidence for predictive coding in the auditory system that a literature review on specific prediction error types (temporal) in that system would require.",
+  "relevant": true
+}

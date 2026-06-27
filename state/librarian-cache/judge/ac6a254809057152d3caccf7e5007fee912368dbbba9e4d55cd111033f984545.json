@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2204.03354",
+  "judged_at": "2026-06-27T09:29:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of temporal prediction errors in auditory scene analysis neuroscience",
+  "rationale": "This paper satisfies criterion (a) by discussing the same biological mechanism (prediction errors via predictive coding in the auditory cortex) and criterion (b) by operating within the same domain (auditory neuroscience), making it essential foundational literature for a review on auditory prediction errors even if the specific focus is tinnitus rather than scene analysis.",
+  "relevant": true
+}

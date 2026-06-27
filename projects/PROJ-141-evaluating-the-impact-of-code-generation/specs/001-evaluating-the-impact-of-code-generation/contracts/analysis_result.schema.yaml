@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for statistical analysis results comparing LLM-assisted vs baseline conditions"
+type: "object"
+required:
+  - metric_type
+  - test_type
+  - p_value
+  - effect_size
+  - ci_lower
+  - ci_upper
+  - corrected_p_value
+  - significant
+properties:
+  metric_type:
+    type: "string"
+    enum:
+      - "time"
+      - "pass_rate"
+      - "complexity"
+      - "coverage"
+      - "warnings"
+    description: "Metric being analyzed"
+  test_type:
+    type: "string"
+    enum:
+      - "paired_t_test"
+      - "wilcoxon_signed_rank"
+    description: "Statistical test used (based on normality check)"
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from statistical test"
+  effect_size:
+    type: "number"
+    description: "Cohen's d effect size"
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval"
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval"
+  corrected_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value after multiple-comparison correction (Bonferroni or Holm)"
+  significant:
+    type: "boolean"
+    description: "Whether result is significant at α ≤ 0.05 after correction"
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of paired observations"
+  normality_test_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Shapiro-Wilk normality test p-value"
+additionalProperties: false

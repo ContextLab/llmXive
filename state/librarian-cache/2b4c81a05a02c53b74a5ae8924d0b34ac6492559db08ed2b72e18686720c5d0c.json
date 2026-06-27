@@ -1,0 +1,578 @@
+{
+  "fetched_at": "2026-06-27T09:29:49Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis",
+      "target_n": 5
+    },
+    "duration_seconds": 476.561,
+    "ended_at": "2026-06-27T09:29:49Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Predictive coding auditory cortex"
+        ],
+        [
+          2,
+          "Mismatch negativity temporal deviants"
+        ],
+        [
+          3,
+          "Auditory stream segregation neural mechanisms"
+        ],
+        [
+          4,
+          "Temporal expectation violations hearing"
+        ],
+        [
+          5,
+          "Neural oscillations auditory prediction"
+        ],
+        [
+          6,
+          "Auditory oddball paradigm timing"
+        ],
+        [
+          7,
+          "Bayesian inference auditory processing"
+        ],
+        [
+          8,
+          "Superior temporal gyrus temporal processing"
+        ],
+        [
+          9,
+          "Sensory prediction error auditory system"
+        ],
+        [
+          10,
+          "EEG auditory timing prediction"
+        ],
+        [
+          11,
+          "Auditory cortex sequence learning"
+        ],
+        [
+          12,
+          "Free energy principle auditory perception"
+        ],
+        [
+          13,
+          "Rhythm prediction error brain"
+        ],
+        [
+          14,
+          "Neural encoding temporal regularity"
+        ],
+        [
+          15,
+          "Cocktail party problem neural basis"
+        ],
+        [
+          16,
+          "MEG auditory prediction error"
+        ],
+        [
+          17,
+          "Temporal attention auditory processing"
+        ],
+        [
+          18,
+          "Deviant detection auditory sequences"
+        ],
+        [
+          19,
+          "Cortical tracking speech temporal structure"
+        ],
+        [
+          20,
+          "Hierarchical predictive processing hearing"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuroscience": 0,
+        "Predictive coding auditory cortex": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "mismatch negativity deviance detection",
+      "auditory streaming oddball paradigm",
+      "predictive coding hierarchical inference auditory",
+      "fMRI BOLD signal auditory cortex",
+      "neural oscillations phase resetting temporal"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2502.20753"
+      ]
+    },
+    "per_query_hit_count": {
+      "Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuroscience": 3,
+      "auditory streaming oddball paradigm": 3,
+      "fMRI BOLD signal auditory cortex": 3,
+      "mismatch negativity deviance detection": 3,
+      "neural oscillations phase resetting temporal": 3,
+      "predictive coding hierarchical inference auditory": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2509.24039",
+          "rationale": "The paper focuses on spatial topographic organization rather than the temporal prediction errors and auditory scene analysis mechanisms central to the user's question. This falls under the rejection rule for distinct constructs sharing only homonym keywords (auditory, cortex), as topography is not a proxy for prediction error or scene analysis variables.",
+          "title": "End-to-end Topographic Auditory Models Replicate Signatures of Human Auditory Cortex"
+        },
+        {
+          "primary_pointer": "2103.04608",
+          "rationale": "The paper proposes a mathematical signal-reconstruction algorithm rather than measuring empirical neural correlates or prediction error mechanisms. It lacks a measurable connection to the user's specific variables (neural activity, prediction errors) and empirical setting (neuroscience data), fitting the rejection rule for no measurable connection to mechanism or variables.",
+          "title": "An auditory cortex model for sound processing"
+        },
+        {
+          "primary_pointer": "2309.10385",
+          "rationale": "This paper studies semantic vs acoustic information representation in auditory cortex, not temporal prediction errors. While both are in auditory neuroscience, the specific mechanism (prediction error signaling/predictive coding) is distinct from semantic categorization—this falls under the rejection rule for \"distinct construct sharing only homonym keywords\" (auditory/neural domain overlap without mechanism alignment).",
+          "title": "From sound to meaning in the auditory cortex: A neuronal representation and classification analysis"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-27T09:21:52Z",
+    "term_input": {
+      "normalized": "neural correlates of temporal prediction errors in auditory scene analysis neuroscience",
+      "raw": "Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent implicit neural rendering methods have demonstrated that it is possible to learn accurate view synthesis for complex scenes by predicting their volumetric density and color supervised solely by a set of RGB images. However, existing methods are restricted to learning efficient representations of static scenes that encode all scene objects into a single neural network, and lack the ability to represent dynamic scenes and decompositions into individual scene objects. In this work, we present the first neural rendering method that decomposes dynamic scenes into scene graphs. We propose a learned scene graph representation, which encodes object transformation and radiance, to efficiently render novel arrangements and views of the scene. To this end, we learn implicitly encoded scenes, combined with a jointly learned latent representation to describe objects with a single implicit function. We assess the proposed method on synthetic and real automotive data, validating that our approach learns dynamic scenes -- only by observing a video of this scene -- and allows for rendering novel photo-realistic views of novel scene compositions with unseen sets of objects at unseen poses.",
+          "claimed_authors": [
+            "Julian Ost",
+            "Fahim Mannan",
+            "Nils Thuerey",
+            "Julian Knodt",
+            "Felix Heide"
+          ],
+          "claimed_title": "Neural Scene Graphs for Dynamic Scenes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.10379"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Neural Scene Graphs for Dynamic Scenes')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Immersive virtual reality (VR) emerges as a promising research and clinical tool. However, several studies suggest that VR induced adverse symptoms and effects (VRISE) may undermine the health and safety standards, and the reliability of the scientific results. In the current literature review, the technical reasons for the adverse symptomatology are investigated to provide suggestions and technological knowledge for the implementation of VR head-mounted display (HMD) systems in cognitive neuroscience. The technological systematic literature indicated features pertinent to display, sound, motion tracking, navigation, ergonomic interactions, user experience, and computer hardware that should be considered by the researchers. Subsequently, a meta-analysis of 44 neuroscientific or neuropsychological studies involving VR HMD systems was performed. The meta-analysis of the VR studies demonstrated that new generation HMDs induced significantly less VRISE and marginally fewer dropouts.Importantly, the commercial versions of the new generation HMDs with ergonomic interactions had zero incidents of adverse symptomatology and dropouts. HMDs equivalent to or greater than the commercial versions of contemporary HMDs accompanied with ergonomic interactions are suitable for implementation in cognitive neuroscience. In conclusion, researchers technological competency, along with meticulous methods and reports pertinent to software, hardware, and VRISE, are paramount to ensure the health and safety standards and the reliability of neuroscientific results.",
+          "claimed_authors": [
+            "Panagiotis Kourtesis",
+            "Simona Collina",
+            "Leonidas A. A. Doumas",
+            "Sarah E. MacPherson"
+          ],
+          "claimed_title": "Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.08123"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper provides a perspective on applying the concepts of information thermodynamics, developed recently in non-equilibrium statistical physics, to problems in theoretical neuroscience. Historically, information and energy in neuroscience have been treated separately, in contrast to physics approaches, where the relationship of entropy production with heat is a central idea. It is argued here that also in neural systems information and energy can be considered within the same theoretical framework. Starting from basic ideas of thermodynamics and information theory on a classic Brownian particle, it is shown how noisy neural networks can infer its probabilistic motion. The decoding of the particle motion by neurons is performed with some accuracy and it has some energy cost, and both can be determined using information thermodynamics. In a similar fashion, we also discuss how neural networks in the brain can learn the particle velocity, and maintain that information in the weights of plastic synapses from a physical point of view. Generally, it is shown how the framework of stochastic and information thermodynamics can be used practically to study neural inference, learning, and information storing.",
+          "claimed_authors": [
+            "Jan Karbowski"
+          ],
+          "claimed_title": "Information thermodynamics: from physics to neuroscience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.17599"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Information thermodynamics: from physics to neuroscience')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the challenges in practical quantum key distribution is dealing with efficiency mismatch between different threshold single-photon detectors. There are known bounds for the secret key rate for the BB84 protocol with detection-efficiency mismatch provided that the eavesdropper sends no more than one photon to the legitimate receiver. Here we improve these bounds and give tight bounds for the secret key rate with a constant detection-efficiency mismatch under the same single-photon assumption. We propose a method based on the analytical minimization of the relative entropy of coherence, which can be used in other problems in quantum key distribution. Also we propose an adaptation of the decoy state method to proof the security in the case of weak coherent pulses on the source side.",
+          "claimed_authors": [
+            "M. K. Bochkov",
+            "A. S. Trushechkin"
+          ],
+          "claimed_title": "Security of quantum key distribution with detection-efficiency mismatch in the single-photon case: Tight bounds",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.04663"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Security of quantum key distribution with detection-efficiency mismatch in the single-photon case: Tight bounds')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "State-of-the-art EfficientSCI loses 20.58 dB when its assumed forward operator deviates from physical reality in just eight parameters, yet no existing benchmark quantifies operator mismatch, the default condition in deployed compressive imaging systems. We introduce InverseNet, the first cross-modality benchmark for operator mismatch, spanning CASSI, CACTI, and single-pixel cameras. Evaluating 12 methods under a four-scenario protocol (ideal, mismatched, oracle-corrected, blind calibration) across 27 simulated scenes and 9 real hardware captures, we find: (1) deep learning methods lose 10-21 dB under mismatch, eliminating their advantage over classical baselines; (2) performance and robustness are inversely correlated across modalities (Spearman r_s = -0.71, p < 0.01); (3) mask-oblivious architectures recover 0% of mismatch losses regardless of calibration quality, while operator-conditioned methods recover 41-90%; (4) blind grid-search calibration recovers 85-100% of the oracle bound without ground truth. Real hardware experiments confirm that simulation trends transfer to physical data. Code will be released upon acceptance.",
+          "claimed_authors": [
+            "Chengshuai Yang",
+            "Xin Yuan"
+          ],
+          "claimed_title": "InverseNet: Benchmarking Operator Mismatch and Calibration Across Compressive Imaging Modalities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.04538"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='InverseNet: Benchmarking Operator Mismatch and Calibration Across Compressive Imaging Modalities')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The oddball paradigm is widely applied to the investigation of multiple cognitive functions. Prior studies have explored the cortical oscillation and power spectral differing from the resting-state conduction to oddball paradigm, but whether brain networks existing the significant difference is still unclear. Our study addressed how the brain reconfigures its architecture from a resting-state condition (i.e., baseline) to P300 stimulus task in the visual oddball paradigm. In this study, electroencephalogram (EEG) datasets were collected from 24 postgraduate students, who were required to only mentally count the number of target stimulus; afterwards the functional EEG networks constructed in different frequency bands were compared between baseline and oddball task conditions to evaluate the reconfiguration of functional network in the brain. Compared to the baseline, our results showed the significantly (p < 0.05) enhanced delta/theta EEG connectivity and decreased alpha default mode network in the progress of brain reconfiguration to the P300 task. Furthermore, the reconfigured coupling strengths were demonstrated to relate to P300 amplitudes, which were then regarded as input features to train a classifier to differentiate the high and low P300 amplitudes groups with an accuracy of 77.78%. The findings of our study help us to understand the changes of functional brain connectivity from resting-state to oddball stimulus task, and the reconfigured network pattern has the potential for the selection of good subjects for P300-based brain- computer interface.",
+          "claimed_authors": [
+            "Fali Li",
+            "Chanlin Yi",
+            "Yuanyuan Liao",
+            "Yuanling Jiang",
+            "Yajing Si",
+            "Limeng Song",
+            "Tao Zhang",
+            "Dezhong Yao",
+            "Yangsong Zhang",
+            "Zehong Cao",
+            "Peng Xu"
+          ],
+          "claimed_title": "Reconfiguration of Brain Network between Resting-state and Oddball Paradigm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.06676"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Reconfiguration of Brain Network between Resting-state and Oddball Paradigm')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper presents our recent results obtained with a new auditory spatial localization based BCI paradigm in which the ERP shape differences at early latencies are employed to enhance the traditional P300 responses in an oddball experimental setting. The concept relies on the recent results in auditory neuroscience showing a possibility to differentiate early anterior contralateral responses to attended spatial sources. Contemporary stimuli-driven BCI paradigms benefit mostly from the P300 ERP latencies in so called \"aha-response\" settings. We show the further enhancement of the classification results in spatial auditory paradigms by incorporating the N200 latencies, which differentiate the brain responses to lateral, in relation to the subject head, sound locations in the auditory space. The results reveal that those early spatial auditory ERPs boost online classification results of the BCI application. The online BCI experiments with the multi-command BCI prototype support our research hypothesis with the higher classification results and the improved information-transfer-rates.",
+          "claimed_authors": [
+            "Zhenyu Cai",
+            "Shoji Makino",
+            "Takeshi Yamada",
+            "Tomasz M. Rutkowski"
+          ],
+          "claimed_title": "Spatial Auditory BCI Paradigm Utilizing N200 and P300 Responses",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.2944"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Spatial Auditory BCI Paradigm Utilizing N200 and P300 Responses')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper reports on a study in which a novel virtual moving sound-based spatial auditory brain-computer interface (BCI) paradigm is developed. Classic auditory BCIs rely on spatially static stimuli, which are often boring and difficult to perceive when subjects have non-uniform spatial hearing perception characteristics. The concept of moving sound proposed and tested in the paper allows for the creation of a P300 oddball paradigm of necessary target and non-target auditory stimuli, which are more interesting and easier to distinguish. We present a report of our study of seven healthy subjects, which proves the concept of moving sound stimuli usability for a novel BCI. We compare online BCI classification results in static and moving sound paradigms yielding similar accuracy results. The subject preference reports suggest that the proposed moving sound protocol is more comfortable and easier to discriminate with the online BCI.",
+          "claimed_authors": [
+            "Yohann Lelievre",
+            "Tomasz M. Rutkowski"
+          ],
+          "claimed_title": "Novel Virtual Moving Sound-based Spatial Auditory Brain-Computer Interface Paradigm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1308.2630"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Novel Virtual Moving Sound-based Spatial Auditory Brain-Computer Interface Paradigm')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hierarchical forecasting problems arise when time series have a natural group structure, and predictions at multiple levels of aggregation and disaggregation across the groups are needed. In such problems, it is often desired to satisfy the aggregation constraints in a given hierarchy, referred to as hierarchical coherence in the literature. Maintaining coherence while producing accurate forecasts can be a challenging problem, especially in the case of probabilistic forecasting. We present a novel method capable of accurate and coherent probabilistic forecasts for time series when reliable hierarchical information is present. We call it Deep Poisson Mixture Network (DPMN). It relies on the combination of neural networks and a statistical model for the joint distribution of the hierarchical multivariate time series structure. By construction, the model guarantees hierarchical coherence and provides simple rules for aggregation and disaggregation of the predictive distributions. We perform an extensive empirical evaluation comparing the DPMN to other state-of-the-art methods which produce hierarchically coherent probabilistic forecasts on multiple public datasets. Comparing to existing coherent probabilistic models, we obtain a relative improvement in the overall Continuous Ranked Probability Score (CRPS) of 11.8% on Australian domestic tourism data, and 8.1% on the Favorita grocery sales dataset, where time series are grouped with geographical hierarchies or travel intent hierarchies. For San Francisco Bay Area highway traffic, where the series' hierarchical structure is randomly assigned, and their correlations are less informative, our method does not show significant performance differences over statistical baselines.",
+          "claimed_authors": [
+            "Kin G. Olivares",
+            "O. Nganba Meetei",
+            "Ruijun Ma",
+            "Rohan Reddy",
+            "Mengfei Cao",
+            "Lee Dicker"
+          ],
+          "claimed_title": "Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13179"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An iterated refinement procedure for the Guruswami--Sudan list decoding algorithm for Generalised Reed--Solomon codes based on Alekhnovich's module minimisation is proposed. The method is parametrisable and allows variants of the usual list decoding approach. In particular, finding the list of \\emph{closest} codewords within an intermediate radius can be performed with improved average-case complexity while retaining the worst-case complexity.",
+          "claimed_authors": [
+            "Johan Sebastian Rosenkilde Nielsen",
+            "Alexander Zeh"
+          ],
+          "claimed_title": "Multi-Trial Guruswami--Sudan Decoding for Generalised Reed--Solomon Codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.6236"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Multi-Trial Guruswami--Sudan Decoding for Generalised Reed--Solomon Codes')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning meaningful and general representations from unannotated speech that are applicable to a wide range of tasks remains challenging. In this paper we propose to use autoregressive predictive coding (APC), a recently proposed self-supervised objective, as a generative pre-training approach for learning meaningful, non-specific, and transferable speech representations. We pre-train APC on large-scale unlabeled data and conduct transfer learning experiments on three speech applications that require different information about speech characteristics to perform well: speech recognition, speech translation, and speaker identification. Extensive experiments show that APC not only outperforms surface features (e.g., log Mel spectrograms) and other popular representation learning methods on all three tasks, but is also effective at reducing downstream labeled data size and model parameters. We also investigate the use of Transformers for modeling APC and find it superior to RNNs.",
+          "claimed_authors": [
+            "Yu-An Chung",
+            "James Glass"
+          ],
+          "claimed_title": "Generative Pre-Training for Speech with Autoregressive Predictive Coding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.12607"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Generative Pre-Training for Speech with Autoregressive Predictive Coding')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The auditory pathway is widely distributed throughout the brain, and is perhaps one of the most interesting networks in the context of neuroplasticity. Accurate mapping of neural activity in the entire pathway, preferably noninvasively, and with high resolution, could be instrumental for understanding such longitudinal processes. Functional magnetic resonance imaging (fMRI) has clear advantages for such characterizations, as it is noninvasive, provides relatively high spatial resolution and lends itself for repetitive studies, albeit relying on an indirect neurovascular coupling to deliver its information. Indeed, fMRI has been previously used to characterize the auditory pathway in humans and in rats. In the mouse, however, the auditory pathway has insofar only been mapped using manganese-enhanced MRI. Here, we describe a novel setup specifically designed for high-resolution mapping of the mouse auditory pathway using high-field fMRI. Robust and consistent Blood-Oxygenation-Level-Dependent (BOLD) responses were documented along nearly the entire auditory pathway, from the cochlear nucleus (CN), through the superior olivary complex (SOC), nuclei of the lateral lemniscus (LL), inferior colliculus (IC) and the medial geniculate body (MGB). By contrast, clear BOLD responses were not observed in auditory cortex (AC) in this study. Diverse BOLD latencies were mapped ROI- and pixel-wise using coherence analysis, evidencing different averaged BOLD time courses in different auditory centers. Some degree of tonotopy was identified in the IC, SOC, and MGB in the pooled dataset though it could not be assessed per subject due to a lack of statistical power. Given the importance of the mouse model in plasticity studies, animal models, and optogenetics, and fMRI's potential to map dynamic responses to specific cues, this first fMRI study of the mouse auditory pathway paves the way for future (...)",
+          "claimed_authors": [
+            "Guilherme Blazquez Freches",
+            "Cristina Chavarrias",
+            "Noam Shemesh"
+          ],
+          "claimed_title": "BOLD-fMRI in the mouse auditory pathway",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.08565"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='BOLD-fMRI in the mouse auditory pathway')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate identification of brain function is necessary to understand the neurobiology of cognitive ageing, and thereby promote well-being across the lifespan. A common tool used to investigate neurocognitive ageing is functional magnetic resonance imaging (fMRI). However, although fMRI data are often interpreted in terms of neuronal activity, the blood-oxygen-level-dependent (BOLD) signal measured by fMRI includes contributions of both vascular and neuronal factors, which change differentially with age. While some studies investigate vascular ageing factors, the results of these studies are not well known within the field of neurocognitive ageing and therefore vascular confounds in neurocognitive fMRI studies are common. In contrast to over 10,000 BOLD-fMRI papers on ageing, fewer than 20 have applied techniques to correct for vascular effects. However, neurovascular ageing is not only a confound in fMRI, but an important feature in its own right, to be assessed alongside measures of neuronal ageing. We review current approaches to dissociate neuronal and vascular components of BOLD-fMRI of regional activity and functional connectivity. We highlight emerging evidence that vascular mechanisms in the brain do not simply control blood flow to support the metabolic needs of neurons, but form complex neurovascular interactions that influence neuronal function in health and disease.",
+          "claimed_authors": [
+            "Kamen A. Tsvetanov",
+            "Richard N. A. Henson",
+            "James B. Rowe"
+          ],
+          "claimed_title": "Separating vascular and neuronal effects of age on fMRI BOLD signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.02899"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Separating vascular and neuronal effects of age on fMRI BOLD signals')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in multimodal large language models (LLMs) have enabled unified reasoning across images, audio, and video, but extending such capability to brain imaging remains largely unexplored. Bridging this gap is essential to link neural activity with semantic cognition and to develop cross-modal brain representations. To this end, we present fMRI-LM, a foundational model that bridges functional MRI (fMRI) and language through a three-stage framework. In Stage 1, we learn a neural tokenizer that maps fMRI into discrete tokens embedded in a language-consistent space. In Stage 2, a pretrained LLM is adapted to jointly model fMRI tokens and text, treating brain activity as a sequence that can be temporally predicted and linguistically described. To overcome the lack of natural fMRI-text pairs, we construct a large descriptive corpus that translates diverse imaging-based features into structured textual descriptors, capturing the low-level organization of fMRI signals. In Stage 3, we perform multi-task, multi-paradigm instruction tuning to endow fMRI-LM with high-level semantic understanding, supporting diverse downstream applications. Across various benchmarks, fMRI-LM achieves strong zero-shot and few-shot performance, and adapts efficiently with parameter-efficient tuning (LoRA), establishing a scalable pathway toward a language-aligned, universal model for structural and semantic understanding of fMRI.",
+          "claimed_authors": [
+            "Yuxiang Wei",
+            "Yanteng Zhang",
+            "Xi Xiao",
+            "Chengxuan Qian",
+            "Tianyang Wang",
+            "Vince D. Calhoun"
+          ],
+          "claimed_title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.21760"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the problem of diffusion with stochastic resetting in a population of random walks where the diffusion coefficient is not constant, but behaves as a power-law of the average resetting rate of the population. Resetting occurs only beyond a threshold distance from the origin. This problem is motivated by physical realizations like soft matter under shear, where diffusion of a walk is induced by resetting events of other walks. We first reformulate in the broader context of diffusion with stochastic resetting the so-called Hébraud-Lequeux model for plasticity in dense soft matter, in which diffusivity is proportional to the average resetting rate. Depending on parameter values, the response to a weak external field may be either linear or non-linear with a non-zero average position for a vanishing applied field, and the transition between these two regimes may be interpreted as a continuous phase transition. Extending the model by considering a general power-law relation between diffusivity and average resetting rate, we notably find a discontinuous phase transition between a finite diffusivity and a vanishing diffusivity in the small field limit.",
+          "claimed_authors": [
+            "Eric Bertin"
+          ],
+          "claimed_title": "Stochastic resetting of a population of random walks with resetting-rate-dependent diffusivity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00817"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Stochastic resetting of a population of random walks with resetting-rate-dependent diffusivity')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We determine the full distribution and moments of the first passage time for a wide class of stochastic search processes in the limit of frequent stochastic resetting. Our results apply to any system whose short-time behavior of the search process without resetting can be estimated. In addition to the typical case of exponentially distributed resetting times, we prove our results for a wide array of resetting time distributions. We illustrate our results in several examples and show that the errors of our approximations vanish exponentially fast in typical scenarios of diffusive search.",
+          "claimed_authors": [
+            "Samantha Linn",
+            "Sean D Lawley"
+          ],
+          "claimed_title": "First passage times under frequent stochastic resetting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.05409"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='First passage times under frequent stochastic resetting')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider a closed quantum system subject to a stochastic resetting process. The generic expression for the resulting density operator is formulated for arbitrary resetting dynamics, fully characterised by the distribution of times between consecutive reset events. We analyse the behaviour of the state in the long-time regime, as well as the evolution of relevant quantities in the study of quantum coherence and closed- vs open-system dynamics. Our general results are complemented with examples involving paradigmatic resetting distributions, and special attention is paid to the two-level (qubit) system, in which we elucidate the effects of the renewal process on the speed of evolution toward an orthogonal state, and gain insight into the resetting applied to open systems.",
+          "claimed_authors": [
+            "Francisco J. Sevilla",
+            "Andrea Valdés-Hernández"
+          ],
+          "claimed_title": "Dynamics of closed quantum systems under stochastic resetting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.05643"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis neuro', candidate_title='Dynamics of closed quantum systems under stochastic resetting')",
+        "failed_at": "2026-06-27T09:24:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhuo Zhang",
+            "Amit Yaron",
+            "Dai Akita",
+            "Tomoyo Isoguchi Shiramatsu",
+            "Zenas C. Chao",
+            "Hirokazu Takahashi"
+          ],
+          "title": "Deviance Detection and Regularity Sensitivity in Dissociated Neuronal Cultures",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.20753",
+        "summary": "Understanding how neural networks process complex patterns of information is crucial for advancing both neuroscience and artificial intelligence. To investigate fundamental principles of neural computation, we studied dissociated neuronal cultures, one of the most primitive living neural networks, on high-resolution CMOS microelectrode arrays and tested whether the dissociated culture exhibits regularity sensitivity beyond mere stimulus-specific adaptation and deviance detection. In oddball electrical stimulation paradigms, we confirmed that the neuronal culture produced mismatch responses (MMRs) with true deviance detection beyond mere adaptation. These MMRs were dependent on the N-methyl-D-aspartate (NMDA) receptors, similar to mismatch negativity (MMN) in humans, which is known to have true deviance detection properties. Crucially, we also showed sensitivity to the statistical regularity of stimuli, a phenomenon previously observed only in intact brains: the MMRs in a predictable, periodic sequence were smaller than those in a commonly used sequence in which the appearance of the deviant stimulus was random and unpredictable. These results challenge the traditional view that a hierarchically structured neural network is required to process complex temporal patterns, suggesting instead that deviant detection and regularity sensitivity are inherent properties arising from the primitive neural network. They also suggest new directions for the development of neuro-inspired artificial intelligence systems, emphasizing the importance of incorporating adaptive mechanisms and temporal dynamics in the design of neural networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.20753",
+          "http_status": 200,
+          "pdf_sample_score": 0.2965,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T09:24:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jasmin Stein",
+            "Katharina von Kriegstein",
+            "Alejandro Tabas"
+          ],
+          "title": "Frequency and frequency modulation share the same predictive encoding mechanisms in human auditory cortex",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.13690",
+        "summary": "Expectations can substantially influence perception. Predictive coding is a theory of sensory processing that aims to explain the neural mechanisms underlying the effect of expectations in sensory processing. Its main assumption is that sensory neurons encode prediction error with respect to expected sensory input. Neural populations encoding prediction error have been previously reported in the human auditory cortex (AC); however, most studies focused on the encoding of pure tones and induced expectations by stimulus repetition, potentially confounding prediction error with effects of neural habituation. Here, we systematically studied prediction error to pure tones and fast frequency modulated (FM) sweeps across different auditory cortical fields in humans. We conducted two fMRI experiments, each using one type of stimulus. We measured BOLD responses across the bilateral auditory cortical fields Te1.0, Te1.1, Te1.2, and Te3 while participants listened to sequences of sounds. We induced subjective expectations on the incoming sounds independently of stimulus repetition using abstract rules. Our results indicate that pure tones and FM-sweeps are encoded as prediction error with respect to the participants' expectations across auditory cortical fields. The topographical distribution of neural populations encoding prediction error to pure tones and FM-sweeps was highly correlated in left Te1.1 and Te1.2, and in bilateral Te3, suggesting that predictive coding is the general encoding mechanism in AC.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.13690",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T09:24:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Achim Schilling",
+            "William Sedley",
+            "Richard Gerum",
+            "Claus Metzner",
+            "Konstantin Tziridis",
+            "Andreas Maier",
+            "Holger Schulze",
+            "Fan-Gang Zeng",
+            "Karl J. Friston",
+            "Patrick Krauss"
+          ],
+          "title": "Predictive coding and stochastic resonance as fundamental principles of auditory perception",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2204.03354",
+        "summary": "How is information processed in the brain during perception? Mechanistic insight is achieved only when experiments are employed to test formal or computational models. In analogy to lesion studies, phantom perception may serve as a vehicle to understand the fundamental processing principles underlying auditory perception. With a special focus on tinnitus -- as the prime example of auditory phantom perception -- we review recent work at the intersection of artificial intelligence, psychology, and neuroscience. In particular, we discuss why everyone with tinnitus suffers from hearing loss, but not everyone with hearing loss suffers from tinnitus. We argue that the increase of sensory precision due to Bayesian inference could be caused by intrinsic neural noise and lead to a prediction error in the cerebral cortex. Hence, two fundamental processing principles - being ubiquitous in the brain - provide the most explanatory power for the emergence of tinnitus: predictive coding as a top-down, and stochastic resonance as a complementary bottom-up mechanism. We conclude that both principles play a crucial role in healthy auditory perception.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2204.03354",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T09:24:44Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "neural correlates of temporal prediction errors in auditory scene analysis neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

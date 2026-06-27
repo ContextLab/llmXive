@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.20753",
+  "judged_at": "2026-06-27T09:25:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of temporal prediction errors in auditory scene analysis neuroscience",
+  "rationale": "This paper measures the same biological mechanism (deviance detection/mismatch responses) associated with temporal prediction errors, explicitly linking the findings to human mismatch negativity (MMN) in the auditory domain, which satisfies criterion (a) for same-mechanism evidence despite using a different preparation (dissociated cultures).",
+  "relevant": true
+}

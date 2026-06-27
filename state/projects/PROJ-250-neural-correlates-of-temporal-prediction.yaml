@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T10:49:59.409921Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-250-neural-correlates-of-temporal-prediction
-last_run_id: de233f43-1e25-4d32-be15-530999a8de4d
+last_run_id: 1aa68d5a-f3ae-4c5d-9598-437598b85cd6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis
-updated_at: '2026-06-13T18:07:29.412961Z'
+updated_at: '2026-06-27T09:30:21.560978Z'

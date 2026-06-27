@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.10385",
+  "judged_at": "2026-06-27T09:28:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of temporal prediction errors in auditory scene analysis neuroscience",
+  "rationale": "This paper studies semantic vs acoustic information representation in auditory cortex, not temporal prediction errors. While both are in auditory neuroscience, the specific mechanism (prediction error signaling/predictive coding) is distinct from semantic categorization—this falls under the rejection rule for \"distinct construct sharing only homonym keywords\" (auditory/neural domain overlap without mechanism alignment).",
+  "relevant": false
+}

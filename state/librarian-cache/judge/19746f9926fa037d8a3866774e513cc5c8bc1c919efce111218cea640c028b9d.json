@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2103.04608",
+  "judged_at": "2026-06-27T09:28:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of temporal prediction errors in auditory scene analysis neuroscience",
+  "rationale": "The paper proposes a mathematical signal-reconstruction algorithm rather than measuring empirical neural correlates or prediction error mechanisms. It lacks a measurable connection to the user's specific variables (neural activity, prediction errors) and empirical setting (neuroscience data), fitting the rejection rule for no measurable connection to mechanism or variables.",
+  "relevant": false
+}

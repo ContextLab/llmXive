@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Submission Schema"
+description: "Schema for participant code submissions in the code generation productivity experiment"
+type: "object"
+required:
+  - id
+  - participant_id
+  - session_id
+  - problem_id
+  - condition
+  - source_code
+  - submission_timestamp
+properties:
+  id:
+    type: "string"
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    description: "Unique submission UUID"
+  participant_id:
+    type: "string"
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    description: "Foreign key to Participant.id"
+  session_id:
+    type: "string"
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    description: "Foreign key to Session.id"
+  problem_id:
+    type: "string"
+    description: "Problem identifier (HumanEval/Codeforces ID)"
+  condition:
+    type: "string"
+    enum:
+      - "llm_assisted"
+      - "baseline"
+    description: "Experimental condition"
+  source_code:
+    type: "string"
+    description: "UTF-8 source code submission"
+  submission_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "UTC timestamp of submission"
+  compile_success:
+    type: "boolean"
+    default: true
+    description: "Whether code compiled successfully"
+  syntax_error:
+    type: ["string", "null"]
+    description: "Syntax error message if compilation failed"
+additionalProperties: false

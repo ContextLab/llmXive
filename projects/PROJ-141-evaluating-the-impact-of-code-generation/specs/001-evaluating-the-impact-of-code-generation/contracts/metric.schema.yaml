@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metric Schema"
+description: "Schema for quality and time metrics computed on code submissions"
+type: "object"
+required:
+  - id
+  - submission_id
+  - metric_type
+  - value
+  - computed_at
+properties:
+  id:
+    type: "string"
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    description: "Unique metric UUID"
+  submission_id:
+    type: "string"
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    description: "Foreign key to Submission.id"
+  metric_type:
+    type: "string"
+    enum:
+      - "time"
+      - "pass_rate"
+      - "complexity"
+      - "coverage"
+      - "warnings"
+    description: "Type of metric being recorded"
+  value:
+    type: "number"
+    description: "Metric value (constraints depend on metric_type)"
+    minimum: 0
+  computed_at:
+    type: "string"
+    format: "date-time"
+    description: "UTC timestamp of computation"
+additionalProperties: false
