@@ -1,0 +1,590 @@
+{
+  "fetched_at": "2026-06-27T00:48:05Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG",
+      "target_n": 5
+    },
+    "duration_seconds": 284.191,
+    "ended_at": "2026-06-27T00:48:05Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Individual Alpha Frequency (IAF) reproducibility across cohorts"
+        ],
+        [
+          2,
+          "Peak Alpha Frequency (PAF) generalizability in EEG"
+        ],
+        [
+          3,
+          "Resting-state EEG spectral peak reliability across sites"
+        ],
+        [
+          4,
+          "Multi-site EEG alpha band consistency"
+        ],
+        [
+          5,
+          "EEG biomarker stability across datasets"
+        ],
+        [
+          6,
+          "Inter-dataset variability in alpha oscillations"
+        ],
+        [
+          7,
+          "Alpha rhythm test-retest reliability multi-center"
+        ],
+        [
+          8,
+          "Cross-validation of EEG alpha peak metrics"
+        ],
+        [
+          9,
+          "Neural oscillation frequency stability in resting state"
+        ],
+        [
+          10,
+          "Standardization of alpha frequency estimation protocols"
+        ],
+        [
+          11,
+          "Replicability of electrophysiological markers across studies"
+        ],
+        [
+          12,
+          "Resting-state EEG spectral analysis consistency"
+        ],
+        [
+          13,
+          "Alpha peak frequency variability in healthy populations"
+        ],
+        [
+          14,
+          "Multi-center EEG study alpha band results"
+        ],
+        [
+          15,
+          "Automated alpha peak detection algorithm validation"
+        ],
+        [
+          16,
+          "Neurophysiological marker robustness across populations"
+        ],
+        [
+          17,
+          "Resting EEG individual differences in alpha frequency"
+        ],
+        [
+          18,
+          "Harmonization of EEG datasets for alpha frequency analysis"
+        ],
+        [
+          19,
+          "EEG signal processing alpha peak identification methods"
+        ],
+        [
+          20,
+          "External validity of alpha frequency biomarkers"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG neuroscience": 0,
+        "Individual Alpha Frequency (IAF) reproducibility across cohorts": 1,
+        "Peak Alpha Frequency (PAF) generalizability in EEG": 1,
+        "Resting-state EEG spectral peak reliability across sites": 2
+      },
+      "total_queries_issued": 3
+    },
+    "extracted_queries": [
+      "Individual Alpha Frequency reliability test-retest",
+      "Multi-site EEG resting state dataset",
+      "Power spectral density peak detection EEG",
+      "Intraclass correlation coefficient alpha frequency",
+      "Neural oscillator stability state-dependence EEG"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2301.01588"
+      ]
+    },
+    "per_query_hit_count": {
+      "Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG neuroscience": 3,
+      "Individual Alpha Frequency reliability test-retest": 3,
+      "Intraclass correlation coefficient alpha frequency": 3,
+      "Multi-site EEG resting state dataset": 1,
+      "Neural oscillator stability state-dependence EEG": 3,
+      "Power spectral density peak detection EEG": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1403.6384",
+          "rationale": "This paper focuses on EEG biometrics for person recognition using spectral coherence and power-spectrum features, not on alpha peak frequency estimates or their cross-dataset consistency. While it uses resting-state EEG (same general domain), it does not measure the specific variable (alpha peak frequency) or address the core question (cross-dataset consistency/reproducibility), making it a distinct construct sharing only homonym keywords like \"EEG\" and \"resting-state.\"",
+          "title": "Human brain distinctiveness based on EEG spectral coherence connectivity"
+        },
+        {
+          "primary_pointer": "2601.08725",
+          "rationale": "This paper is entirely off-domain, focusing on cybersecurity and malware detection via API calls rather than neuroscience and EEG signal analysis. The shared term \"frequency\" refers to distinct constructs (software call rates vs. neural oscillation Hz), satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "Malware Detection based on API Calls: A Reproducibility Study"
+        },
+        {
+          "primary_pointer": "2509.02568",
+          "rationale": "This paper measures EEG microstate features (discrete topographies) for dementia classification, not alpha peak frequency estimates. While it shares the EEG domain and cross-dataset evaluation approach, it addresses a fundamentally different EEG metric (microstates vs. spectral alpha frequency), which constitutes distinct constructs sharing only domain-level keywords.",
+          "title": "EEG-MSAF: An Interpretable Microstate Framework uncovers Default-Mode Decoherence in Early Neurodegeneration"
+        },
+        {
+          "primary_pointer": "2301.01588",
+          "rationale": "This paper does not address the core question of cross-dataset consistency of alpha peak frequency estimates. While it works with resting-state EEG and alpha band analysis (related domain), it focuses on clinical classification of psychosis using PSD rather than measuring alpha peak frequency specifically or examining measurement consistency across datasets. The paper lacks connection to the user's key variable (cross-dataset reliability) and uses a different metric (band power vs. peak frequenc",
+          "title": "Power Spectral Density-Based Resting-State EEG Classification of First-Episode Psychosis"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-27T00:43:21Z",
+    "term_input": {
+      "normalized": "cross-dataset consistency of alpha peak frequency estimates in resting-state eeg neuroscience",
+      "raw": "Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+          "claimed_authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "claimed_title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.0924"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='Fractal-driven distortion of resting state functional networks in fMRI: a simulation study')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Monocular estimation of 3d human pose has attracted increased attention with the availability of large ground-truth motion capture datasets. However, the diversity of training data available is limited and it is not clear to what extent methods generalize outside the specific datasets they are trained on. In this work we carry out a systematic study of the diversity and biases present in specific datasets and its effect on cross-dataset generalization across a compendium of 5 pose datasets. We specifically focus on systematic differences in the distribution of camera viewpoints relative to a body-centered coordinate frame. Based on this observation, we propose an auxiliary task of predicting the camera viewpoint in addition to pose. We find that models trained to jointly predict viewpoint and pose systematically show significantly improved cross-dataset generalization.",
+          "claimed_authors": [
+            "Zhe Wang",
+            "Daeyun Shin",
+            "Charless C. Fowlkes"
+          ],
+          "claimed_title": "Predicting Camera Viewpoint Improves Cross-dataset Generalization for 3D Human Pose Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.03143"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='Predicting Camera Viewpoint Improves Cross-dataset Generalization for 3D Human Pose Estimation')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Repeated measurements of player experience are crucial in games user research, assessing how different designs evolve over time. However, this necessitates lightweight measurement instruments that are fit for the purpose. In this study, we conduct an examination of the test-retest reliability of the \\emph{miniPXI} -- a short variant of the \\emph{Player Experience Inventory} (\\emph{PXI}), an established measure for measuring player experience. We analyzed test-retest reliability by leveraging four games involving 100 participants, comparing it with four established multi-item measures and single-item indicators such as the Net Promoter Score (\\emph{NPS}) and overall enjoyment. The findings show mixed outcomes; the \\emph{miniPXI} demonstrated varying levels of test-retest reliability. Some constructs showed good to moderate reliability, while others were less consistent. On the other hand, multi-item measures exhibited moderate to good test-retest reliability, demonstrating their effectiveness in measuring player experiences over time. Additionally, the employed single-item indicators (\\emph{NPS} and overall enjoyment) demonstrated good reliability. The results of our study highlight the complexity of player experience evaluations over time, utilizing single and multiple items per construct measures. We conclude that single-item measures may not be appropriate for long-term investigations of more complex PX dimensions and provide practical considerations for the applicability of such measures in repeated measurements.",
+          "claimed_authors": [
+            "Aqeel Haider",
+            "Günter Wallner",
+            "Kathrin Gerling",
+            "Vero Vanden Abeele"
+          ],
+          "claimed_title": "An Investigation of the Test-Retest Reliability of the miniPXI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.19516"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='An Investigation of the Test-Retest Reliability of the miniPXI')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motivation - The test-retest reliability of quantitative susceptibility mapping (QSM) is affected by parameters of the acquisition protocol such as the angulation of acquisition plane with respect to the B0 field direction and spatial resolution.\n  Goal - We aim to reduce the protocol-dependent biases/errors that might overshadow subtle changes of the susceptibility values due to pathology in the brain.\n  Approach - The magnitude and phase images used for QSM are registered according to a standard reference protocol in the k-space through nonuniform fast Fourier transform (NUFFT).\n  Results - With the help of our proposed approach, the test-retest reliability of scans acquired from different protocols is notably improved.\n  Impact - The improved test-retest reliability of QSM makes it easier to detect subtle susceptibility changes in the early stages of neurodegeneration such as Alzheimer's disease and Parkinson's disease.",
+          "claimed_authors": [
+            "Shuai Huang",
+            "Thomas Denney",
+            "Deqiang Qiu"
+          ],
+          "claimed_title": "Improving the Test-retest Reliability of Quantitative Susceptibility Mapping",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.15170"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='Improving the Test-retest Reliability of Quantitative Susceptibility Mapping')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vision-Language Models (VLMs) are increasingly used as perceptual modules for visual content reasoning, including through captioning and DeepFake detection. In this work, we expose a critical vulnerability of VLMs when exposed to subtle, structured perturbations in the frequency domain. Specifically, we highlight how these feature transformations undermine authenticity/DeepFake detection and automated image captioning tasks. We design targeted image transformations, operating in the frequency domain to systematically adjust VLM outputs when exposed to frequency-perturbed real and synthetic images. We demonstrate that the perturbation injection method generalizes across five state-of-the-art VLMs which includes different-parameter Qwen2/2.5 and BLIP models. Experimenting across ten real and generated image datasets reveals that VLM judgments are sensitive to frequency-based cues and may not wholly align with semantic content. Crucially, we show that visually-imperceptible spatial frequency transformations expose the fragility of VLMs deployed for automated image captioning and authenticity detection tasks. Our findings under realistic, black-box constraints challenge the reliability of VLMs, underscoring the need for robust multimodal perception systems.",
+          "claimed_authors": [
+            "Jordan Vice",
+            "Naveed Akhtar",
+            "Yansong Gao",
+            "Richard Hartley",
+            "Ajmal Mian"
+          ],
+          "claimed_title": "On the Reliability of Vision-Language Models Under Adversarial Frequency-Domain Perturbations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.22398"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='On the Reliability of Vision-Language Models Under Adversarial Frequency-Domain Perturbations')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electroencephalogram (EEG) is an important diagnostic test that physicians use to record brain activity and detect seizures by monitoring the signals. There have been several attempts to detect seizures and abnormalities in EEG signals with modern deep learning models to reduce the clinical burden. However, they cannot be fairly compared against each other as they were tested in distinct experimental settings. Also, some of them are not trained in real-time seizure detection tasks, making it hard for on-device applications. Therefore in this work, for the first time, we extensively compare multiple state-of-the-art models and signal feature extractors in a real-time seizure detection framework suitable for real-world application, using various evaluation metrics including a new one we propose to evaluate more practical aspects of seizure detection models. Our code is available at https://github.com/AITRICS/EEG_real_time_seizure_detection.",
+          "claimed_authors": [
+            "Kwanhyung Lee",
+            "Hyewon Jeong",
+            "Seyun Kim",
+            "Donghwa Yang",
+            "Hoon-Chul Kang",
+            "Edward Choi"
+          ],
+          "claimed_title": "Real-Time Seizure Detection using EEG: A Comprehensive Comparison of Recent Approaches under a Realistic Setting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.08780"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='Real-Time Seizure Detection using EEG: A Comprehensive Comparison of Recent Approaches under a Realistic Setting')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An epileptic seizure is a transient event of abnormal excessive neuronal discharge in the brain. This unwanted event can be obstructed by detection of electrical changes in the brain that happen before the seizure takes place. The automatic detection of seizures is necessary since the visual screening of EEG recordings is a time consuming task and requires experts to improve the diagnosis. Four linear least squares-based preprocessing models are proposed to extract key features of an EEG signal in order to detect seizures. The first two models are newly developed. The original signal (EEG) is approximated by a sinusoidal curve. Its amplitude is formed by a polynomial function and compared with the pre developed spline function.Different statistical measures namely classification accuracy, true positive and negative rates, false positive and negative rates and precision are utilized to assess the performance of the proposed models. These metrics are derived from confusion matrices obtained from classifiers. Different classifiers are used over the original dataset and the set of extracted features. The proposed models significantly reduce the dimension of the classification problem and the computational time while the classification accuracy is improved in most cases. The first and third models are promising feature extraction methods. Logistic, LazyIB1, LazyIB5 and J48 are the best classifiers. Their true positive and negative rates are $1$ while false positive and negative rates are zero and the corresponding precision values are $1$. Numerical results suggest that these models are robust and efficient for detecting epileptic seizure.",
+          "claimed_authors": [
+            "Z. Roshan Zamir"
+          ],
+          "claimed_title": "Detection of epileptic seizure in EEG signals using linear least squares preprocessing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.08500"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='Detection of epileptic seizure in EEG signals using linear least squares preprocessing')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We analyze noise properties of time series of frequency data from different counting modes of a Keysight 53230A frequency counter. We use a 10 MHz reference signal from a passive hydrogen maser connected via phase-stable Huber+Suhner Sucoflex 104 cables to the reference and input connectors of the counter. We find that the high resolution gap-free (CONT) frequency counting process imposes long-term correlations in the output data, resulting in a modified Allan deviation that is characteristic of random walk phase noise. Equally important, the CONT mode results in a frequency bias. In contrast, the counter's undocumented raw continuous mode (RCON) yields unbiased frequency stability estimates with white phase noise characteristics, and of a magnitude consistent with the counter's 20 ps single-shot resolution. Furthermore, we demonstrate that a 100-point running average filter in conjunction with the RCON mode yields resolution enhanced frequency estimates with flicker phase noise characteristics. For instance, the counter's built-in moving-average function can be used. The improved noise characteristics of the averaged RCON mode versus the CONT mode imply that the former mode yields frequency estimates with improved confidence for a given measurement time.",
+          "claimed_authors": [
+            "Tim Dunker",
+            "Harald Hauglin",
+            "Ole Petter Rønningen"
+          ],
+          "claimed_title": "On temporal correlations in high-resolution frequency counting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.05076"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='On temporal correlations in high-resolution frequency counting')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multivariate correlation analysis plays an important role in various fields such as statistics, economics, and big data analytics. In this paper, we propose a pair of measures, the unsigned correlation coefficient (UCC) and the unsigned incorrelation coefficient (UIC), to measure the strength of correlation and incorrelation (lack of correlation) among multiple variables. The absolute value of Pearson's correlation coefficient is a special case of UCC for two variables. Some important properties of UCC and UIC show that the proposed UCC and UIC are a pair of effective measures for multivariate correlation. We also take the unsigned tri-variate correlation coefficient as an example to visually display the effectiveness of the proposed UCC, and the geometrical explanation of UIC is also discussed. All the properties and the figures of UCC and UIC show that the proposed UCC and UIC are the general measures of correlation for multiple variables.",
+          "claimed_authors": [
+            "Jianji Wang",
+            "Nanning Zheng"
+          ],
+          "claimed_title": "Measures of Correlation for Multiple Variables",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.4827"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='Measures of Correlation for Multiple Variables')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vector magnetogram data are often used as photospheric boundary conditions for force-free coronal magnetic field extrapolations. In general, however, vector magnetogram data are not consistent with the force-free assumption. In this article, we demonstrate a way to deal with inconsistent boundary data, by generalizing the \"self-consistency procedure\" of Wheatland & Regnier (2009). In that procedure, the inconsistency is resolved by an iterative process of constructing two solutions based on the values of the force-free parameter alpha on the two polarities of the field in the boundary (the P and N polarities), and taking uncertainty-weighted averages of the boundary alpha values in the P and N solutions. When the alpha values in the P and N regions are very different, the self-consistent solution may lose high alpha values from the boundary conditions. We show how, by altering the weighting of the uncertainties in the P or N boundary conditions, we can preserve high alpha values in the self-consistent solution. The weighted self-consistent extrapolation method is demonstrated on an analytic bipole field and applied to vector magnetogram data taken by the Helioseismic and Magnetic Imager (HMI) instrument for NOAA active region AR 12017 on 2014 March 29.",
+          "claimed_authors": [
+            "Alpha Mastrano",
+            "Kai E. Yang",
+            "Michael S. Wheatland"
+          ],
+          "claimed_title": "Self-consistent Nonlinear Force-free Field Reconstruction from Weighted Boundary Conditions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.12510"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='Self-consistent Nonlinear Force-free Field Reconstruction from Weighted Boundary Conditions')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The stability and convergence of the neural networks are the fundamental characteristics in the Hopfield type networks. Since time delay is ubiquitous in most physical and biological systems, more attention is being made for the delayed neural networks. The inclusion of time delay into a neural model is natural due to the finite transmission time of the interactions. The stability analysis of the neural networks depends on the Lyapunov function and hence it must be constructed for the given system. In this paper we have made an attempt to establish the logarithmic stability of the impulsive delayed neural networks by constructing suitable Lyapunov function.",
+          "claimed_authors": [
+            "A. K. Ojha",
+            "Dushmanta Mallick",
+            "C. Mallick"
+          ],
+          "claimed_title": "Existence and Global Logarithmic Stability of Impulsive Neural Networks with Time Delay",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1164"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='Existence and Global Logarithmic Stability of Impulsive Neural Networks with Time Delay')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Emotion recognition is the technology-driven process of identifying and categorizing human emotions from various data sources, such as facial expressions, voice patterns, body motion, and physiological signals, such as EEG. These physiological indicators, though rich in data, present challenges due to their complexity and variability, necessitating sophisticated feature selection and extraction methods. NGN, an unsupervised learning algorithm, effectively adapts to input spaces without predefined grid structures, improving feature extraction from physiological data. Furthermore, the incorporation of fuzzy logic enables the handling of fuzzy data by introducing reasoning that mimics human decision-making. The combination of PSO with XGBoost aids in optimizing model performance through efficient hyperparameter tuning and decision process optimization. This study explores the integration of Neural-Gas Network (NGN), XGBoost, Particle Swarm Optimization (PSO), and fuzzy logic to enhance emotion recognition using physiological signals. Our research addresses three critical questions concerning the improvement of XGBoost with PSO and fuzzy logic, NGN's effectiveness in feature selection, and the performance comparison of the PSO-fuzzy XGBoost classifier with standard benchmarks. Acquired results indicate that our methodologies enhance the accuracy of emotion recognition systems and outperform other feature selection techniques using the majority of classifiers, offering significant implications for both theoretical advancement and practical application in emotion recognition technology.",
+          "claimed_authors": [
+            "Seyed Muhammad Hossein Mousavi"
+          ],
+          "claimed_title": "PSO Fuzzy XGBoost Classifier Boosted with Neural Gas Features on EEG Signals in Emotion Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.09950"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='PSO Fuzzy XGBoost Classifier Boosted with Neural Gas Features on EEG Signals in Emotion Recognition')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cross-Dataset Consistency of Alpha Peak Frequency Estimates in Resting-State EEG', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-06-27T00:45:37Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daria La Rocca",
+            "Patrizio Campisi",
+            "Balazs Vegso",
+            "Peter Cserti",
+            "Gyorgy Kozmann",
+            "Fabio Babiloni",
+            "Fabrizio De Vico Fallani"
+          ],
+          "title": "Human brain distinctiveness based on EEG spectral coherence connectivity",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1403.6384",
+        "summary": "The use of EEG biometrics, for the purpose of automatic people recognition, has received increasing attention in the recent years. Most of current analysis rely on the extraction of features characterizing the activity of single brain regions, like power-spectrum estimates, thus neglecting possible temporal dependencies between the generated EEG signals. However, important physiological information can be extracted from the way different brain regions are functionally coupled. In this study, we propose a novel approach that fuses spectral coherencebased connectivity between different brain regions as a possibly viable biometric feature. The proposed approach is tested on a large dataset of subjects (N=108) during eyes-closed (EC) and eyes-open (EO) resting state conditions. The obtained recognition performances show that using brain connectivity leads to higher distinctiveness with respect to power-spectrum measurements, in both the experimental conditions. Notably, a 100% recognition accuracy is obtained in EC and EO when integrating functional connectivity between regions in the frontal lobe, while a lower 97.41% is obtained in EC (96.26% in EO) when fusing power spectrum information from centro-parietal regions. Taken together, these results suggest that functional connectivity patterns represent effective features for improving EEG-based biometric systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1403.6384",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T00:45:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Juhani Merilehto"
+          ],
+          "title": "Malware Detection based on API Calls: A Reproducibility Study",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.08725",
+        "summary": "This study independently reproduces the malware detection methodology presented by Felli cious et al. [7], which employs order-invariant API call frequency analysis using Random Forest classification. We utilized the original public dataset (250,533 training samples, 83,511 test samples) and replicated four model variants: Unigram, Bigram, Trigram, and Combined n gram approaches. Our reproduction successfully validated all key findings, achieving F1-scores that exceeded the original results by 0.99% to 2.57% across all models at the optimal API call length of 2,500. The Unigram model achieved F1=0.8717 (original: 0.8631), confirming its ef fectiveness as a lightweight malware detector. Across three independent experimental runs with different random seeds, we observed remarkably consistent results with standard deviations be low 0.5%, demonstrating high reproducibility. This study validates the robustness and scientific rigor of the original methodology while confirming the practical viability of frequency-based API call analysis for malware detection.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.08725",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T00:46:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammad Mehedi Hasan",
+            "Pedro G. Lind",
+            "Hernando Ombao",
+            "Anis Yazidi",
+            "Rabindra Khadka"
+          ],
+          "title": "EEG-MSAF: An Interpretable Microstate Framework uncovers Default-Mode Decoherence in Early Neurodegeneration",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.02568",
+        "summary": "Dementia (DEM) is a growing global health challenge, underscoring the need for early and accurate diagnosis. Electroencephalography (EEG) provides a non-invasive window into brain activity, but conventional methods struggle to capture its transient complexity. We present the \\textbf{EEG Microstate Analysis Framework (EEG-MSAF)}, an end-to-end pipeline that leverages EEG microstates discrete, quasi-stable topographies to identify DEM-related biomarkers and distinguish DEM, mild cognitive impairment (MCI), and normal cognition (NC). EEG-MSAF comprises three stages: (1) automated microstate feature extraction, (2) classification with machine learning (ML), and (3) feature ranking using Shapley Additive Explanations (SHAP) to highlight key biomarkers. We evaluate on two EEG datasets: the public Chung-Ang University EEG (CAUEEG) dataset and a clinical cohort from Thessaloniki Hospital. Our framework demonstrates strong performance and generalizability. On CAUEEG, EEG-MSAF-SVM achieves \\textbf{89\\% $\\pm$ 0.01 accuracy}, surpassing the deep learning baseline CEEDNET by \\textbf{19.3\\%}. On the Thessaloniki dataset, it reaches \\textbf{95\\% $\\pm$ 0.01 accuracy}, comparable to EEGConvNeXt. SHAP analysis identifies mean correlation and occurrence as the most informative metrics: disruption of microstate C (salience/attention network) dominates DEM prediction, while microstate F, a novel default-mode pattern, emerges as a key early biomarker for both MCI and DEM. By combining accuracy, generalizability, and interpretability, EEG-MSAF advances EEG-based dementia diagnosis and sheds light on brain dynamics across the cognitive spectrum.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.02568",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T00:46:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sadi Md. Redwan",
+            "Md Palash Uddin",
+            "Anwaar Ulhaq",
+            "Muhammad Imran Sharif"
+          ],
+          "title": "Power Spectral Density-Based Resting-State EEG Classification of First-Episode Psychosis",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2301.01588",
+        "summary": "Historically, the analysis of stimulus-dependent time-frequency patterns has been the cornerstone of most electroencephalography (EEG) studies. The abnormal oscillations in high-frequency waves associated with psychotic disorders during sensory and cognitive tasks have been studied many times. However, any significant dissimilarity in the resting-state low-frequency bands is yet to be established. Spectral analysis of the alpha and delta band waves shows the effectiveness of stimulus-independent EEG in identifying the abnormal activity patterns of pathological brains. A generalized model incorporating multiple frequency bands should be more efficient in associating potential EEG biomarkers with First-Episode Psychosis (FEP), leading to an accurate diagnosis. We explore multiple machine-learning methods, including random-forest, support vector machine, and Gaussian Process Classifier (GPC), to demonstrate the practicality of resting-state Power Spectral Density (PSD) to distinguish patients of FEP from healthy controls. A comprehensive discussion of our preprocessing methods for PSD analysis and a detailed comparison of different models are included in this paper. The GPC model outperforms the other models with a specificity of 95.78% to show that PSD can be used as an effective feature extraction technique for analyzing and classifying resting-state EEG signals of psychiatric disorders.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.01588",
+          "http_status": 200,
+          "pdf_sample_score": 0.318,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T00:46:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "cross-dataset consistency of alpha peak frequency estimates in resting-state eeg neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

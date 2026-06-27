@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.01588",
+  "judged_at": "2026-06-27T00:48:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-dataset consistency of alpha peak frequency estimates in resting-state eeg neuroscience",
+  "rationale": "This paper does not address the core question of cross-dataset consistency of alpha peak frequency estimates. While it works with resting-state EEG and alpha band analysis (related domain), it focuses on clinical classification of psychosis using PSD rather than measuring alpha peak frequency specifically or examining measurement consistency across datasets. The paper lacks connection to the user's key variable (cross-dataset reliability) and uses a different metric (band power vs. peak frequenc",
+  "relevant": false
+}

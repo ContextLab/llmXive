@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-773-enterpriseclawbench-benchmarking-agents
-last_run_id: null
+last_run_id: 9714d28f-9ee7-4cb8-9fc4-7716f93ec36b
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-773-enterpriseclawbench-benchmarking-agents/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions'
-updated_at: '2026-06-24T09:08:42.970731Z'
+updated_at: '2026-06-27T01:05:47.396336Z'

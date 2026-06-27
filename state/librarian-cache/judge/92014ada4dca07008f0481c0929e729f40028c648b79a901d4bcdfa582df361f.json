@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.02568",
+  "judged_at": "2026-06-27T00:47:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-dataset consistency of alpha peak frequency estimates in resting-state eeg neuroscience",
+  "rationale": "This paper measures EEG microstate features (discrete topographies) for dementia classification, not alpha peak frequency estimates. While it shares the EEG domain and cross-dataset evaluation approach, it addresses a fundamentally different EEG metric (microstates vs. spectral alpha frequency), which constitutes distinct constructs sharing only domain-level keywords.",
+  "relevant": false
+}

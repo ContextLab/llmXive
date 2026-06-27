@@ -619,6 +619,10 @@
     "classified_at": "2026-06-25T09:29:20Z",
     "verdict": false
   },
+  "PROJ-785-cross-dataset-consistency-of-alpha-peak-::1.6.0": {
+    "classified_at": "2026-06-27T00:45:37Z",
+    "verdict": false
+  },
   "PROJ-786-multi-property-trade-offs-in-alloy-desig::1.6.0": {
     "classified_at": "2026-06-26T19:45:12Z",
     "verdict": false

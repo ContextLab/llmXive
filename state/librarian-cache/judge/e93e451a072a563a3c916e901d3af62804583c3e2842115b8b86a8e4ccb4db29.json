@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1403.6384",
+  "judged_at": "2026-06-27T00:46:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cross-dataset consistency of alpha peak frequency estimates in resting-state eeg neuroscience",
+  "rationale": "This paper focuses on EEG biometrics for person recognition using spectral coherence and power-spectrum features, not on alpha peak frequency estimates or their cross-dataset consistency. While it uses resting-state EEG (same general domain), it does not measure the specific variable (alpha peak frequency) or address the core question (cross-dataset consistency/reproducibility), making it a distinct construct sharing only homonym keywords like \"EEG\" and \"resting-state.\"",
+  "relevant": false
+}

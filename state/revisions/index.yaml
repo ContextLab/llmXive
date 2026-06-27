@@ -195,3 +195,6 @@ ready:
 - project_id: PROJ-618-bench-evaluating-proactive-personal-assi
   revision_spec_path: specs/auto-revisions/PROJ-618-bench-evaluating-proactive-personal-assi/round-2
   queued_at: '2026-06-26T22:59:33.825813+00:00'
+- project_id: PROJ-773-enterpriseclawbench-benchmarking-agents
+  revision_spec_path: specs/auto-revisions/PROJ-773-enterpriseclawbench-benchmarking-agents/round-1
+  queued_at: '2026-06-27T01:05:47.373580+00:00'
