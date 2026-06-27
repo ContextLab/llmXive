@@ -626,5 +626,9 @@
   "PROJ-786-multi-property-trade-offs-in-alloy-desig::1.6.0": {
     "classified_at": "2026-06-26T19:45:12Z",
     "verdict": false
+  },
+  "PROJ-787-assessing-orbital-period-dependence-of-t::1.6.0": {
+    "classified_at": "2026-06-27T06:04:37Z",
+    "verdict": false
   }
 }

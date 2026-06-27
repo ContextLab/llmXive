@@ -1,0 +1,471 @@
+{
+  "fetched_at": "2026-06-27T06:09:34Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Assessing Orbital Period Dependence of the Exoplanet Radius Gap",
+      "target_n": 5
+    },
+    "duration_seconds": 374.977,
+    "ended_at": "2026-06-27T06:09:34Z",
+    "expansion": null,
+    "extracted_queries": [
+      "Fulton gap photoevaporation valley",
+      "Kepler small planets radius distribution",
+      "photoevaporation core powered mass loss",
+      "radius valley slope orbital period",
+      "stellar irradiation atmospheric escape"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1703.10375"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics": 3,
+      "Fulton gap photoevaporation valley": 3,
+      "Kepler small planets radius distribution": 3,
+      "photoevaporation core powered mass loss": 3,
+      "radius valley slope orbital period": 3,
+      "stellar irradiation atmospheric escape": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-27T06:03:19Z",
+    "term_input": {
+      "normalized": "assessing orbital period dependence of the exoplanet radius gap physics",
+      "raw": "Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-06-27T06:04:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The CoRoT satellite is the first instrument hunting for planets from space. We will review the status of the CoRoT/Exoplanet program. We will then present the CoRoT exoplanetary systems and how they widen the range of properties of the close-in population and contribute to our understanding of the properties of planets.",
+          "claimed_authors": [
+            "M. Deleuil",
+            "C. Moutou",
+            "P. Bordé",
+            "the CoRoT exoplanet science team"
+          ],
+          "claimed_title": "The CoRoT Exoplanet program : status & results",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1105.1887"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='The CoRoT Exoplanet program : status & results')",
+        "failed_at": "2026-06-27T06:04:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the current expectations for the design and physics program of an e+e- linear collider of center of mass energy 500 GeV -- 1 TeV. We review the experiments that would be carried out at this facility and demonstrate its key role in exploring physics beyond the Standard Model over the full range of theoretical possibilities. We then show the feasibility of constructing this machine, by reviewing the current status of linear collider technology and by presenting a precis of our `zeroth-order' design.",
+          "claimed_authors": [
+            " NLC ZDR Design Group",
+            " NLC Physics Working Group",
+            "S. Kuhlman"
+          ],
+          "claimed_title": "Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "hep-ex/9605011"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title=\"Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96\")",
+        "failed_at": "2026-06-27T06:04:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The green valley represents the population of galaxies that are transitioning from the actively star-forming blue cloud to the passively evolving red sequence. Studying the properties of the green valley galaxies is crucial for our understanding of the exact mechanisms and processes that drive this transition. The green valley does not have a universally accepted definition. The boundaries of the green valley are often determined by empirical lines that are subjective and vary across studies. We present an unambiguous definition of the green valley in the colour-stellar mass plane using the entropic thresholding. We first divide the galaxy population into the blue cloud and the red sequence based on a colour threshold that minimizes the intra-class variance and maximizes the inter-class variance. Our method splits the region between the mean colours of the blue cloud and the red sequence into three parts by maximizing the total entropy of that region. We repeat our analysis in a number of independent stellar mass bins to define the boundaries of the green valley in the colour-mass diagram. Our method provides a robust and natural definition of the green valley.",
+          "claimed_authors": [
+            "Biswajit Pandey"
+          ],
+          "claimed_title": "Tracing the green valley with entropic thresholding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.09395"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='Tracing the green valley with entropic thresholding')",
+        "failed_at": "2026-06-27T06:04:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Under more consideration, it seems that bulk valley current mediated nonlocal resistance is inconsistent with Landau-Buttiker formalism. We believe Landau-Buttiker formalism is right and the declared bulk valley current mediated nonlocal resistance is questionable and the experimental signal should be attributed to other origins.",
+          "claimed_authors": [
+            "S. K. Wang",
+            "Jun Wang",
+            "Jun-Feng Liu"
+          ],
+          "claimed_title": "Numerical study of the quantum valley Hall effect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.03346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='Numerical study of the quantum valley Hall effect')",
+        "failed_at": "2026-06-27T06:04:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The observed radii distribution of {\\it Kepler} exoplanets reveals two distinct populations: those that are more likely to be terrestrials ($\\lesssim1.7R_\\oplus$) and those that are more likely to be gas-enveloped ($\\gtrsim2R_\\oplus$). There exists a clear gap in the distribution of radii that separates these two kinds of planets. Mass loss processes like photoevaporation by high energy photons from the host star have been proposed as natural mechanisms to carve out this radius valley. These models favor underlying core mass function of sub-Neptunes that is sharply peaked at $\\sim$4--8$M_\\oplus$ but the radial-velocity follow-up of these small planets hint at a more bottom-heavy mass function. By taking into account the initial gas accretion in gas-poor (but not gas-empty) nebula, we demonstrate that 1) the observed radius valley is a robust feature that is initially carved out at formation during late-time gas accretion; and 2) that it can be reconciled with core mass functions that are broad extending well into sub-Earth regime. The maximally cooled isothermal limit prohibits cores lighter than $\\sim$1--2$M_\\oplus$ from accreting enough mass to appear gas-enveloped. The rocky-to-enveloped transition established at formation produces a gap in the radius distribution that shifts to smaller radii farther from the star, similar to that observed. For the best agreement with the data, our late-time gas accretion model favors dust-free accretion in hotter disks with cores slightly less dense than the Earth ($\\sim$0.8$ρ_\\oplus$) drawn from a mass function that is as broad as $dN/dM_{\\rm core} \\propto M_{\\rm core}^{-0.7}$.",
+          "claimed_authors": [
+            "Eve J. Lee",
+            "Nicholas J. Connors"
+          ],
+          "claimed_title": "Primordial Radius Gap and Potentially Broad Core Mass Distributions of Super-Earths and Sub-Neptunes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.01105"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='Primordial Radius Gap and Potentially Broad Core Mass Distributions of Super-Earths and Sub-Neptunes')",
+        "failed_at": "2026-06-27T06:04:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many ground-based photometric surveys are now under way, and five of them have been successful at detecting transiting exoplanets. Nevertheless, detecting transiting planets has turned out to be much more challenging than initially anticipated. Transit surveys have learnt that an overwhelming number of false positives and confusion scenarios, combined with an intermittent phase coverage and systematic residuals in the photometry, could make ground-based surveys rather inefficient in the detection of transiting planets. We have set up a working group on transiting planets to confront the experience of the different surveys and get a more complete understanding of these issues, in order to improve the observing strategies and analysis schemes for ongoing surveys, and to prepare for the coming Corot and Kepler space missions. This contribution presents the current results of our working group.",
+          "claimed_authors": [
+            "Frederic Pont",
+            "the ISSI Working Group on Transiting Planets"
+          ],
+          "claimed_title": "Potential of Photometric Searches for Transiting Planets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0612540"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='Potential of Photometric Searches for Transiting Planets')",
+        "failed_at": "2026-06-27T06:04:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "PG 1159-035 is the prototype of the DOV hot pre-white dwarf pulsators. It was observed during the Kepler satellite K2 mission for 69 days in 59 s cadence mode and by the TESS satellite for 25 days in 20 s cadence mode. We present a detailed asteroseismic analysis of those data. We identify a total of 107 frequencies representing 32 l=1 modes, 27 frequencies representing 12 l=2 modes, and 8 combination frequencies. The combination frequencies and the modes with very high k values represent new detections. The multiplet structure reveals an average splitting of 4.0+/-0.4 muHz for l=1 and 6.8+/-0.2 muHz for l=2, indicating a rotation period of 1.4+/-0.1 days in the region of period formation. In the Fourier transform of the light curve, we find a significant peak at 8.904+/-0.003 muHz suggesting a surface rotation period of 1.299+/-0.002 days. We also present evidence that the observed periods change on timescales shorter than those predicted by current evolutionary models. Our asteroseismic analysis finds an average period spacing for l=1 of 21.28+/-0.02 s. The l=2 modes have a mean spacing of 12.97+/-0.4 s. We performed a detailed asteroseismic fit by comparing the observed periods with those of evolutionary models. The best fit model has Teff=129600+/- 11100 K, mass M*=0.565+/-0.024 Msun, and log g=7.41+0.38-0.54, within the uncertainties of the spectroscopic determinations. We argue for future improvements in the current models, e.g., on the overshooting in the He-burning stage, as the best-fit model does not predict excitation for all the pulsations detected in PG~1159-03.",
+          "claimed_authors": [
+            "Gabriela Oliveira da Rosa",
+            "S. O. Kepler",
+            "Alejandro H. Córsico",
+            "J. E. S. Costa",
+            "J. J. Hermes",
+            "S. D. Kawaler",
+            "Keaton J. Bell",
+            "M. H. Montgomery",
+            "J. L. Provencal",
+            "D. E. Winget",
+            "G. Handler",
+            "Bart Dunlap",
+            "J. C. Clemens",
+            "Murat Uzundag"
+          ],
+          "claimed_title": "Kepler and TESS Observations of PG 1159-035",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.04791"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='Kepler and TESS Observations of PG 1159-035')",
+        "failed_at": "2026-06-27T06:04:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding atmospheric escape in close-in exoplanets is critical to interpreting their evolution. We map out the parameter space over which photoevaporation and core-powered mass loss dominate atmospheric escape. Generally, the transition between the two regimes is determined by the location of the Bondi radius (i.e. the sonic point of core-powered outflow) relative to the penetration depth of XUV photons. Photoevaporation dominates the loss when the XUV penetration depth lies inside the Bondi radius ($R_{XUV}<R_B$) and core-powered mass-loss when XUV radiation is absorbed higher up in the flow ($R_B<R_{XUV}$). The transition between the two regimes occurs at a roughly constant ratio of the planet's radius to its Bondi radius, with the exact value depending logarithmically on planetary and stellar properties. In general, core-powered mass-loss dominates for lower-gravity planets with higher equilibrium temperatures, and photoevaporation dominates for higher-gravity planets with lower equilibrium temperatures. However, planets can transition between these two mass-loss regimes during their evolution, and core-powered mass loss can ``enhance'' photo-evaporation over a significant region of parameter space. Interestingly, a planet that is ultimately stripped by core-powered mass-loss has likely only ever experienced core-powered mass-loss. In contrast a planet that is ultimately stripped by photoevaporation could have experienced an early phase of core-powered mass-loss. Applying our results to the observed super-Earth population suggests that it contains significant fractions of planets where each mechanism controlled the final removal of the H/He envelope, although photoevaporation appears to be responsible for the final carving of the exoplanet radius-valley.",
+          "claimed_authors": [
+            "James E. Owen",
+            "Hilke E. Schlichting"
+          ],
+          "claimed_title": "Mapping out the parameter space for photoevaporation and core-powered mass-loss",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.00020"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='Mapping out the parameter space for photoevaporation and core-powered mass-loss')",
+        "failed_at": "2026-06-27T06:04:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Extreme-ultraviolet Stellar Characterization for Atmospheric Physics and Evolution (ESCAPE) mission is an astrophysics Small Explorer employing ultraviolet spectroscopy (EUV: 80 - 825 Å and FUV: 1280 - 1650 Å) to explore the high-energy radiation environment in the habitable zones around nearby stars. ESCAPE provides the first comprehensive study of the stellar EUV and coronal mass ejection environments which directly impact the habitability of rocky exoplanets. In a 20 month science mission, ESCAPE will provide the essential stellar characterization to identify exoplanetary systems most conducive to habitability and provide a roadmap for NASA's future life-finder missions. ESCAPE accomplishes this goal with roughly two-order-of-magnitude gains in EUV efficiency over previous missions. ESCAPE employs a grazing incidence telescope that feeds an EUV and FUV spectrograph. The ESCAPE science instrument builds on previous ultraviolet and X-ray instrumentation, grazing incidence optical systems, and photon-counting ultraviolet detectors used on NASA astrophysics, heliophysics, and planetary science missions. The ESCAPE spacecraft bus is the versatile and high-heritage Ball Aerospace BCP Small spacecraft. Data archives will be housed at the Mikulski Archive for Space Telescopes (MAST).",
+          "claimed_authors": [
+            "K. France",
+            "B. Fleming",
+            "A. Youngblood",
+            "J. Mason",
+            "J. Drake",
+            "the ESCAPE Science",
+            "Instrument Team"
+          ],
+          "claimed_title": "The Extreme-ultraviolet Stellar Characterization for Atmospheric Physics and Evolution (ESCAPE) Mission: Motivation and Overview",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.13219"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='The Extreme-ultraviolet Stellar Characterization for Atmospheric Physics and Evolution (ESCAPE) Mission: Motivation and Overview')",
+        "failed_at": "2026-06-27T06:04:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Space weather plays an important role in the evolution of planetary atmospheres. Observations have shown that stellar flares emit energy in a wide energy range (10^30-10^38 ergs), a fraction of which lies in X-rays and extreme ultraviolet (XUV). These flares heat the upper atmosphere of a planet, leading to increased escape rates, and can result in atmospheric erosion over a period of time. Observations also suggest that primordial terrestrial planets can accrete voluminous H/He envelopes. Stellar radiation can erode these protoatmospheres over time, and the extent of this erosion has implications for the planet's habitability. We use the energy-limited equation to calculate hydrodynamic escape rates from these protoatmospheres irradiated by XUV stellar flares and luminosity. We use the Flare-Frequency Distribution of 492 FGKM stars observed with TESS to estimate atmospheric loss in Habitable Zone planets. We find that for most stars, luminosity-induced escape is the main loss mechanism, with a minor contribution from flares. However, flares dominate the loss mechanism of $\\sim$20\\% M4-M10 stars. M0-M4 stars are most likely to completely erode both their proto- and secondary atmospheres, and M4-M10 are least likely to erode secondary atmospheres. We discuss the implications of these results on planetary habitability.",
+          "claimed_authors": [
+            "Dimitra Atri",
+            "Shane R. Carberry Mogan"
+          ],
+          "claimed_title": "Stellar Flares versus Luminosity: XUV-induced Atmospheric Escape and Planetary Habitability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.04310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='Stellar Flares versus Luminosity: XUV-induced Atmospheric Escape and Planetary Habitability')",
+        "failed_at": "2026-06-27T06:04:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The atmospheres of highly irradiated exoplanets are observed to undergo hydrodynamic escape. However, due to strong pressures, stellar winds can confine planetary atmospheres, reducing their escape. Here, we investigate under which conditions atmospheric escape of close-in giants could be confined by the large pressure of their host star's winds. For that, we simulate escape in planets at a range of orbital distances ([0.04, 0.14] au), planetary gravities ([36%, 87%] of Jupiter's gravity), and ages ([1, 6.9] Gyr). For each of these simulations, we calculate the ram pressure of these escaping atmospheres and compare them to the expected stellar wind external pressure to determine whether a given atmosphere is confined or not. We show that, although younger close-in giants should experience higher levels of atmospheric escape, due to higher stellar irradiation, stellar winds are also stronger at young ages, potentially reducing escape of young exoplanets. Regardless of the age, we also find that there is always a region in our parameter space where atmospheric escape is confined, preferably occurring at higher planetary gravities and orbital distances. We investigate confinement of some known exoplanets and find that the atmosphere of several of them, including pi Men c, should be confined by the winds of their host stars, thus potentially preventing escape in highly irradiated planets. Thus, the lack of hydrogen escape recently reported for pi Men c could be caused by the stellar wind.",
+          "claimed_authors": [
+            "A. A. Vidotto",
+            "A. Cleary"
+          ],
+          "claimed_title": "Stellar wind effects on the atmospheres of close-in giants: a possible reduction in escape instead of increased erosion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.10272"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Orbital Period Dependence of the Exoplanet Radius Gap physics', candidate_title='Stellar wind effects on the atmospheres of close-in giants: a possible reduction in escape instead of increased erosion')",
+        "failed_at": "2026-06-27T06:04:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Benjamin J. Fulton",
+            "Erik A. Petigura",
+            "Andrew W. Howard",
+            "Howard Isaacson",
+            "Geoffrey W. Marcy",
+            "Phillip A. Cargile",
+            "Leslie Hebb",
+            "Lauren M. Weiss",
+            "John Asher Johnson",
+            "Timothy D. Morton",
+            "Evan Sinukoff",
+            "Ian J. M. Crossfield",
+            "Lea A. Hirsch"
+          ],
+          "title": "The California-Kepler Survey. III. A Gap in the Radius Distribution of Small Planets",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1703.10375",
+        "summary": "The size of a planet is an observable property directly connected to the physics of its formation and evolution. We used precise radius measurements from the California-Kepler Survey (CKS) to study the size distribution of 2025 $\\textit{Kepler}$ planets in fine detail. We detect a factor of $\\geq$2 deficit in the occurrence rate distribution at 1.5-2.0 R$_{\\oplus}$. This gap splits the population of close-in ($P$ < 100 d) small planets into two size regimes: R$_P$ < 1.5 R$_{\\oplus}$ and R$_P$ = 2.0-3.0 R$_{\\oplus}$, with few planets in between. Planets in these two regimes have nearly the same intrinsic frequency based on occurrence measurements that account for planet detection efficiencies. The paucity of planets between 1.5 and 2.0 R$_{\\oplus}$ supports the emerging picture that close-in planets smaller than Neptune are composed of rocky cores measuring 1.5 R$_{\\oplus}$ or smaller with varying amounts of low-density gas that determine their total sizes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1703.10375",
+          "http_status": 200,
+          "pdf_sample_score": 0.167,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T06:04:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "R. O. P. Loyd",
+            "Evgenya L. Shkolnik",
+            "Adam C. Schneider",
+            "Tyler Richey-Yowell",
+            "Travis S. Barman",
+            "Sarah Peacock",
+            "Isabella Pagano"
+          ],
+          "title": "Current Population Statistics Do Not Favor Photoevaporation over Core-Powered Mass Loss as the Dominant Cause of the Exoplanet Radius Gap",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1912.12305",
+        "summary": "We search for evidence of the cause of the exoplanet radius gap, i.e. the dearth of planets with radii near $1.8\\ R_\\oplus$. If the cause was photoevaporation, the radius gap should trend with proxies for the early-life high-energy emission of planet-hosting stars. If, alternatively, the cause was core-powered mass loss, no such trends should exist. Critically, spurious trends between the radius gap and stellar properties arise from an underlying correlation with instellation. After accounting for this underlying correlation, we find no trends remain between the radius gap and stellar mass or present-day stellar activity as measured by near-UV emission. We dismiss the nondetection of a radius gap trend with near-UV emission because present-day near-UV emission is unlikely to trace early-life high-energy emission, but we provide a catalog of GALEX near-UV and far-UV emission measurements for general use. We interpret the nondetection of a radius gap trend with stellar mass by simulating photoevaporation with mass-dependent evolution of stellar high-energy emission. The simulation produces an undetectable trend between the radius gap and stellar mass under realistic sources of error. We conclude that no evidence, from this analysis or others in the literature, currently exists that clearly favors either photoevaporation or core powered mass loss as the primary cause of the exoplanet radius gap. However, repeating this analysis once the body of well-characterized $< 4\\ R_\\oplus$ planets has roughly doubled could confirm or rule out photoevaporation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1912.12305",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T06:04:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Travis A. Berger",
+            "Joshua E. Schlieder",
+            "Daniel Huber",
+            "Thomas Barclay"
+          ],
+          "title": "Evidence that Core-Powered Mass-Loss Dominates Over Photoevaporation in Shaping the Kepler Radius Valley",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.00009",
+        "summary": "The dearth of planets with sizes around 1.8 $\\mathrm{R_\\oplus}$ is a key demographic feature discovered by the $Kepler$ mission. Two theories have emerged as potential explanations for this valley: photoevaporation and core-powered mass-loss. However, Rogers et al. (2021) shows that differentiating between the two theories is possible using the three-dimensional parameter space of planet radius, incident flux, and stellar mass. We use homogeneously-derived stellar and planetary parameters to measure the $Kepler$ exoplanet radius gap in this three-dimensional space. We compute the slope of the gap as a function of incident flux at constant stellar mass ($α$ $\\equiv$ $\\left(\\partial \\log R_{\\mathrm{gap}} / \\partial \\log S \\right)_{M_\\star}$) and the slope of the gap as a function of stellar mass at constant incident flux ($β$ $\\equiv$ $\\left(\\partial \\log R_{\\mathrm{gap}} / \\partial \\log M_\\star \\right)_{S}$) and find $α$ = 0.069$^{+0.019}_{-0.023}$ and $β$ = $-$0.046$^{+0.125}_{-0.117}$. Given that Rogers et al. (2021) shows that core-powered mass-loss predicts $α$ $\\approx$ 0.08 and $β$ $\\approx$ 0.00 while photoevaporation predicts $α$ $\\approx$ 0.12 and $β$ $\\approx$ --0.17, our measurements are more consistent with core-powered mass-loss than photoevaporation. However, we caution that different gap-determination methods can produce systematic offsets in both $α$ and $β$; therefore, we motivate a comprehensive re-analysis of $Kepler$ light curves with modern, updated priors on eccentricity and mean stellar density to improve both the accuracy and precision of planet radii and subsequent measurements of the gap.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.00009",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T06:04:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jesper Nielsen",
+            "Anders Johansen",
+            "Komal Bali",
+            "Caroline Dorn"
+          ],
+          "title": "A primordial radius valley as a consequence of planet formation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.10186",
+        "summary": "The radius distribution of close-in planets has been observed to have a bimodal distribution with a dearth of planets around ~1.5-2.0 $R_\\oplus$ commonly referred to as the ''radius valley''. The origin of the valley is normally attributed to mass-loss process such as photoevaporation or core-powered mass loss. Recent work, however, has suggested that the radius valley may instead arise as a consequence of gas accretion by low-mass planets. In this work we therefore aim to investigate the formation of a primordial radius valley from the formation of planet cores through pebble accretion up until the dissipation of the protoplanetary disc and subsequent contraction of accreted atmospheres. The goal of this work is to explore the conditions for forming a primordial radius valley from first principles of planet formation theory, rather than attempting to explain the detailed structure of the observed valley. We use an analytical model with minimal assumptions to estimate the contraction rate of atmospheres and, indeed, find the formation of a primordial radius valley. The planets smaller than the valley did not reach the pebble isolation mass, which is required for the planets to cool down sufficiently to be able to accrete a significant amount of gas. We also estimate the slopes of the radius gap as a function of orbital period for the intrinsic population as well as for planets with orbital periods <100 days. For the intrinsic population, the radius gap follows the pebble isolation mass and increases with increasing orbital period, while for close-in planets the direction of the slope reverses and decreases with increasing orbital period. We find that planets smaller than the radius valley are predominantly rocky while the population of planets larger than the valley consists of a mixture of rocky and water-rich planets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.10186",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T06:04:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Julia Venturini",
+            "María Paula Ronco",
+            "Octavio M. Guilera",
+            "Jonas Haldemann",
+            "Christoph Mordasini",
+            "Marcelo M. Miller Bertolami"
+          ],
+          "title": "A fading radius valley towards M-dwarfs, a persistent density valley across stellar types",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.01967",
+        "summary": "The radius valley separating super-Earths from mini-Neptunes is a fundamental benchmark for theories of planet formation and evolution. Observations show that the location of the radius valley decreases with decreasing stellar mass and with increasing orbital period. Here, we build from our previous pebble-based formation model, which, combined with photoevaporation after disc dispersal, unveiled the radius valley as a separator between rocky- and water-worlds. We expand our models for a range of stellar masses spanning from 0.1 to 1.5 $M_\\odot$. We find that the location of the radius valley is well described by a power-law in stellar mass as $R_{\\rm valley} = 1.8197 \\, M_{\\star}^{\\!0.14({+0.02}/{-0.01})}$, which is in excellent agreement with observations. We also find very good agreement with the dependence of the radius valley on orbital period, both for FGK- and M-dwarfs. Additionally, we note that the radius valley gets filled towards low stellar masses, particularly at 0.1-0.4 $M_\\odot$, yielding a rather flat slope in $R_{\\rm valley} - P_{\\rm orb}$. This is the result of orbital migration occurring at lower planet mass for less massive stars, which allows for low-mass water-worlds to reach the inner regions of the system, blurring the separation in mass (and size) between rocky- and water-worlds. Furthermore, we find that for planetary equilibrium temperatures above 400 K, the water in the volatile layer exists fully in the form of steam, puffing the planet radius up compared to condensed-water worlds. This produces an increase in planet radii of $\\sim 30\\%$ at 1 $M_\\oplus$, and of $\\sim 15\\%$ at 5 $M_\\oplus$, compared to condensed-water-worlds. As with Sun-like stars, pebble accretion leaves its imprint on the overall exoplanet population as a depletion of planets with intermediate compositions, carving a valley in planet density for all spectral types (abridged).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.01967",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T06:04:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mariah G. MacDonald"
+          ],
+          "title": "Examining the Radius Valley: a Machine Learning Approach",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.12048",
+        "summary": "The ''radius valley\" is a relative dearth of planets between two potential populations of exoplanets, super-Earths and mini-Neptunes. This feature appears in examining the distribution of planetary radii, but has only ever been characterized on small samples. The valley could be a result of photoevaporation, which has been predicted in numerous theoretical models, or a result of other processes. Here, we investigate the relationship between planetary radius and orbital period through 2-dimensional kernel density estimator and various clustering methods, using all known super-Earths ($R<4.0R_E$). With our larger sample, we confirm the radius valley and characterize it as a power law. Using a variety of methods, we find a range of slopes that are consistent with each other and distinctly negative. We average over these results and find the slope to be $m=-0.319^{+0.088}_{-0.116}$. We repeat our analysis on samples from previous studies. For all methods we use, the resulting line has a negative slope, which is consistent with models of photoevaporation and core-powered mass loss but inconsistent with planets forming in a gas-poor disk.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1905.12048",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T06:04:40Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing orbital period dependence of the exoplanet radius gap physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.12048",
+  "judged_at": "2026-06-27T06:09:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing orbital period dependence of the exoplanet radius gap physics",
+  "rationale": "This paper directly measures the same physical observable (exoplanet radius gap/valley) and its dependence on orbital period, satisfying acceptance criteria (a) same-mechanism evidence and (b) independent variable on the same domain. It also discusses the underlying physics mechanisms (photoevaporation, core-powered mass loss) that the user's question explicitly asks about.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.01967",
+  "judged_at": "2026-06-27T06:09:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing orbital period dependence of the exoplanet radius gap physics",
+  "rationale": "This paper directly measures the dependence of the exoplanet radius valley location on orbital period, which is the exact physical mechanism and observable the user's question targets. It falls under category (a) Same-mechanism evidence and (b) Independent-or-dependent variable on the same domain, as it explicitly models and validates the orbital period dependence of the radius gap using photoevaporation and pebble accretion physics.",
+  "relevant": true
+}

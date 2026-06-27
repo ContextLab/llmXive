@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1703.10375",
+  "judged_at": "2026-06-27T06:06:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing orbital period dependence of the exoplanet radius gap physics",
+  "rationale": "This paper is the canonical foundational reference for the exoplanet radius gap phenomenon, establishing the empirical baseline and physical mechanisms that any study on period dependence must cite (Rule c, d). It measures the radius gap distribution in the relevant period range, providing the necessary baseline for analyzing period dependence (Rule a, c).",
+  "relevant": true
+}

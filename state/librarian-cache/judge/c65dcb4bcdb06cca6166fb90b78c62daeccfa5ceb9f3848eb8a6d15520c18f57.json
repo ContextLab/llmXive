@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.12305",
+  "judged_at": "2026-06-27T06:07:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing orbital period dependence of the exoplanet radius gap physics",
+  "rationale": "This paper evaluates the competing physical mechanisms (photoevaporation vs. core-powered mass loss) that define the expected orbital period and instellation dependencies of the radius gap, satisfying criterion (a) Same-mechanism evidence. It also establishes the empirical baseline for the radius gap's behavior under these physical models, satisfying criterion (c).",
+  "relevant": true
+}

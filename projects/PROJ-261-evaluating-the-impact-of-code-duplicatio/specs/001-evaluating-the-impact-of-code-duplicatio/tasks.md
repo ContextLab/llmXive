@@ -90,16 +90,16 @@
 
 - [X] T027 [US2] Contract test for correlation schema (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/contract/test_correlation_schema.py`) using pytest
 - [X] T028 [US2] Integration test for end‑to‑end correlation pipeline (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_pipeline_end_to_end.py`) using pytest
-- [ ] T029 [US2] Unit test for bug_detection.py pass@1 accuracy calculation (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_bug_detection.py`) using pytest
-- [ ] T030 [US2] Unit test for correlation_analysis.py Spearman coefficient computation (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_correlation_analysis.py`) using pytest
+- [X] T029 [US2] Unit test for bug_detection.py pass@1 accuracy calculation (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_bug_detection.py`) using pytest
+- [X] T030 [US2] Unit test for correlation_analysis.py Spearman coefficient computation (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_correlation_analysis.py`) using pytest
 
 ### Implementation Tasks
 
-- [ ] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset and compute pass@1 accuracy
-- [ ] T032 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to calculate Spearman rank correlation between duplication density and both perplexity and accuracy
-- [ ] T033 [US2] Join all intermediate metrics (clone, perplexity, bug‑detection) for correlation input
-- [ ] T034 [US2] Save correlation results with p‑values to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/correlation_results.csv`
-- [ ] T035 [US2] Add validation task to verify **SC‑004** – (Wikipedia: Misuse of p-values, https://en.wikipedia.org/wiki/Misuse_of_p-values) documented (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_significance.py`) using pytest
+- [X] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset and compute pass@1 accuracy
+- [X] T032 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to calculate Spearman rank correlation between duplication density and both perplexity and accuracy
+- [X] T033 [US2] Join all intermediate metrics (clone, perplexity, bug‑detection) for correlation input
+- [X] T034 [US2] Save correlation results with p‑values to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/correlation_results.csv`
+- [X] T035 [US2] Add validation task to verify **SC‑004** – (Wikipedia: Misuse of p-values, https://en.wikipedia.org/wiki/Misuse_of_p-values) documented (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_significance.py`) using pytest
 - [ ] T036 [US2] Add checksum computation for correlation results and record in `artifact_hashes` state manifest
 
 **Checkpoint**: User Stories 1 & 2 should both work independently

@@ -912,3 +912,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-25T00:55:35Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: Salesforce/codegen-350M-mono model available for 8-bit quantization with
+    bitsandbytes
+  claim_id: c_cd8e9bbc
+  context: Model metrics implementation task specifying the exact model to be used
+    for perplexity computation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/model_metrics.py
+    to load Salesforce/codegen-350M-mono in 8-bit quantization using bitsandbytes
+    and compute perplexity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-27T06:38:12Z'
