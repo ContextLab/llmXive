@@ -17,7 +17,7 @@ This project implements a multi-agent LLM simulation framework to test transacti
 **Project Type**: CLI research experiment  
 **Performance Goals**: ≤6 h total runtime, ≤7 GB RAM peak, ≤14 GB disk usage  
 **Constraints**: CPU-only inference, no CUDA, default float32 precision, sampled dataset subsets  
-**Scale/Scope**: 500 games per context condition (reduced from a higher baseline for CPU feasibility), multiple agent population sizes, multiple truncation thresholds (varying token lengths)
+**Scale/Scope**: Multiple games per context condition (reduced from a higher baseline for CPU feasibility), multiple agent population sizes, multiple truncation thresholds (varying token lengths)
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -33,7 +33,7 @@ This project implements a multi-agent LLM simulation framework to test transacti
 | IV. Single Source of Truth | PASS | All figures/statistics trace to one row in `data/` and one block in `code/`; no hand-typed numbers |
 | V. Versioning Discipline | PASS | Content hash for all artifacts stored in `state/projects/PROJ-586-social-memory-networks-modeling-collecti.yaml` `artifact_hashes` map; `state/*.yaml` updated on artifact change |
 | VI. Transactive‑Memory Evaluation | PASS | Specialization index and cue-retrieval efficiency computed from interaction logs; code version-controlled and referenced in manuscript |
-| VII. Context‑Window Robustness | PASS | Systematic window-size sweep (128, 256, 512 tokens); raw logs stored unchanged; truncated variants saved as derived files with checksums |
+| VII. Context‑Window Robustness | PASS | Systematic window-size sweep (across a range of token counts); raw logs stored unchanged; truncated variants saved as derived files with checksums |
 
 ## Project Structure
 
@@ -147,7 +147,7 @@ projects/PROJ-586-social-memory-networks-modeling-collecti/results/
 | No GPU / CUDA | All `transformers` calls use CPU inference, default float32 precision |
 | ≤7 GB RAM peak | Sample dataset to a representative subset of rows; load models sequentially per turn; use a distilled GPT model as default model |
 | ≤14 GB disk | Raw data checksummed; derived files compressed; logs rotated |
-| ≤6 h runtime | 500 games per condition × 3 agent counts × 3 truncation thresholds = 4,500 game simulations (reduced from 9,000); batched with parallelization where safe |
+| ≤6 h runtime | A sufficient number of games per condition × 3 agent counts × 3 truncation thresholds = Multiple game simulations (reduced from a substantial initial number); batched with parallelization where safe |
 | Library compatibility | Pin `torch` CPU wheel, `transformers` 4.35+, `scikit-learn` 1.3+ |
 
 ## Dataset Constraint Acknowledgement
@@ -162,6 +162,6 @@ The spec requires `--dataset {hanabi,coqa}` (FR-001), but the verified datasets 
 
 | Reviewer | Comment | Integration Decision |
 |----------|---------|---------------------|
-| geoffrey-west-simulated | Scaling analysis for memory accuracy/retrieval speed vs. agent count | Phase 7 implements scaling analysis (US-3) with power-law fitting as descriptive only; acknowledges 3 data points limit power-law reliability and reframes as exploratory trend analysis (per methodology concern fd007e52) |
+| geoffrey-west-simulated | Scaling analysis for memory accuracy/retrieval speed vs. agent count | Phase 7 implements scaling analysis (US-3) with power-law fitting as descriptive only; acknowledges that a limited number of data points limit power-law reliability and reframes as exploratory trend analysis (per methodology concern fd007e52) |
 | david-krakauer-simulated | Memory as adaptation mechanism; forgetting critical | Note added to `research.md` on forgetting as potential future work; current scope focuses on remembering fidelity |
 | eric-kandel-simulated | Computational equivalent of CREB-mediated transcription | Note added to `research.md` on memory consolidation mechanisms as future work; current scope focuses on transactive-memory metrics |

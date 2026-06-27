@@ -35,7 +35,7 @@ A researcher wants to compare the baseline metrics against a limited‑context c
 
 ### User Story 3 – Scaling Analysis Across Agent Populations (Priority: P3)
 
-A researcher wants to investigate how the fidelity of collective remembering scales when the number of agents varies (e.g., 3, 5, 7 agents).
+A researcher wants to investigate how the fidelity of collective remembering scales when the number of agents varies (e.g., across different counts).
 
 **Why this priority**: Extends the findings, satisfies reviewer suggestions about scaling laws, and tests methodological robustness. Note: Power‑law fitting with only 3 data points is statistically underpowered; this limitation is acknowledged in the analysis plan.
 
