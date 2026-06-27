@@ -1,11 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-06-27T11:33:34.994337+00:00'
-last_outcome: committed
+last_used: ada-lovelace
+last_used_at: '2026-06-27T12:04:16.820263+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-17T00:00:42.498770+00:00'
-  ended_at: '2026-06-17T01:25:58.029867+00:00'
-  outcome: malformed_response
 - slug: geoffrey-west
   started_at: '2026-06-17T01:25:58.029867+00:00'
   ended_at: '2026-06-17T02:20:42.711697+00:00'
@@ -1166,3 +1162,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-746-the-topological-trouble-with-transformer/paper/reviews/stephen-wolfram-simulated__2026-06-27__paper.md
+- slug: ada-lovelace
+  started_at: '2026-06-27T11:33:34.994337+00:00'
+  ended_at: '2026-06-27T12:04:16.820263+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
