@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-27T22:25:13.073956+00:00'
-last_outcome: committed
+last_used: dan-rockmore
+last_used_at: '2026-06-27T22:52:10.367544+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-18T03:07:01.532419+00:00'
-  ended_at: '2026-06-18T05:07:49.156915+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: john-von-neumann
   started_at: '2026-06-18T05:07:49.156915+00:00'
   ended_at: '2026-06-18T07:09:39.406133+00:00'
@@ -1181,3 +1176,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-267-exploring-the-relationship-between-atmos/reviews/research/albert-einstein-simulated__2026-06-27__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-27T22:25:13.073956+00:00'
+  ended_at: '2026-06-27T22:52:10.367544+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
