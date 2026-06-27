@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.13759",
+  "judged_at": "2026-06-27T12:23:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the convergence of iterated function systems with non-contractive maps mathematics",
+  "rationale": "The paper explicitly addresses the mathematical limitations of standard Iterated Function Systems when dealing with non-contractive maps and proposes a generalized framework (iterated relation systems) to study attractors and convergence in this specific domain, satisfying criterion (a) regarding the same mechanism and domain.",
+  "relevant": true
+}

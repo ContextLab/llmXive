@@ -201,3 +201,6 @@ ready:
 - project_id: PROJ-663-https-arxiv-org-abs-2606-04923
   revision_spec_path: specs/auto-revisions/PROJ-663-https-arxiv-org-abs-2606-04923/round-2
   queued_at: '2026-06-27T04:54:31.233442+00:00'
+- project_id: PROJ-629-macaron-a2ui-a-model-for-generative-ui-i
+  revision_spec_path: specs/auto-revisions/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/round-2
+  queued_at: '2026-06-27T12:40:46.969013+00:00'

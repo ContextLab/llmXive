@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1802.09422",
+  "judged_at": "2026-06-27T12:14:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the convergence of iterated function systems with non-contractive maps mathematics",
+  "rationale": "The paper focuses on abstract functional analysis of hyperbounded operators on $L^p$ spaces without explicitly addressing Iterated Function Systems (IFS) or dynamical systems, representing a distinct mathematical construct rather than a canonical reference for the specific IFS convergence question. While spectral theory is a tool used in IFS analysis, this specific result does not establish the empirical baseline or foundational methodology expected for a general literature review on non-contrac",
+  "relevant": false
+}

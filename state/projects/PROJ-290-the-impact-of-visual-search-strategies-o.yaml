@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T03:16:43.837187Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-290-the-impact-of-visual-search-strategies-o
-last_run_id: f7799caf-c9c1-4b88-a2cb-a1add6a09e0e
+last_run_id: cbf9741e-ab64-4804-bff2-8db9b551f04b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: The Impact of Visual Search Strategies on Attentional Capture by Emotional
   Faces
-updated_at: '2026-06-11T23:15:57.125550Z'
+updated_at: '2026-06-27T12:09:38.864793Z'

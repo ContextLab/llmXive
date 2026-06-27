@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1506.08714",
+  "judged_at": "2026-06-27T12:20:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the convergence of iterated function systems with non-contractive maps mathematics",
+  "rationale": "The paper explicitly assumes a \"contracting matrix\" and analyzes properties of standard contractive iterated function systems, whereas the user's question specifically investigates the convergence of \"Non-Contractive Maps.\" This represents a distinct mathematical construct and mechanism (standard contraction vs. non-contractive dynamics) rather than relevant prior work on the specific convergence behavior under non-contractive conditions.",
+  "relevant": false
+}

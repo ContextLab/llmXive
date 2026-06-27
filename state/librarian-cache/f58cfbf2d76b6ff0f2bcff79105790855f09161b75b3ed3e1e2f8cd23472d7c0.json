@@ -1,0 +1,522 @@
+{
+  "fetched_at": "2026-06-27T12:23:39Z",
+  "field": "mathematics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "mathematics",
+      "idea_body_excerpt": "Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps",
+      "target_n": 5
+    },
+    "duration_seconds": 839.728,
+    "ended_at": "2026-06-27T12:23:39Z",
+    "expansion": null,
+    "extracted_queries": [
+      "fractal limit set non-expansive mapping",
+      "Hutchinson operator spectral radius",
+      "invariant measure dynamical systems iteration",
+      "attractor existence stability convergence rate",
+      "generalized contraction fixed point theorem"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2204.00373"
+      ]
+    },
+    "per_query_hit_count": {
+      "Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps mathematics": 3,
+      "Hutchinson operator spectral radius": 3,
+      "attractor existence stability convergence rate": 2,
+      "fractal limit set non-expansive mapping": 3,
+      "generalized contraction fixed point theorem": 3,
+      "invariant measure dynamical systems iteration": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2309.06595",
+          "rationale": "This paper studies Arnold circle maps and phase-locking phenomena in forced oscillators, which is a different mathematical construct from Iterated Function Systems (IFS) with non-contractive maps. While both fall under the broad umbrella of dynamical systems, they address distinct mechanisms (phase-locking/periodic attractors vs. fractal set convergence under non-contractive mappings) and do not satisfy any of the inclusion criteria (a-f) for literature review relevance.",
+          "title": "Points of convergence -- music meets mathematics"
+        },
+        {
+          "primary_pointer": "1802.09422",
+          "rationale": "The paper focuses on abstract functional analysis of hyperbounded operators on $L^p$ spaces without explicitly addressing Iterated Function Systems (IFS) or dynamical systems, representing a distinct mathematical construct rather than a canonical reference for the specific IFS convergence question. While spectral theory is a tool used in IFS analysis, this specific result does not establish the empirical baseline or foundational methodology expected for a general literature review on non-contrac",
+          "title": "Spectral gaps for hyperbounded operators"
+        },
+        {
+          "primary_pointer": "1002.1164",
+          "rationale": "This paper focuses on the stability of impulsive neural networks using Lyapunov functions, which is a distinct mathematical construct from Iterated Function Systems (IFS) and non-contractive maps in fractal geometry. It shares only general keywords like \"convergence\" and \"stability\" without addressing the specific domain or mechanism of IFS theory required for the user's literature review.",
+          "title": "Existence and Global Logarithmic Stability of Impulsive Neural Networks with Time Delay"
+        },
+        {
+          "primary_pointer": "1506.06207",
+          "rationale": "The paper addresses the \"shadowing property\" of iterated function systems, which is a distinct dynamical systems construct from the \"convergence\" of IFS to an attractor, and the abstract does not indicate it studies non-contractive maps specifically. This falls under the rejection rule for distinct constructs sharing only domain keywords (IFS) without addressing the specific mechanism or variables (convergence/non-contractivity) of the user's question.",
+          "title": "Weak Shadowing Property for IFS"
+        },
+        {
+          "primary_pointer": "1506.08714",
+          "rationale": "The paper explicitly assumes a \"contracting matrix\" and analyzes properties of standard contractive iterated function systems, whereas the user's question specifically investigates the convergence of \"Non-Contractive Maps.\" This represents a distinct mathematical construct and mechanism (standard contraction vs. non-contractive dynamics) rather than relevant prior work on the specific convergence behavior under non-contractive conditions.",
+          "title": "Multidimensional self-affine sets: non-empty interior and the set of uniqueness"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-27T12:09:40Z",
+    "term_input": {
+      "normalized": "exploring the convergence of iterated function systems with non-contractive maps mathematics",
+      "raw": "Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps mathematics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-06-27T12:12:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the notion of firm non-expansive mapping in weak metric spaces, extending previous work for Banach spaces and certain geodesic spaces. We prove that, for firm non-expansive mappings, the minimal displacement, the linear rate of escape, and the asymptotic step size are all equal. This generalises a theorem by Reich and Shafrir.",
+          "claimed_authors": [
+            "Armando W. Gutiérrez",
+            "Cormac Walsh"
+          ],
+          "claimed_title": "Firm non-expansive mappings in weak metric spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13195"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Firm non-expansive mappings in weak metric spaces')",
+        "failed_at": "2026-06-27T12:12:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The local theory of complex dimensions describes the oscillations in the geometry (spectra and dynamics) of fractal strings. Such geometric oscillations can be seen most clearly in the explicit volume formula for the tubular neighborhoods of a $p$-adic fractal string $\\mathcal{L}_p$, expressed in terms of the underlying complex dimensions. The general fractal tube formula obtained in this paper is illustrated by several examples, including the nonarchimedean Cantor and Euler strings. Moreover, we show that the Minkowski dimension of a $p$-adic fractal string coincides with the abscissa of convergence of the geometric zeta function associated with the string, as well as with the asymptotic growth rate of the corresponding geometric counting function. The proof of this new result can be applied to both real and $p$-adic fractal strings and hence, yields a unifying explanation of a key result in the theory of complex dimensions for fractal strings, even in the archimedean (or real) case.",
+          "claimed_authors": [
+            "Michel L. Lapidus",
+            "Lũ' Hùng",
+            "Machiel van Frankenhuijsen"
+          ],
+          "claimed_title": "Minkowski dimension and explicit tube formulas for $p$-adic fractal strings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.09409"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Minkowski dimension and explicit tube formulas for $p$-adic fractal strings')",
+        "failed_at": "2026-06-27T12:12:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $X$ be a set, $B_{X}$ denotes the family of all subsets of $X$ and $F: X \\longrightarrow B_{X}$ be a set-valued mapping such that $x \\in F(x)$, $sup_{x\\in X} | F(x)|< κ$, $sup_{x\\in X} | F^{-1}(x)|< κ$ for all $x\\in X$ and some infinite cardinal $κ$. Then there exists a family $\\mathcal{F}$ of bijective selectors of $F$ such that $|\\mathcal{F}|<κ$ and $F(x) = \\{ f(x): f\\in\\mathcal{F}\\}$ for each $x\\in X$. We apply this result to $G$-space representations of balleans.",
+          "claimed_authors": [
+            "Igor Protasov"
+          ],
+          "claimed_title": "Decompositions of set-valued mappings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.03911"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Decompositions of set-valued mappings')",
+        "failed_at": "2026-06-27T12:12:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We exhibit a general class of unbounded operators in Banach spaces which can be shown to have the single-valued extension property, and for which the local spectrum at suitable points can be determined. We show that a local spectral radius formula holds, analogous to that for a globally defined bounded operator on a Banach space with the single-valued extension property. An operator of the class under consideration can occur in practice as (an extension of) a differential operator which, roughly speaking, can be diagonalised on its domain of smooth test functions via a discrete transform, such that the diagonalising transform establishes an isomorphism of topological vector spaces between the domain of the differential operator, in its own topology, and a sequence space. We give concrete examples of (extensions of) such operators (constant coefficient differential operators on the d-torus, Jacobi operators, the Hermite operator, Laguerre operators) and indicate further perspectives.",
+          "claimed_authors": [
+            "Nils Byrial Andersen",
+            "Marcel de Jeu"
+          ],
+          "claimed_title": "Local spectral radius formulas for a class of unbounded operators on Banach spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1011.6066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Local spectral radius formulas for a class of unbounded operators on Banach spaces')",
+        "failed_at": "2026-06-27T12:12:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider an elliptic self-adjoint first order pseudodifferential operator acting on columns of complex-valued half-densities over a connected compact manifold without boundary. The eigenvalues of the principal symbol are assumed to be simple but no assumptions are made on their sign, so the operator is not necessarily semi-bounded. We study the following objects: the propagator (time-dependent operator which solves the Cauchy problem for the dynamic equation), the spectral function (sum of squares of Euclidean norms of eigenfunctions evaluated at a given point of the manifold, with summation carried out over all eigenvalues between zero and a positive lambda) and the counting function (number of eigenvalues between zero and a positive lambda). We derive explicit two-term asymptotic formulae for all three. For the propagator \"asymptotic\" is understood as asymptotic in terms of smoothness, whereas for the spectral and counting functions \"asymptotic\" is understood as asymptotic with respect to lambda tending to plus infinity.",
+          "claimed_authors": [
+            "Olga Chervova",
+            "Robert J. Downes",
+            "Dmitri Vassiliev"
+          ],
+          "claimed_title": "The spectral function of a first order elliptic system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.6015"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='The spectral function of a first order elliptic system')",
+        "failed_at": "2026-06-27T12:12:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The scope of the paper is a theoretical analysis of the dynamical system, the model of which was reduced to Weierstrasse function. A fractal structure of the trajectory was proved and the entropy of the system information designated.",
+          "claimed_authors": [
+            "Marek Berezowski"
+          ],
+          "claimed_title": "Fractal trajectories of the dynamical system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.03152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Fractal trajectories of the dynamical system')",
+        "failed_at": "2026-06-27T12:12:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We establish a dynamical version of Kuratowski-Mycielski Theorem on the existence of \"large\" invariant dependent sets. We apply this result to the study of invariant chaotic sets in topological dynamical systems, simplify many known results on this topic and also obtain some new results.",
+          "claimed_authors": [
+            "Jian Li",
+            "Jie Lü",
+            "Yuanfen Xiao"
+          ],
+          "claimed_title": "A dynamical version of Kuratowski-Mycielski Theorem and invariant chaotic sets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.10266"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='A dynamical version of Kuratowski-Mycielski Theorem and invariant chaotic sets')",
+        "failed_at": "2026-06-27T12:12:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study genericity of dynamical properties in the space of homeomorphisms of the Cantor set and in the space of subshifts of a suitably large shift space. These rather different settings are related by a Glasner-King type correspondence: genericity in one is equivalent to genericity in the other.\n  By applying symbolic techniques in the shift-space model we derive new results about genericity of dynamical properties for transitive and totally transitive homeomorphisms of the Cantor set. We show that the isomorphism class of the universal odometer is generic in the space of transitive systems. On the other hand, the space of totally transitive systems displays much more varied dynamics. In particular, we show that in this space the isomorphism class of every Cantor system without periodic points is dense, and the following properties are generic: minimality, zero entropy, disjointness from a fixed totally transitive system, weak mixing, strong mixing, and minimal self joinings. The last two stand in striking contrast to the situation in the measure-preserving category. We also prove a correspondence between genericity of dynamical properties in the measure-preserving category and genericity of systems supporting an invariant measure with the same property.",
+          "claimed_authors": [
+            "Michael Hochman"
+          ],
+          "claimed_title": "Genericity in Topological Dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "math/0605386"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Genericity in Topological Dynamics')",
+        "failed_at": "2026-06-27T12:12:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper is concerned with the numerical analysis of the explicit upwind finite volume scheme for numerically solving continuity equations. We are interested in the case where the advecting velocity field has spatial Sobolev regularity and initial data are merely integrable. We estimate the error between approximate solutions constructed by the upwind scheme and distributional solutions of the continuous problem in a Kantorovich-Rubinstein distance, which was recently used for stability estimates for the continuity equation by Seis [23]. Restricted to Cartesian meshes, our estimate shows that the rate of weak convergence is at least of order $1/2$ in the mesh size. The proof relies on a probabilistic interpretation of the upwind scheme Delarue and Lagoutière [9]. We complement the weak convergence result with an example that illustrates that for rough initial data no rates can be expected in strong norms. The same example suggests that the weak order $1/2$ rate is optimal.",
+          "claimed_authors": [
+            "André Schlichting",
+            "Christian Seis"
+          ],
+          "claimed_title": "Convergence rates for upwind schemes with rough coefficients",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.09156"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Convergence rates for upwind schemes with rough coefficients')",
+        "failed_at": "2026-06-27T12:12:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that there are no nontrivial surjective uniformly asymptotically regular mappings acting on a metric space and derive some consequences of this fact. In particular, we prove that a jointly continuous left amenable or left reversible semigroup generated by firmly nonexpansive mappings on a bounded $τ$-compact subset of a Banach space has a common fixed point, and give a qualitative complement to the Markov-Kakutani theorem.",
+          "claimed_authors": [
+            "Sławomir Borzdyński",
+            "Andrzej Wiśnicki"
+          ],
+          "claimed_title": "Applications of uniform asymptotic regularity to fixed point theorems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.04069"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Applications of uniform asymptotic regularity to fixed point theorems')",
+        "failed_at": "2026-06-27T12:12:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We establish a simple and powerful lemma that provides a criterion for sequences in metric spaces to be Cauchy. Using the lemma, it is then easily verified that the Picard iterates $\\{T^nx\\}$, where $T$ is a contraction or asymptotic contraction of Meir-Keeler type, are Cauchy sequences. As an application, new and simple proofs for several known results on the existence of a fixed point for continuous and asymptotically regular self-maps of complete metric spaces satisfying a contractive condition of Meir-Keeler type are derived. These results include the remarkable fixed point theorem of Proinov in [Petko D. Proinov, Fixed point theorems in metric spaces, Nonlinear Anal. \\textbf{46} (2006) 546--557], the fixed point theorem of Suzuki for asymptotic contractions in [Tomonari Suzuki, A definitive result on asymptotic contractions, J. Math. Anal. Appl. \\textbf{335} (2007) 707--715], and others. We also prove some new fixed point theorems.",
+          "claimed_authors": [
+            "Mortaza Abtahi"
+          ],
+          "claimed_title": "Fixed point theorems for Meir-Keeler type contractions in metric spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.01296"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Fixed point theorems for Meir-Keeler type contractions in metric spaces')",
+        "failed_at": "2026-06-27T12:12:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider a new type of mappings in metric spaces which can be characterized as mappings contracting perimeters of triangles. It is shown that such mappings are continuous. The fixed-point theorem for such mappings is proved and the classical Banach fixed-point theorem is obtained like a simple corollary. An example of a mapping contractive perimeters of triangles which is not a contraction mapping is constructed.",
+          "claimed_authors": [
+            "Evgeniy Petrov"
+          ],
+          "claimed_title": "Fixed point theorem for mappings contracting perimeters of triangles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.01003"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Fixed point theorem for mappings contracting perimeters of triangles')",
+        "failed_at": "2026-06-27T12:12:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, based on the results from [On the localization of Hutchinson-Barnsley fractals, Chaos Solitons Fractals, 173 (2023), 113674], we generate coverings (consisting of finite families of rhombi) of the graph of fractal interpolation functions. As a by-product we obtain estimations for the range of such functions. Some concrete examples and graphical representations are provided.",
+          "claimed_authors": [
+            "Bogdan Anghelina",
+            "Radu Miculescu",
+            "María Antonia Navascués"
+          ],
+          "claimed_title": "On the range of fractal interpolation functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.09515"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='On the range of fractal interpolation functions')",
+        "failed_at": "2026-06-27T12:12:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In 1987, J. H. Elton, has proved the first fundamental result in convergence of IFS, the Elton's Ergodic Theorem. In this work we prove the natural extension of this theorem to the projected Hutchinson measure $μ_α$ associated to a GIFSpdp $\\mathcal{S}=\\left(X, (φ_j:X^{m} \\to X)_{j=0,1, ..., n-1}, (p_j)_{j=0,1, ..., n-1}\\right),$ in a compact metric space $(X,d)$. More precisely, the average along of the trajectories $x_{n}(a)$ of the GIFS, starting in any initial points $x_0, ..., x_{m-1} \\in X$ satisfies, for any $f \\in C(X , \\mathbb{R})$, $$\\lim_{N\\to +\\infty} \\frac{1}{N}\\sum_{n=0 }^{N-1} f(x_{n}(a)) = \\int_{X} f(t) dμ_α(t),$$ for almost all $a \\in Ω=\\{0,1, ..., n-1\\}^{\\mathbb{N}}$, the symbolic space. Additionally, we give some examples and applications to Chaos Games and Nonautonomous Dynamical Systems defined by finite difference equations.",
+          "claimed_authors": [
+            "Elismar R. Oliveira"
+          ],
+          "claimed_title": "The Ergodic Theorem for a new kind of attractor of a GIFS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1507.05140"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='The Ergodic Theorem for a new kind of attractor of a GIFS')",
+        "failed_at": "2026-06-27T12:12:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "For $m\\ge 2$, consider $K$ the $m$-fold Cartesian product of the limit set of an IFS of two affine maps with rational coefficients. If the contraction rates of the IFS are reciprocals of integers, and $K$ does not degenerate to singleton, we construct vectors in $K$ that lie within the ``folklore set'' as defined by Beresnevich et al., meaning they are Dirichlet improvable but not singular or badly approximable (in fact our examples are Liouville vectors). We further address the topic of lower bounds for the Hausdorff and packing dimension of these folklore sets within $K$, however we do not compute bounds explicitly. Our class of fractals extends (Cartesian products of) classical missing digit fractals, for which analogous results had recently been obtained.",
+          "claimed_authors": [
+            "Johannes Schleischitz"
+          ],
+          "claimed_title": "Dirichlet is not just bad and singular in many rational IFS fractals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.07742"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps', candidate_title='Dirichlet is not just bad and singular in many rational IFS fractals')",
+        "failed_at": "2026-06-27T12:12:24Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian D. Morris"
+          ],
+          "title": "On affine iterated function systems which robustly admit an invariant affine subspace",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.02324",
+        "summary": "In this note we give a simple sufficient condition for an affine iterated function system to admit an invariant affine subspace persistently with respect to changes in the translation parameters. This yields further examples of tuples of contracting linear maps which do not satisfy the conclusions of Falconer's theorem on the Hausdorff dimension of almost every self-affine set. We also obtain new examples of iterated function systems of similarity transformations which cannot satisfy the open set condition for any choice of translation parameters, and resolve a related question of Peres and Solomyak.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.02324",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T12:12:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Elismar R. Oliveira"
+          ],
+          "title": "The Hutchinson-Barnsley theory for generalized iterated function systems by means of infinite iterated function systems",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2204.00373",
+        "summary": "The study of generalized iterated function systems (GIFS) was introduced by Mihail and Miculescu in 2008. We provide a new approach to study those systems as the limit of the Hutchinson-Barnsley setting for infinite iterated function systems (IIFS) which has been developed by many authors in the last years. We show that any attractor of a contractive generalized iterated function system is the limit with respect to Hausdorff-Pompeiu metric of attractors of contractive infinite iterated function systems. We also prove that any Hutchinson measure for a contractive generalized iterated function system with probabilities is the limit with respect to the Monge-Kantorovich metric of the Hutchinson measures for contractive infinite iterated function systems with probabilities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2204.00373",
+          "http_status": 200,
+          "pdf_sample_score": 0.1618,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T12:12:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nira Dyn",
+            "David Levin",
+            "Viswanathan Puthan Veedu"
+          ],
+          "title": "Attractors of sequences of function systems and their relation to non-stationary subdivision",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1612.00630",
+        "summary": "Iterated Function Systems (IFSs) have been at the heart of fractal geometry almost from its origin, and several generalizations for the notion of IFS have been suggested. Subdivision schemes are widely used in computer graphics and attempts have been made to link fractals generated by IFSs to limits generated by subdivision schemes. With an eye towards establishing connection between non-stationary subdivision schemes and fractals, this paper introduces the notion of \"trajectories of maps defined by function systems\" which may be considered as a new generalization of the traditional IFS. The significance and the convergence properties of 'forward' and 'backward' trajectories are studied. In contrast to the ordinary fractals which are self-similar at different scales, the attractors of these trajectories may have different structures at different scales.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1612.00630",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T12:12:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rudnei D. da Cunha",
+            "Elismar R. Oliveira",
+            "Filip Strobin"
+          ],
+          "title": "A multiresolution algorithm to approximate the Hutchinson measure for IFS and GIFS",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1909.03052",
+        "summary": "We introduce the discrete version of the Hutchinson--Barnsley theory providing algorithms to approximate the Hutchinson measure for iterated function systems (IFS) and generalized iterated function systems (GIFS) complementing the discrete version of the deterministic algorithm considered in our previous work DOS to generate attractors of both classical and fuzzy IFS and GIFS.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1909.03052",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T12:12:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Praveen M",
+            "Sunil Mathew"
+          ],
+          "title": "On iterated function systems and algebraic properties of Lipschitz maps in partial metric spaces",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.04278",
+        "summary": "This paper discusses, certain algebraic, analytic, and topological results on partial iterated function systems($IFS_p$'s). Also, the article proves the Collage theorem for partial iterated function systems. Further, it provides a method to address the points in the attractor of a partial iterated function system and obtain results related to the address of points in the attractor. The completeness of the partial metric space of contractions with a fixed contractivity factor is proved, under suitable conditions. Also, it demonstrates the continuity of the map that associates each contraction in a complete partial metric space to its corresponding unique fixed point. Further, it defines the $IFS_p$ semigroup and shows that under function composition, the set of Lipschitz transformations and the set of contractions are semigroups.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2212.04278",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T12:12:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jie Liu",
+            "Sze-Man Ngai",
+            "Lei Ouyang"
+          ],
+          "title": "Iterated relation systems on Riemannian manifolds",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.13759",
+        "summary": "For fractals on Riemannian manifolds, the theory of iterated function systems often does not apply well directly, as fractal sets are often defined by relations that are multivalued or non-contractive. To overcome this difficulty, we introduce the notion of iterated relation systems. We study the attractor of an iterated relation system and formulate a condition under which such an attractor can be identified with that of an associated graph-directed iterated function system. Using this method, we obtain dimension formulas for the attractor of an iterated relation system under the graph open set condition or the graph finite type condition. This method improves the one in [Ngai-Xu, J. Geom. Anal. {\\bf 33} (2023), 262], which relies on knowing the specific structure of the attractor.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2412.13759",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T12:12:24Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "exploring the convergence of iterated function systems with non-contractive maps mathematics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

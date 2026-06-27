@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.04278",
+  "judged_at": "2026-06-27T12:22:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the convergence of iterated function systems with non-contractive maps mathematics",
+  "rationale": "This paper investigates Iterated Function Systems (IFS) and Lipschitz maps, addressing the same mathematical mechanism and domain (attractors, fixed points, convergence properties) as the user's question, which qualifies under criteria (a) and (b) for literature review inclusion even if it emphasizes contractions as a baseline for the broader Lipschitz context.",
+  "relevant": true
+}
