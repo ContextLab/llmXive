@@ -54,7 +54,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-06-24T20:55:04.868089Z'
-- artifact_hash: 7ee0c0c1225b39f000640e4c876007845b72a51901813b5fb8989fdeb15d8c4f
+- artifact_hash: cc81a7be406d1a0fcb2ea36003510d6ecfb1d5f804ab96b0aadb58796081e1a6
   artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,4 +64,4 @@
   value: https://en.wikipedia.org/wiki/Misuse_of_p-values
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Misuse_of_p-values
-  verified_at: '2026-06-27T06:34:56.912766Z'
+  verified_at: '2026-06-27T10:32:27.980603Z'

@@ -95,12 +95,12 @@
 
 ### Implementation Tasks
 
-- [X] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset and compute pass@1 accuracy
+- [X] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset and compute pass@1 accuracy [UNRESOLVED-CLAIM: c_8872e494 — status=not_enough_info]
 - [X] T032 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to calculate Spearman rank correlation between duplication density and both perplexity and accuracy
 - [X] T033 [US2] Join all intermediate metrics (clone, perplexity, bug‑detection) for correlation input
 - [X] T034 [US2] Save correlation results with p‑values to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/correlation_results.csv`
 - [X] T035 [US2] Add validation task to verify **SC‑004** – (Wikipedia: Misuse of p-values, https://en.wikipedia.org/wiki/Misuse_of_p-values) documented (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_significance.py`) using pytest
-- [ ] T036 [US2] Add checksum computation for correlation results and record in `artifact_hashes` state manifest
+- [X] T036 [US2] Add checksum computation for correlation results and record in `artifact_hashes` state manifest
 
 **Checkpoint**: User Stories 1 & 2 should both work independently
 
@@ -114,7 +114,7 @@
 
 ### Test Tasks
 
-- [ ] T037 [US3] Unit test for visualization generation (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_visualization.py`) using pytest
+- [X] T037 [US3] Unit test for visualization generation (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_visualization.py`) using pytest
 - [ ] T038 [US3] Unit test for sensitivity analysis across thresholds 0.7, 0.8, 0.9 (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_correlation_analysis.py`) - distinct from T030 which tests Spearman coefficient computation only, using pytest
 - [ ] T039 [US3] Integration test for scatter‑plot output format validation (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_visualization_output.py`) using pytest
 
