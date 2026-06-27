@@ -1,0 +1,54 @@
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{2.7pt}
+  \caption{\textbf{Timestep and Initialization Ablations.}
+  Scores are GEditBench-EN sub-scores unless otherwise noted. Objective, teacher-schedule, dense-query, and rollout-control diagnostics are consolidated in Table~\ref{tab:multi-teacher-aggregation}. These ablations support semantic-side low-$t$ querying and the default initialization choice.}
+  \label{tab:ablation-summary}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lll|ccccccc}
+    \toprule
+    \textbf{Axis} & \textbf{Variant} & \textbf{Step} & \textbf{Subj-Add} & \textbf{Subj-Rep} & \textbf{Bg-Chg} & \textbf{Style-Chg} & \textbf{Color-Alt} & \textbf{Subj-Rem} & \textbf{Avg}\\
+    \midrule
+    Timestep query & Low-$t$ & 500 & $5.776$ & $5.759$ & $5.371$ & $4.148$ & $5.033$ & $4.728$ & $5.136$\\
+    Timestep query & Low-$t$ & 1000 & $5.543$ & $5.725$ & $5.327$ & $4.515$ & $5.445$ & $5.586$ & $5.357$\\
+    Timestep query & Low-$t$ & 1500 & $5.233$ & $5.787$ & $5.198$ & $4.394$ & $5.208$ & $5.161$ & $5.163$\\
+    Timestep query & Low-$t$ & 2000 & $6.266$ & $6.181$ & $5.924$ & $5.060$ & $5.716$ & $5.357$ & $5.751$\\
+    % Timestep query & Low-$t$ & 2500 & $5.956$ & $6.407$ & $5.646$ & $3.513$ & $5.592$ & $5.754$ & $5.478$\\
+    Timestep query & Median-$t$ & 500 & $5.626$ & $5.902$ & $4.862$ & $4.387$ & $4.991$ & $5.781$ & $5.258$\\
+    Timestep query & Median-$t$ & 1000 & $5.548$ & $5.779$ & $4.951$ & $4.538$ & $5.383$ & $4.393$ & $5.099$\\
+    Timestep query & Median-$t$ & 1500 & $5.405$ & $5.567$ & $4.576$ & $4.914$ & $5.485$ & $4.233$ & $5.030$\\
+    Timestep query & Median-$t$ & 2000 & $4.611$ & $5.656$ & $4.353$ & $4.496$ & $5.012$ & $3.764$ & $4.649$\\
+    % Timestep query & Median-$t$ & 2500 & $5.560$ & $6.074$ & $4.724$ & $5.059$ & $5.281$ & $4.198$ & $5.150$\\
+    Timestep query & High-$t$ & 500 & $5.698$ & $5.959$ & $5.113$ & $5.359$ & $5.292$ & $5.099$ & $5.420$\\
+    Timestep query & High-$t$ & 1000 & $4.524$ & $4.580$ & $4.801$ & $2.642$ & $3.978$ & $3.727$ & $4.042$\\
+    Timestep query & High-$t$ & 1500 & $3.473$ & $4.030$ & $3.947$ & $3.129$ & $4.287$ & $3.480$ & $3.724$\\
+    Timestep query & High-$t$ & 2000 & $4.290$ & $5.485$ & $5.186$ & $3.221$ & $5.166$ & $5.528$ & $4.813$\\
+    % Timestep query & High-$t$ & 2500 & $3.313$ & $4.745$ & $4.114$ & $3.932$ & $4.581$ & $3.203$ & $3.981$\\
+    \midrule
+    Initialization & Merged & 500 & $3.441$ & $4.395$ & $4.752$ & $5.445$ & $5.240$ & $2.002$ & $4.213$\\
+    Initialization & Merged & 1000 & $3.113$ & $4.269$ & $3.119$ & $4.008$ & $3.821$ & $1.040$ & $3.228$\\
+    Initialization & Merged & 1500 & $4.485$ & $5.279$ & $5.091$ & $5.023$ & $4.999$ & $1.991$ & $4.478$\\
+    Initialization & Merged & 2000 & $4.212$ & $4.680$ & $4.603$ & $4.845$ & $4.426$ & $2.392$ & $4.193$\\
+    % Initialization & Merged & 2500 & $2.709$ & $3.448$ & $3.359$ & $2.474$ & $2.694$ & $0.529$ & $2.535$\\
+    Initialization & T2I & 500 & $1.443$ & $1.933$ & $2.384$ & $2.088$ & $1.316$ & $0.157$ & $1.554$\\
+    Initialization & T2I & 1000 & $1.912$ & $2.980$ & $2.869$ & $2.301$ & $2.410$ & $0.166$ & $2.106$\\
+    Initialization & T2I & 1500 & $2.006$ & $3.205$ & $2.856$ & $2.290$ & $2.272$ & $0.336$ & $2.161$\\
+    Initialization & T2I & 2000 & $1.571$ & $2.338$ & $3.289$ & $2.024$ & $1.837$ & $0.276$ & $1.889$\\
+    % Initialization & T2I & 2500 & $1.640$ & $2.948$ & $2.942$ & $2.125$ & $2.228$ & $0.412$ & $2.049$\\
+    Initialization & Local Edit & 500 & $5.776$ & $5.759$ & $5.371$ & $4.148$ & $5.033$ & $4.728$ & $5.136$\\
+    Initialization & Local Edit & 1000 & $5.543$ & $5.725$ & $5.327$ & $4.515$ & $5.445$ & $5.586$ & $5.357$\\
+    Initialization & Local Edit & 1500 & $5.233$ & $5.787$ & $5.198$ & $4.394$ & $5.208$ & $5.161$ & $5.163$\\
+    Initialization & Local Edit & 2000 & $6.266$ & $6.181$ & $5.924$ & $5.060$ & $5.716$ & $5.357$ & $5.751$\\
+    % Initialization & Local Edit & 2500 & $5.956$ & $6.407$ & $5.646$ & $3.513$ & $5.592$ & $5.754$ & $5.478$\\
+    Initialization & Global Edit & 500 & $3.459$ & $4.670$ & $4.903$ & $5.406$ & $4.348$ & $1.675$ & $4.077$\\
+    Initialization & Global Edit & 1000 & $2.922$ & $4.178$ & $4.644$ & $4.563$ & $4.247$ & $0.702$ & $3.543$\\
+    Initialization & Global Edit & 1500 & $3.563$ & $4.349$ & $5.132$ & $5.182$ & $3.958$ & $1.246$ & $3.905$\\
+    Initialization & Global Edit & 2000 & $2.609$ & $3.887$ & $3.661$ & $3.112$ & $2.643$ & $0.300$ & $2.702$\\
+    % Initialization & Global Edit & 2500 & $2.904$ & $3.944$ & $3.772$ & $3.627$ & $3.582$ & $0.496$ & $3.054$\\
+    % Initialization & Global Edit & 3000 & $3.139$ & $4.144$ & $3.968$ & $3.853$ & $3.517$ & $0.545$ & $3.194$\\
+    \bottomrule
+  \end{tabular}%
+  }
+
+\end{table}

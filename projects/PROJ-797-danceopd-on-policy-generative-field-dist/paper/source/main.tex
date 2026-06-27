@@ -1,0 +1,158 @@
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[]{bytedance_seed}
+
+\usepackage[toc,page,header]{appendix}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{adjustbox}
+\usepackage{xspace}
+\usepackage{pifont}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsthm}
+\usepackage{float}
+\newtheorem{observation}{Observation}
+\newtheorem{empirical}{Empirical Finding}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric, shapes.misc, decorations.pathmorphing, decorations.markings, fit, backgrounds, patterns, shadings, matrix}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18, /pgf/number format/use comma=false}
+
+\newcommand{\zsrc}{x_{\mathrm{src}}}
+\newcommand{\ztgt}{x_{\mathrm{tgt}}}
+\newcommand{\Dv}{\Delta v}
+
+\definecolor{vefblue}{RGB}{30,90,170}
+\definecolor{vefred}{RGB}{200,60,60}
+\definecolor{vefgreen}{RGB}{40,130,90}
+\definecolor{vefgrey}{RGB}{120,120,120}
+\definecolor{vefyellow}{RGB}{220,180,40}
+\definecolor{vefpurple}{RGB}{120,80,170}
+
+\definecolor{vefblue1}{RGB}{49,89,180}
+\definecolor{vefblue2}{RGB}{80,135,242}
+\definecolor{vefblue3}{RGB}{86,188,199}
+\definecolor{vefblue4}{RGB}{148,228,221}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=vefblue3,
+  citecolor=vefblue3,
+  urlcolor=vefblue3,
+}
+
+\colorlet{vefoursrow}{vefpurple!8}
+\colorlet{vefbaserow}{vefyellow!12}
+\newcommand{\stu}[1]{\textcolor{vefred}{#1}}
+
+\definecolor{vefaccent}{RGB}{75,85,170}
+\newcommand{\name}{\textsl{\textbf{\textcolor{vefblue2}{D}\textcolor{vefblue3}{ance}\textcolor{vefblue4}{OPD}}}\xspace}
+
+\newcommand{\vef}{\name}
+\newcommand{\vefn}{\name}
+
+\newcommand*{\ie}{\emph{i.e.}\@\xspace}
+\newcommand*{\eg}{\emph{e.g.}\@\xspace}
+\newcommand*{\vs}{\emph{vs.}\@\xspace}
+\newcommand*{\etal}{\emph{et al.}\@\xspace}
+
+\renewcommand{\checkmark}{\textcolor{vefblue3}{\ding{51}}}
+\newcommand{\crossmark}{\textcolor{vefred}{\ding{55}}}
+
+\newcommand{\vefphcell}[3]{%
+  \begin{tikzpicture}[baseline=(c.center)]
+    \node[draw=vefgrey!50, line width=0.4pt, rounded corners=1pt,
+          minimum width=#1, minimum height=#2,
+          fill=vefgrey!4, inner sep=0pt,
+          align=center, font=\scriptsize\itshape, text=vefgrey!70!black]
+      (c) {\strut #3};
+    \draw[vefgrey!30, line width=0.3pt] (c.south west) -- (c.north east);
+    \draw[vefgrey!30, line width=0.3pt] (c.north west) -- (c.south east);
+  \end{tikzpicture}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%
+\title{DanceOPD: On-Policy Generative Field Distillation}
+
+\author[1,2,\ddagger]{Wei Zhou}
+\author[1]{Xiongwei Zhu}
+\author[1]{Zelin Xu}
+\author[1]{Bo Dong}
+\author[1]{Lixue Gong}
+\author[3]{Yongyuan Liang}
+\author[4]{Meng Chu}
+\author[2]{Leigang Qu}
+\author[2]{Lingdong Kong}
+\author[1,\dagger]{Wei Liu}
+\author[2]{Tat-Seng Chua}
+
+\affiliation[1]{ByteDance Seed}
+\affiliation[2]{NUS}
+\affiliation[3]{UMD}
+\affiliation[4]{HKUST}
+
+\contribution[\ddagger]{Work done at ByteDance Seed}
+\contribution[\dagger]{Corresponding author}
+
+\abstract{Modern image generation demands a single model that unifies diverse capabilities, including text-to-image (T2I), local editing, and global editing. However, these capabilities are rarely naturally aligned and often conflict. 
+For instance, editing tends to degrade T2I performance, while global and local editing interfere with each other. Consequently, effectively composing these capabilities has become a central challenge for image generation model training. To tackle this, we introduce \name{}, an on-policy generative field distillation framework for flow-matching models that routes each sample to one capability field, queries one low-noise student-induced state, and trains with a simple velocity MSE objective. With each capability source defined as a velocity field over the shared flow state space, the student learns from fields queried on its own rollout states to compose expert capabilities. This formulation also absorbs operator-defined fields such as classifier-free guidance. Comprehensive experiments on T2I, editing, realism-field absorption, and CFG absorption show that our approach improves multi-capability composition, strengthening target capabilities while preserving anchor generation quality. We believe this work establishes a practical route for generative field distillation in flow-matching models.
+}
+
+\checkdata[Project Page]{\href{https://DanceOPD.github.io}{\textbf{https://DanceOPD.github.io}}}
+\correspondence{Wei Liu (E-mail: \url{liuwei.jikun@bytedance.com})}
+\date{June 26, 2026}
+
+
+\begin{document}
+
+\maketitle
+\vspace{-0.6cm}
+
+\begin{figure}[H]
+\centering
+\vspace{-0.4cm}
+\resizebox{\linewidth}{0.35\linewidth}{\includegraphics{figures/fig1.pdf}}
+\vspace{-0.55cm}
+\caption{\textbf{\name{} Improves Multi-Capability Composition.}
+\textbf{Left:} Per-metric performance for the two composition settings, compared with representative baselines.
+\textbf{Right:} Editing$\times$T2I capability space for their composition, with marker size denoting per-step training cost. DanceOPD achieves a better composition while incurring a lower cost.
+}
+\label{fig:overview}
+\vspace{-0.35cm}
+\end{figure}
+
+\clearpage\clearpage
+\begin{figure}[H]
+\centering
+\vspace{-0.5cm}
+\resizebox{0.99\linewidth}{!}{\includegraphics{figures/fig2.pdf}}
+\vspace{-0.15cm}
+\caption{\textbf{Qualitative Examples from \name{}.} After training with DanceOPD, the resulting student supports diverse text-to-image and editing behaviors while retaining strong original generative capabilities.}
+\label{fig:viz}
+\end{figure}
+
+\clearpage\clearpage
+\setcounter{tocdepth}{3}
+\tableofcontents
+
+\clearpage\clearpage
+\input{sections/01_intro}
+\input{sections/02_related_work}
+\input{sections/03_approach}
+\input{sections/04_experiments}
+\input{sections/05_conclusion}
+\input{sections/X_appendix}
+
+\clearpage\clearpage
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\end{document}

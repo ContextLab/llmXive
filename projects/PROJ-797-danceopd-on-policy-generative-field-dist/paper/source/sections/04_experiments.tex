@@ -1,0 +1,113 @@
+\section{Experiments}
+\label{sec:experiments}
+
+We evaluate \name{} primarily on Z-Image~\cite{cai2025z} for composing frozen capability fields into one student, and use SD3.5-M for the realism-field absorption setting, with implementation details provided in the appendix. The experiments are organized around three questions: whether a single student can compose heterogeneous capability fields without collapsing into a compromise between them; which field-routing and query choices are needed when multiple capability fields supervise the same student; and how the main training choices, including student-induced query states, semantic-side single querying, rollout discretization, initialization, and plain velocity MSE, affect performance. Sec.~\ref{sec:main-results} reports the main results for capability composition and field absorption under a unified protocol, Sec.~\ref{sec:multi-teacher-ext} studies the multi-teacher extension and routing diagnostics, and Sec.~\ref{sec:exp-ablation} ablates query and objective design. Across all settings, the main finding is that DanceOPD improves the target capability while preserving the anchor capability, whereas joint training, weight merging, soft teacher mixing, and dense same-step supervision tend to reintroduce capability interference. 
+
+
+\subsection{Main Results}
+\label{sec:main-results}
+
+To evaluate the effectiveness of \name{}, we consider four settings that cover both capability composition and field absorption: T2I and editing composition, local and global editing composition, realism-field absorption with base T2I preservation, and CFG absorption. For the two editing-related composition settings, we use GenEval to measure general text-to-image generation ability and GEditBench to measure general editing ability~\cite{ghosh2023geneval,liu2025step1x}. For realism-field and CFG absorption, we use diagnostic metrics matched to the absorbed target fields while also monitoring preservation of the anchor generation capability. Across these settings, DanceOPD consistently strengthens the target capability while preserving the anchor capability, showing that routed on-policy field matching can compose and absorb generative fields without collapsing into a simple compromise between sources.
+
+\noindent\textbf{A. T2I and Edit Composition.}
+We first test whether \name{} can add general editing ability to a T2I student while preserving its base generation capability. DanceOPD improves the GEditBench average over the best reproduced OPD baseline by $8.1\%$ and over the edit source by $8.5\%$, while improving GenEval overall over the T2I source by $2.0\%$ and over the strongest composition baseline by $1.6\%$. The gains are especially clear on edit categories that require larger visual changes. Compared with DiffusionOPD, DanceOPD improves background change by $21.9\%$, style change by $21.3\%$, and color alteration by $5.5\%$. These results indicate that routed on-policy field matching can integrate the edit field into the student without eroding the base generation field. The qualitative examples show the same pattern, where DanceOPD follows scene, style, material, and object-level edit instructions while retaining prompt-following T2I generation. Fig.~\ref{fig:viz}, Fig.~\ref{fig:editing_1}, Fig.~\ref{fig:editing_2}, Fig.~\ref{fig:editing_3}, Fig.~\ref{fig:t2i_1}, and Fig.~\ref{fig:shared-object-edits} show the same pattern for T2I and Edit Composition: DanceOPD follows scene, style, material, and object-level edit instructions while retaining prompt-following T2I generation.
+
+\noindent\textbf{B. Local and Global Edit Composition.}
+We then evaluate whether one student can compose local editing, which emphasizes preservation, with global editing, which requires broader visual transformation. \name{} improves the GEditBench average over the best competing composition baseline by $16.1\%$ and over the local edit source by $7.9\%$, while improving GenEval overall over the strongest composition baseline by $2.5\%$. The improvement is concentrated in categories that require global or attribute-level changes. Compared with the best competing composition baseline in each category, DanceOPD improves background change by $33.5\%$, style change by $12.9\%$, and color alteration by $11.6\%$. This supports the claim that capability-field composition is better handled by routed field queries than by parameter averaging or mixed supervision.
+
+
+\input{tables/2_main}
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig4.pdf}
+    \vspace{-0.59cm}
+    \caption{\textbf{Field Absorption and Rollout Diagnostics.} (a) DanceOPD absorbs a realism field more effectively than off-policy distillation while preserving the base text-to-image capability. (b) Training-time and inference-time CFG scales compose, where $\alpha\beta$ denotes the effective CFG in practice. DanceOPD absorbs the training CFG.  (c) Moderate rollout discretization suffices for stable field queries during training.}
+    \label{fig:cfg-absorption-map}
+\end{figure*}
+
+
+\noindent\textbf{C. Realism Absorption.}
+We next evaluate whether \name{} can absorb a realism-oriented quality field that shifts generations toward more photorealistic texture, lighting, and visual statistics while preserving the original T2I capability. DanceOPD improves the realism reward over off-policy distillation by $9.9\%$ and closes $85.3\%$ of the student-to-teacher reward gap. At the same time, its T2I score improves over the student anchor by $7.6\%$ and matches off-policy distillation within $0.1\%$, indicating that the student moves toward the realism teacher without sacrificing base generation behavior. The qualitative results in Fig.~\ref{fig:absord} show the same trend. In the ticket-booth example, DanceOPD enhances lighting contrast, structural details, and photographic sharpness while keeping the original scene layout. In the portrait and face examples, it improves skin texture, illumination, and water-reflection details without changing the main subject. In the tea-set and leather-shoe examples, DanceOPD produces more coherent material appearance and realistic surface reflections, whereas off-policy distillation is more prone to washed-out structure or over-saturated texture. These results suggest that on-policy querying is useful not only for task composition, but also for absorbing style- or quality-oriented fields while preserving prompt content.
+
+\noindent\textbf{D. CFG Absorption.}
+We finally evaluate whether \name{} can absorb an operator-defined classifier-free guidance field into the student, so that part of the guidance effect is internalized rather than applied only at inference time~\cite{ho2022classifier}. We instantiate this case by treating a CFG-guided velocity field as the frozen target field and training the student to approximate it with a single forward pass. This setting also exposes an evaluation caveat: absorbed guidance and external inference-time guidance are not independent. If the absorbed target uses guidance scale $\alpha$ and inference applies scale $\beta$ again, the effective guidance strength is approximately $\alpha\beta$, so evaluating the absorbed student under the default external-CFG convention can over-guide the model. Fig.~\ref{fig:cfg-absorption-map} (b) confirms this interaction. The best measured composition improves the GEditBench average over train-only absorption by $7.6\%$ and over eval-only CFG by $1.4\%$. The gains over train-only absorption are especially visible in subject replacement, background change, color alteration, and subject removal, with relative improvements of $10.3\%$, $22.5\%$, $6.6\%$, and $11.2\%$, respectively. By contrast, excessive composition of absorbed and external guidance reduces the score by $31.2\%$ relative to the best measured composition.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/absord.pdf}
+    \vspace{-0.5cm}
+    \caption{\textbf{Realism-Field Absorption.} DanceOPD absorbs the teacher's realism-oriented field more effectively than off-policy distillation, shifting samples toward more photorealistic texture, lighting, and visual statistics while preserving the base model's prompt-following and content generation ability.}
+    \label{fig:absord}
+\end{figure}
+
+\subsection{Multi-Teacher Extension}
+\label{sec:multi-teacher-ext}
+
+After the main composition results, we study how several capability fields should supervise the same student during one training process. This setting is related to multi-teacher distillation and task-customized knowledge amalgamation~\cite{hinton2015distilling,shen2019customizing}, but the key issue here is the field query itself. When several fields enter the same update, the student can lose sample-level semantic identity through soft teacher mixing, or overuse correlated states through dense rollout supervision. We therefore use this subsection to isolate target-field ambiguity and trajectory-query correlation, the two query-level failure modes introduced in Sec.~\ref{sec:hard-routing} and Sec.~\ref{sec:query-design}.
+
+The diagnostics vary three existing choices while keeping the same capability fields. The first comparison tests hard routing against soft all-teacher mixing. The second tests step alternation against same-step accumulation, where $G$ denotes the number of capability buckets accumulated before one optimizer step. The third varies dense trajectory supervision, where $K$ denotes the number of queried states per rollout, and uses SDE rollout only as a diagnostic control. Table~\ref{tab:multi-teacher-aggregation} reports the full per-category values.
+
+
+\noindent\textbf{Hard Routing versus Soft Teacher Mixing.}
+Hard routing is needed because each training sample should be supervised by the capability field that matches its semantic role. Soft all-teacher mixing removes this sample-level identity by averaging all teacher fields into one target, so the target no longer cleanly represents the intended T2I, local edit, or global edit query. This difference is consistent across objectives. With MSE, hard routing improves the average over soft mixing by $15.2\%$, with gains on subject addition, background change, style change, color alteration, and subject removal. The largest gains appear on background change and subject removal, where hard routing improves by $20.8\%$ and $26.8\%$, respectively. With KL-$\bar{\sigma}^2$, hard routing still improves the average over soft mixing by $10.6\%$, including $14.5\%$ on style change and $14.4\%$ on subject removal. These results show that the main issue is target-field construction, rather than only the choice of matching objective.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig5.pdf}
+  \vspace{-0.5cm}
+  \caption{\textbf{Routing, Objective, and Dense-Query Diagnostics.} Hard routing with single-query MSE is the strongest default; same-step accumulation, soft teacher mixing, and dense correlated queries degrade performance.}
+  \label{fig:routing-dense-diagnostics}
+\end{figure*}
+
+
+\noindent\textbf{Same Step Multi-Teacher Accumulation.}
+Step alternation keeps each optimizer update tied to one routed capability bucket. Same-step accumulation keeps the routed target for each individual sample, but combines several capability buckets before one optimizer step. This tests whether routing remains sufficient when multiple capability fields affect the same update. Compared with the single-query step-alternation default, same-step accumulation with $K{=}1$ and $G{=}3$ loses $4.6\%$ on average. The change is not a uniform degradation across all categories. Style change and color alteration improve, but subject addition and subject removal drop by $17.5\%$ and $13.5\%$, showing that same-step accumulation shifts the balance between capabilities rather than preserving all of them. When dense supervision is also added, the $K{=}2,G{=}3$ case loses $22.8\%$ on average, with subject addition and subject removal dropping by $28.9\%$ and $46.0\%$. This shows that capability conflict can reappear at the optimizer-update level, even when every individual sample keeps a valid routed target~\cite{yu2020gradient,liu2021conflict}.
+
+\noindent\textbf{Dense Query Drift Control.}
+The dense-query diagnostic tests whether the poor dense same-step result is tied to trajectory-query correlation. In the $K{=}2,G{=}3$ stress case, replacing ODE rollout with SDE rollout improves the average by $18.4\%$. The recovery is strongest on subject removal and subject addition, which improve by $62.0\%$ and $29.0\%$, and it also improves subject replacement and background change by $15.4\%$ and $10.8\%$. However, the rescued result still remains $8.6\%$ below the single-query default, and it is weaker on style change, color alteration, and subject removal by $18.7\%$, $9.8\%$, and $12.5\%$. SDE rollout also hurts the two control settings by $15.3\%$ and $8.3\%$. Thus, stochastic rollout noise is useful as diagnostic evidence for trajectory-query correlation, but it is not a better default. The safer design is to avoid correlated dense supervision in the first place and use a single semantic-side query.
+
+
+\subsection{Ablation Study}
+\label{sec:exp-ablation}
+
+The previous subsection studied how multiple capability fields should enter the same student update. We now ablate the remaining training choices of \name{} under the same frozen capability fields and the same evaluation protocol. These choices include the number of rollout steps used to obtain student states, the timestep region where the teacher field is queried, the number of queried states from one rollout, the local matching objective, and the student initialization. Fig.~\ref{fig:timestep-init-ablation-curves} summarizes the main trends, while Table~\ref{tab:ablation-summary} and Table~\ref{tab:rollout-step-sensitivity} report the detailed values.
+
+\noindent\textbf{Rollout Steps.}
+The rollout is used to obtain student-visited states for teacher queries, which generally need to be consistent with inference.
+However, we found that in DanceOPD, the training rollout length does not need to match the evaluation sampler exactly. This may be because our solver is ODE~\cite{song2020denoising,lu2022dpm,karras2022elucidating}. In the DanceOPD experiments, at $2000$ steps, a moderate rollout length is sufficient. At $2$k steps, the $16$-step rollout gives the strongest GEditBench average, improving over the 8-step, $20$-step, and $28$-step variants by $0.2\%$, $3.0\%$, and $0.9\%$, respectively. It also improves GenEval overall over these variants by $0.7\%$, $1.9\%$, and $2.9\%$. Although the 28-step rollout is competitive on some edit sub-scores, the $16$-step rollout improves subject removal over it by $33.7\%$ and gives better T2I preservation. This shows that longer rollout discretization does not automatically provide better supervision for field matching.
+
+
+\begin{figure}[H]
+    \centering
+    \vspace{-1cm}
+    \includegraphics[width=\textwidth]{figures/steps.pdf}
+    \vspace{-0.5cm}
+    \caption{\textbf{Training Progression in Local and Global Edit Composition.} As distillation proceeds, \name{} progressively absorbs the target edit capability while maintaining scene identity and prompt alignment.}
+    \label{fig:m_stps}
+\end{figure}
+
+
+\noindent\textbf{Timestep Query.}
+Capability-specific supervision is most useful on the semantic, low-noise side of the trajectory, consistent with timestep-sensitive image editing and distillation analyses~\cite{wang2023not,chen2024tino,lin2024schedule}. At $2$k steps, low-$t$ querying improves the GEditBench average over median-$t$ and high-$t$ querying by $23.7\%$ and $19.5\%$. Compared with median-$t$, low-$t$ improves subject addition by $35.9\%$, background change by $36.1\%$, color alteration by $14.0\%$, and subject removal by $42.3\%$. Compared with high-$t$, low-$t$ improves subject addition by $46.1\%$ and style change by $57.1\%$. These results support the design choice of querying the teacher field on the semantic side of the student rollout.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig6.pdf}
+    \vspace{-0.62cm}
+    \caption{\textbf{Ablation Trends.} Semantic-side low-$t$ queries and local-edit initialization give the most reliable gains, while increasing the number of trajectory queries does not improve performance.}
+    \label{fig:timestep-init-ablation-curves}
+\end{figure*}
+
+
+\noindent\textbf{Number of Trajectory Queries.}
+Using more states from the same rollout does not necessarily improve supervision, because states along one rollout are highly correlated, echoing recent observations that rollout position and rollout length affect OPD stability~\cite{ziheng2026moreearlystoppingrollout}. The single-query default outperforms the weighted dense-query variants across $K{=}2,4,8,16$, improving the GEditBench average by $16.6\%$, $7.9\%$, $10.2\%$, and $12.2\%$, respectively. Even the strongest weighted dense-query variant remains below the single-query default. This confirms that one semantic-side query per rollout is not only more efficient, but also more reliable for matching the routed teacher field.
+
+\noindent\textbf{Objective Design.}
+Plain velocity MSE gives the strongest average among the tested local matching objectives. It improves over timestep-weighted MSE and DMD-EMA hybrid by $2.8\%$, over consistency matching by $4.1\%$, and over KL-$\bar{\sigma}^2$ matching by $4.5\%$. The gap is larger for DMD2 and AuxFeat variants, where plain velocity MSE improves the average by $15.6\%$ to $21.1\%$. Some alternatives improve individual sub-scores, but they do not give the same overall balance across edit categories. Since the target is a routed velocity field queried at a fixed student state, direct velocity regression gives the most stable update.
+
+\noindent\textbf{Initialization.}
+Initialization matters because the student rollout determines where teacher fields are queried early in training. The best default is the checkpoint with the strongest relevant capability, rather than merged initialization or an unrelated anchor. At $2$k steps, local edit initialization improves the GEditBench average over merged initialization by $37.2\%$, over global edit initialization by $112.8\%$, and over T2I initialization by $204.4\%$. Compared with merged initialization, local edit initialization improves subject addition by $48.8\%$, subject replacement by $32.1\%$, background change by $28.7\%$, color alteration by $29.2\%$, and subject removal by $124.0\%$. This indicates that a stronger initial student rollout makes subsequent routed field matching more effective.
+
+

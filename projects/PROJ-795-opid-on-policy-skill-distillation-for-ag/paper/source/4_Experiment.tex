@@ -1,0 +1,112 @@
+\input{tables/experiment}
+
+\section{Experiment}
+\subsection{Experimental Setting}
+
+\paragraph{Benchmarks.}
+We evaluate OPID on three representative agentic benchmarks that require multi-step interaction or search-based reasoning. First, we use ALFWorld~\citep{shridhar2020alfworld}, an embodied household benchmark where an agent must complete language-specified goals through a sequence of textual actions. We report performance on six task types: \textit{Pick}, \textit{Look}, \textit{Clean}, \textit{Heat}, \textit{Cool}, and \textit{Pick2}. Second, we evaluate on WebShop~\citep{yao2022webshop}, where an agent interacts with an e-commerce website to find and purchase products satisfying natural-language user requirements. Following the standard evaluation protocol, we report results on 128 test tasks. Third, we consider Search-based QA~\citep{jin2025searchr1}, where the agent answers questions by interacting with a search environment: Natural Questions~\citep{kwiatkowski2019natural}, TriviaQA~\citep{joshi2017triviaqa}, PopQA~\citep{mallen2023popqa}, HotpotQA~\citep{yang2018hotpotqa}, 2WikiMultiHopQA~\citep{ho2020constructing}, MuSiQue~\citep{trivedi2022musique}, and Bamboogle~\citep{press2023measuring}.
+
+\paragraph{Baselines.}
+We compare OPID against both prompting-based and training-based baselines. \textit{Vanilla} denotes the original prompting baseline. \textit{Skill-Prompt} augments the model with skill descriptions at inference or validation time. \textit{GRPO} is the outcome-only on-policy RL baseline, where the policy is optimized using group-relative trajectory-level rewards~\citep{shao2024deepseekmath}. \textit{Skill-GRPO} combines skill conditioning with GRPO-style outcome optimization. \textit{OPSD}~\citep{zhao2026opsd}, \textit{GRPO+OPSD}, \textit{Skill-SD}~\citep{wang2026skillsd}, \textit{RLSD}~\citep{yang2026rlsd}, and \textit{SDAR}~\citep{lu2026sdar} are self-distillation or skill-distillation baselines that introduce auxiliary token-level or skill-conditioned supervision during training. Rows marked with $*$ indicate validation with skills, following the setting described in the corresponding baseline.
+
+\begin{figure}[t]
+    \centering
+    \begin{minipage}[t]{0.495\linewidth}
+        \centering
+        \includegraphics[width=\linewidth,trim={0 0 8pt 0},clip]{figures/episode_success_rate_smoothed.pdf}
+        \centerline{(a) Episode success rate}
+    \end{minipage}
+    \hspace{-2mm}
+    \begin{minipage}[t]{0.495\linewidth}
+        \centering
+        \includegraphics[width=\linewidth,trim={0 0 0 0},clip]{figures/episode_length_smoothed.pdf}
+        \centerline{(b) Episode length}
+    \end{minipage}
+    \caption{
+        \textbf{Training dynamics of OPID and GRPO.}
+        We report Qwen2.5-3B-Instruct training on ALFWorld. Translucent curves denote raw measurements and solid curves denote smoothed trends.
+    }
+    \label{fig:training_dynamics}
+\end{figure}
+
+\paragraph{Evaluation Metrics.}
+For ALFWorld, we report task success rate in percentage. For WebShop, we report both the normalized task score and task success rate, following the benchmark protocol. For Search-based QA, we report answer accuracy in percentage on each QA subset and the average accuracy across subsets. 
+% For each benchmark, higher values indicate better performance.
+
+\paragraph{Implementation Details.}
+We conduct experiments using Qwen2.5-3B/7B-Instruct~\citep{yang2024qwen25} and Qwen3-1.7B-Instruct~\citep{yang2025qwen3}. The training batch size is set to 16 for ALFWorld and WebShop, and 128 for Search-based QA. All models are trained for 150 steps across all environments. Full details are provided in Appendix~\ref{app:experimental_details}.
+
+
+\subsection{Main Results}\label{subsec32_main_results}
+Table~\ref{tab:main_results} summarizes performance across model scales and agentic domains, revealing three key findings:
+
+\paragraph{OPID consistently strengthens outcome-only RL.}
+OPID improves over GRPO in most model--domain combinations. On Qwen2.5-3B, the gains are +9.3 points on ALFWorld (84.3 vs. 75.0), +8.6 on Search-based QA (45.0 vs. 36.4), and +10.9 on WebShop (74.2 vs. 63.3). The corresponding improvements on Qwen2.5-7B are +8.8, +7.2, and +7.1 points. The benefit is particularly pronounced for the smaller Qwen3-1.7B backbone, where OPID improves ALFWorld by +12.8 points and WebShop by +26.5 points. The only exception is Search-based QA on Qwen3-1.7B, where OPID remains close to GRPO. Overall, these results show that OPID usually provides a consistent gain over outcome-only reinforcement learning, especially on long-horizon embodied and web-shopping tasks.
+
+\paragraph{OPID remains competitive with strong hybrid methods.}
+Beyond improving over outcome-only RL, OPID also matches or surpasses strong hybrid and self-distillation baselines in several aggregate settings. On ALFWorld, OPID achieves the best average on Qwen2.5-7B and Qwen3-1.7B, outperforming the strongest baseline by +1.7 points (90.0 vs. 88.3) and +5.0 points (58.9 vs. 53.9) respectively. On Search-based QA, OPID attains the best average on both Qwen2.5 backbones, improving over the strongest baseline by +0.4 points on Qwen2.5-3B (45.0 vs. 44.6) and +0.2 points on Qwen2.5-7B (49.2 vs. 49.0). On WebShop, OPID achieves the best success rate on Qwen2.5-3B and Qwen3-1.7B, exceeding the strongest competing method by +6.2 points on Qwen3-1.7B (64.8 vs. 58.6), while remaining competitive on Qwen2.5-7B. These results show that trajectory-derived, distribution-matched skills can complement outcome supervision and compete with methods that rely on hybrid training signals or external skill contexts.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/sample_efficiency_line.pdf}
+    \vspace{-0.15in}
+    \caption{
+        \textbf{Sample efficiency analysis.}
+        OPID consistently outperforms GRPO under reduced training data and approaches full-data GRPO performance using about 60\% of the data.
+    }
+    \label{fig:sample_efficiency_line}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/generalization_bar.pdf}
+    \vspace{-0.15in}
+    \caption{
+        \textbf{Cross-domain generalization on ALFWorld Unseen.}
+        OPID improves the average success rate over GRPO and shows particularly large gains on \textit{Look} and \textit{Heat}.
+    }
+    \label{fig:generalization_bar}
+\end{minipage}
+\end{figure}
+
+\paragraph{OPID internalizes skills instead of depending on them at inference.}
+The results further show that OPID gains from internalizing hindsight skills into the policy, rather than relying on skill prompts at inference time. Training directly with retrieved skills introduces a clear train--test context mismatch: when validation-time skills are removed, Skill-GRPO underperforms ordinary GRPO on ALFWorld at all model scales, dropping by -14.8 points on Qwen2.5-3B (60.2 vs. 75.0), -11.7 points on Qwen2.5-7B (69.5 vs. 81.2), and -25.0 points on Qwen3-1.7B (21.1 vs. 46.1). In contrast, OPID is also evaluated without any skill input, yet exceeds Skill-GRPO by +24.1, +20.5, and +37.8 points. On Search-based QA, OPID also improves over both GRPO and Skill-GRPO for the two Qwen2.5 models, with gains over GRPO of +8.6 and +7.2 points, while remaining comparable on Qwen3-1.7B. Moreover, OPID outperforms Skill-GRPO* on ALFWorld and Search-based QA for both Qwen2.5 backbones, even though Skill-GRPO* retains privileged skill context during validation. These results indicate that OPID transfers trajectory-derived hindsight knowledge into the model parameters, enabling the policy to benefit from skills without depending on external skill prompts at inference.
+
+\subsection{Training Dynamics}
+Figure~\ref{fig:training_dynamics} illustrates the training progression on ALFWorld. Both methods improve during early optimization, yet OPID diverges from GRPO in the middle stage and maintains superior performance throughout the remainder of training. This divergence pattern indicates that hindsight skill supervision accelerates policy refinement beyond what outcome rewards alone can achieve. The efficiency gains are equally pronounced. OPID reduces average episode length to 15-16 steps while GRPO plateaus at 17-18 steps. The concurrent rise in success and fall in trajectory length reveals a key behavioral shift: OPID agents learn to reach goals through more direct action sequences rather than exploratory detours.
+
+These dynamics align with the intended function of hierarchical supervision. Episode-level skills establish coherent task workflows that reduce backtracking and repetition. Step-level skills provide precise guidance at critical decision points, preventing the invalid actions and local navigation errors that otherwise extend trajectories. Together, these mechanisms enable OPID to internalize both global task structure and local decision efficiency.
+
+\subsection{Sample Efficiency}\label{subsec33_efficiency_analysis}
+Figure~\ref{fig:sample_efficiency_line} compares OPID and GRPO under different fractions of ALFWorld training data. OPID consistently improves over GRPO across all data scales, with absolute gains ranging from +9.3 to +20.3 points. The advantage is especially clear in the low- and mid-data regimes, where each trajectory carries more training value. With 60\% of the data, OPID reaches 71.9, close to GRPO trained with the full dataset (75.0); with 80\% of the data, it already surpasses full-data GRPO (78.9 vs. 75.0). These results indicate that OPID-style skill supervision improves the data efficiency of outcome-based RL. By converting completed trajectories into dense token-level training signals, OPID extracts additional supervision from the same environment interactions rather than relying only on terminal rewards. This makes the optimization less dependent on large numbers of rollouts and allows the policy to acquire effective behaviors with fewer samples.
+
+\subsection{Cross-Domain Generalization}\label{subsec34_cross_domain_generalization}
+Figure~\ref{fig:generalization_bar} evaluates cross-domain transfer to the ALFWorld unseen split. OPID achieves an average success rate of 78.6, outperforming GRPO by +7.7 points. Its gains over GRPO are concentrated on tasks like \textit{Look} (+26.7) and \textit{Heat} (+18.5), while maintaining competitive performance on the remaining task types. These results suggest that OPID is not merely memorizing the observed training trajectories. Instead, the extracted skills appear to capture reusable behavioral structure, including high-level task workflows and local decision rules that remain useful under unseen environment configurations. Since the skills are distilled into the policy rather than retrieved at inference time, the improvement also indicates that OPID internalizes transferable decision knowledge into the model parameters.
+
+\input{tables/ablation_on_hierarchical_skills}
+\input{tables/ablation_on_routing}
+
+\subsection{Ablation Studies and Analysis}
+We isolate the contributions of hierarchical skill granularity and critical-first routing using Qwen2.5-3B-Instruct.
+
+\paragraph{Impact of Hierarchical Skills.}
+As shown in Table~\ref{tab:ablation_hierarchical_skills}, the complete hierarchy obtains the best aggregate performance on both domains. Removing episode-level skills decreases the ALFWorld average from 84.3 to 74.1 and the WebShop success rate from 74.2 to 67.2, confirming that global workflows and failure-avoidance rules provide an important default signal. Removing step-level skills decreases the ALFWorld average from 84.3 to 79.1 and the WebShop success rate from 74.2 to 65.6. These results demonstrate the complementarity of the two skill levels.
+
+\paragraph{Impact of Critical-First Skill Routing.}
+Table~\ref{tab:ablation_critical_first} compares OPID with a non-routed variant that applies the episode-level skill to every step and additionally incorporates the corresponding step-level skill at critical timesteps, thereby superimposing the two forms of guidance. Critical-first routing improves the ALFWorld average by +6.8 points (84.3 vs. 77.5). These results show that selectively routing the most appropriate skill granularity is more effective than directly combining global and local guidance, demonstrating the importance of critical-first routing.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/OPID_case.pdf}
+    \caption{
+        \textbf{Qualitative comparison on ALFWorld.}
+        For the task ``clean some spatula and put it in diningtable,'' the GRPO-trained agent hallucinates a nonexistent target object, substitutes a spoon for the spatula, and fails to complete the final placement within the step limit. In contrast, OPID follows a coherent locate-clean-place workflow, grounding each action in the current observation and completing the task in six steps.
+    }
+    \label{fig:case_comparison}
+\end{figure}
+
+
+\paragraph{Qualitative Analysis. }
+Figure~\ref{fig:case_comparison} illustrates an ALFWorld clean-and-place task. The GRPO-trained agent exhibits a “hallucinated target” error by attempting to take a nonexistent spatula from the countertop at Step 4. It subsequently substitutes a spoon for the target object and reaches the 30-step limit before placing the cleaned spatula back on the dining table. In contrast, OPID follows a coherent locate–clean–place workflow and completes the task in six steps. This case suggests that distilling hierarchical hindsight skills from on-policy trajectories helps the agent learn both local object-grounding decisions and episode-level task workflows, thereby reducing hallucinated actions and preserving progress toward the final goal.

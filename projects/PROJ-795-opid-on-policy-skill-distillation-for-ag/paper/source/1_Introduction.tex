@@ -1,0 +1,36 @@
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.99\linewidth]{figures/qwen3_1_7b_avg_courses_opid_palette.pdf}
+    \caption{
+        \textbf{Overall performance comparison.}
+        We compare OPID with training-free prompting methods, outcome-only RL, and skill-distillation baselines on ALFWorld, Search-based QA, and WebShop. OPID achieves the strongest average performance on ALFWorld and WebShop while remaining competitive on Search-based QA.
+    }
+    \label{fig:overall_performance}
+\end{figure}
+
+\section{Introduction}
+Large language models (LLMs) are increasingly deployed as interactive agents that operate over long horizons, invoke tools, navigate environments, and adapt their behavior through multi-turn observations~\citep{jimenez2024swebench,luo2025large,wu2026spark,lu2026sdar}. Unlike single-turn reasoning, agentic tasks require sequential decisions whose consequences may only become visible after many interaction steps. This setting spans embodied household environments, web navigation, search-augmented reasoning, and software engineering agents~\citep{shridhar2020alfworld,yao2022webshop,jin2025searchr1,jimenez2023swebench}. Reinforcement learning (RL) has become a natural post-training paradigm for such agents, since it directly optimizes policies using task-level feedback from environments or verifiers. In particular, outcome-based methods such as GRPO~\citep{shao2024deepseekmath} provide a stable critic-free optimization backbone for on-policy rollouts.
+
+
+Despite its effectiveness, outcome-based agentic RL offers only coarse supervision~\citep{zhang2025landscape}. Environment rewards are typically sparse, delayed, and high-variance: a terminal reward can indicate whether a trajectory succeeds, but not which intermediate decisions caused the outcome. This limitation is especially severe in long-horizon interaction~\citep{chen2026iterresearch,xu2026odysseyarena}, where a single early mistake may derail the episode, repeated invalid actions may accumulate over time, and the effect of a local decision may only be observed several turns later. As a result, purely outcome-driven optimization provides stable task-level pressure but lacks fine-grained decision-level credit assignment.
+
+On-policy distillation and self-distillation provide complementary supervision. Rather than relying solely on trajectory-level rewards, on-policy distillation trains models on their own sampled outputs while using auxiliary teacher signals to induce token-level guidance~\citep{gu2023minillm,agarwal2024onpolicy}. Recent self-distillation methods remove the need for a separate teacher by comparing the same policy under different contexts, such as a standard student branch and a privileged teacher branch~\citep{zhao2026opsd,he2026sdzero}. In agentic RL, this suggests a natural decomposition: RL remains the primary optimization backbone, while self-distillation supplies dense token-level shaping signals. Recent work such as SDAR follows this principle by treating self-distillation as a controlled auxiliary objective for multi-turn agents~\citep{lu2026sdar}.
+
+A particularly promising form of privileged context is a natural-language skill. Skill-conditioned self-distillation augments the teacher branch with procedural knowledge, such as subgoal decompositions, action templates, or behavioral rules, and distills the resulting token-level preferences into the policy~\citep{lu2026skill0,wang2026skillsd,lu2026sdar}. However, existing skill-based methods typically rely on external skill libraries, retrieved skill files, or maintained skill memories. This design raises two challenges. First, skill memories require non-trivial maintenance, including skill insertion, refinement, deletion, and retrieval. Second, retrieved skills may be mismatched with the state distribution induced by the current policy. Such mismatch is particularly problematic for multi-turn agents, where small deviations from the assumed trajectory can lead to state drift and make an otherwise useful skill unreliable.
+
+Based on this observation, we propose \textbf{OPID} (\textbf{O}n-\textbf{P}olicy Sk\textbf{i}ll \textbf{D}istillation), a framework that extracts hindsight skills from completed on-policy trajectories and distills their behavioral effects back into the policy. OPID abstracts each trajectory into two complementary levels of natural-language skills: \emph{episode-level skills}, which summarize trajectory-wide workflows or failure-avoidance rules, and \emph{step-level skills}, which capture state-conditioned guidance at critical timesteps. This hierarchy reflects a granularity trade-off in long-horizon decision making. Episode-level skills are broad and stable but may be too coarse for pivotal states, whereas step-level skills are precise but sparse and state-specific. OPID addresses this trade-off with \emph{critical-first skill routing}: it uses step-level skills at identified critical timesteps and falls back to episode-level skills otherwise. The routed skill is injected into the agent's interaction history, allowing the old policy to re-score the same on-policy response under both original and skill-augmented contexts. The induced token-level log-probability shift forms a skill-based self-distillation advantage, which is combined with the episode advantage for policy optimization. OPID therefore preserves outcome-based RL as the primary objective while introducing dense, on-policy hindsight supervision. At inference time, OPID requires no analyzer, external skill retrieval, or privileged context.
+
+We evaluate OPID on ALFWorld~\citep{shridhar2020alfworld}, 
+WebShop~\citep{yao2022webshop}, and Search-based QA~\citep{jin2025searchr1} with models at different scales. Across these settings, OPID improves long-horizon agent performance over outcome-only RL and skill-distillation baselines. These results suggest that completed on-policy trajectories provide a useful source of distribution-matched hindsight supervision, enabling the policy to internalize trajectory-derived skills without relying on external skill libraries or retrieved privileged context at inference time.
+
+Taken together, our work makes the following contributions:
+\begin{itemize}
+    \item We propose \textbf{on-policy hindsight skill extraction}, which treats completed trajectories sampled by the current policy as a distribution-matched source of skill supervision, avoiding the need for external skill libraries or off-policy retrieval.
+
+    \item We introduce \textbf{hierarchical hindsight skills with critical-first routing}, where episode-level skills capture global workflows or failure-avoidance rules, step-level skills 
+    capture critical local decisions, and routing selects the most specific available skill for each trajectory step.
+
+    \item We integrate \textbf{skill-based self-distillation} into agentic RL, converting routed hindsight skills into dense token-level shaping signals while preserving outcome reward optimization as the primary training objective.
+
+    \item We empirically validate OPID on long-horizon agentic benchmarks, showing consistent improvements over outcome-only RL and skill-distillation baselines, along with better sample efficiency and reduced repetitive or invalid behaviors.
+\end{itemize}

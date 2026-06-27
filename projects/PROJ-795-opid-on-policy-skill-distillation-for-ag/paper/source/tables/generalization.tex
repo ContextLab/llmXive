@@ -1,0 +1,23 @@
+\begin{table}[ht!]
+\centering
+\caption{\textbf{Cross-domain generalization results on ALFWorld Unseen.} We report success rates across six unseen task types and their average. OPID improves the average success rate over GRPO, indicating that trajectory-derived skill supervision transfers beyond the training environments.}
+\vspace{0.05in}
+\label{tab:ood_generalization_alfworld}
+\small
+\setlength{\tabcolsep}{9pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{cccccccc}
+\toprule[1.2pt]
+& \multicolumn{7}{c}{\textbf{ALFWorld Unseen}} \\
+\cmidrule(lr){2-8}
+\textbf{Method} & \textbf{Pick} & \textbf{Look} & \textbf{Clean} & \textbf{Heat} & \textbf{Cool} & \textbf{Pick2} & \textbf{Avg.} \\
+\midrule
+ReAct        & 17.4 & 6.7  & 8.8  & 7.4  & 9.1  & 0.0  & 8.2  \\
+GRPO         & 73.9 & 60.0 & \textbf{82.4} & 59.3 & 72.7 & \textbf{76.9} & 70.9 \\
+\rowcolor{gray!10}
+OPID         & \textbf{78.3} & \textbf{86.7} & \textbf{82.4} & \textbf{77.8} & \textbf{77.3} & 69.2 & \textbf{78.6} \\
+\rowcolor{blue!6}
+$\Delta$     & +4.4 & +26.7 & +0.0 & +18.5 & +4.6 & -7.7 & +7.7 \\
+\bottomrule[1.2pt]
+\end{tabular}
+\end{table}

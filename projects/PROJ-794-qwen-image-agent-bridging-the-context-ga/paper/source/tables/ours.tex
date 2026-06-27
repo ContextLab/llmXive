@@ -1,0 +1,113 @@
+\begin{table*}[t]
+\centering
+% \normalsize
+% \setlength{\tabcolsep}{3.5pt}
+% \renewcommand{\arraystretch}{1.12}
+% \scriptsize
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model Name}} 
+& \multicolumn{4}{c}{\textbf{Checklist Accuracy (\%)}} 
+& \multicolumn{4}{c}{\textbf{Pass Rate (\%)}} 
+& \multirow{2}{*}{\textbf{IA-score}} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9}
+& \textbf{Plan} & \textbf{Reason} & \textbf{Search} & \textbf{Memory}
+& \textbf{Plan} & \textbf{Reason} & \textbf{Search} & \textbf{Memory}
+&  \\
+\midrule
+
+\rowcolor{gray!8}
+\multicolumn{10}{l}{\textit{Closed-source Image Generation Models}} \\
+GPT-Image-1.5~\citep{openai2025gptimage15}
+& 55.1 & 55.6 & 55.2 & 87.6
+& 23.3 & 36.7 & 35.0 & 72.0
+& 35.7 \\
+Nano Banana~\citep{deepmind2024geminiimage25}
+& 68.0 & 63.9 & 61.7 & 60.2
+& 42.0 & 43.3 & 42.2 & 48.0
+& 43.1 \\
+Nano Banana Pro~\citep{deepmind2024geminiimage}
+& 60.8 & 66.2 & 68.3 & 72.0
+& 32.7 & 44.3 & 47.8 & 52.0
+& 42.6 \\
+Seedream-5.0-Lite~\citep{bytedance_seedream5_lite_2025}
+& 71.3 & 58.3 & 50.1 & 66.4
+& 46.0 & 37.0 & 21.1 & 48.0
+& 36.0 \\
+Qwen-Image-2.0~\citep{Zhao2026QwenImage20TR}
+& 50.0 & 48.2 & 38.0 & 51.8
+& 20.0 & 27.7 & 6.7 & 11.0
+& 17.4 \\
+
+\midrule
+\rowcolor{gray!8}
+\multicolumn{10}{l}{\textit{Open-source Image Generation Models}} \\
+SD-3.5-medium~\citep{sd35Medium}
+& 15.6 & 6.9 & 20.4 & 5.9
+& 0.0 & 4.0 & 3.3 & 0.0
+& 2.2 \\
+SD-3.5-large~\citep{sd35Large}
+& 19.0 & 9.2 & 24.2 & 10.5
+& 0.0 & 5.7 & 6.1 & 1.0
+& 3.6 \\
+FLUX.2-dev~\citep{flux2024}
+& 29.4 & 23.2 & 33.1 & 52.9
+& 5.3 & 15.0 & 9.4 & 11.0
+& 10.0 \\
+Bagel~\citep{deng2025bagel}
+& 20.0 & 12.6 & 15.1 & 4.7
+& 0.7 & 4.0 & 0.6 & 0.0
+& 1.6 \\
+Bagel w/ CoT~\citep{deng2025bagel}
+& 22.6 & 26.7 & 12.8 & 5.9
+& 2.0 & 19.0 & 0.6 & 0.0
+& 6.5 \\
+Echo-4o~\citep{ye2025echo}
+& 22.1 & 11.6 & 17.1 & 7.9
+& 0.7 & 4.0 & 0.6 & 0.0
+& 1.6 \\
+Echo-4o w/ CoT~\citep{ye2025echo}
+& 17.4 & 10.1 & 9.3 & 7.6
+& 0.0 & 4.0 & 0.6 & 0.0
+& 1.4 \\
+Qwen-Image~\citep{wu2025qwen}
+& 30.0 & 28.2 & 35.1 & 41.1
+& 4.7 & 17.7 & 6.1 & 9.0
+& 9.4 \\
+
+\midrule
+\rowcolor{gray!8}
+\multicolumn{10}{l}{\textit{Agentic Image Generation Models}} \\
+GenSearcher~\citep{Feng2026GenSearcherRA}
+& 37.0 & 30.1 & 46.5 & 46.6
+& 9.3 & 20.3 & 24.4 & 11.0
+& 17.3 \\
+GEMS~\citep{He2026GEMSAM}
+& 70.6 & 28.4 & 49.4 & 52.6
+& 41.3 & 18.3 & 18.9 & 13.0
+& 24.9 \\
+MindBrush~\citep{He2026MindBrushIA}
+& 56.1 & 51.8 & 53.6 & 53.1
+& 28.0 & 32.7 & 35.6 & 13.0
+& 30.2 \\
+SCOPE~\citep{Ren2026SCOPESD}
+& 73.3 & 45.2 & 44.4 & 45.2
+& 46.7 & 30.0 & 23.3 & 9.0
+& 30.9 \\
+\rowcolor{blue!8}
+\textbf{Qwen-Image-Agent}
+& 72.9 & 65.5 & 67.6 & 73.6
+& 45.3 & 43.7 & 46.1 & 49.0
+& {\color{blue!70!black}\textbf{45.4}} \\
+\bottomrule
+\end{tabular}
+}
+\caption{Results on IA-Bench. We report checklist accuracy, pass rate, and the overall IA-score, all measured in percentage (\%). For all metrics, higher values indicate better performance.
+}
+\label{tab:ia_bench}
+\end{table*}
+

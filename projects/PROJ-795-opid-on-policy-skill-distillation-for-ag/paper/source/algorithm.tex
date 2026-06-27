@@ -1,0 +1,75 @@
+\begin{algorithm}[t]
+\caption{OPID: On-Policy Skill Distillation}
+\label{alg:opid}
+\footnotesize
+\begin{algorithmic}[1]
+\Require Policy $\pi_\theta$, task set $\mathcal{Q}$, analyzer $\mathcal{A}$,
+skill-injection function $H$, group size $N$, skill coefficient
+$\lambda_{\mathrm{skill}}$, clipping parameter $\epsilon$, learning rate $\eta$
+\For{each training iteration}
+    \State $\theta_{\mathrm{old}} \gets \theta$
+    \State Sample a batch of task prompts $\mathcal{B}$ from $\mathcal{Q}$
+    \For{each prompt $q \in \mathcal{B}$}
+        \State \textcolor{green!50!black}{\textit{// On-policy rollout group and episode advantage}}
+        \State Sample $\mathcal{G}_q \gets \{\tau^{(1)},\ldots,\tau^{(N)}\}$,
+        where $\tau^{(i)} \sim \pi_{\theta_{\mathrm{old}}}(\cdot\mid q)$
+        \State $\mathbf{r}_q \gets \{R(\tau')\mid \tau'\in\mathcal{G}_q\}$;
+        $\mu_q \gets \operatorname{mean}(\mathbf{r}_q)$;
+        $\sigma_q \gets \operatorname{std}(\mathbf{r}_q)$
+        \For{each trajectory $\tau \in \mathcal{G}_q$}
+            \State $A^{\mathrm{ep}}_{\tau} \gets
+            \bigl(R(\tau)-\mu_q\bigr)/\sigma_q$
+
+            \State \textcolor{green!50!black}{\textit{// Hierarchical hindsight skill extraction}}
+            \State $\left(s^{\mathrm{ep}}_{\tau},
+            \{s^{\mathrm{step}}_{\tau,t}\}_{t\in\mathcal{C}_{\tau}}\right)
+            \gets \mathcal{A}(\tau)$
+
+            \State \textcolor{green!50!black}{\textit{// Critical-first routing and paired scoring}}
+            \For{each interaction step $t$ in $\tau$}
+                \State $s_{\tau,t} \gets
+                \begin{cases}
+                    s^{\mathrm{step}}_{\tau,t}, & t\in\mathcal{C}_{\tau},\\
+                    s^{\mathrm{ep}}_{\tau}, & \text{otherwise}
+                \end{cases}$
+                \State $\tilde{h}_{\tau,t} \gets H(h_{\tau,t},s_{\tau,t})$
+                \For{each token $\ell$ in $y_{\tau,t}$ with mask $m_{\tau,t,\ell}$}
+                    \State $\ell^{\mathrm{old}}_{\tau,t,\ell} \gets
+                    \log\pi_{\theta_{\mathrm{old}}}
+                    (y_{\tau,t,\ell}\mid h_{\tau,t},y_{\tau,t,<\ell})$
+                    \State $\ell^{\mathrm{skill}}_{\tau,t,\ell} \gets
+                    \log\pi_{\theta_{\mathrm{old}}}
+                    (y_{\tau,t,\ell}\mid \tilde{h}_{\tau,t},y_{\tau,t,<\ell})$
+                    \State $A^{\mathrm{skill}}_{\tau,t,\ell} \gets
+                    (\ell^{\mathrm{skill}}_{\tau,t,\ell}
+                    -\ell^{\mathrm{old}}_{\tau,t,\ell})m_{\tau,t,\ell}$
+                    \State $A^{\mathrm{ep}}_{\tau,t,\ell} \gets
+                    A^{\mathrm{ep}}_{\tau}m_{\tau,t,\ell}$
+                    \State $A^{\mathrm{OPID}}_{\tau,t,\ell} \gets
+                    A^{\mathrm{ep}}_{\tau,t,\ell}
+                    +\lambda_{\mathrm{skill}}A^{\mathrm{skill}}_{\tau,t,\ell}$
+                \EndFor
+            \EndFor
+        \EndFor
+    \EndFor
+
+    \State \textcolor{green!50!black}{\textit{// Clipped policy optimization}}
+    \State For every valid sampled token $(\tau,t,\ell)$, compute\vspace{-1pt}
+    \State $\rho_{\tau,t,\ell}(\theta) \gets
+    \exp\!\left(
+    \log\pi_{\theta}(y_{\tau,t,\ell}\mid h_{\tau,t},y_{\tau,t,<\ell})
+    -\log\pi_{\theta_{\mathrm{old}}}(y_{\tau,t,\ell}\mid h_{\tau,t},y_{\tau,t,<\ell})
+    \right)$
+    \State $\displaystyle
+    \mathcal{L}_{\mathrm{policy}}(\theta) \gets
+    -\mathbb{E}_{\tau,t,\ell}\!\left[
+    \min\!\left(
+    \rho_{\tau,t,\ell}(\theta)A^{\mathrm{OPID}}_{\tau,t,\ell},
+    \operatorname{clip}(\rho_{\tau,t,\ell}(\theta),1-\epsilon,1+\epsilon)
+    A^{\mathrm{OPID}}_{\tau,t,\ell}
+    \right)\right]$
+    \State $\theta \gets \theta-\eta\nabla_{\theta}
+    \mathcal{L}_{\mathrm{policy}}(\theta)$
+\EndFor
+\end{algorithmic}
+\end{algorithm}

@@ -1,0 +1,33 @@
+\begin{table}[t]
+  \centering
+  \vspace{0.2cm}
+  \scriptsize
+  \setlength{\tabcolsep}{2.2pt}
+  \caption{\textbf{Training Rollout-Step Sensitivity.} All rows use hard-routed MSE with ODE with $K{=}1$, $G{=}1$, low-$t$ Beta$(5,2)$ query sampling, and the same evaluation protocol. Only the number of stop-gradient student-rollout steps used to generate training query states is varied. We report both GEditBench-EN and GenEval because rollout discretization may affect edit quality and base T2I preservation differently.}
+  \label{tab:rollout-step-sensitivity}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{ll|ccccccc|c}
+    \toprule
+    & & \multicolumn{7}{c|}{\textbf{GEditBench-EN}} & \textbf{GenEval}\\
+    \textbf{Rollout} & \textbf{Step} & \textbf{Subj-Add} & \textbf{Subj-Rep} & \textbf{Bg-Chg} & \textbf{Style-Chg} & \textbf{Color-Alt} & \textbf{Subj-Rem} & \textbf{Avg} & \textbf{Overall}\\
+    \midrule
+    $8$  & $500$  & $5.067$ & $5.237$ & $4.372$ & $4.184$ & $4.564$ & $3.611$ & $4.506$ & $0.833$\\
+    $8$  & $1000$ & $5.237$ & $5.819$ & $4.735$ & $4.500$ & $4.962$ & $4.271$ & $4.921$ & $0.855$\\
+    $8$  & $1500$ & $5.500$ & $5.788$ & $5.559$ & $4.846$ & $5.079$ & $4.642$ & $5.236$ & $0.866$\\
+    $8$  & $2000$ & $6.514$ & $6.137$ & $5.532$ & $5.163$ & $6.346$ & $4.744$ & $5.739$ & $0.852$\\
+    $16$ & $500$  & $5.776$ & $5.759$ & $5.371$ & $4.148$ & $5.033$ & $4.728$ & $5.136$ & $0.821$\\
+    $16$ & $1000$ & $5.543$ & $5.725$ & $5.327$ & $4.515$ & $5.445$ & $5.586$ & $5.357$ & $0.862$\\
+    $16$ & $1500$ & $5.233$ & $5.787$ & $5.198$ & $4.394$ & $5.208$ & $5.161$ & $5.163$ & $0.854$\\
+    $16$ & $2000$ & $6.266$ & $6.181$ & $5.924$ & $5.060$ & $5.716$ & $5.357$ & $5.751$ & $0.858$\\
+    $20$ & $500$  & $6.045$ & $5.678$ & $5.089$ & $4.180$ & $4.838$ & $6.144$ & $5.329$ & $0.832$\\
+    $20$ & $1000$ & $5.995$ & $5.660$ & $6.109$ & $4.733$ & $5.833$ & $5.570$ & $5.650$ & $0.855$\\
+    $20$ & $1500$ & $5.339$ & $5.603$ & $4.958$ & $5.034$ & $5.237$ & $3.916$ & $5.014$ & $0.846$\\
+    $20$ & $2000$ & $5.889$ & $5.899$ & $5.440$ & $5.042$ & $5.696$ & $5.531$ & $5.583$ & $0.842$\\
+    $28$ & $500$  & $4.208$ & $5.271$ & $4.338$ & $3.686$ & $4.323$ & $2.779$ & $4.101$ & $0.849$\\
+    $28$ & $1000$ & $3.983$ & $5.175$ & $3.996$ & $3.120$ & $4.228$ & $2.527$ & $3.838$ & $0.866$\\
+    $28$ & $1500$ & $4.523$ & $5.409$ & $4.699$ & $4.220$ & $4.697$ & $3.157$ & $4.451$ & $0.851$\\
+    $28$ & $2000$ & $6.544$ & $6.147$ & $5.618$ & $5.393$ & $6.475$ & $4.008$ & $5.697$ & $0.834$\\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}

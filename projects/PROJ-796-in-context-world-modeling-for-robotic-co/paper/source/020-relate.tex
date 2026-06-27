@@ -1,0 +1,16 @@
+
+
+\subsection{In-Context Adaptation for Robotics}
+The emergence of large-scale pre-trained models~\cite{Radford2019LanguageMA,Touvron2023LLaMAOA,OpenAI2022ChatGPT} has established In-Context Learning (ICL) as an emergent capability for on-the-fly skill acquisition~\cite{Brown2020LanguageMA,Dong2022ASO}. In robotics, ICL has been explored via in-context imitation: models are prompted with expert trajectories, provided by teleoperation or retrieved from offline buffers, to perform next-token prediction over observation-action sequences~\cite{Fu2024ICRTII,An2025ActionTM,Sridhar2025RICLAI}; complementary approaches leverage human play videos for cross-embodiment transfer~\cite{Shah2025MimicDroidIL,Jain2024Vid2RobotEV}. Despite differences in data modality, all such methods treat context as behavior specification (``what to do''), and critically require human-provided demonstrations at test time. 
+A related line of work pursues adaptation through meta-learning. Gradient-based methods~\cite{MAML2017,Liu2019MetaLearningWI} meta-optimize an initialization for rapid test-time fine-tuning, while recurrent meta-RL~\cite{Duan2016RL2FR, Zintgraf2020VariBADAV} encodes interaction history 
+to infer \textit{which task} to perform—relying on reward signals unavailable prior to task execution. 
+In contrast, ICWM uses task-agnostic self-generated interactions to understand \textit{how the system operates}, requiring no demonstrations, no reward signal, and no parameter updates at test time--a harder and more practical deployment setting.
+
+
+
+
+\subsection{World Modeling for Robotic Control}
+World modeling captures environment dynamics to ground an agent's actions in causal state transitions~\cite{Ha2018RecurrentWM,LeCun2022APT, Ding2024UnderstandingWO,wang2025world,wang2026world}. Existing approaches fall into two paradigms: forward models predict future observations either in pixel space~\cite{GR-1, Li2024GRMGLP,Zhao2025CoTVLAVC,Cen2025WorldVLATA} or latent space~\cite{Hafner2019DreamTC,Hafner2020MasteringAW,Wu2022DayDreamerWM, Hafner2023MasteringDD,Zheng2025FLARERL}, while inverse dynamics models abduce actions from observed visual changes~\cite{Du2023LearningUP,Jang2025DreamGenUG,Tian2024PredictiveID,Baker2022VideoP}; some works unify both objectives~\cite{Zhu2025UnifiedWM,Li2025UnifiedVA}. All of these introduce dedicated parameters and training objectives for world modeling. ICWM instead realizes world modeling implicitly: 
+the model leverages standard sequence modeling to extract the time-invariant causal structure (e.g., control mappings and camera viewpoints) directly from task-agnostic interaction histories. 
+This implicit paradigm introduces zero additional parameters, treating world modeling as an emergent inference capability at test time.
+

@@ -1,0 +1,143 @@
+\section{Approach}
+\label{sec:approach}
+
+We formulate multi-capability image generation as \emph{on-policy generative field distillation}. Given several frozen capability sources, our goal is to train one student to query and imitate these sources as velocity fields on a shared generative state space~\cite{lipman2022flow,liu2022flow,albergo2025stochastic}, rather than combining them through static parameter interpolation or data-ratio tuning~\cite{ilharco2022editing,wortsman2022model,yadav2023ties}. This formulation turns capability composition into a field-query problem with three coupled choices: which capability field should supervise a sample, where in the state space the field should be queried, and how many states from the student rollout should be used for supervision. Fig.~\ref{fig:method-query} summarizes the resulting training query. Sec.~\ref{sec:hard-routing} to Sec.~\ref{sec:query-design} instantiate these choices through hard-routed field selection, on-policy student-state querying, and semantic-side single-query supervision, addressing target-field ambiguity, state-distribution mismatch, and trajectory-query correlation, respectively; Sec.~\ref{sec:objective-design} then gives the local matching objective.
+
+
+\subsection{Preliminary}
+\label{sec:composition-target}
+
+Assume we are given $M\ge2$ frozen capability sources that are defined on the same generative state space and expose compatible velocity predictions. The sources may correspond to different tasks or behaviors, such as text-to-image, image editing, local attribute editing, global editing, or style-specialized generation. We denote the trainable student by $v_\theta$, whose parameters are updated during distillation, and the frozen capability sources by $\{v_m\}_{m=1}^{M}$. For each source, $\mathcal{D}_m$ denotes the corresponding route-specific training distribution, $x$ denotes the route-specific data payload, and $p_T$ denotes the initial-noise distribution. This source-selection view is related to conditional expert routing and multi-task gating~\cite{jacobs1991adaptive,shazeer2017outrageously,ma2018modeling}.
+
+A naive unified model often suffers from \emph{capability dilution}: joint training averages supervision signals, weight merging assumes approximate parameter-space linearity, and data-ratio tuning merely moves the model along a trade-off curve~\cite{chen2018gradnorm,sener2018multi,yu2020gradient,liu2021conflict}. Our goal is different. We define the desired composition outcome operationally: under the reported metrics, a single model should improve the target capability while preserving the anchor capability. This does not claim global Pareto optimality over all possible training mixtures, but specifies the target region for capability composition.
+
+We view each frozen source as defining a capability-specific velocity field:
+\begin{equation}
+  v_m(z_t,t,c), \qquad m\in\{1,\ldots,M\},
+  \label{eq:cap-field}
+\end{equation}
+where $z_t$ is a flow state at time $t$ and $c$ denotes the conditioning information, such as a text prompt, source image, edit instruction, or style condition. This abstraction is independent of how the source is obtained: a source can be a pretrained model, a fine-tuned model, or a task-specialized branch.
+
+Under this view, capability composition becomes a field-alignment problem: which capability field should the student imitate, and at which states should the field be queried? This yields three design questions that structure the rest of the method: which field supervises each sample, where the field is queried, and how many trajectory states are used for supervision.
+
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/fig3.pdf}
+  \vspace{-0.5cm}
+  \caption{\textbf{Conceptual Illustration of \name{}.} For each sample, DanceOPD hard-routes supervision to one capability field, queries that field at a single low-noise state on the current student rollout rather than off-policy states, and aligns the student velocity to the selected field velocity with MSE.}
+  \label{fig:method-query}
+\end{figure}
+
+
+\subsection{Hard-Routed Sample-Wise Field Matching}
+\label{sec:hard-routing}
+
+The first design question is which field should supervise each sample. A naive alternative is to average several fields inside the same sample target, as in soft multi-teacher or knowledge-amalgamation variants~\cite{hinton2015distilling,shen2019customizing}. However, such an averaged target may no longer correspond to any well-defined capability query, especially when the fields encode different tasks or visual behaviors. To keep the target semantically meaningful, we route each training sample to exactly one capability field. A sample drawn from the text-to-image partition queries the T2I field; an edit sample queries the edit field; a local-edit or style-edit sample queries the corresponding field. Let $\pi(m)$ denote the route probability over active capability buckets. Formally, this is:
+\begin{equation}
+  m\sim \pi(m), \qquad (x,c)\sim \mathcal{D}_m,
+  \label{eq:sample-route}
+\end{equation}
+We do not tune $\pi$; unless otherwise stated, it is uniform over the active capability buckets, so two-bucket composition uses a $1{:}1$ route ratio and the three-bucket diagnostics use a $1{:}1{:}1$ route ratio.
+We then define the routed target field as:
+\begin{equation}
+  u_m(z,t,c)=v_m(z,t,c).
+  \label{eq:routed-field}
+\end{equation}
+
+This routing preserves the semantic identity of each capability query, in contrast to multi-teacher distillation schemes that combine teacher signals before or within a student update~\cite{you2017learning,fukuda2017efficient}. It avoids injecting unrelated capability directions into a single sample target, and it avoids forcing several potentially conflicting fields to be averaged inside one sample-level supervision signal. Capability composition is therefore achieved statistically across routed updates, while each individual query remains semantically well-defined.
+
+This design is also consistent with observations in multi-task optimization: when task gradients are poorly aligned, averaging them in the same optimizer step can produce a compromise direction rather than progress for every task~\cite{chen2018gradnorm,sener2018multi,yu2020gradient,liu2021conflict,javaloy2021rotograd}. Our method, therefore, uses hard-routed sample-wise field matching as the default capability-composition estimator and studies same-step multi-field accumulation only as an ablation.
+
+
+\subsection{On-Policy Field Querying}
+\label{sec:onpolicy-query}
+
+The second design question is where the routed field should be queried. A student that composes several capabilities generally follows a trajectory different from any individual frozen source. Therefore, aligning fields only on data states or on teacher-induced trajectories can leave a mismatch between training and testing: at inference, the student visits states $z_t^\theta$ that are not necessarily covered by the off-policy query distribution.
+
+\name{} instead queries the capability fields on the student's own rollout. Let:
+\begin{equation}
+  z_{0:T}^{\theta}=\mathrm{Rollout}(v_\theta; z_T,c), \qquad z_T\sim p_T,
+  \label{eq:student-rollout}
+\end{equation}
+be the trajectory induced by the current student from initial noise $z_T$. We sample a semantic coordinate $s$ and its physical timestep $t=t(s)$, set the query state to $\bar z_t=\mathrm{sg}(z_t^\theta)$, query the frozen capability field as $v_m(\bar z_t,t,c)$, and train the student to match that field locally. This is the flow-model counterpart of on-policy distillation: the frozen source supervises the student on the distribution induced by the student itself, addressing the same covariate-shift issue that motivates on-policy imitation learning and recent OPD methods~\cite{ross2011reduction,agarwal2024policy,li2026diffusionopd,fang2026flow}. The stop-gradient query means that the update differentiates the local velocity prediction, not the entire rollout solver. Appendix~Sec.~\ref{app:onpolicy-sg} gives the corresponding estimator and mismatch bound.
+
+\subsection{Semantic-Side Single Query}
+\label{sec:query-design}
+
+The third design question is how many states should be queried from the student trajectory. A natural extension is to query many states from the same rollout. However, dense trajectory queries can fail because multiple states from one rollout are correlated: they share the same initial noise, prompt, conditioning, student dynamics, and path history. Thus, their gradients are not independent, and adding more states does not necessarily provide more independent supervision, echoing multi-task optimization settings where gradient aggregation itself can become the bottleneck~\cite{chen2020just,liu2021towards,navon2022multi}.
+
+These considerations motivate a semantic-side single query. Let $s\in[0,1]$ be a normalized semantic-side rollout coordinate, and let $q_{\mathrm{sem}}$ be a query distribution biased toward the low-noise side of the trajectory. Rather than supervising the whole trajectory, \name{} samples one high-information state:
+\begin{equation}
+  K=1, \qquad s\sim q_{\mathrm{sem}}(s),\quad t=t(s),
+  \label{eq:semantic-query}
+\end{equation}
+High-noise states can contain coarse structure, but they are often dominated by generic denoising and have a lower density of capability-specific signal. Low-noise states are closer to the final image and concentrate style, aesthetics, local attributes, and task-specific edit information. This view is consistent with prior diffusion editing and distillation studies showing that timestep and noise-schedule choices strongly affect the fidelity and editability trade-off and that semantic-related timesteps are especially important for image manipulation~\cite{meng2021sdedit,hertz2022prompt,wang2023not,chen2024tino,lin2024schedule}. Thus, a single low-$t$ query provides a high signal-to-noise capability supervision while avoiding correlated trajectory samples.
+
+Dense-query variants are useful as diagnostics. If dense-query degradation is partly caused by trajectory correlation, then decorrelating the rollout should partially mitigate this failure in dense-query stress cases. We test this prediction with stochastic rollout noise, which reduces query correlation. The detailed SDE formulation and the correlation-decay argument are deferred to the appendix.
+
+\begin{algorithm}[t]
+\caption{\textbf{One \name{} Training Step.} A sample is routed to one capability field, queried on a semantic-side student state, and updated by velocity matching.}
+\label{alg:danceopd}
+\small
+\begin{algorithmic}[1]
+\Require Frozen capability fields $\{v_m\}_{m=1}^M$, student $v_\theta$, route probabilities $\pi$, query distribution $q_{\mathrm{sem}}$ over semantic coordinate $s$.
+\Ensure Updated student parameters $\theta$.
+\Statex \textbf{\textcolor{vefblue2}{A.} Route One Capability Query}
+\State $m \sim \pi(m),\quad (x,c)\sim\mathcal{D}_m$ \Comment{preserve sample identity}
+\Statex \textbf{\textcolor{vefblue3}{B.} Query On The Student Trajectory}
+\State $z_T\sim p_T,\quad z_{0:T}^{\theta}\gets \mathrm{Rollout}(v_\theta;z_T,c)$
+\State $s\sim q_{\mathrm{sem}}(s),\quad t\gets t(s),\quad \bar z_t\gets \mathrm{sg}(z_t^\theta)$ \Comment{one semantic-side state}
+\State $u \gets v_m(\bar z_t,t,c)$ \Comment{frozen routed field}
+\Statex \textbf{\textcolor{vefblue4}{C.} Match The Local Velocity Field}
+\State $\mathcal{L}\gets \bigl\|v_\theta(\bar z_t,t,c)-u\bigr\|_2^2$
+\State $\theta\gets \mathrm{OptStep}\!\left(\theta,\nabla_\theta\mathcal{L}\right)$
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Objective Design}
+\label{sec:objective-design}
+
+Once the routed field, student-induced query state, and semantic-side query time are fixed, the remaining choice is the local matching objective. Our default objective is plain velocity MSE on the routed, on-policy query. With the stop-gradient query state $\bar z_t=\mathrm{sg}(z_t^\theta)$, we optimize:
+\begin{equation}
+  \mathcal{L}_{\mathrm{DanceOPD}}
+  =
+  \mathbb{E}_{m\sim\pi,\,(x,c)\sim\mathcal{D}_m,\,z_T\sim p_T,\,s\sim q_{\mathrm{sem}}}
+  \left[
+    \left\|v_\theta(\bar z_t,t,c)-v_m(\bar z_t,t,c)\right\|_2^2
+  \right], \qquad t=t(s).
+  \label{eq:danceopd-mse}
+\end{equation}
+The target is a deterministic velocity field, making MSE the natural regression objective under an isotropic Gaussian velocity-likelihood view~\cite{lipman2022flow,ho2020denoising}. KL-style velocity matching reduces to a weighted MSE form under the same view; we provide the derivation in Appendix~Sec.~\ref{app:kl-mse}. This statement is limited to the local velocity-matching subproblem and should not be interpreted as an information-theoretic ceiling on downstream task metrics. Empirically, Sec.~\ref{sec:exp-ablation} shows that plain MSE is the most stable and best-performing objective among the tested alternatives, including KL weighting, timestep-weighted objectives, and score-style and consistency-style surrogates.
+
+The same formulation also applies to operator-defined fields. For example, let $v_{\emptyset}$ and $v_{\mathrm{cond}}$ denote the unconditional and conditional velocity predictions. Classifier-free guidance with guidance scale $\alpha$ defines a guided velocity field, that is:
+\begin{equation}
+  v_{\alpha}(z_t,t,c)
+  = v_{\emptyset}(z_t,t)
+  + \alpha\bigl(v_{\mathrm{cond}}(z_t,t,c)-v_{\emptyset}(z_t,t)\bigr),
+  \label{eq:cfg-field}
+\end{equation}
+which can be treated as an additional capability field and absorbed into the student by the same MSE objective~\cite{ho2022classifier}.
+
+Fig.~\ref{fig:editing_3} further illustrates how the same field-matching objective handles material, environment, and lighting edits. In the apple example, \name{} transforms the red apple into a clear crystal-like object while keeping the leaf, tabletop, and studio lighting layout. In the piano example, DanceOPD introduces an underwater environment with caustic light and bubbles while retaining the grand-piano structure. In the leather-armchair example, the chair geometry and leather appearance remain visible under a stronger cinematic spotlight, whereas several baselines either over-expose the object or make the scene too dark to preserve the chair details. These cases support the role of routed, semantic-side supervision: the edit field can change the requested visual factor without forcing unrelated changes to the source object or scene layout.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig9.pdf}
+    \vspace{-0.5cm}
+    \caption{\textbf{T2I and Edit Composition: Additional Edit Cases.} DanceOPD better balances target attribute changes with content preservation across material, lighting, and style edits.}
+    \label{fig:editing_3}
+    \vspace{-1.2cm}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \vspace{-0.9cm}
+    \includegraphics[width=\textwidth]{figures/t2i_1.pdf}
+    \vspace{-0.5cm}
+    \caption{\textbf{T2I and Edit Composition: Text-to-Image Ability.} DanceOPD retains strong text-to-image generation quality while learning editing capabilities, whereas several baselines introduce color shift, blur, or layout degradation.}
+    \label{fig:t2i_1}
+\end{figure}

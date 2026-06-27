@@ -1,0 +1,28 @@
+\begin{table}[ht!]
+\centering
+\caption{
+    \textbf{Ablation of Critical-First Skill Routing.}
+    With the Qwen2.5-3B-Instruct backbone, we compare OPID with a variant that removes the critical-first routing strategy.
+}
+\vspace{0.05in}
+\label{tab:ablation_critical_first}
+\small
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{lccccccc}
+\toprule
+& \multicolumn{7}{c}{\textbf{ALFWorld}} \\
+\cmidrule(lr){2-8}
+\textbf{Method}
+& \textbf{Pick} & \textbf{Look} & \textbf{Clean} & \textbf{Heat} & \textbf{Cool} & \textbf{Pick2} & \textbf{Avg.} \\
+\midrule
+% \rowcolor{blue!6}
+\rowcolor{gray!10}
+OPID
+    & 92.7 & \textbf{100.0} & \textbf{88.9} & \textbf{70.0} & \textbf{84.2} & \textbf{70.0} & \textbf{84.3}
+    \\
+\;\;\;w/o Routing
+    & \textbf{95.1} & 81.8 & \textbf{88.9} & 50.0 & \textbf{84.2} & 65.0 & 77.5
+    \\
+\bottomrule
+\end{tabular}
+\end{table}

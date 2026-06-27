@@ -1,0 +1,37 @@
+\begin{table}[ht!]
+\centering
+\caption{
+    \textbf{Ablation on Hierarchical Skills.}
+    We report the success rate (\%) on ALFWorld and Score/Succ. (\%) on WebShop with Qwen2.5-3B-Instruct backbone.
+}
+\vspace{0.05in}
+\label{tab:ablation_hierarchical_skills}
+\small
+\setlength{\tabcolsep}{5.5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{lccccccccc}
+\toprule
+& \multicolumn{7}{c}{\textbf{ALFWorld}}
+& \multicolumn{2}{c}{\textbf{WebShop}} \\
+\cmidrule(lr){2-8} \cmidrule(lr){9-10}
+\textbf{Method}
+& \textbf{Pick} & \textbf{Look} & \textbf{Clean} & \textbf{Heat} & \textbf{Cool} & \textbf{Pick2} & \textbf{Avg.}
+& \textbf{Score} & \textbf{Succ.} \\
+\midrule
+\rowcolor{gray!10}
+OPID
+    & 92.7 & \textbf{100.0} & \textbf{88.9} & \textbf{70.0} & \textbf{84.2} & 70.0 & \textbf{84.3}
+    & \textbf{85.0} & \textbf{74.2}
+    \\
+\midrule
+\;\;\;w/o episode skill
+    & 83.3 & 80.0 & 78.1 & 69.2 & 57.7 & \textbf{76.5} & 74.1
+    & 78.4 & 67.2
+    \\
+\;\;\;w/o step skill
+    & \textbf{95.1} & \textbf{81.8} & \textbf{88.9} & \textbf{70.0} & 79.0 & 60.0 & 79.1
+    & 80.2 & 65.6
+    \\
+\bottomrule
+\end{tabular}
+\end{table}

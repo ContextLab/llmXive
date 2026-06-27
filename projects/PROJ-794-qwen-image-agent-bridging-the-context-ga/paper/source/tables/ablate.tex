@@ -1,0 +1,37 @@
+\begin{table*}[t]
+\centering
+% \scriptsize
+\fontsize{8.5pt}{10pt}\selectfont
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{ccc|cccc|c}
+\toprule
+\multirow{2}{*}{\textbf{Framework}} & \multirow{2}{*}{\textbf{MLLM backbone}} & \multirow{2}{*}{\textbf{Gen. backbone}}
+& \multicolumn{4}{c|}{\textbf{Pass Rate (\%)}} 
+& \multirow{2}{*}{\textbf{IA-score}} \\
+\cmidrule(lr){4-7}
+& & & \textbf{Plan} & \textbf{Reason} & \textbf{Search} & \textbf{Memory} & \\
+
+\midrule
+Qwen-Image-Agent & GPT-55 & Qwen-Image-2.0
+& 45.3 & 43.7 & 46.1 & 49.0 & 45.4 \\
+w/o Reason & GPT-55 & Qwen-Image-2.0
+& \textcolor{green!60!black}{24.7} & \textcolor{green!60!black}{29.7} & 46.1 & 49.0 & 35.1 \\
+w/o Search & GPT-55 & Qwen-Image-2.0
+& 46.0 & 44.3 & \textcolor{green!60!black}{7.8} & 49.0 & 34.3 \\
+w/o Memory & GPT-55 & Qwen-Image-2.0
+& 45.3 & 43.7 & 46.1 & \textcolor{green!60!black}{0.0} & 40.5 \\
+w/o Feedback & GPT-55 & Qwen-Image-2.0
+& 40.0 & 41.3 & 42.8 & 49.0 & 42.1 \\
+
+\midrule
+Qwen-Image-Agent & GPT-55 & Qwen-Image
+& \textcolor{green!60!black}{19.3} & \textcolor{green!60!black}{30.7} & 31.1 & 40.0 & 28.3 \\
+
+Qwen-Image-Agent & Qwen & Qwen-Image-2.0
+& \textcolor{green!60!black}{24.7} & 41.7 & \textcolor{green!60!black}{19.4} & \textcolor{green!60!black}{21.0} & 27.8 \\
+\bottomrule
+\end{tabular}
+\caption{Ablation study on Grounded Context, MLLM Backbone, and Generation Backbone, conducted on IA-Bench using Pass Rate as metric. Metrics with significant decreases are marked in green}
+\label{tab:ablation}
+\end{table*}

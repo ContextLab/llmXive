@@ -1,0 +1,44 @@
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{2.35pt}
+  \caption{\textbf{Objective, Teacher-Schedule, and Dense-Query Diagnostics.} All rows use the same capability fields and report GEditBench-EN sub-scores. The teacher-schedule column isolates how teacher signals enter an optimizer update: step alternation ($G{=}1$) routes one field per step, same-step accumulation ($G{=}3$) averages several routed losses before one update, and soft-teacher mixing is a non-routed objective diagnostic. The objective and query tag column records the loss family and, when applicable, dense-query aggregation and rollout control.}
+  \label{tab:multi-teacher-aggregation}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lll|ccccccc}
+    \toprule
+    \textbf{Teacher Schedule} & \textbf{Objective and Query Tag} & \textbf{Config} & \textbf{Subj-Add} & \textbf{Subj-Rep} & \textbf{Bg-Chg} & \textbf{Style-Chg} & \textbf{Color-Alt} & \textbf{Subj-Rem} & \textbf{Avg}\\
+    \midrule
+    Step alternation & MSE with ODE & $K{=}1$, $G{=}1$ & $6.266$ & $6.181$ & $5.924$ & $5.060$ & $5.716$ & $5.357$ & $5.751$\\
+    Step alternation & Timestep-weighted MSE with ODE & $K{=}1$, $G{=}1$ & $5.953$ & $6.151$ & $5.400$ & $3.986$ & $5.334$ & $6.729$ & $5.592$\\
+    Step alternation & DMD-EMA hybrid with ODE & $K{=}1$, $G{=}1$ & $5.731$ & $6.219$ & $5.093$ & $4.752$ & $5.558$ & $6.228$ & $5.597$\\
+    Step alternation & SDS+DMD-EMA with ODE & $K{=}1$, $G{=}1$ & $6.397$ & $6.032$ & $5.037$ & $4.040$ & $5.289$ & $5.943$ & $5.456$\\
+    Step alternation & Consistency with ODE & $K{=}1$, $G{=}1$ & $5.929$ & $6.039$ & $5.117$ & $5.306$ & $4.907$ & $5.843$ & $5.523$\\
+    Step alternation & KL-$\bar{\sigma}^2$ with ODE & $K{=}1$, $G{=}1$ & $5.906$ & $6.061$ & $5.436$ & $4.910$ & $5.427$ & $5.268$ & $5.501$\\
+    Step alternation & DMD2-inter with ODE & $K{=}1$, $G{=}1$ & $5.526$ & $5.597$ & $4.975$ & $4.883$ & $5.231$ & $3.637$ & $4.975$\\
+    Step alternation & DMD2-dist with ODE & $K{=}1$, $G{=}1$ & $5.596$ & $5.856$ & $4.345$ & $3.016$ & $5.060$ & $5.124$ & $4.833$\\
+    Step alternation & AuxFeat with ODE & $K{=}1$, $G{=}1$ & $4.864$ & $5.568$ & $4.850$ & $3.885$ & $4.019$ & $5.303$ & $4.748$\\
+    \midrule
+    Soft-teacher mixing & Soft-teacher MSE with ODE & $K{=}1$, all teachers & $5.410$ & $5.808$ & $4.902$ & $4.426$ & $5.191$ & $4.225$ & $4.994$\\
+    Soft-teacher mixing & Soft-teacher KL-$\bar{\sigma}^2$ with ODE & $K{=}1$, all teachers & $5.302$ & $5.626$ & $4.991$ & $4.290$ & $5.042$ & $4.604$ & $4.976$\\
+    \midrule
+    Same-step accumulation & MSE with ODE & $K{=}1$, $G{=}3$ & $5.170$ & $5.754$ & $5.754$ & $5.427$ & $6.171$ & $4.632$ & $5.485$\\
+    Same-step accumulation & MSE with SDE & $K{=}1$, $G{=}3$, $\eta{=}0.3$ & $4.862$ & $5.068$ & $4.358$ & $4.719$ & $4.816$ & $4.048$ & $4.645$\\
+    \midrule
+    Step alternation & MSE with ODE, sum & $K{=}2$, $G{=}1$ & $6.339$ & $6.075$ & $5.573$ & $3.159$ & $5.792$ & $5.955$ & $5.482$\\
+    Step alternation & MSE with SDE, sum & $K{=}2$, $G{=}1$, $\eta{=}0.3$ & $5.366$ & $5.856$ & $4.461$ & $3.882$ & $5.205$ & $5.381$ & $5.025$\\
+    Step alternation & MSE with ODE, weighted & $K{=}2$, $G{=}1$ & $4.850$ & $5.873$ & $5.132$ & $4.094$ & $4.522$ & $5.118$ & $4.931$\\
+    Step alternation & MSE with ODE, weighted & $K{=}4$, $G{=}1$ & $5.962$ & $5.886$ & $5.500$ & $5.065$ & $5.654$ & $3.912$ & $5.330$\\
+    Step alternation & MSE with ODE, isolation & $K{=}4$, $G{=}1$ & $5.476$ & $5.654$ & $4.995$ & $4.540$ & $5.138$ & $4.066$ & $4.978$\\
+    Step alternation & MSE with ODE, isolation & $K{=}8$, $G{=}1$ & $6.207$ & $5.473$ & $4.687$ & $3.716$ & $4.953$ & $5.837$ & $5.145$\\
+    Step alternation & MSE with ODE, weighted & $K{=}8$, $G{=}1$ & $5.224$ & $5.877$ & $5.572$ & $4.085$ & $4.821$ & $5.728$ & $5.218$\\
+    Step alternation & MSE with ODE, sum no control & $K{=}8$, $G{=}1$ & $5.913$ & $5.744$ & $4.620$ & $3.723$ & $4.817$ & $5.409$ & $5.038$\\
+    Step alternation & MSE with ODE, weighted & $K{=}16$, $G{=}1$ & $5.638$ & $6.062$ & $4.776$ & $3.878$ & $5.181$ & $5.227$ & $5.127$\\
+    \midrule
+    Same-step accumulation & MSE with ODE & $K{=}2$, $G{=}3$ & $4.458$ & $5.193$ & $5.265$ & $4.144$ & $4.672$ & $2.894$ & $4.437$\\
+    Same-step accumulation & MSE with SDE & $K{=}2$, $G{=}3$, $\eta{=}0.3$ & $5.751$ & $5.994$ & $5.832$ & $4.114$ & $5.153$ & $4.689$ & $5.255$\\
+    Same-step accumulation & MSE with SDE & $K{=}16$, $G{=}3$, $\eta{=}0.3$ & $5.093$ & $5.422$ & $4.583$ & $3.029$ & $4.685$ & $5.939$ & $4.792$\\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}

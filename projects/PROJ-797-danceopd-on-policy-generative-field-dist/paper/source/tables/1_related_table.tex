@@ -1,0 +1,42 @@
+\begin{table*}[t]
+  \centering
+  \setlength{\tabcolsep}{3pt}
+  \caption{\textbf{Comparison with OPD Methods.} To our knowledge, \name{} is the only method that combines flow-matching OPD, multi-capability composition, design-space analysis, and functional field absorption.}
+  \vspace{-0.2cm}
+  \label{tab:positioning}
+  \adjustbox{max width=\textwidth}{%
+  \begin{tabular}{llcc|cccc}
+    \toprule
+    \textbf{Method} & \textbf{Domain} & \textbf{Teacher Signal} &
+    \textbf{Objective} & \textbf{FM-OPD} & \textbf{Multi-Cap.} &
+    \textbf{Design Study} & \textbf{Func. Absorp.}\\
+    \midrule\midrule
+    MiniLLM~\cite{gu2024minillm} & LLM & logits & reverse KL
+      & -- & -- & -- & --\\
+    GKD~\cite{agarwal2024policy} & LLM & logits & forward KL
+      & -- & -- & -- & --\\
+    AOPD~\cite{jia2026asymmetric} & LLM & logits and top-$K$ & asymmetric KL
+      & -- & -- & -- & --\\
+    \midrule
+    G-OPD~\cite{yang2026learning} & LLM & scalar feedback & policy optimization
+      & -- & $\circ$ & -- & --\\
+    StableOPD~\cite{luo2026demystifying} & LLM & scalar reward & PPO with KL anchor
+      & -- & $\circ$ & -- & --\\
+    ROPD~\cite{fang2026rubric} & LLM & rubric reward & reward optimization
+      & -- & $\circ$ & -- & --\\
+    \midrule
+    DiffusionOPD~\cite{li2026diffusionopd} & Flow & velocity field & KL or MSE-style
+      & \checkmark & $\circ$ & $\circ$ & --\\
+    D-OPSD~\cite{jiang2026d} & Diffusion & predicted distribution & self-distillation
+      & $\circ$ & -- & -- & --\\
+    Flow-OPD~\cite{fang2026flow} & Flow & dense scalar reward & PPO clip-min
+      & \checkmark & task-routed & -- & --
+      \\
+      \midrule
+    \rowcolor{vefblue3!9}
+    \textbf{\ding{72}~\name{}} & Flow & routed velocity field & MSE
+      & \checkmark & \checkmark & \checkmark & \checkmark\\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table*}

@@ -1,0 +1,154 @@
+\begin{table}[ht!]
+\centering
+
+% Caption 与表格顶线之间的距离
+\setlength{\belowcaptionskip}{6pt}
+
+\caption{
+\textbf{Hierarchical skills extracted from on-policy trajectories.}
+For each dataset, we show one successful and one failed trajectory.
+Episode-level skills summarize reusable global behavior, while critical-step
+skills target sparse decision points. Step indices are 0-based analyzer keys.
+}
+\label{tab:hierarchical-skills-success-failure}
+
+% 仅缩小表格内容，不缩小 caption
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\renewcommand{\arraystretch}{1.10}
+
+\begin{tabularx}{\linewidth}{
+  >{\raggedright\arraybackslash}p{0.10\linewidth}
+  >{\raggedright\arraybackslash}p{0.07\linewidth}
+  >{\raggedright\arraybackslash}p{0.18\linewidth}
+  >{\raggedright\arraybackslash}p{0.28\linewidth}
+  >{\raggedright\arraybackslash}X
+}
+\toprule
+\textbf{Dataset}
+&
+\textbf{Outcome}
+&
+\textbf{Task}
+&
+\textbf{Episode-level skill}
+&
+\textbf{Critical step skills}
+\\
+\midrule
+
+\textsc{ALFWorld}
+&
+Success
+&
+clean some kettle and put it in cabinet.
+&
+Workflow: first locate and take the target object, then move to the cleaning
+station (sinkbasin) to clean it, then go to a suitable storage location
+(cabinet), open it if closed, and finally place the object inside.
+&
+\textbf{t=0} Go directly to the countertop or likely surface where the kettle
+could be. \newline
+\textbf{t=2} After acquiring the kettle, immediately go to the sinkbasin to
+clean it. \newline
+\textbf{t=4} After cleaning, go to a cabinet (cabinet 1) rather than pausing.
+\newline
+\textbf{t=6} Open the closed cabinet if needed before placing the object
+inside.
+\\
+
+\addlinespace[0.30em]
+
+\textsc{ALFWorld}
+&
+Failure
+&
+put a clean soapbar in cart.
+&
+Avoid placing a soapbar in the cart without first confirming it is clean.
+The core mistake is ignoring the cleanliness requirement; the warning sign is
+repeatedly moving the soapbar without checking or cleaning it.
+&
+\textbf{t=1} Take and examine the soapbar to determine if it needs cleaning.
+\newline
+\textbf{t=2} If the soapbar is dirty, clean it using a sink or appropriate
+tool before moving to the cart.
+\\
+
+\midrule
+
+\textsc{WebShop}
+&
+Success
+&
+Find me makeup remover for sensitive skin, nail polish with style: lagom
+5 layer cotton pad, and price lower than 40.00 dollars.
+&
+Search broadly for the specific product name and key constraints, then click
+the first matching product result to view details, verify the attributes and
+price, and click 'Buy Now' to finalize.
+&
+\textbf{t=1} First, click the most relevant product result
+(the LAGOM cotton pad) to view its detailed page.
+\\
+
+\addlinespace[0.30em]
+
+\textsc{WebShop}
+&
+Failure
+&
+Find coffee tables with steel frame, storage space, brown, size with shelf,
+and price below \$110.
+&
+Core mistake: Buying a product without confirming it has a steel frame.
+Warning signs: product title lacks mention of 'steel frame'; search results
+include many unrelated items; product page shows color and size filters but
+not frame material. Avoid relying on partial matches; always verify all
+specific attributes, especially material, before finalizing purchase.
+&
+\textbf{t=1} Before clicking on a product, examine its title and check if it
+explicitly mentions steel frame or other required attributes. \newline
+\textbf{t=2} On the product page, click on 'Description' or 'Features' to
+verify the steel frame and shelf size before clicking 'Buy Now'.
+\\
+
+\midrule
+
+\textsc{Search}
+&
+Success
+&
+Who illustrated Hunter S. Thompson's novel Fear and Loathing in Las Vegas?
+&
+Workflow: First, query using core entities (author/title) to gather context;
+if initial search lacks direct answer, reformulate query specifically targeting
+the required attribute (illustrator) and use the new results to extract the
+answer.
+&
+\textbf{t=1} If the initial search results do not directly answer the question,
+reformulate the search query to specifically target the missing attribute
+(here, 'illustrated by').
+\\
+
+\addlinespace[0.30em]
+
+\textsc{Search}
+&
+Failure
+&
+What is the full founding date of GroenLinks, the party led by Jesse Feras
+Klaver?
+&
+Avoid ignoring crucial temporal precision; when the task demands a specific
+date, search or extract the full date, not just the year, even if the year is
+initially prominent. Warning sign: Answering with only a year when documents
+contain more precise information.
+&
+\textbf{t=2} Extract the full founding date from documents about GroenLinks,
+not just the year.
+\\
+
+\bottomrule
+\end{tabularx}
+\end{table}

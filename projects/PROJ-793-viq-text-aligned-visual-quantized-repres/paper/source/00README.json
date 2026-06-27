@@ -1,0 +1,25 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main_hy.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "ieeenat_fullname.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "references.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

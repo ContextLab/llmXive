@@ -1,0 +1,18 @@
+\section{More Details}
+\label{sec:training}
+\subsection{Training Details}
+\paragrapha{From Fix Resolution to Native Resolution. }
+We first train our ViT with a light-weight LLM on approximately 3B vision–language tokens, covering tasks such as captioning, chart understanding, OCR, and general diagram comprehension. In this stage, we constrained the image size to within $384^2$ while preserving each image's native aspect ratio. For training efficiency, we downsampled the vision tokens by a factor of 16 before feeding them into the LLM. After this stage, we increased the image size to 768$^2$ and introduced another $\sim$3B training tokens. During this phase, the vision tokens were downsampled by a factor of 4 before being passed to the LLM for text loss supervision. The learning rate was gradually decayed from 2e-5 to 5e-5 for above two stage, respectively. We used Qwen2.5-0.5B as the LLM backbone and optimized only the LoRA parameters. For the self distillation loss, we use the cosine similarity loss for the global features between original SigLIP2-g and trained ViT wit a Multi-head Attention Pooling Layer. The images for SigLIP2-g are resized to 384$\times$384.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_supp.png}\vspace{-5pt}
+    \caption{\textbf{More Reconstructed Visualization Samples of ViQ at Any Resolution. } Left or above is the original image.}
+    \label{fig:supp_vis}
+\end{figure}
+
+\paragrapha{From Continuous to Quantized. }
+In Stage 2-1, we optimized a bottleneck with a dimension of 128, where newly added parameters were initialized with a learning rate of $1\times 10^{-4}$, while all other parameters used a learning rate of $5\times 10^{-5}$, half of the initial value. The learning rate was gradually decayed using a cosine scheduler, ultimately reaching $1\times 10^{-5}$ and $5\times 10^{-6}$ for different parameter groups. The data source used in Stage 1 was identical to the one mentioned earlier, and we trained on 1B vision-language tokens with a resolution of 768 pixels. The bottleneck was optimized during this phase. For the reconstruction branch, we passed the final vision feature through a head designed for VAE latent feature prediction. This head was structured as a 3-layer MHSA and culminated in a convolutional layer for upsampling. Additionally, vision features underwent a 2x2 pooling operation before being fed into the Large Language Model. During this process, we introduced constraints on the bottleneck's 128-dimensional features, such as an $L_{\infty}$ norm regularization. In Stage 2-2, we further refined the bottleneck from Stage 1. The previously applied non-parameteric constraints like the $L_{\infty}$ regularization were replaced with the FSQ module. This module incorporates a quantization mechanism along the 6-dimensional feature space, followed by fully connected layers before and after quantization, along with an attention layer that adds Rotary Positional Embedding~\cite{su2024roformer} information. In this stage, we utilized learning rate of $5\times 10^{-5}$ across all components and trained on approximately 30B vision-language tokens.
+
+\section{More Visualizations}
+We selected images with different resolutions and themes, containing a lot of details, to showcase the reconstruction effects with our ViQ.

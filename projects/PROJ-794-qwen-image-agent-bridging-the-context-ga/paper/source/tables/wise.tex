@@ -1,0 +1,40 @@
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|cccccc|c}
+\toprule
+\textbf{Model Name} & \textbf{Culture} & \textbf{Time} & \textbf{Space} & \textbf{Biology} & \textbf{Physics} & \textbf{Chemistry} & \textbf{Overall} \\
+\midrule
+Nano Banana Pro~\citep{deepmind2024geminiimage} & {0.8975} & {0.8167} & {0.9333} & {0.8167} & {0.8667} & {0.8750} & {0.8760} \\
+GPT-Image-1.5~\citep{openai2025gptimage15} & 0.8900 & 0.6917 & 0.8833 & 0.8000 & 0.7583 & 0.7750 & 0.8250 \\
+Qwen-Image-2.0~\citep{Zhao2026QwenImage20TR} & 0.8219 & 0.6500 & 0.8992 & 0.7917 & 0.8000 & 0.7479 & 0.7954 \\
+Bagel (w/ CoT)~\citep{deng2025bagel} & 0.7800 & 0.6333 & 0.5667 & 0.3750 & 0.5500 & 0.5083 & 0.6280 \\
+Bagel~\citep{deng2025bagel} & 0.4125 & 0.3500 & 0.3083 & 0.2000 & 0.4417 & 0.2583 & 0.3520 \\
+Janus-Pro-7B~\citep{chen2025janus} & 0.3700 & 0.3500 & 0.2833 & 0.2833 & 0.4000 & 0.2333 & 0.3340 \\
+Janus-Pro-1B~\citep{chen2025janus} & 0.3050 & 0.2333 & 0.2333 & 0.2167 & 0.3083 & 0.2000 & 0.2650 \\
+Janus-1.3B~\citep{wu2024janus} & 0.3175 & 0.2833 & 0.1833 & 0.2250 & 0.3417 & 0.1833 & 0.2730 \\
+FLUX.2-dev~\citep{blackforestlabs2026flux2pro} & 0.6650 & 0.5667 & 0.6583 & 0.3667 & 0.5250 & 0.3750 & 0.5650 \\
+FLUX.2-klein-9B~\citep{blackforestlabs2026flux2pro} & 0.4900 & 0.3917 & 0.5500 & 0.3833 & 0.4833 & 0.2250 & 0.4400 \\
+FLUX.2-klein-4B~\citep{blackforestlabs2026flux2pro} & 0.4400 & 0.3667 & 0.4667 & 0.3167 & 0.3917 & 0.3333 & 0.4010 \\
+FLUX.1-dev~\citep{flux2024} & 0.5225 & 0.4000 & 0.5333 & 0.1750 & 0.3750 & 0.2417 & 0.4160 \\
+FLUX.1-schnell~\citep{flux2024} & 0.4650 & 0.3250 & 0.4667 & 0.2083 & 0.3833 & 0.1000 & 0.3640 \\
+SD-3.5-large~\citep{sd35Large} & 0.4900 & 0.4083 & 0.4417 & 0.3000 & 0.3750 & 0.2083 & 0.4040 \\
+SD-3.5-medium~\citep{sd35Medium} & 0.4825 & 0.3750 & 0.3750 & 0.1833 & 0.3917 & 0.2000 & 0.3760 \\
+SD-3-medium~\citep{sd3Medium} & 0.4700 & 0.4083 & 0.4000 & 0.2000 & 0.3750 & 0.2583 & 0.3850 \\
+SD-XL-0.9~\citep{podell2023sdxl} & 0.4925 & 0.3667 & 0.2417 & 0.2667 & 0.3333 & 0.1833 & 0.3640 \\
+SD-1.5~\citep{rombach2022high} & 0.4450 & 0.3083 & 0.2083 & 0.2083 & 0.2167 & 0.1500 & 0.3090 \\
+Qwen-Image~\citep{wu2025qwen} & 0.6275 & 0.5250 & 0.5583 & 0.3417 & 0.4833 & 0.2500 & 0.5100 \\
+Qwen-Image-2512~\citep{wu2025qwen} & 0.5950 & 0.4750 & 0.6000 & 0.3500 & 0.4917 & 0.2583 & 0.4990 \\
+UniWorld-V1~\citep{lin2025uniworld} & 0.5150 & 0.4917 & 0.5500 & 0.2250 & 0.4000 & 0.1667 & 0.4260 \\
+Z-Image~\citep{cai2025z} & 0.5475 & 0.4667 & 0.5083 & 0.3250 & 0.4750 & 0.1750 & 0.4530 \\
+\rowcolor{blue!10}
+\textbf{Qwen-Image-Agent} & \textbf{0.9200} & \textbf{0.9167} & \textbf{0.9333} & \textbf{0.8333} & \textbf{0.8667} & \textbf{0.9000} & \textbf{0.9020} \\
+\bottomrule
+\end{tabular}
+}
+\caption{Results on WISE-Verified. Best results are shown in bold.}
+\label{tab:wise}
+\end{table*}

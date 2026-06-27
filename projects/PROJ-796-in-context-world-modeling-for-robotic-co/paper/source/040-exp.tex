@@ -1,0 +1,295 @@
+
+
+In this section, we evaluate the effectiveness of In-Context World Modeling (ICWM) in enabling vision-language-action models to adapt to novel system configurations without parameter updates.
+We focus on answering three questions: 
+
+(1) \textit{Generalization}: Does ICWM improve generalization to unseen viewpoints? 
+
+(2) \textit{System Identification}: Does the model truly perform implicit world modeling rather than pattern matching? 
+
+(3) \textit{Versatility}: Does ICWM generalize beyond geometric shifts to semantic and morphological perturbations?
+
+
+\subsection{Experimental Setup}
+
+\textbf{Simulated Benchmark.} 
+We evaluate on LIBERO~\cite{liu2023libero}, 
+comprising four task suites (Spatial, Object, Goal, Long) that assess spatial 
+reasoning, object understanding, goal conditioning, and long-horizon execution. 
+We adopt a cross-view protocol: training on 8 azimuthal angles 
+($\psi \in \{30^\circ, 60^\circ, \dots, 330^\circ\}$) and evaluating on both 
+in-domain and 6 unseen OOD viewpoints 
+($\psi' \in \{45^\circ, 135^\circ, \dots, 315^\circ\}$), yielding 
+$500 \times 15 \times 4$ total episodes. Details are in \autoref{app:sim}.
+
+
+
+\textbf{Real-Robot Setup.} 
+Our platform is a UR5e manipulator with a 
+12-camera multi-view system, split into 6 training and 6 held-out test 
+viewpoints. We evaluate four manipulation tasks (stacking, lifting, 
+pick-and-place) with 25 trials per task per novel viewpoint (600 total), 
+reporting the average success rate. Details are in \autoref{app:real}.
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{imgs/robot2.pdf}
+    \vspace{-5mm}
+    \caption{Real-World Task Suite with four manipulation tasks, including stacking, lifting, and pick-and-place, evaluated across six distinct camera viewpoints.}
+    \label{fig:placeholder}
+    \vspace{-4pt}
+\end{figure}
+
+
+
+\textbf{Baselines.} 
+We evaluate two categories of models:
+\textbf{(i) Controlled Comparisons:} (a) \textbf{Multi-View BC (MV)} shares identical architecture and multi-view data with ICWM but lacks context; (b) \textbf{Explicit Configuration (EXP)} augments MV with ground-truth camera angles as text inputs. This category isolates the exact contribution of our interaction context.
+\textbf{(ii) Contextual References:} Pretrained models, including NORA~\cite{Hung2025NORAAS},$\pi$-FAST~\cite{fastplus}, and $\pi_{0.5}$~\cite{Intelligence202505AV}, are fine-tuned on a single viewpoint. They serve not as direct benchmarks, but to demonstrate that out-of-box generalization remains an unsolved challenge even under large-scale pretraining.
+
+
+\textbf{Implementation Details.}
+Our model utilizes Qwen2.5-VL-3B~\cite{Bai2025Qwen25VLTR} as the backbone and FAST~\cite{fastplus} as action tokenizer, with action chunk size 5 and $N{=}5$ context clips. Implemented in PyTorch and trained on 8 NVIDIA A100 GPUs, the system is optimized via AdamW with a weight decay of $10^{-4}$ and a learning rate peaking at $5 \times 10^{-5}$ after a 50k-step warmup, followed by cosine decay. The implementation details of self-exploration is detailed in \autoref{app:random}.
+
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=1\linewidth]{imgs/libero2.pdf}
+    \vspace{-7mm}
+    \caption{Success Rates (\%) on LIBERO for Seen (In-Domain) and Unseen (OOD) Viewpoints.}
+    \label{fig:simulation}
+    % \vspace{-2mm}
+\end{figure*}
+
+\subsection{Simulation Results}
+
+
+As shown in \autoref{fig:simulation}, ICWM consistently outperforms all baselines in both seen and unseen viewpoints, leading to several key observations:
+\textbf{(1) Viewpoint generalization is a fundamental challenge.} 
+While a seen-to-unseen performance drop is observed globally, ICWM demonstrates significantly stronger resilience, improving the OOD success rate by 13.0\% over the Multi-View BC baseline. This confirms that while multi-view training expands spatial data, geometric extrapolation remains an open challenge that standard imitation learning struggles to resolve without test-time adaptation.
+\textbf{(2) Implicit identification outperforms explicit specification.} 
+ICWM improves OOD success rate by 9.5\% over Explicit Configuration.  
+Even with ground-truth camera angles, Exp lacks OOD generalization and an understanding of system dynamics, strengths that ICWM gains from interaction context.
+\textbf{(3) ICWM yields the greatest gains on long-horizon tasks.} 
+On LIBERO-Long, ICWM surpasses MV by 29.9\% (seen) and 
+26.3\% (unseen), the largest relative margins across all 
+suites. This is because long-horizon tasks amplify small spatial errors from viewpoint shift, causing cascading failures in baselines, while ICWM mitigates this by continuously grounding actions in system dynamics.
+
+
+
+
+
+
+
+\subsection{Real-world Results}
+
+
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \vspace{-7mm}
+    \includegraphics[width=\linewidth]{imgs/real.pdf}
+    \vspace{-5mm}
+    \caption{Real-world evaluation on the UR5e platform. ICWM substantially outperforms the Multi-View (MV) baseline under novel viewpoints.}
+    \label{fig:real}
+    \vspace{-3mm}
+\end{wrapfigure}
+
+As shown in \autoref{fig:real}, standard VLA performance drops sharply from 68\% to 17\% upon viewpoint shift, confirming that standard mix-training alone cannot bridge the gap to novel configurations at test time. In contrast, by introducing In-Context World Modeling (ICWM), the policy effectively mitigates this degradation without any parameter updates or task-specific demonstrations. As qualitatively shown in \autoref{fig:case}, while the base VLA exhibits end-effector drift and repeated grasp failures due to spatial misalignment, our ICWM enhanced robot utilizes the context window as a dynamic calibration frame, achieving precise manipulation by grounding its actions in the current environment's specific geometry.
+
+
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1\linewidth]{imgs/case2.pdf}
+    \caption{Qualitative Comparison. Without ICWM, standard policies exhibit (a) position offsets or (b) premature gripper closure due to viewpoint shifts.}
+    \label{fig:case}
+    \vspace{-4pt}
+\end{figure*}
+
+
+
+
+
+\section{Analysis}
+
+
+\subsection{What Does the Interaction Context Contribute?}
+
+\textbf{Ablation on context components.} 
+We ablate interaction context across five settings: (1) full-context (ICWM), (2) \textit{w/o actions} (action tokens omitted), (3) \textit{w/o images} (image tokens omitted), (4) \textit{w/o context} (all interaction tokens excluded), and (5) \textit{false context} (clips from a $180^\circ$-offset viewpoint).
+The asymmetric drops in Tab.~\ref{tab:ablation} reveal several key findings: \textit{w/o images} causes the largest collapse (avg. $-56.4\%$)---without visual outcomes, the model mimics exploratory actions as task demonstrations, actively hurting performance; \textit{w/o actions} degrades more moderately, confirming that visual flow provides a coarse spatial anchor but full calibration requires the paired $(o^s_i, a_i, o^e_i)$ tuple.
+Critically, \textit{false context} performs worse than no context at all ($18.9$ vs.\ $22.0$), indicating that misaligned context actively misleads the policy's world model rather than being passively ignored. This negative transfer, symmetric in magnitude to the gains from correct context ($+13.6\%$), confirms that the model genuinely conditions on context content for configuration inference.
+
+
+
+
+\textbf{Is in-context capability an emergent property of specialized training?} 
+To determine whether in-context adaptation arises from standard sequence modeling, we evaluate a BC policy trained without in-context supervision under the same interaction context. Performance collapses to near-zero ($<1\%$) when interaction tokens are prepended, confirming that this capability must be explicitly incentivized during training rather than emerging naturally from imitation learning.
+
+
+
+\textbf{Are the Learned Implicit Representations Identifiable?} 
+We examine whether $\Psi(\mathcal{T})$ forms a structured representation with respect to system configuration.
+We visualize the hidden representations $\Psi(\mathcal{T})$ via t-SNE across the six OOD viewpoints (1,024 points per viewpoint). 
+As shown in Fig.~\ref{fig:tsne}, the representations exhibit tight within-viewpoint clustering, demonstrating stability, and clear between-viewpoint separation, demonstrating identifiability.
+
+
+
+\begin{figure}[t]
+    \centering
+    \begin{minipage}{0.52\linewidth}
+        \centering
+        \vspace{-3pt}
+        \captionof{table}{Ablation on Interaction Context. Removing any context component degrades performance, confirming that joint observation of actions and outcomes is essential for system dynamics.}
+        \label{tab:ablation}
+        \resizebox{\linewidth}{!}{
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{lccccc}\toprule
+&ICWM &w/o act. &w/o img. &w/o ctx. & false ctx. \\
+\midrule
+$45^\circ$  & \cellcolor{eggshell}36.6 & 30.8{\tiny\textcolor[HTML]{006400}{$\downarrow$\,15.8\%}} & 17.6{\tiny\textcolor[HTML]{006400}{$\downarrow$\,51.9\%}} & 32.4{\tiny\textcolor[HTML]{006400}{$\downarrow$\,11.5\%}} & 27.8{\tiny\textcolor[HTML]{006400}{$\downarrow$\,24.0\%}} \\
+$135^\circ$ & \cellcolor{eggshell}2.2  & 2.0{\tiny\textcolor[HTML]{006400}{$\downarrow$\,9.1\%}}  & 0.8{\tiny\textcolor[HTML]{006400}{$\downarrow$\,63.6\%}} & 1.6{\tiny\textcolor[HTML]{006400}{$\downarrow$\,27.3\%}}  & 1.2{\tiny\textcolor[HTML]{006400}{$\downarrow$\,45.5\%}} \\
+$225^\circ$ & \cellcolor{eggshell}8.8  & 8.2{\tiny\textcolor[HTML]{006400}{$\downarrow$\,6.8\%}}  & 3.0{\tiny\textcolor[HTML]{006400}{$\downarrow$\,65.9\%}} & 7.8{\tiny\textcolor[HTML]{006400}{$\downarrow$\,11.4\%}}  & 4.2{\tiny\textcolor[HTML]{006400}{$\downarrow$\,52.3\%}} \\
+$255^\circ$ & \cellcolor{eggshell}28.4 & 28.0{\tiny\textcolor[HTML]{006400}{$\downarrow$\,1.4\%}}  & 13.2{\tiny\textcolor[HTML]{006400}{$\downarrow$\,53.5\%}}& 27.8{\tiny\textcolor[HTML]{006400}{$\downarrow$\,2.1\%}}  & 24.4{\tiny\textcolor[HTML]{006400}{$\downarrow$\,14.1\%}} \\
+$285^\circ$ & \cellcolor{eggshell}36.6 & 25.6{\tiny\textcolor[HTML]{006400}{$\downarrow$\,30.1\%}} & 14.6{\tiny\textcolor[HTML]{006400}{$\downarrow$\,60.1\%}}& 27.4{\tiny\textcolor[HTML]{006400}{$\downarrow$\,25.1\%}} & 23.6{\tiny\textcolor[HTML]{006400}{$\downarrow$\,35.5\%}} \\
+$315^\circ$ & \cellcolor{eggshell}37.6 & 35.0{\tiny\textcolor[HTML]{006400}{$\downarrow$\,6.9\%}}  & 16.2{\tiny\textcolor[HTML]{006400}{$\downarrow$\,56.9\%}}& 35.0{\tiny\textcolor[HTML]{006400}{$\downarrow$\,6.9\%}}  & 32.4{\tiny\textcolor[HTML]{006400}{$\downarrow$\,13.8\%}} \\
+\midrule
+avg & \cellcolor{eggshell}25.0 & 21.6{\tiny\textcolor[HTML]{006400}{$\downarrow$\,13.6\%}} & 10.9{\tiny\textcolor[HTML]{006400}{$\downarrow$\,56.4\%}} & 22.0{\tiny\textcolor[HTML]{006400}{$\downarrow$\,12.0\%}} & 18.9{\tiny\textcolor[HTML]{006400}{$\downarrow$\,24.4\%}} \\
+\bottomrule
+\end{tabular}
+        }
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.46\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/set2.png}
+        \vspace{-3pt}
+        \captionof{figure}{t-SNE of $\Psi\left(\mathcal{T}\right)$ across OOD viewpoints (perplexity=30).}
+        \label{fig:tsne}
+    \end{minipage}
+    % \vspace{-4mm}
+\end{figure}
+
+
+
+
+\subsection{What Probing Strategy is Effective?}
+\label{subsec:probing}
+
+
+
+
+
+
+
+\begin{wraptable}{r}{0.5\textwidth}
+\centering
+\small
+\vspace{-5mm}
+\caption{Success rates (\%) under different probing strategies on OOD viewpoints.}
+\label{tab:probing}
+\resizebox{0.5\textwidth}{!}{ 
+\begin{tabular}{lccccc}
+\toprule
+ & MV & Random & R-only & Z-only & XY-only \\
+\midrule
+45°  & \cellcolor{gray!20} 30.4 & \textbf{36.6} & 35.8 & 34.6 & 34.6 \\
+135° & \cellcolor{gray!20} 1.2  & 2.2  & 1.0  & \textbf{3.0}  & 1.0  \\
+225° & \cellcolor{gray!20} 2.8  & 8.8  & 6.0  & 13.0 & \textbf{14.8} \\
+255° & \cellcolor{gray!20} 24.0 & 28.4 & 30.4 & 25.2 & \textbf{30.6} \\
+285° & \cellcolor{gray!20} 32.8 & 36.6 & \textbf{38.8} & 31.2 & 33.6 \\
+315° & \cellcolor{gray!20} 27.6 & \textbf{37.6} & 29.2 & 30.0 & 35.0 \\
+\midrule
+Avg  & \cellcolor{gray!20} 19.8 & \textbf{25.0} & 23.4 & 22.8 & 24.9 \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-10pt}
+\end{wraptable}
+A practical question for deploying ICWM is whether the choice of probing strategy matters. 
+We evaluate four strategies: (a) \textit{Random}, which samples target poses uniformly across all spatial directions; 
+(b) \textit{XY-only}, which restricts movements to the horizontal plane; (c)
+\textit{Z-only}, which moves exclusively along the vertical axis; and (d) \textit{R-only}, which varies only the end-effector orientation.
+As shown in \autoref{tab:probing}, all four strategies consistently outperform the multi-view baseline by 15–27\%, confirming that the benefit of ICWM stems from the interaction format itself rather than any particular movement pattern. 
+Performance differences across strategies suggest that different axes expose different aspects of the local dynamics manifold, with no single strategy dominating across all viewpoints.
+
+
+
+
+\subsection{Does ICWM Generalize Beyond Camera Shifts?}
+
+
+
+To evaluate whether ICWM generalizes to different deployment settings, we stress-test the same trained model against two distinct categories of out-of-distribution perturbation: semantic scene variations and physical morphological changes. Experimental details are provided in \autoref{app:gen}.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.595\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/gen3-1.pdf}
+        \caption{Semantic perturbations}
+        \label{fig:gen}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.395\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/gen3-2.pdf}
+        \caption{Morphological generalization}
+        \label{fig:morph}
+    \end{subfigure}
+    \vspace{-4pt}
+    \caption{Robustness to semantic scene variations and robot morphological changes. ICWM maintains a performance margin over the baseline when facing novel out-of-distribution perturbations.}
+    % \vspace{-4mm}
+    % \label{fig:gen}
+\end{figure}
+
+\noindent\textbf{Semantic perturbations.} 
+As shown in (\autoref{fig:gen}), ICWM maintains a consistent margin over MV under both distractor objects (35.0 vs. 27.5) and novel table textures (41.2 vs. 37.5).
+The more moderate gains relative to viewpoint generalization likely reflect the scarcity of diverse scene-configuration data in current datasets rather than a fundamental limitation of the mechanism.
+
+\noindent\textbf{Morphological generalization.} Attaching rigid spacers ($\Delta L \in \{20, 40, 80\}$ mm) to the gripper flange alters forward kinematics at test time. ICWM consistently outperforms MV across all offsets with a stable margin of +60\% (\autoref{fig:gen_window}); at $\Delta L = 80$ mm, where MV fails largely (5.6), ICWM retains non-trivial success (14.4) by inferring the altered kinematics from probing context.
+
+
+\begin{wrapfigure}{r}{0.36\textwidth}
+    \vspace{-8mm}
+    \centering
+    \includegraphics[width=\linewidth]{imgs/gen3-3.pdf}
+    \vspace{-7mm}
+    \caption{Morphological generalization on WindowX.}
+    \label{fig:gen_window}
+    \vspace{-10mm}
+\end{wrapfigure}
+
+
+We further validate this on a WindowX platform with systematically varied link lengths (\{100\%, 90\%, 80\%, 70\%\} of the original), training on two boundary configurations (100\% and 70\% link length) and evaluating zero-shot on two interpolated OOD configurations (90\% and 80\%). 
+As the link-length offset increases from 10\% to 20\%, MV's average success rate collapses by more than half (57\% $\to$ 28\%), while ICWM degrades far more gracefully (77\% $\to$ 62\%), widening its margin over MV from 20 to 34 points (\autoref{fig:morph_windowx}). This mirrors the pattern observed with spacer attachments: as kinematic uncertainty grows, ICWM's advantage over MV grows with it, consistent with the benefit stemming from explicit kinematic inference via the probing context.
+
+
+
+
+
+\subsection{Inference Latency Analysis}
+
+
+% \begin{figure}
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \vspace{-5mm}
+    \centering
+    \includegraphics[width=\linewidth]{imgs/time.pdf}
+    \vspace{-5mm}
+    \caption{Comparison of inference time across different setting.}
+    \label{fig:time}
+    \vspace{-5mm}
+\end{wrapfigure}
+
+
+We evaluate the computational overhead of ICWM on a single NVIDIA RTX 4090 GPU. The extra latency is mainly due to the $2N$ image and $N$ action tokens. While the baseline VLA requires 0.112s per inference step, our ICWM-enhanced model with $N=3$ and $N=5$ context clips incurs a latency of 0.165s and 0.185s respectively, without compromising control loop stability (\autoref{fig:time}). 
+Furthermore, since the interaction context $\tilde{\mathcal{T}}_\psi$ is static under a fixed configuration, its hidden states can be pre-computed and reused via KV caching, effectively reducing per-step inference cost back to near-baseline levels.
+
+
+

@@ -1,0 +1,280 @@
+\section{Experiments}
+\label{sec:experiments}
+
+In our experiments, we comprehensively evaluate the effectiveness of the ViQ model. We first describe the implementation details of ViQ's key components. We then perform fair comparisons on multimodal tasks under consistent fine-tuning data and training protocols, benchmarking against leading multimodal and quantized encoders. To highlight practical benefits, we assess efficiency in real-world training and visual storage scenarios. We further examine the reconstruction quality to analyze low-level feature preservation, and provide ablation studies to validate design choices.
+
+\subsection{Implementation Details}
+
+We instantiate our ViQ model based on the pretrained SigLIP2-g~\cite{tschannen2025siglip} visual encoder, whose output feature dimension is $C=1536$. To meet quantization requirements, we reduce the dimensionality through bottleneck layers to $D=128$ and subsequently to $d=6$. For quantization, we employ the FSQ method~\cite{mentzerfinite} with levels $\mathcal{L}=[8,8,8,5,5,5]$, yielding a codebook size of 64,000. Multimodal features from ViQ are projected via a simple MLP layer. During training, we use Qwen2.5-VL-0.5B as the language model for text supervision and the pretrained Qwen-Image~\cite{wu2025qwenimage} encoder for low-level visual supervision, keeping its parameters fixed. Stage 1 pretraining is conducted using 128 NVIDIA A100 GPUs, while Stage 2 quantization training uses 256 NVIDIA A100 GPUs. Further details regarding training stages and datasets are provided in the appendix.
+
+\begin{table*}[t]
+  \centering
+  \caption{\textbf{Comparison results on multi-modal understanding tasks.} We conduct experiments with various visual encoder counterparts on general multi-modal benchmarks. All the methods are trained with the same data collection.}\vspace{10pt}
+  \begin{adjustbox}{width=\linewidth}
+    \begin{tabular}{lccccccccccccc}
+    \toprule
+    \multicolumn{4}{c}{Base LLM}        & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{MMStar}}} & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{MMMU}}} & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{SimpleVQA}}} & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{InfoVQA}}} & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{TextVQA}}} & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{DocVQA}}} & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{OCRBench}}} & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{AI2D}}} & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{ChartQA}}} & \multicolumn{1}{c}{\multirow{2}[4]{*}{\rotatebox{30}{Avg.}}} \\
+\cmidrule{1-4}    \multicolumn{1}{c}{Visual Encoder} & Size  & AnyRes & Discrete &       &       &       &       &       &       &       &       &       &       \\
+    \midrule
+    \multicolumn{4}{c}{\textit{Qwen2.5 - 1.5B}} \\
+    \midrule
+    OAI-CLIP-L~\cite{radford2021clip} &   0.3B    & \ding{55}  &   \ding{55}   &44.9 &	40.7 	&21.3 &	24.2 	&58.9 &	52.9 &	460.0 &	68.1 	&55.0 &	45.8 \\
+    SigLIP2-g~\cite{tschannen2025siglip} & 1.1B    & \ding{55}   &\ding{55}  &48.1 	 &42.4  &	25.6  &	28.2 	 &73.1  &	67.8  &	590.0  &	71.5  &	62.0 	 &53.1  \\
+    DinoV2-g~\cite{oquab2023dinov2} &   1.1B    & \ding{55}     &   \ding{55}     &     47.1 	&41.8 	&24.0 	&31.7 	&72.1 &	76.9 	&619.0 	&68.8 	&61.8 	&54.0 \\
+    \midrule
+    OryxViT~\cite{liu2024oryx}  & 0.4B  &  \ding{51}      &   \ding{55}     &    46.4   &  42.1     &   23.2    &   31.8    &   71.8    &   73.5    &   622.0    &    68.2   &    62.1   &   53.4  \\
+    AIMv2-H~\cite{fini2025multimodal} &   0.7B    & \ding{55}    &   \ding{55}     & 48.5 &	41.8 &	23.5 	&31.9 	&71.6 	&73.7 &	623.0 &	69.8 &	62.5 &	53.9   \\
+    InternViT-2.5~\cite{chen2412expanding} & 0.3B  & \ding{55}     &   \ding{55}     & 47.9&  	40.3 	& 23.6 	& 35.5 & 	73.0 & 	81.7 & 	681.0 & 	69.6 & 	\textbf{69.2} & 	56.5  \\
+    InternViT-2.5-6B~\cite{chen2412expanding} & 6.0B & \ding{55}     &   \ding{55}     & \textbf{48.5}&  	42.1 & 	23.7 	& 35.2 & 	\textbf{75.5} & 	80.1 & \textbf{690.0} & 	\textbf{70.7} & 	67.8 & 	57.0  \\
+    \midrule
+    QLIP~\cite{zhao2025qlip}  &   0.3B    & \ding{55}    &    \ding{51}  &39.9 &	36.9 &	13.7 &	14.8 &	45.1 &	12.2 &	290.0 &	61.9 	&14.1 &	29.7 \\
+    UniTok~\cite{ma2025unitok} &   0.3B    &  \ding{55}      &   \ding{51}  &  41.0 &	36.1 &	15.5 	&15.9 &	39.7 &	11.6 	&323.0 &	61.2 &	43.8 &33.0  \\
+    \midrule
+    \rowcolor{red!10} ViQ & 1.3B  &   \ding{51}     &   \ding{51}     & 47.8  & \textbf{42.6}  & \textbf{26.0}  & \textbf{41.6}  & 74.3  & \textbf{84.2}  & 636.0  & 69.7  & 65.2  & \textbf{57.2}\\
+    \midrule
+    \multicolumn{4}{c}{\textit{Qwen2.5 - 7B}} \\
+    \midrule
+    OAI-CLIP-L~\cite{radford2021clip} &    0.3B   &  \ding{55}      &     \ding{55}   & 53.9 & 	47.1 & 	25.4 & 	33.9 	& 66.4 	& 61.4 & 	544.0 & 	76.6 & 	65.1 	& 53.8 \\
+    SigLIP2-g~\cite{tschannen2025siglip} & 1.1B    & \ding{55}    &   \ding{55}     & \textbf{57.2} &	48.3 &	28.5 &	37.3 &	78.7 &	75.0 	&671.0 &	\textbf{79.5} &	72.8 &	60.5   \\
+    \midrule
+    OryxViT~\cite{liu2024oryx} & 0.4B &  \ding{51}      &  \ding{55}      &   56.4    &    48.1   &   26.5    &   39.9    &   78.5   &  79.8  &    660.0   &  78.2     &   72.1      & 60.6  \\
+    AIMv2-H~\cite{fini2025multimodal} &    0.7B    & \ding{55}     &   \ding{55}     & 55.2 &	48.2 &	26.8 &	41.8 &	79.1 &	80.1 	&687.0 	&77.8 &	72.5 &	61.1 \\
+    InternViT-2.5-6B~\cite{chen2412expanding} &   6.0B     & \ding{55}     &  \ding{55}      & 55.3 &	48.1 &	28.4 &	44.9 &	\textbf{79.9} &	85.7 &	\textbf{757.0} &	78.7 &	\textbf{77.4} 	&63.8 \\
+    \midrule
+    \rowcolor{red!10} ViQ & 1.3B  &   \ding{51}    &   \ding{51}     & 54.2  & \textbf{49.1}  & \textbf{28.5}  & \textbf{55.3}  & 78.5  & \textbf{88.9}  & 711.0   & 76.7  & 72.8  & \textbf{63.9}  \\
+    \bottomrule
+    \end{tabular}
+  \end{adjustbox}
+  \label{tab:multimodal}
+\end{table*}
+
+\subsection{Multi-Modal Understanding}
+In this subsection, we present experiments on multi-modal understanding to evaluate the effectiveness of our ViQ models in learning superior visual representations. By comparing ViQ with various baseline models, we show that our approach achieves compact visual representations without compromising their quality.
+
+\paragraph{Setups.} We integrate ViQ with large language models of varying scales to evaluate the generalization capability of our vision encoders. To compare with other visual encoders, as ViQ supports native-resolution perception, we adapt the LLaVA-NeXT~\cite{liu2024llavanext}'s ``any resolution" training pipeline for other visual encoders that operate at fixed resolutions to ensure a fair comparison. For evaluation, we adopt representative visual understanding benchmarks, including general multi-modal benchmarks MMStar~\cite{chen2024mmstar}, MMMU~\cite{yue2024mmmu}, world knowledge-relevant benchmarks SimpleVQA~\cite{cheng2025simplevqa}, InfoVQA~\cite{mathew2022infographicvqa}, text and doc recognition benchmarks including TextVQA~\cite{singh2019textvqa}, DocVQA~\cite{mathew2021docvqa}, OCRBench~\cite{liu2023ocrbench}, chart and scientific recognition benchmarks including AI2D~\cite{kembhavi2016ai2d} and ChartQA~\cite{masry2022chartqa}. The comprehensive benchmarks cover a broad range of visual skills, including basic perception, diagram interpretation, OCR, and visual reasoning. Each experiment is conducted on a fixed dataset of 2000K samples drawn from LLaVA-OneVision~\cite{li2024llavaov} to maintain consistency and fairness. We employ LMMs-Eval~\cite{li2024lmms} as our evaluation toolkit to ensure reproducible results.
+
+\paragraph{Visual Encoder Baselines.} To enable a comprehensive comparison with existing visual encoders, we carefully select a diverse set of models across different categories. For general multi-modal visual encoders, we include widely used models such as OpenAI CLIP~\cite{radford2021clip}, SigLIP2~\cite{tschannen2025siglip}, and DINOv2~\cite{oquab2023dinov2}. For visual encoders specialized optimized for mutli-modal data and tasks, we incorporate AIMv2~\cite{fini2025multimodal}, OryxViT~\cite{liu2024oryx}, and InternViT~\cite{zhu2025internvl3} (including 300M and 6B variants). In addition, we evaluate quantized visual encoders, including QLIP~\cite{zhao2025qlip} and UniTok~\cite{ma2025unitok}, to ensure a thorough and balanced comparison.
+
+\paragraph{Results.} As shown in Table~\ref{tab:multimodal}, ViQ achieves competitive performance compared to other visual encoders. Despite being quantized, ViQ matches or surpasses representative general-purpose encoders on the aggregated score, primarily due to its native-resolution perception capability and quantization-aware training strategy, which together preserve strong visual perception throughout quantization. Compared to multimodal encoders that are specifically trained for visual understanding, ViQ remains highly competitive overall and is particularly strong on text- and document-centric tasks. We note, however, that the advantage is not uniform: on certain detail-intensive benchmarks such as OCRBench, ViQ still trails some continuous encoders with fewer parameters, which we attribute to the inherent loss of high-frequency details when the continuous feature space is aggressively compressed into discrete codes. Moreover, ViQ consistently outperforms previous quantized encoders by a large margin, which typically suffer from severe degradation after quantization, highlighting the effectiveness of our proximal representation learning and quantization training strategy in preserving visual quality.
+
+We further observe that ViQ's gains are most pronounced on OCR, document, and infographic understanding tasks. We believe this is because general benchmarks depend more heavily on the backbone LLM's knowledge and reasoning ability, whereas OCR-, document-, and chart-oriented tasks require precise low-level visual details and thus more directly reflect the capability of the visual encoder. From this perspective, the most meaningful contribution of ViQ is that it preserves such fine-grained understanding even after aggressively compressing continuous images into discrete tokens. The residual gap on the most detail-intensive tasks is a systemic property of discrete tokenization rather than a flaw specific to ViQ, and could be further narrowed by orthogonal directions such as multi-scale or residual quantization and incorporating specialized document data. Overall, ViQ serves as an efficient visual encoder that combines high compression with strong perceptual capability, making it well-suited for multimodal understanding tasks.
+
+\subsection{Efficiency}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.7\linewidth]{figures/fig4.pdf}
+   \caption{ \small \textbf{Comparisons on Training Efficiency Across Different Visual Encoders. } We conduct the experiments to compare the efficiency of ViQ and SigLIP2-g on the 4k and 16k training.}
+   \label{fig:acceleration}
+\end{figure}
+
+
+In this section, we demonstrate ViQ's capabilities beyond multi-modal understanding through some experiments.
+
+\subsubsection{Training Speed-Up for VLMs}
+\paragrapha{Setup.} We integrate ViQ and the popular SigLIP2-g encoder with a series of Qwen2.5 models for VLM SFT as conducted in LLaVA~\cite{liu2024llava}. All experiments are conducted on a single node to eliminate noise introduced by inter-node communication. We fix the maximum image area to $768^2$, while preserving the original aspect ratio. We cover the 4k and 16k training cases in experiments, where image-text pair are packed into a fixed sequence length for stable training.
+
+For SigLIP2-g, following common VLM training practice, we extract features from a list of images and feed them into the LLM together with processed text token embeddings for the forward pass. For ViQ, we first extract the discrete codes of each image offline. During the training, instead of loading raw images, we load the precomputed ViQ codes and project them into the LLM latent space. We discard the first 100 warm-up steps and report the average time required for a single forward pass and for a full training iteration.
+
+\paragrapha{Results.} As shown in Figure~\ref{fig:acceleration}, we compare the forward time and step time of SigLIP2-g and ViQ across four different Qwen2.5 model sizes, ranging from 0.5B to 7B. For a fair comparison, we also consider the ViQ offline code extraction time. We can see ViQ provides substantial speed-ups across all model sizes. The gains are especially pronounced for smaller LLMs: for the 0.5B model, ViQ accelerates forward time by 70\% and 78\% under the 4k and 16k training settings, respectively. And for larger model, like Qwen2.5 7B, ViQ can achieve a 46\% and 65\% speed-up in forward time under the 4k and 16k settings. Considering a whole iteration step, ViQ offers consistent improvements, exceeding 20\% and 40\% speed-ups in the 4k and 16k settings.
+
+\subsubsection{Storing Any Image as Discrete Codes} As ViQ is a quantized visual encoder, it can convert an image at its native resolution into a series of discrete codes, which can then be reconstructed by a decoder. For an image of shape $(H, W)$ with three channels, storing the raw image consumes $\frac{H \times W \times 3 \times 8 \text{bits}}{8} = 3HW$ bytes on disk. In contrast, ViQ can translate an image with $(H, W)$  into $\frac{H\times W}{64}$ codes, each ranging from 0 to 64,000, which can be represented using an unsigned 16-bit integer. As a result, storing the ViQ codes requires $\frac{\frac{H\times W}{64} \times 16 \text{bits}}{8} = \frac{HW}{32}$ bytes, which is only $\frac{1}{96}$ of the raw image size. This corresponds to a very low target bitrate: matching the same compression ratio with JPEG would require an aggressive quality setting (e.g., $Q\approx0.08$) that noticeably degrades image quality, whereas ViQ preserves substantially better reconstruction at an equivalent ratio. We therefore compare ViQ against JPEG at a comparable bitrate, and report the compression ratios together with reconstructed visual samples in Figure~\ref{fig:saving}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig5.pdf}
+   \caption{ \small \textbf{Representing images with ViQ.} We show the image compression and visual reconstruction capability of ViQ. ViQ achieves a high-compression-ratio in image storage with high-quality reconstructed images while supporting native-resolution inputs.}
+   \label{fig:saving}
+\end{figure*}
+
+
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{\small \textbf{Comparison of reconstruction quality on the 256 $\times$ 256 ImageNet-1K validation set.} "Und." indicates whether the tokenizer is optimized for understanding tasks. "*" means reproduced results with the official weights and the same evaluation code as our model.}\vspace{10pt}
+\adjustbox{width=\linewidth}{
+\label{tab:comparison_vae}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Method} & ~~~~~~~~\textbf{Und.}~~~~~~~~ & ~~~~~~~~\textbf{\#Token}~~~~~~~~ & ~~~~~~~~\textbf{PSNR$\uparrow$}~~~~~~~~ & ~~~~~~~~\textbf{SSIM$\uparrow$}~~~~~~~~ & ~~~~~~~~\textbf{rFID$\downarrow$}~~~~~~~~ \\
+\midrule
+\multicolumn{6}{l}{\emph{Continuous Tokenizer}} \\
+\midrule
+SD-VAE 3 & \ding{55} & 32$\times$32 & 31.29 & 0.87 & 0.20 \\
+FLUX-VAE~\cite{laurenccon2024matters} & \ding{55} & 32$\times$32 & 32.74 & 0.92 & 0.18 \\
+Qwen-Image~\cite{wu2025qwenimage} & \ding{55} & 32$\times$32 & 32.18 & 0.90 & 1.46 \\
+Cosmos-CI~\cite{agarwal2025cosmos} & \ding{55} & 16$\times$16 & 25.07 & 0.70 & 0.96 \\
+ Wan2.2~\cite{wan2025wan} & \ding{55} & 16$\times$16 & 31.25 & 0.88 & 0.75 \\
+\midrule
+\multicolumn{6}{l}{\emph{Discrete Tokenizer}} \\
+\midrule
+Cosmos-DI~\cite{agarwal2025cosmos} & \ding{55} & 16$\times$16 & 19.98 & 0.54 & 4.40 \\
+Show-o~\cite{xie2024show} & \ding{55} & 16$\times$16 & 21.34 & 0.59 & 3.50 \\
+LlamaGen~\cite{sun2024autoregressive} & \ding{55} & 16$\times$16 & 20.65 & 0.54 & 2.47 \\
+MUSE-VL~\cite{xie2025muse} & \ding{55} & 16$\times$16 & 20.14 & 0.65 & 2.26 \\
+Open-MAGVIT2~\cite{luo2024open} & \ding{55} & 16$\times$16 & 22.70 & 0.64 & 1.67 \\
+QLIP-B~\cite{zhao2025qlip} & \ding{51} & 16$\times$16 & \underline{23.16} & 0.63 & 3.21 \\
+UniTok$*$~\cite{ma2025unitok} & \ding{51} & 16$\times$16 & \textbf{25.32} & \textbf{0.77} & \textbf{0.37} \\
+\rowcolor{red!10} ViQ & \ding{51} & 16$\times$16 & 22.73 & \underline{0.66} & \underline{0.62} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+
+\subsection{Image Reconstruction Experiments}
+\paragraph{Setups.} For image reconstruction tasks, we train the visual decoder with the fixed pre-trained ViQ model. The overall regularization loss for VAE is defined as:
+\begin{equation}
+    \mathcal{L}_{\text{VAE}} = \mathcal{L}_{\text{KL}} + \mathcal{L}_{\text{MSE}} + \mathcal{L}_{\text{LPIPS}} + \mathcal{L}_{\text{GAN}} + \lambda_{\text{REPA}} \cdot \mathcal{L}_{\text{REPA}}
+\end{equation}
+where $\mathcal{L}_{\text{KL}}$ denotes the Kullback-Leibler divergence, $\mathcal{L}_{\text{MSE}}$ represents the Mean Squared Error, $\mathcal{L}_{\text{LPIPS}}$ corresponds to the Learned Perceptual Image Patch Similarity for pixel reconstruction, and $\mathcal{L}_{\text{GAN}}$ is the adversarial loss from the Generative Adversarial Network~\cite{goodfellow2020generative}. To enhance semantic alignment, we leverage DINOv2~\cite{oquab2023dinov2} as an external feature extractor and apply an alignment loss $\mathcal{L}_{\text{REPA}}$ to the ViQ preprocess layer preceding the decoder head within our ViQ architecture. The alignment loss coefficient is empirically set to $\lambda_{\text{REPA}} = 1.5$ for the DINOv2 head.
+For model optimization, we employ the AdamW optimizer~\cite{loshchilov2017decoupled, kingma2017adammethodstochasticoptimization} with a constant learning rate of $6\times10^{-4}$ and a global batch size of 4096. Training stability is ensured through gradient clipping and the application of an Exponential Moving Average (EMA) to the generative model parameters. All models are trained for 50,000 steps with a linear learning rate warmup over the initial 5,000 steps. We utilize mixed-precision training with the BF16 format and unfreeze the VAE preprocess layer during training.
+
+
+\paragraph{Results.}
+We comprehensively evaluate the reconstruction quality of various tokenizers on the 256$\times$256 ImageNet-1K validation set, as summarized in Table~\ref{tab:comparison_vae}.
+Among discrete tokenizers, ViQ delivers highly competitive reconstruction quality, attaining an SSIM of 0.66 and an rFID of 0.62 (second only to UniTok), while remaining comparable to QLIP-B in PSNR (22.73 vs. 23.16). We note that UniTok reports stronger raw reconstruction metrics (e.g., PSNR 25.32), which we attribute to its direct reconstruction objective combined with contrastive supervision. However, as shown in Table~\ref{tab:multimodal}, this type of supervision substantially degrades vision-language alignment and thus leads to sub-optimal multi-modal understanding. By contrast, our core objective with ViQ is to deliver a more balanced tokenizer that maintains highly competitive low-level reconstruction while excelling in high-level semantic understanding.
+This balance indicates that a well-optimized pixel-based decoder remains a powerful and efficient choice for building a discrete visual tokenizer that serves both generative and discriminative purposes.
+We also acknowledge that, as a discrete tokenizer, ViQ inevitably compromises some fine-grained reconstruction detail relative to continuous tokenizers, as the continuous visual feature space is drastically compressed; nevertheless, it considerably narrows this gap and offers a favorable trade-off between reconstruction fidelity and semantic understanding.
+
+\begin{table*}[t]
+\vspace{-.2em}
+\centering
+\renewcommand{\arraystretch}{1.05}
+\setlength{\tabcolsep}{4pt}
+
+% (a) Proximal Representations
+\subfloat[
+\textbf{Proximal Representations}. Gradually regularizing the latent space from continuous to quantized helps.
+\label{tab:abla-1}
+]{
+\begin{minipage}{0.31\linewidth}
+\centering
+\adjustbox{width=\linewidth}{
+\begin{tabular}{cc}
+Process & avg.(2-2) \\
+\hline
+Continuous $\to$ SimVQ & 60.9 \\
+Continuous $\to$ BN + $l_{2}$ $\to$ SimVQ & 66.6 \\
+Continuous $\to$ BN + $l_{2}$ $\to$ FSQ & 67.9 \\
+\rowcolor{red!10} Continuous $\to$ BN + $l_{\infty}$ $\to$ FSQ & 68.7 \\
+\end{tabular}}
+\end{minipage}
+}
+\hfill
+% (b) Bottleneck size
+\subfloat[
+\textbf{Bottleneck size}. The bottleneck width can be made significantly narrower than the 1536-dimensional one in SigLIP2-g.
+\label{tab:abla-2}
+]{
+\begin{minipage}{0.31\linewidth}
+\centering
+\adjustbox{width=\linewidth}{
+\begin{tabular}{cc}
+~~~~~~~~~Width~~~~~~~~~ & ~~~~~~~~~avg.(2-1)~~~~~~~~~ \\
+\hline
+32  & 68.4 \\
+\rowcolor{red!10} 128  & 69.1 \\
+512 & 68.8 \\
+1536 & 69.3 \\
+\end{tabular}}
+\end{minipage}
+}
+\hfill
+% (c) VQ and Codebook size
+\subfloat[
+\textbf{VQ and Codebook size}.
+The VQ codebook saturates at a size of $2^{17}$.
+\label{tab:abla-3}
+]{
+\begin{minipage}{0.31\linewidth}
+\centering
+\adjustbox{width=\linewidth}{
+\begin{tabular}{cc}
+~~~~~~~~~Size~~~~~~~~~ & ~~~~~~~~~avg.(2-2)~~~~~~~~~ \\
+\hline
+\rowcolor{red!10} FSQ + 64,000 & 68.7\\
+FSQ + 128,000 & 68.3\\
+SimVQ + $2^{15}$ & 66.5\\
+SimVQ + $2^{17}$ & 65.6\\
+\end{tabular}}
+\end{minipage}
+}
+
+\vspace{1em}
+
+% (d) Position encoding for Quantization
+\subfloat[
+\textbf{Position encoding for Quantization}. position information is important.
+\label{tab:abla-4}
+]{
+\begin{minipage}{0.31\linewidth}
+\centering
+\adjustbox{width=\linewidth}{
+\begin{tabular}{cc}
+Design & avg.(2-2) \\
+\hline
+no Position information injected & 65.3\\
+\rowcolor{red!10} RoPE with Attention & 68.7 \\
+Learnable Pos Emb & 65.7 \\
+\end{tabular}}
+\end{minipage}
+}
+\hfill
+% (e) Loss Combination
+\subfloat[
+\textbf{Loss Combination}. three type of loss.
+\label{tab:abla-5}
+]{
+\begin{minipage}{0.31\linewidth}
+\centering
+\adjustbox{width=\linewidth}{
+\begin{tabular}{ccccc}
+~Case~ & Self-Distill & Text & Recon & avg.(2-2)\\
+\hline
+A & \ding{55} & \ding{51} & \ding{55} & 61.3 \\
+B & \ding{51} & \ding{51} & \ding{55} & 66.8 \\
+\rowcolor{red!10} C & \ding{51} & \ding{51} & \ding{51} & 68.7\\
+\end{tabular}}
+\end{minipage}
+}
+\hfill
+% (f) Reconstruction Loss
+\subfloat[
+\textbf{Reconstruction Loss}. Vae Latent loss is efficient.
+\label{tab:abla-6}
+]{
+\begin{minipage}{0.32\linewidth}
+\centering
+\adjustbox{width=\linewidth}{
+\begin{tabular}{ccc}
+~~~~Loss Type~~~~ & ~Time Cost~ & ~~avg.(2-2)~~ \\
+\hline
+none & 1x & 66.8 \\
+MSE + LPIPS & 2.3x & 67.0 \\
+DiT & 4x & 65.8 \\
+\rowcolor{red!10} Vae Latent Loss& 1.3x & 68.7 \\
+\end{tabular}}
+\end{minipage}
+}
+
+\vspace{10pt}
+\caption{\textbf{ViQ ablation experiments}. We conduct a thorough ablation study of ViQ, examining proximal representations, architecture design, and loss combinations. We report the average metrics on MMStar, MMMU, OCRBench, among a total of eight benchmarks, using a fixed SFT training setup on Qwen2.5-3B. (2-1) and (2-2) refer to the training stage of the test model. Default settings are marked in \colorbox{red!10}{red}.}
+\label{tab:ablations}
+\end{table*}
+
+
+\subsection{Ablation Studies}
+
+\paragrapha{Proximal Representations}
+In Tables~\ref{tab:abla-1} and \ref{tab:abla-2}, we show that initializing the model with intermediate proximal representations can substantially improve the final performance.
+In Table~\ref{tab:abla-1}, we can see that optimizing a continuous feature space into a discrete one leads to a severe performance drop. We further investigate the effect of introducing a bottleneck, a bottleneck with L2 normalization, and a bottleneck with L$_\infty$ normalization. The results highlight two key observations: first, a gradually regularized latent space is more suitable for quantization; second, a more appropriate regularization method for quantization (i.e., L$_\infty$) provides additional benefits. Furthermore, Table~\ref{tab:abla-2} shows that, when optimized properly, the bottleneck does not necessarily degrade the final performance.
+
+\paragrapha{Quantization Designs}
+We compared the performance of commonly used methods such as SimVQ~\cite{zhu2025addressing} and FSQ~\cite{mentzerfinite} under different codebook sizes, as shown in Table~\ref{tab:abla-3}. We conduct experiments on different position encoding methods for ViQ, summarized in Table~\ref{tab:abla-4}. We observe that FSQ~\cite{mentzerfinite}, a non-optimized vector quantization method, outperforms SimVQ~\cite{zhu2025addressing}, which requires learning a codebook. We also experimented with LFQ~\cite{yulanguage}, vanilla VQ~\cite{gersho2012vector}, and IBQ~\cite{shi2025scalable}, and found consistent conclusions: in our setting, VQ methods without a learnable vocabulary tend to perform better. In addition, we find that a vocabulary size around 60,000 is good. Increasing the codebook size will reduce the utilization rate of learnable codebooks, which in turn degrades performance, whereas this issue is much less pronounced for non-learnable VQ methods. Table~\ref{tab:abla-4} further shows that injecting positional encoding significantly enhances the representational ability of VQ. We conduct experiments on both learnable positional embeddings and RoPE-2D, and observe that RoPE leads to a substantial improvement, whereas learnable positional embeddings offer limited gains. This is because learnable positional embeddings increase the optimization difficulty of the VQ module.
+
+\paragrapha{Loss Combination. }
+We further study the loss composition used in our training pipeline. As shown in Table~\ref{tab:abla-5}. When keep only the text loss, it leads to a substantial performance drop (Case A). In Case B, add self distillation loss with significant enhance the performace of model. While we can see some unsatisfactory performance on tasks such as OCR and Chart. By introducing a reconstruction loss (Case C), the performance notably improves, with most gains coming from detail-intensive tasks such as OCR and Chart, while the gains for captioning and VQA are relatively limited. Table~\ref{tab:abla-6} studies different formulations of the reconstruction loss. We adopt a more efficient and simple approach: a VAE latent reconstruction loss, where the model predicts the latent representation of a pretrained VAE network. This achieves effective optimization while maintaining training efficiency.
+
+\subsection{Limitations}
+Although ViQ demonstrates highly competitive performance in unifying visual and language representations into a cohesive discrete framework, there are a few general limitations to consider. While the study thoroughly validates ViQ's efficiency and effectiveness across large language models ranging from 0.5B to 7B parameters, its integration and synergistic effects with massively larger foundation models (e.g., 70B parameters and beyond) remain an area for future empirical exploration. Moreover, like most advanced multimodal models, the robustness of the learned proximal representations relies on the quality and diversity of the large-scale language-image pre-training data, meaning that inherent data biases could marginally affect the model's zero-shot generalization in highly specialized or extreme out-of-domain scenarios.

@@ -1,0 +1,45 @@
+\begin{table*}[t]
+  \centering
+  \vspace{-0.2cm}
+  \setlength{\tabcolsep}{2pt}
+  \caption{\textbf{Main Multi-Capability Composition Results with Two Different Settings.} We compare \name{} with Joint Training, weight merging, off-policy distillation, and other OPD baselines on GEditBench-EN~\cite{liu2025step1x} for image editing and GenEval~\cite{ghosh2023geneval} for text-to-image. DanceOPD achieves better capability composition.}
+  \vspace{-0.2cm}
+  \label{tab:zimage-multi}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lccccccc|ccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Method}} & \multicolumn{7}{c|}{\textbf{GEditBench-EN}~\cite{liu2025step1x}} & \multicolumn{7}{c}{\textbf{GenEval}~\cite{ghosh2023geneval}}\\
+    & \textbf{Subj-Add} & \textbf{Subj-Rep} & \textbf{Bg-Chg} & \textbf{Style-Chg} & \textbf{Color-Alt} & \textbf{Subj-Rem} & \textbf{Avg}
+    & \textbf{Sing} & \textbf{Two} & \textbf{Cnt} & \textbf{Col} & \textbf{Pos} & \textbf{C-Attr} & \textbf{Overall}\\
+    \midrule
+    \rowcolor{gray!10}
+    \multicolumn{15}{l}{\textbf{Base Model}}\\
+    T2I & -- & -- & -- & -- & -- & -- & -- & 0.950 & 0.939 & 0.938 & 0.947 & 0.520 & 0.700 & 0.832\\
+    Edit & 6.033 & 5.417 & 4.490 & 3.923 & 4.889  & 4.828 & 4.930 & 0.838 & 0.828 & 0.713 & 0.840 & 0.580  & 0.470 & 0.711\\
+    Local Edit & 5.555 & 5.742 & 4.856 & 3.817 & 4.581 & 6.017 & 5.095 & 0.988 & 0.929 & 0.813 & 0.862 & 0.600 & 0.570 & 0.793\\
+    Global Edit & 3.119 & 4.414 & 4.040 & 5.209 & 4.287 & 1.433 & 3.750 & 0.950 & 0.939 & 0.838 & 0.872 & 0.600 & 0.650 & 0.808\\
+    \midrule
+    \rowcolor{gray!10}
+    \multicolumn{15}{l}{\textbf{A. T2I and Edit Composition}}\\
+    Joint Training & 5.386 & 5.627 & 4.283 & 3.688 & 3.624 & 5.093 & 4.617 & 0.975 & 0.929 & 0.963 & 0.894 & 0.540 & 0.550 & 0.808\\
+    Weight Merge & 0.573 & 0.315 & 0.277 & 0.557 & 0.221 & 0.123 & 0.344 & 1.000 & 0.929 &0.925 &0.894 &0.610 & 0.670 &  0.836\\
+    Off-Policy Distill. & 4.882& 5.026& 4.289& 4.497& 4.679& 3.797& 4.528& 0.975& 0.919& 0.887& 0.894& 0.580& 0.650& 0.818\\
+    DiffusionOPD~\cite{li2026diffusionopd} & 5.488& 5.850& 4.242& 4.303& 4.588& 5.211& 4.947& 1.000& 0.929& 0.975& 0.894& 0.590& 0.610& 0.833 \\
+    Flow-OPD~\cite{fang2026flow} & 6.014& 5.214& 4.467& 3.957& 4.793& 4.681& 4.854& 0.975& 0.909& 0.888& 0.926& 0.550& 0.640& 0.814  \\
+    \rowcolor{vefblue3!9}
+    \textbf{\ding{72}\,\name{} (Ours)} &   5.681 & 5.857 & 5.173 &  5.218 &  4.840 & 5.310 &5.347 & 0.988& 0.939& 0.963& 0.894& 0.640& 0.670& 0.849 \\
+    \midrule
+    \rowcolor{gray!10}
+    \multicolumn{15}{l}{\textbf{B. Local and Global Edit Composition}}\\
+    Joint Training & 4.632 & 5.393 & 4.128 & 3.941 & 4.093 & 5.086 & 4.546 & 0.975 & 0.939 & 0.913 & 0.851 & 0.600 & 0.650 & 0.821\\
+    Weight Merge & 4.434 & 4.776 & 4.380 & 5.263 & 5.206 & 4.229 & 4.715 & 0.988& 0.909& 0.875& 0.904& 0.600& 0.590& 0.811\\
+    Off-Policy Distill. & 5.008& 4.683& 4.543& 4.772& 5.075& 4.336& 4.736& 0.975& 0.889& 0.900& 0.872& 0.570& 0.580& 0.798\\
+    DiffusionOPD~\cite{li2026diffusionopd} & 4.704& 5.310& 4.502& 4.012& 4.977& 4.462& 4.661& 0.975& 0.899& 0.925& 0.883& 0.620& 0.630& 0.822 \\
+    Flow-OPD~\cite{fang2026flow} & 4.524& 4.647& 4.610& 5.232& 5.037& 4.025& 4.679 & 0.975& 0.949& 0.875& 0.872& 0.630& 0.660& 0.827  \\
+    \rowcolor{vefblue3!9}
+    \textbf{\ding{72}\,\name{} (Ours)} & 5.178 &  5.549 &6.153 &   5.944 &   5.812 &  4.348&5.498 & 1.000& 0.949& 0.925& 0.926& 0.650& 0.640& 0.848 \\
+    \bottomrule
+  \end{tabular}
+  }
+  \vspace{0.2cm}
+\end{table*}

@@ -1,0 +1,67 @@
+% Method
+\section{Qwen-Image-Agent Framework}
+\subsection{Formulation of Image Agents}
+We formalize image generation and edit as a conditional rendering problem. Given a user context $c_u=(P, I_{\mathrm{ref}})$ with prompt $P$ and optional reference images $I_{\mathrm{ref}}$, \textbf{Direct image generation} renders output image $y$ in a single forward pass, where $p_{\mathrm{gen}}$ is the image generator:
+
+\begin{equation}
+y \sim p_{\mathrm{gen}}(\cdot \mid c_u).
+\end{equation}
+
+In real-world scenarios, however, the provided user context is often incomplete for the desired visual task. We therefore distinguish \textbf{user context $c_u$} from the \textbf{generation context $c_g$}, which denotes the complete context needed for successful rendering. The earlier mentioned \textbf{context gap} is thus defined as the discrepancy between $c_u$ and $c_g$.
+
+\textbf{Agentic image generation} addresses this gap by treating $p_{\mathrm{gen}}$ as a renderer and introducing a context-construction process to resolve the context gap. At each step $t$, the agent maintains a state $s_t$, takes an action $a_t$, and receives an observation $o_t$, forming a trajectory
+\begin{equation}
+\tau = \{(s_t, a_t, o_t)\}_{t=1}^{T}.
+\end{equation}
+The action space consists of basic operations to gather context, including \texttt{plan}, \texttt{reason}, \texttt{search}, \texttt{rewrite}, and \texttt{evaluate}. The state is defined as $s_t = (c_t, O_{t-1})$ where $c_t$ is the current context under construction, and $O_{t-1}=\{o_1,\dots,o_{t-1}\}$ is the set of accumulated intermediate results. Let $c(\tau)$ denote the final generation context induced by trajectory $\tau$. The agentic generation process is then formulated as:
+\begin{equation}
+p_{\mathrm{agent}}(y \mid c_u)
+=
+\sum_{\tau}
+p(\tau \mid c_u)\,
+p_{\mathrm{gen}}(y \mid c_g=c(\tau)).
+\end{equation}
+Under this formulation, the agent progressively builds the generation context along the trajectory before the final rendering step.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\linewidth]{pics/qwen_image_agent_pipeline.pdf}
+    \caption{Overview of the Qwen-Image-Agent framework. Given a user context, the pipeline first identifies the context gap through information-level planning and gathers heterogeneous contexts. It then builds generation context through content-level planning. Qwen-Image-Agent further supports multi-turn and multi-image generation through generation-level planning.}
+    \label{fig:pipeline}
+\end{figure*}
+
+\subsection{Overview of Qwen-Image-Agent}
+
+To bridge the context gap between user context and generation context required for image generators, we propose \textbf{Qwen-Image-Agent}, a unified agentic framework that integrates planning, reasoning, search, memory and feedback in a context-centric manner. As shown in Figure~\ref{fig:pipeline}, it consists of two main modules: Context-Aware Planning and Context Grounding.
+
+\paragraph{Context-Aware Planning} identifies missing context, plans how to obtain it, determines how it should be used for generation and how to allocate it in multi-turn and multi-image scenarios.
+
+\paragraph{Context Grounding} gathers the missing information from multiple sources (including reason, search, memory and feedback) and organizes them in a context-centric manner.
+
+Given a user context, the system first performs information-level planning to identify the context gap. It then grounds the missing information through reasoning, web search, and image search, producing reasoning context and search context. Together with memory context, these signals are fed into content-level planning, which builds a richer and more complete generation context for image synthesis. After an image is generated, the system evaluates the result through a feedback loop, and the newly obtained feedback context is incorporated back into content-level planning for iterative refinement. Finally, generation-level planning further extends the framework to support multi-turn and multi-image generation.
+
+\subsection{Context-Aware Planning}
+
+To systematically manage and utilize context throughout the generation process, we propose \textbf{Context-Aware Planning}. It operates at three levels: information-level, content-level, and generation-level.
+
+\paragraph{Information-level planning} identifies the context gap and plans how to resolve it. Given a user context, the system first raises explicit questions to characterize the missing information required for generation. Then, it routes each questions to a suitable context grounding strategy, including reasoning, web search and image search, as detailed in Section~\ref{sec:context_grounding}.
+
+\paragraph{Content-level planning} builds the generation context and plans the image content to be generated. Specifically, the system first assembles the context obtained during the context grounding stage, and then rewrites the user prompt into a detailed prompt that specifies key generation elements, including subject, attributes, layout, style, and textual elements.
+
+\paragraph{Generation-level planning} allocates generation context in multi-image and multi-turn scenarios. In multi-turn settings, excessively long contexts often lead to content drift or even generation collapse. To mitigate this issue, we select relevant information from previous turns while keeping the overall context length manageable. In multi-image settings, we distribute the generation context across individual images while accounting for multi-image context dependency, including parallel, sequential, and hybrid.
+
+\subsection{Context Grounding}~\label{sec:context_grounding}
+
+To bridge the gap between user context and generation context, we propose \textbf{Context Grounding}, a unified module that collects context through reason, search, memory and feedback, and grounds generation with gathered context.
+
+\paragraph{Grounding via Reason.}
+User requests are often ambiguous, incomplete, or implicitly specified; therefore, generation needs to be grounded in additional context. Reasoning-based grounding addresses this issue by making implicit intents and requirements explicit. We consider three forms of reasoning: commonsense reasoning, logical reasoning, and visual reasoning. Specifically, for each question identified during Information-level Planning and assigned to reasoning, we employ a VLM to infer the corresponding answer. Together, these reasoning processes transform underspecified requests into concrete and explicit context items for downstream generation.
+
+\paragraph{Grounding via Search.}
+Some user requests depend on up-to-date factual information or IP-related visual references that cannot be inferred from the prompt alone. In such cases, we ground generation through search. For factual knowledge, we first extract search keywords from the user request, then perform web search and summarize the retrieved results into concise answers. For visual references, we retrieve candidate images from the web and employ a VLM to rank them, retaining the most relevant ones. Overall, search-based grounding enriches the request with external factual and visual context that cannot be obtained through reasoning alone.
+
+\paragraph{Grounding via Memory.}
+In multi-turn scenarios or long-horizon tasks, users may refer to knowledge or references mentioned in previous turns. In such cases, we ground generation with memory. Specifically, we incorporate the conversation history into the context and extract as well as update user profiles for long-horizon tasks. In addition, memory grounding extends to external memory sources, such as textual and visual knowledge bases. To support this, we implement a multimodal retriever that retrieves the most relevant textual and visual items from external memory and integrates them into the grounded context for generation.
+
+\paragraph{Grounding via Feedback.}
+Text-to-image models cannot directly inspect their own outputs, which often leads to discrepancies between the prompt and the generated image. In such cases, we ground generation through feedback. Specifically, after generation, we first plan a checklist of expected image attributes, and then employ a VLM to assess each generated result against this checklist. Items that fail the evaluation are converted into feedback context and combined with the previously grounded context to refine the prompt for the next round. Overall, feedback-based grounding closes the loop between generation and evaluation, enabling iterative correction toward better alignment with user intent.

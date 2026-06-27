@@ -1,0 +1,229 @@
+\input{theoretical_analysis}
+
+\section{Additional Experimental Details}\label{app:experimental_details}
+This section provides the experimental protocol used for the results in the main paper. We organize the details by datasets, baselines and implementation.
+
+\subsection{Datasets}
+\label{app:datasets}
+
+Table~\ref{tab:appendix_datasets_summary} summarizes the datasets used in our experiments. The evaluation covers three agentic domains: embodied reasoning, web navigation, and search-augmented question answering.
+
+\begin{table}[ht!]
+\centering
+\caption{
+Detailed information on the agentic benchmarks.
+}
+\vspace{0.05in}
+\label{tab:appendix_datasets_summary}
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabularx}{\linewidth}{
+    @{}
+    >{\raggedright\arraybackslash}p{0.18\linewidth}
+    >{\raggedright\arraybackslash}X
+    >{\raggedright\arraybackslash}p{0.24\linewidth}
+    >{\raggedright\arraybackslash}p{0.17\linewidth}
+    @{}
+}
+\toprule[1.2pt]
+\textbf{Domain}
+& \textbf{Benchmark}
+& \textbf{\#Train Samples}
+& \textbf{\#Test Samples} \\
+\midrule
+
+Embodied Reasoning
+& ALFWorld
+& 2,400 %3,553
+& \begin{tabular}[t]{@{}l@{}}
+140 (seen split) \\
+134 (unseen split)
+\end{tabular} \\
+
+\midrule
+
+Web Navigation
+& WebShop
+& 2,400 %10,587
+& 128  \\
+
+\midrule
+
+Search-Augmented QA
+& NQ, TriviaQA, PopQA, HotpotQA, 2WikiMultiHopQA, MuSiQue, and Bamboogle
+& 19,200 %283,338
+& 51,713 \\
+
+\bottomrule[1.2pt]
+\end{tabularx}
+\end{table}
+
+\paragraph{ALFWorld.}
+ALFWorld~\citep{shridhar2020alfworld} aligns text-based interaction with the ALFRED household environment. Given a natural-language goal and textual observations, an agent must issue a sequence of admissible actions to complete the task. We report results on six task types: \textit{Pick}, \textit{Look}, \textit{Clean}, \textit{Heat}, \textit{Cool}, and \textit{Pick2}.
+
+\paragraph{WebShop.}
+WebShop~\citep{yao2022webshop} is a text-based e-commerce environment in which an agent searches for products, opens product pages, selects attributes, and purchases an item that satisfies a natural-language request. The environment provides both a normalized task-completion score, which assigns partial credit for matching requested attributes, and a binary success signal for exact task completion.
+
+\paragraph{Search-Augmented QA.}
+Following the Search-R1 setting~\citep{jin2025searchr1}, we evaluate search-augmented reasoning on Natural Questions~\citep{kwiatkowski2019natural}, TriviaQA~\citep{joshi2017triviaqa}, PopQA~\citep{mallen2023popqa}, HotpotQA~\citep{yang2018hotpotqa}, 2WikiMultiHopQA~\citep{ho2020constructing}, MuSiQue~\citep{trivedi2022musique}, and Bamboogle~\citep{press2023measuring}. In this setting, the agent interacts with the configured search environment before producing a final answer.
+
+\paragraph{Training Data.}
+For training, we conduct separate training for each benchmark setting. Specifically, we sample 2,400 training examples from ALFWorld, 2,400 training examples from WebShop, and 19,200 training examples from the search-augmented QA benchmarks.
+
+\subsection{Baselines}\label{app:baselines}
+We compare OPID with prompting-only methods, outcome-based reinforcement learning, and self-distillation or skill-distillation variants. Unless explicitly marked with an asterisk, every method is evaluated from the ordinary environment interaction history, without access to skills or any other privileged context. An asterisk therefore denotes validation/test-time access to a natural-language skill; it does not indicate a different backbone or evaluation task.
+
+\paragraph{Prompting-only methods.}
+\begin{itemize}
+    \item \textit{Vanilla}. This is the original instruction-tuned backbone used without any post-training. The model receives only the standard environment prompt and the interaction history exposed by the environment interface. 
+    \item \textit{Skill-Prompt}$^{*}$. This method keeps the \textit{Vanilla} parameters frozen but augments the validation/test context with a retrieved natural-language skill relevant to the current task. Because no gradient update is performed, any improvement comes purely from in-context use of the skill. 
+\end{itemize}
+
+\paragraph{Outcome-based reinforcement learning.}
+\begin{itemize}
+    \item \textit{GRPO}~\citep{shao2024deepseekmath}. Group Relative Policy Optimization is a critic-free policy-gradient method that samples a group of trajectories for each task, assigns each trajectory a scalar outcome reward, and normalizes these rewards within the group to construct relative advantages. In the outcome-only setting used here, every generated token in a trajectory inherits the same sequence-level advantage, and the policy is updated with a clipped importance-ratio objective; no process labels or teacher-derived token-level targets are used. 
+
+    \item \textit{Skill-GRPO}. This variant uses the same group-relative outcome objective as \textit{GRPO}, but makes a task-relevant natural-language skill available to the policy during training rollouts and policy updates. The skill can therefore shape exploration and the trajectories that receive reinforcement. The skill is removed at validation/test time, so this baseline tests whether skill-guided behavior has been absorbed into the model parameters rather than merely followed from the prompt.
+
+    \item \textit{Skill-GRPO}$^{*}$. This method is trained in the same way as \textit{Skill-GRPO}, but retains the skill context at validation/test time. Its train-time and test-time conditioning are consequently matched. 
+\end{itemize}
+
+\paragraph{Self-distillation and skill-distillation methods.}
+\begin{itemize}
+    \item \textit{OPSD}~\citep{zhao2026opsd}. On-Policy Self-Distillation instantiates a student and a teacher from the same underlying model but gives them different conditioning contexts. The student samples trajectories on-policy from the ordinary task context, whereas the teacher additionally receives training-only privileged information, such as a verified solution or an equivalent auxiliary context. For every prefix of the student's own trajectory, the teacher re-scores the next-token distribution and provides a dense token-level target through full-vocabulary or sampled-token distribution matching. Gradients are applied to the student side while the teacher distribution is treated as a stop-gradient target, and the privileged teacher context is absent at inference time.
+
+    \item \textit{GRPO+OPSD}. This is a direct multi-objective combination of the sequence-level \textit{GRPO} loss and the token-level \textit{OPSD} loss. The outcome term reinforces or penalizes complete trajectories according to environment feedback, while the distillation term supplies local guidance at individual token positions. The two losses are simply combined, making this baseline a controlled test of whether naively adding dense self-distillation to outcome-based RL is sufficient.
+
+    \item \textit{Skill-SD}~\citep{wang2026skillsd}. This method adapts self-distillation to multi-turn agent tasks. Completed trajectories are summarized into compact natural-language skills that record successful behaviors, common failure modes, and reusable high-level workflows. During training, a retrieved skill conditions only the teacher branch, while the student continues to generate on-policy trajectories from the plain task prompt; the student must therefore internalize the teacher-side guidance rather than rely on the skill at test time. 
+
+    \item \textit{RLSD}~\citep{yang2026rlsd}. RLSD uses a privileged self-teacher for fine-grained credit assignment without directly optimizing a teacher--student distribution-matching loss. It converts the token-wise teacher--student log-probability gap into a bounded weight that modulates the magnitude of each token's GRPO update, while the sign and direction of the update remain anchored to the environment-derived outcome advantage. Thus, privileged information can indicate where a larger or smaller update is useful, but it does not decide whether a sampled token should be reinforced or penalized. In the original formulation, the self-distillation contribution is strongest early in training and is scheduled to decay toward vanilla GRPO, combining early dense guidance with a stable outcome-optimized training phase.
+
+    \item \textit{SDAR}~\citep{lu2026sdar}. It keeps verifier-driven GRPO as the primary optimization backbone and adds a separately gated self-distillation objective for multi-turn agents. A teacher branch receives training-only privileged context, such as a retrieved skill, and re-scores the student's on-policy tokens; a smooth, bounded token-level gate then controls how strongly each teacher signal enters the auxiliary loss. The gate can use student uncertainty and/or the detached teacher--student log-probability gap, giving greater weight to positive teacher endorsements while softly attenuating potentially unreliable negative rejections. Unlike \textit{RLSD}, SDAR leaves the GRPO advantage itself unchanged and regulates the auxiliary distillation loss instead; the student is evaluated without privileged skill context.
+\end{itemize}
+
+For all reproduced post-training baselines, we use the same backbone and environment wrappers as OPID and match the rollout budget, task batch, number of training steps, and evaluation protocol whenever applicable. The intended differences are restricted to the optimization signal and to the explicitly stated availability of skills or other privileged training context.
+
+\subsection{Algorithm and Extracted Skill Examples}
+\label{app:algorithm_skills}
+Algorithm~\ref{alg:opid} gives the full OPID training procedure, including on-policy rollout collection, hierarchical skill extraction, critical-first routing, paired scoring, and clipped policy optimization. Table~\ref{tab:hierarchical-skills-success-failure} provides representative skills extracted from successful and failed trajectories across ALFWorld, WebShop, and Search-based QA. These examples illustrate how episode-level skills capture reusable global workflows, while critical-step skills focus on sparse local decisions that influence the final outcome.
+
+\input{algorithm}
+\input{tables/skills}
+
+\subsection{Implementation Details}\label{app:implementation_details}
+\paragraph{Metrics.}
+For ALFWorld, we compute the success rate for each task type and report their macro-average:
+\begin{equation}
+    \mathrm{ALFWorld\text{-}Avg}
+    = \frac{1}{6}\sum_{c=1}^{6}\mathrm{SR}_{c}.
+\end{equation}
+For Search-based QA, we compute answer accuracy separately on each of the seven datasets and report the unweighted macro-average:
+\begin{equation}
+    \mathrm{Search\text{-}Avg}
+    = \frac{1}{7}\sum_{d=1}^{7}\mathrm{Acc}_{d}.
+\end{equation}
+For WebShop, the reported \textit{Score} is the mean normalized task score returned by the environment, multiplied by 100, and \textit{Succ.} is the percentage of tasks with exact success. 
+
+\paragraph{Trajectory analyzer.}
+After each on-policy episode terminates, we serialize the task prompt, step-indexed observations, policy responses/actions, environment feedback, and terminal outcome into an ordered trajectory record. An LLM-based analyzer then maps this record to one episode-level skill and a sparse set of critical-step skills. Step indices are zero-based, consistent with Table~\ref{tab:hierarchical-skills-success-failure}. By default, we use GLM-5.2~\citep{zai2026glm52} as the analyzer, with temperature set to 0.4 and maximum output length set to 4096. We limit the max number of identified critical steps at 5 for ALFWorld and WebShop, and at 2 for Search-based QA.
+
+\paragraph{Backbones and training schedule.}
+We use Qwen2.5-3B-Instruct and Qwen2.5-7B-Instruct~\citep{yang2024qwen25}, as well as Qwen3-1.7B-Instruct~\citep{yang2025qwen3}. All models are trained for 150 update steps. The training batch size reported in the main paper is 16 for ALFWorld and WebShop and 128 for Search-based QA. Table~\ref{tab:rl_hyperparameters} records the remaining hyperparameters that are required for exact reproduction.
+\input{tables/appendix_param}
+ 
+
+\paragraph{Computing details.}
+Training is conducted on 8 Nvidia A800 80G GPUs.
+
+
+\section{Supplementary Results}\label{app:supp_results}
+
+\subsection{Detailed Sample Efficiency Comparison}
+\label{app:sample_efficiency}
+Table~\ref{tab:sample_efficiency} reports the ALFWorld success rate when only a fraction of the training data is used. OPID consistently improves over GRPO across all data budgets. The gains are especially large in the low- and mid-data regimes, reaching +15.6 points with 60\% of the data and +20.3 points with 80\% of the data. These results suggest that trajectory-derived hindsight skills allow OPID to extract more supervision from each rollout, making outcome-based RL less dependent on large numbers of environment interactions.
+
+\input{tables/sample_efficiency}
+
+\subsection{Cross-Domain Generalization}
+\label{app:ood_generalization}
+Table~\ref{tab:ood_generalization_alfworld} evaluates transfer to the ALFWorld unseen split. OPID improves the average success rate over GRPO by +7.7 points, with particularly clear gains on \textit{Look} and \textit{Heat}. This indicates that OPID does not merely fit the observed training trajectories. Instead, the distilled episode-level workflows and step-level decision rules retain value under unseen environment configurations.
+
+\input{tables/generalization}
+
+\subsection{Training Diagnostics and Skill Extraction Patterns}
+\label{app:training_diagnostics}
+Figures~\ref{fig:critical_steps_alfworld}--\ref{fig:analyser_prompt} provide additional diagnostics for the OPID training pipeline. Figure~\ref{fig:critical_steps_alfworld} reports the average number of critical steps identified on ALFWorld, illustrating that OPID applies step-level supervision sparsely rather than assigning local skills to every decision. Figure~\ref{fig:training_advantage_alfworld} further visualizes the training advantage dynamics, complementing the main-paper training curves and showing how OPID reshapes the learning signal during policy optimization. Figure~\ref{fig:analyser_prompt} shows the analyzer prompt used to convert completed trajectories into hierarchical skills.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/critical_steps_on_alfworld.pdf}
+    \caption{\textbf{Average critical steps per sequence on ALFWorld.} The curve reports how many timesteps are selected by the analyzer for step-level hindsight skills in each trajectory. The relatively small number of critical steps indicates that OPID applies local skill supervision selectively, while relying on episode-level skills as default guidance for non-critical decisions.}
+    \label{fig:critical_steps_alfworld}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/training_appendix_on_alfworld.pdf}
+    \caption{\textbf{Magnitudes of episode-level and skill-guided advantage signals during OPID training.} Episode abs advantage measures the mean absolute advantage from group-relative outcome rewards, while skill abs advantage measures the mean absolute advantage induced by skill-guided log-probability shifts. The comparison shows how OPID combines sparse trajectory-level feedback with dense skill-conditioned supervision throughout optimization.}
+    \label{fig:training_advantage_alfworld}
+\end{figure}
+
+
+\section{Case Study}\label{app:case_study}
+Figures~\ref{fig:alfworld_case1}--\ref{fig:webshop_case2} provide illustrative examples from the ALFWorld, Search-QA, and WebShop benchmarks.
+
+
+\section{Additional Discussion}\label{app:discussion}
+OPID studies how completed on-policy trajectories can be reused as hindsight supervision for long-horizon agentic reinforcement learning. A natural next step is to evaluate this idea in broader interactive environments where agents must discover latent rules, maintain long-term state, and adapt through extended interaction. Benchmarks such as OdysseyArena~\citep{xu2026odysseyarena}, AgentBench~\citep{liu2023agentbench}, WebArena~\citep{zhou2023webarena}, Mind2Web~\citep{deng2023mind2web}, and VisualWebArena~\citep{koh2024visualwebarena} provide complementary stress tests beyond the embodied, shopping, and search-based settings considered in this paper. These environments would test whether trajectory-derived hindsight skills remain useful when the agent must handle longer horizons, richer interfaces, and more open-ended forms of exploration.
+
+Another direction is to enrich the structure of hindsight skills. OPID currently extracts episode-level and step-level skills from completed trajectories and routes them according to decision criticality. Future work could combine this on-policy extraction with higher-level reasoning abstractions, such as search-discovered reasoning patterns or reusable thought structures~\citep{wu2024beyond}, and with policy-aware exploration mechanisms developed for long-horizon agent learning~\citep{wu2026spark,lu2026sdar}. Such extensions may allow agents to aggregate skills across trajectories, identify recurring failure modes, and form more compositional behavioral rules while preserving OPID's key design choice: skills are used to shape training, not retrieved as privileged context at inference time.
+
+Finally, OPID opens several deployment-oriented directions. Since the analyzer and skill-conditioned scoring are used only during training, the learned policy incurs no additional inference-time skill retrieval cost. Nevertheless, the training pipeline can still benefit from more efficient inference and scoring mechanisms. Speculative and retrieval-parallel decoding methods such as \textsc{Double}~\citep{shen2026double} may reduce the cost of repeated model scoring during skill-conditioned distillation. In parallel, extending OPID to more perceptual and embodied settings, including active embodied intelligence benchmarks such as RobotEQ~\citep{fang2026roboteq}, could test whether hindsight skill supervision helps agents acquire not only task completion strategies, but also socially and spatially grounded decision rules.
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/OPID_analyser_prompt.pdf}
+    \caption{
+        Prompt of analyzer.
+    }
+    \label{fig:analyser_prompt}
+\end{figure}
+
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/alfworld_case1.pdf}
+    \caption{A full trajectory of OPID on ALFWorld Example 1.}
+    \label{fig:alfworld_case1}
+\end{figure}
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/alfworld_case2.pdf}
+    \caption{A full trajectory of OPID on ALFWorld Example 2.}
+    \label{fig:alfworld_case2}
+\end{figure}
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/searchqa_case1.pdf}
+    \caption{A full trajectory of OPID on Search-QA Example 1.}
+    \label{fig:searchqa_case1}
+\end{figure}
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/searchqa_case2.pdf}
+    \caption{A full trajectory of OPID on Search-QA Example 2.}
+    \label{fig:searchqa_case2}
+\end{figure}
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/webshop_case1.pdf}
+    \caption{A full trajectory of OPID on Webshop Example 1.}
+    \label{fig:webshop_case1}
+\end{figure}
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/webshop_case2.pdf}
+    \caption{A full trajectory of OPID on Webshop Example 2.}
+    \label{fig:webshop_case2}
+\end{figure}

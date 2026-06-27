@@ -1,0 +1,116 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2025_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+
+%%%%% FOR MAIN TABLE
+\usepackage[table]{xcolor}
+\usepackage{soul}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\definecolor{topcolor}{HTML}{FFF2CC}
+\definecolor{secondcolor}{HTML}{D9EAD3}
+%%%%% FOR MAIN TABLE
+
+%%%%% FOR SKILLS TABLE
+\usepackage{booktabs}  % \toprule, \midrule, \bottomrule
+\usepackage{tabularx}  % tabularx 环境和 X 列
+\usepackage{array}     % \arraybackslash 和 >{...} 列格式
+%%%%% FOR SKILLS TABLE
+
+%%%%% FOR Theoretical Analysis
+\usepackage{amsmath,amssymb,amsthm}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+%%%%% FOR Theoretical Analysis
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+
+%%%%% FOR Algorithm
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+
+\title{OPID: On-Policy Skill Distillation for Agentic Reinforcement Learning}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{\textbf{Shuo Yang}$^{1}$\thanks{Equal Contribution}~, \textbf{Jinyang Wu}$^{1}$\footnotemark[1]~~\thanks{Project Leader}~~,
+% \;\;\thanks{Corresponding author}~~
+\textbf{Zhengxi Lu}$^{2}$, \textbf{Yuhao Shen}$^{2}$, \textbf{Fan Zhang}$^{3}$,
+\textbf{Lang Feng}$^{4}$,\\
+\textbf{Shuai Zhang}$^{1}$,
+\textbf{Haoran Luo}$^{4}$,
+\textbf{Zheng Lian}$^{5}$,
+\textbf{Zhengqi Wen}$^{1}$,
+\textbf{Jianhua Tao}$^{1}$\\
+\\
+$^1$Tsinghua University \qquad$^2$Zhejiang University \qquad$^3$The Chinese University of Hong Kong\\
+$^4$Nanyang Technological University \qquad$^5$Tongji University\\
+\texttt{Corresponding to: wu-jy23@mails.tsinghua.edu.cn} \\
+\begin{tabular}{@{}ll@{}}
+\end{tabular}}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\usepackage{colortbl}
+\definecolor{gain}{RGB}{0,128,0}
+\definecolor{purple}{RGB}{216, 110, 204}
+\newcommand{\pos}[1]{\textcolor{red}{#1}} % 直接使用纯红色
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,      % 设置为true将链接文字换色，false为使用彩框
+    citecolor=purple,       % 引用颜色 (如 [1])
+}
+
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+
+\input{0_Abstract}
+
+\input{1_Introduction}
+
+\input{2_Related-works}
+
+\input{3_Method}
+
+\input{4_Experiment}
+
+\input{5_Conclusion}
+
+
+\bibliography{iclr2025_conference}
+\bibliographystyle{iclr2025_conference}
+
+\appendix
+\input{6_appendix}
+\end{document}

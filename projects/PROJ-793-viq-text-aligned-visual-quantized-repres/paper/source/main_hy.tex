@@ -1,0 +1,203 @@
+% =============================================================
+%  ViQ: Text-Aligned Visual Quantized Representations at Any Resolution
+%  Layout: GEM template (LLNCS + COLM preprint)
+%  Header (页眉) logos kept identical to the HunYuan "extracted" template
+%  Compile with: pdflatex -> bibtex -> pdflatex -> pdflatex
+%  Bibliography: references.bib
+% =============================================================
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[runningheads]{llncs}
+
+% ---------------------------------------------------------------
+% Include basic COLM package for ArXiv format
+\usepackage[preprint]{colm}
+
+% Add this to ensure author-year is activated
+\setcitestyle{authoryear}
+
+% ---------------------------------------------------------------
+% Include other packages here, before hyperref.
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[accsupp]{axessibility}
+\usepackage{xltabular} % The missing piece
+% Packages from arXiv source
+\usepackage{microtype}
+\usepackage{tabularx}
+\usepackage{amssymb}
+\usepackage{paralist}
+\usepackage{todonotes}
+\usepackage{breakurl}
+% NOTE: ViQ ablation tables rely on subfig's \subfloat, so we load subfig
+% here in place of GEM's original \usepackage{subcaption}.
+\usepackage{subfig}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{footnote}
+\usepackage{enumitem}
+\usepackage{bm}
+\usepackage{arydshln}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{bbding}
+\usepackage{makecell}
+\usepackage{mathtools}
+\usepackage{imakeidx}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[edges]{forest}
+\usepackage[normalem]{ulem}
+\usepackage{CJKutf8}
+\usepackage{awesomebox}
+\usepackage[most]{tcolorbox}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{adjustbox}
+
+% ---------------------------------------------------------------
+% Common abbreviations (from eccvabbrv)
+\RequirePackage{xspace}
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+
+\def\eg{\emph{e.g}\onedot} 
+\def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} 
+\def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{cf}\onedot} 
+\def\Cf{\emph{Cf}\onedot}
+\def\etc{\emph{etc}\onedot} 
+\def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} 
+\def\dof{d.o.f\onedot}
+\def\iid{i.i.d\onedot} 
+\def\wolog{w.l.o.g\onedot}
+\def\etal{\emph{et al}\onedot}
+\makeatother
+
+% ---------------------------------------------------------------
+% Include custom commands
+\usepackage{pifont}
+\usepackage{lscape}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% ---------------------------------------------------------------
+% Add page header with logos
+% NOTE: per request, the header (页眉) logos are kept identical to the
+% HunYuan "extracted" template (Tencent Robotics X + Tencent Hunyuan).
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[L]{\includegraphics[height=10pt]{logo/hunyuan-logo-new.png}}
+\renewcommand{\headrulewidth}{1pt}
+\setlength{\headheight}{24pt}
+\fancyfoot{}
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+\usepackage{amsfonts}
+\usepackage{wrapfig}
+
+
+% ---------------------------------------------------------------
+% Hyperref package
+\usepackage{hyperref}
+\usepackage{orcidlink}
+
+% Custom commands and definitions
+\definecolor{mydarkblue}{rgb}{0,0.08,0.45}
+\definecolor{wkblue}{rgb}{0.2, 0.3, 0.6}
+\definecolor{meta-color}{rgb}{0.5, 0.5, 0.5}
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\definecolor{geovistagray}{gray}{0.95}
+\definecolor{myblue}{rgb}{0.9, 0.1, 0.94}
+\definecolor{mygreen}{rgb}{0.64, 0.56, 0.88}
+\definecolor{myyellow}{rgb}{0.68, 0.6, 0.1}
+\definecolor{fancygreen}{rgb}{0.33, 0.68, 0.20}
+\definecolor{salmon}{rgb}{0.94, 0.52, 0.49}
+\definecolor{tablegreen}{rgb}{0.82, 0.94, 0.75}
+\definecolor{tableblue}{rgb}{0.81, 0.90, 0.94}
+\definecolor{tablered}{rgb}{0.97, 0.85, 0.85}
+\definecolor{tableorange}{rgb}{0.96, 0.85, 0.81}
+\definecolor{bestcolor}{RGB}{210, 222, 239}
+\definecolor{secondcolor}{RGB}{234, 239, 247}
+\definecolor{thirdcolor}{RGB}{193, 214, 229}
+\definecolor{line-blue}{RGB}{243, 248, 252}
+\definecolor{line-green}{RGB}{200,242,200}
+\definecolor{line-red}{RGB}{255,215,215}
+\definecolor{line-gray}{RGB}{242, 242, 242}
+\definecolor{sensepurple}{HTML}{5D2DD6}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\foo}{\color{cyan}\makebox[0pt]{\textbullet}\hskip-0.5pt\vrule width 1pt\hspace{\labelsep}}
+\newcommand{\term}[1]{\index{\lowercase{#1}}\emph{#1}}
+\newcommand{\tcterm}[1]{\index{#1}\emph{#1}}
+
+\newenvironment{MyColorPar}[1]{%
+    \leavevmode\color{#1}\ignorespaces%
+}{%
+}%
+
+% Paragraph-level bold run-in heading (used by the ViQ sections)
+\newcommand{\paragrapha}[1]{\par\addvspace{0.45em}\noindent\textbf{#1}}
+
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+\title{ViQ: Text-Aligned Visual Quantized Representations at Any Resolution}
+
+\titlerunning{ViQ}
+
+\author{\textbf{Xumin Yu$^{1,*}$, Zuyan Liu$^{1,2,*}$, Zhenyu Yang$^{1,4,*}$, Yuhao Dong$^{3}$,} \\
+\textbf{Shengsheng Qian$^{4}$, Jiwen Lu$^{2}$, Han Hu$^{1}$, Yongming Rao$^{1,\dagger}$}\\[0.5em]
+$^1$ Tencent HY Vision Team \quad $^2$ Tsinghua University \\[0.2em]
+$^3$ Nanyang Technological University \quad $^4$ Chinese Academy of Sciences}
+
+\authorrunning{Yu et al.}
+
+\maketitle
+
+\makeatletter
+\def\@makefnmark{}
+\makeatother
+\footnotetext{$^{*}$ Equal contribution. $^{\dagger}$ Corresponding author.}
+
+% --------------------------- Front matter ---------------------
+\input{sec/0-Abstract}
+
+% --------------------------- Body -----------------------------
+% NOTE: the teaser figure (fig:teaser) is emitted inside sec/1-Introduction.tex
+% so that it floats to the top of page 2 rather than page 1.
+\input{sec/1-Introduction}
+\input{sec/2-RelatedWorks}
+\input{sec/3-Method}
+\input{sec/4-Experiments}
+\input{sec/5-Conclusion}
+\newpage
+
+% --------------------------- References -----------------------
+\renewcommand{\refname}{References}
+\renewcommand{\bibname}{References}
+\renewcommand{\bibsection}{\section*{\raggedright \Large References}}
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+% --------------------------- Appendix -------------------------
+\newpage
+\appendix
+\setcounter{section}{0}
+\renewcommand{\thesection}{\Alph{section}}
+{\large\bfseries Appendix\par}
+\addcontentsline{toc}{section}{Appendix}
+\vspace{1em}
+\input{sec/A-Appendix}
+
+\end{document}

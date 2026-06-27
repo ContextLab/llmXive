@@ -1,0 +1,18 @@
+\section{Conclusion}
+
+We introduced \name{}, an on-policy generative field distillation framework for composing heterogeneous generative capabilities into a single flow-matching student. The key view is to treat each frozen capability source as a velocity field over a shared generative state space and to formulate capability composition as a field-query problem. This perspective exposes three query-induced alignment challenges, including target-field ambiguity, state-distribution mismatch, and trajectory-query correlation. Correspondingly, our model uses hard-routed sample-wise field matching to preserve the semantic identity of each capability, queries the routed field on student-visited states from the current rollout, and uses one semantic-side low-noise query per sample to avoid correlated within-trajectory supervision. With a plain velocity MSE objective, this design composes and absorbs capability fields without relying on joint training, parameter-space merging, or external score composition. Experiments on T2I and editing composition, local and global editing composition, realism-field absorption, and CFG absorption show that DanceOPD strengthens the target capability while preserving the anchor capability. Ablations further support the role of hard routing, student-induced query states, semantic-side single-query supervision, and direct velocity regression. These results suggest that on-policy generative field distillation is a practical route toward scalable multi-capability visual generation.
+
+
+\vspace{0.2cm}
+
+
+\section{Limitations and Discussions}
+\label{sec:limitations}
+
+\noindent\textbf{Shared Field Support.}
+The current formulation assumes that frozen capability sources expose compatible velocity fields over a shared generative state space. In our experiments, this assumption is satisfied because the sources are built from the same backbone family, latent representation, scheduler convention, and velocity parameterization. This requirement is not unique to DanceOPD: LLM OPD methods usually require teacher and student distributions to be defined over the same token space before token-level KL or asymmetric KL can be applied~\cite{gu2024minillm,agarwal2024policy,jia2026asymmetric}, and flow-matching OPD methods also require compatible transition, score, or velocity parameterizations for teacher and student matching~\cite{li2026diffusionopd,jiang2026d,fang2026flow}.
+
+\noindent\textbf{Predefined Routing.}
+Our implementation uses predefined capability buckets and sample-wise hard routing. This is a standard and stable OPD-style design when the supervision source is known from the task or data identity, and it is well matched to our setting, where T2I, local editing, global editing, style, and guidance-field examples are easy to separate. However, this assumption becomes weaker when task boundaries are ambiguous or when a prompt requires several capabilities at once. A natural extension is to introduce a verifier or reward model that assigns routes according to model behavior or predicted edit success, connecting our field-routed distillation to reward- and verifier-based evaluation or supervision signals~\cite{kirstain2023pick,wu2023human,xu2023imagereward,ku2024viescore,fang2026rubric}.
+
+\vspace{0.2cm}

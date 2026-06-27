@@ -1,0 +1,52 @@
+{
+  "arxiv_id": "2606.27313",
+  "arxiv_url": "https://arxiv.org/abs/2606.27313",
+  "title": "ViQ: Text-Aligned Visual Quantized Representations at Any Resolution",
+  "authors": [
+    "Xumin Yu",
+    "Zuyan Liu",
+    "Zhenyu Yang",
+    "Yuhao Dong",
+    "Shengsheng Qian",
+    "Jiwen Lu",
+    "Han Hu",
+    "Yongming Rao"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "A unified representation for text and vision is a natural pursuit, as it enables simpler multimodal modeling and more efficient training. However, representing images as discrete signals in the same way as text inevitably introduces severe information loss. Existing work struggles to balance low-level details and high-level semantics in discrete representations: reconstruction-oriented representations often lack semantic information, whereas semantically stronger features typically suffer from severe loss of detail. We present ViQ, a Visual Quantized Representations framework, which is designed to balance semantics and details in discrete representations while supporting inputs at native resolutions, thereby enabling it to serve as a unified and general discrete representation for arbitrary visual inputs. Our approach structures quantization learning into two stages: text-aligned pre-training and feature discretization. With text-aligned pre-training, we enhance the visual encoder semantic-rich supervision from the pretrained language model and enable it to process native-resolution visual inputs. During discretization, we propose a proximal representation learning strategy to progressively compact the feature space, along with a position-aware head-wise quantization mechanism that enables flexible processing of arbitrary resolutions. Extensive experiments on multimodal tasks demonstrate that ViQ achieves competitive performance compared to state-of-the-art multimodal vision encoders with continuous and high-dimensional visual features, while maintaining high precision in low-level reconstruction. We also show that multimodal training with visual quantized representations largely improves efficiency, yielding up to 20\\%-70\\% acceleration with different base LLMs and training recipes.",
+  "submitted_via": "llmXive dashboard, GitHub issue #383",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/yuxumin/ViQ"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main_hy.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "colm.sty",
+    "fancyhdr.sty",
+    "figures",
+    "figures/fig1_eccv.pdf",
+    "figures/fig2_eccv.pdf",
+    "figures/fig4.pdf",
+    "figures/fig5.pdf",
+    "figures/fig_supp.png",
+    "ieeenat_fullname.bst",
+    "logo",
+    "logo/hunyuan-logo-new.png",
+    "main.bib",
+    "main_hy.tex",
+    "references.bib",
+    "sec",
+    "sec/0-Abstract.tex",
+    "sec/1-Introduction.tex",
+    "sec/2-RelatedWorks.tex",
+    "sec/3-Method.tex",
+    "sec/4-Experiments.tex",
+    "sec/5-Conclusion.tex",
+    "sec/A-Appendix.tex"
+  ]
+}

@@ -1,0 +1,44 @@
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\caption{RL training hyperparameters.}
+\label{tab:rl_hyperparameters}
+\begin{tabular}{@{}p{0.4\textwidth}p{0.5\textwidth}@{}}
+\toprule
+\textbf{Hyperparameter} & \textbf{Value} \\
+\midrule
+
+Training steps
+& 150  \\
+
+Training batch size
+& 16 for ALFWorld and WebShop; 128 for Search \\
+
+Rollout group size $N$
+& 8 \\
+
+Learning rate
+& $1\times10^{-6}$  \\
+
+PPO clip parameter $\epsilon$
+& 0.2 \\
+
+Skill coefficient $\lambda_{\mathrm{skill}}$
+& 0.001 \\
+
+KL regularization coefficient
+& 0.01 \\
+
+Maximum prompt length
+& 2,048 for ALFWorld ; 4,096 for WebShop and Search  \\
+
+Response lengths
+& 512 \\
+
+Maximum interaction steps
+& 30 for ALFWorld, 15 for WebShop, and 4 for Search. \\
+\bottomrule
+\end{tabular}
+\end{table*}

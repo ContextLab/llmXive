@@ -1,0 +1,42 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Sample efficiency comparison on ALFWorld.} We report success rates under different fractions of the training data. The $\Delta$ row shows the absolute improvement of OPID over GRPO, indicating that OPID provides stronger gains especially in low- and mid-data regimes.}
+\vspace{0.05in}
+\label{tab:sample_efficiency}
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{cccccc}
+\toprule
+\textbf{Method} & \textbf{20\%} & \textbf{40\%} & \textbf{60\%} & \textbf{80\%} & \textbf{100\%} \\
+\midrule
+GRPO & 27.3 & 42.2 & 56.3 & 58.6 & 75.0 \\
+\rowcolor{gray!10}
+OPID & 36.7 & 54.7 & 71.9 & 78.9 & 84.3 \\
+\rowcolor{blue!6}
+$\Delta$ & +9.4 & +12.5 & +15.6 & +20.3 & +9.3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% \begin{table}[htbp]
+% \centering
+% \caption{Sample efficiency comparison on ALFWorld.}
+% \vspace{0.05in}
+% \label{tab:sample_efficiency}
+% \begin{tabular}{lccccc}
+% \toprule
+% \textbf{Method} & \textbf{20\%} & \textbf{40\%} & \textbf{60\%} & \textbf{80\%} & \textbf{100\%} \\
+% \midrule
+% \rowcolor{gray!15}
+% % \multicolumn{6}{l}{\textit{ALFWorld}} \\
+% GRPO & 27.3 & 42.2 & 56.3 & 58.6 & 75.0 \\
+% OPID & 36.7 & 54.7 & 71.9 & 78.9 & 84.3 \\
+% % \midrule
+% % \rowcolor{gray!15}
+% % \multicolumn{6}{l}{\textit{WebShop}} \\
+% % GRPO & 21.6 & 43.2 & 57.0 & 63.2 & 63.3 \\
+% % OPID & 32.3 & 45.8 & 54.7 & 62.8 & 68.0 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}

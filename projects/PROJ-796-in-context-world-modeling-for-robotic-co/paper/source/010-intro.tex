@@ -1,0 +1,43 @@
+
+Consider a human operator handed a joystick to control a robot, but with no prior knowledge of the control mapping. Does pushing forward move the robot left, right, or forward? The operator's first instinct is not to attempt the task directly, but to explore: move the joystick randomly, observe the robot's response, and infer the input-output relationship. Within seconds, this brief calibration phase yields an internal model of the system dynamics, enabling the transition from stochastic exploration to goal-directed control.
+Crucially, this calibration is entirely self-generated—the operator needs no prior knowledge of the task, no external guidance, and no task-specific experience under the new control mapping.
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/intro2-2.pdf}
+    \caption{In-Context World Modeling (ICWM). Standard VLA models often fail in novel system configurations due to fixed observation-action assumptions. Similar to how humans explore unfamiliar controls to build a mental world model, ICWM enables robots to autonomously infer system dynamics from self-probing interaction context.}
+    \label{fig:intro}
+    % \vspace{-4mm}
+\end{figure}
+
+Modern Vision-Language-Action (VLA) models \cite{rt2,openvla,pi0}, however, lack this calibration ability entirely. The standard formulation $\pi_\theta\left(a_t \mid o_t, l\right)$ conditions only on the current observation and language instruction, treating system configuration $\psi$ (like camera viewpoints, morphology) as a fixed constant absorbed into model parameters during training. 
+When deployment conditions deviate from training, the model has no mechanism to recover the correct action-observation correspondence, and performance degrades \cite{Fei2025LIBEROPlusIR}.
+Scene-specific fine-tuning remains the prevailing remedy, yet it requires human intervention for every new setup—contradicting the goal of generalist deployment.
+
+
+We argue this failure is a \textit{system identification} problem: the policy 
+lacks knowledge of $\psi$ at test time. This naturally motivates repurposing 
+the context window to recover $\psi$ through targeted interaction. However, 
+existing In-Context Learning (ICL) methods \cite{Fu2024ICRTII, 
+Shah2025MimicDroidIL} treat context as \textit{behavior specification} (what to 
+do) rather than \textit{system identification} (how the system operates), and 
+still require human-provided demonstrations at test time.
+
+
+
+
+In this work, we propose In-Context World Modeling (ICWM) (\autoref{fig:intro}), which repurposes the context window for system 
+identification rather than behavior specification. Before task execution, the robot performs a short sequence of random exploratory movements and records the resulting visual transitions; these self-probed clips are prepended as context, from which the model implicitly recovers the current system configuration and adapts its actions accordingly. 
+Surprisingly, the task-agnostic random movements alone provide sufficient context for implicit system identification without any task-specific demonstrations and we show this simple strategy yields consistent improvements over standard VLA training on novel viewpoints across both simulation and real-robot platforms.
+
+
+
+In summary, this work makes the following contributions:
+\begin{itemize}
+    \item We reframe VLA generalization as a test-time system identification problem, identifying the absence of explicit $\psi$ conditioning as an underexplored failure mode that persists across standard training strategies.
+    \item We propose In-Context World Modeling (ICWM), which implicitly identifies the system configuration from self-generated, task-agnostic exploratory transitions prepended as context, achieving test-time adaptation without parameter updates or task-specific demonstrations.
+    \item We validate ICWM on both simulation benchmarks and real-robot experiments, demonstrating significant improvements over standard VLA training on novel camera viewpoints, with further generalization to semantic scene variations and robot morphological changes.
+\end{itemize}
+

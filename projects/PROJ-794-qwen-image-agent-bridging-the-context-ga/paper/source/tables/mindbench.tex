@@ -1,0 +1,43 @@
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|ccccc|ccccc|c}
+\toprule
+\multirow{2}{*}{\textbf{Model Name}}
+& \multicolumn{5}{c|}{\textbf{Knowledge-Driven}} 
+& \multicolumn{5}{c|}{\textbf{Reasoning-Driven}} 
+& \multirow{2}{*}{\textbf{Overall}} \\
+\cmidrule(lr){2-6} \cmidrule(lr){7-11}
+& SE & Wth & MC & IP & WK & SL & Poem & LifeR & GU & Math &  \\
+\midrule
+GPT-Image-1~\citep{openai2024gptimage1}        & 0.32 & 0.06 & 0.22 & 0.02 & 0.16 & 0.32 & 0.10 & 0.24 & 0.10 & 0.12 & 0.17 \\
+GPT-Image-1.5~\citep{openai2025gptimage15}     & 0.36 & 0.18 & 0.22 & 0.04 & 0.30 & 0.34 & 0.08 & \textbf{0.34} & 0.10 & 0.02 & 0.21 \\
+FLUX.2-pro~\citep{blackforestlabs2026flux2pro} & 0.38 & 0.12 & 0.08 & 0.00 & 0.20 & 0.44 & 0.64 & 0.18 & 0.04 & 0.02 & 0.21 \\
+FLUX.2-max~\citep{blackforestlabs2026flux2max} & 0.44 & 0.12 & 0.10 & 0.04 & \underline{0.38} & 0.40 & 0.50 & 0.20 & 0.02 & 0.06 & 0.23 \\
+Nano Banana~\citep{deepmind2024geminiimage25}  & 0.30 & 0.10 & 0.12 & 0.00 & 0.30 & 0.32 & 0.36 & 0.20 & 0.04 & 0.08 & 0.18 \\
+Nano Banana Pro~\citep{deepmind2024geminiimage} & \underline{0.50} & \textbf{0.36} & \underline{0.40} & \textbf{0.16} & \textbf{0.56} & \textbf{0.62} & \underline{0.68} & \underline{0.30} & \textbf{0.16} & \textbf{0.46} & \underline{0.41} \\
+\midrule
+SDXL~\citep{podell2023sdxl}                     & 0.04 & 0.00 & 0.04 & 0.00 & 0.00 & 0.00 & 0.00 & - & - & - & 0.01 \\
+SD-3.5-medium~\citep{sd35Medium}               & 0.02 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & - & - & - & 0.01 \\
+SD-3.5-large~\citep{sd35Large}                 & 0.04 & 0.00 & 0.02 & 0.00 & 0.02 & 0.00 & 0.06 & - & - & - & 0.01 \\
+FLUX.1-dev~\citep{flux2024}                    & 0.04 & 0.00 & 0.00 & 0.00 & 0.02 & 0.02 & 0.04 & - & - & - & 0.02 \\
+FLUX.1-kontext~\citep{labs2025flux1kontextflowmatching} & 0.02 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & - & - & - & 0.01 \\
+FLUX.1-krea~\citep{flux2024}                   & 0.04 & 0.00 & 0.04 & 0.00 & 0.02 & 0.00 & 0.02 & - & - & - & 0.02 \\
+Bagel~\citep{deng2025bagel}                    & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.02 & 0.02 & 0.00 & 0.08 & 0.02 \\
+Echo-4o~\citep{ye2025echo}                     & 0.04 & 0.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.06 & 0.02 & 0.02 & 0.02 & 0.02 \\
+DraCo~\citep{jiang2025draco}                   & 0.02 & 0.00 & 0.02 & 0.00 & 0.00 & 0.02 & 0.02 & 0.04 & 0.02 & 0.06 & 0.02 \\
+Z-Image~\citep{cai2025z}                       & 0.02 & 0.00 & 0.08 & 0.02 & 0.00 & 0.00 & 0.00 & - & - & - & 0.02 \\
+Qwen-Image~\citep{wu2025qwen}                  & 0.08 & 0.00 & 0.04 & 0.00 & 0.00 & 0.04 & 0.00 & 0.04 & 0.00 & 0.00 & 0.02 \\
+Qwen-Image-2.0~\citep{Zhao2026QwenImage20TR}   & 0.19 & 0.24 & 0.23 & 0.04 & 0.12 & 0.42 & 0.58 & 0.12 & 0.02 & 0.28 & 0.23 \\
+\midrule
+\rowcolor{blue!10}
+\textbf{Qwen-Image-Agent} & \textbf{0.60} & \underline{0.28} & \textbf{0.70} & \textbf{0.16} & 0.28 & \underline{0.58} & \textbf{0.82} & 0.24 & \textbf{0.20} & \underline{0.34} & \textbf{0.42} \\
+\bottomrule
+\end{tabular}
+}
+\caption{Results on MindBench. Best results are in bold and the second best ones are underlined.}
+\label{tab:mindbench}
+\end{table*}

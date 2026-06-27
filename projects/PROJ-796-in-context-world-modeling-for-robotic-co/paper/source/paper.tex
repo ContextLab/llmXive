@@ -1,0 +1,259 @@
+\documentclass[]{openmoss}
+
+% ===== Template packages (kept) =====
+\usepackage{helvet}
+% 
+
+\usepackage{amsmath} 
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{subcaption} 
+
+\usepackage[toc,page,header]{appendix}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{lmodern}        % scalable Latin Modern fonts
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{wrapfig}
+
+\usepackage{amssymb}        % special symbols
+% \usepackage{fontawesome}    % icons
+\usepackage{titletoc}
+\usepackage{minitoc}
+
+\usepackage{array}
+\usepackage{etoolbox}
+\newcommand{\maxbold}[1]{\textbf{#1}}
+\definecolor{lightblue}{RGB}{200, 230, 255}  
+\definecolor{headerblue}{RGB}{150, 200, 255} 
+
+\usepackage{pgfplots}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usepackage{pgf-pie}
+\usepackage[export]{adjustbox}
+
+\usepackage{ragged2e}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{pifont}
+\usepackage[hang,flushmargin]{footmisc}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}
+\tcbuselibrary{skins}
+
+\usepackage{tabularx}
+\usepackage{listings}
+
+% ===== Added to support original content (template-only changes) =====
+\usepackage{threeparttable}
+\usepackage{setspace}
+% \usepackage[a4paper, margin=1in]{geometry}
+\usepackage[scheme=plain]{ctex} % needed for Chinese text in appendix prompts
+
+% ===== Colors used in original content =====
+\definecolor{MossCyan}{HTML}{82D9FF} 
+\definecolor{MossBlue}{HTML}{82B1FF}
+
+% ===== Template macros (kept) =====
+\def\axisLabels{{CharXiv, MMBench, MMMU, MMMU-Pro, MathVerse, MathVision, MathVista}}
+\def\numAxes{7}
+\definecolor{ForestGreen}{RGB}{34, 139, 34}
+\definecolor{Red}{RGB}{255, 0, 0}
+\newcommand{\catA}{\makecell{3D Spatial \\ Perc. \& Under.}}
+\newcommand{\catB}{\makecell{Pattern Recog. \\ \& Matching}}
+\newcommand{\catC}{\makecell{Multi-step \\ Reasoning}}
+\newcommand{\catD}{\makecell{Strategic \\ Planning}}
+\definecolor{tickG}{rgb}{0.1, 0.588, 0.1}
+\definecolor{crossR}{rgb}{0.588, 0.1, 0.1}
+\newcommand{\cmark}{\textcolor{tickG}{\ding{52}}}
+\newcommand{\xmark}{\textcolor{crossR}{\ding{56}}}
+
+\definecolor{frenchblue}{rgb}{0.0, 0.45, 0.73}
+\definecolor{babyblue}{rgb}{0.54, 0.81, 0.94}
+\definecolor{classicrose}{rgb}{0.98, 0.8, 0.91}
+\definecolor{beige}{rgb}{0.96, 0.96, 0.86}
+\definecolor{forestgreen}{HTML}{2e7d43}
+
+\definecolor{blue1}{HTML}{91BBE6}
+\definecolor{blue2}{HTML}{3F90E0}
+\definecolor{blue3}{HTML}{316FAD}
+
+\definecolor{color1}{HTML}{FF9999}
+\definecolor{color2}{HTML}{FF6666}
+\definecolor{color3}{HTML}{FF3333}
+\definecolor{color4}{HTML}{E60000}
+\definecolor{color5}{HTML}{B30000}
+\definecolor{color6}{HTML}{8CD98C}
+\definecolor{color7}{HTML}{53c653}
+\definecolor{color8}{HTML}{00B050}
+\definecolor{color9}{HTML}{2d862d}
+\definecolor{color10}{HTML}{206020}
+\definecolor{color11}{HTML}{cca300}
+
+\definecolor{eggshell}{HTML}{EFEBE4}
+\definecolor{deltaBg}{RGB}{220,230,255} % subtle blue-grey
+\newcommand{\normalrow}{\rowcolor{gray!30}}
+\newcommand{\rowhighlight}{\rowcolor{deltaBg}}
+
+\renewcommand{\figureautorefname}{Fig.} 
+\renewcommand{\tableautorefname}{Tab.}   
+\renewcommand{\sectionautorefname}{Sec.} 
+\renewcommand{\subsectionautorefname}{Sec.} 
+\renewcommand{\equationautorefname}{Eq.} 
+\renewcommand{\appendixautorefname}{App.} 
+
+\addto\extrasenglish{
+  \def\sectionautorefname{Sec.}
+  \def\subsubsectionautorefname{Sec.}
+  \def\subsectionautorefname{Sec.}
+  \def\figureautorefname{Fig.}
+  \def\tableautorefname{Tab.}
+  \def\appendixautorefname{App.}
+}
+
+% ===== Prompt box from template (kept) =====
+\newtcolorbox{promptbox}[2][]{
+    colback=white,
+    coltext=black,
+    arc=3mm,
+    boxrule=0.5pt,
+    colframe=black!60!white,
+    title={#2},
+    colbacktitle=black,
+    coltitle=white,
+    fonttitle=\bfseries,
+    top=8pt,
+    bottom=8pt,
+    left=10pt,
+    right=10pt,
+    breakable,
+    before upper={%
+        \linespread{1}\selectfont
+        \setlength{\parskip}{1ex plus 0.2ex minus 0.2ex}%
+        \setlength{\parindent}{0pt}%
+    },
+    #1
+}
+
+% ===== Title & Author (moved into mosi template) =====
+
+\title{In-Context World Modeling for Robotic Control}
+
+
+\author{
+Siyin Wang$^{1,2}$ \hspace{.3em}
+Junhao Shi$^{1,2,}$\hspace{.3em}
+Senyu Fei$^{2,3}$ \hspace{.1em}
+Zhaoyang Fu$^{1}$
+\\
+\textbf{
+Li Ji$^{1,2}$ \hspace{.1em}
+Jingjing Gong$^{2,\dagger}$ \hspace{.1em}
+Xipeng Qiu$^{1,2,\dagger}$ \hspace{.1em}
+% Author 8$^{1,}$ \hspace{.1em}
+}
+\\
+% \textbf{
+% Author 9$^{2,}$ \hspace{.2em}
+% Author 10$^{1,\dagger}$
+% }
+% \\
+[1ex]
+\normalfont
+$^{1}$Fudan University   
+$^{2}$Shanghai Innovation Institute  
+$^{3}$Tongji University  
+% }
+\\
+\texttt{siyinwang20@fudan.edu.cn} \\
+% {\fontsize{10}{12}\selectfont \texttt{$^{\dagger}$Corresponding Author}}\\
+}
+
+
+% ===== Abstract (content unchanged) =====
+\abstract{
+Modern Vision-Language-Action (VLA) models often fail to generalize to novel setups, such as altered camera viewpoints or robot morphologies, because they are typically conditioned only on current observations and language instructions. By ignoring the underlying system configuration as a variable, these models implicitly assume a fixed execution context encountered during training, necessitating data-intensive fine-tuning for any new environment. In this work, we introduce In-Context World Modeling (ICWM), a framework that treats system identification as an in-context adaptation problem. ICWM enables robot policies to autonomously infer essential system variables from a short history of self-generated, task-agnostic interactions. Unlike traditional In-Context Learning that uses demonstrations to specify what task to perform, ICWM leverages the context window to understand how the system operates. 
+By processing these interactions before task execution, the model implicitly captures the world dynamics of the current system, enabling adaptation to novel configurations without parameter updates.
+Extensive experiments in simulation and on real-world robot platforms demonstrate that ICWM significantly outperforms standard VLA baselines on novel camera viewpoints.
+}
+
+% ===== Checkdata (mapped from original links) =====
+% \checkdata[Homepage]{\url{https://mosi.cn/models/moss-transcribe-diarize}}
+% \checkdata[Online Demo]{\url{https://moss-transcribe-diarize-demo.mosi.cn}}
+
+% \checkdata[Huggingface Space]{\url{https://huggingface.co/spaces/OpenMOSS-Team/MOSS-transcribe-diarize}}
+
+\begin{document}
+\maketitle
+\begingroup
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+% \setcounter{footnote}{1}
+\footnotetext{$^{\dagger}$Corresponding Authors}
+\endgroup
+
+% ===== Original meta lines (content unchanged) =====
+% \begin{spacing}{1.0}
+% {\small \noindent \textbf{Date:} December 31, 2025 \par}
+% {\small \noindent \textbf{Demo:} \url{https://openmoss.github.io/MOSS-Transcribe-Diarize-demo/} \par}
+% {\small \noindent \textbf{Huggingface Space:} \url{https://huggingface.co/spaces/OpenMOSS-Team/MOSS-transcribe-diarize} \par}
+% \end{spacing}
+
+% ===== Original content starts here (sections/tables/figures unchanged) =====
+
+\section{Introduction}
+\input{010-intro}
+
+\section{Related Work}
+\input{020-relate}
+
+% \section{Methods}
+\input{030-method}
+
+\section{Experiments}
+\input{040-exp}
+
+\section{Conclusion}
+
+In this work, we identified the absence of explicit system configuration conditioning in modern VLA models as an underexplored limitation to generalization. 
+Inspired by human motor adaptation, we proposed In-Context World Modeling (ICWM), which transforms the VLA policy from a static mapping into an adaptive inference engine. 
+By conditioning the policy on self-generated forward interaction clips, ICWM implicitly captures the underlying sensory-motor relationship at test time without any parameter updates.
+Experiments across simulation benchmarks and real-world platforms demonstrate that ICWM substantially reduces spatial ambiguities under novel viewpoints, and can also extend to semantic scene variations and robot morphological changes.
+
+
+
+
+
+% ===== Bibliography =====
+\clearpage
+% \bibliographystyle{plainnat}
+\bibliographystyle{unsrtnat} % 引用按照在正文出现的顺序排列
+\bibliography{main}
+
+% ===== Appendix (content unchanged) =====
+\clearpage
+\beginappendix
+
+% \startcontents[app]
+% \begingroup
+%   \renewcommand{\contentsname}{Appendix Contents}
+%   \section*{\contentsname}
+%   \printcontents[app]{}{1}{}
+% \endgroup
+% \newpage
+
+\input{appendix}
+
+\end{document}

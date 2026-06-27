@@ -1,0 +1,227 @@
+\section{Methods}
+
+We formulate long-horizon agentic tasks as partially observable decision processes and present OPID, a framework that converts completed on-policy trajectories into hierarchical skills and distills their behavioral effect back into the policy. OPID{} performs on-policy skill distillation in three stages. First, it extracts hierarchical skills from completed on-policy trajectories. Second, it routes the appropriate skill to each decision step and converts the skill effect into token-level self-distillation signals. Third, it combines these token-level skill advantages with group-relative outcome advantages for policy optimization.
+Figure~\ref{fig:overview} illustrates the overall pipeline.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/OPID_v2.pdf}
+    \caption{\textbf{Overview of OPID.} Starting from completed on-policy trajectories, OPID extracts hierarchical hindsight skills and routes the most relevant skill to each decision, prioritizing step-level skills at critical states. The policy then re-scores the same sampled response with and without the routed skill, turning the token-wise log-probability difference into a dense skill advantage that complements the episode-level RL signal.}
+    \label{fig:overview}
+\end{figure}
+
+
+\subsection{Problem Formulation}
+
+We model an agentic task as a partially observable Markov decision process defined by
+\begin{equation*}
+    (\mathcal{S}, \mathcal{A}, \mathcal{O}, \mathcal{T}, \mathcal{R}, \gamma),
+\end{equation*}
+where $\mathcal{S}$ is the latent state space, $\mathcal{A}$ is the action space, $\mathcal{O}$ is the observation space, $\mathcal{T}: \mathcal{S}\times\mathcal{A}\rightarrow\mathcal{S}$ is the transition function, $\mathcal{R}: \mathcal{S}\times\mathcal{A}\rightarrow \mathbb{R}$ is the reward function, and $\gamma \in [0,1)$ is the discount factor. At timestep $t$, the environment is in a hidden state $s_t\in\mathcal{S}$ and emits an observation $o_t\in\mathcal{O}$. The agent maintains an interaction history
+\begin{equation*}
+    h_t = (o_0, y_0, o_1, y_1, \ldots, o_t),
+\end{equation*}
+where $y_i$ denotes the textual response or executable action generated at step $i$. The policy $\pi_\theta$ generates the next response as
+\begin{equation*}
+    y_t \sim \pi_\theta(\cdot \mid h_t).
+\end{equation*}
+
+After executing $y_t$, the environment transitions and returns the next observation. A completed trajectory is represented as
+\begin{equation*}
+    \tau = \{(o_t, y_t, r_t)\}_{t=0}^{T-1},
+\end{equation*}
+where $T$ is the episode length. In most agentic benchmarks, rewards are sparse and terminal, so we denote the outcome score by
+\begin{equation*}
+    R(\tau) \in \{0,1\},
+\end{equation*}
+or more generally $R(\tau)\in\mathbb{R}$ when the benchmark provides graded feedback. The learning objective is
+\begin{equation*}
+    J(\pi_\theta) = \E_{\tau\sim\pi_\theta}[R(\tau)].
+\end{equation*}
+
+Following GRPO-style training, for each task prompt $q$ we sample a group of $N$ trajectories from the current policy:
+\begin{equation*}
+    \mathcal{G}_q = \{\tau^{(1)}, \tau^{(2)}, \ldots, \tau^{(N)}\}.
+\end{equation*}
+
+
+\subsection{On-Policy Skill Extraction}
+
+Outcome rewards reveal whether a trajectory succeeds, but not why it succeeds or fails. OPID{} therefore represents post-hoc trajectory knowledge as hierarchical skills extracted from completed on-policy rollouts. The hierarchy contains two complementary levels.
+
+\paragraph{Episode-level skills.}
+An episode-level skill $s^{\mathrm{ep}}_{\tau}$ summarizes the global behavioral pattern of a complete trajectory $\tau$. For a successful trajectory, it captures a reusable workflow that explains how the task was solved. For a failed trajectory, it captures a failure-avoidance rule that describes what should be avoided in similar future situations. Episode-level skills are broad and stable, making them suitable as default guidance for most states.
+
+\paragraph{Step-level skills.}
+A step-level skill $s^{\mathrm{step}}_{\tau,t}$ captures local decision knowledge at timestep $t$. It is intended for pivotal states where the final outcome depends strongly on a specific choice, such as avoiding a repeated invalid action, selecting the next object to inspect, correcting a mistaken subgoal, or deciding when to stop exploration. Step-level skills are more precise than episode-level skills, but they are also sparse and state-dependent.
+
+Given a completed trajectory $\tau$, OPID{} reconstructs an ordered trajectory record containing the task prompt, observations, model responses, environment feedback, step indices, and terminal outcome. An LLM-based analyzer $\mathcal{A}$ maps this record to structured natural-language skills:
+\begin{equation*}
+    \mathcal{A}(\tau) =
+    \left(
+        s^{\mathrm{ep}}_{\tau},
+        \{s^{\mathrm{step}}_{\tau,t}\}_{t\in\mathcal{C}_\tau}
+    \right),
+\end{equation*}
+where $\mathcal{C}_\tau$ is the sparse set of critical timesteps identified by the analyzer.
+
+
+\subsection{Critical-First Skill-Conditioned Self-Distillation}
+
+Applying the same skills to every step is suboptimal. Episode-level skills are robust but may be too coarse at decisive states, whereas step-level skills are precise but sparse. OPID{} therefore introduces critical-first skill routing before performing skill-conditioned self-distillation. For trajectory $\tau$ and timestep $t$, the routed skill is
+\begin{equation*}
+    s_{\tau,t} =
+    \begin{cases}
+    s^{\mathrm{step}}_{\tau,t}, & \text{if } t\in\mathcal{C}_\tau, \\
+    s^{\mathrm{ep}}_{\tau}, & \text{otherwise}.
+    \end{cases}
+\end{equation*}
+Equivalently, define routing masks
+\newcommand{\ind}{\mathbb{I}}
+% \begin{equation*}
+%     q^{\mathrm{step}}_{\tau,t}=\ind[t\in\mathcal{C}_\tau],
+%     \qquad
+%     q^{\mathrm{ep}}_{\tau,t}=\ind[t\notin\mathcal{C}_\tau].
+% \end{equation*}
+\begin{equation*}
+    q^{\mathrm{step}}_{\tau,t}=\ind[t\in\mathcal{C}_\tau],
+    \qquad
+    q^{\mathrm{ep}}_{\tau,t}=\ind[t\notin\mathcal{C}_\tau].
+\end{equation*}
+The critical-first rule enforces
+\begin{equation*}
+    q^{\mathrm{step}}_{\tau,t}=1 \Rightarrow q^{\mathrm{ep}}_{\tau,t}=0,
+\end{equation*}
+so the two skill levels are not blindly combined. Each step receives the most appropriate granularity.
+
+After routing, OPID{} converts the selected skill into token-level self-distillation supervision. Let $H(\cdot,\cdot)$ denote a deterministic skill-injection function that appends or prepends the routed skill to the interaction history while preserving the original state information. The skill-augmented history is
+\begin{equation*}
+    \tilde{h}_{\tau,t} = H(h_{\tau,t}, s_{\tau,t}).
+\end{equation*}
+
+The original response $y_{\tau,t}$ is not regenerated. Instead, the old policy $\pi_{\theta_{\mathrm{old}}}$ scores the same sampled response under both the original and skill-augmented histories. For token $\ell$ in response $y_{\tau,t}$, define
+\begin{equation*}
+    \ell^{\mathrm{old}}_{\tau,t,\ell}
+    =
+    \log \pi_{\theta_{\mathrm{old}}}
+    \left(
+        y_{\tau,t,\ell}
+        \mid
+        h_{\tau,t}, y_{\tau,t,<\ell}
+    \right),
+\end{equation*}
+and
+\begin{equation*}
+    \ell^{\mathrm{skill}}_{\tau,t,\ell}
+    =
+    \log \pi_{\theta_{\mathrm{old}}}
+    \left(
+        y_{\tau,t,\ell}
+        \mid
+        \tilde{h}_{\tau,t}, y_{\tau,t,<\ell}
+    \right).
+\end{equation*}
+The skill-based self-teacher advantage is
+\begin{equation*}
+    A^{\mathrm{skill}}_{\tau,t,\ell}
+    =
+    \left(
+        \ell^{\mathrm{skill}}_{\tau,t,\ell}
+        -
+        \ell^{\mathrm{old}}_{\tau,t,\ell}
+    \right)
+    m_{\tau,t,\ell},
+\end{equation*}
+where $m_{\tau,t,\ell}\in\{0,1\}$ is the valid response-token mask.
+
+If $A^{\mathrm{skill}}_{\tau,t,\ell}>0$, the selected skill makes the token more likely under the old policy, suggesting that the token is consistent with the skill. If \(A^{\mathrm{skill}}_{\tau,t,\ell}<0\), the skill-conditioned context assigns lower probability to the token, suggesting that the token is less aligned with the routed hindsight skill. This procedure yields dense token-level guidance without requiring an external expert action.
+
+\subsection{Policy Optimization with Skill Advantage}
+
+For each rollout group $\mathcal{G}_q$, let
+$\mathbf{r}_q=\{R(\tau')\mid \tau'\in\mathcal{G}_q\}$ denote the set of outcome rewards of all trajectories sampled for the same prompt. Following GRPO, the group mean is defined as
+\begin{equation*}
+    \mu_q
+    =
+    \operatorname{mean}(\mathbf{r}_q)
+    =
+    \frac{1}{|\mathcal{G}_q|}
+    \sum_{\tau'\in\mathcal{G}_q} R(\tau').
+\end{equation*}
+The group standard deviation is defined as the square root of the group reward variance:
+\begin{equation*}
+    \sigma_q
+    =
+    \operatorname{std}(\mathbf{r}_q)
+    =
+    \sqrt{
+    \frac{1}{|\mathcal{G}_q|}
+    \sum_{\tau'\in\mathcal{G}_q}
+    \left(R(\tau')-\mu_q\right)^2
+    }.
+\end{equation*}
+The GRPO-style episode-relative advantage is then computed by normalizing the trajectory outcome reward within its prompt group:
+\begin{equation*}
+    A^{\mathrm{ep}}_{\tau}
+    =
+    \frac{R(\tau)-\mu_q}{\sigma_q},
+    \qquad \tau\in\mathcal{G}_q.
+\end{equation*}
+This scalar is broadcast to all valid response tokens:
+\begin{equation*}
+    A^{\mathrm{ep}}_{\tau,t,\ell}
+    =
+    A^{\mathrm{ep}}_{\tau} m_{\tau,t,\ell}.
+\end{equation*}
+
+The final OPID advantage combines group-relative outcome feedback with token-level skill supervision:
+\begin{equation*}
+    A^{\text{OPID}}_{\tau,t,\ell}
+    =
+    A^{\mathrm{ep}}_{\tau,t,\ell}
+    +
+    \lambda_{\mathrm{skill}}
+    A^{\mathrm{skill}}_{\tau,t,\ell}.
+\end{equation*}
+
+This formulation keeps outcome reward as the primary RL signal while adding token-level shaping.
+
+We optimize the standard clipped policy objective:
+\begin{equation*}
+    \mathcal{L}_{\mathrm{policy}}(\theta)
+    =
+    -
+    \mathbb{E}_{\tau,t,\ell}
+    \left[
+    \min
+    \left(
+        \rho_{\tau,t,\ell}(\theta) A^{\text{OPID}}_{\tau,t,\ell},
+        \operatorname{clip}
+        \left(
+            \rho_{\tau,t,\ell}(\theta),
+            1-\epsilon,
+            1+\epsilon
+        \right)
+        A^{\text{OPID}}_{\tau,t,\ell}
+    \right)
+    \right] +\beta \mathcal L_{\mathrm{KL}}(\theta).
+\end{equation*}
+
+where \(\rho_{\tau,t,\ell}(\theta)\) denotes the token-level importance ratio, defined as
+\begin{equation*}
+    \rho_{\tau,t,\ell}(\theta)
+    =
+    \exp\left(
+        \log\pi_{\theta}
+        (y_{\tau,t,\ell}\mid h_{\tau,t},y_{\tau,t,<\ell})
+        -
+        \log\pi_{\theta_{\mathrm{old}}}
+        (y_{\tau,t,\ell}\mid h_{\tau,t},y_{\tau,t,<\ell})
+    \right).
+\end{equation*}
+
+The operator \(\operatorname{clip}(x,1-\epsilon,1+\epsilon)\) truncates \(x\) to the interval
+\([1-\epsilon,1+\epsilon]\), and \(\epsilon\) is the clipping hyperparameter that controls the maximum allowed deviation from the old policy.
+
+\paragraph{Training-inference boundary.}
+The analyzer, routed skills, and skill-conditioned scoring pass are used only to construct the training advantage. At inference time, the learned policy acts from the ordinary interaction history $h_t$ alone, with no analyzer call, skill retrieval, or privileged context. 

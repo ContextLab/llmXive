@@ -1,0 +1,43 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Modern image generation has rapidly advanced through flow matching models~\cite{ho2020denoising,rombach2022high,peebles2023scalable,esser2024scaling,cai2025z,podell2024sdxl}. A single deployed model is increasingly expected to jointly support diverse capabilities, including text-to-image generation (T2I), local editing, and global editing~\cite{brooks2023instructpix2pix,yu2025anyedit,chow2025editmgt}. These capabilities, however, are not naturally compatible. T2I rewards open-ended visual quality and prompt following; local editing requires preserving the input while applying precise changes; and global editing intentionally changes broad appearance statistics such as style, color, or layout. Naively optimizing them together often leads to capability interference: editing can erode T2I performance, while local and global editing can pull the model toward conflicting preservation and transformation behaviors. Consequently, how to effectively compose these capabilities has become a central challenge for the image generation model community.
+
+
+Existing capability-combination paradigms only partially address this goal. Data mixing or joint training tends to dilute capability-specific supervision and can suffer from multi-task gradient conflict~\cite{ilharco2022editing,wortsman2022model,matena2022merging,chen2018gradnorm,sener2018multi,javaloy2021rotograd}; parameter-space merging and adapter composition typically yield compromise solutions~\cite{ainsworth2022git,yadav2023ties,gal2022image,ruiz2023dreambooth,pfeiffer2021adapterfusion}; and inference-time score composition leaves the composition external to the deployed student~\cite{liu2022compositional,du2023reduce,bar2023multidiffusion}. While useful, these approaches do not directly resolve the state-dependent question: 
+
+\textit{How should a model effectively compose multiple generative capabilities?}
+
+
+Building on recent formulations that interpret task abilities as velocity fields in flow-matching image generators~\cite{lipman2022flow,liu2022flow,albergo2025stochastic,tong2023improving,dao2023flow}, we adopt a field-based perspective in which each frozen capability source defines a velocity field over a shared generative state space. Under this view, capability composition reduces to a field-query problem with three coupled choices: which capability field should supervise a given sample, where in the state space the field should be queried, and how many states from the student rollout should be used for supervision. This formulation aligns naturally with on-policy distillation (OPD)~\cite{ross2011reduction,gu2024minillm,agarwal2024policy,jia2026asymmetric}, in which the teacher supervises states produced by the current student rather than fixed offline trajectories.
+
+
+These three choices directly determine the main alignment challenges in multi-capability distillation. For the choice of target field, linearly combining several frozen fields within a single sample target can produce a supervision direction that does not correspond to any well-defined capability query, causing target-field ambiguity and losing the semantic identity of each capability. For the choice of query state, evaluating the field on data states, teacher trajectories, or other off-policy states leaves the student under-supervised on the states it actually visits during generation, causing state-distribution mismatch and a gap between training and inference. For the choice of trajectory supervision, drawing dense targets from multiple states along the same rollout overcounts highly correlated supervision signals, since these states share the same prompt, noise seed, student dynamics, and path history. This causes trajectory-query correlation and can bias the resulting gradient.
+
+
+Guided by these diagnoses, we introduce \name{}, an on-policy generative field distillation framework whose three design choices correspond to the three challenges above.
+\begin{itemize}
+    \item To resolve target-field ambiguity, our method performs hard-routed sample-wise field matching: each sample is dispatched to exactly one frozen capability field, preserving its semantic identity.
+
+    \item To resolve state-distribution mismatch, the routed field is queried on a stop-gradient state drawn from the current student rollout, aligning supervision with the student's own visitation distribution.
+
+    \item To resolve trajectory-query correlation, we use a single semantic-side low-noise query per sample, located in the regime where capability-specific information is most concentrated, thereby avoiding correlated within-trajectory samples.
+\end{itemize}
+
+
+The student is updated by a plain velocity MSE loss, which is the natural local regression objective for deterministic velocity fields: under a local Gaussian transition view, KL-style field matching reduces to a weighted MSE form, as derived in Appendix~Sec.~\ref{app:theory}. The same formulation subsumes operator-defined fields; classifier-free guidance, in particular, can be cast as a guided velocity field and absorbed into the student under the identical objective~\cite{ho2022classifier}.
+
+
+We evaluate our approach across two capability-composition settings and two field-absorption cases: T2I and editing composition, local and global editing composition, realism-field absorption with base T2I preservation, and CFG absorption. The main results show that hard-routed on-policy field matching improves multi-capability composition, strengthening target edit or realism-oriented fields while preserving base generation quality. 
+In T2I and editing composition, \name{} improves GEditBench over the best reproduced OPD baseline by $8.1\%$ and over the edit source by $8.5\%$, while slightly exceeding the T2I source on GenEval. 
+In local and global edit composition, our model improves over the best competing composition baseline by $16.1\%$ and over the local edit source by $7.9\%$, with GenEval above all compared composition baselines. 
+
+For realism-field absorption, our model improves the realism reward over off-policy distillation by $9.9\%$ and closes $85.3\%$ of the student-to-teacher reward gap while maintaining the T2I score within $0.1\%$ of off-policy distillation and above the student anchor by $7.6\%$. For CFG absorption, the best measured composition improves over train-only absorption by $7.6\%$ and over eval-only CFG by $1.4\%$, while over-guided composition drops substantially. The diagnostic studies further support the method design: hard routing improves over soft all-teacher mixing by $15.2\%$ under MSE and $10.6\%$ under KL; semantic-side low-noise queries improve over median- and high-noise queries by $23.7\%$ and $19.5\%$; dense same-step accumulation drops by $22.8\%$, and SDE-style decorrelation partially rescues the stress case with an $18.4\%$ gain but remains $8.6\%$ below the single-query default; and plain velocity MSE improves over the main weighted alternatives by $2.8\%$ to $4.5\%$.
+
+
+Our contributions can be summarized as follows:
+\begin{itemize}[left=1pt]
+    \item We formulate multi-capability image generation as on-policy generative field distillation and introduce \name{}, a hard-routed, semantic-side velocity-matching method on student-visited states.
+    \item We identify three query-induced alignment challenges, including target-field ambiguity, state-distribution mismatch, and trajectory-query correlation, and show how they motivate our design.
+    \item Experiments across T2I and editing composition, realism-field absorption, and CFG absorption, together with comprehensive ablations, confirm the effectiveness of DanceOPD.
+\end{itemize}
