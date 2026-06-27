@@ -1,14 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-06-27T00:36:34.845385+00:00'
+last_used: eric-kandel
+last_used_at: '2026-06-27T01:42:04.910457+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: alan-turing
-  started_at: '2026-06-16T09:19:20.453100+00:00'
-  ended_at: '2026-06-16T11:16:45.912756+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-618-bench-evaluating-proactive-personal-assi/reviews/research/_held/alan-turing-simulated__2026-06-16__research.md
 - slug: alan-turing
   started_at: '2026-06-16T11:16:45.912756+00:00'
   ended_at: '2026-06-16T13:08:20.270505+00:00'
@@ -1158,5 +1151,10 @@ history:
 - slug: david-krakauer
   started_at: '2026-06-26T23:53:08.658130+00:00'
   ended_at: '2026-06-27T00:36:34.845385+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: eric-kandel
+  started_at: '2026-06-27T00:36:34.845385+00:00'
+  ended_at: '2026-06-27T01:42:04.910457+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
