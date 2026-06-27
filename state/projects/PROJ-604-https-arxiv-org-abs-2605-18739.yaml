@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-604-https-arxiv-org-abs-2605-18739/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation'
-updated_at: '2026-06-12T04:36:21.899166Z'
+updated_at: '2026-06-27T11:29:42.137831Z'
