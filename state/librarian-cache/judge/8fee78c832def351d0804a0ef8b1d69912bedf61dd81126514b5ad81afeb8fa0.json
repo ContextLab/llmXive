@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.03023",
+  "judged_at": "2026-06-27T19:44:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the impact of network centrality on the consolidation of motor memories neuroscience",
+  "rationale": "This paper satisfies criterion (b) as it measures network centrality (the user's independent variable) on brain networks in the neuroscience domain, and specifically identifies motor function regions. It also satisfies criterion (a) by studying the same mechanism (network centrality in neural systems) even though it doesn't directly measure motor memory consolidation outcomes.",
+  "relevant": true
+}

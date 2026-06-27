@@ -1,0 +1,763 @@
+{
+  "fetched_at": "2026-06-27T19:48:55Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Investigating the Impact of Network Centrality on the Consolidation of Motor Memories",
+      "target_n": 5
+    },
+    "duration_seconds": 422.301,
+    "ended_at": "2026-06-27T19:48:55Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Brain network hubs and motor learning"
+        ],
+        [
+          2,
+          "Functional connectivity centrality memory consolidation"
+        ],
+        [
+          3,
+          "Graph theory analysis of motor memory"
+        ],
+        [
+          4,
+          "Neural network topology motor skill retention"
+        ],
+        [
+          5,
+          "Sleep-dependent motor memory consolidation"
+        ],
+        [
+          6,
+          "Structural connectivity hubs motor learning"
+        ],
+        [
+          7,
+          "Resting-state network centrality motor adaptation"
+        ],
+        [
+          8,
+          "Procedural memory stabilization network dynamics"
+        ],
+        [
+          9,
+          "Motor cortex connectivity predictors"
+        ],
+        [
+          10,
+          "Systems consolidation motor networks"
+        ],
+        [
+          11,
+          "Betweenness centrality neural circuits"
+        ],
+        [
+          12,
+          "Connectome analysis motor skill learning"
+        ],
+        [
+          13,
+          "Neural plasticity and network hubs"
+        ],
+        [
+          14,
+          "fMRI network centrality motor retention"
+        ],
+        [
+          15,
+          "Degree centrality motor sequence learning"
+        ],
+        [
+          16,
+          "Network reorganization during memory consolidation"
+        ],
+        [
+          17,
+          "Motor skill acquisition brain connectivity"
+        ],
+        [
+          18,
+          "Hub disruption motor memory processes"
+        ],
+        [
+          19,
+          "Dynamic functional connectivity motor learning"
+        ],
+        [
+          20,
+          "Cortical network efficiency motor consolidation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Brain network hubs and motor learning": 4,
+        "Functional connectivity centrality memory consolidation": 2,
+        "Investigating the Impact of Network Centrality on the Consolidation of Motor Memories neuroscience": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "hub nodes motor sequence learning",
+      "finger tapping task sleep spindles",
+      "small world brain networks motor consolidation",
+      "offline gains motor performance retention",
+      "procedural memory reactivation sleep dynamics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2408.03023"
+      ]
+    },
+    "per_query_hit_count": {
+      "Investigating the Impact of Network Centrality on the Consolidation of Motor Memories neuroscience": 3,
+      "finger tapping task sleep spindles": 3,
+      "hub nodes motor sequence learning": 3,
+      "offline gains motor performance retention": 3,
+      "procedural memory reactivation sleep dynamics": 2,
+      "small world brain networks motor consolidation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2311.16109",
+          "rationale": "This paper does not address network centrality (a key variable in the user's question) nor motor memory consolidation (the dependent variable of interest). It focuses on transfer learning for motor imagery BCI classification, which is a distinct construct from motor memory consolidation in neuroscience—this falls under the \"distinct construct sharing only homonym keywords\" rejection rule (both mention \"motor\" but in fundamentally different contexts: motor imagery for BCI vs. motor memory consoli",
+          "title": "Transfer Learning between Motor Imagery Datasets using Deep Learning -- Validation of Framework and Comparison of Datasets"
+        },
+        {
+          "primary_pointer": "2011.11052",
+          "rationale": "This paper focuses on deep learning architectures (artificial neural networks) for medical image segmentation, whereas the user's question concerns neuroscience mechanisms (brain network centrality and motor memory consolidation). The paper falls under the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"network\" referring to AI models vs. brain connectivity) and is off-domain entirely regarding the specific biological and cognitive variables of interest.",
+          "title": "Efficient embedding network for 3D brain tumor segmentation"
+        },
+        {
+          "primary_pointer": "1309.5840",
+          "rationale": "The paper investigates a distinct construct (autism connectivity) sharing only general domain keywords (neuroscience) with the user's question, failing to measure the specific variables (network centrality, motor memory) or mechanism required. It does not satisfy any inclusion criteria (a-f) as it addresses a clinical diagnosis rather than motor learning mechanisms.",
+          "title": "Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-27T19:41:52Z",
+    "term_input": {
+      "normalized": "investigating the impact of network centrality on the consolidation of motor memories neuroscience",
+      "raw": "Investigating the Impact of Network Centrality on the Consolidation of Motor Memories neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            " LIGO Scientific Collaboration",
+            " Virgo Collaboration",
+            "Fermi GBM",
+            " INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            " GRAWITA",
+            " :",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            " ATCA",
+            " :",
+            "Australia Telescope Compact Array",
+            " ASKAP",
+            " :",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            " OzGrav",
+            " DWF",
+            " AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            " J-GEM",
+            " GROWTH",
+            " JAGWAR",
+            "Caltech- NRAO",
+            " TTU-NRAO",
+            "NuSTAR Collaborations",
+            " Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            " ePESSTO",
+            " GROND",
+            "Texas Tech University",
+            "SALT Group",
+            " TOROS",
+            " :",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            " MWA",
+            " :",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            " LWA",
+            " :",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            " DFN",
+            " :",
+            "Desert Fireball Network",
+            " ATLAS",
+            "High Time Resolution Universe Survey",
+            " RIMAS",
+            " RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Phosphorus (P) is considered to be one of the key elements for life, making it an important element to look for in the abundance analysis of spectra of stellar systems. Yet, there exists only a handful of spectroscopic studies to estimate the P abundances and investigate its trend across a range of metallicities. We have observed full HK band spectra at a spectral resolving power of R=45,000 with IGRINS instrument. Abundances are determined using SME in combination with 1D MARCS stellar atmosphere models. The investigated sample of stars have reliable stellar parameters estimated using optical FIES spectra (GILD; Jönsson et al. in prep.). In order to determine the P abundances from the 16482.92 Angstrom P line, we take special care of the CO($ν=7-4$) blend. We determine the C, N, O abundances from atomic carbon and a range of non-blended molecular lines (CO, CN, OH) which are aplenty in the H band region of K giant stars, assuring an appropriate modelling of the blending CO($ν=7-4$) line. We present [P/Fe] vs [Fe/H] trend for 38 K giant stars in the metallicity range of -1.2 dex $<$ [Fe/H] $<$ 0.4 dex. We find that our trend matches well with the compiled literature sample of prominently dwarf stars and limited number of giant stars. Our trend is found to be higher by $\\sim$ 0.05 - 0.1 dex compared to the theoretical chemical evolution trend in Cescutti et al. 2012 resulting from core collapse supernova (type II) of massive stars with the P yields from Kobayashi et al. (2006) arbitrarily increased by a factor of 2.75. Thus the enhancement factor might need to be $\\sim$ 0.05 - 0.1 dex higher to match our trend. We also find an empirically determined primary behaviour for phosphorus. Furthermore, the phosphorus abundance is found to be elevated by $\\sim$ 0.6 - 0.9 dex in two metal poor s-enriched stars compared to the theoretical chemical evolution trend.",
+          "claimed_authors": [
+            "G. Nandakumar",
+            "N. Ryde",
+            "M. Montelius",
+            "B. Thorsbro",
+            "H. Jönsson",
+            "G. Mace",
+            "Lund Observatory",
+            "Department of Astronomy",
+            "Theoretical Physics",
+            "Lund University",
+            "Box 43",
+            "SE-221 00 Lund",
+            " Sweden",
+            "Kapteyn Astronomical Institute",
+            "University of Groningen",
+            "Landleven 12",
+            "NL-9747 AD Groningen",
+            "the Netherlands",
+            "Department of Astronomy",
+            "School of Science",
+            "The University of Tokyo",
+            "7-3-1 Hongo",
+            " Bunkyo-ku",
+            "Tokyo 113-0033",
+            " Japan",
+            "Materials Science",
+            "Applied Mathematics",
+            "Malmö University",
+            "SE-205 06 Malmö",
+            " Sweden",
+            "Department of Astronomy",
+            "McDonald Observatory",
+            "The University of Texas",
+            " Austin",
+            "TX 78712",
+            " USA"
+          ],
+          "claimed_title": "The Galactic Chemical Evolution of phosphorus observed with IGRINS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.04940"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='The Galactic Chemical Evolution of phosphorus observed with IGRINS')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the results of processing the effects of the powerful Gamma Ray Burst GRB221009A captured by the charged particle detectors (electrostatic analyzers and solid-state detectors) onboard spacecraft at different points in the heliosphere on October 9, 2022. To follow the GRB221009A propagation through the heliosphere we used the electron and proton flux measurements from solar missions Solar Orbiter and STEREO-A; Earth magnetosphere and the solar wind missions THEMIS and Wind; meteorological satellites POES15, POES19, MetOp3; and MAVEN - a NASA mission orbiting Mars. GRB221009A had a structure of four bursts: less intense Pulse 1 - the triggering impulse - was detected by gamma-ray observatories at 131659 UT (near the Earth); the most intense Pulses 2 and 3 were detected on board all the spacecraft from the list, and Pulse 4 detected in more than 500 s after Pulse 1. Due to their different scientific objectives, the spacecraft, which data was used in this study, were separated by more than 1 AU (Solar Orbiter and MAVEN). This enabled tracking GRB221009A as it was propagating across the heliosphere. STEREO-A was the first to register Pulse 2 and 3 of the GRB, almost 100 seconds before their detection by spacecraft in the vicinity of Earth. MAVEN detected GRB221009A Pulses 2, 3, and 4 at the orbit of Mars about 237 seconds after their detection near Earth. By processing the time delays observed we show that the source location of the GRB221009A was at RA 288.5 degrees, Dec 18.5 degrees (J2000) with an error cone of 2 degrees",
+          "claimed_authors": [
+            "Andrii Voshchepynets",
+            "Oleksiy Agapitov",
+            "Lynn Wilson",
+            "Vassilis Angelopoulos",
+            "Samer T. Alnussirat",
+            "Michael Balikhin",
+            "Myroslava Hlebena",
+            "Ihor Korol",
+            "Davin Larson",
+            "David Mitchell",
+            "Christopher Owen",
+            "Ali Rahmati",
+            "Department of System Analysis",
+            "Optimization Theory",
+            "Uzhhorod National University",
+            " Uzhhorod",
+            " Ukraine",
+            "Space Sciences Laboratory",
+            " :",
+            "University of California Berkeley Berkeley",
+            "CA 94720",
+            " Astronomy",
+            "Space Physics Department",
+            "National Taras Shevchenko University of Kyiv",
+            " Kyiv",
+            " Ukraine",
+            "Goddard Space Flight Center",
+            "National Aeronautics",
+            "Space Administration",
+            " Greenbelt",
+            " MD",
+            "Department of Earth",
+            " Planetary",
+            "Space Sciences",
+            "University of California Los Angeles",
+            "Los Angeles",
+            " CA}",
+            "University of Sheffield",
+            " Sheffield",
+            " UK",
+            "Department of Algebra",
+            "Differential Equation",
+            "Uzhhorod National University",
+            " Uzhhorod",
+            " Ukraine",
+            "Department of Mathematical Analysis",
+            "The John Paul II Catholic University of Lublin",
+            " Lublin",
+            " Poland}"
+          ],
+          "claimed_title": "Multi-Point Detection of the Powerful Gamma Ray Burst GRB221009A Propagation through the Heliosphere on October 9, 2022",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.05856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Multi-Point Detection of the Powerful Gamma Ray Burst GRB221009A Propagation through the Heliosphere on October 9, 2022')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a simple deep learning-based framework commonly used in computer vision and demonstrate its effectiveness for cross-dataset transfer learning in mental imagery decoding tasks that are common in the field of Brain-Computer Interfaces (BCI). We investigate, on a large selection of 12 motor-imagery datasets, which ones are well suited for transfer, both as donors and as receivers. Challenges. Deep learning models typically require long training times and are data-hungry, which impedes their use for BCI systems that have to minimize the recording time for (training) examples and are subject to constraints induced by experiments involving human subjects. A solution to both issues is transfer learning, but it comes with its own challenge, i.e., substantial data distribution shifts between datasets, subjects and even between subsequent sessions of the same subject. Approach. For every pair of pre-training (donor) and test (receiver) dataset, we first train a model on the donor before training merely an additional new linear classification layer based on a few receiver trials. Performance of this transfer approach is then tested on other trials of the receiver dataset. Significance. First, we lower the threshold to use transfer learning between motor imagery datasets: the overall framework is extremely simple and nevertheless obtains decent classification scores. Second, we demonstrate that deep learning models are a good option for motor imagery cross-dataset transfer both for the reasons outlined in the first point and because the framework presented is viable in online scenarios. Finally, analysing which datasets are best suited for transfer learning can be used as a reference for future researchers to determine which to use for pre-training or benchmarking.",
+          "claimed_authors": [
+            "Pierre Guetschel",
+            "Michael Tangermann"
+          ],
+          "claimed_title": "Transfer Learning between Motor Imagery Datasets using Deep Learning -- Validation of Framework and Comparison of Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16109"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Transfer Learning between Motor Imagery Datasets using Deep Learning -- Validation of Framework and Comparison of Datasets')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The COVID-19 pandemic highlighted the urgent need for robust systems to enable rapid data collection, integration, and analysis for public health responses. Existing approaches often relied on disparate, non-interoperable systems, creating bottlenecks in comprehensive analyses and timely decision-making. To address these challenges, the U.S. National Institutes of Health (NIH) launched the Rapid Acceleration of Diagnostics (RADx) initiative in 2020, with the RADx Data Hub, a centralized repository for de-identified and curated COVID-19 data, as its cornerstone. The RADx Data Hub hosts diverse study data, including clinical data, testing results, smart sensor outputs, self-reported symptoms, and information on social determinants of health. Built on cloud infrastructure, the RADx Data Hub integrates metadata standards, interoperable formats, and ontology-based tools to adhere to the FAIR (Findable, Accessible, Interoperable, Reusable) principles for data sharing. Initially developed for COVID-19 research, its architecture and processes are adaptable to other scientific disciplines. This paper provides an overview of the data hosted by the RADx Data Hub and describes the platform's capabilities and architecture.",
+          "claimed_authors": [
+            "Marcos Martinez-Romero",
+            "Matthew Horridge",
+            "Nilesh Mistry",
+            "Aubrie Weyhmiller",
+            "Jimmy K. Yu",
+            "Alissa Fujimoto",
+            "Aria Henry",
+            "Martin J. O'Connor",
+            "Ashley Sier",
+            "Stephanie Suber",
+            "Mete U. Akdogan",
+            "Yan Cao",
+            "Somu Valliappan",
+            "Joanna O. Mieczkowska",
+            "the RADx Data Hub team",
+            "Ashok Krishnamurthy",
+            "Michael A. Keller",
+            "Mark A. Musen"
+          ],
+          "claimed_title": "RADx Data Hub: A Cloud Platform for FAIR, Harmonized COVID-19 Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.00265"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='RADx Data Hub: A Cloud Platform for FAIR, Harmonized COVID-19 Data')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The human body demonstrates exceptional motor capabilities-such as standing steadily on one foot or performing a high kick with the leg raised over 1.5 meters-both requiring precise balance control. While recent research on humanoid control has leveraged reinforcement learning to track human motions for skill acquisition, applying this paradigm to balance-intensive tasks remains challenging. In this work, we identify three key obstacles: instability from reference motion errors, learning difficulties due to morphological mismatch, and the sim-to-real gap caused by sensor noise and unmodeled dynamics. To address these challenges, we propose HuB (Humanoid Balance), a unified framework that integrates reference motion refinement, balance-aware policy learning, and sim-to-real robustness training, with each component targeting a specific challenge. We validate our approach on the Unitree G1 humanoid robot across challenging quasi-static balance tasks, including extreme single-legged poses such as Swallow Balance and Bruce Lee's Kick. Our policy remains stable even under strong physical disturbances-such as a forceful soccer strike-while baseline methods consistently fail to complete these tasks. Project website: https://hub-robot.github.io",
+          "claimed_authors": [
+            "Tong Zhang",
+            "Boyuan Zheng",
+            "Ruiqian Nai",
+            "Yingdong Hu",
+            "Yen-Jen Wang",
+            "Geng Chen",
+            "Fanqi Lin",
+            "Jiongye Li",
+            "Chuye Hong",
+            "Koushil Sreenath",
+            "Yang Gao"
+          ],
+          "claimed_title": "HuB: Learning Extreme Humanoid Balance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.07294"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='HuB: Learning Extreme Humanoid Balance')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Study Objectives: Fetal sleep is a vital yet underexplored aspect of prenatal neurodevelopment. Its cyclic organization reflects the maturation of central neural circuits, and disturbances in these patterns may offer some of the earliest detectable signs of neurological compromise. This is the first review to integrate more than seven decades of research into a unified, cross-species synthesis of fetal sleep. We examine: (i) Physiology and Ontogeny-comparing human fetuses with animal models; and (ii) Methodological Evolution-transitioning from invasive neurophysiology to non-invasive monitoring and deep learning frameworks.\n  Methods: A structured narrative synthesis was guided by a systematic literature search across four databases (PubMed, Scopus, IEEE Xplore, and Google Scholar). From 2,925 identified records, 171 studies involving fetal sleep-related physiology, sleep-state classification, or signal-based monitoring were included in this review.\n  Results: Across the 171 studies, fetal sleep states become clearly observable as the brain matures. In fetal sheep and baboons, organized cycling between active and quiet sleep emerges at approximately 80%-90% gestation. In humans, this differentiation occurs later, around 95% gestation, with full maturation reached near term. Despite extensive animal research, no unified, clinically validated framework exists for defining fetal sleep states, limiting translation into routine obstetric practice.\n  Conclusions: By integrating evidence across species, methodologies, and clinical contexts, this review provides the scientific foundation for developing objective, multimodal, and non-invasive fetal sleep monitoring technologies-tools that may ultimately support earlier detection of neurological compromise and guide timely prenatal intervention.",
+          "claimed_authors": [
+            "Weitao Tang",
+            "Johann Vargas-Calixto",
+            "Nasim Katebi",
+            "Robert Galinsky",
+            "Gari D. Clifford",
+            "Faezeh Marzbanrad"
+          ],
+          "claimed_title": "Fetal Sleep: A Cross-Species Review of Physiology, Measurement, and Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.21828"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Fetal Sleep: A Cross-Species Review of Physiology, Measurement, and Classification')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sleep spindles are neurophysiological phenomena that appear to be linked to memory formation and other functions of the central nervous system, and that can be observed in electroencephalographic recordings (EEG) during sleep. Manually identified spindle annotations in EEG recordings suffer from substantial intra- and inter-rater variability, even if raters have been highly trained, which reduces the reliability of spindle measures as a research and diagnostic tool. The Massive Online Data Annotation (MODA) project has recently addressed this problem by forming a consensus from multiple such rating experts, thus providing a corpus of spindle annotations of enhanced quality. Based on this dataset, we present a U-Net-type deep neural network model to automatically detect sleep spindles. Our model's performance exceeds that of the state-of-the-art detector and of most experts in the MODA dataset. We observed improved detection accuracy in subjects of all ages, including older individuals whose spindles are particularly challenging to detect reliably. Our results underline the potential of automated methods to do repetitive cumbersome tasks with super-human performance.",
+          "claimed_authors": [
+            "Lars Kaulen",
+            "Justus T. C. Schwabedal",
+            "Jules Schneider",
+            "Philipp Ritter",
+            "Stephan Bialonski"
+          ],
+          "claimed_title": "Advanced sleep spindle identification with neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.05158"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Advanced sleep spindle identification with neural networks')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Objective: Sleep spindles contain crucial brain dynamics information. We introduce the novel non-linear time-frequency analysis tool 'Concentration of Frequency and Time' (ConceFT) to create an interpretable automated algorithm for sleep spindle annotation in EEG data and to measure spindle instantaneous frequencies (IFs). Methods: ConceFT effectively reduces stochastic EEG influence, enhancing spindle visibility in the time-frequency representation. Our automated spindle detection algorithm, ConceFT-Spindle (ConceFT-S), is compared to A7 (non-deep learning) and SUMO (deep learning) using Dream and MASS benchmark databases. We also quantify spindle IF dynamics. Results: ConceFT-S achieves F1 scores of 0.749 in Dream and 0.786 in MASS, which is equivalent to or surpass A7 and SUMO with statistical significance. We reveal that spindle IF is generally nonlinear. Conclusion: ConceFT offers an accurate, interpretable EEG-based sleep spindle detection algorithm and enables spindle IF quantification.",
+          "claimed_authors": [
+            "Riki Shimizu",
+            "Hau-Tieng Wu"
+          ],
+          "claimed_title": "Unveil Sleep Spindles with Concentration of Frequency and Time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.18381"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Unveil Sleep Spindles with Concentration of Frequency and Time')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Supplementing a lattice with long-range connections effectively models small-world networks characterized by a high local and global interconnectedness observed in systems ranging from society to the brain. If the links have a wiring cost associated to their length l, the corresponding distribution q(l) plays a crucial role. Uniform length distributions have received most attention despite indications that q(l) ~ l^{-α} exist, e.g. for integrated circuits, the Internet and cortical networks. While length distributions of this type were previously examined in the context of navigability, we here discuss for such systems the emergence and physical realizability of small-world topology. Our simple argument allows to understand under which condition and at what expense a small world results.",
+          "claimed_authors": [
+            "Thomas Petermann",
+            "Paolo De Los Rios"
+          ],
+          "claimed_title": "Physical realizability of small-world networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cond-mat/0601449"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Physical realizability of small-world networks')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The characterisation of CMB polarisation is one of the next challenge in observationnal cosmology. This is especially true for the so-called B-modes that are at least 3 order of magnitude lower than CMB temperature fluctuations. A precise measurement of the angular power spectrum of these B-modes will give important constraints on inflation parameters. In this talk, I will describe two complementary experiments, BRAIN and CLOVER, dedicated to CMB polarisation measurement. These experiments are proposed to be installed in Dome-C, Antarctica, to take advantage of the extreme dryness of the atmosphere and to allow long integration time.",
+          "claimed_authors": [
+            "M. Piat",
+            "C. Rosset",
+            "the BRAIN",
+            "CLOVER Collaboration"
+          ],
+          "claimed_title": "Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0412590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "3D medical image processing with deep learning greatly suffers from a lack of data. Thus, studies carried out in this field are limited compared to works related to 2D natural image analysis, where very large datasets exist. As a result, powerful and efficient 2D convolutional neural networks have been developed and trained. In this paper, we investigate a way to transfer the performance of a two-dimensional classiffication network for the purpose of three-dimensional semantic segmentation of brain tumors. We propose an asymmetric U-Net network by incorporating the EfficientNet model as part of the encoding branch. As the input data is in 3D, the first layers of the encoder are devoted to the reduction of the third dimension in order to fit the input of the EfficientNet network. Experimental results on validation and test data from the BraTS 2020 challenge demonstrate that the proposed method achieve promising performance.",
+          "claimed_authors": [
+            "Hicham Messaoudi",
+            "Ahror Belaid",
+            "Mohamed Lamine Allaoui",
+            "Ahcene Zetout",
+            "Mohand Said Allili",
+            "Souhil Tliba",
+            "Douraied Ben Salem",
+            "Pierre-Henri Conze"
+          ],
+          "claimed_title": "Efficient embedding network for 3D brain tumor segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.11052"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Efficient embedding network for 3D brain tumor segmentation')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Log data plays a critical role in observability, debugging, and performance monitoring in modern cloud-native systems. In small and early-stage cloud deployments, however, log retention policies are frequently configured far beyond operational requirements, often defaulting to 90 days or more, without explicit consideration of their financial and performance implications. As a result, excessive log retention becomes a hidden and recurring cost.\n  This study examines the financial and operational impact of log retention window selection from a cost-aware perspective. Using synthetic log datasets designed to reflect real-world variability in log volume and access patterns, we evaluate retention windows of 7, 14, 30, and 90 days. The analysis focuses on three metrics: storage cost, operationally useful log ratio, and cost per useful log. Operational usefulness is defined as log data accessed during simulated debugging and incident analysis tasks.\n  The results show that reducing log retention from 90 days to 14 days can lower log storage costs by up to 78 percent while preserving more than 97 percent of operationally useful logs. Longer retention windows provide diminishing operational returns while disproportionately increasing storage cost and query overhead. These findings suggest that modest configuration changes can yield significant cost savings without compromising system reliability.\n  Rather than proposing new logging mechanisms, this work offers a lightweight and accessible framework to help small engineering teams reason about log retention policies through a cost-effectiveness lens. The study aims to encourage more deliberate observability configurations, particularly in resource-constrained cloud environments.",
+          "claimed_authors": [
+            "Jody Almaida Putra"
+          ],
+          "claimed_title": "Cost-Aware Logging: Measuring the Financial Impact of Excessive Log Retention in Small-Scale Cloud Deployments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.11584"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Cost-Aware Logging: Measuring the Financial Impact of Excessive Log Retention in Small-Scale Cloud Deployments')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
+          "claimed_authors": [
+            "Vittorio Cortellessa",
+            "Daniele Di Pompeo",
+            "Michele Tucci"
+          ],
+          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13875"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motor skill acquisition in fields like surgery, robotics, and sports involves learning complex task sequences through extensive training. Traditional performance metrics, like execution time and error rates, offer limited insight as they fail to capture the neural mechanisms underlying skill learning and retention. This study introduces directed functional connectivity (dFC), derived from electroencephalography (EEG), as a novel brain-based biomarker for assessing motor skill learning and retention. For the first time, dFC is applied as a biomarker to map the stages of the Fitts and Posner motor learning model, offering new insights into the neural mechanisms underlying skill acquisition and retention. Unlike traditional measures, it captures both the strength and direction of neural information flow, providing a comprehensive understanding of neural adaptations across different learning stages. The analysis demonstrates that dFC can effectively identify and track the progression through various stages of the Fitts and Posner model. Furthermore, its stability over a six-week washout period highlights its utility in monitoring long-term retention. No significant changes in dFC were observed in a control group, confirming that the observed neural adaptations were specific to training and not due to external factors. By offering a granular view of the learning process at the group and individual levels, dFC facilitates the development of personalized, targeted training protocols aimed at enhancing outcomes in fields where precision and long-term retention are critical, such as surgical education. These findings underscore the value of dFC as a robust biomarker that complements traditional performance metrics, providing a deeper understanding of motor skill learning and retention.",
+          "claimed_authors": [
+            "Anil Kamat",
+            "Rahul Rahul",
+            "Lora Cavuoto",
+            "Harry Burke",
+            "Matthew Hackett",
+            "Jack Norfleet",
+            "Steven Schwaitzberg",
+            "Suvranu De"
+          ],
+          "claimed_title": "Beyond Performance Scores: Directed Functional Connectivity as a Brain-Based Biomarker for Motor Skill Learning and Retention",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.14731"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Beyond Performance Scores: Directed Functional Connectivity as a Brain-Based Biomarker for Motor Skill Learning and Retention')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06108"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Study Objective: Sleep is reflected not only in the electroencephalogram but also in heart rhythms and breathing patterns. Therefore, we hypothesize that it is possible to accurately stage sleep based on the electrocardiogram (ECG) and respiratory signals. Methods: Using a dataset including 8,682 polysomnographs, we develop deep neural networks to stage sleep from ECG and respiratory signals. Five deep neural networks consisting of convolutional networks and long short-term memory networks are trained to stage sleep using heart and breathing, including the timing of R peaks from ECG, abdominal and chest respiratory effort, and the combinations of these signals. Results: ECG in combination with the abdominal respiratory effort achieve the best performance for staging all five sleep stages with a Cohen's kappa of 0.600 (95% confidence interval 0.599 -- 0.602); and 0.762 (0.760 -- 0.763) for discriminating awake vs. rapid eye movement vs. non-rapid eye movement sleep. The performance is better for young participants and for those with a low apnea-hypopnea index, while it is robust for commonly used outpatient medications. Conclusions: Our results validate that ECG and respiratory effort provide substantial information about sleep stages in a large population. It opens new possibilities in sleep research and applications where electroencephalography is not readily available or may be infeasible, such as in critically ill patients.",
+          "claimed_authors": [
+            "Haoqi Sun",
+            "Wolfgang Ganglberger",
+            "Ezhil Panneerselvam",
+            "Michael J. Leone",
+            "Syed A. Quadri",
+            "Balaji Goparaju",
+            "Ryan A. Tesh",
+            "Oluwaseun Akeju",
+            "Robert J. Thomas",
+            "M. Brandon Westover"
+          ],
+          "claimed_title": "Sleep Staging from Electrocardiography and Respiration with Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.11463"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on the Consolidation of Motor Mem', candidate_title='Sleep Staging from Electrocardiography and Respiration with Deep Learning')",
+        "failed_at": "2026-06-27T19:43:49Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kazuhiro Sato",
+            "Ryohei Kawamura"
+          ],
+          "title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.03023",
+        "summary": "Assessing centrality in network systems is critical for understanding node importance and guiding decision-making processes. In dynamic networks, incorporating a controllability perspective is essential for identifying key nodes. In this paper, we study two control theoretic centrality measures -- the Volumetric Controllability Score (VCS) and Average Energy Controllability Score (AECS) -- to quantify node importance in linear time-invariant network systems. We prove the uniqueness of VCS and AECS for almost all specified terminal times, thereby enhancing their applicability beyond previously recognized cases. This ensures their interpretability, comparability, and reproducibility. Our analysis reveals substantial differences between VCS and AECS in linear systems with symmetric and skew-symmetric transition matrices. We also investigate the dependence of VCS and AECS on the terminal time and prove that when this parameter is extremely small, both scores become essentially uniform. Additionally, we prove that a sequence generated by a projected gradient method for computing VCS and AECS converges linearly to both measures under several assumptions. Finally, evaluations on brain networks modeled via Laplacian dynamics using real data reveal contrasting evaluation tendencies and correlations for VCS and AECS, with AECS favoring brain regions associated with cognitive and motor functions, while VCS emphasizes sensory and emotional regions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.03023",
+          "http_status": 200,
+          "pdf_sample_score": 0.3368,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T19:44:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Leonardo Di Gaetano",
+            "Fernando A. N. Santos",
+            "Federico Battiston",
+            "Ginestra Bianconi",
+            "Nicolò Defenu",
+            "Ida A. Nissen",
+            "Elisabeth C. W. van Straaten",
+            "Arjan Hillebrand",
+            "Ana P. Millán"
+          ],
+          "title": "Neighbourhood topology unveils pathological hubs in the brain networks of epilepsy-surgery patients",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.02000",
+        "summary": "Pathological hubs in the brain networks of epilepsy patients are hypothesized to drive seizure generation and propagation. In epilepsy-surgery patients, these hubs have traditionally been associated with the resection area (RA): the region removed during the surgery with the goal of stopping the seizures, and which is typically used as a proxy for the epileptogenic zone. However, recent studies hypothesize that pathological hubs may extend to the vicinity of the RA, potentially complicating post-surgical seizure control. Here we propose a neighbourhood-based analysis of brain organization to investigate this hypothesis. We exploit a large dataset of pre-surgical magnetoencephalography-derived whole-brain networks from 91 epilepsy-surgery patients. Our neighbourhood focus is 2-fold. Firstly, we propose a partition of the brain regions into three sets, namely resected nodes, their neighbours and the remaining network nodes. Secondly, we introduce generalized centrality metrics that describe the neighbourhood of each node, providing a regional measure of hubness. Our analyses reveal that both the RA and its neighbourhood present large hub status, but with significant variability across patients. For some, hubs appear in the RA; for others, in its neighbourhood. Moreover, this variability does not correlate with surgical outcome. These results highlight the potential of neighbourhood-based analyses to uncover novel insights into brain connectivity in brain pathologies, and the need for individualized studies, with large enough cohorts, that account for patient-specific variability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.02000",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T19:44:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gi-Hwan Shin",
+            "Minji Lee",
+            "Seong-Whan Lee"
+          ],
+          "title": "Assessment of Unconsciousness for Memory Consolidation Using EEG Signals",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2005.08620",
+        "summary": "The assessment of consciousness and unconsciousness is a challenging issue in modern neuroscience. Consciousness is closely related to memory consolidation in that memory is a critical component of conscious experience. So far, many studies have been reported on memory consolidation during consciousness, but there is little research on memory consolidation during unconsciousness. Therefore, we aim to assess the unconsciousness in terms of memory consolidation using electroencephalogram signals. In particular, we used unconscious state during a nap; because sleep is the only state in which consciousness disappears under normal physiological conditions. Seven participants performed two memory tasks (word-pairs and visuo-spatial) before and after the nap to assess the memory consolidation during unconsciousness. As a result, spindle power in central, parietal, occipital regions during unconsciousness was positively correlated with the performance of location memory. With the memory performance, there was also a negative correlation between delta connectivity and word-pairs memory, alpha connectivity and location memory, and spindle connectivity and word-pairs memory. We additionally observed the significant relationship between unconsciousness and brain changes during memory recall before and after the nap. These findings could help present new insights into the assessment of unconsciousness by exploring the relationship with memory consolidation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2005.08620",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T19:44:26Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the impact of network centrality on the consolidation of motor memories neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
