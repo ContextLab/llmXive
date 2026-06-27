@@ -1,0 +1,219 @@
+schema_version: '1'
+project_id: PROJ-607-https-arxiv-org-abs-2605-19769
+rounds:
+- round_number: 1
+  ran_at: '2026-06-27T10:18:44.627145Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-27)
+  tasks_done: 15
+  tasks_failed: 1
+  tasks_skipped: 20
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-607-https-arxiv-org-abs-2605-19769/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: done
+    text: 'Address action item **[75cdc0b6687e]** (severity: writing): Add an explicit
+      license declaration for the benchmark dataset and verifier code in the main
+      text or repository README.'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[08afd595343f]** (severity: writing): Clarify the
+      provenance and licensing of seed files (e.g., piano_sketch.mscz) in the methodology
+      section to ensure redistribution rights.'
+  - id: '003'
+    severity: writing
+    status: done
+    text: 'Address action item **[688b895a9756]** (severity: writing): Include a version
+      tag or commit hash for the released repository to ensure reproducibility and
+      link stability.'
+  - id: '004'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[71fd509295fe]** (severity: writing): Increase font
+      size in figure/compare_with_llm_as_judge.tex TikZ plot from 7.5pt to at least
+      9pt to ensure legibility at standard conference '
+  - id: '005'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[668509dd01a7]** (severity: writing): Add visual
+      annotations (e.g., arrows or boxes) to image/llm_as_judge_error_1.png to explicitly
+      highlight the cell boundary error, as the cap'
+  - id: '006'
+    severity: writing
+    status: done
+    text: 'Address action item **[65a091541bcd]** (severity: writing): Verify color
+      contrast in figure/compare_with_llm_as_judge.tex for grayscale printing; the
+      black!45 judge bar may be too light compared to th'
+  - id: '007'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[47eb9c99cfda]** (severity: writing): Define all
+      major acronyms at first use: LLM (large language model), CLI (command-line interface),
+      GUI (graphical user interface), API (appli'
+  - id: 008
+    severity: writing
+    status: skipped
+    text: 'Address action item **[6bb2d7af13e5]** (severity: writing): Replace jargon-heavy
+      phrases: verifier-grounded framework to framework using programmatic verification,
+      execution-grounded feedback to feedb'
+  - id: 009
+    severity: writing
+    status: skipped
+    text: 'Address action item **[cbe8c0e59c07]** (severity: writing): Simplify Section
+      2 Problem Setup mathematical notation. The formal notation tau equals x comma
+      e comma c, s zero tilde e, etc. excludes non-'
+  - id: '010'
+    severity: writing
+    status: done
+    text: 'Address action item **[c268407477f3]** (severity: writing): Define verifier
+      clearly at first use. The term appears approximately 100 times but no explicit
+      definition exists for what a verifier is a pr'
+  - id: '011'
+    severity: writing
+    status: done
+    text: 'Address action item **[d74401762008]** (severity: writing): Replace frontier
+      agents with state-of-the-art agents and partial-credit rewards with partial
+      scores for accessibility.'
+  - id: '012'
+    severity: writing
+    status: done
+    text: 'Address action item **[e85759b7070a]** (severity: writing): Temper the
+      claim in the Abstract and Experiment section that model performance drops expose
+      a ''persistent gap in robust computer automation.'
+  - id: '013'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[aab4cf1d0d16]** (severity: writing): Qualify the
+      Conclusion''s claim that the framework preserves ''the diversity and realism
+      of real software workflows.'' Acknowledge that visuall'
+  - id: '014'
+    severity: writing
+    status: done
+    text: 'Address action item **[5f9d6f09067a]** (severity: writing): Add explicit
+      IRB approval statement or ethics exemption regarding human annotators mentioned
+      in Section 4.1, including consent and compensat'
+  - id: '015'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[f44c77594806]** (severity: writing): Include a Dual-Use
+      and Responsible Release discussion addressing potential misuse of the agent
+      framework for unauthorized automation or mali'
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[fd8d8b6a3407]** (severity: writing): Explicitly
+      confirm that all benchmark data (e.g., zotero.sqlite, commissions.xlsx) is synthetically
+      generated and contains no real user PII '
+  - id: '017'
+    severity: writing
+    status: done
+    text: 'Address action item **[c5f0c0fe1854]** (severity: writing): Remove duplicate
+      color definitions in commands.tex to avoid LaTeX redefinition warnings.'
+  - id: 018
+    severity: writing
+    status: done
+    text: 'Address action item **[c2f20bffc0dd]** (severity: writing): Consolidate
+      package imports: eliminate redundant subcaption and wrapfig statements.'
+  - id: 019
+    severity: writing
+    status: skipped
+    text: 'Address action item **[9c580c12ba1f]** (severity: writing): Standardize
+      figure environments for all floating figures.'
+  - id: '020'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[fdd649d52346]** (severity: writing): Ensure every
+      caption appears before its corresponding label in all floats.'
+  - id: '021'
+    severity: writing
+    status: done
+    text: 'Address action item **[268f8c078828]** (severity: writing): Check heading
+      hierarchy: all top-level sections use section, subsections use subsection.'
+  - id: '022'
+    severity: writing
+    status: done
+    text: 'Address action item **[81cf061f069b]** (severity: writing): Remove unused
+      macro definitions or replace their usage with standard LaTeX commands.'
+  - id: '023'
+    severity: writing
+    status: done
+    text: 'Address action item **[3b918459c7d5]** (severity: writing): Verify that
+      all cross-references resolve correctly.'
+  - id: '024'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[158e79d3c77f]** (severity: writing): Align table
+      column specifications with content width consistently.'
+  - id: '025'
+    severity: writing
+    status: done
+    text: 'Address action item **[997aed28ba50]** (severity: writing): Add a newline
+      after begin document before title to improve readability.'
+  - id: '026'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[a8e57f0bd39b]** (severity: writing): Consider moving
+      the thispagestyle fancy block after maketitle.'
+  - id: '027'
+    severity: writing
+    status: done
+    text: 'Address action item **[ee2fd63673cb]** (severity: writing): In sections/methodology.tex,
+      correct subject-verb agreement: ''The agent treat verifiers'' to ''treats'',
+      ''the agent implement query endpoints'' '
+  - id: 028
+    severity: writing
+    status: skipped
+    text: 'Address action item **[05e69c513a23]** (severity: writing): In sections/introduction.tex,
+      fix parallelism in paragraph 2: change ''and ensures'' to ''ensure'' to match
+      ''design'' and ''prepare''.'
+  - id: 029
+    severity: science
+    status: done
+    text: 'Address action item **[87fd1a7ee664]** (severity: science): Code repository
+      (verifiers, generators, tests) not included in input. Cannot verify modularity,
+      test coverage, or dependency hygiene.'
+  - id: '030'
+    severity: science
+    status: skipped
+    text: 'Address action item **[0682a0db6707]** (severity: science): Report standard
+      deviations or confidence intervals for success rates in Table 1 (figure/benchmark_result.tex)
+      to account for LLM stochastici'
+  - id: '031'
+    severity: science
+    status: skipped
+    text: 'Address action item **[7a30b712e88b]** (severity: science): Clarify the
+      number of random seeds used per task in the evaluation harness (Section 4.1)
+      to ensure result reproducibility.'
+  - id: '032'
+    severity: science
+    status: skipped
+    text: 'Address action item **[0023a4fb0466]** (severity: science): Perform statistical
+      significance testing (e.g., McNemar''s test) for the LLM Judge vs. Verifier
+      human alignment results (Section 4.1).'
+  - id: '033'
+    severity: science
+    status: skipped
+    text: 'Address action item **[c745092b0d3b]** (severity: science): Analyze the
+      distribution of the 17 excluded tasks (Appendix/limitations.tex) to assess potential
+      selection bias in the benchmark.'
+  - id: '034'
+    severity: science
+    status: skipped
+    text: 'Address action item **[b33ab4c5ba7c]** (severity: science): Add standard
+      deviations or 95% confidence intervals to Table 1 (figure/benchmark_result.tex)
+      for all reported metrics (Success Rate, Avg Rew'
+  - id: '035'
+    severity: science
+    status: skipped
+    text: 'Address action item **[1742891b1115]** (severity: science): Report variance
+      or multiple-seed results for the CLI vs. GUI timing comparison in Section 4.2
+      (figure/gui_and_cli.tex) to validate efficienc'
+  - id: '036'
+    severity: science
+    status: needs-external-data
+    text: 'Address action item **[d9e0114d110a]** (severity: science): Perform significance
+      testing (e.g., McNemar''s test) on the human alignment study (Section 4.1) and
+      ablation results (Section 4.3) to support'

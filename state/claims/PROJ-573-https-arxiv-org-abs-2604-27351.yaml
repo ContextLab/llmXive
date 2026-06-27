@@ -1,0 +1,51 @@
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/research.md
+  attempts: 1
+  canonical: UCI_HAR dataset
+  claim_id: c_d2d21cb1
+  context: Time-Series Datasets verification documentation showing dataset metadata
+  evidence:
+    entailment_evidence: UCI HAR dataset - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/UCI_HAR_dataset
+  kind: entity_fact
+  raw_text: dataset_name | UCI_HAR
+  resolved_value: UCI_HAR dataset
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-27T09:40:30Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/research.md
+  attempts: 1
+  canonical: UCI_HAR dataset size 4.40 MB
+  claim_id: c_6b2733d2
+  context: Time-Series Datasets verification documentation showing dataset file size
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: size_mb | 4.40
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-27T09:48:12Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/research.md
+  attempts: 1
+  canonical: UCI_HAR dataset variables include subject activity tBodyAccMean tBodyAccStd
+    tBodyAccMag
+  claim_id: c_b9a69352
+  context: Time-Series Datasets verification documentation showing dataset variable
+    names
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_HAR_dataset_variables_include_subject_activity_tBodyAccM
+  kind: entity_fact
+  raw_text: variables | subject, activity, tBodyAccMean, tBodyAccStd, tBodyAccMag...
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-27T09:52:46Z'
