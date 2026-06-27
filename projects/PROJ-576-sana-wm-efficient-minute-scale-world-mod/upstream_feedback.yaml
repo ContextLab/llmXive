@@ -1,0 +1,9 @@
+project_id: PROJ-576-sana-wm-efficient-minute-scale-world-mod
+arxiv_id: '2605.15178'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-27T16:49:34.106848+00:00'
+  verdict_class: writing
+  note: ''
+  action_items: []

@@ -6,13 +6,14 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-576-sana-wm-efficient-minute-scale-world-mod
-last_run_id: 27849d33-3575-4cf2-85f7-9c2379715654
+last_run_id: 79385c30-2ccd-4592-ab31-7cfce4025e13
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion
   Transformer'
-updated_at: '2026-05-17T14:58:53.491975Z'
+updated_at: '2026-06-27T16:49:34.107492Z'
