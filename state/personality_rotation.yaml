@@ -1,12 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-27T09:45:09.920137+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: rosalind-franklin
+last_used_at: '2026-06-27T10:41:38.276648+00:00'
+last_outcome: committed
 history:
-- slug: eric-kandel
-  started_at: '2026-06-16T22:22:15.810867+00:00'
-  ended_at: '2026-06-16T23:03:10.318389+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: freeman-dyson
   started_at: '2026-06-16T23:03:10.318389+00:00'
   ended_at: '2026-06-17T00:00:42.498770+00:00'
@@ -1162,3 +1157,10 @@ history:
   ended_at: '2026-06-27T09:45:09.920137+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-27T09:45:09.920137+00:00'
+  ended_at: '2026-06-27T10:41:38.276648+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-266-machine-learning-prediction-of-fracture-/reviews/research/rosalind-franklin-simulated__2026-06-27__research.md
