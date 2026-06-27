@@ -3,20 +3,72 @@
   "arxiv_url": "https://arxiv.org/abs/2605.14678",
   "title": "$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows",
   "authors": [
-    "Haoran Zhang",
-    "Luxin Xu",
-    "Zhilin Wang",
-    "Runquan Gui",
-    "Shunkai Zhang",
-    "Haodi Lei",
-    "Zihao He",
-    "Bingsu He",
-    "Chicheng Qin",
-    "Tong Zhu",
-    "Xiaoye Qu",
-    "Yang Yang",
-    "Yu Cheng",
-    "Yafu Li"
+    {
+      "name": "Haoran Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Luxin Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Zhilin Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Runquan Gui",
+      "kind": "human"
+    },
+    {
+      "name": "Shunkai Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Haodi Lei",
+      "kind": "human"
+    },
+    {
+      "name": "Zihao He",
+      "kind": "human"
+    },
+    {
+      "name": "Bingsu He",
+      "kind": "human"
+    },
+    {
+      "name": "Chicheng Qin",
+      "kind": "human"
+    },
+    {
+      "name": "Tong Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Xiaoye Qu",
+      "kind": "human"
+    },
+    {
+      "name": "Yang Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Yu Cheng",
+      "kind": "human"
+    },
+    {
+      "name": "Yafu Li",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-27T22:36:38.761856Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "abstract": "The rise of personal assistant agents, e.g., OpenClaw, highlights the growing potential of large language models to support users across everyday life and work. A core challenge in these settings is proactive assistance, since users often begin with underspecified requests and leave important needs, constraints, or preferences unstated. However, existing benchmarks rarely evaluate whether agents can identify and act on such hidden intents before they are explicitly stated, especially in sustained multi-turn interactions where user needs emerge gradually. To address this gap, we introduce $\u03c0$-Bench, a benchmark for proactive assistance comprising 100 multi-turn tasks across 5 domain-specific user personas. By incorporating hidden user intents, inter-task dependencies, and cross-session continuity, $\u03c0$-Bench evaluates agents' ability to anticipate and address user needs over extended interactions, jointly measuring proactivity and task completion in long-horizon trajectories that better reflect real-world use. Experiments show (1) proactive assistance remains challenging, (2) a clear distinction between task completion and proactivity, and (3) the value of prior interaction for proactive intent resolution in later tasks.",

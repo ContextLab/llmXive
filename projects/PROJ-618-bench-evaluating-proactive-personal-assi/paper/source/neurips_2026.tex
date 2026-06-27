@@ -60,14 +60,22 @@
 
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{longtable}
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
+\usepackage{hyperref}       % hyperlinks
+\usepackage{amssymb}        % additional math symbols for statistical notation
+\usepackage{amsmath}          % for statistical significance notation ($p$-values, t-tests)
+\usepackage{amsmath}        % additional math symbols
+\usepackage{tcolorbox}
+\newtcolorbox{tcolorboxCase}{colback=blue!5!white,colframe=blue!75!black,title=Case}
+\newtcolorbox{tcolorboxPrompt}{colback=green!5!white,colframe=green!75!black,title=Prompt}
 % \usepackage{xcolor}         % colors
+\usepackage{tcolorbox}
+\tcbset{fontupper=\normalsize, fonttitle=\large, colback=white, colframe=black}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % USER SETTINGS BEGIN
@@ -169,35 +177,12 @@
 % \AND instead of \And before the third author name.
 
 
-% \author{%
-  % David S.~Hippocampus\thanks{Use footnote for providing further information about author (webpage, alternative address)---\emph{not} for acknowledging funding agencies.} \\
-  % Department of Computer Science\\
-  % Cranberry-Lemon University\\
-  % Pittsburgh, PA 15213 \\
-  % \texttt{hippo@cs.cranberry-lemon.edu} \\
-  %
-  % examples of more authors
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \AND
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-% }
+% \author{
+  Haoran Zhang \and Luxin Xu \and Zhilin Wang \and Runquan Gui \and Shunkai Zhang \and Haodi Lei \and Zihao He \and Bingsu He \and Chicheng Qin \and Tong Zhu \and Xiaoye Qu \and Yang Yang \and Yu Cheng \and Yafu Li
+  \par\hrule\par
+  \textit{Revised by:}\\
+  qwen.qwen3.5-122b \textit{(via dartmouth, 2026-06-27)}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \author{
@@ -237,6 +222,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+\paperstatus{Auto-Reviewed}
 \begin{document}
 
 
@@ -251,6 +237,7 @@
 
 
 \begin{abstract}
+This work employs simulated users for evaluation, which may limit generalizability to real-world interactions.
 The rise of personal assistant agents, e.g., OpenClaw, highlights the growing potential of large language models to support users across everyday life and work. A core challenge in these settings is proactive assistance, since users often begin with underspecified requests and leave important needs, constraints, or preferences unstated. 
 However, existing benchmarks rarely evaluate whether agents can identify and act on such hidden intents before they are explicitly stated, especially in sustained multi-turn interactions where user needs emerge gradually.
 To address this gap, we introduce {\bench}, a benchmark for proactive assistance comprising 100 multi-turn tasks across 5 domain-specific user personas. By incorporating hidden user intents, inter-task dependencies, and cross-session continuity, {\bench} evaluates agents’ ability to anticipate and address user needs over extended interactions, jointly measuring proactivity and task completion in long-horizon trajectories that better reflect real-world use.
