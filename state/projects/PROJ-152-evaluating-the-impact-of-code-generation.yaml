@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T14:26:38.862279Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-152-evaluating-the-impact-of-code-generation
-last_run_id: 31349c3f-1d8d-46c3-9b8f-5945634fb422
+last_run_id: ce07851e-8808-4f7e-be1f-8e1d74573689
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation Models on Code Security
-updated_at: '2026-06-24T21:09:35.928512Z'
+updated_at: '2026-06-27T10:04:44.033420Z'

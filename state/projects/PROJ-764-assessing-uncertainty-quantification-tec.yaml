@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-22T18:31:20.264458Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-764-assessing-uncertainty-quantification-tec
-last_run_id: 10d15785-910c-4965-8f9e-7d9b9986d8c3
+last_run_id: 643d98d7-c130-4724-a9a7-5c2d542b7ca7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: "Assessing Uncertainty Quantification Techniques for Machine\u2011Learning\
   \ Predicted Material Properties"
-updated_at: '2026-06-22T18:57:29.791492Z'
+updated_at: '2026-06-27T10:10:49.893557Z'

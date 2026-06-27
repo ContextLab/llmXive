@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T21:21:05.096683Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-173-quantifying-the-impact-of-transposable-e
-last_run_id: a3fb1f75-bd42-4ffb-902c-ce9a37ca6719
+last_run_id: d4397f3a-a6f2-4489-b5f5-3af040f5e4c4
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-173-quantifying-the-impact-of-transposable-e/specs/001-quantifying-the-impact-of-transposable-e
 title: Quantifying the Impact of Transposable Element Activity on Gene Expression
   Variation in Drosophila
-updated_at: '2026-06-26T16:57:55.997771Z'
+updated_at: '2026-06-27T10:08:41.904304Z'
