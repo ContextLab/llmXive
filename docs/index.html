@@ -69,13 +69,9 @@
   <div class="shell">
     <div class="tabs-row" role="tablist">
       <button class="tab active" data-tab="papers"      role="tab"><i class="fa-regular fa-file-lines"></i> Published <span class="count" data-count="papers"></span></button>
-      <button class="tab"        data-tab="paper"       role="tab"><i class="fa-regular fa-newspaper"></i> Paper Pipeline <span class="count" data-count="paper"></span></button>
       <button class="tab"        data-tab="inProgress"  role="tab"><i class="fa-regular fa-pen-to-square"></i> In Progress <span class="count" data-count="inProgress"></span></button>
-      <button class="tab"        data-tab="plans"       role="tab"><i class="fa-regular fa-rectangle-list"></i> Research plans <span class="count" data-count="plans"></span></button>
-      <button class="tab"        data-tab="designs"     role="tab"><i class="fa-regular fa-compass"></i> Research specs <span class="count" data-count="designs"></span></button>
-      <button class="tab"        data-tab="backlog"     role="tab"><i class="fa-solid fa-diagram-project"></i> Backlog <span class="count" data-count="backlog"></span></button>
-      <button class="tab"        data-tab="contributors"role="tab"><i class="fa-regular fa-user"></i> Contributors</button>
       <button class="tab"        data-tab="activity"    role="tab"><i class="fa-regular fa-clock"></i> Activity</button>
+      <button class="tab"        data-tab="contributors"role="tab"><i class="fa-regular fa-user"></i> Contributors</button>
       <button class="tab"        data-tab="about"       role="tab"><i class="fa-regular fa-circle-question"></i> About</button>
       <span class="tab-underline" id="underline"></span>
     </div>
@@ -101,28 +97,11 @@
     <div class="cards" id="papers-cards"></div>
   </section>
 
-  <section class="panel" data-panel="paper">
-    <div class="panel-head">
-      <div>
-        <h2>Paper pipeline</h2>
-        <p>Projects in the paper-stage Spec-Kit pipeline (specifying → drafting → review). Click any project to see the LaTeX source, figures, statistics, and review records.</p>
-      </div>
-    </div>
-    <div class="bar">
-      <span class="label">Sort</span>
-      <button class="chip active" data-sort="updated">Recently updated</button>
-      <button class="chip" data-sort="title">Title (A–Z)</button>
-      <span class="grow"></span>
-      <span class="search"><i class="fa-solid fa-magnifying-glass"></i><input data-search="paper" placeholder="Search…" /></span>
-    </div>
-    <div class="cards" id="paper-cards"></div>
-  </section>
-
   <section class="panel" data-panel="inProgress">
     <div class="panel-head">
       <div>
-        <h2>Research in progress</h2>
-        <p>Projects executing the research Spec-Kit pipeline — implementing tasks, collecting data, and preparing for research review.</p>
+        <h2>In progress</h2>
+        <p>Every project that hasn't yet been published — from the brainstorm backlog through research specs, plans, execution, and the full paper pipeline. Click any project to see its spec, plan, code, data, figures, statistics, LaTeX source, and review records.</p>
       </div>
     </div>
     <div class="bar">
@@ -133,55 +112,6 @@
       <span class="search"><i class="fa-solid fa-magnifying-glass"></i><input data-search="inProgress" placeholder="Search…" /></span>
     </div>
     <div class="cards" id="inProgress-cards"></div>
-  </section>
-
-  <section class="panel" data-panel="plans">
-    <div class="panel-head">
-      <div>
-        <h2>Research plans</h2>
-        <p>Spec-Kit <code>plan.md</code> documents — architecture, contracts, data model — for projects approaching execution.</p>
-      </div>
-    </div>
-    <div class="bar">
-      <span class="label">Sort</span>
-      <button class="chip active" data-sort="updated">Recently updated</button>
-      <button class="chip" data-sort="title">Title (A–Z)</button>
-    </div>
-    <div class="cards" id="plans-cards"></div>
-  </section>
-
-  <section class="panel" data-panel="designs">
-    <div class="panel-head">
-      <div>
-        <h2>Research specs</h2>
-        <p>Spec-Kit <code>spec.md</code> documents — feature specifications, user stories, requirements — ready for review and planning.</p>
-      </div>
-    </div>
-    <div class="bar">
-      <span class="label">Sort</span>
-      <button class="chip active" data-sort="updated">Recently updated</button>
-      <button class="chip" data-sort="title">Title (A–Z)</button>
-    </div>
-    <div class="cards" id="designs-cards"></div>
-  </section>
-
-  <section class="panel" data-panel="backlog">
-    <div class="panel-head">
-      <div>
-        <h2>Project backlog</h2>
-        <p>Every project, grouped by its position in the 34-state lifecycle. The research lane runs from brainstorm through research review; the paper lane runs from paper-Spec-Kit init through posted.</p>
-      </div>
-    </div>
-    <div class="bar">
-      <span class="label">View</span>
-      <button class="chip active" data-view="status">By stage</button>
-      <span class="grow"></span>
-      <span class="search"><i class="fa-solid fa-magnifying-glass"></i><input data-search="backlog" placeholder="Search backlog…" /></span>
-    </div>
-    <div class="lane-label">Research lane</div>
-    <div class="backlog-grid research-lane" id="backlog-research"></div>
-    <div class="lane-label">Paper lane</div>
-    <div class="backlog-grid paper-lane" id="backlog-paper"></div>
   </section>
 
   <section class="panel" data-panel="contributors">

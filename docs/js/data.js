@@ -15,6 +15,14 @@
   };
 
   // Stage → tab mapping (FR-005). Mirrors src/llmxive/web_data.py.
+  //
+  // The dashboard now exposes just TWO project tabs: `papers` (Published) and
+  // a single consolidated `inProgress` (In Progress) tab. The In-Progress tab
+  // is the UNION of every non-published, non-archived project stage — what
+  // used to be the separate "paper pipeline", "in progress", "research plans",
+  // "research specs", and "backlog" tabs. Any project that is not yet
+  // published (and is not a terminal/archived state) shows up under In
+  // Progress, so a project never silently falls off the board between stages.
   const TAB_STAGE_SETS = {
     // Published papers (FR-029): only `posted` qualifies as published.
     // Spec 013 made `paper_accepted` a transient pre-publication state —
@@ -22,7 +30,20 @@
     // to `posted` once Zenodo confirms the DOI. So `paper_accepted` no
     // longer belongs on the published tab.
     papers:     new Set(["posted"]),
-    paper:      new Set([
+    // In Progress — the union of the former backlog + research-specs +
+    // research-plans + in-progress + paper-pipeline buckets.
+    inProgress: new Set([
+      // — former "backlog" (idea + validation lane) —
+      "brainstormed", "flesh_out_in_progress", "flesh_out_complete",
+      "validated", "project_initialized",
+      // — former "research specs" —
+      "specified", "clarify_in_progress", "clarified",
+      // — former "research plans" —
+      "planned", "tasked", "analyze_in_progress", "analyzed",
+      // — former "in progress" (research execution + research review) —
+      "in_progress", "research_complete", "research_review",
+      "research_minor_revision", "research_full_revision", "research_accepted",
+      // — former "paper pipeline" —
       "paper_drafting_init", "paper_specified", "paper_clarified", "paper_planned",
       "paper_tasked", "paper_analyzed", "paper_in_progress", "paper_complete",
       "paper_review", "paper_minor_revision", "paper_major_revision_writing",
@@ -35,33 +56,13 @@
       // publish_blocked is operator-action-needed.
       "paper_accepted", "publish_blocked",
     ]),
-    inProgress: new Set([
-      "in_progress", "research_complete", "research_review",
-      "research_minor_revision", "research_full_revision", "research_accepted",
-    ]),
-    plans:      new Set(["planned", "tasked", "analyze_in_progress", "analyzed"]),
-    designs:    new Set(["specified", "clarify_in_progress", "clarified"]),
-    backlog:    new Set([
-      "brainstormed", "flesh_out_in_progress", "flesh_out_complete", "project_initialized",
-    ]),
   };
-
-  // Backlog kanban columns (FR-006).
-  const RESEARCH_LANE_STAGES = [
-    "brainstormed", "flesh_out_complete", "project_initialized",
-    "specified", "clarified", "planned", "tasked", "analyzed",
-    "in_progress", "research_complete", "research_review",
-  ];
-  const PAPER_LANE_STAGES = [
-    "paper_drafting_init", "paper_specified", "paper_clarified", "paper_planned",
-    "paper_tasked", "paper_analyzed", "paper_in_progress", "paper_complete",
-    "paper_review", "posted",
-  ];
 
   const STAGE_LABELS = {
     brainstormed: "Brainstormed",
     flesh_out_in_progress: "Fleshing out",
     flesh_out_complete: "Fleshed out",
+    validated: "Validated",
     project_initialized: "Initialized",
     specified: "Specified",
     clarify_in_progress: "Clarifying",
@@ -133,7 +134,8 @@
   }
 
   function projectsByTab(payload) {
-    const buckets = { papers: [], paper: [], inProgress: [], plans: [], designs: [], backlog: [] };
+    // One empty array per tab in TAB_STAGE_SETS (papers + inProgress).
+    const buckets = Object.fromEntries(Object.keys(TAB_STAGE_SETS).map(t => [t, []]));
     for (const proj of payload.projects || []) {
       for (const [tab, stages] of Object.entries(TAB_STAGE_SETS)) {
         if (stages.has(proj.current_stage)) buckets[tab].push(proj);
@@ -144,16 +146,6 @@
       buckets[k].sort((a, b) => (b.updated_at || "").localeCompare(a.updated_at || ""));
     }
     return buckets;
-  }
-
-  function projectsByLaneStage(payload) {
-    const research = Object.fromEntries(RESEARCH_LANE_STAGES.map(s => [s, []]));
-    const paper    = Object.fromEntries(PAPER_LANE_STAGES.map(s => [s, []]));
-    for (const p of payload.projects || []) {
-      if (p.current_stage in research) research[p.current_stage].push(p);
-      else if (p.current_stage in paper) paper[p.current_stage].push(p);
-    }
-    return { research, paper };
   }
 
   function relativeTime(iso) {
@@ -171,7 +163,7 @@
   }
 
   window.LlmxiveData = {
-    EMPTY, TAB_STAGE_SETS, RESEARCH_LANE_STAGES, PAPER_LANE_STAGES, STAGE_LABELS,
-    loadPayload, projectsByTab, projectsByLaneStage, relativeTime,
+    EMPTY, TAB_STAGE_SETS, STAGE_LABELS,
+    loadPayload, projectsByTab, relativeTime,
   };
 })();

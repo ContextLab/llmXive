@@ -8,7 +8,6 @@
 
   let payload = null;
   let buckets = null;
-  let lanes = null;
 
   function banner(kind, msg) {
     const root = document.getElementById("banners");
@@ -87,18 +86,20 @@
 
   function cardHTML(item, kind) {
     _buildActivityByProject();
-    const kicker = ({
-      papers:    "Published",
-      paper:     "Paper pipeline",
-      inProgress:"Research in progress",
-      plans:     "Research plan",
-      designs:   "Research spec",
-    })[kind] || "";
     const stage = item.current_stage || "";
+    // A project sits in the paper lane once it enters any paper_* stage (or
+    // posted). The two project tabs are now Published + the consolidated In
+    // Progress, so the per-card kicker / points come from the project's own
+    // stage rather than the tab it's rendered under.
+    const inPaperLane = stage === "posted" || stage.startsWith("paper_");
+    const kicker =
+      kind === "papers" ? "Published"
+        : inPaperLane ? "Paper pipeline"
+        : "In progress";
     const stageLabel = (D.STAGE_LABELS[stage] || stage).toLowerCase();
     const updated = D.relativeTime(item.updated_at);
     const points =
-      kind === "papers" || kind === "paper"
+      kind === "papers" || inPaperLane
         ? '<span><i class="fa-solid fa-star-half-stroke"></i> ' + (item.points_paper_total || 0).toFixed(1) + ' pts</span>'
         : '<span><i class="fa-solid fa-star-half-stroke"></i> ' + (item.points_research_total || 0).toFixed(1) + ' pts</span>';
     const keys = (item.keywords || []).slice(0, 4)
@@ -236,53 +237,6 @@
       const el = document.querySelector('[data-count="' + k + '"]');
       if (el) el.textContent = items.length;
     });
-  }
-
-  function renderBacklogLane(rootEl, lane, stages) {
-    // The Backlog tab has a single search input (`data-search="backlog"`)
-    // that filters BOTH the research and the paper kanban columns. Apply
-    // the same `matchesSearch` predicate per project before rendering.
-    const term = searchState["backlog"] || "";
-    const html = stages.map(stage => {
-      const stageItems = lane[stage] || [];
-      const items = stageItems.filter(p => matchesSearch(p, term));
-      const label = D.STAGE_LABELS[stage] || stage;
-      const issues = items.map(p => {
-        const desc = (p.description || "").slice(0, 140) + ((p.description || "").length > 140 ? "…" : "");
-        return ''
-          + '<div class="issue" data-pid="' + escapeHtml(p.id) + '">'
-          + '<div class="title">' + escapeHtml(p.title) + '</div>'
-          + (desc ? '<div class="issue-desc">' + escapeHtml(desc) + '</div>' : "")
-          + '<div class="row"><span>' + escapeHtml(p.field || "") + '</span>'
-          + '<span class="upv"><i class="fa-solid fa-arrow-up"></i> ' + (p.points_research_total || 0).toFixed(1) + '</span></div>'
-          + '</div>';
-      }).join("");
-      return ''
-        + '<div class="col" data-stage="' + escapeHtml(stage) + '">'
-        + '<div class="col-head"><span class="name"><span class="dot"></span>' + escapeHtml(label) + '</span>'
-        + '<span class="count">' + items.length + '</span></div>'
-        + '<div class="col-body">' + issues + '</div></div>';
-    }).join("");
-    rootEl.replaceChildren();
-    rootEl.insertAdjacentHTML("beforeend", html);
-    rootEl.querySelectorAll(".issue").forEach(iss => {
-      iss.addEventListener("click", () => {
-        const pid = iss.getAttribute("data-pid");
-        const proj = (payload.projects || []).find(p => p.id === pid);
-        if (proj) {
-          // Spec-010 follow-up: pass the project's personality-review
-          // comments into the modal (they used to render inline on the
-          // card; the user moved them into the modal).
-          const _act = (activityByProject || {})[proj.id];
-          Dialog.open(proj, { comments: (_act && _act.comments) || [] });
-        }
-      });
-    });
-  }
-
-  function renderBacklog() {
-    renderBacklogLane(document.getElementById("backlog-research"), lanes.research, D.RESEARCH_LANE_STAGES);
-    renderBacklogLane(document.getElementById("backlog-paper"), lanes.paper, D.PAPER_LANE_STAGES);
   }
 
   // Authoritative kind → display label / table icon-class (FR-007).
@@ -846,15 +800,13 @@
 
   function setupSearch() {
     // Wire every `<input data-search="LANE">` in index.html to filter that
-    // lane's cards (or kanban columns for backlog) by the typed term.
+    // lane's cards by the typed term.
     // The `searchState` map and `matchesSearch` predicate above are the
     // canonical filter — every render-lane call already honors them.
     //
     // Inputs (per index.html):
     //   data-search="papers"     → renderCards("papers")
-    //   data-search="paper"      → renderCards("paper")
     //   data-search="inProgress" → renderCards("inProgress")
-    //   data-search="backlog"    → renderBacklog()
     //
     // Debounce keystrokes lightly (100ms) so we don't re-render on every
     // single character for users typing quickly. The render path is fast
@@ -868,14 +820,9 @@
         clearTimeout(timer);
         timer = setTimeout(() => {
           searchState[lane] = input.value || "";
-          if (lane === "backlog") {
-            renderBacklog();
-          } else {
-            // The other four (papers / paper / inProgress / plans / designs)
-            // each have their own `<div id="${lane}-cards">` rendered by
-            // renderCards.
-            renderCards(lane);
-          }
+          // Each project tab (papers / inProgress) has its own
+          // `<div id="${lane}-cards">` rendered by renderCards.
+          renderCards(lane);
         }, 100);
       });
       // Esc clears the input + re-renders.
@@ -883,8 +830,7 @@
         if (e.key === "Escape" && input.value) {
           input.value = "";
           searchState[lane] = "";
-          if (lane === "backlog") renderBacklog();
-          else renderCards(lane);
+          renderCards(lane);
         }
       });
     });
@@ -1336,13 +1282,13 @@
       banner("warn", "Pipeline state not yet generated. The site will be empty until the pipeline writes <code>web/data/projects.json</code>.");
     }
     buckets = D.projectsByTab(payload);
-    lanes = D.projectsByLaneStage(payload);
 
     renderAggregates(payload);
     renderTabCounts();
     renderPersonalityRoster(payload);
-    ["papers", "paper", "inProgress", "plans", "designs"].forEach(renderCards);
-    renderBacklog();
+    // Two project tabs render as card grids: Published + the consolidated
+    // In Progress (every non-published, non-archived stage — see TAB_STAGE_SETS).
+    ["papers", "inProgress"].forEach(renderCards);
     renderContributors();
     renderActivity();
 
@@ -1353,7 +1299,7 @@
     setupModals();
     setupAboutModals();
 
-    window._llmxive = { payload, buckets, lanes };
+    window._llmxive = { payload, buckets };
   }
 
   if (document.readyState === "loading") {
