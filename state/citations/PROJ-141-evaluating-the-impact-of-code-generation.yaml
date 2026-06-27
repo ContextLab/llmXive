@@ -99,3 +99,26 @@
   verification_status: verified
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-06-27T10:16:23.817436Z'
+- artifact_hash: 595c4ff33b453b7366b1b8b524726348b3070cdf28437611b53c15234f82177f
+  artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - openai/human-eval: Code for the paper &quot;Evaluating\
+    \ Large Language Models Trained on Code&quot; \xB7 GitHub"
+  kind: url
+  value: https://github.com/openai/human-eval
+  verification_status: verified
+  verified_against_url: https://github.com/openai/human-eval
+  verified_at: '2026-06-27T18:01:07.770386Z'
+- artifact_hash: 595c4ff33b453b7366b1b8b524726348b3070cdf28437611b53c15234f82177f
+  artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: problemset.problems
+  kind: url
+  value: https://codeforces.com/api/problemset.problems
+  verification_status: verified
+  verified_against_url: https://codeforces.com/api/problemset.problems
+  verified_at: '2026-06-27T18:01:07.770386Z'

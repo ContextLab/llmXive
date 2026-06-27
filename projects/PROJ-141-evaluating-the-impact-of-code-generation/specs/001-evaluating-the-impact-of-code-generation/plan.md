@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a controlled within-subject experiment to evaluate how LLM code-generation tools affect developer task-completion time and code quality. The system presents coding problems from HumanEval/Codeforces, records timestamps and code submissions under two conditions (LLM-assisted vs. baseline), computes quality metrics (pass rate, cyclomatic complexity, coverage, static-analysis warnings), and performs statistical analysis with multiple-comparison correction. The implementation must run on GitHub Actions free-tier (2 CPU, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h).
+This project implements a controlled within-subject experiment to evaluate how LLM code-generation tools affect developer task-completion time and code quality. The system presents coding problems from HumanEval/Codeforces, records timestamps and code submissions under two conditions (LLM-assisted vs. baseline), computes quality metrics (pass rate, cyclomatic complexity, coverage, static-analysis warnings), and performs statistical analysis with multiple-comparison correction. The implementation must run on GitHub Actions free-tier (2 CPU, ~7 GB RAM, Sufficient disk storage, NO GPU, ≤6 h).
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This project implements a controlled within-subject experiment to evaluate how L
 **Project Type**: web-service + analysis pipeline  
 **Performance Goals**: ≤6 h total runtime for full analysis pipeline; ≤1s timestamp precision; ≥95% problem loading rate  
 **Constraints**: NO GPU/CUDA; models ≤1GB and CPU-tractable; 7 GB RAM, 14 GB disk limits; no PII in committed data  
-**Scale/Scope**: 30 participants, within-subject design (2 conditions), HumanEval + medium Codeforces problems
+**Scale/Scope**: a sample of participants, within-subject design (multiple conditions), HumanEval + medium Codeforces problems
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -130,7 +130,7 @@ pytest tests/unit/ -v
 **Feasibility Assessment**:
 - **LLM Inference**: StarCoder verified CPU-tractable (HuggingFace). JaCoText has NO verified source—blocking gap. If JaCoText unavailable, use StarCoder for both languages or limit to Python-only condition.
 - **Quality Assessment**: radon, coverage.py, pylint are all CPU-only and lightweight. Feasible.
-- **Statistical Analysis**: scipy/statsmodels are CPU-only. With 30 participants, negligible compute. Feasible.
+- **Statistical Analysis**: scipy/statsmodels are CPU-only. With a sample of participants, negligible compute. Feasible.
 - **Experiment Interface**: Flask is lightweight. Feasible if participants access remotely (not on GitHub Actions).
 - **Total Runtime**: 30 participants × 2 conditions × [deferred]/problem × N problems. For N=2 problems, [deferred] per participant. Full experiment: 30 × 30 min = 900 min = 15 h (exceeds 6 h). **Decision**: Limit to N=2 problems per condition; experiment runs on separate server, analysis pipeline on GitHub Actions.
 
