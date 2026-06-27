@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1709.01007",
+  "judged_at": "2026-06-27T00:10:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "This paper is off-domain (Information Visualization/HCI vs. Neuroscience) and addresses a distinct construct (graph similarity judgment vs. neural signatures of visual illusions), sharing only homonym keywords like \"visual\" and \"perception.\" It does not measure neural activity, predictive processing mechanisms, or visual illusion stimuli relevant to the user's question.",
+  "relevant": false
+}

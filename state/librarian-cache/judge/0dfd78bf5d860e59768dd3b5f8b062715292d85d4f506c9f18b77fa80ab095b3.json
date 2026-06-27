@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1910.12607",
+  "judged_at": "2026-06-27T00:09:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "This paper applies predictive coding as a machine learning objective for speech representation, whereas the user's question concerns biological neural signatures in visual perception; this is a distinct construct sharing only homonym keywords (\"predictive coding\") across different domains (ML vs. Neuroscience).",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.10565",
+  "judged_at": "2026-06-27T00:10:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "The paper studies Artificial Neural Networks (computer science) rather than biological neural signatures (neuroscience), and does not address predictive processing mechanisms, falling under the rejection rule for distinct constructs sharing homonym keywords (\"neural\").",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.11644",
+  "judged_at": "2026-06-27T00:09:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "This paper is off-domain (computer science education vs. neuroscience) and shares only the homonym keyword \"visual\" (referring to coding interfaces rather than visual perception mechanisms), failing all inclusion criteria (a-f).",
+  "relevant": false
+}

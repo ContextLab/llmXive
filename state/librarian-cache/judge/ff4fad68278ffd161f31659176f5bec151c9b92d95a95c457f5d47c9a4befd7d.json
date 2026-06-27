@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.01643",
+  "judged_at": "2026-06-27T00:10:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "This paper studies artificial neural networks (CNNs) rather than biological neural signatures in neuroscience, making it off-domain for a question specifically about neural signatures of predictive processing in the human brain. While it addresses visual illusions, it does not measure the biological mechanisms, neural activity, or predictive processing framework the user is investigating.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.13061",
+  "judged_at": "2026-06-27T00:10:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "This paper studies machine vision systems and computer algorithms being fooled by visual illusions, not neural signatures or predictive processing in the human brain. It falls under the \"distinct construct sharing only homonym keywords\" rejection rule—both mention \"visual illusions\" but the neuroscience question concerns brain mechanisms while this paper concerns AI/depth estimation algorithms.",
+  "relevant": false
+}

@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T21:22:09.289014Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-504-evaluating-the-impact-of-variable-select
-last_run_id: aef0b781-242d-4e97-b783-eda3e1085bb4
+last_run_id: 6f92bf3f-fb83-454d-811c-8c74772560fc
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select
 title: Evaluating the Impact of Variable Selection on Statistical Power in Linear
   Regression
-updated_at: '2026-06-26T18:23:05.217478Z'
+updated_at: '2026-06-27T00:19:00.206073Z'

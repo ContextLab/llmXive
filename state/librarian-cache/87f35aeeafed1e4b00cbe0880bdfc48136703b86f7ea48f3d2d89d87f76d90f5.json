@@ -1,0 +1,517 @@
+{
+  "fetched_at": "2026-06-27T00:11:57Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Investigating Neural Signatures of Predictive Processing in Visual Illusions",
+      "target_n": 5
+    },
+    "duration_seconds": 341.469,
+    "ended_at": "2026-06-27T00:11:57Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Predictive coding mechanisms in visual perception"
+        ],
+        [
+          2,
+          "Neural correlates of visual illusions"
+        ],
+        [
+          3,
+          "Top-down modulation in visual cortex"
+        ],
+        [
+          4,
+          "Bayesian inference in human vision"
+        ],
+        [
+          5,
+          "Expectation effects on visual processing"
+        ],
+        [
+          6,
+          "Prediction error signaling in visual areas"
+        ],
+        [
+          7,
+          "Electrophysiological markers of predictive coding"
+        ],
+        [
+          8,
+          "fMRI studies of perceptual illusions"
+        ],
+        [
+          9,
+          "Hierarchical predictive processing vision"
+        ],
+        [
+          10,
+          "Neural basis of ambiguous visual stimuli"
+        ],
+        [
+          11,
+          "Cortical oscillations during visual illusions"
+        ],
+        [
+          12,
+          "Mismatch negativity visual perception"
+        ],
+        [
+          13,
+          "Prior expectations visual system"
+        ],
+        [
+          14,
+          "Free energy principle visual perception"
+        ],
+        [
+          15,
+          "Contextual modulation visual illusions"
+        ],
+        [
+          16,
+          "Neural encoding of prediction errors vision"
+        ],
+        [
+          17,
+          "ERP components visual illusions"
+        ],
+        [
+          18,
+          "Bottom-up top-down visual integration"
+        ],
+        [
+          19,
+          "Perceptual bias neural mechanisms"
+        ],
+        [
+          20,
+          "Sensory prediction visual cortex activity"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Investigating Neural Signatures of Predictive Processing in Visual Illusions neuroscience": 0,
+        "Neural correlates of visual illusions": 4,
+        "Predictive coding mechanisms in visual perception": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "predictive coding free energy principle",
+      "binocular rivalry ambiguous figures motion illusion",
+      "prediction error gamma beta oscillations",
+      "visual illusion BOLD response fMRI",
+      "top-down modulation prior expectations precision"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1907.13004"
+      ]
+    },
+    "per_query_hit_count": {
+      "Investigating Neural Signatures of Predictive Processing in Visual Illusions neuroscience": 3,
+      "binocular rivalry ambiguous figures motion illusion": 2,
+      "prediction error gamma beta oscillations": 3,
+      "predictive coding free energy principle": 3,
+      "top-down modulation prior expectations precision": 3,
+      "visual illusion BOLD response fMRI": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2205.11644",
+          "rationale": "This paper is off-domain (computer science education vs. neuroscience) and shares only the homonym keyword \"visual\" (referring to coding interfaces rather than visual perception mechanisms), failing all inclusion criteria (a-f).",
+          "title": "Visual and unplugged coding lessons with smart toys"
+        },
+        {
+          "primary_pointer": "1910.12607",
+          "rationale": "This paper applies predictive coding as a machine learning objective for speech representation, whereas the user's question concerns biological neural signatures in visual perception; this is a distinct construct sharing only homonym keywords (\"predictive coding\") across different domains (ML vs. Neuroscience).",
+          "title": "Generative Pre-Training for Speech with Autoregressive Predictive Coding"
+        },
+        {
+          "primary_pointer": "1709.01007",
+          "rationale": "This paper is off-domain (Information Visualization/HCI vs. Neuroscience) and addresses a distinct construct (graph similarity judgment vs. neural signatures of visual illusions), sharing only homonym keywords like \"visual\" and \"perception.\" It does not measure neural activity, predictive processing mechanisms, or visual illusion stimuli relevant to the user's question.",
+          "title": "Visual Similarity Perception of Directed Acyclic Graphs: A Study on Influencing Factors"
+        },
+        {
+          "primary_pointer": "2505.13061",
+          "rationale": "This paper studies machine vision systems and computer algorithms being fooled by visual illusions, not neural signatures or predictive processing in the human brain. It falls under the \"distinct construct sharing only homonym keywords\" rejection rule—both mention \"visual illusions\" but the neuroscience question concerns brain mechanisms while this paper concerns AI/depth estimation algorithms.",
+          "title": "3D Visual Illusion Depth Estimation"
+        },
+        {
+          "primary_pointer": "1811.10565",
+          "rationale": "The paper studies Artificial Neural Networks (computer science) rather than biological neural signatures (neuroscience), and does not address predictive processing mechanisms, falling under the rejection rule for distinct constructs sharing homonym keywords (\"neural\").",
+          "title": "Convolutional Neural Networks Deceived by Visual Illusions"
+        },
+        {
+          "primary_pointer": "1912.01643",
+          "rationale": "This paper studies artificial neural networks (CNNs) rather than biological neural signatures in neuroscience, making it off-domain for a question specifically about neural signatures of predictive processing in the human brain. While it addresses visual illusions, it does not measure the biological mechanisms, neural activity, or predictive processing framework the user is investigating.",
+          "title": "Visual Illusions Also Deceive Convolutional Neural Networks: Analysis and Implications"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-27T00:06:15Z",
+    "term_input": {
+      "normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+      "raw": "Investigating Neural Signatures of Predictive Processing in Visual Illusions neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "3D visual illusion is a perceptual phenomenon where a two-dimensional plane is manipulated to simulate three-dimensional spatial relationships, making a flat artwork or object look three-dimensional in the human visual system. In this paper, we reveal that the machine visual system is also seriously fooled by 3D visual illusions, including monocular and binocular depth estimation. In order to explore and analyze the impact of 3D visual illusion on depth estimation, we collect a large dataset containing almost 3k scenes and 200k images to train and evaluate SOTA monocular and binocular depth estimation methods. We also propose a 3D visual illusion depth estimation framework that uses common sense from the vision language model to adaptively fuse depth from binocular disparity and monocular depth. Experiments show that SOTA monocular, binocular, and multi-view depth estimation approaches are all fooled by various 3D visual illusions, while our method achieves SOTA performance.",
+          "claimed_authors": [
+            "Chengtang Yao",
+            "Zhidan Liu",
+            "Jiaxi Zeng",
+            "Lidong Yu",
+            "Yuwei Wu",
+            "Yunde Jia"
+          ],
+          "claimed_title": "3D Visual Illusion Depth Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.13061"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='3D Visual Illusion Depth Estimation')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Immersive virtual reality (VR) emerges as a promising research and clinical tool. However, several studies suggest that VR induced adverse symptoms and effects (VRISE) may undermine the health and safety standards, and the reliability of the scientific results. In the current literature review, the technical reasons for the adverse symptomatology are investigated to provide suggestions and technological knowledge for the implementation of VR head-mounted display (HMD) systems in cognitive neuroscience. The technological systematic literature indicated features pertinent to display, sound, motion tracking, navigation, ergonomic interactions, user experience, and computer hardware that should be considered by the researchers. Subsequently, a meta-analysis of 44 neuroscientific or neuropsychological studies involving VR HMD systems was performed. The meta-analysis of the VR studies demonstrated that new generation HMDs induced significantly less VRISE and marginally fewer dropouts.Importantly, the commercial versions of the new generation HMDs with ergonomic interactions had zero incidents of adverse symptomatology and dropouts. HMDs equivalent to or greater than the commercial versions of contemporary HMDs accompanied with ergonomic interactions are suitable for implementation in cognitive neuroscience. In conclusion, researchers technological competency, along with meticulous methods and reports pertinent to software, hardware, and VRISE, are paramount to ensure the health and safety standards and the reliability of neuroscientific results.",
+          "claimed_authors": [
+            "Panagiotis Kourtesis",
+            "Simona Collina",
+            "Leonidas A. A. Doumas",
+            "Sarah E. MacPherson"
+          ],
+          "claimed_title": "Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.08123"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Biehl et al (2020) present some interesting observations on an early formulation of the free energy principle in (Friston, 2013). We use these observations to scaffold a discussion of the technical arguments that underwrite the free energy principle. This discussion focuses on solenoidal coupling between various (subsets of) states in sparsely coupled systems that possess a Markov blanket - and the distinction between exact and approximate Bayesian inference, implied by the ensuing Bayesian mechanics.",
+          "claimed_authors": [
+            "Karl Friston",
+            "Lancelot Da Costa",
+            "Thomas Parr"
+          ],
+          "claimed_title": "Some interesting observations on the free energy principle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.04501"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Some interesting observations on the free energy principle')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On the basis of the general character and operation of the process of perception, a formalism is sought to mathematically describe the subjective or abstract/mental process of perception. It is shown that the formalism of orthodox quantum theory of measurement, where the observer plays a key role, is a broader mathematical foundation which can be adopted to describe the dynamics of the subjective experience. The mathematical formalism describes the psychophysical dynamics of the subjective or cognitive experience as communicated to us by the subject. Subsequently, the formalism is used to describe simple perception processes and, in particular, to describe the probability distribution of dominance duration obtained from the testimony of subjects experiencing binocular rivalry. Using this theory and parameters based on known values of neuronal oscillation frequencies and firing rates, the calculated probability distribution of dominance duration of rival states in binocular rivalry under various conditions is found to be in good agreement with available experimental data. This theory naturally explains an observed marked increase in dominance duration in binocular rivalry upon periodic interruption of stimulus and yields testable predictions for the distribution of perceptual alteration in time.",
+          "claimed_authors": [
+            "Efstratios Manousakis"
+          ],
+          "claimed_title": "Quantum formalism to describe binocular rivalry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0709.4516"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Quantum formalism to describe binocular rivalry')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "During Stereoscopic 3D (S3D) video transmission, one or both views can be affected by bit errors and packet losses caused by adverse channel conditions, delay or jitter. Typically, the Human Visual System (HVS) is incapable of aligning and fusing stereoscopic content if one view is affected by artefacts caused by compression, transmission and rendering with distorted patterns being perceived as alterations of the original which presents a shimmering effect known as binocular rivalry and is detrimental to a user's Quality of Experience (QoE). This study attempts to quantify the effects of binocular rivalry for stereoscopic videos. Existing approaches, in which one or more frames are lost in one or both views undergo error concealment, are implemented. Then, subjective testing is carried out on the error concealed 3D video sequences. The evaluations provided by these subjects were then combined and analysed using a standard Student t-test thus quantifying the impact of binocular rivalry and allowing the impact to be compared with that of monocular viewing. The main focus is implementing error-resilient video communication, avoiding the detrimental effects of binocular rivalry and improving the overall QoE of viewers.",
+          "claimed_authors": [
+            "Md Mehedi Hasan",
+            "John F. Arnold",
+            "Michael R. Frater"
+          ],
+          "claimed_title": "Binocular Rivalry - Psychovisual Challenge in Stereoscopic Video Error Concealment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.07792"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Binocular Rivalry - Psychovisual Challenge in Stereoscopic Video Error Concealment')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose to build a large water-Cherenkov-type muon-detector array (Tibet MD array) around the 37,000 m$^{2}$ Tibet air shower array (Tibet AS array) already constructed at 4,300 m above sea level in Tibet, China. Each muon detector is a waterproof concrete pool, 6 m wide $\\times$ 6 m long $\\times$ 1.5 m deep in size, equipped with a 20 inch-in-diameter PMT. The Tibet MD array consists of 240 muon detectors set up 2.5 m underground. Its total effective area will be 8,640 m$^{2}$ for muon detection. The Tibet MD array will significantly improve gamma-ray sensitivity of the Tibet AS array in the 100 TeV region (10-1000 TeV) by means of gamma/hadron separation based on counting the number of muons accompanying an air shower. The Tibet AS+MD array will have the sensitivity to gamma rays in the 100 TeV region by an order of magnitude better than any other previous existing detectors in the world.",
+          "claimed_authors": [
+            " The Tibet AS Gamma Collaboration",
+            "M. Amenomori"
+          ],
+          "claimed_title": "Underground Water Cherenkov Muon Detector Array with the Tibet Air Shower Array for Gamma-Ray Astronomy in the 100 TeV Region",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0611030"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Underground Water Cherenkov Muon Detector Array with the Tibet Air Shower Array for Gamma-Ray Astronomy in the 100 TeV Region')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We searched for steady PeV gamma-ray emission from the Monogem ring region with the Tibet air shower array from 1997 February to 2004 October. No evidence for statistically significant gamma-ray signals was found in a region 111$\\degr$ $\\leq$ R.A. $<$ 114$\\degr$, 12$\\fdg$5 $\\leq$ decl. $<$ 15$\\fdg$5 in the Monogem ring where the MAKET-ANI experiment recently claimed a positive detection of PeV high-energy cosmic radiation, although our flux sensitivity is approximately 10 times better than MAKET-ANI's. We set the most stringent integral flux upper limit at a 99% confidence level of 4.0 $\\times$ 10$^{-12}$ cm$^{-2}$ s$^{-1}$ sr$^{-1}$ above 1 PeV on diffuse gamma rays extended in the 3$^{\\circ}$ $\\times$ 3$^{\\circ}$ region.",
+          "claimed_authors": [
+            " The Tibet AS Gamma Collaboration",
+            "M. Amenomori"
+          ],
+          "claimed_title": "Observation of PeV Gamma Rays from the Monogem Ring with the Tibet Air Shower Array",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0512460"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Observation of PeV Gamma Rays from the Monogem Ring with the Tibet Air Shower Array')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We obtained new upper limits on the diffuse gamma rays from the inner Galactic (IG) and outer Galactic (OG) planes in 3.10 TeV region, using the Tibet air shower data and new Monte Carlo simulation results. A difference of the effective area of the air-shower array for observing gamma rays and cosmic rays was carefully taken into account in this analysis, resulting in that the flux upper limits of the diffuse TeV gamma rays were reduced by factors of 4.0.3.7 for 3.10 TeV than those in our previous results (Amenomori, M., Ayabe, S., Cui, S.W., et al. Observation of multi-TeV diffuse gamma rays from the Galactic plane with the Tibet air shower array. Astrophys. J. 580, 887.895, 2002.). This new result suggests that the inverse power index of the energy spectrum of source electrons responsible for generating diffuse TeV gamma rays through inverse Compton effect should be steeper than 2.2 and 2.1 for IG and OG planes, respectively, with 99%C.L.",
+          "claimed_authors": [
+            " The Tibet AS Gamma Collaboration",
+            "M. Amenomori"
+          ],
+          "claimed_title": "Flux upper limits of diffuse TeV gamma rays from the Galactic plane using the effective area of the Tibet-II and -III arrays",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0511514"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Flux upper limits of diffuse TeV gamma rays from the Galactic plane using the effective area of the Tibet-II and -III arrays')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in multimodal large language models (LLMs) have enabled unified reasoning across images, audio, and video, but extending such capability to brain imaging remains largely unexplored. Bridging this gap is essential to link neural activity with semantic cognition and to develop cross-modal brain representations. To this end, we present fMRI-LM, a foundational model that bridges functional MRI (fMRI) and language through a three-stage framework. In Stage 1, we learn a neural tokenizer that maps fMRI into discrete tokens embedded in a language-consistent space. In Stage 2, a pretrained LLM is adapted to jointly model fMRI tokens and text, treating brain activity as a sequence that can be temporally predicted and linguistically described. To overcome the lack of natural fMRI-text pairs, we construct a large descriptive corpus that translates diverse imaging-based features into structured textual descriptors, capturing the low-level organization of fMRI signals. In Stage 3, we perform multi-task, multi-paradigm instruction tuning to endow fMRI-LM with high-level semantic understanding, supporting diverse downstream applications. Across various benchmarks, fMRI-LM achieves strong zero-shot and few-shot performance, and adapts efficiently with parameter-efficient tuning (LoRA), establishing a scalable pathway toward a language-aligned, universal model for structural and semantic understanding of fMRI.",
+          "claimed_authors": [
+            "Yuxiang Wei",
+            "Yanteng Zhang",
+            "Xi Xiao",
+            "Chengxuan Qian",
+            "Tianyang Wang",
+            "Vince D. Calhoun"
+          ],
+          "claimed_title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.21760"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study proposes a new approach that investigates differences in topological characteristics of visual networks, which are constructed using fMRI BOLD time-series corresponding to visual datasets of COCO, ImageNet, and SUN. A publicly available BOLD5000 dataset is utilized that contains fMRI scans while viewing 5254 images of diverse complexities. The objective of this study is to examine how network topology differs in response to distinct visual stimuli from these visual datasets. To achieve this, 0- and 1-dimensional persistence diagrams are computed for each visual network representing COCO, ImageNet, and SUN. For extracting suitable features from topological persistence diagrams, K-means clustering is executed. The extracted K-means cluster features are fed to a novel deep-hybrid model that yields accuracy in the range of 90%-95% in classifying these visual networks. To understand vision, this type of visual network categorization across visual datasets is important as it captures differences in BOLD signals while perceiving images with different contexts and complexities. Furthermore, distinctive topological patterns of visual network associated with each dataset, as revealed from this study, could potentially lead to the development of future neuroimaging biomarkers for diagnosing visual processing disorders like visual agnosia or prosopagnosia, and tracking changes in visual cognition over time.",
+          "claimed_authors": [
+            "Debanjali Bhattacharya",
+            "Neelam Sinha",
+            "Yashwanth R.",
+            "Amit Chattopadhyay"
+          ],
+          "claimed_title": "Image complexity based fMRI-BOLD visual network categorization across visual datasets using topological descriptors and deep-hybrid learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.08417"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Image complexity based fMRI-BOLD visual network categorization across visual datasets using topological descriptors and deep-hybrid learning')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Top-down saliency models produce a probability map that peaks at target locations specified by a task/goal such as object detection. They are usually trained in a fully supervised setting involving pixel-level annotations of objects. We propose a weakly supervised top-down saliency framework using only binary labels that indicate the presence/absence of an object in an image. First, the probabilistic contribution of each image region to the confidence of a CNN-based image classifier is computed through a backtracking strategy to produce top-down saliency. From a set of saliency maps of an image produced by fast bottom-up saliency approaches, we select the best saliency map suitable for the top-down task. The selected bottom-up saliency map is combined with the top-down saliency map. Features having high combined saliency are used to train a linear SVM classifier to estimate feature saliency. This is integrated with combined saliency and further refined through a multi-scale superpixel-averaging of saliency map. We evaluate the performance of the proposed weakly supervised topdown saliency and achieve comparable performance with fully supervised approaches. Experiments are carried out on seven challenging datasets and quantitative results are compared with 40 closely related approaches across 4 different applications.",
+          "claimed_authors": [
+            "Hisham Cholakkal",
+            "Jubin Johnson",
+            "Deepu Rajan"
+          ],
+          "claimed_title": "Backtracking Spatial Pyramid Pooling (SPP)-based Image Classifier for Weakly Supervised Top-down Salient Object Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.05345"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Backtracking Spatial Pyramid Pooling (SPP)-based Image Classifier for Weakly Supervised Top-down Salient Object Detection')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, we have seen tremendous progress in the field of object detection. Most of the recent improvements have been achieved by targeting deeper feedforward networks. However, many hard object categories such as bottle, remote, etc. require representation of fine details and not just coarse, semantic representations. But most of these fine details are lost in the early convolutional layers. What we need is a way to incorporate finer details from lower layers into the detection architecture. Skip connections have been proposed to combine high-level and low-level features, but we argue that selecting the right features from low-level requires top-down contextual information. Inspired by the human visual pathway, in this paper we propose top-down modulations as a way to incorporate fine details into the detection framework. Our approach supplements the standard bottom-up, feedforward ConvNet with a top-down modulation (TDM) network, connected using lateral connections. These connections are responsible for the modulation of lower layer filters, and the top-down network handles the selection and integration of contextual information and low-level features. The proposed TDM architecture provides a significant boost on the COCO testdev benchmark, achieving 28.6 AP for VGG16, 35.2 AP for ResNet101, and 37.3 for InceptionResNetv2 network, without any bells and whistles (e.g., multi-scale, iterative box refinement, etc.).",
+          "claimed_authors": [
+            "Abhinav Shrivastava",
+            "Rahul Sukthankar",
+            "Jitendra Malik",
+            "Abhinav Gupta"
+          ],
+          "claimed_title": "Beyond Skip Connections: Top-Down Modulation for Object Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.06851"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Beyond Skip Connections: Top-Down Modulation for Object Detection')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We develop a theory for solving continuous time optimal stopping problems for non-linear expectations. Our motivation is to consider problems in which the stopper uses risk measures to evaluate future rewards.",
+          "claimed_authors": [
+            "Erhan Bayraktar",
+            "Song Yao"
+          ],
+          "claimed_title": "Optimal Stopping for Non-linear Expectations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0905.3601"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Optimal Stopping for Non-linear Expectations')",
+        "failed_at": "2026-06-27T00:08:07Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sean C. Borneman",
+            "Julia Krebs",
+            "Ronnie B. Wilbur",
+            "Evie A. Malaia"
+          ],
+          "title": "Decoding Predictive Inference in Visual Language Processing via Spatiotemporal Neural Coherence",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.20929",
+        "summary": "Human language processing relies on the brain's capacity for predictive inference. We present a machine learning framework for decoding neural (EEG) responses to dynamic visual language stimuli in Deaf signers. Using coherence between neural signals and optical flow-derived motion features, we construct spatiotemporal representations of predictive neural dynamics. Through entropy-based feature selection, we identify frequency-specific neural signatures that differentiate interpretable linguistic input from linguistically disrupted (time-reversed) stimuli. Our results reveal distributed left-hemispheric and frontal low-frequency coherence as key features in language comprehension, with experience-dependent neural signatures correlating with age. This work demonstrates a novel multimodal approach for probing experience-driven generative models of perception in the brain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.20929",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T00:08:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Marcelo Bertalmío",
+            "Luca Calatroni",
+            "Valentina Franceschi",
+            "Benedetta Franceschiello",
+            "Alexander Gomez-Villa",
+            "Dario Prandi"
+          ],
+          "title": "Visual illusions via neural dynamics: Wilson-Cowan-type models and the efficient representation principle",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1907.13004",
+        "summary": "In this work we have aimed to reproduce supra-threshold perception phenomena, specifically visual illusions, with Wilson-Cowan-type models of neuronal dynamics. We have found that it is indeed possible to do so, but that the ability to replicate visual illusions is related to how well the neural activity equations comply with the efficient representation principle. Our first contribution is to show that the Wilson-Cowan equations can reproduce a number of brightness and orientation-dependent illusions, and that the latter type of illusions require that the neuronal dynamics equations consider explicitly the orientation, as expected. Then, we formally prove that there can't be an energy functional that the Wilson-Cowan equations are minimizing, but that a slight modification makes them variational and yields a model that is consistent with the efficient representation principle. Finally, we show that this new model provides a better reproduction of visual illusions than the original Wilson-Cowan formulation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1907.13004",
+          "http_status": 200,
+          "pdf_sample_score": 0.1623,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-27T00:08:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

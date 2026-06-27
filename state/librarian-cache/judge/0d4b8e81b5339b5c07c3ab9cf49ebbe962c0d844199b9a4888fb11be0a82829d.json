@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1907.13004",
+  "judged_at": "2026-06-27T00:11:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "The paper models neural dynamics underlying visual illusions, satisfying criterion (b) by measuring neural variables on the user's specific domain (visual illusions neuroscience), which provides a necessary baseline for neural signatures even if the theoretical framework (efficient representation) differs from predictive processing.",
+  "relevant": true
+}

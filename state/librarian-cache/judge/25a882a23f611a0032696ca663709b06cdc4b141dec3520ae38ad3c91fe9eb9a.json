@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.20929",
+  "judged_at": "2026-06-27T00:08:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "This paper satisfies criterion (a) as it measures the same biological mechanism (predictive processing neural signatures via EEG) that the user is investigating, even though it uses visual language stimuli rather than visual illusions specifically. For a literature review on neural signatures of predictive processing, this represents canonical prior work on the underlying mechanism in a related visual neuroscience domain.",
+  "relevant": true
+}
