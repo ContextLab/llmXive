@@ -1,9 +1,10 @@
 """Spec 013 / US3 — unit tests for author management (FR-006..FR-008).
 
-Covers T031: `add_implementer()` (append-only, deduplicated by
-`(name, agent_version)`), `update_latex_author_block()` (preserves
-originals, appends "Revised by:" sub-block), and FR-016 immutability
-of non-`authors` metadata.json fields.
+Authorship is by MODEL. Covers `collect_contributor_models()` /
+`sync_paper_authors()` (reconcile metadata.json::authors to humans + one
+entry per distinct paper-content model, reviewers excluded),
+`update_latex_author_block()` (preserves originals, appends "Revised by:"
+sub-block), and FR-016 immutability of non-`authors` metadata.json fields.
 """
 
 from __future__ import annotations
@@ -13,8 +14,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from llmxive.pipeline import authors as authors_module
+from llmxive.state import runlog as runlog_store
+from llmxive.types import Outcome, RunLogEntry
 
 _NOW = datetime(2026, 5, 19, 10, 14, 0, tzinfo=UTC)
+_PROJ = "PROJ-997-author-attribution"
 
 
 def _write_metadata(path: Path, data: dict) -> None:
@@ -22,95 +26,109 @@ def _write_metadata(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
-class TestAddImplementer:
-    def test_appends_to_empty_authors(self, tmp_path: Path) -> None:
-        meta = tmp_path / "metadata.json"
-        _write_metadata(meta, {"authors": [], "title": "T"})
-        ok = authors_module.add_implementer(
-            meta,
-            agent_name="llmXive-implementer-v1.0",
-            agent_version="1.0.0",
-            model_name="qwen.qwen3.5-122b",
+def _log(repo: Path, *, agent: str, model: str, outputs: list[str],
+         minute: int, outcome: Outcome = Outcome.SUCCESS) -> None:
+    """Append one real run-log entry for the author-attribution project."""
+    started = datetime(2026, 6, 27, 12, minute, 0, tzinfo=UTC)
+    runlog_store.append_entry(
+        RunLogEntry(
+            run_id=f"run-{minute}",
+            entry_id=f"entry-{minute}",
+            agent_name=agent,
+            project_id=_PROJ,
+            task_id="t",
+            inputs=[],
+            outputs=outputs,
             backend="dartmouth",
-            first_contributed_at=_NOW,
-        )
-        assert ok is True
-        data = json.loads(meta.read_text())
-        assert len(data["authors"]) == 1
-        a = data["authors"][0]
-        assert a["name"] == "llmXive-implementer-v1.0"
-        assert a["kind"] == "llm"
-        assert a["model_name"] == "qwen.qwen3.5-122b"
+            model_name=model,
+            prompt_version="1.0.0",
+            started_at=started,
+            ended_at=started,
+            outcome=outcome,
+            cost_estimate_usd=0.0,
+        ),
+        repo_root=repo,
+    )
 
-    def test_dedup_same_name_and_version(self, tmp_path: Path) -> None:
-        meta = tmp_path / "metadata.json"
-        _write_metadata(meta, {"authors": []})
-        kwargs = dict(
-            agent_name="llmXive-implementer-v1.0",
-            agent_version="1.0.0",
-            model_name="qwen.qwen3.5-122b",
-            backend="dartmouth",
-            first_contributed_at=_NOW,
-        )
-        assert authors_module.add_implementer(meta, **kwargs) is True
-        assert authors_module.add_implementer(meta, **kwargs) is False
-        data = json.loads(meta.read_text())
-        assert len(data["authors"]) == 1, "FR-008 dedupe (name, agent_version)"
 
-    def test_different_version_creates_new_entry(self, tmp_path: Path) -> None:
-        meta = tmp_path / "metadata.json"
-        _write_metadata(meta, {"authors": []})
-        common = dict(
-            agent_name="llmXive-implementer-v1.0",
-            model_name="qwen.qwen3.5-122b",
-            backend="dartmouth",
-            first_contributed_at=_NOW,
-        )
-        authors_module.add_implementer(meta, agent_version="1.0.0", **common)
-        authors_module.add_implementer(meta, agent_version="2.0.0", **common)
-        data = json.loads(meta.read_text())
-        assert len(data["authors"]) == 2
+class TestSyncPaperAuthors:
+    def _meta(self, repo: Path) -> Path:
+        return repo / "projects" / _PROJ / "paper" / "metadata.json"
 
-    def test_preserves_human_authors(self, tmp_path: Path) -> None:
-        meta = tmp_path / "metadata.json"
-        humans = [
-            {"name": "Alice", "kind": "human", "affiliation": "HKUST"},
-            {"name": "Bob", "kind": "human"},
-        ]
-        _write_metadata(meta, {"authors": list(humans), "title": "Paper"})
-        authors_module.add_implementer(
-            meta,
-            agent_name="llmXive-implementer-v1.0",
-            agent_version="1.0.0",
-            model_name="m", backend="b", first_contributed_at=_NOW,
-        )
+    def test_collects_distinct_models_excludes_reviewers(self, tmp_path: Path) -> None:
+        # Two content models + one reviewer model + a dup + a failure.
+        src = f"projects/{_PROJ}/paper/source/main.tex"
+        _log(tmp_path, agent="llmxive_implementer", model="model-alpha",
+             outputs=[src], minute=10)
+        _log(tmp_path, agent="paper_writer", model="model-beta",
+             outputs=[f"projects/{_PROJ}/paper/source/sections.tex"], minute=20)
+        # Reviewer output goes under paper/reviews/ — NOT authorship.
+        _log(tmp_path, agent="paper_reviewer_figure_critic", model="model-gamma",
+             outputs=[f"projects/{_PROJ}/paper/reviews/r__2026-06-27__paper.md"],
+             minute=30)
+        # Same model again, later — must dedupe to ONE entry (earliest date).
+        _log(tmp_path, agent="llmxive_implementer", model="model-alpha",
+             outputs=[src], minute=40)
+        # A failed run must not contribute authorship.
+        _log(tmp_path, agent="paper_writer", model="model-delta",
+             outputs=[src], minute=50, outcome=Outcome.FAILED)
+
+        models = authors_module.collect_contributor_models(_PROJ, repo_root=tmp_path)
+        names = [m.name for m in models]
+        assert names == ["model-alpha", "model-beta"]  # sorted by first contribution
+        assert all(m.kind == "llm" and m.name == m.model_name for m in models)
+        assert "model-gamma" not in names, "reviewers are not authors"
+        assert "model-delta" not in names, "failed runs do not confer authorship"
+
+    def test_sync_preserves_humans_and_writes_models(self, tmp_path: Path) -> None:
+        meta = self._meta(tmp_path)
+        _write_metadata(meta, {
+            "title": "P", "arxiv_id": "2605.1",
+            "authors": [{"name": "Alice", "kind": "human", "affiliation": "X"},
+                        {"name": "Bob", "kind": "human"}],
+        })
+        _log(tmp_path, agent="llmxive_implementer", model="model-alpha",
+             outputs=[f"projects/{_PROJ}/paper/source/main.tex"], minute=10)
+
+        out = authors_module.sync_paper_authors(meta, _PROJ, repo_root=tmp_path)
         data = json.loads(meta.read_text())
-        assert data["authors"][0]["name"] == "Alice"
-        assert data["authors"][1]["name"] == "Bob"
+        assert [a["name"] for a in data["authors"]] == ["Alice", "Bob", "model-alpha"]
         assert data["authors"][2]["kind"] == "llm"
+        assert data["authors"][2]["model_name"] == "model-alpha"
+        assert data["arxiv_id"] == "2605.1", "FR-016: other fields untouched"
+        assert [a.name for a in out] == ["Alice", "Bob", "model-alpha"]
 
-    def test_fr016_other_fields_unchanged(self, tmp_path: Path) -> None:
-        """FR-016 closes finding F3: add_implementer must NOT modify
-        arxiv_id, title, submitter, or any non-`authors` field."""
-        meta = tmp_path / "metadata.json"
-        original = {
-            "title": "MemLens",
-            "arxiv_id": "2605.14906",
-            "arxiv_url": "https://arxiv.org/abs/2605.14906",
-            "submitter": "alice@example.com",
-            "authors": [{"name": "Alice", "kind": "human"}],
-            "some_other_field": [1, 2, 3],
-        }
-        _write_metadata(meta, original)
-        authors_module.add_implementer(
-            meta,
-            agent_name="llmXive-implementer-v1.0",
-            agent_version="1.0.0",
-            model_name="m", backend="b", first_contributed_at=_NOW,
+    def test_sync_is_idempotent_and_self_migrating(self, tmp_path: Path) -> None:
+        """A second sync produces the same list; a stale per-AGENT llm entry
+        from the older scheme is REPLACED by the per-model entry."""
+        meta = self._meta(tmp_path)
+        _write_metadata(meta, {"authors": [
+            {"name": "Alice", "kind": "human"},
+            # legacy agent-named llm entry (old add_implementer scheme):
+            {"name": "llmXive-implementer-v1.0", "kind": "llm",
+             "agent_version": "1.0.0", "model_name": "model-alpha",
+             "backend": "dartmouth"},
+        ]})
+        _log(tmp_path, agent="llmxive_implementer", model="model-alpha",
+             outputs=[f"projects/{_PROJ}/paper/source/main.tex"], minute=10)
+
+        authors_module.sync_paper_authors(meta, _PROJ, repo_root=tmp_path)
+        authors_module.sync_paper_authors(meta, _PROJ, repo_root=tmp_path)
+        data = json.loads(meta.read_text())
+        names = [a["name"] for a in data["authors"]]
+        assert names == ["Alice", "model-alpha"], (
+            "legacy agent entry replaced by canonical per-model entry; idempotent"
         )
-        after = json.loads(meta.read_text())
-        for key in ("title", "arxiv_id", "arxiv_url", "submitter", "some_other_field"):
-            assert after[key] == original[key], f"FR-016: {key} must not be modified"
+
+    def test_also_injects_current_unlogged_contribution(self, tmp_path: Path) -> None:
+        """The in-flight run's model isn't in the run-log yet — `also` adds it."""
+        meta = self._meta(tmp_path)
+        _write_metadata(meta, {"authors": [{"name": "Alice", "kind": "human"}]})
+        out = authors_module.sync_paper_authors(
+            meta, _PROJ, repo_root=tmp_path,
+            also=("model-current", "dartmouth", _NOW),
+        )
+        assert [a.name for a in out] == ["Alice", "model-current"]
 
 
 class TestListAuthors:
@@ -199,3 +217,24 @@ class TestUpdateLatexAuthorBlock:
             tmp_path, r"\author{Alice}\begin{document}x\end{document}"
         )
         assert authors_module.update_latex_author_block(tex, []) is False
+
+    def test_model_author_byline_lists_model_not_agent(self, tmp_path: Path) -> None:
+        """A model-as-author entry (name == model_name) renders the MODEL in
+        the byline, without repeating it as a parenthetical agent label."""
+        from llmxive.types import AuthorEntry
+        tex = self._make_tex(
+            tmp_path, r"\author{Alice}\begin{document}x\end{document}"
+        )
+        authors = [
+            AuthorEntry(name="Alice", kind="human"),
+            AuthorEntry(name="openai.gpt-oss-120b", kind="llm",
+                        model_name="openai.gpt-oss-120b", backend="dartmouth",
+                        first_contributed_at=_NOW),
+        ]
+        authors_module.update_latex_author_block(tex, authors)
+        out = tex.read_text()
+        assert "Revised by:" in out
+        assert "openai.gpt-oss-120b" in out
+        assert "via dartmouth" in out
+        # the model name appears once in the byline, not duplicated as "X on X"
+        assert "openai.gpt-oss-120b on openai.gpt-oss-120b" not in out

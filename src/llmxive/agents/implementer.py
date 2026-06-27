@@ -1165,18 +1165,25 @@ class LLMXiveImplementer(Agent):
             # applies ONLY to paper-track revisions. A research revision has no
             # manuscript — success means its edits applied; re-review follows.
             if success_count > 0 and track == "paper":
-                # Author addition (FR-006..FR-008).
+                # Authorship (FR-006..FR-008): authorship is by MODEL, not agent
+                # role. Reconcile metadata.json::authors to the original humans
+                # plus one entry per DISTINCT model that produced paper content
+                # (collected from the run-log). This round's model is injected
+                # via `also` because its own run-log entry is not written yet.
                 metadata_path = paper_dir / "metadata.json"
-                author_added = authors_module.add_implementer(
+                this_model = self.entry.default_model
+                prior_models = {
+                    a.model_name for a in authors_module.list_authors(metadata_path)
+                    if a.kind == "llm" and a.model_name
+                }
+                all_authors = authors_module.sync_paper_authors(
                     metadata_path,
-                    agent_name=CANONICAL_IMPLEMENTER_NAME,
-                    agent_version=self.entry.prompt_version,
-                    model_name=self.entry.default_model,
-                    backend=self.entry.default_backend.value,
-                    first_contributed_at=ended,
+                    project.id,
+                    repo_root=repo,
+                    also=(this_model, self.entry.default_backend.value, ended),
                 )
+                author_added = this_model not in prior_models
                 # Update LaTeX \author{} block.
-                all_authors = authors_module.list_authors(metadata_path)
                 for tex in source_dir.glob("*.tex"):
                     try:
                         authors_module.update_latex_author_block(tex, all_authors)
@@ -1186,10 +1193,9 @@ class LLMXiveImplementer(Agent):
                 _inject_paperstatus(source_dir, "Auto-Reviewed")
                 if author_added:
                     author_entry = AuthorEntry(
-                        name=CANONICAL_IMPLEMENTER_NAME,
+                        name=this_model,
                         kind="llm",
-                        agent_version=self.entry.prompt_version,
-                        model_name=self.entry.default_model,
+                        model_name=this_model,
                         backend=self.entry.default_backend.value,
                         first_contributed_at=ended,
                     )

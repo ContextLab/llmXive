@@ -1,16 +1,18 @@
 """Author management for revised papers (spec 013 / FR-006..FR-008).
 
-Two operations:
+Authorship is by MODEL — the thing that did the cognition — not by agent
+role. Operations:
 
-  - `add_implementer()`: append an LLM-implementer to
-    `paper/metadata.json::authors`, deduplicated by (name, agent_version)
-    so re-runs of the same agent never produce duplicate entries.
+  - `collect_contributor_models()` / `sync_paper_authors()`: reconcile
+    `paper/metadata.json::authors` to the original humans plus one entry per
+    DISTINCT model that produced paper content (collected from the run-log).
+    Idempotent and self-migrating from the older per-agent scheme.
 
   - `update_latex_author_block()`: rewrite the LaTeX `\\author{...}` macro
-    so original authors are preserved verbatim and LLM contributors
+    so original authors are preserved verbatim and the model contributors
     appear after a `\\par\\hrule\\par \\textit{Revised by:}` separator.
 
-Both operations are append-only on the original-author entries
+Original (human) author entries are always preserved verbatim
 (FR-006 + Edge Case 5).
 """
 
@@ -39,55 +41,94 @@ def _atomic_write(path: Path, content: str) -> None:
         raise
 
 
-def add_implementer(
-    metadata_path: Path,
+def collect_contributor_models(
+    project_id: str,
     *,
-    agent_name: str,
-    agent_version: str,
-    model_name: str,
-    backend: str,
-    first_contributed_at: datetime,
-) -> bool:
-    """Idempotently add an LLM-implementer to `paper/metadata.json::authors`.
-    Returns True if a new entry was appended; False if the (name,
-    agent_version) was already present.
+    repo_root: Path | None = None,
+    also: tuple[str, str, datetime] | None = None,
+) -> list[AuthorEntry]:
+    """Every distinct MODEL that produced paper content, as LLM ``AuthorEntry``\\ s.
 
-    The dedupe key is `(name, agent_version)` per FR-008. Other implementer
-    agents (different name or different version) DO produce new entries.
-    Non-`authors` fields of metadata.json are NEVER modified (FR-016).
+    Authorship is by model (the cognition), not agent role: the run-log records
+    which model each paper-content contribution used, and
+    :func:`runlog.paper_contributor_models` collapses them to one
+    ``(backend, first_contributed_at)`` per distinct model. Each becomes an
+    ``AuthorEntry`` whose ``name`` IS the model (per the "list model not agent"
+    contract). ``also`` injects the CURRENT contribution ``(model, backend,
+    at)`` — the in-flight run isn't in the run-log yet when its own author sync
+    fires. Sorted by first-contribution time then name (deterministic byline).
+    """
+    from llmxive.state import runlog as runlog_store
+
+    models = runlog_store.paper_contributor_models(project_id, repo_root=repo_root)
+    if also is not None:
+        a_model, a_backend, a_at = also
+        if a_model:
+            prev = models.get(a_model)
+            if prev is None or a_at < prev[1]:
+                models[a_model] = (a_backend, a_at)
+    entries = [
+        AuthorEntry(
+            name=model,
+            kind="llm",
+            model_name=model,
+            backend=backend,
+            first_contributed_at=at,
+        )
+        for model, (backend, at) in models.items()
+    ]
+    entries.sort(key=lambda e: (e.first_contributed_at or datetime.min, e.name))
+    return entries
+
+
+def sync_paper_authors(
+    metadata_path: Path,
+    project_id: str,
+    *,
+    repo_root: Path | None = None,
+    also: tuple[str, str, datetime] | None = None,
+) -> list[AuthorEntry]:
+    """Reconcile ``metadata.json::authors`` to: original humans + one entry per
+    distinct MODEL that worked on the paper. Returns the full author list.
+
+    Human authors (the submitting/original byline) are preserved verbatim and
+    always lead. The LLM block is REBUILT from the run-log every call (a clean,
+    model-keyed list), so it is idempotent and self-migrating: stale per-agent
+    LLM entries from the older ``add_implementer`` scheme are replaced by the
+    canonical per-model entries. Non-``authors`` metadata fields are untouched
+    (FR-016).
     """
     data: dict[str, Any] = {}
     if metadata_path.is_file():
         data = json.loads(metadata_path.read_text(encoding="utf-8")) or {}
-    authors = data.get("authors") or []
-    if not isinstance(authors, list):
+    existing = data.get("authors") or []
+    if not isinstance(existing, list):
         raise ValueError(
-            f"metadata.json::authors must be a list, got {type(authors).__name__}"
+            f"metadata.json::authors must be a list, got {type(existing).__name__}"
         )
-
-    for entry in authors:
-        if (
-            isinstance(entry, dict)
-            and entry.get("name") == agent_name
-            and entry.get("agent_version") == agent_version
-        ):
-            return False  # already present — no-op (FR-008)
-
-    new_entry = AuthorEntry(
-        name=agent_name,
-        kind="llm",
-        agent_version=agent_version,
-        model_name=model_name,
-        backend=backend,
-        first_contributed_at=first_contributed_at,
+    humans = [
+        e for e in existing
+        if isinstance(e, dict) and e.get("kind", "human") != "llm"
+    ]
+    model_authors = collect_contributor_models(
+        project_id, repo_root=repo_root, also=also
     )
-    authors.append(new_entry.model_dump(mode="json"))
-    data["authors"] = authors
+    merged = humans + [e.model_dump(mode="json") for e in model_authors]
+    data["authors"] = merged
     _atomic_write(
         metadata_path,
         json.dumps(data, indent=2, sort_keys=False) + "\n",
     )
-    return True
+    out: list[AuthorEntry] = []
+    for r in merged:
+        try:
+            out.append(AuthorEntry.model_validate(r))
+        except Exception:
+            try:
+                out.append(AuthorEntry(name=str(r.get("name", "")), kind="human"))
+            except Exception:
+                continue
+    return out
 
 
 def list_authors(metadata_path: Path) -> list[AuthorEntry]:
@@ -130,7 +171,11 @@ def _format_llm_byline(entries: list[AuthorEntry]) -> str:
     for e in entries:
         date = (e.first_contributed_at.strftime("%Y-%m-%d")
                 if e.first_contributed_at else "")
-        if e.model_name and e.backend and date:
+        if e.model_name and e.name == e.model_name and e.backend and date:
+            # Model-as-author (the canonical "list model not agent" form):
+            # don't repeat the model name as both byline and parenthetical.
+            parts.append(f"{e.model_name} \\textit{{(via {e.backend}, {date})}}")
+        elif e.model_name and e.backend and date:
             parts.append(
                 f"{e.name} \\textit{{({e.model_name} on {e.backend}, {date})}}"
             )

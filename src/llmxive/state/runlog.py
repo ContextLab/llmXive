@@ -17,7 +17,7 @@ from pydantic import ValidationError as PydanticValidationError
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
-from llmxive.types import RunLogEntry
+from llmxive.types import Outcome, RunLogEntry
 
 
 def _state_root() -> Path:
@@ -196,6 +196,55 @@ def producer_of_artifact(
     return None
 
 
+def paper_contributor_models(
+    project_id: str, *, repo_root: Path | None = None
+) -> dict[str, tuple[str, datetime]]:
+    """Return the distinct MODELS that produced paper *content* for a project.
+
+    Scans every run-log entry for ``project_id`` and keeps the successful ones
+    whose ``outputs`` touched the manuscript itself — any path under
+    ``projects/<id>/paper/`` EXCEPT ``paper/reviews/`` (reviewer records are a
+    separate role, not authorship). Authorship is by MODEL, not agent: many
+    agent roles (paper writer, figure generator, revision implementer) share a
+    single model, and that model is the thing that did the cognition. Returns
+    ``{model_name: (backend, earliest_started_at)}`` — one entry per distinct
+    model, dated by its FIRST contribution (deterministic author ordering).
+    """
+    state_dir = (repo_root / "state") if repo_root else _state_root()
+    log_root = state_dir / "run-log"
+    out: dict[str, tuple[str, datetime]] = {}
+    if not log_root.is_dir():
+        return out
+    paper_prefix = f"projects/{project_id}/paper/"
+    reviews_prefix = f"projects/{project_id}/paper/reviews/"
+    for month_dir in sorted(log_root.iterdir()):
+        if not month_dir.is_dir() or month_dir.name.startswith("."):
+            continue
+        for jsonl in sorted(month_dir.glob("*.jsonl")):
+            for line in jsonl.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                entry = _parse_run_log_entry(line)
+                if (
+                    entry is None
+                    or entry.project_id != project_id
+                    or entry.outcome is not Outcome.SUCCESS
+                    or not entry.model_name
+                ):
+                    continue
+                touched_paper = any(
+                    (paper_prefix in (o.replace("\\", "/")))
+                    and (reviews_prefix not in (o.replace("\\", "/")))
+                    for o in entry.outputs
+                )
+                if not touched_paper:
+                    continue
+                prev = out.get(entry.model_name)
+                if prev is None or entry.started_at < prev[1]:
+                    out[entry.model_name] = (entry.backend.value, entry.started_at)
+    return out
+
+
 def now_utc() -> datetime:
     """UTC-aware current time helper used across run-log writers."""
     return datetime.now(UTC)
@@ -206,5 +255,7 @@ __all__ = [
     "append_entry",
     "latest_for_project",
     "now_utc",
+    "paper_contributor_models",
+    "producer_of_artifact",
     "read_entries",
 ]
