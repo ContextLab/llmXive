@@ -40,11 +40,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create repository skeleton with `src/`, `tests/`, `data/`, `output/`, `contracts/`, `notebooks/`, `.github/`, `docs/` directories (verify directories exist).
-- [ ] T002 Initialize Python project: `pyproject.toml` with required dependencies (`requests`, `beautifulsoup4`, `pandas`, `numpy`, `scipy`, `statsmodels`, `tqdm`, `pyyaml`, `jsonschema`, `psutil`).
-- [ ] T003 Add linting and formatting tools (`ruff`, `black`) and configure pre‑commit hooks (run `pre-commit run --all-files` with zero violations).
-- [ ] T004 Create `requirements.txt` mirroring `pyproject.toml` for CI reproducibility (verify `requirements.txt` matches `pyproject.toml`).
-- [ ] T005 Create `.gitignore` excluding `__pycache__`, `*.pyc`, `data/raw/*` except URLs, `output/*` (verify git status clean).
+- [X] T001 Create repository skeleton with `src/`, `tests/`, `data/`, `output/`, `contracts/`, `notebooks/`, `.github/`, `docs/` directories (verify directories exist).
+- [X] T002 Initialize Python project: `pyproject.toml` with required dependencies (`requests`, `beautifulsoup4`, `pandas`, `numpy`, `scipy`, `statsmodels`, `tqdm`, `pyyaml`, `jsonschema`, `psutil`).
+- [X] T003 Add linting and formatting tools (`ruff`, `black`) and configure pre‑commit hooks (run `pre-commit run --all-files` with zero violations).
+- [X] T004 Create `requirements.txt` mirroring `pyproject.toml` for CI reproducibility (verify `requirements.txt` matches `pyproject.toml`).
+- [X] T005 Create `.gitignore` excluding `__pycache__`, `*.pyc`, `data/raw/*` except URLs, `output/*` (verify git status clean).
 
 ---
 
@@ -54,12 +54,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until foundational infrastructure (T006‑T012) is complete; remaining Phase 2 tasks (T013‑T020) may proceed in parallel with US1 implementation
 
-- [ ] T006 Create data‑model definitions (`ABSummary`, `AuditRecord`) in `src/models/data_models.py` using Pydantic (verify classes exist and importable).
-- [ ] T007 Create JSON‑Schema files `contracts/extracted_summary.schema.yaml` and `contracts/audit_record.schema.yaml` (verify schemas are valid YAML).
-- [ ] T008 Implement schema‑validation utilities in `src/contracts/validation.py` (run unit test to confirm validation works) [DEPENDS ON: T007].
-- [ ] T009 Set up structured logging infrastructure in `src/utils/logger.py` with error‑code format `ERR-###` (verify logs contain correct codes).
-- [ ] T010 Initialize configuration constants (random seeds, thresholds, resource caps) in `src/config.py` with deterministic seed (`SEED = 42`) AND ensure all modules import SEED from config and set RNG seeds at startup (verify `src/config.py` defines `SEED = 42` and all RNGs are seeded per Constitution Principle I).
-- [ ] T011 Implement generic helper functions (`checksum`, `domain_from_url`, `safe_float`, `parse_inequality_p`) in `src/utils/helpers.py` (run unit test for each helper).
+- [X] T006 Create data‑model definitions (`ABSummary`, `AuditRecord`) in `src/models/data_models.py` using Pydantic (verify classes exist and importable).
+- [X] T007 Create JSON‑Schema files `contracts/extracted_summary.schema.yaml` and `contracts/audit_record.schema.yaml` (verify schemas are valid YAML).
+- [X] T008 Implement schema‑validation utilities in `src/contracts/validation.py` (run unit test to confirm validation works) [DEPENDS ON: T007].
+- [X] T009 Set up structured logging infrastructure in `src/utils/logger.py` with error‑code format `ERR-###` (verify logs contain correct codes).
+- [X] T010 Initialize configuration constants (random seeds, thresholds, resource caps) in `src/config.py` with deterministic seed (`SEED = 42`) AND ensure all modules import SEED from config and set RNG seeds at startup (verify `src/config.py` defines `SEED = 42` and all RNGs are seeded per Constitution Principle I).
+- [X] T011 Implement generic helper functions (`checksum`, `domain_from_url`, `safe_float`, `parse_inequality_p`) in `src/utils/helpers.py` (run unit test for each helper).
 - [ ] T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies, enforces CPU ≤ 2 vCPU, RAM ≤ 2 GB, timeout a predefined duration, and runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010].
 - [ ] T013 Create Dockerfile for optional local execution (uses only CPU‑compatible base image) (build Docker image successfully). **(No dependency on T012)**
 - [ ] T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py` (FR‑024) (verify `manifest.json` contains SHA256 hashes) [DEPENDS ON: T007].

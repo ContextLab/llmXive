@@ -1,0 +1,118 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AuditRecord
+description: JSON Schema for audit record produced by consistency validation
+type: object
+required:
+  - summary_id
+  - url
+  - audit_timestamp
+  - validation_status
+properties:
+  summary_id:
+    type: string
+    pattern: "^[a-zA-Z0-9_-]+$"
+    description: Unique identifier for the summary being audited
+  url:
+    type: string
+    format: uri
+    description: Source URL of the A/B test summary
+  audit_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of audit execution
+  validation_status:
+    type: string
+    enum:
+      - consistent
+      - inconsistent
+      - missing_data
+      - error
+    description: Overall validation status
+  p_value_difference:
+    type: number
+    description: Absolute difference between reported and reconstructed p-value
+  p_value_reconstructed:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: P-value reconstructed from raw metrics
+  effect_size_difference:
+    type: number
+    description: Relative difference between reported and reconstructed effect size
+  effect_size_reconstructed:
+    type: number
+    description: Effect size reconstructed from raw metrics
+  sample_size_match:
+    type: boolean
+    description: Whether sample sizes match between groups
+  sample_size_discrepancy:
+    type: object
+    properties:
+      reported_a:
+        type: integer
+      reported_b:
+        type: integer
+      reconstructed_a:
+        type: integer
+      reconstructed_b:
+        type: integer
+    description: Details of sample size discrepancy if present
+  consistency_flags:
+    type: array
+    items:
+      type: string
+      enum:
+        - p_value_mismatch
+        - effect_size_mismatch
+        - sample_size_mismatch
+        - missing_baseline
+        - missing_treatment
+        - invalid_p_value
+        - missing_effect_size
+    description: List of consistency issues detected
+  data_quality_warning:
+    type: boolean
+    description: Whether data quality warnings apply (e.g., sample size mismatch)
+  error_codes:
+    type: array
+    items:
+      type: string
+      pattern: "^ERR-[0-9]{3}$"
+    description: List of error codes from extraction/validation
+  reconstruction_method:
+    type: string
+    enum:
+      - z_test_binary
+      - fisher_exact
+      - welch_t
+      - binomial
+      - fallback_baseline
+    description: Statistical method used for reconstruction
+  baseline_conversion_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Baseline conversion rate used in reconstruction
+  notes:
+    type: string
+    description: Additional notes about audit findings
+  excluded_from_prevalence:
+    type: boolean
+    default: false
+    description: Whether this record is excluded from aggregate prevalence estimates
+  exclusion_reason:
+    type: string
+    enum:
+      - sample_size_mismatch
+      - missing_required_data
+      - parsing_error
+    description: Reason for exclusion if applicable
+  domain:
+    type: string
+    description: Domain of the source URL
+  publication_year:
+    type: integer
+    minimum: 1900
+    maximum: 2100
+    description: Year of publication for subgroup analysis
+additionalProperties: false

@@ -1,11 +1,8 @@
 """
-Logging utilities for social memory networks experiments.
+Logging utilities for social memory network experiments.
 
-This module provides centralized logging configuration with timestamps
-for all experiment-related logging. Logs are written to experiment.log
-in the project root or a configurable output directory.
-
-FR-010: Configure error logging with timestamps to experiment.log
+This module provides centralized logging with timestamps to experiment.log
+for tracking experiment progress, errors, and results.
 """
 
 import logging
@@ -13,166 +10,145 @@ import os
 from pathlib import Path
 from typing import Optional, Union
 from datetime import datetime
+import threading
 
-# Default log file path
-DEFAULT_LOG_FILE = "experiment.log"
-
-# Log format with timestamp
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
+# Thread-local storage for loggers
+_logger_lock = threading.Lock()
+_loggers: dict = {}
 
 def setup_logger(
-    name: str = "social_memory",
-    log_file: Optional[Union[str, Path]] = None,
-    level: int = logging.INFO,
-    output_dir: Optional[Union[str, Path]] = None,
+    name: str,
+    log_file: Optional[str] = None,
+    level: int = logging.INFO
 ) -> logging.Logger:
     """
-    Set up and return a configured logger for the experiment.
-
+    Set up a logger with file and console handlers.
+    
     Args:
-        name: Logger name (default: "social_memory")
-        log_file: Log file name (default: "experiment.log")
-        level: Logging level (default: logging.INFO)
-        output_dir: Directory for log file (default: current working directory)
-
+        name: Logger name
+        log_file: Path to log file (optional)
+        level: Logging level
+    
     Returns:
         Configured logger instance
     """
-    # Get or create logger
+    with _logger_lock:
+        if name in _loggers:
+            return _loggers[name]
+    
     logger = logging.getLogger(name)
     logger.setLevel(level)
-
-    # Prevent duplicate handlers
-    if logger.handlers:
-        return logger
-
-    # Determine log file path
-    if log_file is None:
-        log_file = DEFAULT_LOG_FILE
-    if output_dir is None:
-        output_dir = Path.cwd()
-
-    log_path = Path(output_dir) / log_file
-
-    # Create output directory if it doesn't exist
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Create file handler
-    file_handler = logging.FileHandler(log_path)
-    file_handler.setLevel(level)
-
+    
+    # Clear existing handlers
+    logger.handlers.clear()
+    
     # Create formatter with timestamp
-    formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
-    file_handler.setFormatter(formatter)
-
-    # Add handler to logger
-    logger.addHandler(file_handler)
-
-    # Also add console handler for development
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    # File handler if log_file specified
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+    
+    # Console handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-
+    
+    with _logger_lock:
+        _loggers[name] = logger
+    
     return logger
 
-
-def get_logger(name: str = "social_memory") -> logging.Logger:
+def get_logger(name: str = __name__) -> logging.Logger:
     """
-    Get an existing logger or create a new one with default configuration.
-
+    Get or create a logger by name.
+    
     Args:
-        name: Logger name
-
+        name: Logger name (default: module name)
+    
     Returns:
         Logger instance
     """
-    logger = logging.getLogger(name)
-
-    if not logger.handlers:
-        return setup_logger(name=name)
-
-    return logger
-
+    with _logger_lock:
+        if name in _loggers:
+            return _loggers[name]
+    
+    # Default logger setup
+    return setup_logger(
+        name=name,
+        log_file="experiment.log",
+        level=logging.INFO
+    )
 
 def log_experiment_start(
-    experiment_name: str,
-    config: Optional[dict] = None,
-    logger: Optional[logging.Logger] = None,
+    num_games: int,
+    num_agents: int,
+    context_condition: str
 ) -> None:
     """
-    Log the start of an experiment with metadata.
-
+    Log experiment start with parameters.
+    
     Args:
-        experiment_name: Name of the experiment
-        config: Optional configuration dictionary to log
-        logger: Logger instance (uses default if not provided)
+        num_games: Number of games to run
+        num_agents: Number of agents
+        context_condition: Context condition name
     """
-    if logger is None:
-        logger = get_logger()
+    logger = get_logger("experiment")
+    logger.info("=" * 60)
+    logger.info("EXPERIMENT STARTED")
+    logger.info("=" * 60)
+    logger.info(f"Timestamp: {datetime.now().isoformat()}")
+    logger.info(f"Number of games: {num_games}")
+    logger.info(f"Number of agents: {num_agents}")
+    logger.info(f"Context condition: {context_condition}")
 
-    timestamp = datetime.now().strftime(DATE_FORMAT)
-    logger.info(f"=== EXPERIMENT START: {experiment_name} at {timestamp} ===")
-
-    if config:
-        logger.info("Configuration:")
-        for key, value in config.items():
-            logger.info(f"  {key}: {value}")
-
-
-def log_experiment_end(
-    experiment_name: str,
-    success: bool = True,
-    logger: Optional[logging.Logger] = None,
-) -> None:
+def log_experiment_end(output_file: str) -> None:
     """
-    Log the end of an experiment.
-
+    Log experiment completion.
+    
     Args:
-        experiment_name: Name of the experiment
-        success: Whether the experiment completed successfully
-        logger: Logger instance (uses default if not provided)
+        output_file: Path to output file
     """
-    if logger is None:
-        logger = get_logger()
+    logger = get_logger("experiment")
+    logger.info("=" * 60)
+    logger.info("EXPERIMENT COMPLETED")
+    logger.info("=" * 60)
+    logger.info(f"Timestamp: {datetime.now().isoformat()}")
+    logger.info(f"Output file: {output_file}")
 
-    status = "SUCCESS" if success else "FAILED"
-    logger.info(f"=== EXPERIMENT END: {experiment_name} - {status} ===")
+def info(msg: str) -> None:
+    """Log info message."""
+    get_logger().info(msg)
 
+def warning(msg: str) -> None:
+    """Log warning message."""
+    get_logger().warning(msg)
 
-# Convenience functions for common logging operations
-def info(msg: str, logger: Optional[logging.Logger] = None) -> None:
-    """Log an info message."""
-    if logger is None:
-        logger = get_logger()
-    logger.info(msg)
+def error(msg: str) -> None:
+    """Log error message."""
+    get_logger().error(msg)
 
+def debug(msg: str) -> None:
+    """Log debug message."""
+    get_logger().debug(msg)
 
-def warning(msg: str, logger: Optional[logging.Logger] = None) -> None:
-    """Log a warning message."""
-    if logger is None:
-        logger = get_logger()
-    logger.warning(msg)
+def critical(msg: str) -> None:
+    """Log critical message."""
+    get_logger().critical(msg)
 
-
-def error(msg: str, logger: Optional[logging.Logger] = None) -> None:
-    """Log an error message."""
-    if logger is None:
-        logger = get_logger()
-    logger.error(msg)
-
-
-def debug(msg: str, logger: Optional[logging.Logger] = None) -> None:
-    """Log a debug message."""
-    if logger is None:
-        logger = get_logger()
-    logger.debug(msg)
-
-
-def critical(msg: str, logger: Optional[logging.Logger] = None) -> None:
-    """Log a critical message."""
-    if logger is None:
-        logger = get_logger()
-    logger.critical(msg)
+if __name__ == "__main__":
+    # Test logging
+    logger = get_logger("test")
+    log_experiment_start(1000, 3, "full")
+    logger.info("Test message")
+    log_experiment_end("test_output.csv")

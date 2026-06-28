@@ -13,10 +13,10 @@
     "data/processed/molecules_10k.parquet"
   ],
   "failures": [
-    "python code/analysis/generate_performance_plots.py -> rc=1\n     line 138, in generate_plots\n    df = load_metrics(metrics_csv)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py\", line 51, in load_metrics\n    raise ValueError(f\"Metrics CSV missing columns: {missing}\")\nValueError: Metrics CSV missing columns: {'mae', 'rmse', 'model'}",
-    "python code/analysis/generate_significance.py -> rc=1\n    ric_data = _load_metrics(metrics_path)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py\", line 54, in _load_metrics\n    raise ValueError(f\"Metrics CSV missing required columns: {missing}\")\nValueError: Metrics CSV missing required columns: {'model', 'rmse', 'mae'}",
+    "python code/analysis/generate_performance_plots.py -> rc=1\n     line 138, in generate_plots\n    df = load_metrics(metrics_csv)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py\", line 51, in load_metrics\n    raise ValueError(f\"Metrics CSV missing columns: {missing}\")\nValueError: Metrics CSV missing columns: {'rmse', 'model', 'mae'}",
+    "python code/analysis/generate_significance.py -> rc=1\n    ric_data = _load_metrics(metrics_path)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py\", line 54, in _load_metrics\n    raise ValueError(f\"Metrics CSV missing required columns: {missing}\")\nValueError: Metrics CSV missing required columns: {'mae', 'model', 'rmse'}",
     "python code/generate_summary.py -> rc=1\n    ary\n    significance = load_csv_as_dicts(significance_path)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 25, in load_csv_as_dicts\n    raise FileNotFoundError(f\"CSV file not found: {csv_path}\")\nFileNotFoundError: CSV file not found: results/significance.csv"
   ],
-  "fix_rounds": 11,
-  "updated_at": "2026-06-28T13:16:46Z"
+  "fix_rounds": 12,
+  "updated_at": "2026-06-28T14:54:06Z"
 }

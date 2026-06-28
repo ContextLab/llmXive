@@ -81,10 +81,10 @@
 ### Implementation for User Story 1
 
 - [X] T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and game simulation loop for 1000 games in `code/run_experiment.py` (FR-001)
-- [ ] T012 [P] [US-1] Implement specialization index computation (0 to log₂(N_agents)) in `code/metrics/specialization.py` (FR-004)
-- [ ] T013 [P] [US-1] Implement cue-retrieval efficiency metric (proportion vs. 1/N_agents baseline) in `code/metrics/retrieval.py` (FR-005)
-- [ ] T014 [P] [US-1] Implement validation logic for metrics (≥95% games produce metrics, SC-001) in `code/metrics/validator.py`
-- [ ] T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` for 1000 games
+- [X] T012 [P] [US-1] Implement specialization index computation (0 to log₂(N_agents)) in `code/metrics/specialization.py` (FR-004)
+- [X] T013 [P] [US-1] Implement cue-retrieval efficiency metric (proportion vs. 1/N_agents baseline) in `code/metrics/retrieval.py` (FR-005)
+- [X] T014 [P] [US-1] Implement validation logic for metrics (≥95% games produce metrics, SC-001) in `code/metrics/validator.py`
+- [X] T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` for 1000 games
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,14 +98,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US-2] Contract test for ANOVA output schema in `code/tests/contract/test_anova.py`
-- [ ] T017 [P] [US-2] Integration test for limited-context simulation in `code/tests/integration/test_limited_context.py`
+- [X] T016 [P] [US-2] Contract test for ANOVA output schema in `code/tests/contract/test_anova.py`
+- [X] T017 [P] [US-2] Integration test for limited-context simulation in `code/tests/integration/test_limited_context.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US-2] Implement game simulation loop for limited context (1000 games per spec) in `code/run_experiment.py`
-- [ ] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
-- [ ] T020 [P] [US-2] Implement two‑way independent‑samples ANOVA with factors Context × Metric (single ANOVA, not separate) in `code/analysis/anova.py` (FR-006)
+- [X] T018 [US-2] Implement game simulation loop for limited context (1000 games per spec) in `code/run_experiment.py`
+- [X] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+- [X] T020 [P] [US-2] Implement two‑way independent‑samples ANOVA with factors Context × Metric (single ANOVA, not separate) in `code/analysis/anova.py` (FR-006)
 - [ ] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py` (FR-007)
 - [ ] T022 [US-2] Conduct sensitivity analysis sweeping context‑truncation token limit over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py` (FR-008)
 - [ ] T023 [US-2] Generate power‑analysis report estimating detectable effect size (N=1000 games per spec FR-009) in `code/analysis/power.py`

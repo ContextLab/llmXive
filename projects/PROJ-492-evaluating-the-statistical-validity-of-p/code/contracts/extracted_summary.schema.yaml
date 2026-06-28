@@ -1,0 +1,72 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Extracted AB Test Summary
+description: Schema for validated A/B test summary data extracted from web pages
+type: object
+required:
+  - url
+  - domain
+  - sample_size
+  - p_value
+  - effect_size
+  - test_type
+  - outcome_type
+properties:
+  url:
+    type: string
+    format: uri
+    description: Source URL of the A/B test summary
+  domain:
+    type: string
+    pattern: "^[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    description: Domain name extracted from URL
+  sample_size:
+    type: integer
+    minimum: 1
+    description: Total sample size of the A/B test
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Reported p-value from the statistical test
+  effect_size:
+    type: number
+    description: Reported effect size (absolute difference)
+  test_type:
+    type: string
+    enum:
+      - z-test
+      - t-test
+      - fisher
+      - chi-square
+      - binomial
+      - welch
+    description: Type of statistical test used
+  outcome_type:
+    type: string
+    enum:
+      - binary
+      - continuous
+    description: Type of outcome variable
+  baseline_conversion:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Baseline conversion rate (optional)
+  treatment_conversion:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Treatment conversion rate (optional)
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: Confidence interval [lower, upper] (optional)
+  publication_year:
+    type: integer
+    minimum: 2000
+    maximum: 2100
+    description: Year of publication (optional)
+additionalProperties: false

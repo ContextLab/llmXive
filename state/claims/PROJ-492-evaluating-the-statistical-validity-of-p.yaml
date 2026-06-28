@@ -1,0 +1,46 @@
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: 10000 simulated summaries binary and continuous outcomes
+  claim_id: c_4a245bfe
+  context: "T026 Implement synthetic dataset generator in src/audit/synthetic.py (FR\u2011\
+    030) \u2013 outputs data/synthetic/synthetic_validation.csv + data/synthetic/synthetic_ground_truth.json\
+    \ with at least 10,000 simulated summaries (binary AND continuous outcomes) and\
+    \ verify both outcome types are present"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/10000_simulated_summaries_binary_and_continuous_outcomes
+  kind: magnitude
+  raw_text: outputs data/synthetic/synthetic_validation.csv + data/synthetic/synthetic_ground_truth.json
+    with at least 10,000 simulated summaries (binary AND continuous outcomes)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-28T14:48:50Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: 100 public A/B test summary URLs across five major domains 20 per domain
+  claim_id: c_5bd8fbb0
+  context: "T069a Source \u2265 100 public A/B test summary URLs across five major\
+    \ domains (tech, e\u2011commerce, finance, healthcare, SaaS) with at least 20\
+    \ per domain (constraint\u2011preservation\u20110be190a4) (verify data/manual_validation/source_urls.csv\
+    \ exists and meets distribution)"
+  evidence:
+    candidates:
+    - - Donate Create account Log in
+      - 100.0
+    - - URLs across five major domains
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/100_public_A/B_test_summary_URLs_across_five_major_domains_2
+  kind: magnitude
+  raw_text: "Source \u2265 100 public A/B test summary URLs across five major domains\
+    \ (tech, e\u2011commerce, finance, healthcare, SaaS) with at least 20 per domain"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-28T14:52:50Z'

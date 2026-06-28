@@ -1,0 +1,45 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Data files - exclude raw data except URL lists
+data/raw/*
+!data/raw/*.txt
+!data/raw/*.csv
+!data/raw/*.json
+!data/raw/*.md
+
+# Output files (generated artifacts)
+output/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment and virtualenv
+.env
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+*.tmp
