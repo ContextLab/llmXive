@@ -617,7 +617,9 @@ class TestAnalyzeLoopEscalation:
             tasks_cmd, "run_analyze",
             lambda **kw: "- (severity: HIGH) (spec.md:FR) unresolved finding",
         )
-        monkeypatch.setattr(tasks_cmd, "is_clean", lambda report: False)
+        # The legacy tasker gates convergence on analyze_advance_ok (the
+        # two-tier doc-stage bar), not is_clean — force never-advance.
+        monkeypatch.setattr(tasks_cmd, "analyze_advance_ok", lambda report: False)
 
         # Synthetic Mode-B response: escalate on the FINAL round; otherwise a
         # benign no-op patch. We count calls to flip to escalate at the cap.
@@ -666,7 +668,8 @@ class TestAnalyzeLoopEscalation:
             tasks_cmd, "run_analyze",
             lambda **kw: "- (severity: MEDIUM) (tasks.md) advisory nitpick",
         )
-        monkeypatch.setattr(tasks_cmd, "is_clean", lambda report: False)
+        # Force never-advance (legacy path gates on analyze_advance_ok).
+        monkeypatch.setattr(tasks_cmd, "analyze_advance_ok", lambda report: False)
 
         def fake_chat(messages, **kwargs):
             # Never escalate — every round is a benign needs-rerun no-op patch.
@@ -705,12 +708,13 @@ class TestAnalyzeLoopEscalation:
         spec_path = feature_dir / "spec.md"  # _make_tasker_project: 2 FR + 2 SC = 4 ids
 
         monkeypatch.setattr(tasks_cmd, "run_analyze", lambda **kw: "- (severity: HIGH) finding")
-        # Clean on the 2nd analyze so the loop ends after one Mode-B round.
+        # Advance on the 2nd analyze so the loop ends after one Mode-B round
+        # (legacy path gates convergence on analyze_advance_ok, not is_clean).
         state = {"n": 0}
-        def _is_clean(report):
+        def _advance_ok(report):
             state["n"] += 1
             return state["n"] >= 2
-        monkeypatch.setattr(tasks_cmd, "is_clean", _is_clean)
+        monkeypatch.setattr(tasks_cmd, "analyze_advance_ok", _advance_ok)
 
         def fake_chat(messages, **kwargs):
             # Mode-B "resolves" the finding by gutting spec.md to a single FR.

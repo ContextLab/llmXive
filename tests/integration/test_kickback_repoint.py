@@ -215,10 +215,17 @@ class TestDecideNextStageClaimKickback:
             f"Expected all FLESH_OUT_IN_PROGRESS, got: {stages}"
         )
 
-    def test_decide_claim_kickback_escalates_after_combined_budget(
+    def test_decide_claim_kickback_autonomous_after_combined_budget(
         self, tmp_path: Path
     ) -> None:
+        """Once the claim combined budget is exhausted the graph applies the
+        AUTONOMOUS exhaustion flow (mirrors the execution path): it escalates
+        the model tier and re-enters the review loop (stays at SPECIFIED) — it
+        NEVER parks at HUMAN_INPUT_NEEDED. (Pre-change this asserted a human
+        park; the user-directed rule eliminates that — human input is required
+        ONLY for the publication DOI sign-off.)"""
         from llmxive.pipeline.graph import _decide_next_stage
+        from llmxive.state import execution_status
         from llmxive.types import Stage
 
         project = self._spec_project()
@@ -235,7 +242,7 @@ class TestDecideNextStageClaimKickback:
             )
             _decide_next_stage(project, project_dir, repo_root=tmp_path)
 
-        # One more exceeds the budget
+        # One more exceeds the budget → tier escalation, NOT a human park.
         _write_sentinel(
             mem,
             to_stage="flesh_out_in_progress",
@@ -243,7 +250,10 @@ class TestDecideNextStageClaimKickback:
             unresolved_claim=True,
         )
         last_stage = _decide_next_stage(project, project_dir, repo_root=tmp_path)
-        assert last_stage == Stage.HUMAN_INPUT_NEEDED
+        assert last_stage != Stage.HUMAN_INPUT_NEEDED
+        assert last_stage == project.current_stage  # stayed in the review loop
+        assert execution_status.model_tier(project.id, repo_root=tmp_path) == 1
+        assert not (mem / "human_input_needed.yaml").exists()
 
 
 if __name__ == "__main__":  # pragma: no cover
