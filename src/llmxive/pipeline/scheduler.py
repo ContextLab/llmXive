@@ -91,8 +91,13 @@ PRIORITY: list[Stage] = STAGE_PROGRESSION
 # PAPER_REVISION_BLOCKED) were DELETED. The new generic
 # :class:`Stage.AGENT_BLOCKED` replaces PAPER_REVISION_BLOCKED's
 # "operator must edit action items" role and is the new failsafe sink.
+# NOTE: HUMAN_INPUT_NEEDED is deliberately NOT in this set. It is a RETIRED
+# resting state — the autonomous escalation + deterministic re-plan flow replaced
+# every path that used to park there — so it stays SCHEDULABLE on purpose: a
+# straggler still sitting at it gets auto-recovered into the pipeline
+# (run_one_step routes HUMAN_INPUT_NEEDED -> PLANNED). The ONLY sanctioned human
+# gate is publication sign-off (AWAITING_PUBLICATION_SIGNOFF, below).
 _NEVER_PICK: set[Stage] = {
-    Stage.HUMAN_INPUT_NEEDED,
     Stage.BLOCKED,
     Stage.POSTED,
     # Spec 013: PUBLISH_BLOCKED is operator-action (5 consecutive Zenodo

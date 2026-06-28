@@ -351,6 +351,37 @@ def run_one_step(
 
     agent_name = STAGE_TO_AGENT.get(project.current_stage)
 
+    # LEGACY RECOVERY: human_input_needed is a RETIRED resting state. The
+    # autonomous exhaustion flow (model-tier escalation + deterministic re-plan)
+    # replaced every path that used to park here, so a project still AT
+    # human_input_needed is a straggler from before that change — and a human
+    # has no way to act on it. Recover it into the pipeline: route to PLANNED
+    # (PAPER_PLANNED for a paper-phase straggler), reset the fix-round +
+    # model-tier counters, and drop the deterministic re-plan report so the
+    # planner adjusts the approach. Human input is required ONLY for the
+    # publication DOI sign-off.
+    if project.current_stage == Stage.HUMAN_INPUT_NEEDED:
+        _hin_dir = repo / "projects" / project.id
+        _write_execution_replan_feedback(
+            _hin_dir, execution_status.load(project.id, repo_root=repo) or {}
+        )
+        execution_status.reset_fix_loop(project.id, repo_root=repo)
+        _paper_phase = (_hin_dir / "paper").is_dir() and any(
+            (_hin_dir / "paper").rglob("*.tex")
+        )
+        recovered = project.model_copy(update={
+            "current_stage": Stage.PAPER_PLANNED if _paper_phase else Stage.PLANNED,
+            "human_escalation_reason": None,
+            "updated_at": datetime.now(UTC),
+            "last_run_id": run_id,
+        })
+        project_store.save(recovered, repo_root=repo)
+        logger.info(
+            "recovered %s from human_input_needed -> %s (autonomous re-plan)",
+            project.id, recovered.current_stage.value,
+        )
+        return recovered
+
     # Dedicated execution phase (spec 023 defect #25): once EVERY task is
     # written, RUN the analysis end-to-end (quickstart run-book, in the
     # per-project venv) and gate research_complete on real artifacts —

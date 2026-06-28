@@ -215,3 +215,38 @@ def test_below_cap_stays_in_progress_no_tier_change(tmp_path: Path) -> None:
     nxt = graph._decide_next_stage(proj, pdir, repo_root=repo)
     assert nxt == Stage.IN_PROGRESS
     assert es.model_tier(pid, repo_root=repo) == 0  # unchanged below the cap
+
+
+def test_human_input_needed_is_auto_recovered_to_planned(tmp_path: Path) -> None:
+    """A project stranded at human_input_needed (a pre-fix straggler) is
+    recovered into the pipeline by run_one_step: routed to PLANNED, fix-round +
+    model-tier counters reset, escalation reason cleared, and a deterministic
+    re-plan report dropped for the planner — NO human action required."""
+    repo = tmp_path
+    pid = "PROJ-999-stranded"
+    pdir = repo / "projects" / pid
+    (pdir / "specs" / "001-research").mkdir(parents=True)
+    (repo / "state" / "execution_status").mkdir(parents=True)
+    es.record(pid, ok=False, reason="analysis failed",
+              artifacts=["data/x.parquet"],
+              failures=["python code/a.py -> rc=1"], repo_root=repo)
+    _force_fix_rounds_at_cap(repo, pid)
+    now = datetime.now(UTC)
+    proj = Project(
+        id=pid, title="stranded", field="test",
+        current_stage=Stage.HUMAN_INPUT_NEEDED,
+        human_escalation_reason="analysis execution failed after the fix-round cap",
+        created_at=now, updated_at=now,
+        speckit_research_dir=f"projects/{pid}/specs/001-research",
+    )
+    project_store.save(proj, repo_root=repo)
+
+    out = graph.run_one_step(proj, repo_root=repo)
+
+    assert out.current_stage == Stage.PLANNED  # recovered, not parked
+    assert out.human_escalation_reason is None
+    assert es.fix_rounds(pid, repo_root=repo) == 0  # fresh attempt
+    assert es.model_tier(pid, repo_root=repo) == 0
+    # deterministic re-plan report written for the planner to ingest
+    mem = pdir / ".specify" / "memory"
+    assert any(mem.glob("*feedback*")), "no re-plan report written"

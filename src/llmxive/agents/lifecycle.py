@@ -243,7 +243,9 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.BRAINSTORMED,
     },
     Stage.POSTED: set(),  # terminal
-    Stage.HUMAN_INPUT_NEEDED: set(),  # exit only via human action
+    # RETIRED state: auto-recovered into the pipeline (run_one_step re-plans a
+    # straggler here -> PLANNED / PAPER_PLANNED). No human action is required.
+    Stage.HUMAN_INPUT_NEEDED: {Stage.PLANNED, Stage.PAPER_PLANNED},
     Stage.BLOCKED: set(),
 }
 
