@@ -1,85 +1,54 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "GitHub Issue Dataset Schema"
-description: "Schema for validated issue dataset used in statistical analysis"
+description: "Schema for validating the cleaned GitHub issue dataset (data/processed/issues_clean.csv)"
 type: "object"
 properties:
-  metadata:
-    type: "object"
-    properties:
-      version:
-        type: "string"
-        description: "Dataset version identifier"
-      generated_at:
-        type: "string"
-        format: "date-time"
-        description: "Timestamp of dataset generation"
-      source:
-        type: "string"
-        description: "Data source (e.g., GitHub REST API)"
-      checksum:
-        type: "string"
-        description: "SHA-256 checksum of raw data"
-    required:
-      - version
-      - generated_at
-      - source
-      - checksum
-  columns:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        name:
-          type: "string"
-          description: "Column name"
-        dtype:
-          type: "string"
-          description: "Data type (e.g., int64, float64, datetime64[ns], object)"
-        nullable:
-          type: "boolean"
-          description: "Whether column allows null values"
-        required:
-          type: "boolean"
-          description: "Whether column is required per SC-001"
-      required:
-        - name
-        - dtype
-        - nullable
-        - required
-  statistics:
-    type: "object"
-    properties:
-      total_issues:
-        type: "integer"
-        minimum: 1000
-        description: "Total number of issues (SC-001 requires ≥1000)"
-      complete_issues:
-        type: "integer"
-        description: "Number of issues with all required columns populated"
-      completeness_rate:
-        type: "number"
-        minimum: 0
-        maximum: 1
-        description: "Completeness rate (SC-001 requires ≥0.95)"
-      excluded_issues:
-        type: "integer"
-        description: "Number of issues excluded due to invalid resolution time"
-      repositories_count:
-        type: "integer"
-        minimum: 100
-        description: "Number of unique repositories (FR-001 requires ≥100)"
-      min_issues_per_repository:
-        type: "integer"
-        minimum: 10
-        description: "Minimum issues per repository for mixed-effects modeling"
-    required:
-      - total_issues
-      - complete_issues
-      - completeness_rate
-      - excluded_issues
-      - repositories_count
-      - min_issues_per_repository
+  issue_id:
+    type: "integer"
+    description: "Unique issue identifier within repository"
+  repository:
+    type: "string"
+    description: "Repository path (owner/repo)"
+  created_at:
+    type: "string"
+    format: "date-time"
+    description: "Issue creation timestamp (ISO 8601)"
+  closed_at:
+    type: "string"
+    format: "date-time"
+    description: "Issue closure timestamp (ISO 8601)"
+  labels:
+    type: "string"
+    description: "Comma-separated label names"
+  assignee:
+    type: ["string", "null"]
+    description: "Assignee username or null"
+  comments_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of comments on issue"
+  resolution_time_hours:
+    type: "number"
+    minimum: 0
+    description: "closed_at - created_at in hours"
+  resolution_time_log:
+    type: "number"
+    description: "Natural log of resolution time"
+  is_outlier:
+    type: "boolean"
+    description: "True if resolution time >30 days **or** >3 standard deviations above the repository mean"
+  is_valid:
+    type: "boolean"
+    description: "True if closed_at >= created_at and no missing timestamps"
 required:
-  - metadata
-  - columns
-  - statistics
+  - issue_id
+  - repository
+  - created_at
+  - closed_at
+  - labels
+  - comments_count
+  - resolution_time_hours
+  - resolution_time_log
+  - is_outlier
+  - is_valid
+additionalProperties: false

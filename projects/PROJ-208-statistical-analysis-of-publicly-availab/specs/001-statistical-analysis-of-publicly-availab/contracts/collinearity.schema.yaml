@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Collinearity Diagnostic Schema"
+description: "Schema for validating collinearity report (data/processed/collinearity_report.json)"
+type: "object"
+properties:
+  predictor:
+    type: "string"
+    description: "Name of predictor variable"
+  vif:
+    type: "number"
+    minimum: 1
+    description: "Variance Inflation Factor value"
+  is_flagged:
+    type: "boolean"
+    description: "True if VIF >= 5"
+  pairwise_correlation:
+    type: ["number", "null"]
+    minimum: -1
+    maximum: 1
+    description: "Maximum pairwise |r| with other predictors"
+required:
+  - predictor
+  - vif
+  - is_flagged
+additionalProperties: false

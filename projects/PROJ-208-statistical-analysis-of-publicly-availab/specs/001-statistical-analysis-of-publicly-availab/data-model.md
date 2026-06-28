@@ -1,177 +1,92 @@
 # Data Model: Statistical Analysis of GitHub Issue Resolution Times
 
-## Entity-Relationship Diagram
-
-```
-┌─────────────────────────────────┐
-│           Repository            │
-├─────────────────────────────────┤
-│ repo_id (PK)                    │
-│ owner                           │
-│ name                            │
-│ language                        │
-│ star_count                      │
-│ contributor_count               │
-│ created_at                      │
-│ issue_count                     │
-└─────────────────────────────────┘
-                │
-                │ 1:N
-                ▼
-┌─────────────────────────────────┐
-│              Issue              │
-├─────────────────────────────────┤
-│ issue_id (PK)                   │
-│ repo_id (FK)                    │
-│ created_at                      │
-│ closed_at                       │
-│ resolution_time_hours           │
-│ resolution_time_log             │
-│ labels (JSON)                   │
-│ assignee (nullable)             │
-│ comments_count                  │
-│ excluded_flag                   │
-│ zero_resolution_flag            │
-└─────────────────────────────────┘
-                │
-                │ 1:N
-                ▼
-┌─────────────────────────────────┐
-│        AnalysisResult           │
-├─────────────────────────────────┤
-│ result_id (PK)                  │
-│ test_type                       │
-│ predictor                       │
-│ p_value                         │
-│ adjusted_p_value                │
-│ effect_size                     │
-│ ci_lower                        │
-│ ci_upper                        │
-│ vif (nullable)                  │
-│ sensitivity_cutoff              │
-└─────────────────────────────────┘
-```
-
 ## Entity Definitions
 
-### Issue
+### Issue (Core Entity)
 
-**Purpose**: Represents a single GitHub issue with resolution time and metadata.
+Represents a single GitHub issue with computed resolution time.
 
-| Field | Type | Required | Description | Constraints |
-|-------|------|----------|-------------|-------------|
-| issue_id | integer | Yes | Unique issue identifier | PK, ≥1 |
-| repo_id | integer | Yes | Foreign key to Repository | FK, ≥1 |
-| created_at | datetime | Yes | Issue creation timestamp | ISO 8601, UTC |
-| closed_at | datetime | Yes | Issue closure timestamp | ISO 8601, UTC |
-| resolution_time_hours | float | Yes | `(closed_at - created_at) / 3600` | ≥0, excluded if <0 |
-| resolution_time_log | float | Yes | `log(resolution_time_hours + 1)` | For distribution fitting |
-| labels | array[string] | Yes | Issue labels | May be empty array |
-| assignee | string | No | Assigned user login | Nullable |
-| comments_count | integer | Yes | Number of comments | ≥0 |
-| excluded_flag | boolean | Yes | Flag for excluded issues | False if valid |
-| zero_resolution_flag | boolean | Yes | Flag for zero resolution time | True if created_at == closed_at |
+| Field | Type | Source | Description |
+|-------|------|--------|-------------|
+| `issue_id` | integer | GitHub API | Unique issue identifier within repository |
+| `repository` | string | GitHub API | Repository path (owner/repo) |
+| `created_at` | datetime | GitHub API | Issue creation timestamp (ISO 8601) |
+| `closed_at` | datetime | GitHub API | Issue closure timestamp (ISO 8601) |
+| `labels` | string | GitHub API | Comma‑separated label names |
+| `assignee` | string | GitHub API | Assignee username or null |
+| `comments_count` | integer | GitHub API | Number of comments on issue |
+| `resolution_time_hours` | float | Computed | `closed_at - created_at` in hours |
+| `resolution_time_log` | float | Computed | Natural log of resolution time |
+| `is_outlier` | boolean | Computed | True if resolution time >30 days **or** >3 SD above the mean resolution time of its repository (repository‑specific threshold) |
+| `is_valid` | boolean | Computed | True if `closed_at >= created_at` and no missing timestamps |
 
-**Validation Rules**:
-- `resolution_time_hours >= 0` (FR-003)
-- `created_at < closed_at` (preprocessing filter)
-- `labels` may be empty but column must be populated (SC-001)
-- **Repositories with <10 issues excluded from mixed-effects modeling**
-- **Zero resolution times: log(x+1) transform applied for distribution fitting only**
+### Repository (Core Entity)
 
-### Repository
+Represents a GitHub project with metadata.
 
-**Purpose**: Represents a GitHub project with metadata.
+| Field | Type | Source | Description |
+|-------|------|--------|-------------|
+| `repository` | string | GitHub API | Repository path (owner/repo) |
+| `language` | string | GitHub API | Primary programming language |
+| `star_count` | integer | GitHub API | Number of repository stars |
+| `contributor_count` | integer | GitHub API | Number of contributors |
+| `repo_created_at` | datetime | GitHub API | Repository creation timestamp |
 
-| Field | Type | Required | Description | Constraints |
-|-------|------|----------|-------------|-------------|
-| repo_id | integer | Yes | Unique repository identifier | PK, ≥1 |
-| owner | string | Yes | Repository owner | Not empty |
-| name | string | Yes | Repository name | Not empty |
-| language | string | No | Primary programming language | Nullable (SC-001) |
-| star_count | integer | Yes | Star count | ≥0 |
-| contributor_count | integer | Yes | Contributor count | ≥1 |
-| created_at | datetime | Yes | Repository creation timestamp | ISO 8601, UTC |
-| issue_count | integer | Yes | Number of closed issues | ≥10 for mixed-effects modeling |
+### AnalysisResult (Derived Entity)
 
-**Validation Rules**:
-- `language` may be null (handled as missing data per spec)
-- `contributor_count >= 1` (at least owner)
-- **issue_count >= 10 required for inclusion in mixed-effects modeling**
+Represents a statistical test outcome.
 
-### AnalysisResult
+| Field | Type | Source | Description |
+|-------|------|--------|-------------|
+| `test_type` | string | Computed | Type of test (e.g., "kruskal‑wallis", "mixed‑effects") |
+| `predictor` | string | Computed | Name of predictor variable |
+| `p_value` | number | Computed | Raw p‑value from test |
+| `effect_size` | number | Computed | Effect size metric (e.g., eta‑squared, coefficient) |
+| `ci_lower` | number | Computed | Lower bound of confidence interval |
+| `ci_upper` | number | Computed | Upper bound of confidence interval |
+| `adjusted_p_value` | number | Computed | Holm‑Bonferroni adjusted p‑value |
+| `is_significant` | boolean | Computed | True if adjusted p < 0.05 |
 
-**Purpose**: Represents a statistical test outcome.
-
-| Field | Type | Required | Description | Constraints |
-|-------|------|----------|-------------|-------------|
-| result_id | integer | Yes | Unique result identifier | PK, ≥1 |
-| test_type | string | Yes | Test name (e.g., "Kruskal-Wallis", "LMM") | Enum |
-| predictor | string | Yes | Predictor variable name | Not empty |
-| p_value | float | Yes | Raw p-value | 0 ≤ p ≤ 1 |
-| adjusted_p_value | float | Yes | Holm-Bonferroni adjusted p-value | 0 ≤ p ≤ 1 |
-| effect_size | float | Yes | Effect size metric | Varies by test |
-| ci_lower | float | Yes | Confidence interval lower bound | Numeric |
-| ci_upper | float | Yes | Confidence interval upper bound | Numeric |
-| vif | float | No | Variance inflation factor | Flag if ≥5 (FR-006) |
-| sensitivity_cutoff | float | No | Alpha cutoff for sensitivity analysis | ∈ {0.01, 0.05, 0.1} |
-
-**Validation Rules**:
-- `0 <= p_value <= 1` and `0 <= adjusted_p_value <= 1`
-- `ci_lower <= ci_upper`
-- `test_type` must match expected enum values
-
-## File Formats
-
-### Raw Data (data/raw/)
-
-| File | Format | Checksum | Description |
-|------|--------|----------|-------------|
-| `issues_raw_{repo_id}.json` | JSON | SHA-256 | Raw API response per repository |
-| `repositories_raw.json` | JSON | SHA-256 | Repository metadata |
-
-### Processed Data (data/processed/)
-
-| File | Format | Checksum | Description |
-|------|--------|----------|-------------|
-| `issues_clean.parquet` | Parquet | SHA-256 | Cleaned, analysis-ready issues |
-| `repositories_clean.parquet` | Parquet | SHA-256 | Cleaned repository metadata |
-| `analysis_results.parquet` | Parquet | SHA-256 | All statistical test results |
-
-### Figures (data/figures/)
-
-| File | Format | Description |
-|------|--------|-------------|
-| `ecdf_resolution_time.png` | PNG | ECDF plot with log scale |
-| `distribution_fit_comparison.png` | PNG | Log-normal vs Weibull fit |
-| `vif_heatmap.png` | PNG | Predictor collinearity heatmap |
-| `loo_cv_performance.png` | PNG | LOO-CV MAE and R² across folds |
-
-## Data Flow
+## Data Flow Diagram
 
 ```
-GitHub API (REST)
-    │
-    ▼ (FR-001)
-data/raw/issues_raw_{repo_id}.json (checksummed)
-    │
-    ▼ (FR-002, FR-003)
-data/processed/issues_clean.parquet
-    │
-    ├──────────────────────────────────────┐
-    ▼ (Phase 2)                           ▼ (Phase 3)
-data/figures/ecdf_*.png              data/processed/analysis_results.parquet
-    │                                   │
-    └───────────────────────────────────┘
-                ▼ (Phase 4)
-    data/figures/vif_*.png, loo_cv_*.png
+GitHub API (raw) → collect/github_collector.py → data/raw/issues.json
+                                                      ↓
+                                        collect/preprocess.py
+                                                      ↓
+                                        data/processed/issues_clean.csv
+                                                      ↓
+                        ┌─────────────────────────────┼─────────────────────────────┐
+                        ↓                             ↓                             ↓
+        analysis/distribution_fitting.py    analysis/hypothesis_testing.py    analysis/mixed_effects_model.py
+                        ↓                             ↓                             ↓
+        data/processed/distribution_metrics.json  data/processed/test_results.json  data/processed/model_results.json
+                                                      ↓
+                        ┌─────────────────────────────┴─────────────────────────────┐
+                        ↓                                                     ↓
+        diagnostics/collinearity.py                                 diagnostics/sensitivity_analysis.py
+                        ↓                                                     ↓
+        data/processed/collinearity_report.json                 data/processed/sensitivity_report.json
 ```
 
-## Constraints & Validation
+## Transformations
 
-- **SC-001**: Dataset completeness ≥95% (all required columns populated)
-- **SC-002**: KS test p-value reported for at least one parametric family
-- **SC-003**: Significant associations only when adjusted p<0.05
-- **SC-004**: LOO-CV MAE and R² reported with standard deviation
-- **SC-005**: Runtime ≤6h, memory ≤7GB, no GPU usage
-- **Power**: ≥10 issues per repository required for mixed-effects modeling
+| Transformation | Input | Output | Script |
+|----------------|-------|--------|--------|
+| Timestamp parsing | `created_at`, `closed_at` (string) | `created_at`, `closed_at` (datetime) | `preprocess.py` |
+| Resolution time computation | `created_at`, `closed_at` | `resolution_time_hours` | `preprocess.py` |
+| Log transformation | `resolution_time_hours` | `resolution_time_log` | `preprocess.py` |
+| Outlier flagging | `resolution_time_hours` per repository | `is_outlier` | `preprocess.py` |
+| Validity filtering | `created_at`, `closed_at` | `is_valid` | `preprocess.py` |
+| Label parsing | `labels` (string) | `labels` (list) | `preprocess.py` |
+
+## Quality Constraints
+
+| Constraint | Threshold | Enforcement |
+|------------|-----------|-------------|
+| Dataset completeness | ≥95% of issues have all required columns | SC‑001 |
+| Resolution time validity | `closed_at >= created_at` | FR‑003 |
+| API rate limit handling | ≥60 s wait before retry | FR‑003 |
+| Total runtime | ≤6 h | FR‑009 |
+| Peak memory | ≤7 GB | FR‑009 |
+| No GPU usage | [deferred] | FR‑010 |

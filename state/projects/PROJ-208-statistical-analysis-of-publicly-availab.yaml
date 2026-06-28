@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-208-statistical-analysis-of-publicly-availab
-last_run_id: f9884fd7-34a7-4f8c-8337-89d47f1dc35f
+last_run_id: 6ae51e37-8a0e-4bba-8e72-0f181f56cea1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available GitHub Issue Resolution Times
-updated_at: '2026-06-28T16:24:18.231082Z'
+updated_at: '2026-06-28T18:31:59.891398Z'
