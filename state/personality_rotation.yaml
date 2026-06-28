@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-28T12:29:10.923115+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: alan-turing
+last_used_at: '2026-06-28T13:04:08.803173+00:00'
+last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-18T22:17:13.750878+00:00'
-  ended_at: '2026-06-18T23:09:24.533637+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: daniel-kahneman
   started_at: '2026-06-18T23:09:24.533637+00:00'
   ended_at: '2026-06-19T00:04:58.386417+00:00'
@@ -1186,3 +1181,10 @@ history:
   ended_at: '2026-06-28T12:29:10.923115+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: alan-turing
+  started_at: '2026-06-28T12:29:10.923115+00:00'
+  ended_at: '2026-06-28T13:04:08.803173+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/alan-turing-simulated__2026-06-28__research.md
