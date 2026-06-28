@@ -1,12 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-28T03:13:49.723899+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: john-von-neumann
+last_used_at: '2026-06-28T05:11:01.954014+00:00'
+last_outcome: committed
 history:
-- slug: richard-feynman
-  started_at: '2026-06-18T13:42:25.269866+00:00'
-  ended_at: '2026-06-18T15:05:39.306851+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: rosalind-franklin
   started_at: '2026-06-18T15:05:39.306851+00:00'
   ended_at: '2026-06-18T16:43:20.170481+00:00'
@@ -1180,3 +1175,10 @@ history:
   ended_at: '2026-06-28T03:13:49.723899+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-28T03:13:49.723899+00:00'
+  ended_at: '2026-06-28T05:11:01.954014+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-799-statistical-properties-of-integer-partit/reviews/research/john-von-neumann-simulated__2026-06-28__research.md
