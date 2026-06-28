@@ -140,3 +140,80 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-27T21:29:07Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/research.md
+  attempts: 1
+  canonical: DROP dataset size 156.78 MB
+  claim_id: c_f97d2c4c
+  context: Text Datasets table showing DROP with URL https://huggingface.co/datasets/drop
+    and size 156.78 MB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DROP dataset size: 156.78 MB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-28T21:01:49Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/research.md
+  attempts: 1
+  canonical: MUST dataset size 89.45 MB
+  claim_id: c_9014b75a
+  context: Text Datasets table showing MUST with URL https://huggingface.co/datasets/must
+    and size 89.45 MB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'MUST dataset size: 89.45 MB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-28T21:08:06Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/research.md
+  attempts: 1
+  canonical: UCI_HAR dataset size 45.2 MB
+  claim_id: c_1b767993
+  context: Time-Series Datasets table showing UCI_HAR with size 45.2 MB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'UCI_HAR dataset size: 45.2 MB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-28T21:10:52Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/research.md
+  attempts: 1
+  canonical: UCI_Tabular dataset size 12.8 MB
+  claim_id: c_610aa6e1
+  context: Tabular Datasets table showing UCI_Tabular with size 12.8 MB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'UCI_Tabular dataset size: 12.8 MB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-28T21:14:16Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/research.md
+  attempts: 1
+  canonical: Combined text dataset size 246 MB
+  claim_id: c_0f65ca3b
+  context: Notes section stating combined text dataset size for DROP and MUST
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Combined text dataset size: ~246 MB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-28T21:18:24Z'

@@ -1,0 +1,18 @@
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi/CoQA datasets lack verified URLs
+  claim_id: c_891bc7b9
+  context: 'Dataset Constraint: Hanabi/CoQA have NO verified URLs; use synthetic fallback
+    only'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hanabi/CoQA_datasets_lack_verified_URLs
+  kind: entity_fact
+  raw_text: Hanabi/CoQA have NO verified URLs
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-28T20:54:40Z'

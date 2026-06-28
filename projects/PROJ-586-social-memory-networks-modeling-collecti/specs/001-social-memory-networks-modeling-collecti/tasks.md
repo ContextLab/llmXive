@@ -106,8 +106,8 @@
 - [X] T018 [US-2] Implement game simulation loop for limited context (1000 games per spec) in `code/run_experiment.py`
 - [X] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
 - [X] T020 [P] [US-2] Implement two‑way independent‑samples ANOVA with factors Context × Metric (single ANOVA, not separate) in `code/analysis/anova.py` (FR-006)
-- [ ] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py` (FR-007)
-- [ ] T022 [US-2] Conduct sensitivity analysis sweeping context‑truncation token limit over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py` (FR-008)
+- [X] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py` (FR-007)
+- [X] T022 [US-2] Conduct sensitivity analysis sweeping context‑truncation token limit over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py` (FR-008)
 - [ ] T023 [US-2] Generate power‑analysis report estimating detectable effect size (N=1000 games per spec FR-009) in `code/analysis/power.py`
 - [ ] T024 [US-2] Flag "Power limitation" if estimated power < 0.70 in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md` (SC-004)
 
@@ -249,7 +249,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Compute Constraint**: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU). Use small models (e.g., opt-125m) in float32.
 - **Game Counts**: US-1/US-2 = 1000 games per condition (spec requirement); US-3 = 800 games per configuration
-- **Dataset Constraint**: Hanabi/CoQA have NO verified URLs; use synthetic fallback only (code/data/synthetic.py)
+- **Dataset Constraint**: Hanabi/CoQA have NO verified URLs [UNRESOLVED-CLAIM: c_891bc7b9 — status=not_enough_info]; use synthetic fallback only (code/data/synthetic.py)
 - **ANOVA Design**: Single two-way ANOVA with Context × Metric interaction (FR-006), NOT separate ANOVAs
 - **Power Analysis**: N=1000 games (FR-009 spec requirement)
 - **Reviewer Feedback**: Phases 6-11 from prior draft removed (not in original spec); addressed in T034

@@ -1,0 +1,24 @@
+[
+  {
+    "dataset_name": "DROP",
+    "url": "https://huggingface.co/datasets/drop",
+    "variables": [
+      "paragraph",
+      "question",
+      "answer"
+    ],
+    "size_mb": 156.78,
+    "verification_status": "SUCCESS"
+  },
+  {
+    "dataset_name": "MUST",
+    "url": "https://huggingface.co/datasets/must",
+    "variables": [
+      "context",
+      "question",
+      "answer"
+    ],
+    "size_mb": 89.45,
+    "verification_status": "SUCCESS"
+  }
+]
