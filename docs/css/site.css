@@ -206,22 +206,78 @@ a:hover { color: var(--accent-2); }
 /* ── Cards (papers / plans / designs) ───────────────────────── */
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
 
-/* ── In-Progress tab: one section per lifecycle stage ───────── */
-.ip-sections { display: flex; flex-direction: column; gap: 32px; }
-.ip-section-head {
-  display: flex; align-items: baseline; gap: 10px;
-  margin-bottom: 14px; padding-bottom: 8px;
-  border-bottom: 1px solid var(--line-soft);
+/* ── In-Progress tab: kanban board — one scrollable column per stage ── */
+.ip-board {
+  display: flex; gap: 14px; overflow-x: auto; align-items: flex-start;
+  padding-bottom: 14px;
 }
-.ip-section-head h3 {
-  font-family: var(--serif); font-size: 18px; font-weight: 500;
-  margin: 0; color: var(--text);
-}
-.ip-count {
-  font-size: 11px; color: var(--accent);
-  background: var(--accent-tint); padding: 2px 8px; border-radius: 999px;
-}
+/* Fixed-width columns; the board scrolls horizontally across stages, each
+   column's body scrolls vertically through its projects (reuses the shared
+   .col / .col-head / .col-body / .issue kanban styles below). */
+.ip-board .col { flex: 0 0 300px; max-width: 300px; max-height: 74vh; }
+.ip-board .col-body { overflow-y: auto; }
 .ip-empty { text-align: center; padding: 40px; color: var(--muted); }
+
+/* Column briefly flashes when its phase bar is clicked. */
+.ip-board .col.flash { animation: ip-col-flash 1.4s ease; }
+@keyframes ip-col-flash {
+  0%   { box-shadow: 0 0 0 0 var(--accent); border-color: var(--accent); }
+  30%  { box-shadow: 0 0 0 4px var(--accent-soft); border-color: var(--accent); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* ── In-Progress faceted filter bar ─────────────────────────── */
+.ip-facets { flex-wrap: wrap; gap: 10px 14px; }
+.ip-facet { display: inline-flex; align-items: center; gap: 6px; }
+.ip-facet > span {
+  font-size: 11px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.ip-facet select {
+  font: inherit; font-size: 12.5px; color: var(--text);
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-sm); padding: 5px 8px; max-width: 200px;
+  cursor: pointer; transition: border-color var(--t-fast);
+}
+.ip-facet select:hover { border-color: var(--accent-soft); }
+.ip-facet select:focus { outline: none; border-color: var(--accent); }
+
+/* ── In-Progress phase bar-graph ────────────────────────────── */
+.phasebar {
+  margin: 4px 0 18px;
+  padding: 14px 14px 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow-x: auto;
+}
+.phasebar-track {
+  display: flex; align-items: flex-end; gap: 10px;
+  min-height: 130px;
+}
+.phasebar-item {
+  flex: 1 0 56px; min-width: 56px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  height: 130px; justify-content: flex-end;
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font: inherit; color: var(--muted);
+}
+.phasebar-count { font-size: 11px; font-weight: 600; color: var(--text-2); }
+.phasebar-bar {
+  width: 60%; max-width: 36px; min-height: 4px;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  transition: filter var(--t-fast), transform var(--t-fast);
+}
+.phasebar-item:hover .phasebar-bar { filter: brightness(1.12); transform: scaleY(1.03); }
+.phasebar-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-sm); }
+.phasebar-label {
+  font-size: 10px; line-height: 1.2; text-align: center;
+  max-width: 72px; overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.phasebar-item:hover .phasebar-label,
+.phasebar-item:hover .phasebar-count { color: var(--accent); }
 .card {
   position: relative;
   background: var(--surface);

@@ -111,7 +111,33 @@
       <span class="grow"></span>
       <span class="search"><i class="fa-solid fa-magnifying-glass"></i><input data-search="inProgress" placeholder="Search…" /></span>
     </div>
-    <div class="ip-sections" id="inProgress-cards"></div>
+
+    <!-- Faceted filters — options populated from the data by app.js
+         populateInProgressFacets() (phase via STAGE_LABELS; field / author /
+         keyword from distinct project values). -->
+    <div class="bar ip-facets">
+      <span class="label">Filter</span>
+      <label class="ip-facet"><span>Phase</span>
+        <select data-ip-facet="stage"><option value="">All phases</option></select>
+      </label>
+      <label class="ip-facet"><span>Field</span>
+        <select data-ip-facet="field"><option value="">All fields</option></select>
+      </label>
+      <label class="ip-facet"><span>Author</span>
+        <select data-ip-facet="author"><option value="">All authors</option></select>
+      </label>
+      <label class="ip-facet"><span>Keyword</span>
+        <select data-ip-facet="keyword"><option value="">All keywords</option></select>
+      </label>
+      <button class="btn small ghost" data-ip-clear><i class="fa-solid fa-xmark"></i> Clear filters</button>
+    </div>
+
+    <!-- Clickable phase bar-graph (counts per stage); app.js renderPhaseGraph().
+         Clicking a bar smooth-scrolls the board to that stage's column. -->
+    <div class="phasebar" id="inProgress-graph" hidden></div>
+
+    <!-- Kanban board — one column per stage; app.js renderInProgress(). -->
+    <div class="ip-board" id="inProgress-cards"></div>
   </section>
 
   <section class="panel" data-panel="contributors">

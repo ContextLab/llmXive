@@ -168,6 +168,20 @@
     return sections;
   }
 
+  // Normalize a project's `authors` into a plain array of display-name
+  // strings. Author entries arrive in two shapes across the dataset: bare
+  // strings ("Ada Lovelace") OR objects ({name, kind, ...}). Everything that
+  // needs author names (search haystack, the author facet, card pills) routes
+  // through here so the two shapes are handled in exactly one place (SSoT).
+  function authorNames(item) {
+    const out = [];
+    for (const a of (item && item.authors) || []) {
+      const name = typeof a === "string" ? a : (a && a.name);
+      if (name) out.push(name);
+    }
+    return out;
+  }
+
   function relativeTime(iso) {
     if (!iso) return "—";
     const t = Date.parse(iso);
@@ -184,6 +198,6 @@
 
   window.LlmxiveData = {
     EMPTY, TAB_STAGE_SETS, IN_PROGRESS_STAGE_ORDER, STAGE_LABELS,
-    loadPayload, projectsByTab, inProgressByStage, relativeTime,
+    loadPayload, projectsByTab, inProgressByStage, authorNames, relativeTime,
   };
 })();

@@ -165,7 +165,10 @@
       item.description,
       item.field,
       ...(item.keywords || []),
-      ...((item.authors || []).map(a => a.name)),
+      // authors may be bare strings or {name,...} dicts — D.authorNames
+      // normalizes both (a bare string author was previously invisible to
+      // search because `a.name` was undefined).
+      ...D.authorNames(item),
       item.submitter,
       item.id,
     ];
@@ -173,9 +176,40 @@
     return hay.includes(needle);
   }
 
+  // ── In-Progress faceted filter + sort state ──────────────────────────
+  // Four facets (phase/stage, field, author, keyword). Each holds a single
+  // selected value ("" = no filter for that facet) — populated from the
+  // distinct values actually present in buckets.inProgress (see
+  // populateInProgressFacets). `ipSort` ∈ "updated" (recently updated, the
+  // default) | "title" (A–Z). All four facets + the free-text search + sort
+  // compose; an empty facet set shows everything.
+  const ipFacets = { stage: "", field: "", author: "", keyword: "" };
+  let ipSort = "updated";
+
+  // Does a project pass ALL currently-selected In-Progress facets? (Search is
+  // applied separately via matchesSearch so the existing search box keeps
+  // working unchanged.)
+  function matchesInProgressFacets(item) {
+    if (ipFacets.stage && item.current_stage !== ipFacets.stage) return false;
+    if (ipFacets.field && (item.field || "") !== ipFacets.field) return false;
+    if (ipFacets.author && !D.authorNames(item).includes(ipFacets.author)) return false;
+    if (ipFacets.keyword && !(item.keywords || []).includes(ipFacets.keyword)) return false;
+    return true;
+  }
+
+  // The In-Progress projects surviving the current search term + all facets.
+  // Shared by the board, the phase bar-graph, and the empty-state check so
+  // they always agree.
+  function inProgressVisible() {
+    const term = searchState["inProgress"] || "";
+    return ((buckets && buckets.inProgress) || [])
+      .filter(it => matchesSearch(it, term) && matchesInProgressFacets(it));
+  }
+
   // Wire click / keyboard activation on every `.card` inside `root` (a card
-  // grid). Shared by the flat Published grid (renderCards) and the sectioned
-  // In-Progress grids (renderInProgressSections) so both behave identically.
+  // grid). Used by the flat Published grid (renderCards). The In-Progress
+  // kanban board uses compact `.issue` tiles, wired separately in
+  // renderInProgress().
   function wireCards(root) {
     root.querySelectorAll(".card").forEach(card => {
       card.addEventListener("click", e => {
@@ -233,9 +267,10 @@
   }
 
   function renderCards(kind) {
-    // The In-Progress tab renders as one section per stage (see
-    // renderInProgressSections); every other tab is a flat card grid.
-    if (kind === "inProgress") { renderInProgressSections(); return; }
+    // The In-Progress tab renders as a kanban board (one column per stage)
+    // with a clickable phase bar-graph above it; every other tab is a flat
+    // card grid.
+    if (kind === "inProgress") { renderInProgress(); return; }
     const el = document.getElementById(kind + "-cards");
     if (!el) return;
     const allItems = (buckets && buckets[kind]) || [];
@@ -254,40 +289,134 @@
     wireCards(el);
   }
 
-  // Render the In-Progress tab as one section per lifecycle stage (in
-  // IN_PROGRESS_STAGE_ORDER), each = a stage header (label + count badge)
-  // followed by that stage's cards. Empty stages are omitted; the tab's
-  // search input filters across every section (sections with no surviving
-  // matches disappear). Cards reuse cardHTML + wireCards, so they look and
-  // behave exactly like the Published cards.
-  function renderInProgressSections() {
+  // Compact kanban "issue" card for the In-Progress board. Mirrors the
+  // markup the old backlog kanban used (renderBacklogLane) so it reuses the
+  // shared .issue / .issue-desc / .row / .upv styles. Clicking (or
+  // Enter/Space) opens the same project modal the full cards open.
+  function issueHTML(p) {
+    const d = (p.description || "");
+    const desc = d.slice(0, 140) + (d.length > 140 ? "…" : "");
+    return ''
+      + '<div class="issue" data-pid="' + escapeHtml(p.id) + '" tabindex="0" role="button">'
+      + '<div class="title">' + escapeHtml(p.title) + '</div>'
+      + (desc ? '<div class="issue-desc">' + escapeHtml(desc) + '</div>' : "")
+      + '<div class="row"><span>' + escapeHtml(p.field || "") + '</span>'
+      + '<span class="upv"><i class="fa-regular fa-clock"></i> ' + escapeHtml(D.relativeTime(p.updated_at)) + '</span></div>'
+      + '</div>';
+  }
+
+  // Sort a project list per the current In-Progress sort selection.
+  function sortInProgress(items) {
+    const arr = items.slice();
+    if (ipSort === "title") {
+      arr.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+    } else {
+      arr.sort((a, b) => (b.updated_at || "").localeCompare(a.updated_at || ""));
+    }
+    return arr;
+  }
+
+  // Open the project modal for a given `.issue` / `.card` element.
+  function openProjectFromEl(elem) {
+    const pid = elem.getAttribute("data-pid");
+    const proj = (payload.projects || []).find(p => p.id === pid);
+    if (!proj) return;
+    const _act = (activityByProject || {})[proj.id];
+    Dialog.open(proj, { comments: (_act && _act.comments) || [] });
+  }
+
+  // Render the clickable phase bar-graph (project counts per stage, in
+  // IN_PROGRESS_STAGE_ORDER) above the board. Bars are sized ∝ count; only
+  // stages with ≥1 visible project get a bar. Clicking a bar smooth-scrolls
+  // the board to that stage's column and briefly highlights it. Re-rendered
+  // on every filter/search/sort change so it always matches the board.
+  function renderPhaseGraph(sections) {
+    const el = document.getElementById("inProgress-graph");
+    if (!el) return;
+    el.replaceChildren();
+    if (!sections.length) { el.hidden = true; return; }
+    el.hidden = false;
+    const max = sections.reduce((m, s) => Math.max(m, s.items.length), 0) || 1;
+    const html = '<div class="phasebar-track">'
+      + sections.map(sec => {
+          const pct = Math.max(4, Math.round((sec.items.length / max) * 100));
+          return ''
+            + '<button type="button" class="phasebar-item" data-stage="' + escapeHtml(sec.stage) + '"'
+            + ' title="' + escapeHtml(sec.label) + ': ' + sec.items.length + ' — jump to column">'
+            + '<span class="phasebar-count">' + sec.items.length + '</span>'
+            + '<span class="phasebar-bar" style="height:' + pct + '%"></span>'
+            + '<span class="phasebar-label">' + escapeHtml(sec.label) + '</span>'
+            + '</button>';
+        }).join("")
+      + '</div>';
+    el.insertAdjacentHTML("beforeend", html);
+    el.querySelectorAll(".phasebar-item").forEach(btn => {
+      btn.addEventListener("click", () => focusStageColumn(btn.dataset.stage));
+    });
+  }
+
+  // Smooth-scroll the board to a stage's column and briefly highlight it.
+  function focusStageColumn(stage) {
+    const board = document.getElementById("inProgress-cards");
+    const col = board && board.querySelector('.col[data-stage="' + cssEscapeAttr(stage) + '"]');
+    if (!col) return;
+    col.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    col.classList.remove("flash");        // restart the animation if re-clicked
+    void col.offsetWidth;                 // force reflow so re-adding re-triggers
+    col.classList.add("flash");
+    setTimeout(() => col.classList.remove("flash"), 1400);
+  }
+
+  // Minimal attribute-selector escaping (stage names are [a-z_], but be safe).
+  function cssEscapeAttr(s) {
+    return String(s).replace(/["\\]/g, "\\$&");
+  }
+
+  // Orchestrate the In-Progress tab: compute the visible set (search + facets),
+  // bucket it by stage (sorted per ipSort), then render the bar-graph + board.
+  function renderInProgress() {
     const el = document.getElementById("inProgress-cards");
     if (!el) return;
-    const term = searchState["inProgress"] || "";
-    const filtered = ((buckets && buckets.inProgress) || [])
-      .filter(it => matchesSearch(it, term));
-    const sections = D.inProgressByStage(payload, filtered);
+    // The board opens the project modal with personality-review comments, so
+    // make sure the activity index is built (issueHTML doesn't go through
+    // cardHTML, which is where it's lazily built for the card grids).
+    _buildActivityByProject();
+    const visible = inProgressVisible();
+    // Bucket by stage, then apply the chosen sort within each stage.
+    const sections = D.inProgressByStage(payload, visible)
+      .map(sec => ({ ...sec, items: sortInProgress(sec.items) }));
+
+    renderPhaseGraph(sections);
+
     el.replaceChildren();
     if (!sections.length) {
+      el.classList.add("ip-board-empty");
+      const term = searchState["inProgress"] || "";
+      const anyFacet = ipFacets.stage || ipFacets.field || ipFacets.author || ipFacets.keyword;
       const empty = document.createElement("div");
       empty.className = "ip-empty";
-      empty.insertAdjacentHTML("beforeend", emptyStateHTML("inProgress", term));
+      // A facet (not just search) can zero the board — say so.
+      empty.insertAdjacentHTML("beforeend",
+        emptyStateHTML("inProgress", term || (anyFacet ? "the selected filters" : "")));
       el.appendChild(empty);
       return;
     }
+    el.classList.remove("ip-board-empty");
     const html = sections.map(sec => ''
-      + '<section class="ip-section">'
-      + '<header class="ip-section-head">'
-      + '<h3>' + escapeHtml(sec.label) + '</h3>'
-      + '<span class="ip-count">' + sec.items.length + '</span>'
-      + '</header>'
-      + '<div class="cards ip-section-cards">'
-      + sec.items.map(it => cardHTML(it, "inProgress")).join("")
+      + '<div class="col" data-stage="' + escapeHtml(sec.stage) + '">'
+      + '<div class="col-head"><span class="name"><span class="dot"></span>' + escapeHtml(sec.label) + '</span>'
+      + '<span class="count">' + sec.items.length + '</span></div>'
+      + '<div class="col-body">' + sec.items.map(issueHTML).join("") + '</div>'
       + '</div>'
-      + '</section>'
     ).join("");
     el.insertAdjacentHTML("beforeend", html);
-    wireCards(el);
+    // Wire each issue: click + keyboard activation → project modal.
+    el.querySelectorAll(".issue").forEach(iss => {
+      iss.addEventListener("click", () => openProjectFromEl(iss));
+      iss.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openProjectFromEl(iss); }
+      });
+    });
   }
 
   function renderTabCounts() {
@@ -894,6 +1023,94 @@
     });
   }
 
+  // Fill the four In-Progress facet <select>s with the DISTINCT values present
+  // in buckets.inProgress (the full In-Progress set, unfiltered — so the user
+  // can always pick any value that exists). Stages use IN_PROGRESS_STAGE_ORDER
+  // (label via STAGE_LABELS); field / author / keyword are sorted A–Z. Author
+  // names are normalized via D.authorNames (string OR {name} entries); keywords
+  // come from project.keywords[].
+  function populateInProgressFacets() {
+    const items = (buckets && buckets.inProgress) || [];
+
+    // Stages: keep lifecycle order, only those with ≥1 project.
+    const stageCounts = new Map();
+    for (const p of items) stageCounts.set(p.current_stage, (stageCounts.get(p.current_stage) || 0) + 1);
+    const stages = D.IN_PROGRESS_STAGE_ORDER.filter(s => stageCounts.has(s));
+
+    // Field / author / keyword: distinct values, A–Z.
+    const fields = new Set();
+    const authors = new Set();
+    const keywords = new Set();
+    for (const p of items) {
+      if (p.field) fields.add(p.field);
+      for (const n of D.authorNames(p)) authors.add(n);
+      for (const k of (p.keywords || [])) if (k) keywords.add(k);
+    }
+    const sortAZ = arr => [...arr].sort((a, b) => a.localeCompare(b));
+
+    const fill = (sel, opts, current) => {
+      const el = document.querySelector(sel);
+      if (!el) return;
+      const placeholder = el.options.length ? el.options[0].outerHTML
+        : '<option value="">All</option>';
+      el.innerHTML = placeholder + opts.map(o =>
+        '<option value="' + escapeHtml(o.value) + '"' +
+        (o.value === current ? " selected" : "") + '>' +
+        escapeHtml(o.label) + '</option>'
+      ).join("");
+    };
+
+    fill('[data-ip-facet="stage"]',
+      stages.map(s => ({ value: s, label: (D.STAGE_LABELS[s] || s) + " (" + stageCounts.get(s) + ")" })),
+      ipFacets.stage);
+    fill('[data-ip-facet="field"]',
+      sortAZ(fields).map(v => ({ value: v, label: v })), ipFacets.field);
+    fill('[data-ip-facet="author"]',
+      sortAZ(authors).map(v => ({ value: v, label: v })), ipFacets.author);
+    fill('[data-ip-facet="keyword"]',
+      sortAZ(keywords).map(v => ({ value: v, label: v })), ipFacets.keyword);
+  }
+
+  // Wire the In-Progress facet selects + sort chips + "Clear filters" button.
+  // Facet/sort changes re-render the board AND the phase bar-graph (via
+  // renderInProgress). Debounced lightly to match the search box.
+  function setupInProgressControls() {
+    let timer = null;
+    const rerender = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => renderInProgress(), 100);
+    };
+
+    document.querySelectorAll("[data-ip-facet]").forEach(sel => {
+      sel.addEventListener("change", () => {
+        ipFacets[sel.dataset.ipFacet] = sel.value || "";
+        rerender();
+      });
+    });
+
+    // Sort chips live in the In-Progress panel's `.bar` (data-sort="updated" /
+    // "title"). The generic `.bar` click handler in setupTabs() toggles the
+    // .active class; here we additionally apply the sort + re-render.
+    const sortBar = document.querySelector('.panel[data-panel="inProgress"] .bar');
+    if (sortBar) {
+      sortBar.addEventListener("click", e => {
+        const chip = e.target.closest("[data-sort]");
+        if (!chip) return;
+        ipSort = chip.dataset.sort === "title" ? "title" : "updated";
+        rerender();
+      });
+    }
+
+    const clearBtn = document.querySelector("[data-ip-clear]");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        ipFacets.stage = ipFacets.field = ipFacets.author = ipFacets.keyword = "";
+        document.querySelectorAll("[data-ip-facet]").forEach(s => { s.value = ""; });
+        renderInProgress();
+      });
+    }
+  }
+
   function setupTabs() {
     const tabs = [...document.querySelectorAll(".tab")];
     const underline = document.getElementById("underline");
@@ -1344,14 +1561,20 @@
     renderAggregates(payload);
     renderTabCounts();
     renderPersonalityRoster(payload);
-    // Two project tabs render as card grids: Published + the consolidated
-    // In Progress (every non-published, non-archived stage — see TAB_STAGE_SETS).
-    ["papers", "inProgress"].forEach(renderCards);
+    // Populate the In-Progress facet selects from the data BEFORE the first
+    // render so the controls are ready when the board paints.
+    populateInProgressFacets();
+    // Published renders as a flat card grid; In Progress as the faceted
+    // kanban board + phase bar-graph (every non-published, non-archived
+    // stage — see TAB_STAGE_SETS).
+    renderCards("papers");
+    renderCards("inProgress");
     renderContributors();
     renderActivity();
 
     setupTabs();
     setupSearch();
+    setupInProgressControls();
     setupActivity();
     setupContributorsControls();
     setupModals();
