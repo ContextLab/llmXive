@@ -24,22 +24,40 @@
   // the Published tab). Keeping the needs-attention states here means no
   // project is ever hidden — empty stages simply render no section.
   const IN_PROGRESS_STAGE_ORDER = [
-    // research lane
-    "brainstormed", "flesh_out_in_progress", "flesh_out_complete",
+    // research lane — only REAL resting milestones (transient -ing states are
+    // collapsed into their milestone via STAGE_DISPLAY_PHASE below)
+    "brainstormed", "flesh_out_complete",
     "validator_revise", "validated", "project_initialized",
-    "specified", "clarify_in_progress", "clarified",
-    "planned", "tasked", "analyze_in_progress", "analyzed",
+    "specified", "clarified",
+    "planned", "tasked", "analyzed",
     "in_progress", "research_complete", "research_review",
     "research_full_revision", "research_accepted",
-    // paper lane
+    // paper lane (paper_accepted is collapsed into awaiting sign-off)
     "paper_drafting_init", "paper_specified", "paper_clarified", "paper_planned",
     "paper_tasked", "paper_analyzed", "paper_in_progress", "paper_complete",
-    "paper_review", "paper_accepted", "awaiting_publication_signoff",
+    "paper_review", "awaiting_publication_signoff",
     // needs-attention / terminal-but-not-published states (kept visible so no
     // project silently disappears; only render when non-empty)
     "validator_rejected", "research_rejected", "paper_fundamental_flaws",
     "publish_blocked", "human_input_needed", "blocked", "agent_blocked",
   ];
+
+  // Some raw lifecycle stages are NOT real resting phases — they are the
+  // transient "work-in-progress" of the milestone the project still sits at, or
+  // a state that is immediately superseded. They MUST NOT get their own board
+  // column; a project at one is DISPLAYED under its canonical milestone:
+  //   * a plan being analyzed is still "tasked" (the user's example),
+  //   * being clarified is still "specified", being fleshed out still "brainstormed",
+  //   * an accepted paper is already "awaiting sign-off".
+  // (`in_progress`/`paper_in_progress` are NOT here — those ARE real phases:
+  // the research/paper implementation.)
+  const STAGE_DISPLAY_PHASE = {
+    flesh_out_in_progress: "brainstormed",
+    clarify_in_progress: "specified",
+    analyze_in_progress: "tasked",
+    paper_accepted: "awaiting_publication_signoff",
+  };
+  const displayPhase = (stage) => STAGE_DISPLAY_PHASE[stage] || stage;
 
   // The forward research + paper pipeline stages (NOT the needs-attention /
   // terminal block above). The In-Progress board renders a column for EVERY one
@@ -50,14 +68,14 @@
   // a project actually lands there. Revision states (validator_revise,
   // research_full_revision) are deliberately excluded — they show only when used.
   const PIPELINE_FLOW_STAGES = new Set([
-    "brainstormed", "flesh_out_in_progress", "flesh_out_complete",
+    "brainstormed", "flesh_out_complete",
     "validated", "project_initialized",
-    "specified", "clarify_in_progress", "clarified",
-    "planned", "tasked", "analyze_in_progress", "analyzed",
+    "specified", "clarified",
+    "planned", "tasked", "analyzed",
     "in_progress", "research_complete", "research_review", "research_accepted",
     "paper_drafting_init", "paper_specified", "paper_clarified", "paper_planned",
     "paper_tasked", "paper_analyzed", "paper_in_progress", "paper_complete",
-    "paper_review", "paper_accepted", "awaiting_publication_signoff",
+    "paper_review", "awaiting_publication_signoff",
   ]);
 
   // Stage → tab mapping (FR-005). Mirrors src/llmxive/web_data.py. TWO project
@@ -66,7 +84,9 @@
   // the sectioned layout can never drift).
   const TAB_STAGE_SETS = {
     papers:     new Set(["posted"]),
-    inProgress: new Set(IN_PROGRESS_STAGE_ORDER),
+    // Tab membership includes the collapsed raw stages too (they display under a
+    // milestone column but a project there is still In-Progress, not hidden).
+    inProgress: new Set([...IN_PROGRESS_STAGE_ORDER, ...Object.keys(STAGE_DISPLAY_PHASE)]),
   };
 
   const STAGE_LABELS = {
@@ -175,7 +195,10 @@
     const list = projects || (payload && payload.projects) || [];
     const byStage = Object.fromEntries(IN_PROGRESS_STAGE_ORDER.map(s => [s, []]));
     for (const p of list) {
-      if (p.current_stage in byStage) byStage[p.current_stage].push(p);
+      // Bucket by DISPLAY phase: a project at a transient/collapsed raw stage
+      // (e.g. analyze_in_progress) lands in its milestone column (tasked).
+      const phase = displayPhase(p.current_stage);
+      if (phase in byStage) byStage[phase].push(p);
     }
     const sections = [];
     for (const stage of IN_PROGRESS_STAGE_ORDER) {
@@ -219,6 +242,7 @@
 
   window.LlmxiveData = {
     EMPTY, TAB_STAGE_SETS, IN_PROGRESS_STAGE_ORDER, PIPELINE_FLOW_STAGES, STAGE_LABELS,
+    STAGE_DISPLAY_PHASE, displayPhase,
     loadPayload, projectsByTab, inProgressByStage, authorNames, relativeTime,
   };
 })();

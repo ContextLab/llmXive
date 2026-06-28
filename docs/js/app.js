@@ -191,7 +191,7 @@
   // applied separately via matchesSearch so the existing search box keeps
   // working unchanged.)
   function matchesInProgressFacets(item) {
-    if (ipFacets.stage && item.current_stage !== ipFacets.stage) return false;
+    if (ipFacets.stage && D.displayPhase(item.current_stage) !== ipFacets.stage) return false;
     if (ipFacets.field && (item.field || "") !== ipFacets.field) return false;
     if (ipFacets.author && !D.authorNames(item).includes(ipFacets.author)) return false;
     return true;
@@ -1041,9 +1041,13 @@
   function populateInProgressFacets() {
     const items = (buckets && buckets.inProgress) || [];
 
-    // Stages: keep lifecycle order, only those with ≥1 project.
+    // Stages: keep lifecycle order, only those with ≥1 project. Count by
+    // DISPLAY phase so a collapsed stage's projects fall under their milestone.
     const stageCounts = new Map();
-    for (const p of items) stageCounts.set(p.current_stage, (stageCounts.get(p.current_stage) || 0) + 1);
+    for (const p of items) {
+      const ph = D.displayPhase(p.current_stage);
+      stageCounts.set(ph, (stageCounts.get(ph) || 0) + 1);
+    }
     const stages = D.IN_PROGRESS_STAGE_ORDER.filter(s => stageCounts.has(s));
 
     // Field / author / keyword: distinct values, A–Z.
