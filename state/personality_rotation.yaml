@@ -1,12 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-06-28T18:58:50.702437+00:00'
+last_used: richard-feynman
+last_used_at: '2026-06-28T19:34:13.514317+00:00'
 last_outcome: committed
 history:
-- slug: stephen-wolfram
-  started_at: '2026-06-19T17:37:26.446728+00:00'
-  ended_at: '2026-06-19T18:36:12.838703+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: ada-lovelace
   started_at: '2026-06-19T18:36:12.838703+00:00'
   ended_at: '2026-06-19T19:34:12.836179+00:00'
@@ -1188,3 +1183,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-045-investigating-the-relationship-between-d/reviews/research/marie-curie-simulated__2026-06-28__research.md
+- slug: richard-feynman
+  started_at: '2026-06-28T18:58:50.702437+00:00'
+  ended_at: '2026-06-28T19:34:13.514317+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/reviews/research/richard-feynman-simulated__2026-06-28__research.md
