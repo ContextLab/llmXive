@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.06415",
+  "judged_at": "2026-06-28T14:49:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "The paper applies Graph Neural Networks to predict material properties within materials science, satisfying the same mechanism and domain criteria (Category a/b). It serves as a canonical reference for GNN methodologies in this research area that a reviewer would expect to see cited.",
+  "relevant": true
+}

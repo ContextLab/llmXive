@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1103/physrevresearch.5.043198",
+  "judged_at": "2026-06-28T14:48:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper satisfies criterion (a) and (b) as it applies the same mechanism (Graph Neural Networks) to predict material properties (elastic properties) within the same domain (materials science), representing canonical prior work for the methodology and application.",
+  "relevant": true
+}

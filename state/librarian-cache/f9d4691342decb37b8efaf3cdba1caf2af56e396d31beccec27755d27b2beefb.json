@@ -1,0 +1,626 @@
+{
+  "fetched_at": "2026-06-28T14:42:06Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Solubility in Mixed Solvents with Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 378.706,
+    "ended_at": "2026-06-28T14:42:06Z",
+    "expansion": null,
+    "extracted_queries": [
+      "logS estimation co-solvent deep learning",
+      "aqueous organic solvent mixture experimental data",
+      "QSPR solvation free energy neural network",
+      "logS regression RMSE MAE benchmark",
+      "molecular graph representation GNN solvation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1021/acs.jcim.0c01413"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Solubility in Mixed Solvents with Machine Learning chemistry": 3,
+      "QSPR solvation free energy neural network": 6,
+      "aqueous organic solvent mixture experimental data": 6,
+      "logS estimation co-solvent deep learning": 6,
+      "logS regression RMSE MAE benchmark": 6,
+      "molecular graph representation GNN solvation": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "This paper is off-domain entirely, focusing on machine learning for official statistics and data source integrity rather than chemical solubility prediction in mixed solvents. It shares only the general methodology (machine learning) but lacks any connection to the specific domain, variables, or mechanisms required for a chemistry literature review.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "This paper focuses on machine learning validation standards specifically within the domain of biology, which is off-domain for a chemistry-specific question regarding solubility prediction in mixed solvents. It does not address the chemical mechanisms, solubility variables, or empirical baselines required for a literature review on this specific predictive task.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "This paper is off-domain entirely for the user's research question. It is a general survey of learning curves in machine learning methodology, with no connection to chemistry, solubility prediction, or mixed solvents. It does not satisfy any acceptance criteria (a-f) as it has no measurable connection to the user's domain, variables, or empirical setting.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1190/tle44090705.1",
+          "rationale": "This paper is off-domain entirely, focusing on geophysical porosity estimation from seismic data rather than chemical solubility prediction in mixed solvents. It shares no measurable connection to the user's mechanism, variables, or empirical setting beyond the generic use of machine learning.",
+          "title": "Reservoir porosity estimation from poststack seismic data using a deep learning model constrained by well porosity: A near-field application"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.51477/mejs.1693320",
+          "rationale": "This paper is off-domain entirely, focusing on environmental time-series forecasting of CO₂ emissions rather than chemical property prediction like solubility in mixed solvents. While both use machine learning, the target variables and scientific domains (climate policy vs. chemistry) share no measurable connection to the user's specific research question.",
+          "title": "A COMPREHENSIVE BENCHMARK OF LINEAR AND ENSEMBLE MACHINE LEARNING MODELS FOR GLOBAL CO₂ EMISSION FORECASTING"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1038/s41598-025-24727-9",
+          "rationale": "This paper is off-domain entirely, focusing on geophysical acoustic impedance prediction rather than chemical solubility, and does not measure the user's dependent variable or study the relevant chemical population. While both use machine learning, the scientific domain and physical observables are distinct, failing the inclusion criteria for a chemistry-specific literature review.",
+          "title": "XGBoost regression for robust acoustic impedance prediction in the absence of density and sonic logs"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T14:35:48Z",
+    "term_input": {
+      "normalized": "predicting solubility in mixed solvents with machine learning chemistry",
+      "raw": "Predicting Solubility in Mixed Solvents with Machine Learning chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "A model-based (MB) deep learning (DL) method is proposed to address the challenge of underdetermined direction of arrival (DOA) estimation exploiting high-order difference co-arrays. Specifically, a deep neural network (DNN) is employed to perform decorrelation and reconstruct the covariance matrix, followed by subspace-based methods incorporated into backpropagation for DOA estimation. Unlike existing DL-based methods, the proposed method utilizes high-order cumulants as the network input, leading to improved performance in multitarget scenarios. Moreover, the proposed method demonstrates strong generalization to unseen number of sources, which remains challenging for existing DL-based methods. Simulation results demonstrate that the proposed method, termed High-Order SubspaceNet, consistently outperforms existing methods under various conditions, particularly in scenarios with limited number of snapshots, low signal-to-noise ratios (SNRs), and multiple targets.",
+          "claimed_authors": [
+            "Yuzheng Bao",
+            "Qing Shen",
+            "Zejun Yang",
+            "Zheng Fu",
+            "Li Shen",
+            "Wei Liu"
+          ],
+          "claimed_title": "Model-Based Deep Learning for Underdetermined DOA Estimation Exploiting High-Order Difference Co-Arrays",
+          "claimed_venue": "IEEE Workshop on Signal Processing Systems",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/SiPS66314.2025.11261296"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Model-Based Deep Learning for Underdetermined DOA Estimation Exploiting High-Order Difference Co-Arrays')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "\n In the context of Carbon Capture and Storage (CCS), monitoring the behaviour of CO\n 2\n within subsurface reservoirs is pivotal for efficient and safe storage operations. This study proposes a new approach to enhance the accuracy of predicting CO\n 2\n saturation maps directly from shot gathers, using a combination of deep learning (DL) and feature extraction methods. We employ a U-Net model, specifically tailored to solve regression tasks, and two-dimensional continuous wavelet transform (2D-CWT) to analyse shot gathers at different scales. We introduce a novel approach using multi-channel input data for the DL model, combining shot gathers and CWT images. The DL model was trained and tested using both single channel and multichannel input. The single channel datasets included shot gathers and CWT images at the first scale, while the multi-channel datasets integrated shot gathers with either two or four scales of CWT. We conducted a sensitivity analysis on the number of training epochs to compare the performance of the model with multichannel and single channel input. Additionally, a Transfer Learning approach was implemented to improve performance in noisy conditions by leveraging knowledge from a pre-trained model on noise-free images. Monte Carlo dropout was used to predict pixel-scale variability and provided a prediction variability with a standard deviation ranging from 0.019 to 0.194, enhancing the robustness of CO\n 2\n saturation estimates. Our results suggest that combining feature extraction using 2D-CWT with the U-Net architecture improves the prediction performance of CO\n 2\n saturation in a synthetic CCS model. Additionally, using multi-channel input instead of single channel is more efficient as it requires less training and prediction time to achieve comparable results. This confirms the effectiveness of 2D-CWT as a pre-processing technique, contributing valuable insights and advances in the field of data-driven geophysical inversion problems.\n",
+          "claimed_authors": [
+            "G. Pantaleo",
+            "M. Pipan"
+          ],
+          "claimed_title": "Estimation of CO\n 2\n saturation maps from synthetic seismic data using a deep-learning method with a multi-scale approach",
+          "claimed_venue": "Geoenergy",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1144/geoenergy2023-057"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Estimation of CO\\n 2\\n saturation maps from synthetic seismic data using a deep-learning method with a multi-scale approach')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+          "claimed_authors": [
+            "Deep Ray",
+            "Orazio Pinti",
+            "Assad A. Oberai"
+          ],
+          "claimed_title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.00942"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Deep Learning and Computational Physics (Lecture Notes)')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Ultrasonic velocity , Density and viscosity measurements have been used to calculate Isentropic Compressibility (βS) , Intermolecular free length (Lf) , Ultrasound velocity (V) , Density (ρ) , Excess Viscosity (η) , Shear’s Relaxation Time (τs) of solution of Di Methyl Phenyl Amine in aqueous organic solvent as Benzene . In each case ultrasound velocity increase and isentropic compressibility (βS) Decreases , Intermolecular free length (Lf) Decreases , Density (ρ) increase and viscosity increases with increases in molar concentration of Di Methyl Phenyl Amine. The Result has been interpreted in terms of ion-solvent interaction on the basis of acoustic properties. Discussion:-Present work covers an extensive survey of physic-chemical and solvolytic study of Di Methyl Phenyl Amine in aqueous organic solvent such as Benzene. All the system studied at various temperatures (20, 25, 30 0 C).we have reported ultrasound velocity (V) and Viscosity (η) of binary liquid mixture with experimental data, The following thermodynamic and acoustic properties like Isentropic compressibility (βS) , intermolecular free length (Lf) , Molar Volume (Mv) , Shear’s Relaxation Time (τs) have been calculated.",
+          "claimed_authors": [
+            "D. Pathak",
+            "H. Chaudhary",
+            "Aditi Chaudhary"
+          ],
+          "claimed_title": "STUDY OF SOLUTE-SOLVENT INTERACTION OF DI METHYL PHENYL AMINE WITH AQUEOUS ORGANIC SOLVENT.",
+          "claimed_venue": "",
+          "claimed_year": 2018,
+          "primary_pointer": "https://doi.org/10.21474/IJAR01/6288"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='STUDY OF SOLUTE-SOLVENT INTERACTION OF DI METHYL PHENYL AMINE WITH AQUEOUS ORGANIC SOLVENT.')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "A. Jouyban",
+            "H. Chan",
+            "B. Clark",
+            "W. E. Acree"
+          ],
+          "claimed_title": "Mathematical representation of apparent dissociation constants in aqueous-organic solvent mixtures.",
+          "claimed_venue": "International journal of pharmaceutics",
+          "claimed_year": 2002,
+          "primary_pointer": "https://doi.org/10.1016/S0378-5173(02)00355-1"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Mathematical representation of apparent dissociation constants in aqueous-organic solvent mixtures.')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The study of the modification of interfacial properties between an organic solvent and aqueous electrolyte solutions is presented by using electrostatic dissipative particle dynamics (DPD) simulations. In this article, the parametrization for the DPD repulsive parameters a(ij) for the electrolyte components is calculated considering the dependence of the Flory-Huggins χ parameter on the concentration and the kind of electrolyte added, by means of the activity coefficients. In turn, experimental data were used to obtain the activity coefficients of the electrolytes as a function of their concentration in order to estimate the χ parameters and then the a(ij) coefficients. We validate this parametrization through the study of the interfacial tension in a mixture of n-dodecane and water, varying the concentration of different inorganic salts (NaCl, KBr, Na(2)SO(4), and UO(2)Cl(2)). The case of HCl in the mixture n-dodecane/water was also analyzed and the results presented. Our simulations reproduce the experimental data in good agreement with previous work, showing that the use of activity coefficients to obtain the repulsive DPD parameters a(ij) as a function of concentration is a good alternative for these kinds of systems.",
+          "claimed_authors": [
+            "Estela Mayoral",
+            "E. Nahmad-Achar"
+          ],
+          "claimed_title": "Study of interfacial tension between an organic solvent and aqueous electrolyte solutions using electrostatic dissipative particle dynamics simulations.",
+          "claimed_venue": "Journal of Chemical Physics",
+          "claimed_year": 2012,
+          "primary_pointer": "https://doi.org/10.1063/1.4766456"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Study of interfacial tension between an organic solvent and aqueous electrolyte solutions using electrostatic dissipative particle dynamics simulations.')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The complex admittance of metal/oxide/pentacene thin film junctions is investigated under ambient conditions. At low frequencies, a contribution attributed to proton diffusion through the oxide is seen. This diffusion is shown to be anomalous and is believed to be also at the origin of the bias stress effect observed in organic field effect transistors. At higher frequencies, two dipolar contributions are evidenced, attributed to defects located one at the organic/oxide interface or within the organic, and the other in the bulk of the oxide. These two dipolar responses show different dynamic properties that manifest themselves in the admittance in the form of a Debye contribution for the defects located in the oxide, and of a Cole-Cole contribution for the defects related to the organic.",
+          "claimed_authors": [
+            "R. Ledru",
+            "S. Pleutin",
+            "B. Grouiez",
+            "D. Zander",
+            "H. Bejbouji",
+            "K. Lmimouni",
+            "D. Vuillaume"
+          ],
+          "claimed_title": "Low Frequency Dielectric Loss of Metal/Insulator/Organic Semiconductor Junctions in Ambient Conditions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.6406"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Low Frequency Dielectric Loss of Metal/Insulator/Organic Semiconductor Junctions in Ambient Conditions')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "L. Bernazzani",
+            "C. Duce",
+            "A. Micheli",
+            "V. Mollica",
+            "A. Sperduti",
+            "A. Starita",
+            "M. Tiné"
+          ],
+          "claimed_title": "Predicting Physical-Chemical Properties of Compounds from Molecular Structures by Recursive Neural Networks",
+          "claimed_venue": "Journal of Chemical Information and Modeling",
+          "claimed_year": 2006,
+          "primary_pointer": "https://doi.org/10.1021/CI060104E"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Predicting Physical-Chemical Properties of Compounds from Molecular Structures by Recursive Neural Networks')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            "The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Wakeel Hussain",
+            "Miao Luo",
+            "Muhammad Ali",
+            "S. Rizvi",
+            "H. Al-Khafaji",
+            "Nafees Ali",
+            "Salah Alshareef Alkfakey Ahmed"
+          ],
+          "claimed_title": "Advanced Permeability Prediction Through Two-Dimensional Geological Feature Image Extraction with CNN Regression from Well Logs Data",
+          "claimed_venue": "Mathematical Geosciences",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1007/s11004-024-10171-4"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Advanced Permeability Prediction Through Two-Dimensional Geological Feature Image Extraction with CNN Regression from Well Logs Data')",
+        "failed_at": "2026-06-28T14:38:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Medical image segmentation remains a formidable challenge due to the label scarcity. Pre-training Vision Transformer (ViT) through masked image modeling (MIM) on large-scale unlabeled medical datasets presents a promising solution, providing both computational efficiency and model generalization for various downstream tasks. However, current ViT-based MIM pre-training frameworks predominantly emphasize local aggregation representations in output layers and fail to exploit the rich representations across different ViT layers that better capture fine-grained semantic information needed for more precise medical downstream tasks. To fill the above gap, we hereby present Hierarchical Encoder-driven MAE (Hi-End-MAE), a simple yet effective ViT-based pre-training solution, which centers on two key innovations: (1) Encoder-driven reconstruction, which encourages the encoder to learn more informative features to guide the reconstruction of masked patches; and (2) Hierarchical dense decoding, which implements a hierarchical decoding structure to capture rich representations across different layers. We pre-train Hi-End-MAE on a large-scale dataset of 10K CT scans and evaluated its performance across seven public medical image segmentation benchmarks. Extensive experiments demonstrate that Hi-End-MAE achieves superior transfer learning capabilities across various downstream tasks, revealing the potential of ViT in medical imaging applications. The code is available at: https://github.com/FengheTan9/Hi-End-MAE",
+          "claimed_authors": [
+            "Fenghe Tang",
+            "Qingsong Yao",
+            "Wenxin Ma",
+            "Chenxu Wu",
+            "Zihang Jiang",
+            "S. Kevin Zhou"
+          ],
+          "claimed_title": "Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.08347"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation')",
+        "failed_at": "2026-06-28T14:38:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Growing techniques have been emerging to improve the performance of passage retrieval. As an effective representation bottleneck pretraining technique, the contextual masked auto-encoder utilizes contextual embedding to assist in the reconstruction of passages. However, it only uses a single auto-encoding pre-task for dense representation pre-training. This study brings multi-view modeling to the contextual masked auto-encoder. Firstly, multi-view representation utilizes both dense and sparse vectors as multi-view representations, aiming to capture sentence semantics from different aspects. Moreover, multiview decoding paradigm utilizes both autoencoding and auto-regressive decoders in representation bottleneck pre-training, aiming to provide both reconstructive and generative signals for better contextual representation pretraining. We refer to this multi-view pretraining method as CoT-MAE v2. Through extensive experiments, we show that CoT-MAE v2 is effective and robust on large-scale passage retrieval benchmarks and out-of-domain zero-shot benchmarks.",
+          "claimed_authors": [
+            "Xing Wu",
+            "Guangyuan Ma",
+            "Peng Wang",
+            "Meng Lin",
+            "Zijia Lin",
+            "Fuzheng Zhang",
+            "Songlin Hu"
+          ],
+          "claimed_title": "CoT-MAE v2: Contextual Masked Auto-Encoder with Multi-view Modeling for Passage Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.03158"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='CoT-MAE v2: Contextual Masked Auto-Encoder with Multi-view Modeling for Passage Retrieval')",
+        "failed_at": "2026-06-28T14:38:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nowadays, multimedia forensics faces unprecedented challenges due to the rapid advancement of multimedia generation technology thereby making Image Manipulation Localization (IML) crucial in the pursuit of truth. The key to IML lies in revealing the artifacts or inconsistencies between the tampered and authentic areas, which are evident under pixel-level features. Consequently, existing studies treat IML as a low-level vision task, focusing on allocating tampered masks by crafting pixel-level features such as image RGB noises, edge signals, or high-frequency features. However, in practice, tampering commonly occurs at the object level, and different classes of objects have varying likelihoods of becoming targets of tampering. Therefore, object semantics are also vital in identifying the tampered areas in addition to pixel-level features. This necessitates IML models to carry out a semantic understanding of the entire image. In this paper, we reformulate the IML task as a high-level vision task that greatly benefits from low-level features. Based on such an interpretation, we propose a method to enhance the Masked Autoencoder (MAE) by incorporating high-resolution inputs and a perceptual loss supervision module, which is termed Perceptual MAE (PMAE). While MAE has demonstrated an impressive understanding of object semantics, PMAE can also compensate for low-level semantics with our proposed enhancements. Evidenced by extensive experiments, this paradigm effectively unites the low-level and high-level features of the IML task and outperforms state-of-the-art tampering localization methods on all five publicly available datasets.",
+          "claimed_authors": [
+            "Xiaochen Ma",
+            "Jizhe Zhou",
+            "Xiong Xu",
+            "Zhuohang Jiang",
+            "Chi-Man Pun"
+          ],
+          "claimed_title": "Perceptual MAE for Image Manipulation Localization: A High-level Vision Learner Focusing on Low-level Features",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.06525"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Perceptual MAE for Image Manipulation Localization: A High-level Vision Learner Focusing on Low-level Features')",
+        "failed_at": "2026-06-28T14:38:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "In recent times, graph representation learning has been becoming a hot research topic which has attracted a lot of attention from researchers. Graph embeddings have diverse applications across fields such as information and social network analysis, bioinformatics and cheminformatics, natural language processing (NLP), and recommendation systems. Among the advanced deep learning (DL) based architectures used in graph representation learning, graph neural networks (GNNs) have emerged as the dominant and highly effective framework. The recent GNN‐based methods have demonstrated state‐of‐the‐art performance on complex supervised and unsupervised tasks at both the node and graph levels. In recent years, to enhance multi‐view and structured graph representations, contrastive learning‐based techniques have been developed, introducing models known as graph contrastive learning (GCL) models. These GCL approaches leverage unsupervised contrastive methods to capture multi‐view graph representations by comparing node and graph embeddings, yielding significant improvements in both graph‐level representations and task‐specific applications, such as molecular embedding and classification. However, as most GCL techniques are primarily designed to focus on the explicit graph structure through GNN‐based encoders, they often overlook critical topological insights that could be provided through topological data analysis (TDA). Given the promising research indicating that topological features can greatly benefit various graph learning tasks, we propose a novel topology‐enhanced, multi‐view graph contrastive learning model called TMGCL. Our TMGCL model is designed to capture and utilize both comprehensive multi‐scale topological and global structural information from graphs. This enhanced representation capability positions TMGCL to directly support a range of applications, such as molecular classification, with improved accuracy and robustness. Extensive experiments within two real‐world datasets proved the effectiveness and outperformance of our proposed TMGCL in comparing with state‐of‐the‐art GNN/GCL‐based baselines.",
+          "claimed_authors": [
+            "Phu Pham"
+          ],
+          "claimed_title": "A Topology‐Enhanced Multi‐Viewed Contrastive Approach for Molecular Graph Representation Learning and Classification",
+          "claimed_venue": "Molecular Informatics",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1002/minf.202400252"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='A Topology‐Enhanced Multi‐Viewed Contrastive Approach for Molecular Graph Representation Learning and Classification')",
+        "failed_at": "2026-06-28T14:38:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Within a recent decade, graph neural network (GNN) has emerged as a powerful neural architecture for various graph‐structured data modelling and task‐driven representation learning problems. Recent studies have highlighted the remarkable capabilities of GNNs in handling complex graph representation learning tasks, achieving state‐of‐the‐art results in node/graph classification, regression, and generation. However, most traditional GNN‐based architectures like GCN and GraphSAGE still faced several challenges related to the capability of preserving the multi‐scaled topological structures. These models primarily focus on capturing local neighborhood information, often failing to retain global structural features essential for graph‐level representation and classification tasks. Furthermore, their expressiveness is limited when learning topological structures in complex molecular graph datasets. To overcome these limitations, in this paper, we proposed a novel graph neural architecture which is an integration between neuro‐fuzzy network and topological graph learning approach, naming as: FTPG. Specifically, within our proposed FTPG model, we introduce a novel approach to molecular graph representation and property prediction by integrating multi‐scaled topological graph learning with advanced neural components. The architecture employs separate graph neural learning modules to effectively capture both local graph‐based structures as well as global topological features. Moreover, to further address feature uncertainty in the global‐view representation, a multi‐layered neuro‐fuzzy network is incorporated within our model to enhance the robustness and expressiveness of the learned molecular graph embeddings. This combinatorial approach can assist to leverage the strengths of multi‐view and multi‐modal neural learning, enabling FTPG to deliver superior performance in molecular graph tasks. Extensive experiments on real‐world/benchmark molecular datasets demonstrate the effectiveness of our proposed FTPG model. It consistently outperforms state‐of‐the‐art GNN‐based baselines categorized in different approaches, including canonical local proximity message passing based, graph transformer‐based, and topology‐driven approaches.",
+          "claimed_authors": [
+            "Phu Pham"
+          ],
+          "claimed_title": "An Integrated Fuzzy Neural Network and Topological Data Analysis for Molecular Graph Representation Learning and Property Forecasting",
+          "claimed_venue": "Molecular Informatics",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1002/minf.202400335"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='An Integrated Fuzzy Neural Network and Topological Data Analysis for Molecular Graph Representation Learning and Property Forecasting')",
+        "failed_at": "2026-06-28T14:38:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Drug-target interactions (DTIs) are important systems to predict, as they define the set of drug candidate molecules that are capable of binding efficiently to disease relevant protein target. The traditional computational methods use feature engineering on molecular fingerprint or similarity measures based on sequence level, which have limited ability in modeling the rich topological structure of the molecular graph. To solve the problems listed above, we propose a new explainable graph neural network framework, GNN-XAI, that unites multi-layer Graph Convolutional Networks (GCNs) with the GNNExplainer attribution method to merely ensure high-accuracy DTI prediction while providing biochemically interpretable explanations of binding site interactions. Molecules are drawn as attributed graphs, with the nodes drawn and their attributes painted, and the edges drawn and their types colored. Evaluation of the framework was conducted on BindingDB and ChEMBL-29 benchmark sets using AUC-ROC, AUPR and F1-score results of 0.961, 0.948 and 93.2 respectively were achieved. The plausibility of the biological fidelity of the derived subgraph attributions was verified by comparing to experimental crystallographic binding data in the GNNExplainer. Benchmark ablation experiments and generalization across datasets prove the robustness and clinical benefits of the proposed approach.",
+          "claimed_authors": [
+            "D. R. Bhoyar"
+          ],
+          "claimed_title": "Explainable graph neural networks for drug-target interaction prediction: a gnnexplainer-augmented framework with molecular graph representation",
+          "claimed_venue": "Journal of Artificial Intelligence, Machine Learning and Neural Network",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.55529/jaimlnn.52.97.106"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Explainable graph neural networks for drug-target interaction prediction: a gnnexplainer-augmented framework with molecular graph representation')",
+        "failed_at": "2026-06-28T14:38:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For the combinatorial graph alignment problem (GAP) -- finding the node correspondence that maximizes the number of common edges (nce) between two unlabeled graphs -- properly initialized FAQ remains a strong classical baseline, while existing GNN approaches struggle in the purely structural setting. We introduce a chaining procedure: a sequence of Folklore-type (2-FWL) GNNs in which each network is trained with cross-entropy after decoding the previous network's similarity matrix and ranking nodes by their current alignment quality. This non-differentiable ranking step injects discrete combinatorial feedback at every link; at inference, we iterate the final network and keep the candidate with highest observed nce. On sparse Erdos-Renyi graphs at noise level 0.25, chained FGNNs with FAQ post-processing reach 85% accuracy versus 13% for FAQ initialized from the convex relaxation, and essentially 0% for prior GNN methods. On correlated regular graphs, where MPNNs with constant features produce identical node embeddings (1-WL fails to refine) and FAQ's convex initialization is degenerate, chaining is the only method we know that recovers a non-trivial alignment. On three real-world benchmarks (yeast PPI, coauthorship, and road networks), we show that recent comparisons underestimate FAQ by initializing it from a uniform doubly stochastic matrix; once FAQ is initialized from the convex relaxation it already surpasses prior reported numbers, and dataset-specific chained FGNNs further improve on this strengthened baseline.",
+          "claimed_authors": [
+            "Marc Lelarge"
+          ],
+          "claimed_title": "Chaining 2-FWL GNNs for Combinatorial Graph Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.03086"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Chaining 2-FWL GNNs for Combinatorial Graph Alignment')",
+        "failed_at": "2026-06-28T14:38:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            "Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-06-28T14:38:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a brief review of the classical density functional theory of atomic and molecular fluids. We focus on the application of the theory to the determination of the solvation properties of arbitrary molecular solutes in arbitrary molecular solvent. This includes the prediction of the solvation free energies, as well as the characterization of the microscopic, three-dimensional solvent structure.",
+          "claimed_authors": [
+            "Guillaume Jeanmairet",
+            "Maximilien Levesque",
+            "Volodymyr Sergiievskyi",
+            "Daniel Borgis"
+          ],
+          "claimed_title": "Classical density functional theory to tackle solvation in molecular liquids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1504.00796"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Solubility in Mixed Solvents with Machine Learning chemistry', candidate_title='Classical density functional theory to tackle solvation in molecular liquids')",
+        "failed_at": "2026-06-28T14:38:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kaycee Low",
+            "M. Coote",
+            "E. Izgorodina"
+          ],
+          "title": "Explainable Solvation Free Energy Prediction Combining Graph Neural Networks with Chemical Intuition",
+          "venue": "Journal of Chemical Information and Modeling",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jcim.2c01013",
+        "summary": "The prediction of a molecule's solvation Gibbs free (ΔGsolv) energy in a given solvent is an important task which has traditionally been carried out via quantum chemical continuum methods or force field-based molecular simulations. Machine learning (ML) and graph neural networks in particular have emerged as powerful techniques for elucidating structure-property relationships. This work presents a graph neural network (GNN) for the prediction of ΔGsolv which, in addition to encoding typical atom and bond-level features, incorporates chemically intuitive, solvation-relevant parameters into the featurization process: semiempirical partial atomic charges and solvent dielectric constant. Solute-solvent interactions are included via an interaction map layer which can be visualized to examine solubility-enhancing or -decreasing interactions learnt by the model. On a test set of small organic molecules, our GNN predicts ΔGsolv in water and cyclohexane with an accuracy comparable to polarizable and ab initio generated force field methods [mean absolute error (MAE) = 0.4 and 0.2 kcal mol-1, respectively], without the need for any molecular simulation. For the FreeSolv data set of hydration free energies, the test MAE is 0.7 kcal mol-1. Interpretability and applicability of the model is highlighted through several examples including rationalizing the increased solubility of modified diaminoanthraquinones in organic solvents. The clear explanations afforded by our GNN allow for easy understanding of the model's predictions, giving the experimental chemist confidence in employing ML models toward more optimized synthetic routes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jcim.2c01013",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jcim.2c01013"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:38:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yashaswi Pathak",
+            "Sarvesh Mehta",
+            "U. Priyakumar"
+          ],
+          "title": "Learning Atomic Interactions through Solvation Free Energy Prediction Using Graph Neural Networks",
+          "venue": "Journal of Chemical Information and Modeling",
+          "year": 2021
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jcim.0c01413",
+        "summary": "Solvation free energy is a fundamental property that influences various chemical and biological processes, such as reaction rates, protein folding, drug binding, and bioavailability of drugs. In this work, we present a deep learning method based on graph networks to accurately predict solvation free energies of small organic molecules. The proposed model, comprising three phases, namely, message passing, interaction, and prediction, is able to predict solvation free energies in any generic organic solvent with a mean absolute error of 0.16 kcal/mol. In terms of accuracy, the current model outperforms all of the proposed machine learning-based models so far. The atomic interactions predicted in an unsupervised manner are able to explain the trends of free energies consistent with chemical wisdom. Further, the robustness of the machine learning-based model has been tested thoroughly, and its capability to interpret the predictions has been verified with several examples.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jcim.0c01413",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jcim.0c01413"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:38:22Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting solubility in mixed solvents with machine learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1088/2053-1591/ae5148",
+  "judged_at": "2026-06-28T14:45:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper directly applies Graph Neural Networks to predict material properties using compositional and structural data, satisfying criteria (a) for same-mechanism evidence and (b) for measuring variables on the same domain. It represents essential prior work for the specific methodology and domain combination requested in the literature review.",
+  "relevant": true
+}

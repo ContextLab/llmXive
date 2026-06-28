@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1190/tle44090705.1",
+  "judged_at": "2026-06-28T14:39:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting solubility in mixed solvents with machine learning chemistry",
+  "rationale": "This paper is off-domain entirely, focusing on geophysical porosity estimation from seismic data rather than chemical solubility prediction in mixed solvents. It shares no measurable connection to the user's mechanism, variables, or empirical setting beyond the generic use of machine learning.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1909.10086",
+  "judged_at": "2026-06-28T15:04:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper is about general graph neural network methodology for graph classification benchmarks, not materials science or material property prediction from compositional data. It fails to satisfy any acceptance criteria because it does not address the materials science domain, material properties, or compositional data inputs (rejection rule: off-domain entirely - general ML/GNN paper without materials science connection).",
+  "relevant": false
+}

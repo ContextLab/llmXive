@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.27229",
+  "judged_at": "2026-06-28T15:00:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper satisfies criterion (b) as it measures material properties (dependent variable) within the materials science domain, and criterion (c) by establishing an empirical baseline for ML-based property prediction that serves as relevant prior work for GNN approaches.",
+  "relevant": true
+}

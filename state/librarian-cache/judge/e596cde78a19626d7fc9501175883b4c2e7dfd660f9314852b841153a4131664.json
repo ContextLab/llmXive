@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.06819",
+  "judged_at": "2026-06-28T14:50:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "The paper focuses on information extraction from literature text to build databases, whereas the user's question concerns using Graph Neural Networks to predict material properties from compositional data. It does not address the prediction mechanism, the specific composition-property variables, or provide foundational methodology for the GNN task.",
+  "relevant": false
+}

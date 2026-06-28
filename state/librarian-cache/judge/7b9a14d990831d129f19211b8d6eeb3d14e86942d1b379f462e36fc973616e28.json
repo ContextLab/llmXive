@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1304.6028",
+  "judged_at": "2026-06-28T15:05:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper focuses on mathematical spectral theory of quantum graphs rather than machine learning methodologies (Graph Neural Networks) for materials property prediction, making it off-domain for a literature review on AI-driven materials discovery from compositional data.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.51477/mejs.1693320",
+  "judged_at": "2026-06-28T14:41:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting solubility in mixed solvents with machine learning chemistry",
+  "rationale": "This paper is off-domain entirely, focusing on environmental time-series forecasting of CO₂ emissions rather than chemical property prediction like solubility in mixed solvents. While both use machine learning, the target variables and scientific domains (climate policy vs. chemistry) share no measurable connection to the user's specific research question.",
+  "relevant": false
+}

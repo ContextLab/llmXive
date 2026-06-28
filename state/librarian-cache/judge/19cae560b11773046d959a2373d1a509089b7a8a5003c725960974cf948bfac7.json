@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1038/s41467-023-40756-2",
+  "judged_at": "2026-06-28T15:06:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper satisfies criterion (b) as it measures the same dependent variables (material properties such as bandgap and formation energy) within the same domain (materials science), providing necessary empirical context and baselines for the property prediction task even though the input representation (crystal structure vs. compositional data) and architecture (capsule networks vs. GNNs) differ. It also aligns with criterion (f) as part of the canonical geometric deep learning cluster for mater",
+  "relevant": true
+}

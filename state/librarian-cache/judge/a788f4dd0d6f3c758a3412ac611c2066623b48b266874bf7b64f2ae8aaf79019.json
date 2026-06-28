@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1021/acs.jcim.0c01393",
+  "judged_at": "2026-06-28T15:01:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper applies Graph Neural Networks to predict a material property (density) within the materials science domain, satisfying criterion (b) by measuring the dependent variable using the specified method. It also aligns with criterion (a) as it investigates the same mechanism of structure-to-property mapping using GNNs, making it canonical prior work for the user's topic.",
+  "relevant": true
+}

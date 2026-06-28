@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1186/s13321-024-00820-5",
+  "judged_at": "2026-06-28T15:00:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper explicitly employs graph neural network models to predict material properties (viscosity) within the materials science domain, satisfying criteria (a) and (b) for same-mechanism evidence and independent/dependent variables on the same domain.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.64972/dea.2025.v3i1.68",
+  "judged_at": "2026-06-28T14:47:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper applies the same mechanism (Graph Neural Networks) to predict properties in the same domain (materials science/chemistry), satisfying criterion (a) for same-mechanism evidence and criterion (b) for measuring the dependent variable on the user's domain. It represents canonical prior work on the methodology and task combination requested, even if it focuses on scalability.",
+  "relevant": true
+}

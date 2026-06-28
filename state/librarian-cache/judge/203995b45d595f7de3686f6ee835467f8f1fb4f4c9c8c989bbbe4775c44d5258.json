@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-28T14:39:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting solubility in mixed solvents with machine learning chemistry",
+  "rationale": "This paper focuses on machine learning validation standards specifically within the domain of biology, which is off-domain for a chemistry-specific question regarding solubility prediction in mixed solvents. It does not address the chemical mechanisms, solubility variables, or empirical baselines required for a literature review on this specific predictive task.",
+  "relevant": false
+}

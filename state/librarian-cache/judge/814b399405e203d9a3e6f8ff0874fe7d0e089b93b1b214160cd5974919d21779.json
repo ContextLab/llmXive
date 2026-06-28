@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.48550/arXiv.2409.06080",
+  "judged_at": "2026-06-28T14:53:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper satisfies criterion (b) as it measures the same independent variable (composition) and dependent variable (material properties) on the same domain (materials science), providing a relevant empirical baseline for the prediction task despite using a different model architecture (LLM vs. GNN).",
+  "relevant": true
+}

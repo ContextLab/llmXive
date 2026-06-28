@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.08900",
+  "judged_at": "2026-06-28T14:56:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper satisfies criteria (b) and (f) as it addresses the same dependent variable (property prediction) on a highly overlapping domain (molecular and materials design), which serves as the canonical alternative-vocabulary cluster for material property prediction in the context of AI-driven graph learning. Although it focuses on few-shot learning, lit-review references are expected to be partial matches that establish the methodological landscape and domain baseline.",
+  "relevant": true
+}

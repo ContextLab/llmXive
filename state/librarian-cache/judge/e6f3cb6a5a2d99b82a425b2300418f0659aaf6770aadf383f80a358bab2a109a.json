@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-28T14:51:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "This paper proposes a Deep Arbitrary Polynomial Chaos Neural Network architecture for general data-driven applications and stochastic analysis, which does not address Graph Neural Networks (GNNs) or the specific domain of materials science property prediction from compositional data. It falls under the rejection rule for being off-domain entirely regarding the application (materials vs. general neural architecture theory) and distinct construct regarding the method (GNN vs. standard DANN with Po",
+  "relevant": false
+}

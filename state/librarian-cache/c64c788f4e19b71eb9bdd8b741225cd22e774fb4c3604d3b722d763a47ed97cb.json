@@ -1,0 +1,882 @@
+{
+  "fetched_at": "2026-06-28T15:06:43Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting Material Properties from Compositional Data with Graph Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 1440.797,
+    "ended_at": "2026-06-28T15:06:43Z",
+    "expansion": null,
+    "extracted_queries": [
+      "composition only property prediction",
+      "Materials Project OQMD dataset",
+      "QSPR graph neural network materials",
+      "formation energy band gap regression",
+      "equivariant crystal representation learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 2,
+      "sampled_count": 2,
+      "sampled_pointers": [
+        "https://doi.org/10.64972/dea.2025.v3i1.68",
+        "2510.08900"
+      ]
+    },
+    "per_query_hit_count": {
+      "Materials Project OQMD dataset": 6,
+      "Predicting Material Properties from Compositional Data with Graph Neural Networks materials science": 6,
+      "QSPR graph neural network materials": 5,
+      "composition only property prediction": 6,
+      "equivariant crystal representation learning": 6,
+      "formation energy band gap regression": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2009.06819",
+          "rationale": "The paper focuses on information extraction from literature text to build databases, whereas the user's question concerns using Graph Neural Networks to predict material properties from compositional data. It does not address the prediction mechanism, the specific composition-property variables, or provide foundational methodology for the GNN task.",
+          "title": "MatScIE: An automated tool for the generation of databases of methods and parameters used in the computational materials science literature"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "This paper proposes a Deep Arbitrary Polynomial Chaos Neural Network architecture for general data-driven applications and stochastic analysis, which does not address Graph Neural Networks (GNNs) or the specific domain of materials science property prediction from compositional data. It falls under the rejection rule for being off-domain entirely regarding the application (materials vs. general neural architecture theory) and distinct construct regarding the method (GNN vs. standard DANN with Po",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2511.05178",
+          "rationale": "The paper focuses on data curation and de-duplication (a distinct construct) rather than property prediction or Graph Neural Network architectures (the user's mechanism). While it shares the materials science domain and utilizes Weisfeiller-Lehman concepts related to graph theory, it does not measure the dependent variable (material properties) or establish the predictive baseline required for the user's research question.",
+          "title": "LeMat-Bulk: aggregating, and de-duplicating quantum chemistry materials databases"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1016/j.cma.2024.117536",
+          "rationale": "The paper applies GNNs to granular flow simulation using positional data, which is a distinct construct from predicting material properties from chemical compositional data, sharing only high-level domain keywords without addressing the user's specific input variables or target mechanism.",
+          "title": "A physical-information-flow-constrained temporal graph neural network-based simulator for granular materials"
+        },
+        {
+          "primary_pointer": "1909.10086",
+          "rationale": "This paper is about general graph neural network methodology for graph classification benchmarks, not materials science or material property prediction from compositional data. It fails to satisfy any acceptance criteria because it does not address the materials science domain, material properties, or compositional data inputs (rejection rule: off-domain entirely - general ML/GNN paper without materials science connection).",
+          "title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning"
+        },
+        {
+          "primary_pointer": "1304.6028",
+          "rationale": "This paper focuses on mathematical spectral theory of quantum graphs rather than machine learning methodologies (Graph Neural Networks) for materials property prediction, making it off-domain for a literature review on AI-driven materials discovery from compositional data.",
+          "title": "Universality of the momentum band density of periodic networks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T14:42:42Z",
+    "term_input": {
+      "normalized": "predicting material properties from compositional data with graph neural networks materials science",
+      "raw": "Predicting Material Properties from Compositional Data with Graph Neural Networks materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "B. A. Calfa",
+            "J. Kitchin"
+          ],
+          "claimed_title": "Property Prediction of Crystalline Solids from Composition and Crystal Structure",
+          "claimed_venue": "",
+          "claimed_year": 2016,
+          "primary_pointer": "https://doi.org/10.1002/AIC.15251"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='Property Prediction of Crystalline Solids from Composition and Crystal Structure')",
+        "failed_at": "2026-06-28T14:45:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outcome prediction is crucial for head and neck cancer patients as it can provide prognostic information for early treatment planning. Radiomics methods have been widely used for outcome prediction from medical images. However, these methods are limited by their reliance on intractable manual segmentation of tumor regions. Recently, deep learning methods have been proposed to perform end-to-end outcome prediction so as to remove the reliance on manual segmentation. Unfortunately, without segmentation masks, these methods will take the whole image as input, such that makes them difficult to focus on tumor regions and potentially unable to fully leverage the prognostic information within the tumor regions. In this study, we propose a radiomics-enhanced deep multi-task framework for outcome prediction from PET/CT images, in the context of HEad and neCK TumOR segmentation and outcome prediction challenge (HECKTOR 2022). In our framework, our novelty is to incorporate radiomics as an enhancement to our recently proposed Deep Multi-task Survival model (DeepMTS). The DeepMTS jointly learns to predict the survival risk scores of patients and the segmentation masks of tumor regions. Radiomics features are extracted from the predicted tumor regions and combined with the predicted survival risk scores for final outcome prediction, through which the prognostic information in tumor regions can be further leveraged. Our method achieved a C-index of 0.681 on the testing set, placing the 2nd on the leaderboard with only 0.00068 lower in C-index than the 1st place.",
+          "claimed_authors": [
+            "Mingyuan Meng",
+            "Lei Bi",
+            "Dagan Feng",
+            "Jinman Kim"
+          ],
+          "claimed_title": "Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.05409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer')",
+        "failed_at": "2026-06-28T14:45:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ABCD Neurocognitive Prediction Challenge is a community driven competition asking competitors to develop algorithms to predict fluid intelligence score from T1-w MRIs. In this work, we propose a deep learning combined with gradient boosting machine framework to solve this task. We train a convolutional neural network to compress the high dimensional MRI data and learn meaningful image features by predicting the 123 continuous-valued derived data provided with each MRI. These extracted features are then used to train a gradient boosting machine that predicts the residualized fluid intelligence score. Our approach achieved mean square error (MSE) scores of 18.4374, 68.7868, and 96.1806 for the training, validation, and test set respectively.",
+          "claimed_authors": [
+            "Yeeleng S. Vang",
+            "Yingxin Cao",
+            "Xiaohui Xie"
+          ],
+          "claimed_title": "A Combined Deep Learning-Gradient Boosting Machine Framework for Fluid Intelligence Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.07640"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='A Combined Deep Learning-Gradient Boosting Machine Framework for Fluid Intelligence Prediction')",
+        "failed_at": "2026-06-28T14:45:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The development of accurate machine learning interatomic potentials (MLIPs) is limited by the fragmented availability and inconsistent formatting of quantum mechanical trajectory datasets derived from Density Functional Theory (DFT). These datasets are expensive to generate yet difficult to combine due to variations in format, metadata, and accessibility. To address this, we introduce LeMat-Traj, a curated dataset comprising over 120 million atomic configurations aggregated from large-scale repositories, including the Materials Project, Alexandria, and OQMD. LeMat-Traj standardizes data representation, harmonizes results and filters for high-quality configurations across widely used DFT functionals (PBE, PBESol, SCAN, r2SCAN). It significantly lowers the barrier for training transferrable and accurate MLIPs. LeMat-Traj spans both relaxed low-energy states and high-energy, high-force structures, complementing molecular dynamics and active learning datasets. By fine-tuning models pre-trained on high-force data with LeMat-Traj, we achieve a significant reduction in force prediction errors on relaxation tasks. We also present LeMaterial-Fetcher, a modular and extensible open-source library developed for this work, designed to provide a reproducible framework for the community to easily incorporate new data sources and ensure the continued evolution of large-scale materials datasets. LeMat-Traj and LeMaterial-Fetcher are publicly available at https://huggingface.co/datasets/LeMaterial/LeMat-Traj and https://github.com/LeMaterial/lematerial-fetcher.",
+          "claimed_authors": [
+            "Ali Ramlaoui",
+            "Martin Siron",
+            "Inel Djafar",
+            "Joseph Musielewicz",
+            "Amandine Rossello",
+            "Victor Schmidt",
+            "Alexandre Duval"
+          ],
+          "claimed_title": "LeMat-Traj: A Scalable and Unified Dataset of Materials Trajectories for Atomistic Modeling",
+          "claimed_venue": "arXiv.org",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2508.20875"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='LeMat-Traj: A Scalable and Unified Dataset of Materials Trajectories for Atomistic Modeling')",
+        "failed_at": "2026-06-28T14:45:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-28T14:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            ":",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-28T14:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-28T14:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-28T14:45:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Machine learning has emerged as a powerful tool for discovering new materials, offering significantly lower computational demands compared to traditional density functional theory calculations and experimental approaches. In this work, we apply machine learning to predict formation energies of AxMyM′zO6 oxides using a dataset of 350 compounds with 28 structural, elemental, and electronic descriptors. Four regression models such as Random Forest, Gradient Boosting, Support VectorRegression, and CatBoost were trained and compared to obtain the accurate values. Among them, CatBoost achieved the highest accuracy (R2 = 0.83 and RMSE = 0.41 eV/atom), outperforming the other approaches. Feature analysis further revealed that electronegativity, ionization energy, and band gap are the dominant factors influencing the stability of AxMyM′zO6 oxides. These results demonstrate the effectiveness of machine learning for fast and reliable prediction of formation energies andprovide valuable guidance for the design of stable oxide materials suitable for energy devices.",
+          "claimed_authors": [
+            "Pratima Khadka",
+            "Sabita Pandey",
+            "M. P. Ghimire"
+          ],
+          "claimed_title": "Machine learning driven prediction of formation energy of AxMyM'zO6 oxides",
+          "claimed_venue": "Bibechana",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.3126/bibechana.v23i2.90416"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title=\"Machine learning driven prediction of formation energy of AxMyM'zO6 oxides\")",
+        "failed_at": "2026-06-28T14:45:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Machine learning techniques are applied to make prediction models of the ${G}_{0}{W}_{0}$ band gaps for 270 inorganic compounds using Kohn-Sham (KS) band gaps, cohesive energy, crystalline volume per atom, and other fundamental information of constituent elements as predictors. Ordinary least squares regression (OLSR), least absolute shrinkage and selection operator, and nonlinear support vector regression (SVR) methods are applied with two levels of predictor sets. When the KS band gap by generalized gradient approximation of Perdew-Burke-Ernzerhof (PBE) or modified Becke-Johnson (mBJ) is used as a single predictor, the OLSR model predicts the ${G}_{0}{W}_{0}$ band gap of randomly selected test data with the root-mean-square error (RMSE) of 0.59 eV. When KS band gap by PBE and mBJ methods are used together with a set of predictors representing constituent elements and compounds, the RMSE decreases significantly. The best model by SVR yields the RMSE of 0.24 eV. Band gaps estimated in this way should be useful as predictors for virtual screening of a large set of materials.",
+          "claimed_authors": [
+            "Joohwi Lee",
+            "Atsuto Seko",
+            "Kazuki Shitara",
+            "I. T. W. I. O. Science",
+            "Engineering",
+            "Kyoto University",
+            "Kyoto",
+            "Japan.",
+            "Elements Strategy Initiative for Structure Materials",
+            "Center for Materials Research by Information Integration",
+            "National Institute for Materials Science",
+            "Tsukuba",
+            "Nanostructures Research Laboratory",
+            "Japan Fine Ceramics Center",
+            "Nagoya"
+          ],
+          "claimed_title": "Prediction model of band gap for inorganic compounds by combination of density functional theory calculations and machine learning techniques",
+          "claimed_venue": "",
+          "claimed_year": 2015,
+          "primary_pointer": "https://doi.org/10.1103/PhysRevB.93.115104"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='Prediction model of band gap for inorganic compounds by combination of density functional theory calculations and machine learning techniques')",
+        "failed_at": "2026-06-28T14:45:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Sn-based perovskites as low-toxic materials are actively studied for optoelectronic applications. However, their performance is limited by $p$-type self-doping, which can be suppressed by substitutional doping on the cation sites. In this study, we combine density functional theory (DFT) calculations with machine learning (ML) to develop a predictive model and identify the key descriptors affecting formation energy and charge transition levels of the substitutional dopants in CsSnI$_{3}$. Our DFT calculations create a dataset of formation energies and charge transition levels and show that Y, Sc, Al, Nb, Ba, and Sr are effective dopants that pin the fermi level higher in the band gap, suppressing the $p$-type self-doping. We explore ML algorithms and propose training the random forest regression model to predict the defect formation properties. This work shows the predictive capability of combining DFT with machine learning and provides insights into the important features that determine the defect formation energetics.",
+          "claimed_authors": [
+            "Chadawan Khamdang",
+            "Mengen Wang"
+          ],
+          "claimed_title": "Defect formation in CsSnI$_3$ from Density Functional Theory and Machine Learning",
+          "claimed_venue": "",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.07448"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='Defect formation in CsSnI$_3$ from Density Functional Theory and Machine Learning')",
+        "failed_at": "2026-06-28T14:45:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that the frequency spectra of layered phononic and photonic composites admit a universal struc- ture, independent of the geometry of the periodic-cell and the specific physical properties. We show that this representation extends to highly deformable and multi-physical materials of tunable spectra. The structure is employed to establish universal properties of the corresponding band-gaps, and to rigorously determine their sta- tistical and optimal characteristics. Specifically, we investigate the density of the gaps, their maximal width and expected value. As a result, rules for tailoring the laminate according to desired spectra properties follow. Our representation further facilitates characterizing the tunability of the band-structure of soft and multi-physical materials.",
+          "claimed_authors": [
+            "Gal Shmuel",
+            "Ram Band"
+          ],
+          "claimed_title": "Universality and optimality of band-gaps in laminated media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1509.05213"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='Universality and optimality of band-gaps in laminated media')",
+        "failed_at": "2026-06-28T14:45:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Gamma-ray burst detectors are sensitive at different energies, complicating the comparison of the burst populations that they detect. The instrument teams often report their detector sensitivities in their instruments' energy band. I propose that sensitivities be reported as the threshold peak photon flux F_T over the 1-1000 keV energy band for a specific spectral shape. The primary spectral parameter is E_p, the energy of the maximum E^2 N_E propto nu f_nu. Thus F_T vs. E_p is a useful description of a detector's sensitivity. I find that Swift will be marginally more sensitive than BATSE for E_p>100 keV, but significantly more sensitive for E_p<100 keV. Because of its low energy sensitivity, the FREGATE on HETE-2 is surprisingly sensitive below E_p=100 keV. Both the WFC on BeppoSAX and the WXM on HETE-2 are/were sensitive for low E_p. As expected, the GBM on GLAST will be less sensitive than BATSE, while EXIST will be significantly more sensitive than Swift. The BeppoSAX GRBM was less sensitive that the WFC, particularly at low E_p.",
+          "claimed_authors": [
+            "David L. Band"
+          ],
+          "claimed_title": "Comparison of the Gamma-Ray Burst Sensitivity of Different Detectors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "astro-ph/0212452"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='Comparison of the Gamma-Ray Burst Sensitivity of Different Detectors')",
+        "failed_at": "2026-06-28T14:45:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Structure-informed protein representation learning is essential for effective protein function annotation and \\textit{de novo} design. However, the presence of inherent noise in both crystal and AlphaFold-predicted structures poses significant challenges for existing methods in learning robust protein representations. To address these issues, we propose a novel equivariant Transformer-State Space Model(SSM) hybrid framework, termed $E^3$former, designed for efficient protein representation. Our approach uses energy function-based receptive fields to construct proximity graphs and incorporates an equivariant high-tensor-elastic selective SSM within the transformer architecture. These components enable the model to adapt to complex atom interactions and extract geometric features with higher signal-to-noise ratios. Empirical results demonstrate that our model outperforms existing methods in structure-intensive tasks, such as inverse folding and binding site prediction, particularly when using predicted structures, owing to its enhanced tolerance to data deviation and noise. Our approach offers a novel perspective for conducting biological function research and drug discovery using noisy protein structure data.",
+          "claimed_authors": [
+            "Zhongyue Zhang",
+            "Runze Ma",
+            "Yanjie Huang",
+            "Shuangjia Zheng"
+          ],
+          "claimed_title": "An Energy-Adaptive Elastic Equivariant Transformer Framework for Protein Structure Representation",
+          "claimed_venue": "",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.16996"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='An Energy-Adaptive Elastic Equivariant Transformer Framework for Protein Structure Representation')",
+        "failed_at": "2026-06-28T14:45:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Weiwei Zhang",
+            "Lixin Tang",
+            "Tianyang Li",
+            "Xiangman Song"
+          ],
+          "claimed_title": "Symmetry-Aware Balanced Multimodal Learning for Crystal Tensor Property Prediction",
+          "claimed_venue": "IEEE Transactions on Automation Science and Engineering",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1109/TASE.2026.3689353"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='Symmetry-Aware Balanced Multimodal Learning for Crystal Tensor Property Prediction')",
+        "failed_at": "2026-06-28T14:45:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-06-28T14:45:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the rising interest in graph representation learning, a variety of approaches have been proposed to effectively capture a graph's properties. While these approaches have improved performance in graph machine learning tasks compared to traditional graph techniques, they are still perceived as techniques with limited insight into the information encoded in these representations. In this work, we explore methods to interpret node embeddings and propose the creation of a robust evaluation framework for comparing graph representation learning algorithms and hyperparameters. We test our methods on graphs with different properties and investigate the relationship between embedding training parameters and the ability of the produced embedding to recover the structure of the original graph in a downstream task.",
+          "claimed_authors": [
+            "Antonia Gogoglou",
+            "C. Bayan Bruss",
+            "Keegan E. Hines"
+          ],
+          "claimed_title": "On the Interpretability and Evaluation of Graph Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.03081"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='On the Interpretability and Evaluation of Graph Representation Learning')",
+        "failed_at": "2026-06-28T14:45:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A continual learning agent should be able to build on top of existing knowledge to learn on new data quickly while minimizing forgetting. Current intelligent systems based on neural network function approximators arguably do the opposite---they are highly prone to forgetting and rarely trained to facilitate future learning. One reason for this poor behavior is that they learn from a representation that is not explicitly trained for these two goals. In this paper, we propose OML, an objective that directly minimizes catastrophic interference by learning representations that accelerate future learning and are robust to forgetting under online updates in continual learning. We show that it is possible to learn naturally sparse representations that are more effective for online updating. Moreover, our algorithm is complementary to existing continual learning strategies, such as MER and GEM. Finally, we demonstrate that a basic online updating strategy on representations learned by OML is competitive with rehearsal based methods for continual learning. We release an implementation of our method at https://github.com/khurramjaved96/mrcl .",
+          "claimed_authors": [
+            "Khurram Javed",
+            "Martha White"
+          ],
+          "claimed_title": "Meta-Learning Representations for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.12588"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Properties from Compositional Data with Graph Neural Network', candidate_title='Meta-Learning Representations for Continual Learning')",
+        "failed_at": "2026-06-28T14:45:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vishu Gupta",
+            "Kamal Choudhary",
+            "Youjia Li",
+            "Muhammed Nur Talha Kilic",
+            "D. Wines",
+            "W. Liao",
+            "Alok N. Choudhary",
+            "Ankit Agrawal"
+          ],
+          "title": "Dynamic embedding representation for graph neural networks to enhance materials property prediction with limited datasets",
+          "venue": "Materials Research Express",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.1088/2053-1591/ae5148",
+        "summary": "Graph neural networks (GNNs) have proven effective in understanding and predicting diverse material properties, even when working with limited datasets. An important step in training GNN is to use an appropriate and informative graph embedding that can adequately represent the structural and compositional information in the chemical space. Current graph embeddings consist of composition and structure-agnostic element-level encodings, which are static in nature. This makes it challenging to differentiate between different compounds on the element level, especially for datasets with limited data size, thereby relying more on the complex input and architecture for model training. Here, we present a novel framework for GNN-based prediction tasks that use dynamic embedding to significantly improve the models’ predictive ability on materials properties with limited data size. We evaluated the proposed framework on multiple materials datasets across various domains to find that the model trained using dynamic embedding outperforms the models trained using conventional static embedding and features obtained using a pre-trained model. The proposed framework holds significant potential for expediting artificial intelligence (AI)-driven materials discovery.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://validate.perfdrive.com/fb803c746e9148689b3984a31fccd902/?ssa=e1b80503-0de5-4ac4-95a6-10a35463e808&ssb=10229208567&ssc=https%3A%2F%2Fiopscience.iop.org%2Farticle%2F10.1088%2F2053-1591%2Fae5148&ssi=1e894fbb-cnvj-467b-a312-5e3006ade71b&ssk=botmanager_support@radware.com&ssm=84724404606010237103774801240358&ssn=c219c5f203ac02569c9e4d9d968d0b3361aa217e5d8f-7097-4287-94a3ae&sso=8193fb57-e4aa0417bf84b4d15f014619dc8ee573d60e501b9a348afd&ssp=42522588061782635675178262109102329&ssq=92369655790734047967857907212182059243188&ssr=MTc0LjE2OS4xMTQuNTc=&sst=llmxive-librarian/1.0%20(https://github.com/ContextLab/llmXive)&ssu=&ssv=&ssw=&ssx=eyJ1em14IjoiN2Y5MDAwYmJkZjRhMTctMTZjZi00M2YxLWFjNTEtNjI4YzM1ODM2MDNhMS0xNzgyNjU3OTA3MTkwMC1iYTQwZjI4ZDJmYmZmMjljMTAiLCJfX3V6bWYiOiI3ZjkwMDAyMTdlNWQ4Zi03MDk3LTQyODctOWI1Ny1lNGFhMDQxN2JmODQxLTE3ODI2NTc5MDcxOTAwLTAwNGVhNGFhNDhiMDhiNjU0MGExMCIsInJkIjoiaW9wLm9yZyJ9",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8889,
+          "redirect_chain": [
+            "https://doi.org/10.1088/2053-1591/ae5148",
+            "https://iopscience.iop.org/article/10.1088/2053-1591/ae5148"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Piotr Tomaszewski",
+            "Adam Wojcik"
+          ],
+          "title": "Application of Parallelized Graph Neural Networks in Predicting Molecular Properties from Large-Scale Chemical Databases",
+          "venue": "Data Engineering and Applications",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.64972/dea.2025.v3i1.68",
+        "summary": "A parallel GNN architecture is proposed to solve the problems of large computation and poor scalability in molecular property prediction of large-scale chemical databases. This study uses data-level and model-level parallel methods, distributed training and memory optimization methods to learn graph-structured molecular data. To make GNN training as efficient as possible on heterogeneous datasets on multi-node GPU clusters, we optimize graph batching, adaptive sampling, workload balancing, and communication-efficient synchronization. According to the results of the standard chemical benchmark experiment, the parallelized GNN obtained a great acceleration ratio, a small peak memory usage, and still had a high prediction accuracy compared with the basic method. The comprehensive analysis analyzes how using better partitioning and sampling techniques affects how many conversations and what is needed. In computational chemistry and materials science, these distributed and parallel GNN methods seem to have good large-scale molecular prediction capabilities.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "http://www.wpias.edu.pl/ojs/index.php/dea/article/view/68",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7778,
+          "redirect_chain": [
+            "https://doi.org/10.64972/dea.2025.v3i1.68"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "T. Pakornchote",
+            "A. Ektarawong",
+            "Thiparat Chotibut"
+          ],
+          "title": "StrainTensorNet: Predicting crystal structure elastic properties using SE(3)-equivariant graph neural networks",
+          "venue": "Physical Review Research",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.1103/physrevresearch.5.043198",
+        "summary": "Accurately predicting the elastic properties of crystalline solids is vital for computational materials science. However, traditional atomistic scale ab initio approaches are computationally intensive, especially for studying complex materials with a large number of atoms in a unit cell. We introduce a novel data-driven approach to efficiently predict the elastic properties of crystal structures using SE(3)-equivariant graph neural networks (GNNs). This approach yields important scalar elastic moduli with the accuracy comparable to recent data-driven studies. Importantly, our symmetry-aware GNNs model also enables the prediction of the strain energy density (SED) and the associated elastic constants, the fundamental tensorial quantities that are significantly influenced by a material's crystallographic group. The model consistently distinguishes independent elements of SED tensors, in accordance with the symmetry of the crystal structures. Finally, our deep learning model possesses meaningful latent features, offering an interpretable prediction of the elastic properties.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://link.aps.org/doi/10.1103/PhysRevResearch.5.043198",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8889,
+          "redirect_chain": [
+            "https://doi.org/10.1103/physrevresearch.5.043198"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammadreza Karamad",
+            "Rishikesh Magar",
+            "Yuting Shi",
+            "Samira Siahrostami",
+            "Ian D. Gates",
+            "Amir Barati Farimani"
+          ],
+          "title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.06415",
+        "summary": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.06415",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "R. Jacobs",
+            "Maciej P. Polak",
+            "Lane E. Schultz",
+            "Hamed Mahdavi",
+            "Vasant Honavar",
+            "Dane Morgan"
+          ],
+          "title": "Regression with Large Language Models for Materials and Molecular Property Prediction",
+          "venue": "arXiv.org",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2409.06080",
+        "summary": "We demonstrate the ability of large language models (LLMs) to perform material and molecular property regression tasks, a significant deviation from the conventional LLM use case. We benchmark the Large Language Model Meta AI (LLaMA) 3 on several molecular properties in the QM9 dataset and 28 materials properties. Only composition-based input strings are used as the model input and we fine tune on only the generative loss. We broadly find that LLaMA 3, when fine-tuned using the SMILES representation of molecules, provides useful regression results which can rival standard materials property prediction models like random forest or fully connected neural networks on the QM9 dataset. Not surprisingly, LLaMA 3 errors are 5-10x higher than those of the state-of-the-art models that were trained using far more granular representation of molecules (e.g., atom types and their coordinates) for the same task. Similarly, LLaMA 3 provides comparable, although slightly worse, accuracy relative to random forest and elemental descriptors when using just compound chemical description on our set of 28 materials properties. Interestingly, LLaMA 3 provides improved predictions compared to GPT-3.5 and GPT-4o. This work highlights the versatility of LLMs, suggesting that LLM-like generative models can potentially transcend their traditional applications to tackle complex physical phenomena, thus paving the way for future research and applications in chemistry, materials science and other scientific domains.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2409.06080",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2409.06080"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shufeng Kong",
+            "D. Guevarra",
+            "Carla P. Gomes",
+            "J. Gregoire"
+          ],
+          "title": "Materials Representation and Transfer Learning for Multi-Property Prediction",
+          "venue": "Applied Physics Reviews",
+          "year": 2021
+        },
+        "primary_pointer": "https://doi.org/10.1063/5.0047066",
+        "summary": "The adoption of machine learning in materials science has rapidly transformed materials property prediction. Hurdles\nlimiting full capitalization of recent advancements in machine learning include the limited development of methods\nto learn the underlying interactions of multiple elements, as well as the relationships among multiple properties,\nto facilitate property prediction in new composition spaces. To address these issues, we introduce the Hierarchical\nCorrelation Learning for Multi-property Prediction (H-CLMP) framework that seamlessly integrates (i) prediction\nusing only a material’s composition, (ii) learning and exploitation of correlations among target properties in multitarget regression, and (iii) leveraging training data from tangential domains via generative transfer learning. The model\nis demonstrated for prediction of spectral optical absorption of complex metal oxides spanning 69 3-cation metal oxide\ncomposition spaces. H-CLMP accurately predicts non-linear composition-property relationships in composition spaces\nfor which no training data is available, which broadens the purview of machine learning to the discovery of materials\nwith exceptional properties. This achievement results from the principled integration of latent embedding learning,\nproperty correlation learning, generative transfer learning, and attention models. The best performance is obtained using\nH-CLMP with Transfer learning (H-CLMP(T)) wherein a generative adversarial network is trained on computational\ndensity of states data and deployed in the target domain to augment prediction of optical absorption from composition.\nH-CLMP(T) aggregates multiple knowledge sources with a framework that is well-suited for multi-target regression\nacross the physical sciences.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://pubs.aip.org/apr/article/8/2/021409/1067988/Materials-representation-and-transfer-learning-for",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [
+            "https://doi.org/10.1063/5.0047066"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "title": "Few-shot Molecular Property Prediction: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.08900",
+        "summary": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.08900",
+          "http_status": 200,
+          "pdf_sample_score": 0.3622,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Suchona Akter",
+            "Mohammadjafar Momeni"
+          ],
+          "title": "At-Scale Data-Driven Exploration of High-Voltage Cathode-Active Materials for Sodium Batteries",
+          "venue": "",
+          "year": 2026
+        },
+        "primary_pointer": "2605.27229",
+        "summary": "Sodium-ion batteries (SIBs) share similar electrochemistry with Li but offer several advantages, including high abundance in nature and low cost, as well as suitability for fast charging due to a Na-ion mobility higher than that of Li. The development of high-voltage SIBs heavily relies on the discovery of novel, robust cathode-active materials (CAMs). All-inorganic materials represent the most mature and practical choice as CAMs for next-generation SIBs; however, their family spans a vast and chemically diverse space. In this work, we present a large-scale, chemically validated database of stable materials for SIB cathode discovery, curated from four major databases: Materials Project, AFLOW, OQMD, and GNoME. Generalizable and transferable descriptor-based machine learning (ML) models are developed based on a dataset of charged-only structures rather than charged/discharged pairs. Using a committee of the top four trained ML models, average voltage and specific capacity are predicted as target properties. Finally, a subset of top-ranked candidate CAMs is validated through explicit, high-throughput first-principles calculations of voltage profiles, phase stability, structural robustness upon sodiation/desodiation, and electronic properties. Together, this integrated data curation, ML ranking and predictions, and first-principles validation strategy establishes a scalable and transferable framework for accelerating the discovery of stable, high-voltage CAMs for SIBs and beyond.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2605.27229",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alex K. Chew",
+            "M. Sender",
+            "Zachary Kaplan",
+            "Anand Chandrasekaran",
+            "Jackson Chief Elk",
+            "A. Browning",
+            "H. Kwak",
+            "M. Halls",
+            "Mohammad Atif Faiz Afzal",
+            "M. Atif",
+            "Faiz Afzal"
+          ],
+          "title": "Advancing material property prediction: using physics-informed machine learning models for viscosity",
+          "venue": "Journal of Cheminformatics",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1186/s13321-024-00820-5",
+        "summary": "In materials science, accurately computing properties like viscosity, melting point, and glass transition temperatures solely through physics-based models is challenging. Data-driven machine learning (ML) also poses challenges in constructing ML models, especially in the material science domain where data is limited. To address this, we integrate physics-informed descriptors from molecular dynamics (MD) simulations to enhance the accuracy and interpretability of ML models. Our current study focuses on accurately predicting viscosity in liquid systems using MD descriptors. In this work, we curated a comprehensive dataset of over 4000 small organic molecules’ viscosities from scientific literature, publications, and online databases. This dataset enabled us to develop quantitative structure–property relationships (QSPR) consisting of descriptor-based and graph neural network models to predict temperature-dependent viscosities for a wide range of viscosities. The QSPR models reveal that including MD descriptors improves the prediction of experimental viscosities, particularly at the small data set scale of fewer than a thousand data points. Furthermore, feature importance tools reveal that intermolecular interactions captured by MD descriptors are most important for viscosity predictions. Finally, the QSPR models can accurately capture the inverse relationship between viscosity and temperature for six battery-relevant solvents, some of which were not included in the original data set. Our research highlights the effectiveness of incorporating MD descriptors into QSPR models, which leads to improved accuracy for properties that are difficult to predict when using physics-based models alone or when limited data is available.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://link.springer.com/article/10.1186/s13321-024-00820-5",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7778,
+          "redirect_chain": [
+            "https://doi.org/10.1186/s13321-024-00820-5",
+            "https://jcheminf.biomedcentral.com/articles/10.1186/s13321-024-00820-5",
+            "https://link.springer.com/article/10.1186/s13321-024-00820-5",
+            "https://idp.springer.com/authorize?response_type=cookie&client_id=springerlink&redirect_uri=https%3A%2F%2Flink.springer.com%2Farticle%2F10.1186%2Fs13321-024-00820-5"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chunming Yang",
+            "Jie Chen",
+            "Runwen Wang",
+            "Miao Zhang",
+            "Chaoyang Zhang",
+            "Jian Liu"
+          ],
+          "title": "Density Prediction Models for Energetic Compounds Merely Using Molecular Topology",
+          "venue": "Journal of Chemical Information and Modeling",
+          "year": 2021
+        },
+        "primary_pointer": "https://doi.org/10.1021/acs.jcim.0c01393",
+        "summary": "Newly developed high-throughput methods for property predictions make the process of materials design faster and more efficient. Density is an important physical property for energetic compounds to assess detonation velocity and detonation pressure, but the time cost of recent density prediction models is still high owing to the time-consuming processes to calculate molecular descriptors. To improve the screening efficiency of potential energetic compounds, new methods for density prediction with more accuracy and less time cost are urgently needed, and a possible solution is to establish direct mappings between the molecular structure and density. We propose three machine learning (ML) models, support vector machine (SVM), random forest (RF), and Graph neural network (GNN), using molecular topology as the only known input. The widely applied quantitative structure-property relationship based on the density functional theory (DFT-QSPR) is adopted as the benchmark to evaluate the accuracies of the models. All these four models are trained and tested by using the same data set enclosing over 2000 reported nitro compounds searched out from the Cambridge Structural Database. The proportions of compounds with prediction error less than 5% are evaluated by using the independent test set, and the values for the models of SVM, RF, DFT-QSPR, and GNN are 48, 63, 85, and 88%, respectively. The results show that, for the models of SVM and RF, fingerprint bit vectors alone are not facilitated to obtain good QSPRs. Mapping between the molecular structure and density can be well established by using GNN and molecular topology, and its accuracy is slightly better than that of the time-consuming DFT-QSPR method. The GNN-based model has higher accuracy and lower computational resource cost than the widely accepted DFT-QSPR model, so it is more suitable for high-throughput screening of energetic compounds.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://pubs.acs.org/doi/10.1021/acs.jcim.0c01393",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [
+            "https://doi.org/10.1021/acs.jcim.0c01393"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chao Liang",
+            "Yilimiranmu Rouzhahong",
+            "Caiyuan Ye",
+            "Chong Li",
+            "Biao Wang",
+            "Huashan Li"
+          ],
+          "title": "Material symmetry recognition and property prediction accomplished by crystal capsule representation",
+          "venue": "Nature Communications",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.1038/s41467-023-40756-2",
+        "summary": "Learning the global crystal symmetry and interpreting the equivariant information is crucial for accurately predicting material properties, yet remains to be fully accomplished by existing algorithms based on convolution networks. To overcome this challenge, here we develop a machine learning (ML) model, named symmetry-enhanced equivariance network (SEN), to build material representation with joint structure-chemical patterns, to encode important clusters embedded in the crystal structure, and to learn pattern equivariance in different scales via capsule transformers. Quantitative analyses of the intermediate matrices demonstrate that the intrinsic crystal symmetries and interactions between clusters have been exactly perceived by the SEN model and critically affect the prediction performances by reducing effective feature space. The mean absolute errors (MAEs) of 0.181 eV and 0.0161 eV/atom are obtained for predicting bandgap and formation energy in the MatBench dataset. The general and interpretable SEN model reveals the potential to design ML models by implicitly encoding feature relationship based on physical mechanisms.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.nature.com/articles/s41467-023-40756-2",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [
+            "https://doi.org/10.1038/s41467-023-40756-2",
+            "https://www.nature.com/articles/s41467-023-40756-2",
+            "https://idp.nature.com/authorize?response_type=cookie&client_id=grover&redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41467-023-40756-2",
+            "https://idp.nature.com/transit?redirect_uri=https%3A%2F%2Fwww.nature.com%2Farticles%2Fs41467-023-40756-2&code=f22d4d39-8343-494f-aef2-9b15876502ee"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T14:45:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

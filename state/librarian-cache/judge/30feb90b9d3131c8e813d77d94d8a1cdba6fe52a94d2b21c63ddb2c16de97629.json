@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1016/j.cma.2024.117536",
+  "judged_at": "2026-06-28T15:04:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material properties from compositional data with graph neural networks materials science",
+  "rationale": "The paper applies GNNs to granular flow simulation using positional data, which is a distinct construct from predicting material properties from chemical compositional data, sharing only high-level domain keywords without addressing the user's specific input variables or target mechanism.",
+  "relevant": false
+}

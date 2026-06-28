@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T10:42:32.085981Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-033-predicting-material-properties-from-comp
-last_run_id: e846ea5d-57f1-4541-82ea-47cbe9529b2b
+last_run_id: 1a5f6a40-f016-42c6-8a9c-2e73ce8656f8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Material Properties from Compositional Data with Graph Neural Networks
-updated_at: '2026-06-13T14:29:24.918949Z'
+updated_at: '2026-06-28T15:07:35.334258Z'

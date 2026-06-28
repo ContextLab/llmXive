@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1021/acs.jcim.2c01013",
+  "judged_at": "2026-06-28T14:39:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting solubility in mixed solvents with machine learning chemistry",
+  "rationale": "This paper satisfies acceptance criteria (a) and (b): it measures the same underlying mechanism (solvation free energy, which directly determines solubility) using machine learning/GNNs in the same domain (chemistry/molecular properties), even though it tests on pure solvents rather than mixed solvents specifically. Per the guidelines, a literature review paper does not need to address the full triple-intersection of the user's question to be included.",
+  "relevant": true
+}

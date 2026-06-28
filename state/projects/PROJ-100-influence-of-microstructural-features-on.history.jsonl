@@ -1,3 +1,4 @@
 {"at": "2026-05-01T18:35:34.676291+00:00", "from_stage": "brainstormed", "last_run_id": "f9ca10ca-671c-4917-a1b3-9f754e1a4116", "to_stage": "flesh_out_complete"}
 {"at": "2026-06-14T14:30:36.662768+00:00", "from_stage": "flesh_out_complete", "last_run_id": "fc6f52b1-de49-40cf-aff8-71a0fe1d62a6", "to_stage": "validated"}
 {"at": "2026-06-27T12:36:40.250946+00:00", "from_stage": "validated", "last_run_id": "7dd166ff-ae91-48c4-9962-219a059c5d40", "to_stage": "project_initialized"}
+{"at": "2026-06-28T14:34:26.458214+00:00", "from_stage": "project_initialized", "last_run_id": "33b1e5ac-cc64-4b4b-8fdb-0618191a012d", "to_stage": "specified"}

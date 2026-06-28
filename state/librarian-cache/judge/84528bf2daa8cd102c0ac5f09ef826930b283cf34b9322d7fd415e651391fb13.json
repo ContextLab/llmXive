@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1038/s41598-025-24727-9",
+  "judged_at": "2026-06-28T14:42:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting solubility in mixed solvents with machine learning chemistry",
+  "rationale": "This paper is off-domain entirely, focusing on geophysical acoustic impedance prediction rather than chemical solubility, and does not measure the user's dependent variable or study the relevant chemical population. While both use machine learning, the scientific domain and physical observables are distinct, failing the inclusion criteria for a chemistry-specific literature review.",
+  "relevant": false
+}

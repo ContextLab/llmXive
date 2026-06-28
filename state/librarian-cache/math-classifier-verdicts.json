@@ -11,6 +11,10 @@
     "classified_at": "2026-06-24T18:40:18Z",
     "verdict": false
   },
+  "PROJ-033-predicting-material-properties-from-comp::1.6.0": {
+    "classified_at": "2026-06-28T14:45:06Z",
+    "verdict": false
+  },
   "PROJ-041-evaluating-the-use-of-graph-neural-netwo::1.6.0": {
     "classified_at": "2026-06-26T17:00:37Z",
     "verdict": false
@@ -65,6 +69,10 @@
   },
   "PROJ-128-investigating-the-influence-of-network-t::1.6.0": {
     "classified_at": "2026-06-26T10:09:36Z",
+    "verdict": false
+  },
+  "PROJ-142-predicting-solubility-in-mixed-solvents-::1.6.0": {
+    "classified_at": "2026-06-28T14:38:19Z",
     "verdict": false
   },
   "PROJ-144-predicting-plant-disease-resistance-from::1.6.0": {
