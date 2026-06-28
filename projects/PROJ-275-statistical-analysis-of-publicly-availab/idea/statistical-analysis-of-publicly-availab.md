@@ -9,36 +9,78 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Is there a statistically significant correlation between aggregated movie review sentiment scores and subsequent box office revenue, after controlling for genre and production budget?
+How does the temporal lag between sentiment spikes on social media and opening weekend box office revenue differ across genres, and does this predictive power decay over the theatrical run?
 
 ## Motivation
 
-This study addresses the gap in understanding how consumer sentiment quantitatively predicts commercial success in the film industry. While sentiment analysis is well-studied, its specific predictive power for box office performance using public statistical profiling methods remains under-explored.
+This study addresses the gap in understanding how consumer sentiment quantitatively predicts commercial success in the film industry over time. While sentiment analysis is well-studied for static predictions, its temporal dynamics and genre-specific variations in predictive power remain under-explored using public statistical profiling methods.
 
 ## Related work
 
-- [Two-dimensional Sentiment Analysis of text (2014)](http://arxiv.org/abs/1406.2022v1) — Defines sentiment analysis tasks including movie ratings, providing a methodological basis for extracting opinion scores from text.
-- [Statistical and Clinical Aspects of Hospital Outcomes Profiling (2007)](http://arxiv.org/abs/0710.4622v1) — Offers a framework for statistical profiling and outcome comparison, applicable to modeling industry performance metrics.
+- [Two-dimensional Sentiment Analysis of text (2014)](https://arxiv.org/abs/1406.2022) — Defines sentiment analysis tasks including movie ratings, providing a methodological basis for extracting opinion scores from text.
+- [Using User- and Marketer-Generated Content for Box Office Revenue Prediction: Differences Between Microblogging and Third-Party Platforms (2019)](https://pubsonline.informs.org/doi/10.1287/isre.2018.0797) — Establishes that social media data can improve box office revenue prediction accuracy, particularly from microblogging platforms.
+- [From Buzz to Blockbuster: Predicting Movie Revenue Using a Hybrid Approach Combining Machine Learning and Sentiment Analysis (2025)](https://ieeexplore.ieee.org/document/10894031/) — Demonstrates hybrid ML-sentiment approaches for movie revenue prediction, though without explicit temporal lag analysis across genres.
 
 ## Expected results
 
-We expect to find a moderate positive correlation between average sentiment scores and revenue, with higher variance explained by genre-specific models. Significance will be confirmed via p-values < 0.05 in regression coefficients, requiring a sample size of N > 1000 films to achieve sufficient statistical power.
+We expect to find genre-specific temporal lag patterns where action films show shorter sentiment-revenue lags than drama films. Predictive power will decay over the theatrical run as word-of-mouth effects diminish. Significance will be confirmed via time-series cross-validation with p-values < 0.05 in lag coefficient tests, requiring a sample size of N > 500 films with weekly revenue data.
 
 ## Methodology sketch
 
-- Download the IMDb Review Dataset from Kaggle (https://www.kaggle.com/datasets/utathya/imdb-review-dataset) using `wget`.
 - Download the TMDB Movie Metadata dataset from Kaggle (https://www.kaggle.com/datasets/tmdb/tmdb-movie-metadata) using `wget`.
-- Merge datasets on movie title and year using `pandas` (CPU only, < 4GB RAM).
-- Compute aggregate sentiment scores per film using the VADER lexicon or TextBlob (lightweight, no GPU required).
-- Clean revenue and budget figures, handling missing values via listwise deletion.
-- Visualize distributions of sentiment and revenue using `matplotlib` to check for outliers.
-- Fit an Ordinary Least Squares (OLS) regression model predicting revenue from sentiment, budget, and genre dummies.
-- Perform residual analysis to check for homoscedasticity and normality assumptions.
-- Calculate Pearson correlation coefficients between sentiment and revenue within genre subsets.
-- Generate summary tables and plots for final reporting within the 6-hour runtime limit.
+- Download the IMDb Review Dataset with timestamps from Kaggle (https://www.kaggle.com/datasets/utathya/imdb-review-dataset) using `wget`.
+- Merge datasets on movie title and release year using `pandas` (CPU only, < 4GB RAM).
+- Filter to movies with complete opening weekend revenue data and at least 3 months of review timestamps.
+- Compute weekly sentiment scores using VADER lexicon (lightweight, no GPU required).
+- Align sentiment time-series with weekly box office revenue data from public sources (e.g., Box Office Mojo public archives).
+- Compute cross-correlation functions between sentiment spikes and revenue for each movie to identify optimal lag.
+- Fit genre-stratified time-series regression models with lagged sentiment predictors.
+- Calculate decay rates of sentiment-revenue correlation across weeks 1-12 of theatrical run.
+- Perform residual analysis to check for autocorrelation and homoscedasticity assumptions.
+- Generate summary tables and lag-decay plots for final reporting within the 6-hour runtime limit.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in current context.
 - Closest match: N/A (no corpus provided).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-28T21:40:14Z
+**Outcome**: exhausted
+**Original term**: Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office Revenue statistics
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office Revenue statistics | 0 |
+| 1 | Correlation between movie reviews and financial performance | 6 |
+| 2 | Predictive modeling of box office revenue using sentiment data | 0 |
+| 3 | Regression analysis of audience ratings and movie earnings | 0 |
+| 4 | Sentiment analysis impact on film ticket sales | 0 |
+| 5 | Film economics and consumer sentiment correlation | 0 |
+| 6 | Statistical relationship between IMDb ratings and gross revenue | 0 |
+| 7 | Online review polarity and commercial success metrics | 0 |
+| 8 | Econometric modeling of film market success | 0 |
+| 9 | Audience opinion mining and box office performance | 0 |
+| 10 | Quantitative analysis of Rotten Tomatoes and box office | 0 |
+| 11 | Sentiment score correlation with theatrical earnings | 0 |
+| 12 | Multivariate analysis of film attributes and box office | 0 |
+| 13 | Time series analysis of movie reviews and revenue | 0 |
+| 14 | Natural language processing for movie revenue prediction | 0 |
+| 15 | Influence of social media sentiment on movie sales | 0 |
+| 16 | Quantifying audience feedback for revenue forecasting | 0 |
+| 17 | Cross-sectional study of movie reviews and earnings | 0 |
+| 18 | Meta-review aggregation and financial outcomes | 0 |
+| 19 | Big data analytics in movie industry performance | 0 |
+| 20 | Consumer sentiment indicators in entertainment markets | 0 |
+
+### Verified citations
+
+1. **Two-dimensional Sentiment Analysis of text** (2014). Rahul Tejwani. arXiv. [1406.2022](https://arxiv.org/abs/1406.2022). PDF-sampled: No.
+2. **Using User- and Marketer-Generated Content for Box Office Revenue Prediction: Differences Between Microblogging and Third-Party Platforms** (2019). Tingting Song, Jinghua Huang, Yong Tan, Yifan Yu. Information systems research. [https://doi.org/10.1287/ISRE.2018.0797](https://doi.org/10.1287/ISRE.2018.0797). PDF-sampled: No.
+3. **From Buzz to Blockbuster: Predicting Movie Revenue Using a Hybrid Approach Combining Machine Learning and Sentiment Analysis** (2025). S. Vardhan, C. AshokKumar, Killemsetty Viswa, S. Balaji, C. J. Kumar. 2025 International Conference on Multi-Agent Systems for Collaborative Intelligence (ICMSCI). [https://doi.org/10.1109/ICMSCI62561.2025.10894031](https://doi.org/10.1109/ICMSCI62561.2025.10894031). PDF-sampled: No.

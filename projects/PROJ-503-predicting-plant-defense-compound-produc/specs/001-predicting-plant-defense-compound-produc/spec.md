@@ -13,12 +13,12 @@ A computational biologist wants to obtain a paired dataset of gene‑expression 
 
 **Why this priority**: Without correctly paired input data the entire predictive pipeline cannot function; this is the foundational step.
 
-**Independent Test**: Run the data‑download module on the specified GEO series IDs and Metabolomics Workbench experiment IDs and verify that every expression sample has a matching metabolite record.
+**Independent Test**: Run the data‑download module on the specified GEO series IDs and Metabolomics Workbench experiment IDs and verify that every expression sample has a matching metabolite record from the same biological sample.
 
 **Acceptance Scenarios**:
 
-1. **Given** a list of GEO series IDs annotated as “herbivore stress”, **When** the download script is executed, **Then** it creates a CSV file containing normalized TPM/FPKM values for each sample and logs any missing files.
-2. **Given** the same list of experiment IDs on Metabolomics Workbench, **When** the metabolite‑retrieval script runs, **Then** it produces a CSV of log‑transformed metabolite concentrations aligned by the experimental condition identifier.
+1. **Given** a list of GEO series IDs annotated as "herbivore stress", **When** the download script is executed, **Then** it creates a CSV file containing normalized TPM/FPKM values for each sample and logs any missing files.
+2. **Given** the same list of experiment IDs on Metabolomics Workbench, **When** the metabolite‑retrieval script runs, **Then** it produces a CSV of log‑transformed metabolite concentrations aligned by the experimental sample identifier (not condition ID alone).
 
 ---
 
@@ -51,25 +51,29 @@ A data scientist wants to train a Ridge Regression model to predict defense‑me
 
 ### Edge Cases
 
-- What happens when a GEO sample lacks a corresponding metabolite measurement?  
-  → The pipeline should log the mismatch and exclude the sample from modelling.
-- How does the system handle genes with zero variance across all samples?  
-  → Such genes are automatically dropped during preprocessing.
-- What if a requested KEGG pathway ID is not found for a given species?  
-  → The pipeline falls back to the orthologous gene list from a closely related reference species and documents the substitution.
+- **What happens when a GEO sample lacks a corresponding metabolite measurement from the same biological sample?**  
+  → The pipeline logs the mismatch in JSON format to `logs/data_pairing.json` with fields `{sample_id, expression_source, metabolite_source, reason: "no_sample_level_pair"}` and excludes the sample from modelling.
+
+- **How does the system handle genes with zero variance across all samples?**  
+  → Genes with variance < 1e-10 are automatically dropped during preprocessing and logged to `logs/feature_filtering.csv` with columns `gene_id, variance, reason: "zero_variance"`.
+
+- **What if a requested KEGG pathway ID is not found for a given species?**  
+  → The pipeline falls back to the orthologous gene list from a closely related reference species (requiring ≥60% sequence identity) and documents the substitution in `docs/edge_cases.md` with the original gene ID, substituted gene ID, and sequence identity percentage.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download processed gene‑expression matrices from GEO for the specified *Arabidopsis* and *Solanum* series that are annotated as herbivore‑stress experiments. (See US-1)  
-- **FR-002**: System MUST retrieve matched targeted metabolomics data from the Metabolomics Workbench for the same experimental condition IDs. (See US-1)  
-- **FR-003**: System MUST normalize expression values to TPM/FPKM, log‑transform metabolite concentrations, and filter out features with zero variance. (See US-2)  
+- **FR-002**: System MUST retrieve matched targeted metabolomics data from the Metabolomics Workbench for the same biological samples (verified via sample-level metadata), not just experimental condition IDs. (See US-1)  
+- **FR-003**: System MUST normalize expression values to TPM/FPKM, log‑transform metabolite concentrations, and filter out features with variance < 1e-10. (See US-2)  
 - **FR-004**: System MUST select expression features that map to defense‑biosynthetic pathway genes using KEGG pathway IDs (e.g., terpenoid synthases, alkaloid enzymes). (See US-2)  
 - **FR-005**: System MUST train a Ridge Regression model on the selected features, evaluate it with 5‑fold cross‑validation, and report RMSE and Pearson r for each metabolite. (See US-3)  
-- **FR-006**: System MUST conduct a permutation test with 1 000 iterations to assess statistical significance of each model’s predictive performance. (See US-3)  
+- **FR-006**: System MUST conduct a permutation test with 1 000 iterations to assess statistical significance of each model's predictive performance. (See US-3)  
 - **FR-007**: System MUST apply a family‑wise error correction (Bonferroni) across all metabolites tested. (Methodological soundness – multiplicity)  
 - **FR-008**: System MUST log runtime and resource usage and abort if total CPU time exceeds 4 hours on the CI runner. (See US-3, compute feasibility)  
+- **FR-009**: System MUST validate sample‑level pairing feasibility before modeling; if <95% of samples have matched expression‑metabolite pairs from the same biological sample, the pipeline MUST halt with error code E-PAIRING and report the pairing rate. (See US-1, scientific soundness)  
+- **FR-010**: System MUST apply species‑specific z‑score normalization and ComBat batch correction before training a cross‑species model to account for expression scale differences between *Arabidopsis* and *Solanum*. (See US-3, scientific soundness)
 
 ### Key Entities
 
@@ -82,18 +86,29 @@ A data scientist wants to train a Ridge Regression model to predict defense‑me
 
 ### Measurable Outcomes
 
-- **SC-001**: Pearson correlation coefficient (r) between predicted and observed abundance must be ≥ 0.5 for at least one defense metabolite across the 5‑fold cross‑validation (See US-3).  
-- **SC-002**: Permutation‑test p‑value for the same metabolite must be ≤ 0.05 after Bonferroni correction (See US-3, FR‑007).  
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: Pearson correlation coefficient (r) between predicted and observed abundance must be ≥ 0.5 for the metabolite with the highest Pearson r across the 5‑fold cross‑validation (See US-3).  
+- **SC-002**: Permutation‑test p‑value for the metabolite with the highest Pearson r must be ≤ 0.05 after Bonferroni correction (See US-3, FR‑007).  
 - **SC-003**: End‑to‑end pipeline (download → preprocessing → modelling) must complete within 4 hours on a GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM) (See FR‑008).  
+- **SC-004**: Downloaded files from GEO and Metabolomics Workbench must match expected checksums (SHA-256) for ≥99% of requested experiment IDs (See US-1).  
+- **SC-005**: At least ≥95% of expression samples must have matching metabolite records from the same biological sample (See US-1, FR-009).  
+- **SC-006**: Feature selection must retain ≥75% of known defense pathway genes for each species, and zero‑variance filtering must document the count of removed genes in `logs/feature_filtering.csv` (See US-2, FR-003).  
 
 ## Assumptions
 
-- The GEO series selected contain **herbivore‑stress** conditions for the target genotypes. **[NEEDS CLARIFICATION: Does GEO contain herbivore‑stress experiments for each species?]**  
-- The Metabolomics Workbench experiments provide **quantitative, targeted** measurements for the defense metabolites of interest (e.g., specific terpenoids, alkaloids). **[NEEDS CLARIFICATION: Are the required metabolites quantified in the public datasets?]**  
-- KEGG pathway annotations for *Solanum* species are complete enough to capture the majority of defense‑biosynthetic genes. **[NEEDS CLARIFICATION: Are KEGG IDs for Solanum defense pathways exhaustive?]**  
-- The relationship being examined is **observational**; therefore, all reported effects are associational, not causal.  
-- Sample size is sufficient to achieve moderate statistical power for detecting r ≥ 0.5; a formal power analysis will be performed during implementation, with the required sample size noted as `[deferred]`.  
-- All instruments used in the original metabolomics studies are **validated** (e.g., LC‑MS with published calibration curves), as reported in the source publications.  
-- Gene expression predictors may be collinear; the Ridge penalty is assumed to mitigate multicollinearity, and collinearity diagnostics (VIF) will be reported.  
+- **GEO availability**: The GEO series selected contain **herbivore‑stress** conditions for the target genotypes. [deferred: citation required] GEO contains herbivore‑stress experiments for both *Arabidopsis* and *Solanum* species. The pipeline will select experiments with explicit herbivore treatment annotations and exclude studies with only abiotic stress conditions.
 
----
+- **Metabolomics Workbench data quality**: The Metabolomics Workbench experiments provide **quantitative measurements** for the defense metabolites of interest (e.g., specific terpenoids, alkaloids). [deferred: citation required] The pipeline will require ≥5 samples with quantified values per metabolite; metabolites below this threshold will be excluded from analysis.
+
+- **KEGG pathway annotations**: KEGG pathway annotations for *Solanum* species cover ≥75% of known defense‑biosynthetic genes. [deferred: citation required] The pipeline will use ortholog mapping from *Arabidopsis* for unannotated *Solanum* genes, requiring ≥60% sequence identity for substitution. All substitutions will be logged and reported in the feature selection output.
+
+- **Observational nature**: The relationship being examined is **observational**; therefore, all reported effects are associational, not causal.
+
+- **Sample size for power**: Sample size is sufficient to achieve moderate statistical power for detecting r ≥ 0.5; a formal power analysis will be performed during implementation, with the required sample size noted as `[deferred]`.
+
+- **Instrument validation**: All instruments used in the original metabolomics studies are **validated** (e.g., LC‑MS with published calibration curves), as reported in the source publications. [deferred: citation required]
+
+- **Multicollinearity handling**: Gene expression predictors may be collinear; the Ridge penalty is assumed to mitigate multicollinearity, and collinearity diagnostics (VIF) will be reported.

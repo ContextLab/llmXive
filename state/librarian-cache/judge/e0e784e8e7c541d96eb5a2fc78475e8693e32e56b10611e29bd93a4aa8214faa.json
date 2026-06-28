@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.20129",
+  "judged_at": "2026-06-28T21:35:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+  "rationale": "The paper focuses on creating a Bengali hate speech dataset rather than analyzing the relationship between movie review sentiment and box office revenue, failing to address the specific domain (movies) or dependent variable (revenue) required by the user's research question. It falls under the \"Off-domain entirely\" rejection rule as it addresses a different NLP task and population than the user's inquiry.",
+  "relevant": false
+}

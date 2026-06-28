@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.3390/bs13080631",
+  "judged_at": "2026-06-28T21:57:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+  "rationale": "The paper measures the same core mechanism (temporal/delay discounting) in the context of task initiation behavior, satisfying criterion (a) for same-mechanism evidence despite studying the inverse behavior (precrastination). It provides empirical evidence on the relationship between discounting and task timing, which is central to the user's inquiry into procrastination mechanisms.",
+  "relevant": true
+}

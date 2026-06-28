@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1016/j.copsyc.2024.101924",
+  "judged_at": "2026-06-28T22:00:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+  "rationale": "The paper investigates the same mechanism (temporal discounting) and domain (self-control/procrastination), satisfying criterion (a) by providing critical theoretical context on the relationship under study, even if it argues against the conventional hypothesis.",
+  "relevant": true
+}

@@ -1,0 +1,654 @@
+{
+  "fetched_at": "2026-06-28T22:01:23Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Role of Temporal Discounting in Procrastination on Cognitive Tasks",
+      "target_n": 5
+    },
+    "duration_seconds": 1226.827,
+    "ended_at": "2026-06-28T22:01:23Z",
+    "expansion": null,
+    "extracted_queries": [
+      "delay discounting intertemporal choice task avoidance",
+      "delay discounting cognitive load tasks",
+      "hyperbolic discounting self-regulation failure",
+      "procrastination scale delay discounting rate",
+      "dual process theory temporal discounting procrastination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2012.10735"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Role of Temporal Discounting in Procrastination on Cognitive Tasks psychology": 3,
+      "delay discounting cognitive load tasks": 4,
+      "delay discounting intertemporal choice task avoidance": 6,
+      "dual process theory temporal discounting procrastination": 6,
+      "hyperbolic discounting self-regulation failure": 6,
+      "procrastination scale delay discounting rate": 5
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1002.3035",
+          "rationale": "The paper reviews the general functional role of emotions in cognition and neuromodulators but does not address the specific constructs of temporal discounting or procrastination, failing to measure the relevant variables or mechanisms required for the literature review.",
+          "title": "Cognition and Emotion: Perspectives of a Closing Gap"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1093/schbul/sbaa029.630",
+          "rationale": "This paper does not address temporal discounting, procrastination, or their relationship on cognitive tasks—it focuses on dual-process theory, conflict processing, and delusional belief in schizophrenia, which are distinct psychological constructs with no measurable connection to the user's variables (temporal discounting, procrastination, cognitive task performance). This falls under the rejection rule for distinct constructs sharing only the broad domain of psychology without any overlap in me",
+          "title": "T70. DUAL-PROCESS THEORY, CONFLICT PROCESSING, AND DELUSIONAL BELIEF"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T21:40:57Z",
+    "term_input": {
+      "normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+      "raw": "The Role of Temporal Discounting in Procrastination on Cognitive Tasks psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding mind-brain-environment relations is one of the key topics in psychology. Kurt Lewin, inspired by theoretical physics, tried to establish topological and vector psychology analyzing patterns of interaction between the individual and her/his environment. The time is ripe to reformulate his ambitious goals, searching for ways to interpret objectively measured brain processes in terms of suitable psychological constructs. Connecting cognitive and social psychology constructs to neurophenomics, as it is done now in psychiatry, should ground them in physical reality.",
+          "claimed_authors": [
+            "Włodzisław Duch"
+          ],
+          "claimed_title": "Kurt Lewin, psychological constructs and sources of brain cognitive activity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.01767"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Kurt Lewin, psychological constructs and sources of brain cognitive activity')",
+        "failed_at": "2026-06-28T21:45:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There are numerous opportunities for engaging in research at the intersection of psychology and visualization. While most opportunities taken up by the VIS community will likely focus on the psychology of users, there are also opportunities for studying the psychology of designers. In this position paper, I argue the importance of studying design cognition as a necessary component of a holistic program of research on visualization psychology. I provide a brief overview of research on design cognition in other disciplines, and discuss opportunities for VIS to build an analogous research program. Doing so can lead to a stronger integration of research and design practice, can provide a better understanding of how to educate and train future designers, and will likely surface both challenges and opportunities for future research.",
+          "claimed_authors": [
+            "Paul Parsons"
+          ],
+          "claimed_title": "How do Visualization Designers Think? Design Cognition as a Core Aspect of Visualization Psychology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.13758"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='How do Visualization Designers Think? Design Cognition as a Core Aspect of Visualization Psychology')",
+        "failed_at": "2026-06-28T21:45:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "One method known to increase preference for larger, later rewards (LLRs) over smaller, sooner rewards (SSRs) is choice bundling, in which a single choice produces a series of repeating consequences over time. The present study examined whether effects of choice bundling on preference for LLRs: (1) increase with the number of rewards in the bundle (i.e., bundle size); (2) are independent of differences in reward magnitude between conditions; and (3) accord with predictions of an additive model of hyperbolic delay discounting, in which the value of a bundle of rewards can be expressed as the summed discounted value of all rewards in that bundle. Participants (N = 252) completed a choice task to assess valuation of monetary LLRs at bundle sizes of 1 (control), 3, and 9 rewards per choice (ascending/descending order counterbalanced). To control for the magnitude effect, the total reward amounts were held constant across conditions. Choice bundling significantly increased LLR preference (p < .001), with the largest effect observed at the largest bundle size. The descending bundle-size order produced significantly greater LLR preference than the ascending order (p < .05), although order did not significantly interact with bundle size. Difference scores between observed measures and those predicted by an additive model of hyperbolic discounting were small and not significantly different than zero, but were not equivalent to zero. Future research should investigate the clinical utility of choice bundling for reducing the maladaptive health behavior (e.g., substance use) with which delay discounting is associated.",
+          "claimed_authors": [
+            "Jeffrey S. Stein",
+            "G. Madden"
+          ],
+          "claimed_title": "Choice bundling, unpacked: Observed and predicted effects on intertemporal choice in an additive model of hyperbolic delay discounting",
+          "claimed_venue": "PLoS ONE",
+          "claimed_year": 2021,
+          "primary_pointer": "https://doi.org/10.1371/journal.pone.0259830"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Choice bundling, unpacked: Observed and predicted effects on intertemporal choice in an additive model of hyperbolic delay discounting')",
+        "failed_at": "2026-06-28T21:45:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Advancements in neuroscience research present opportunities and challenges, requiring substantial resources and funding. To address this, we describe here “Poke And Delayed Drink Intertemporal Choice Task (POKE-ADDICT)”, an open-source, versatile, and cost-effective apparatus for intertemporal choice testing in rodents. This allows quantification of delay discounting (DD), a cross-species phenomenon observed in decision making which provides valuable insights into higher-order cognitive functioning. In DD, the subjective value of a delayed reward is reduced as a function of the delay for its receipt. Using our apparatus, we implemented an effective intertemporal choice paradigm for the quantification of DD based on an adjusting delayed amount (ADA) algorithm using mango juice as a reward. Our paradigm requires limited training and can be directly translated to human subjects using monetary rewards. Our apparatus comprises a few 3D-printed parts and inexpensive electrical components, including a Raspberry Pi control unit. Furthermore, it is compatible with several in vivo procedures and the use of nose pokes instead of levers allows for faster task learning. Beside the main application described here, the apparatus can be further extended to implement other behavioral tests and protocols, including standard operant conditioning. In conclusion, we describe a versatile and cost-effective design based on Raspberry Pi that can support research in animal behavior, decision making and, more specifically, delay discounting.",
+          "claimed_authors": [
+            "A. Moro",
+            "Daniele Saccenti",
+            "Alessia Seccia",
+            "Mattia Ferro",
+            "A. Malgaroli",
+            "J. Lamanna"
+          ],
+          "claimed_title": "Poke And Delayed Drink Intertemporal Choice Task (POKE‐ADDICT): An open‐source behavioral apparatus for intertemporal choice testing in rodents",
+          "claimed_venue": "bioRxiv",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1002/ame2.12366"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Poke And Delayed Drink Intertemporal Choice Task (POKE‐ADDICT): An open‐source behavioral apparatus for intertemporal choice testing in rodents')",
+        "failed_at": "2026-06-28T21:45:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When an individual's behavior has rational characteristics, this may lead to irrational collective actions for the group. A wide range of organisms from animals to humans often evolve the social attribute of cooperation to meet this challenge. Therefore, cooperation among individuals is of great significance for allowing social organisms to adapt to changes in the natural environment. Based on multi-agent reinforcement learning, we propose a new learning strategy for achieving coordination by incorporating a learning rate that can balance exploration and exploitation. We demonstrate that agents that use the simple strategy improve a relatively collective return in a decision task called the intertemporal social dilemma, where the conflict between the individual and the group is particularly sharp. We also explore the effects of the diversity of learning rates on the population of reinforcement learning agents and show that agents trained in heterogeneous populations develop particularly coordinated policies relative to those trained in homogeneous populations.",
+          "claimed_authors": [
+            "Zhenbo Cheng",
+            "Xingguang Liu",
+            "Leilei Zhang",
+            "Hangcheng Meng",
+            "Qin Li",
+            "Xiao Gang"
+          ],
+          "claimed_title": "Improved cooperation by balancing exploration and exploitation in intertemporal social dilemma tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.09152"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Improved cooperation by balancing exploration and exploitation in intertemporal social dilemma tasks')",
+        "failed_at": "2026-06-28T21:45:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has been observed in recent works that, for several classes of linear time-invariant time-delay systems of retarded or neutral type with a single delay, if a root of its characteristic equation attains its maximal multiplicity, then this root is the rightmost spectral value, and hence it determines the exponential behavior of the system, a property usually referred to as multiplicity-induced-dominancy (MID). In this paper, we investigate the MID property for one of the simplest cases of systems with two delays, a scalar delay-differential equation of first order with two delayed terms of order zero. We discuss the standard approach based on the argument principle for establishing the MID property for single-delay systems and some of its limitations in the case of our simple system with two delays, before proposing a technique based on crossing imaginary roots that allows to conclude that the MID property holds in our setting.",
+          "claimed_authors": [
+            "Sébastien Fueyo",
+            "Guilherme Mazanti",
+            "Islam Boussaada",
+            "Yacine Chitour",
+            "Silviu-Iulian Niculescu"
+          ],
+          "claimed_title": "Insights into the multiplicity-induced-dominancy for scalar delay-differential equations with two delays",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.11348"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Insights into the multiplicity-induced-dominancy for scalar delay-differential equations with two delays')",
+        "failed_at": "2026-06-28T21:45:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Ellen Demurie",
+            "H. Roeyers",
+            "Jan R. Wiersema",
+            "E. Sonuga-Barke"
+          ],
+          "claimed_title": "No Evidence for Inhibitory Deficits or Altered Reward Processing in ADHD",
+          "claimed_venue": "Journal of Attention Disorders",
+          "claimed_year": 2016,
+          "primary_pointer": "https://doi.org/10.1177/1087054712473179"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='No Evidence for Inhibitory Deficits or Altered Reward Processing in ADHD')",
+        "failed_at": "2026-06-28T21:45:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motion simulators allow researchers to safely investigate the interaction of drivers with a vehicle. However, many studies that use driving simulator data to predict cognitive load only employ two levels of workload, leaving a gap in research on employing deep learning methodologies to analyze cognitive load, especially in challenging low-light conditions. Often, studies overlook or solely focus on scenarios in bright daylight. To address this gap and understand the correlation between performance and cognitive load, this study employs functional near-infrared spectroscopy (fNIRS) and eye-tracking data, including fixation duration and gaze direction, during simulated driving tasks in low visibility conditions, inducing various mental workloads. The first stage involves the statistical estimation of useful features from fNIRS and eye-tracking data. ANOVA will be applied to the signals to identify significant channels from fNIRS signals. Optimal features from fNIRS, eye-tracking and vehicle dynamics are then combined in one chunk as input to the CNN and LSTM model to predict workload variations. The proposed CNN-LSTM model achieved 99% accuracy with neurological data and 89% with vehicle dynamics to predict cognitive load, indicating potential for real-time assessment of driver mental state and guide designers for the development of safe adaptive systems.",
+          "claimed_authors": [
+            "Mehshan Ahmed Khan",
+            "Houshyar Asadi",
+            "Mohammad Reza Chalak Qazani",
+            "Chee Peng Lim",
+            "Saied Nahavandi"
+          ],
+          "claimed_title": "Functional near-infrared spectroscopy (fNIRS) and Eye tracking for Cognitive Load classification in a Driving Simulator Using Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.06349"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Functional near-infrared spectroscopy (fNIRS) and Eye tracking for Cognitive Load classification in a Driving Simulator Using Deep Learning')",
+        "failed_at": "2026-06-28T21:45:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This paper reports a meta-analysis of 86 studies of the two parameters of quasi-hyperbolic ([Formula: see text]) discounting, the dominant model of self-control failures in behavioral economics. The central tenet of the model is that decision makers have a “present bias,” [Formula: see text], for immediate rewards, on top of standard exponential discounting of the future, [Formula: see text]. After correcting for selective reporting, we obtain a meta-analytic estimate of [Formula: see text] for money of 0.938, with 95% confidence interval [0.905, 0.972]. For nonmonetary rewards, our estimate of [Formula: see text] is 0.750, with 95% confidence interval [0.643, 0.857], and there is no evidence of selective reporting. We find that present bias for real effort, although stronger than for money, is weaker than for other rewards such as real consumption.\n This paper was accepted by Manel Baucells, behavioral economics and decision analysis.\n Funding: This research was partly supported by the Australian Government through the Australian Research Council’s Centre of Excellence for Children and Families over the Life Course [Project IDs CE140100027 and CE200100025]. S. L. Cheung received financial support from the Australian Research Council [Grant DP160101794]. A. Tymula received financial support from the University of Sydney [Bridging Grant G199763].\n Supplemental Material: The online appendix and data files are available at https://doi.org/10.1287/mnsc.2023.04003 .",
+          "claimed_authors": [
+            "Stephen L. Cheung",
+            "Agnieszka Tymula",
+            "Xueting Wang"
+          ],
+          "claimed_title": "A Meta-Analysis of Quasi-Hyperbolic Discounting",
+          "claimed_venue": "Management Sciences",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1287/mnsc.2023.04003"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='A Meta-Analysis of Quasi-Hyperbolic Discounting')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Delay discounting—often referred to as hyperbolic discounting in the financial literature—is defined by a consistent preference for smaller, immediate rewards over larger, delayed rewards, and by failure of future consequences to curtail current consummatory behaviors. Previous research demonstrates (1) excessive delay discounting among individuals with attention-deficit/hyperactivity disorder (ADHD), (2) common neural substrates of delay discounting and hyperactive-impulsive symptoms of ADHD, and (3) associations between delay discounting and both debt burden and high interest rate borrowing. This study extends prior research by examining associations between ADHD symptoms, delay discounting, and an array of previously unevaluated financial outcomes among 544 individuals (mean age 35 years). Controlling for age, income, sex, education, and substance use, ADHD symptoms were associated with delay discounting, late credit card payments, credit card balances, use of pawn services, personal debt, and employment histories (less time spent at more jobs). Consistent with neural models of reward processing and associative learning, more of these relations were attributable to hyperactive-impulsive symptoms than inattentive symptoms. Implications for financial decision-making and directions for future research are discussed.",
+          "claimed_authors": [],
+          "claimed_title": "Attention-deficit/hyperactivity disorder, delay discounting, and risky financial behaviors: A preliminary analysis of self-report data",
+          "claimed_venue": "PLoS ONE",
+          "claimed_year": 2017,
+          "primary_pointer": "https://doi.org/10.1371/journal.pone.0176933"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Attention-deficit/hyperactivity disorder, delay discounting, and risky financial behaviors: A preliminary analysis of self-report data')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that every virtually torsion-free subgroup of the outer automorphism group of a conjugacy separable hyperbolic group is residually finite. As a result, we are able to prove that the group of outer automorphisms of every finitely generated Fuchsian group and of every free-by-finite group is resudually finite. We also generalize the main result for relatively hyperbolic groups.",
+          "claimed_authors": [
+            "V. Metaftsis",
+            "M. Sykiotis"
+          ],
+          "claimed_title": "On the residual finiteness of outer automorphisms of relatively hyperbolic groups",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0504212"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='On the residual finiteness of outer automorphisms of relatively hyperbolic groups')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How much should you receive in a week to be indifferent to \\$ 100 in six months? Note that the indifference requires a rule to ensure the similarity between early and late payments. Assuming that rational individuals have low accuracy, then the following rule is valid: if the amounts to be paid are much less than the personal wealth, then the $q$-exponential discounting guarantees indifference in several periods. Thus, the discounting can be interpolated between hyperbolic and exponential functions due to the low accuracy to distinguish time averages when the payments have low impact on personal wealth. Therefore, there are physical conditions that allow the hyperbolic discounting regardless psycho-behavioral assumption.",
+          "claimed_authors": [
+            "José Cláudio do Nascimento"
+          ],
+          "claimed_title": "Rational hyperbolic discounting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.05209"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Rational hyperbolic discounting')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove an analogue of Weitzman's (1998) famous result that an exponential discounter who is uncertain of the appropriate exponential discount rate should discount the far-distant future using the lowest (i.e., most patient) of the possible discount rates. Our analogous result applies to a hyperbolic discounter who is uncertain about the appropriate hyperbolic discount rate. In this case, the far-distant future should be discounted using the probability-weighted harmonic mean of the possible hyperbolic discount rates.",
+          "claimed_authors": [
+            "Nina Anchugina",
+            "Matthew Ryan",
+            "Arkadii Slinko"
+          ],
+          "claimed_title": "Hyperbolic Discounting of the Far-Distant Future",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1702.01362"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Hyperbolic Discounting of the Far-Distant Future')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Background: The study of delay discounting (DD) in addictive disorders helps in understanding why an individual chooses addictive substances immediately over possible long-term gains. Individuals with addictive disorders are seen to consistently have steeper DD compared to healthy controls. The aim of this study was to compare the delay discounting rate (DDR) between individuals seeking treatment for alcohol dependence syndrome (ADS) and opioid dependence syndrome (ODS). Materials and Methods: A total of 125 individuals (ADS: 61, ODS: 64) seeking treatment in an addiction treatment facility in North India were assessed. DDR was measured by a 27-item Monetary Choice Questionnaire (MCQ). Other assessment tools included were Addiction Severity Index-Lite (ASI), Clinical Institute Withdrawal Assessment of Alcohol Scale-Revised (CIWA-Ar), Clinical Opiate Withdrawal Scale (COWS), Mini International Neuropsychiatric Interview (MINI)-Screen, Barratt Impulsiveness Scale-11 (BIS-11), Verbal Adult Intelligence Scale (VAIS), and Likert Scale for craving. A nonparametric Mann–Whitney U test was applied as a test of significance for the quantitative characteristics, χ2 for the categorical variables, and Karl Pearson’s correlation coefficient for the relationship between the scores of DDR and clinical variables. The estimate of the DDR was compared with the scores obtained on the assessment tools. Results: The sociodemographic (except marital status) and most of the clinical characteristics (barring duration, BIS-nonplanning impulsivity (NPI), ASI scores for domains of alcohol, drug, and legal) were comparable across the ADS and ODS groups. The MCQ-based estimated score for DDR was significantly higher for the ODS group across all the DD categories (overall, small, medium, and large). A consistent significant positive correlation was noted in both groups with DD, craving, BIS, BIS-MI, BIS-AI, BIS-NPI, and ASI-Medical (except with DD-small), and negative with VAIS. Conclusion: Patients with ODS discount future rewards more steeply than patients with ADS. Nonplanning impulsivity possibly affects the way in which individuals with ODS make decisions.",
+          "claimed_authors": [
+            "M. Sabir",
+            "R. Rao",
+            "A. K. Mishra",
+            "Rachna Bhargava",
+            "A. Ambekar"
+          ],
+          "claimed_title": "Comparative Study of Delay Discounting Rates in Alcohol and Opioid Dependence in Northern India",
+          "claimed_venue": "Indian Journal of Community Medicine",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.4103/ijcm.ijcm_344_24"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Comparative Study of Delay Discounting Rates in Alcohol and Opioid Dependence in Northern India')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Abstract Background Impulsivity and delay discounting are considered core components of addiction and are increasingly associated with problematic mobile gaming. However, the mechanisms underlying this association remain unclear. Emerging evidence suggests that altered time perception may contribute to impulsive decision-making in addictive behaviors. Therefore, the present study compared differences in time perception and delay discounting between problematic and non-problematic mobile gamers, and explored the mediating roles of impulsivity and time perception. Methods A total of 98 participants were recruited via an online platform and completed a battery of assessments, including the Problematic Mobile Gaming Questionnaire (PMGQ), Barratt Impulsiveness Scale (BIS-11), a time perception task, and a Delay Discounting Task (DDT). Participants were categorized into two groups: problematic mobile gamers (PMGs; n = 21) and non-problematic mobile gamers (NPMGs; n = 77). Results Compared to NPMGs, PMGs showed significantly higher levels of impulsivity, delay discounting (k), and a relative error rate of time perception in 60 s (Rer60). A parallel mediation analysis showed that PMGQ score significantly predicted BIS-11 and Rer60 (β = .44 and .41, p < .001). Rer60 marginally predicted delay discounting rate (β = .18, p = .09), whereas the BIS-11 score did not. The total indirect effect was significant (β = .01, 95% CI [.0018, .0148]), with Rer60 emerging as the primary mediator. Conclusion The findings suggest that time perception distortion, rather than impulsivity, mediates the association between problematic mobile gaming and delay discounting.",
+          "claimed_authors": [
+            "Dalei Huang",
+            "Ting-Hsi Chou",
+            "Chih-Chun Huang",
+            "Yun-Hsuan Chang",
+            "Chieh-Liang Huang",
+            "M. Griffiths",
+            "M. Potenza"
+          ],
+          "claimed_title": "Temporal distortion may mediate the association between problematic mobile gaming and delay discounting: An experimental study",
+          "claimed_venue": "Journal of Behavioral Addictions",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1556/2006.2025.00092"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Temporal distortion may mediate the association between problematic mobile gaming and delay discounting: An experimental study')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents the software Partial Pole Placement via Delay Action, or P3$δ$ for short. P3$δ$ is a Python software with a friendly user interface for the design of parametric stabilizing feedback laws with time-delays, thanks to two properties of the distribution of quasipolynomials' zeros, called multiplicity-induced-dominancy and coexisting real roots-induced-dominancy. After recalling recent theoretical results on these properties and their use for the feedback stabilization of control systems operating under time delays, the paper presents the main features of the current version of P3$δ$. We detail, in particular, the assignable admissible region (the set of allowable dominant roots and the corresponding delay), which helps the user in the choice of input information, allowing a reliable stabilizing delayed feedback. We also present the newly set online version of P3$δ$.",
+          "claimed_authors": [
+            "Islam Boussaada",
+            "Guilherme Mazanti",
+            "Silviu-Iulian Niculescu",
+            "Adrien Leclerc",
+            "Jayvir Raj",
+            "Max Perraudin"
+          ],
+          "claimed_title": "New Features of P3$δ$ software: Partial Pole Placement via Delay Action",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.11341"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='New Features of P3$δ$ software: Partial Pole Placement via Delay Action')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A practical deep neural network's (DNN) evaluation involves thousands of multiply-and-accumulate (MAC) operations. To extend DNN's superior inference capabilities to energy constrained devices, architectures and circuits that minimize energy-per-MAC must be developed. In this respect, analog delay-based MAC is advantageous due to reasons both extrinsic and intrinsic to the MAC implementation - (1) lower fixed-point precision requirement for a DNN's evaluation, (2) better dynamic range than charge-based accumulation, for smaller technology nodes, and (3) simpler analog-digital interfacing. Implementing DNNs using delay-based MAC requires mixed-signal delay multipliers that accept digitally stored weights and analog voltages as arguments. To this end, a novel, linearly tune-able delay-cell is proposed, wherein, the delay is realized using an inverted MOS capacitor's (C*) steady discharge from a linearly input-voltage dependent initial charge. The cell is analytically modeled, constraints for its functional validity are determined, and jitter-models are developed. Multiple cells with scaled delays, corresponding to each bit of the digital argument, must be cascaded to form the multiplier. To realize such bit-wise delay-scaling of the cells, a biasing circuit is proposed that generates sub-threshold gate-voltages to scale C*'s discharging rate, and thus area-expensive transistor width-scaling is avoided. For 130nm CMOS technology, the theoretical constraints and limits on jitter are used to find the optimal design-point and quantify the jitter versus bits-per-multiplier trade-off. Schematic-level simulations show a worst-case energy-consumption close to the state-of-art, and thus, feasibility of the cell.",
+          "claimed_authors": [
+            "Aditya Shukla"
+          ],
+          "claimed_title": "Linear Delay-cell Design for Low-energy Delay Multiplication and Accumulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.13895"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Linear Delay-cell Design for Low-energy Delay Multiplication and Accumulation')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This article introduces the System 0/1/2/3 framework as an extension of dual-process theory, employing a quad-process model of cognition. Expanding upon System 1 (fast, intuitive thinking) and System 2 (slow, deliberative thinking), we incorporate System 0, which represents precognitive embodied processes, and System 3, which encompasses collective intelligence and symbol emergence. We contextualize this model within Bergson's philosophy by adopting multiscale time theory to unify the diverse temporal dynamics of cognition. System 0 emphasizes morphological computation and passive dynamics, illustrating how physical embodiment enables adaptive behavior without explicit neural processing. Systems 1 and 2 are explained from a constructive perspective, incorporating neurodynamical and artificial intelligence (AI) viewpoints. In System 3, we introduce collective predictive coding to explain how societal-level adaptation and symbol emergence operate over extended timescales. This comprehensive framework ranges from rapid embodied reactions to slow-evolving collective intelligence, offering a unified perspective on cognition across multiple timescales, levels of abstraction, and forms of human intelligence. The System 0/1/2/3 model provides a novel theoretical foundation for understanding the interplay between adaptive and cognitive processes, thereby opening new avenues for research in cognitive science, AI, robotics, and collective intelligence.",
+          "claimed_authors": [
+            "Tadahiro Taniguchi",
+            "Yasushi Hirai",
+            "Masahiro Suzuki",
+            "Shingo Murata",
+            "Takato Horii",
+            "Kazutoshi Tanaka"
+          ],
+          "claimed_title": "System 0/1/2/3: Quad-process theory for multi-timescale embodied collective cognitive systems",
+          "claimed_venue": "Artificial Life",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2503.06138"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='System 0/1/2/3: Quad-process theory for multi-timescale embodied collective cognitive systems')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Kuntai Song",
+            "Youhong Xiao",
+            "Leroff He",
+            "Pengcheng Du"
+          ],
+          "claimed_title": "From proactive procrastination to proactive innovative behavior: the psychological transformation pathway based on conservation of resources theory",
+          "claimed_venue": "Current Psychology",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1007/s12144-024-07177-w"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='From proactive procrastination to proactive innovative behavior: the psychological transformation pathway based on conservation of resources theory')",
+        "failed_at": "2026-06-28T21:45:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The study of temporal networks is motivated by the simple and important observation that just as network structure can affect dynamics, so can structure in time. Just as network topology can teach us about the system in question, so can its temporal characteristics. In many cases, leaving out either one of these components would lead to an incomplete understanding of the system or poor predictions. We argue that including time into network modeling inevitably leads researchers away from the trodden paths of network science. Temporal network theory requires something different -- new methods, new concepts, new questions -- compared to static networks. In this introductory chapter, we overview the ideas that the field of temporal networks has brought forward in the last decade. We also place the contributions to the current volume on this map of temporal-network approaches.",
+          "claimed_authors": [
+            "Petter Holme",
+            "Jari Saramäki"
+          ],
+          "claimed_title": "A map of approaches to temporal networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.13615"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='A map of approaches to temporal networks')",
+        "failed_at": "2026-06-28T21:45:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-28T21:45:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A spherical target irradiated by laser beams located at 49o and 131o with respect to the polar axis has been considered. The illumination model has been used to evaluate the irradiation non-uniformity assuming circular and elliptical super-gaussian laser intensity profiles and the irradiation scheme has been optimized by means of the Polar Direct Drive technique. A parametric study has been performed providing the irradiation non-uniformity as a function of the Polar Direct Drive displacement and of the laser intensity profile parameters. Moreover, two-dimensional axis-symmetric hydrodynamic simulations have been performed for a plastic sphere irradiated by laser beams characterized by a constant flat temporal power pulse. In these simulations the front of the inward shock wave has been tracked providing the time-evolution of any non-uniformity. The results provided by the two methods - illumination model and hydrodynamic data - have been compared and it is found that the illumination model reproduces the main behaviour exhibited by the hydrodynamic data. The two models provide compatible values for the optimum Polar Direct Drive parameter and similar optimal super-gaussian profiles.",
+          "claimed_authors": [
+            "M. Temporal",
+            "B. Canaud",
+            "W. J. Garbett",
+            "R. Ramis"
+          ],
+          "claimed_title": "Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.7762"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Temporal Discounting in Procrastination on Cognitive Tasks psycholog', candidate_title='Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target')",
+        "failed_at": "2026-06-28T21:45:54Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Naomi Kakoschke",
+            "David L Dickinson",
+            "S. P. Drummond"
+          ],
+          "title": "The effects of sleep restriction and time of day on food-specific impulsivity, approach-avoidance bias and delay discounting",
+          "venue": "Health Psychology and Behavioral Medicine",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1080/21642850.2025.2520838",
+        "summary": "ABSTRACT Background: Insufficient sleep and circadian timing are both linked with obesity, primarily via unhealthy food choice, yet the cognitive mechanisms underpinning such relationships remain unclear. Methods: Across two studies, we implemented an ecologically valid within-subjects at-home protocol. Study 1 (n = 118) involved a within-subjects examination of how sleep restriction (SR) versus well-rested (WR) sleep levels affect choices in a food-based approach-avoidance task (AAT) and go–no/go (GNG) task, a food liking task, a food-choice task, a psychomotor vigilance task (PVT), and a monetary choice task. Study 2 (n = 119) involved examining choices in the same set of tasks administered once in the afternoon (4pm) and once during the night (4am), which leveraged circadian influences on sleepiness and cognitive function. Results: During the night, participants indicated steeper discounting rates relative to the afternoon. Furthermore, such rates predicted higher liking of high-calorie food choices regardless of time of day and when sleep restricted. Approach bias for low-calorie food interacted with the night condition in predicting both low- and high-calorie food choices. Conclusion: Both delay discounting and approach bias may be important cognitive mechanisms predicting food liking and choice under sleep restricted and altered circadian timing conditions. Further research should replicate such results using real rewards.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.tandfonline.com/doi/full/10.1080/21642850.2025.2520838",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1080/21642850.2025.2520838"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:45:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Camila S. Agostino Peter M. E. Claessens",
+            "Fuat Balci",
+            "Yossi Zana"
+          ],
+          "title": "The role of time estimation in decreased impatience in Intertemporal Choice",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.10735",
+        "summary": "The role of specific cognitive processes in deviations from constant discounting in intertemporal choice is not well understood. We evaluated decreased impatience in intertemporal choice tasks independent of discounting rate and non-linearity in long-scale time representation; nonlinear time representation was expected to explain inconsistencies in discounting rate. Participants performed temporal magnitude estimation and intertemporal choice tasks. Psychophysical functions for time intervals were estimated by fitting linear and power functions, while discounting functions were estimated by fitting exponential and hyperbolic functions. The temporal magnitude estimates of 65% of the participants were better fit with power functions (mostly compression). 63% of the participants had intertemporal choice patterns corresponding best to hyperbolic functions. Even when the perceptual bias in the temporal magnitude estimations was compensated in the discounting rate computation, the data of 8 out of 14 participants continued exhibiting temporal inconsistency. The results suggest that temporal inconsistency in discounting rate can be explained to different degrees by the bias in temporal representations. Non-linearity in temporal representation and discounting rate should be evaluated on an individual basis. Keywords: Intertemporal choice, temporal magnitude, model comparison, impatience, time inconsistency",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.10735",
+          "http_status": 200,
+          "pdf_sample_score": 0.2151,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:45:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "F. E. Köse",
+            "Gün Pakyürek"
+          ],
+          "title": "The Effect of Working Memory Load on Impulsivity During Smoking Abstinence: An Eye-Tracking Study.",
+          "venue": "Substance Use & Misuse",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.1080/10826084.2025.2604640",
+        "summary": "BACKGROUND\nDetermining the cognitive processes involved in maintaining tobacco use is an important step toward explaining the nature of addiction. Studies have found that young smokers are more impulsive than nonsmokers. Working memory (WM) is needed to prevent and control impulsivity in unwanted situations.\n\n\nOBJECTIVES\nThis study examined the relationship between WM capacity and impulsivity and how WM load influences impulsive decision making with smokers, nonsmokers, and abstinent participants (ntotal = 36) with an experimental dual-task. Participants completed the N-back (WM) and delay discounting (DD-impulsivity) tasks simultaneously, whilst their eye movements were recorded.\n\n\nRESULTS\nThe results showed accuracy in the n-back task reduced as n increased, there was no evidence of delay discounting in any of the groups. There was no correlation of WMC and trait impulsivity. Participants' first fixation durations, indicating attention and information processing, increased with increasing WM load. All participants had shorter first fixation durations on proximal rewards than on distal rewards and revisited proximal rewards more.\n\n\nCONCLUSION\nParticipants may change their attentional strategies under WM load, and different attentional processes measured by eye movements may be an indicator of impulsivity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.tandfonline.com/doi/full/10.1080/10826084.2025.2604640",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1080/10826084.2025.2604640"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:45:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bo Ma",
+            "Yong Zhang"
+          ],
+          "title": "Precrastination and Time Perspective: Evidence from Intertemporal Decision-Making",
+          "venue": "Behavioral Science",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.3390/bs13080631",
+        "summary": "Although procrastination has been extensively studied, precrastination remains an unsolved puzzle. Precrastination is the tendency to start tasks as soon as possible, even at the cost of extra effort. Using the near bucket paradigm with 81 undergraduate students, this study examined the relationship between precrastination and time perspective, proactive personality, and subjects’ differential performance in intertemporal decision-making. The results confirmed the cognitive-load-reduction (CLEAR) hypothesis. Precrastination was found to be positively predicted by the future time dimension of time perspective and negatively predicted by proactive personality. In addition, there is a significant positive correlation between precrastination and delay discounting of intertemporal decision-making, which exists only for the loss situation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.mdpi.com/2076-328X/13/8/631",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [
+            "https://doi.org/10.3390/bs13080631"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:45:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "George Loewenstein",
+            "E. Carbone"
+          ],
+          "title": "Self-control ≠ temporal discounting.",
+          "venue": "Current Opinion in Psychology",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.copsyc.2024.101924",
+        "summary": "This paper explores self-control beyond the framework of time discounting, as is conventional in economics and decision research. Contrary to the notion that self-control failures stem from hyperbolic time discounting or present bias, we argue that self-control problems represent conflicts between the motivational thrusts of affects - i.e., emotions, physiological states, and cognitive motivational feeling states - and deliberations about the best course of behavior. Drawing upon theoretical foundations and empirical evidence, we highlight how affective states can both undermine and necessitate self-control. We critique the temporal discounting model for its inability to account for diverse self-control scenarios and propose that effective self-regulation often involves strategies to avoid or manage affective triggers, thus providing a more comprehensive understanding of self-control mechanisms.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S2352250X24001374",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.copsyc.2024.101924"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:45:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. Oguchi",
+            "Toru Takahashi",
+            "Yusuke Nitta",
+            "Hiroaki Kumano"
+          ],
+          "title": "Moderating effect of attention deficit hyperactivity disorder tendency on the relationship between delay discounting and procrastination in young adulthood.",
+          "venue": "Heliyon",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.heliyon.2023.e14834",
+        "summary": "Among adults with ADHD, one of the most common problems in daily life is procrastination. ADHD is characterized by attention as well as suboptimal decision-making deficits, indicating difficulty in making long-term reward choices. However, little is known about the relationship between suboptimal decision-making or temporal discounting (TD) and procrastination among adults with ADHD. This study aimed to investigate whether ADHD symptoms enhance the relationship between TD and procrastination. Fifty-eight university participants completed questionnaires about procrastination and an experimental task which measured TD rates in reward and punishment conditions. Only the reward condition showed that ADHD symptoms significantly strengthened the association between the TD rate and procrastination. This study revealed that even when ADHD symptoms were high, higher TD rates were associated with more procrastination, while lower TD rates were associated with less procrastination. The results suggest that procrastination interventions for adult ADHD-prone individuals need to pay attention to reward responses.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S2405844023020418",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.heliyon.2023.e14834"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:45:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

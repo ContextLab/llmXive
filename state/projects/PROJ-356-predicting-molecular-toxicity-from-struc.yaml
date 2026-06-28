@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T11:40:28.137072Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-356-predicting-molecular-toxicity-from-struc
-last_run_id: b3b336c4-4001-4f8c-a299-b05310b6c66e
+last_run_id: 7528990f-0105-49de-a4c4-3e3de062808c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Molecular Toxicity from Structural Alerts via Rule-Based Systems
-updated_at: '2026-06-13T08:01:21.119690Z'
+updated_at: '2026-06-28T21:42:18.918582Z'

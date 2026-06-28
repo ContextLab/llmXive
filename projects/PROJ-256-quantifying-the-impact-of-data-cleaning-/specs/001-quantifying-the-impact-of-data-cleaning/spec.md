@@ -121,4 +121,4 @@ The method will involve integrating genomic, transcriptomic, and proteomic data,
 - Predictor collinearity diagnostics (VIF) are required when multiple predictors are included in regression models; if predictors are definitionally related, independent effects are NOT claimed
 - No GPU/CUDA/accelerators are used; all methods are CPU‑tractable (classical statistics, scikit‑learn on modest data, exact/closed‑form computation)
 - Total compute time must not exceed 6 hours on free‑tier runner; if exceeded, dataset sampling or method simplification is applied
-- Bootstrap resampling (with a sufficient number of iterations) is CPU‑tractable for the dataset sizes studied; if not, iteration count is reduced to 500 or method is replaced with closed‑form approximation
+- Bootstrap resampling (with a sufficient number of iterations) is CPU‑tractable for the dataset sizes studied; if not, iteration count is reduced to a predefined threshold or method is replaced with closed‑form approximation

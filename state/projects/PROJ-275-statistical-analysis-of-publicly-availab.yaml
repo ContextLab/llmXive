@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T21:30:47.216242Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-275-statistical-analysis-of-publicly-availab
-last_run_id: 3986ef98-5f1f-4bf2-afbc-8282ed1637e2
+last_run_id: bc2b00bf-f77e-4daf-bcfb-0db1a3eed115
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office
   Revenue
-updated_at: '2026-06-12T22:18:59.075896Z'
+updated_at: '2026-06-28T21:40:56.402792Z'

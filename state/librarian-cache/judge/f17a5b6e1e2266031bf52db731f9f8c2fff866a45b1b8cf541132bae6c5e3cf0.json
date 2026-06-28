@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1406.2022",
+  "judged_at": "2026-06-28T21:34:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+  "rationale": "This paper addresses the measurement of the \"Sentiment\" variable (one of the user's key independent variables) using text analysis methods applicable to movie reviews, satisfying criterion (a) which accepts papers studying only one variable from the user's question rather than the full correlation.",
+  "relevant": true
+}

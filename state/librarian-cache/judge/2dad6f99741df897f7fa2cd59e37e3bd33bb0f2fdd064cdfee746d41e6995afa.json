@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1080/10826084.2025.2604640",
+  "judged_at": "2026-06-28T21:54:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+  "rationale": "The paper measures Delay Discounting, which is the canonical synonym for the user's \"Temporal Discounting\" variable, satisfying criterion (b) by measuring one of the user's key independent variables in the relevant psychology/cognitive task domain. Additionally, it investigates this mechanism using cognitive tasks (N-back and DD tasks), aligning with the user's focus on cognitive task contexts per criterion (a).",
+  "relevant": true
+}

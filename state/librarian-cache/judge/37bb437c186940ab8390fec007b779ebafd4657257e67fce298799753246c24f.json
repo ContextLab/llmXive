@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.37284/ijfa.3.1.2567",
+  "judged_at": "2026-06-28T21:39:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+  "rationale": "This paper is off-domain entirely, focusing on banking performance in Rwanda rather than movie sentiment and box office revenue, sharing only generic methodological terms like correlation without addressing the specific constructs or population required for the user's literature review.",
+  "relevant": false
+}

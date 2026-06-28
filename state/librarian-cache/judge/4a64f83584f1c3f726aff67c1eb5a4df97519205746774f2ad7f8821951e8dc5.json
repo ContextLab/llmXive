@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.38124/ijisrt/ijisrt24sep485",
+  "judged_at": "2026-06-28T21:38:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+  "rationale": "This paper is off-domain entirely, focusing on sustainability reporting and corporate financial performance in publicly traded companies rather than movie review sentiment and box office revenue in the entertainment industry. It does not satisfy any inclusion criteria as the variables (ESG disclosures vs. sentiment) and the specific domain (general corporate finance vs. film industry) are distinct constructs.",
+  "relevant": false
+}

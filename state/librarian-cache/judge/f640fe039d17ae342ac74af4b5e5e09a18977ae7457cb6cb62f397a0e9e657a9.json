@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.54254/2754-1169/2026.33536",
+  "judged_at": "2026-06-28T21:39:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+  "rationale": "This paper is off-domain entirely, focusing on ESG and financial performance in the membership-based retail industry (Costco and Sam's Club) rather than the movie industry, and it does not measure movie review sentiment or box office revenue. It fails to satisfy any inclusion criteria (a-f) as there is no overlap in mechanism, variables, domain, or population with the user's research question.",
+  "relevant": false
+}

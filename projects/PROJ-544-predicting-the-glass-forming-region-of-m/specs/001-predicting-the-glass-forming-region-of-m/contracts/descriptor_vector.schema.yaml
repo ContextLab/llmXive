@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Descriptor Vector Schema"
+description: "Schema for computed thermodynamic descriptors of alloy compositions"
+type: "object"
+required:
+  - composition_id
+  - atomic_size_mismatch
+  - mixing_enthalpy
+  - electronegativity_variance
+  - vif_scores
+  - computed_at
+  - library_version
+properties:
+  composition_id:
+    type: "string"
+    description: "Foreign key to alloy composition"
+  atomic_size_mismatch:
+    type: "number"
+    description: "δ (atomic size mismatch) - unitless ratio"
+    minimum: 0
+  mixing_enthalpy:
+    type: "number"
+    description: "ΔH_mix (mixing enthalpy) in kJ/mol"
+  electronegativity_variance:
+    type: "number"
+    description: "Δχ (electronegativity variance) - unitless"
+    minimum: 0
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factor for each descriptor"
+    properties:
+      atomic_size_mismatch:
+        type: "number"
+        minimum: 1
+      mixing_enthalpy:
+        type: "number"
+        minimum: 1
+      electronegativity_variance:
+        type: "number"
+        minimum: 1
+    required:
+      - atomic_size_mismatch
+      - mixing_enthalpy
+      - electronegativity_variance
+  computed_at:
+    type: "string"
+    description: "Descriptor computation timestamp"
+    format: "date-time"
+  library_version:
+    type: "string"
+    description: "DScribe/pymatgen version used"
+    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+  pca_component_1:
+    type: "number"
+    description: "First PCA component (if PCA fallback used)"
+  pca_component_2:
+    type: "number"
+    description: "Second PCA component (if PCA fallback used)"
+  used_features:
+    type: "array"
+    description: "List of feature names actually used for modeling"
+    items:
+      type: "string"
+additionalProperties: false

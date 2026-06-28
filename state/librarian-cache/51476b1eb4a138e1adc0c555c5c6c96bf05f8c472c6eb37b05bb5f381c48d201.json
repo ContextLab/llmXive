@@ -1,0 +1,1018 @@
+{
+  "fetched_at": "2026-06-28T21:40:14Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office Revenue",
+      "target_n": 5
+    },
+    "duration_seconds": 755.586,
+    "ended_at": "2026-06-28T21:40:14Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Correlation between movie reviews and financial performance"
+        ],
+        [
+          2,
+          "Predictive modeling of box office revenue using sentiment data"
+        ],
+        [
+          3,
+          "Regression analysis of audience ratings and movie earnings"
+        ],
+        [
+          4,
+          "Sentiment analysis impact on film ticket sales"
+        ],
+        [
+          5,
+          "Film economics and consumer sentiment correlation"
+        ],
+        [
+          6,
+          "Statistical relationship between IMDb ratings and gross revenue"
+        ],
+        [
+          7,
+          "Online review polarity and commercial success metrics"
+        ],
+        [
+          8,
+          "Econometric modeling of film market success"
+        ],
+        [
+          9,
+          "Audience opinion mining and box office performance"
+        ],
+        [
+          10,
+          "Quantitative analysis of Rotten Tomatoes and box office"
+        ],
+        [
+          11,
+          "Sentiment score correlation with theatrical earnings"
+        ],
+        [
+          12,
+          "Multivariate analysis of film attributes and box office"
+        ],
+        [
+          13,
+          "Time series analysis of movie reviews and revenue"
+        ],
+        [
+          14,
+          "Natural language processing for movie revenue prediction"
+        ],
+        [
+          15,
+          "Influence of social media sentiment on movie sales"
+        ],
+        [
+          16,
+          "Quantifying audience feedback for revenue forecasting"
+        ],
+        [
+          17,
+          "Cross-sectional study of movie reviews and earnings"
+        ],
+        [
+          18,
+          "Meta-review aggregation and financial outcomes"
+        ],
+        [
+          19,
+          "Big data analytics in movie industry performance"
+        ],
+        [
+          20,
+          "Consumer sentiment indicators in entertainment markets"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Correlation between movie reviews and financial performance": 6,
+        "Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office Revenue statistics": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "critical reception revenue forecasting correlation",
+      "IMDB dataset sentiment regression modeling",
+      "user generated content box office",
+      "opening weekend gross prediction metrics",
+      "signaling theory consumer behavior revenue"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1406.2022"
+      ]
+    },
+    "per_query_hit_count": {
+      "IMDB dataset sentiment regression modeling": 6,
+      "Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office Revenue statistics": 3,
+      "critical reception revenue forecasting correlation": 6,
+      "opening weekend gross prediction metrics": 6,
+      "signaling theory consumer behavior revenue": 6,
+      "user generated content box office": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2601.20129",
+          "rationale": "The paper focuses on creating a Bengali hate speech dataset rather than analyzing the relationship between movie review sentiment and box office revenue, failing to address the specific domain (movies) or dependent variable (revenue) required by the user's research question. It falls under the \"Off-domain entirely\" rejection rule as it addresses a different NLP task and population than the user's inquiry.",
+          "title": "BengaliSent140: A Large-Scale Bengali Binary Sentiment Dataset for Hate and Non-Hate Speech Classification"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.61538/pajbm.v6i1.1154",
+          "rationale": "This paper is off-domain entirely, studying banking regulation and financial performance in Tanzania rather than movie sentiment and box office revenue, and shares only superficial homonym keywords (\"review\", \"performance\") without addressing the user's specific mechanism or variables.",
+          "title": "Relationship between Banks’ Perception on Bank of Tanzania Regulatory Reviews and Financial Performance: Evidence from selected Commercial Banks in Tanzania"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.59613/0kz0g282",
+          "rationale": "The paper focuses on corporate governance and stock market performance in Indonesia, which is an off-domain mismatch for the user's question regarding movie review sentiment and box office revenue. It does not share the relevant variables, mechanism, or empirical population required for inclusion in a literature review on this specific topic.",
+          "title": "Exploring the Correlation Between Corporate Governance and Financial Performance of Listed Companies in Indonesia’s Stock Market"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.38124/ijisrt/ijisrt24sep485",
+          "rationale": "This paper is off-domain entirely, focusing on sustainability reporting and corporate financial performance in publicly traded companies rather than movie review sentiment and box office revenue in the entertainment industry. It does not satisfy any inclusion criteria as the variables (ESG disclosures vs. sentiment) and the specific domain (general corporate finance vs. film industry) are distinct constructs.",
+          "title": "Sustainability Reporting and Financial Performance: Examine the Correlation between Sustainability Disclosures Financial Performance in Publicly Traded Companies"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.37284/ijfa.3.1.2567",
+          "rationale": "This paper is off-domain entirely, focusing on banking performance in Rwanda rather than movie sentiment and box office revenue, sharing only generic methodological terms like correlation without addressing the specific constructs or population required for the user's literature review.",
+          "title": "Examining the Correlation between Financial Innovations and Commercial Bank Performance: A Case Study of BPR Headquarters in Rwanda (2020-2022)"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.54254/2754-1169/2026.33536",
+          "rationale": "This paper is off-domain entirely, focusing on ESG and financial performance in the membership-based retail industry (Costco and Sam's Club) rather than the movie industry, and it does not measure movie review sentiment or box office revenue. It fails to satisfy any inclusion criteria (a-f) as there is no overlap in mechanism, variables, domain, or population with the user's research question.",
+          "title": "Research on the Correlation Between ESG Performance and Financial Performance in the Membership-based Retail Industry—Costco and Sam's Club"
+        },
+        {
+          "primary_pointer": "2109.14906",
+          "rationale": "This paper is off-domain entirely, focusing on financial hypernym detection and semantic similarity within the financial domain rather than movie review sentiment or box office revenue analysis. It does not measure the variables, mechanisms, or empirical population specified in the user's research question.",
+          "title": "DICoE@FinSim-3: Financial Hypernym Detection using Augmented Terms and Distance-based Features"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T21:27:39Z",
+    "term_input": {
+      "normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+      "raw": "Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office Revenue statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Statistics has moved beyond the frequentist-Bayesian controversies of the past. Where does this leave our ability to interpret results? I suggest that a philosophy compatible with statistical practice, labeled here statistical pragmatism, serves as a foundation for inference. Statistical pragmatism is inclusive and emphasizes the assumptions that connect statistical models with observed data. I argue that introductory courses often mischaracterize the process of statistical inference and I propose an alternative \"big picture\" depiction.",
+          "claimed_authors": [
+            "Robert E. Kass"
+          ],
+          "claimed_title": "Statistical Inference: The Big Picture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.2895"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Statistical Inference: The Big Picture')",
+        "failed_at": "2026-06-28T21:31:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present work on sentiment analysis in Twitter for Macedonian. As this is pioneering work for this combination of language and genre, we created suitable resources for training and evaluating a system for sentiment analysis of Macedonian tweets. In particular, we developed a corpus of tweets annotated with tweet-level sentiment polarity (positive, negative, and neutral), as well as with phrase-level sentiment, which we made freely available for research purposes. We further bootstrapped several large-scale sentiment lexicons for Macedonian, motivated by previous work for English. The impact of several different pre-processing steps as well as of various features is shown in experiments that represent the first attempt to build a system for sentiment analysis in Twitter for the morphologically rich Macedonian language. Overall, our experimental results show an F1-score of 92.16, which is very strong and is on par with the best results for English, which were achieved in recent SemEval competitions.",
+          "claimed_authors": [
+            "Dame Jovanoski",
+            "Veno Pachovski",
+            "Preslav Nakov"
+          ],
+          "claimed_title": "Sentiment Analysis in Twitter for Macedonian",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.13725"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Sentiment Analysis in Twitter for Macedonian')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Power companies have found that solar irradiance forecasting is a reliable method for anticipating and preparing for the intermittent nature of renewable energy sources (RESs). However, when the percentage of RESs in the energy mix rises, there is a negative correlation between forecasting accuracy and process error, which could impact not only the grid but also the whole RES’s economic sustainability. In order to tackle this problem, this paper examines the economic implications of employing the Analog Ensemble (AnEn) forecasting model within Korea’s solar energy sector. The levelized cost of energy (LCOE) model and the revenue prediction model are applied to assess the efficacy of the AnEn. The proposed revenue scheme scheme was initiated on a 1 MW photovoltaic (PV) ground‐type power plant deployed in the mainland of South Korea. Various methods have been examined to assess the financial benefit of utilizing the AnEn, such as forecast verification and LCOE and revenue forecast scheme. Key findings reveal that the AnEn model consistently outperforms traditional models in terms of accuracy, particularly during critical solar peak months. This improved accuracy translates into more reliable predictions of solar irradiance, essential for minimizing overestimations and supporting realistic financial planning. Furthermore, the paper explores the economic incentives implemented by the Korean government to encourage precision in energy forecasting, including a structured incentive scheme tied to forecast accuracy.",
+          "claimed_authors": [
+            "F. E. del Pozo",
+            "C. Kim",
+            "H. G. Kim",
+            "C. Yun"
+          ],
+          "claimed_title": "Designing a Revenue Forecast Scheme for Analog Ensemble Method Applied Solar PV Forecasting in South Korea",
+          "claimed_venue": "International Journal of Energy Research",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1155/er/5529459"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Designing a Revenue Forecast Scheme for Analog Ensemble Method Applied Solar PV Forecasting in South Korea')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This study introduces a novel approach to predicting the success of small businesses in Kazakhstan, leveraging Graph Neural Networks (GNNs) to analyze a comprehensive set of business parameters. Recognizing the critical role of small businesses in the national economy, this research aims to provide stakeholders with a predictive tool that utilizes advanced machine learning techniques to evaluate business outcomes. By integrating data on revenue, number of employees, market dynamics, and other key operational metrics, the model captures the complex interactions within the business ecosystem. The methodology involves constructing a graph-based representation of the business landscape, where nodes represent individual businesses and edges denote relationships and influences among them. Through this framework, the GNN model learns to identify patterns and predictors of success, offering insights that traditional linear models might overlook. Preliminary results indicate a strong correlation between specific business parameters and their likelihood of success, highlighting the potential of GNNs in strategic decision-making. This paper not only contributes to the academic discourse on predictive analytics in business but also proposes a practical tool for entrepreneurs, investors, and policymakers in Kazakhstan to foster a thriving small business sector. Future work will focus on refining the model, incorporating real-time data, and expanding its applicability to other regions and sectors.",
+          "claimed_authors": [
+            "A. Bekbolsynova",
+            "Yesset Zhussupov",
+            "A. Zhagyparova",
+            "S. Spatayeva",
+            "Zhanat Bulakbay"
+          ],
+          "claimed_title": "Study of the possibilities of using deep artificial intelligence in forecasting the green paper market in Kazakhstan",
+          "claimed_venue": "International journal of innovative research and scientific studies",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.53894/ijirss.v8i4.7964"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Study of the possibilities of using deep artificial intelligence in forecasting the green paper market in Kazakhstan')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This paper presents an idea and implementation of using hybrid models in forecasting retail demand by integrating conventional approaches with machine learning. The objectives are to develop methodologies for building composite structures, sequential residual models, group stacking/blending, and orderly mixtures, exemplified by combinations like ARIMA–LSTM and Prophet–LightGBM, and to explore their primary pros and cons in meeting the changing demands of retail forecasting. The present work gains critical importance against a backdrop of markedly increased unpredictability in human behaviour—manifested by rapid sales fluctuations and heightened pressures throughout global supply chains. In such a context, enhancements in forecasting accuracy become directly linked to both revenue optimisation and the reduction of safety-stock expenditure. A critical appraisal of over twenty scholarly sources underpins the novelty of this research, which proposes a comprehensive methodological framework for organising the MLOps lifecycle in hybrid system architectures.The study justifies the separation of linear and nonlinear forecast components, which enables a reduction of MAPE by double-digit percentages and a decrease in error variance for cold SKUs while preserving the interpretability of the statistical component. The main conclusions are as follows: hybrid models demonstrate double-digit reductions in MAPE, RMSE, and WRMSSE compared to standalone algorithms. For practitioners, the resulting modular architecture simplifies maintenance and offers a scalable solution, while integrated CI/CD and CT loops ensure reliability and rapid response to data drift. The modularity of the architecture simplifies maintenance and scaling. \nAdditionally, CI/CD and CT loops ensure reliability and rapid response to data drift. The key factor for success is the balance between explainability, response time, and the incorporation of spatial correlations. This paper will be useful for researchers and practitioners in Data Science, MLOps engineers, analysts, and operational managers of retail chains.",
+          "claimed_authors": [
+            "Amit Choubey"
+          ],
+          "claimed_title": "Hybrid Models for Retail Demand Forecasting: Integrating Classical Time-series and Machine Learning Approaches",
+          "claimed_venue": "Asian Journal of Research in Computer Science",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.9734/ajrcos/2025/v18i8744"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Hybrid Models for Retail Demand Forecasting: Integrating Classical Time-series and Machine Learning Approaches')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We adopt Gaussian Processes (GPs) as latent functions for probabilistic forecasting of intermittent time series. The model is trained in a Bayesian framework that accounts for the uncertainty about the latent function. We couple the latent GP variable with two types of forecast distributions: the negative binomial (NegBinGP) and the Tweedie distribution (TweedieGP). While the negative binomial has already been used in forecasting intermittent time series, this is the first time in which a fully parameterized Tweedie density is used for intermittent time series. We properly evaluate the Tweedie density, which has both a point mass at zero and heavy tails, avoiding simplifying assumptions made in existing models. We test our models on thousands of intermittent count time series. Results show that our models provide consistently better probabilistic forecasts than the competitors. In particular, TweedieGP obtains the best estimates of the highest quantiles, thus showing that it is more flexible than NegBinGP.",
+          "claimed_authors": [
+            "Stefano Damato",
+            "Dario Azzimonti",
+            "Giorgio Corani"
+          ],
+          "claimed_title": "Forecasting intermittent time series with Gaussian Processes and Tweedie likelihood",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.19086"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Forecasting intermittent time series with Gaussian Processes and Tweedie likelihood')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a simple quantile regression-based forecasting method that was applied in a probabilistic load forecasting framework of the Global Energy Forecasting Competition 2017 (GEFCom2017). The hourly load data is log transformed and split into a long-term trend component and a remainder term. The key forecasting element is the quantile regression approach for the remainder term that takes into account weekly and annual seasonalities such as their interactions. Temperature information is only used to stabilize the forecast of the long-term trend component. Public holidays information is ignored. Still, the forecasting method placed second in the open data track and fourth in the definite data track with our forecasting method, which is remarkable given simplicity of the model. The method also outperforms the Vanilla benchmark consistently.",
+          "claimed_authors": [
+            "Florian Ziel"
+          ],
+          "claimed_title": "Quantile Regression for Qualifying Match of GEFCom2017 Probabilistic Load Forecasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.03561"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Quantile Regression for Qualifying Match of GEFCom2017 Probabilistic Load Forecasting')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a methodology for probabilistic load forecasting that is based on lasso (least absolute shrinkage and selection operator) estimation. The model considered can be regarded as a bivariate time-varying threshold autoregressive(AR) process for the hourly electric load and temperature. The joint modeling approach incorporates the temperature effects directly, and reflects daily, weekly, and annual seasonal patterns and public holiday effects. We provide two empirical studies, one based on the probabilistic load forecasting track of the Global Energy Forecasting Competition 2014 (GEFCom2014-L), and the other based on another recent probabilistic load forecasting competition that follows a setup similar to that of GEFCom2014-L. In both empirical case studies, the proposed methodology outperforms two multiple linear regression based benchmarks from among the top eight entries to GEFCom2014-L.",
+          "claimed_authors": [
+            "Florian Ziel",
+            "Bidong Liu"
+          ],
+          "claimed_title": "Lasso estimation for GEFCom2014 probabilistic electric load forecasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.01376"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Lasso estimation for GEFCom2014 probabilistic electric load forecasting')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This paper presents a comparative study of classical machine learning and deep learning methods for sentiment classification on the IMDb movie reviews dataset. The machine learning pipeline uses TF-IDF features and PyCaret AutoML to evaluate Logistic Regression, Na\\\"ive Bayes, and Support Vector Machine, while the deep learning pipeline implements BiLSTM and BiLSTM with an attention mechanism. Experimental results show that classical machine learning, especially SVM, achieves the best performance with an accuracy of 0.8530, outperforming the deep learning models in this study. The BiLSTM with Attention model improves over the standard BiLSTM and reaches an accuracy of 0.706, indicating better contextual modeling. The paper concludes that although deep learning can capture sequential dependencies, classical machine learning remains a strong baseline when combined with effective feature engineering such as TF-IDF, particularly under limited data and computational resources.",
+          "claimed_authors": [
+            "Erma Safitri",
+            "Lia Hana Ichisasmita",
+            "C. Agustin",
+            "Luluk Muthoharoh",
+            "Ardika Satria",
+            "M. C. Manullang"
+          ],
+          "claimed_title": "A Comparative Analysis of Classical Machine Learning and Deep Learning Approaches for Sentiment Classification on IMDb Movie Reviews",
+          "claimed_venue": "",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.07811"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='A Comparative Analysis of Classical Machine Learning and Deep Learning Approaches for Sentiment Classification on IMDb Movie Reviews')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Sentiment analysis (SA) helps identify people's opinions and emotions from written text. This paper aims to test and compare machine learning, deep learning, and sequential modeling techniques for sentiment classification by utilizing the $\\mathbf{5 0 K}$ Movie Reviews (IMDb) dataset. Four standard baselines (Naive Bayes, Logistic Regression, Linear SVM, Random Forest) are used for comparison and further extended to deeplearning and sequential models. Moreover, an attention-based encoder-decoder is also included in the analysis. The results reveal that the classical models, such as Linear SVM (90.22 %) and Logistic Regression $(90.00 \\%)$, achieved strong accuracy with less training time and computational cost. However, deep learning architectures performed better overall, with the Feedforward Neural Network and CNN reaching 97.92 % and 97.27 % accuracy, respectively. The attention-based encoder-decoder and Bi-LSTM-GRU also performed well by capturing contextual and sequential relationships. Overall, the study highlights the balance between computational efficiency and predictive performance, and provides useful guidance for selecting appropriate sentiment analysis models based on accuracy and resource availability.",
+          "claimed_authors": [
+            "Silvi Avayan",
+            "A. Mikayelyan",
+            "Sachin Kumar",
+            "P. Mallick"
+          ],
+          "claimed_title": "Benchmarking Traditional and Deep Sequential Models for Text Sentiment Analysis",
+          "claimed_venue": "Educational Sciences International Conference",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1109/ESIC68176.2026.11495807"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Benchmarking Traditional and Deep Sequential Models for Text Sentiment Analysis')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": ": This paper describes Deep Learning approach of sentiment analyses which is an active research subject in the domain of Natural Language Processing. For this purpose we have developed three models based on Deep Neural Networks (DNNs): Convolutional Neural Network (CNN), and two models that combine convolutional and recurrent layers based on Long-Short-Term Memory (LSTM), such as CNN-LSTM and Bi-Directional LSTM-CNN (BiLSTM-CNN). As vector representations of words were used GloVe and Word2vec word embeddings. To evaluate the performance of the models, were used IMDb Movie Reviews and Twitter Sentiment 140 datasets, and as a baseline classifier was used Logistic Regression. The best result for IMDb dataset was obtained using CNN model (accuracy 90.1%), and for Sentiment 140 the model based on BiLSTM-CNN showed the highest accuracy (82.1%) correspondinly. The accuracy of the proposed models is a quite acceptable for practical use and comparable to state of the art models.",
+          "claimed_authors": [
+            "V. Derbentsev",
+            "Vitalii Bezkorovainyi",
+            "Andriy Matviychuk",
+            "Oksana Pomazun",
+            "Andrii V. Hrabariev",
+            "Alexey Hostryk"
+          ],
+          "claimed_title": "Sentiment Analysis of Electronic Social Media Based on Deep Learning",
+          "claimed_venue": "Proceedings of 10th International Conference on Monitoring, Modeling &amp; Management of Emergent Economy",
+          "claimed_year": 2022,
+          "primary_pointer": "https://doi.org/10.5220/0011932300003432"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Sentiment Analysis of Electronic Social Media Based on Deep Learning')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-28T21:31:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The exponential growth of social media has created an urgent need for automated systems to analyze unstructured public sentiment in real time. This study compares a traditional Logistic Regression model using TF-IDF features with a deep learning Bidirectional Long Short-Term Memory (BiLSTM) architecture on a 10,000-tweet subset of the Sentiment140 dataset. Experimental results show that Logistic Regression outperformed BiLSTM, achieving an accuracy of 73.5% compared with 69.17%, while the deep learning model exhibited mild overfitting. These findings suggest that for medium-scale informal text data, classical machine learning with robust feature extraction can outperform more complex deep learning approaches. Finally, the trained models were integrated into an interactive web application using Streamlit and deployed on Hugging Face Spaces for public access.",
+          "claimed_authors": [
+            "Vita Anggraini",
+            "Cintya Bella",
+            "Bastian",
+            "Luluk Muthoharoh",
+            "Ardika Satria",
+            "Martin C. T. Manullang"
+          ],
+          "claimed_title": "A Comparative Analysis of Machine Learning and Deep Learning Models for Tweet Sentiment Classification: A Case Study on the Sentiment140 Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.04888"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='A Comparative Analysis of Machine Learning and Deep Learning Models for Tweet Sentiment Classification: A Case Study on the Sentiment140 Dataset')",
+        "failed_at": "2026-06-28T21:31:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Seungwook Jin",
+            "Weidong Xia",
+            "Keumseok Kang"
+          ],
+          "claimed_title": "The Moderating Effect of User-Generated Content on Firm-Generated Content: Evidence from the US Box Office",
+          "claimed_venue": "International Conference on Interaction Sciences",
+          "claimed_year": 2025,
+          "primary_pointer": "https://www.semanticscholar.org/paper/9db74836ef2c11067b333dc993cf243484a7c6df"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='The Moderating Effect of User-Generated Content on Firm-Generated Content: Evidence from the US Box Office')",
+        "failed_at": "2026-06-28T21:31:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "B. Kazi"
+          ],
+          "claimed_title": "Investigating the Impact of Firm-generated Content on User-generated Content and Box Office Sales",
+          "claimed_venue": "",
+          "claimed_year": 2016,
+          "primary_pointer": "https://www.semanticscholar.org/paper/6cb2f70c5eaf9e5dae4d59f9f6e05778e4fc515b"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Investigating the Impact of Firm-generated Content on User-generated Content and Box Office Sales')",
+        "failed_at": "2026-06-28T21:31:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Astrotourism has emerged as a powerful cross sectoral tool to promote science education, sustainable economic development, and cultural exchange. Recognising its potential, the International Astronomical Union's Office of Astronomy for Development (IAU OAD) has developed a suite of openly accessible resources to support individuals and institutions interested in implementing astrotourism initiatives globally. These resources also encourage individuals and existing businesses to broaden their offerings to include activities that use the night sky as a backdrop, such as food experiences, wellness practices, and cultural exploration. This paper offers a comprehensive summary of these resources, available on the OAD's Astrotourism Portal, and situates them within the broader context of astronomy for development work. The paper is targeted at educators, policymakers, tourism operators, grassroots organisers, and entrepreneurs, providing guidance on how they can foster inclusive, locally grounded, and sustainable astrotourism efforts, particularly in underresourced or emerging contexts.",
+          "claimed_authors": [
+            "Joyful E. Mdhluli",
+            "IAU Office of Astronomy for Development"
+          ],
+          "claimed_title": "Astrotourism for Development: An Overview of Resources from the IAU Office of Astronomy for Development",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.15827"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Astrotourism for Development: An Overview of Resources from the IAU Office of Astronomy for Development')",
+        "failed_at": "2026-06-28T21:31:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-generated images are increasingly prevalent on social media, raising concerns about trust and authenticity. This study investigates how different levels of label detail (basic, moderate, maximum) and content stakes (high vs. low) influence user engagement with and perceptions of AI-generated images through a within-subjects experimental study with 105 participants. Our findings reveal that increasing label detail enhances user perceptions of label transparency but does not affect user engagement. However, content stakes significantly impact user engagement and perceptions, with users demonstrating higher engagement and trust in low-stakes images. These results suggest that social media platforms can adopt detailed labels to improve transparency without compromising user engagement, offering insights for effective labeling strategies for AI-generated content.",
+          "claimed_authors": [
+            "Jingruo Chen",
+            "TungYen Wang",
+            "Marie Williams",
+            "Natalia Jordan",
+            "Mingyi Shao",
+            "Linda Zhang",
+            "Susan R. Fussell"
+          ],
+          "claimed_title": "Examining the Impact of Label Detail and Content Stakes on User Perceptions of AI-Generated Images on Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.19024"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Examining the Impact of Label Detail and Content Stakes on User Perceptions of AI-Generated Images on Social Media')",
+        "failed_at": "2026-06-28T21:31:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06108"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-06-28T21:31:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Chong Oh",
+            "Sheila L. Sasser",
+            "Chelsea Lockwood-White",
+            "S. Almahmoud"
+          ],
+          "claimed_title": "Discovering Twitter Metrics for Creative Super Bowl Campaigns",
+          "claimed_venue": "",
+          "claimed_year": 2016,
+          "primary_pointer": "https://doi.org/10.1007/978-3-658-10558-7_4"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Discovering Twitter Metrics for Creative Super Bowl Campaigns')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "U. P. Kudagamage",
+            "B. Kumara",
+            "C. H. Baduraliya"
+          ],
+          "claimed_title": "Data Mining Approach to Analysis and Prediction of Movie Success",
+          "claimed_venue": "",
+          "claimed_year": null,
+          "primary_pointer": "https://www.semanticscholar.org/paper/714865b1c7e0b4c34fd239b099119fee5ff9123d"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Data Mining Approach to Analysis and Prediction of Movie Success')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, defect prediction has received a great deal of attention in the empirical software engineering world. Predicting software defects before the maintenance phase is very important not only to decrease the maintenance costs but also increase the overall quality of a software product. There are different types of product, process, and developer based software metrics proposed so far to measure the defectiveness of a software system. This paper suggests to use a novel set of software metrics which are based on the similarities detected among the source code files in a software project. To find source code similarities among different files of a software system, plagiarism and clone detection techniques are used. Two simple similarity metrics are calculated for each file, considering its overall similarity to the defective and non defective files in the project. Using these similarity metrics, we predict whether a specific file is defective or not. Our experiments on 10 open source data sets show that depending on the amount of detected similarity, proposed metrics could achieve significantly better performance compared to the existing static code metrics in terms of the area under the curve (AUC).",
+          "claimed_authors": [
+            "Ahmet Okutan"
+          ],
+          "claimed_title": "Use of Source Code Similarity Metrics in Software Defect Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.10033"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Use of Source Code Similarity Metrics in Software Defect Prediction')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider some well-behaved cases of the gluing formalism for punctured stable log maps of Abramovich-Chen-Gross-Siebert. This gives a gluing formula for log Gromov-Witten invariants in a diverse set of cases; in particular, the gluing formulae of Li-Ruan, Jun Li and Kim-Lho-Ruddat become an easy special case. The last section gives an application of this gluing formalism to canonical wall structures for K3 surfaces as constructed by Gross and Siebert in \"The canonical wall structure and intrinsic mirror symmetry.\"",
+          "claimed_authors": [
+            "Mark Gross"
+          ],
+          "claimed_title": "Remarks on gluing punctured logarithmic maps",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.02661"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Remarks on gluing punctured logarithmic maps')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outcome prediction is crucial for head and neck cancer patients as it can provide prognostic information for early treatment planning. Radiomics methods have been widely used for outcome prediction from medical images. However, these methods are limited by their reliance on intractable manual segmentation of tumor regions. Recently, deep learning methods have been proposed to perform end-to-end outcome prediction so as to remove the reliance on manual segmentation. Unfortunately, without segmentation masks, these methods will take the whole image as input, such that makes them difficult to focus on tumor regions and potentially unable to fully leverage the prognostic information within the tumor regions. In this study, we propose a radiomics-enhanced deep multi-task framework for outcome prediction from PET/CT images, in the context of HEad and neCK TumOR segmentation and outcome prediction challenge (HECKTOR 2022). In our framework, our novelty is to incorporate radiomics as an enhancement to our recently proposed Deep Multi-task Survival model (DeepMTS). The DeepMTS jointly learns to predict the survival risk scores of patients and the segmentation masks of tumor regions. Radiomics features are extracted from the predicted tumor regions and combined with the predicted survival risk scores for final outcome prediction, through which the prognostic information in tumor regions can be further leveraged. Our method achieved a C-index of 0.681 on the testing set, placing the 2nd on the leaderboard with only 0.00068 lower in C-index than the 1st place.",
+          "claimed_authors": [
+            "Mingyuan Meng",
+            "Lei Bi",
+            "Dagan Feng",
+            "Jinman Kim"
+          ],
+          "claimed_title": "Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.05409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Product recommendation was introduced as a marketing technique that is quite commonly used in online shopping platforms, one of which is TikTok Shop. The use of recommended products in the digital market environment is intended to learn consumer interests and preferences so that the target market can conduct marketing. It is expected to make it easier for consumers to find their desired products. However, the use of product recommendations in the digital market also has the potential to have a negative effect in the form of forming consumer impulsive behavior. For this reason, this research was conducted to understand what factors of product recommendations can motivate consumer impulsive behavior at TikTok Shop and to see the effectiveness of video advertisements in motivating consumers to make purchases. In its implementation, this research uses the principles of signaling theory as the basis of research. Then, the research was carried out using a quantitative approach to collect and process data. The data collection method was carried out through questionnaire distribution by utilizing Google form as a data collection medium and social media as a medium for distributing questionnaires. Meanwhile, the data from the questionnaire was processed using the SmartPLS 3 application. The study results show that providing product recommendations through video content (VC) has the potential to shape consumer impulsive behavior.",
+          "claimed_authors": [
+            "Asharinnisa Salsabila",
+            "B. Prasetyo"
+          ],
+          "claimed_title": "The Effect of S-Commerce Tiktok Shop Recommendation Products on Changes in Consumer Impulsive Buying Behavior: A Study with Signaling Theory",
+          "claimed_venue": "Journal of Advances in Information Systems and Technology",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.15294/jaist.v6i1.1718"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='The Effect of S-Commerce Tiktok Shop Recommendation Products on Changes in Consumer Impulsive Buying Behavior: A Study with Signaling Theory')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The potato donut industry has experienced a decline in revenue, compounded by consumer complaints regarding service quality post-COVID-19. Understanding consumer behavior and seller service standards is crucial for enhancing purchasing decisions. This study aims to investigate the influence of attitude towards behavior, subjective norms, perceived behavioral control, and service quality on purchase intention for potato donuts, as well as the impact of service quality and behavioral control on purchase decisions, and the pivotal role of purchase intention therein. A sample of 70 respondents aged 15-55 participated, with primary data collection conducted via online questionnaires distributed through Google Forms in November 2023. Structural equation modeling (SEM) analysis performed using WarpPLS 8.0 software revealed that attitudes towards behavior, subjective norms, and perceived behavioral control positively and significantly influenced purchase intention for potato donuts, while service quality yielded no significant effect. Neither perceived behavioral control nor service quality exerted influence on purchase decisions for potato donuts. Notably, purchase intention emerged as a highly significant determinant of purchase decisions.",
+          "claimed_authors": [
+            "Isma Munawaroh",
+            "A. Muhaimin",
+            "Riyanti Isaskar"
+          ],
+          "claimed_title": "Consumer Behavior of Potato Donuts in Malang, Indonesia: An Extended Theory of Planned Behavior (ETPB) Approach",
+          "claimed_venue": "Agriecobis : Journal of Agricultural Socioeconomics and Business",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.22219/agriecobis.v7i01.31092"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Consumer Behavior of Potato Donuts in Malang, Indonesia: An Extended Theory of Planned Behavior (ETPB) Approach')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "\n \n Given the rapid progress in digitalization, the essence of exchange has been reformulated with the help of digital platforms allowing a temporary access of ownership to the global travel industry. Drawing on signaling theory, this study analyzes the demand-side constraints influencing consumers’ attitudes toward digital short-term rental platforms through a cross-country analysis.\n \n \n \n This study performs a cross-country segmentation analysis in five European countries (i.e. UK, Croatia, Italy, Turkey and Spain) by using survey data from 534 consumers and structural equation models.\n \n \n \n The findings indicate that perceived risk and lack of service quality exert a significant influence on consumers’ attitudes, with distrust serving as a mediation mechanism. Digital short-term rental platform managers, hosts and policymakers should collaboratively implement trust-building strategies, including fostering third-party quality certifications, enhancing cancellation flexibility and ensuring the provision of transparent information with an intent to mitigate perceived risk and reduce distrust.\n \n \n \n This study provides a timely contribution to the reshaping of consumer behavior and stimulates a discussion regarding the underexplored attitudes of customers who have not previously used digital short-term rental platforms and their important demand constraints, putting an emphasis on the signals with a dark side which could be interpreted differently from country to country.\n",
+          "claimed_authors": [
+            "C. Giglio",
+            "Nilay Bıçakcıoğlu-Peynirci",
+            "M. Alonso‐Almeida",
+            "Cristina Miguel",
+            "Ivana Načinović Braje"
+          ],
+          "claimed_title": "Demand-side constraints affecting consumer attitudes toward digital short-term rental platforms across five European countries: a signaling theory perspective",
+          "claimed_venue": "International Marketing Review",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1108/imr-10-2024-0432"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Demand-side constraints affecting consumer attitudes toward digital short-term rental platforms across five European countries: a signaling theory perspective')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, there has been an increasing interest in the use of robotic technology at home. A number of service robots appeared on the market, supporting customers in the execution of everyday tasks. Roughly at the same time, consumer level robots started to be used also as toys or gaming companions. However, gaming possibilities provided by current off-the-shelf robotic products are generally quite limited, and this fact makes them quickly loose their attractiveness. A way that has been proven capable to boost robotic gaming and related devices consists in creating playful experiences in which physical and digital elements are combined together using Mixed Reality technologies. However, these games differ significantly from digital- or physical only experiences, and new design principles are required to support developers in their creative work. This papers addresses such need, by drafting a set of guidelines which summarize developments carried out by the research community and their findings.",
+          "claimed_authors": [
+            "F. Gabriele Pratticò",
+            "Fabrizio Lamberti"
+          ],
+          "claimed_title": "Mixed-Reality Robotic Games: Design Guidelines for Effective Entertainment with Consumer Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.15538"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Mixed-Reality Robotic Games: Design Guidelines for Effective Entertainment with Consumer Robots')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consumer electronics (CE) connected to the Internet of Things are susceptible to various attacks, including DDoS and web-based threats, which can compromise their functionality and facilitate remote hijacking. These vulnerabilities allow attackers to exploit CE for broader system attacks while enabling the propagation of malicious code across the CE network, resulting in device failures. Existing deep learning-based traffic anomaly detection systems exhibit high accuracy in traditional network environments but are often overly complex and reliant on static infrastructure, necessitating manual configuration and management. To address these limitations, we propose a scalable network model that integrates Software-defined Networking (SDN) and Compute First Networking (CFN) for next-generation CE networks. In this network model, we propose a Graph Neural Networks-based Network Anomaly Detection framework (GNN-NAD) that integrates SDN-based CE networks and enables the CFN architecture. GNN-NAD uniquely fuses a static, vulnerability-aware attack graph with dynamic traffic features, providing a holistic view of network security. The core of the framework is a GNN model (GSAGE) for graph representation learning, followed by a Random Forest (RF) classifier. This design (GSAGE+RF) demonstrates superior performance compared to existing feature selection methods. Experimental evaluations on CE environment reveal that GNN-NAD achieves superior metrics in accuracy, recall, precision, and F1 score, even with small sample sizes, exceeding the performance of current network anomaly detection methods. This work advances the security and efficiency of next-generation intelligent CE networks.",
+          "claimed_authors": [
+            "Guan-Yan Yang",
+            "Farn Wang",
+            "Kuo-Hui Yeh"
+          ],
+          "claimed_title": "GNN-enhanced Traffic Anomaly Detection for Next-Generation SDN-Enabled Consumer Electronics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.07109"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='GNN-enhanced Traffic Anomaly Detection for Next-Generation SDN-Enabled Consumer Electronics')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study the problem of learning a tree Ising model from samples such that subsequent predictions made using the model are accurate. The prediction task considered in this paper is that of predicting the values of a subset of variables given values of some other subset of variables. Virtually all previous work on graphical model learning has focused on recovering the true underlying graph. We define a distance (\"small set TV\" or ssTV) between distributions $P$ and $Q$ by taking the maximum, over all subsets $\\mathcal{S}$ of a given size, of the total variation between the marginals of $P$ and $Q$ on $\\mathcal{S}$; this distance captures the accuracy of the prediction task of interest. We derive non-asymptotic bounds on the number of samples needed to get a distribution (from the same class) with small ssTV relative to the one generating the samples. One of the main messages of this paper is that far fewer samples are needed than for recovering the underlying tree, which means that accurate predictions are possible using the wrong tree.",
+          "claimed_authors": [
+            "Guy Bresler",
+            "Mina Karzand"
+          ],
+          "claimed_title": "Learning a Tree-Structured Ising Model in Order to Make Predictions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.06749"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Learning a Tree-Structured Ising Model in Order to Make Predictions')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We show the intimate connection between various mathematical notions that are currently under active investigation: a class of Garside monoids, with a \"nice\" Garside element, certain monoids $S$ with quadratic relations, whose monoidal algebra $A= k[S]$ has a Frobenius Koszul dual $A^{!}$ with regular socle, the monoids of skew-polynomial type (or equivalently, binomial skew-polynomial rings) which were introduced and studied by the author and in 1995 provided a new class of Noetherian Artin-Schelter regular domains, and the square-free set-theoretic solutions of the Yang-Baxter equation. There is a beautiful symmetry in these objects due to their nice combinatorial and algebraic properties.",
+          "claimed_authors": [
+            "Tatiana Gateva-Ivanova"
+          ],
+          "claimed_title": "Garside structure on monoids with quadratic square-free relations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0909.4709"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Garside structure on monoids with quadratic square-free relations')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The purpose of this thesis is to develop new theories on high-dimensional structured signal recovery under a rather weak assumption on the measurements that only a finite number of moments exists. High-dimensional recovery has been one of the emerging topics in the last decade partly due to the celebrated work of Candes, Romberg and Tao (e.g. [CRT06, CRT04]). The original analysis there (and the works thereafter) necessitates a strong concentration argument (namely, the restricted isometry property), which only holds for a rather restricted class of measurements with light-tailed distributions. It had long been conjectured that high-dimensional recovery is possible even if restricted isometry type conditions do not hold, but the general theory was beyond the grasp until very recently, when the works [Men14a, KM15] propose a new small-ball method. In these two papers, the authors initiated a new analysis framework for general empirical risk minimization (ERM) problems with respect to the square loss, which is robust and can potentially allow heavy-tailed loss functions. The materials in this thesis are partly inspired by [Men14a], but are of a different mindset: rather than directly analyzing the existing ERMs for signal recovery for which it is difficult to avoid strong moment assumptions, we show that, in many circumstances, by carefully re-designing the ERMs to start with, one can still achieve the minimax optimal statistical rate of signal recovery with very high probability under much weaker assumptions than existing works.",
+          "claimed_authors": [
+            "Xiaohan Wei"
+          ],
+          "claimed_title": "II. High Dimensional Estimation under Weak Moment Assumptions: Structured Recovery and Matrix Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.02468"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='II. High Dimensional Estimation under Weak Moment Assumptions: Structured Recovery and Matrix Estimation')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "For a set $A\\subset C[0,\\infty)$, we give new results on the growth of the number of particles in a dyadic branching Brownian motion whose paths fall within A. We show that it is possible to work without rescaling the paths. We give large deviations probabilities as well as a more sophisticated proof of a result on growth in the number of particles along certain sets of paths. Our results reveal that the number of particles can oscillate dramatically. As a byproduct of our methods we also obtain new results on the number of particles near the frontier of the model. The methods used are entirely probabilistic.",
+          "claimed_authors": [
+            "Simon C. Harris",
+            "Matthew I. Roberts"
+          ],
+          "claimed_title": "The unscaled paths of branching Brownian motion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1001.2471"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='The unscaled paths of branching Brownian motion')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we study change-point testing for high-dimensional linear models, an important problem that has not been well explored in the literature. Specifically, we propose a quadratic-form cumulative sum (CUSUM) statistic to test the stability of regression coefficients in high-dimensional linear models. The test controls type-I error at any desired level and is robust to temporally dependent observations. We establish its asymptotic distribution under the null hypothesis, and demonstrate that it is asymptotically powerful against multiple change-point alternatives and achieves the optimal detection boundary for a wide class of high-dimensional models. We further develop an adaptive procedure to estimate the tuning parameters of the test, making our method practical in applications. Additionally, we extend our approach to localize change-points in the regression time series and establish sharp error bounds for our change-point estimator. Extensive numerical experiments and a real data application in macroeconomics are conducted to demonstrate the promising performance and practical utility of the proposed test.",
+          "claimed_authors": [
+            "Zifeng Zhao",
+            "Xiaokai Luo",
+            "Zongge Liu",
+            "Daren Wang"
+          ],
+          "claimed_title": "Optimal Change-point Testing for High-dimensional Linear Models with Temporal Dependence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.03880"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Optimal Change-point Testing for High-dimensional Linear Models with Temporal Dependence')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Computational sensing strategies often suffer from calibration errors in the physical implementation of their ideal sensing models. Such uncertainties are typically addressed by using multiple, accurately chosen training signals to recover the missing information on the sensing model, an approach that can be resource-consuming and cumbersome. Conversely, blind calibration does not employ any training signal, but corresponds to a bilinear inverse problem whose algorithmic solution is an open issue. We here address blind calibration as a non-convex problem for linear random sensing models, in which we aim to recover an unknown signal from its projections on sub-Gaussian random vectors, each subject to an unknown positive multiplicative factor (or gain). To solve this optimisation problem we resort to projected gradient descent starting from a suitable, carefully chosen initialisation point. An analysis of this algorithm allows us to show that it converges to the exact solution provided a sample complexity requirement is met, i.e., relating convergence to the amount of information collected during the sensing process. Interestingly, we show that this requirement grows linearly (up to log factors) in the number of unknowns of the problem. This sample complexity is found both in absence of prior information, as well as when subspace priors are available for both the signal and gains, allowing a further reduction of the number of observations required for our recovery guarantees to hold. Moreover, in the presence of noise we show how our descent algorithm yields a solution whose accuracy degrades gracefully with the amount of noise affecting the measurements. Finally, we present some numerical experiments in an imaging context, where our algorithm allows for a simple solution to blind calibration of the gains in a sensor array.",
+          "claimed_authors": [
+            "Valerio Cambareri",
+            "Laurent Jacques"
+          ],
+          "claimed_title": "Through the Haze: a Non-Convex Approach to Blind Gain Calibration for Linear Random Sensing Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.09028"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Through the Haze: a Non-Convex Approach to Blind Gain Calibration for Linear Random Sensing Models')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper we state and explain techniques useful for the computation of strong Gröbner and standard bases over Euclidean domains: First we investigate several strategies for creating the pair set using an idea by Lichtblau. Then we explain methods for avoiding coefficient growth using syzygies. We give an in-depth discussion on normal form computation resp. a generalized reduction process with many optimizations to further avoid large coefficients. These are combined with methods to reach GCD-polynomials at an earlier stage of the computation. Based on various examples we show that our new implementation in the computer algebra system Singular is, in general, more efficient than other known implementations.",
+          "claimed_authors": [
+            "Christian Eder",
+            "Gerhard Pfister",
+            "Adrian Popescu"
+          ],
+          "claimed_title": "Standard Bases over Euclidean Domains",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.05736"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Standard Bases over Euclidean Domains')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "For line bundles on arithmetic varieties we construct height functions using arithmetic intersection theory. In the case of an arithmetic surface, generically of genus g, for line bundles of degree g equivalence is shown to the height on the Jacobian defined by the Theta divisor.",
+          "claimed_authors": [
+            "Joerg Jahnel"
+          ],
+          "claimed_title": "Heights for line bundles on arithmetic surfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1995,
+          "primary_pointer": "alg-geom/9508003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Heights for line bundles on arithmetic surfaces')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Using Fock--Goncharov higher Teichmüller space variables we derive Darboux coordinate representation for entries of general symplectic leaves of the $\\mathcal A_n$ groupoid of upper-triangular matrices and, in a more general setting, of higher-dimensional symplectic leaves for algebras governed by the reflection equation with the trigonometric $R$-matrix. The obtained results are in a perfect agreement with the previously obtained Poisson and quantum representations of groupoid variables for $\\mathcal A_3$ and $\\mathcal A_4$ in terms of geodesic functions for Riemann surfaces with holes. We represent braid-group transformations for $\\mathcal A_n$ via sequences of cluster mutations in the special $\\mathbb A_n$-quiver. We prove the groupoid relations for quantum transport matrices and, as a byproduct, obtain the Goldman bracket in the semiclassical limit.",
+          "claimed_authors": [
+            "L. Chekhov",
+            "M. Shapiro"
+          ],
+          "claimed_title": "Darboux coordinates for symplectic groupoid and cluster algebras",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.07499"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Darboux coordinates for symplectic groupoid and cluster algebras')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Stochastic gradient descent (SGD) is a pillar of modern machine learning, serving as the go-to optimization algorithm for a diverse array of problems. While the empirical success of SGD is often attributed to its computational efficiency and favorable generalization behavior, neither effect is well understood and disentangling them remains an open problem. Even in the simple setting of convex quadratic problems, worst-case analyses give an asymptotic convergence rate for SGD that is no better than full-batch gradient descent (GD), and the purported implicit regularization effects of SGD lack a precise explanation. In this work, we study the dynamics of multi-pass SGD on high-dimensional convex quadratics and establish an asymptotic equivalence to a stochastic differential equation, which we call homogenized stochastic gradient descent (HSGD), whose solutions we characterize explicitly in terms of a Volterra integral equation. These results yield precise formulas for the learning and risk trajectories, which reveal a mechanism of implicit conditioning that explains the efficiency of SGD relative to GD. We also prove that the noise from SGD negatively impacts generalization performance, ruling out the possibility of any type of implicit regularization in this context. Finally, we show how to adapt the HSGD formalism to include streaming SGD, which allows us to produce an exact prediction for the excess risk of multi-pass SGD relative to that of streaming SGD (bootstrap risk).",
+          "claimed_authors": [
+            "Courtney Paquette",
+            "Elliot Paquette",
+            "Ben Adlam",
+            "Jeffrey Pennington"
+          ],
+          "claimed_title": "Implicit Regularization or Implicit Conditioning? Exact Risk Trajectories of SGD in High Dimensions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.07252"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office', candidate_title='Implicit Regularization or Implicit Conditioning? Exact Risk Trajectories of SGD in High Dimensions')",
+        "failed_at": "2026-06-28T21:31:15Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rahul Tejwani"
+          ],
+          "title": "Two-dimensional Sentiment Analysis of text",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1406.2022",
+        "summary": "Sentiment Analysis aims to get the underlying viewpoint of the text, which could be anything that holds a subjective opinion, such as an online review, Movie rating, Comments on Blog posts etc. This paper presents a novel approach that classify text in two-dimensional Emotional space, based on the sentiments of the author. The approach uses existing lexical resources to extract feature set, which is trained using Supervised Learning techniques.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1406.2022",
+          "http_status": 200,
+          "pdf_sample_score": 0.138,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:31:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tingting Song",
+            "Jinghua Huang",
+            "Yong Tan",
+            "Yifan Yu"
+          ],
+          "title": "Using User- and Marketer-Generated Content for Box Office Revenue Prediction: Differences Between Microblogging and Third-Party Platforms",
+          "venue": "Information systems research",
+          "year": 2019
+        },
+        "primary_pointer": "https://doi.org/10.1287/ISRE.2018.0797",
+        "summary": "How to improve the predictive accuracy of box office revenue with social media data is a big challenge and is particularly important for movie distributors and cinema operators. In this research, we find that microblogging UGC (MUGC) is a significant predictor of box office revenue and has stronger predictive power than UGC on Douban! Movies (DUGC) based on our examination of 60 movies released in China in 2012. To increase the attendance rate of movies, cinema operators can consider previous valence and volume of MUGC before scheduling the current film screenings because these messages can quickly predict the future box office revenue of a movie. Besides, we find that the volume of enterprise microblogs (i.e., MGC) can predict both box office revenue and MUGC, indicating that movie distributors should optimize their online media strategy by shifting more resources to utilizing enterprise microblogging. Although rebroadcasting volume from microblogging platforms does not predict box office revenue directl...",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://pubsonline.informs.org/doi/10.1287/isre.2018.0797",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [
+            "https://doi.org/10.1287/ISRE.2018.0797"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:31:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "S. Vardhan",
+            "C. AshokKumar",
+            "Killemsetty Viswa",
+            "S. Balaji",
+            "C. J. Kumar"
+          ],
+          "title": "From Buzz to Blockbuster: Predicting Movie Revenue Using a Hybrid Approach Combining Machine Learning and Sentiment Analysis",
+          "venue": "2025 International Conference on Multi-Agent Systems for Collaborative Intelligence (ICMSCI)",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/ICMSCI62561.2025.10894031",
+        "summary": "This research investigates a hybrid approach for predicting movie revenue by integrating machine learning models with sentiment analysis. The growing influence of social media and online discussions offers a valuable opportunity to understand audience engagement and sentiment, which are critical in forecasting box office performance. By analyzing data from various social media platforms alongside movie metadata from sources like IMDb and TMDb, this study seeks to create a comprehensive model that can predict a movie's opening weekend revenue and classify it as a “Hit,” “Average,” or “Flop.” The work highlights the value of audience sentiment, pre-release engagement, and historical box office trends in predicting financial outcomes. By using a combination of quantitative metrics (likes, shares, views) and qualitative data (sentiment scores, discussion themes), the study aims to refine revenue predictions and improve classification accuracy. The hybrid model's ability to incorporate both traditional and real-time data offers several advantages, including better responsiveness to audience perceptions, the ability to identify emerging trends, and more accurate revenue forecasts. This research provides actionable insights that can aid movie studios, marketers, and investors in decision-making processes, ultimately reducing financial risks associated with movie releases. The findings contribute to the growing field of predictive analytics in the entertainment industry, offering a novel and data-driven approach to understanding and forecasting movie success.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://ieeexplore.ieee.org/document/10894031/",
+          "http_status": 202,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.1109/ICMSCI62561.2025.10894031"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:31:14Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

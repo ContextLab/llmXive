@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Record Schema"
+description: "Schema for classification model evaluation metrics"
+type: "object"
+required:
+  - model_id
+  - model_type
+  - roc_auc
+  - roc_auc_std
+  - precision
+  - recall
+  - cv_folds
+  - training_time_seconds
+  - random_seed
+  - evaluated_at
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  model_type:
+    type: "string"
+    description: "Type of classifier"
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+  roc_auc:
+    type: "number"
+    description: "ROC‑AUC score on held‑out test set"
+    minimum: 0
+    maximum: 1
+  roc_auc_std:
+    type: "number"
+    description: "Standard deviation across CV folds"
+    minimum: 0
+  precision:
+    type: "number"
+    description: "Precision on held‑out test set"
+    minimum: 0
+    maximum: 1
+  recall:
+    type: "number"
+    description: "Recall on held‑out test set"
+    minimum: 0
+    maximum: 1
+  cv_folds:
+    type: "integer"
+    description: "Number of cross‑validation folds"
+    minimum: 2
+    maximum: 10
+  training_time_seconds:
+    type: "number"
+    description: "Wall‑clock training time in seconds"
+    minimum: 0
+  random_seed:
+    type: "integer"
+    description: "Random seed used for reproducibility"
+  evaluated_at:
+    type: "string"
+    description: "Evaluation timestamp"
+    format: "date-time"
+  imbalance_flag:
+    type: "boolean"
+    description: "True if class imbalance > 3:1 was detected"
+  power_sufficient:
+    type: "boolean"
+    description: "True if dataset meets power‑analysis minimum size"
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of δ‑threshold robustness (keys: δ_values, metrics)"
+additionalProperties: false

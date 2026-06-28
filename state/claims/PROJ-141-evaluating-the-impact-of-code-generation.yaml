@@ -1,0 +1,135 @@
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier specifications 2 CPU 7 GB RAM 14 GB disk 6 hour
+    limit
+  claim_id: c_9c51475e
+  context: "All tasks MUST run on GitHub Actions free-tier (2 CPU, 7 GB RAM, 14 GB\
+    \ disk, NO GPU, \u22646 h)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GitHub Actions free-tier provides 2 CPU, 7 GB RAM, 14 GB disk, \u2264\
+    6 h execution time"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-28T21:41:58Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset available for code generation evaluation
+  claim_id: c_951a231e
+  context: Verify HumanEval dataset URL and download script with commit hash/API snapshot
+    capture
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: The introduction of large language models has significantly advanced
+        code generation. However, open-source models often lack the execution capabilities
+        and iterative refinement of advanced systems like the GPT-4 Code Interpreter.
+        To address this, we introduce OpenCodeInterpreter, a family of open-source
+        code systems designed for generating, executing, and iteratively refining
+        code. Supported by Code-Feedback, a dataset featuring 68K multi-turn interactions,
+        OpenCodeInterpreter integrates execution and human feedback for dynamic code
+        refinement. Our comprehensive evaluation of OpenCodeInterpreter across key
+        benchmarks such as HumanEval, MBPP, and their enhanced versions from EvalPlus
+        reveals its exceptional performance. Notably, OpenCodeInterpreter-33B achieves
+        an accuracy of 83.2 (76.4) on the average (and plus versions) of HumanEval
+        and MBPP, closely rivaling GPT-4's 84.2 (76.2) and further elevates to 91.6
+        (84.6) with synthesized human feedback from GPT-4. OpenCodeInterpreter brings
+        the gap between open-source code generation models and proprietary systems
+        like GPT-4 Code Interpreter.
+      source_id: https://doi.org/10.48550/arXiv.2402.14658
+      url: https://doi.org/10.48550/arXiv.2402.14658
+      value: HumanEval
+    filled: true
+  kind: entity_fact
+  raw_text: HumanEval dataset is available for code generation evaluation
+  resolved_value: HumanEval
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-28T22:15:32Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Codeforces dataset available for code generation evaluation
+  claim_id: c_dbca3f2b
+  context: Verify Codeforces dataset URL and download script with commit hash/API
+    snapshot capture
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://arxiv.org/abs/2510.19116
+  kind: entity_fact
+  raw_text: Codeforces dataset is available for code generation evaluation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-28T22:33:29Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: StarCoder model exists for code generation
+  claim_id: c_5ef8f15e
+  context: "Verify StarCoder model size \u22641GB and CPU-tractable; implement CPU-only\
+    \ inference wrapper"
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.18420/BTW2025-29
+        url: https://doi.org/10.18420/BTW2025-29
+        value: StarCoder-3B model
+      - channel: paper
+        source_id: https://doi.org/10.48550/arXiv.2402.19173
+        url: https://doi.org/10.48550/arXiv.2402.19173
+        value: StarCoder2
+      quote: Code Large Language Models (Code LLMs) such as Code LLaMa and StarCoder
+        have exhibited outstanding proficiency in tasks required for specific tasks
+        like code generation. Several conducted research to similar task by utilizing
+        fine-tuning techniques from state-of-the-art base models for more specific
+        related task. However, due to the cost limitations and limited computing resources,
+        performing fine-tuning from large language models is excessively high. In
+        this study, we utilized Low-Rank Adaptation (LoRA) for base large language
+        models such as LLaMA-2 and Phi-1.5, which uses trainable rank decomposition
+        matrices. Furthermore, we injected Quantized LoRA (QLoRA) to help reduce memory
+        usage while training the model and analyzed the contribution to GPU usage.
+        Notably, our findings reveal that employing these techniques for fine-tuning
+        on small datasets yields cost-effective and viable alternatives for language-related
+        tasks, showcasing competitive performance compared to state-of-the-art models
+        like CodeLLaMa 7B substantiated by lower train loss achieved in our experiments.
+      source_id: https://doi.org/10.1109/IMCOM60618.2024.10418267
+      url: https://doi.org/10.1109/IMCOM60618.2024.10418267
+      value: StarCoder
+    filled: true
+  kind: entity_fact
+  raw_text: StarCoder model exists for code generation
+  resolved_value: StarCoder
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-28T22:52:53Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: JaCoText model is Java code generation model
+  claim_id: c_b0d00447
+  context: Research and document alternative Java code generation model if JaCoText
+    unavailable
+  evidence:
+    entailment_evidence: 'JaCoText: A Pretrained Model for Java Code-Text Generation'
+    entailment_status: grounded
+    source_url: https://arxiv.org/abs/2303.12869
+  kind: entity_fact
+  raw_text: JaCoText model is a Java code generation model
+  resolved_value: JaCoText model is Java code generation model
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-28T22:53:44Z'

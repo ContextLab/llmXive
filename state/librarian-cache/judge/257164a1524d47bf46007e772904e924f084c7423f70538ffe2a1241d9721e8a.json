@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1109/ICMSCI62561.2025.10894031",
+  "judged_at": "2026-06-28T21:36:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the relationship between the same independent variable (sentiment/audience engagement) and dependent variable (box office revenue) within the same domain (movies), providing canonical prior work on the mechanism the user intends to analyze.",
+  "relevant": true
+}

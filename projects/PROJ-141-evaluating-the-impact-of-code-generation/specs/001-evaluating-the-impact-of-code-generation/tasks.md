@@ -23,10 +23,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (code/, tests/, data/, models/, logs/)
-- [ ] T002 Initialize Python 3.11 project with requirements.txt (Flask, radon, coverage.py, pylint, scipy, statsmodels, torch, datasets)
-- [ ] T003 [P] Configure linting and formatting tools (black, flake8) in code/
-- [ ] T048 [P] Documentation updates: Create quickstart.md, README.md, and API documentation in docs/ (specific deliverables: docs/quickstart.md, docs/README.md, docs/api.md)
+- [X] T001 Create project structure per implementation plan (code/, tests/, data/, models/, logs/)
+- [X] T002 Initialize Python 3.11 project with requirements.txt (Flask, radon, coverage.py, pylint, scipy, statsmodels, torch, datasets)
+- [X] T003 [P] Configure linting and formatting tools (black, flake8) in code/
+- [X] T048 [P] Documentation updates: Create quickstart.md, README.md, and API documentation in docs/ (specific deliverables: docs/quickstart.md, docs/README.md, docs/api.md)
 
 ---
 
@@ -169,7 +169,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T049 Code cleanup and refactoring across code/: Run black formatting, flake8 cleanup, remove dead code (specific deliverables: all .py files formatted with black, flake8 passes)
+- [ ] T049 Code cleanup and refactoring across code/: Run black formatting, flake8 cleanup, remove dead code (specific deliverables: all.py files formatted with black, flake8 passes)
 - [ ] T054 Run quickstart.md validation and document any gaps
 - [ ] T055 [P] Create metadata.yaml with dataset versions, commit hashes, timestamps (data/metadata.yaml)
 - [ ] T056 [P] Implement checksum verification for all files under data/ (data/checksums.py)
@@ -184,37 +184,37 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - **T011a/T011b/T011c (JaCoText gap)** must be resolved before proceeding with model integration tasks
-  - **T009, T010 (dataset URLs)** must be verified with version capture before problem loading implementation
-  - **T012 (StarCoder verification)** must be completed before LLM integration
-  - **T007 (base models)** must precede T008 (database schema) - schema depends on entity definitions
-  - **T006 (logging infrastructure)** must succeed T004 (environment config) - infrastructure before usage
-  - **T005 (consent flow)** must succeed T004 (environment config) - config before consent
-  - **T053a/T053b (data protection)** must complete BEFORE any data collection in Phase 3 per Constitution VII
-  - **T057 (compatibility test)** must complete before user story implementation to verify infrastructure feasibility
+ - **T011a/T011b/T011c (JaCoText gap)** must be resolved before proceeding with model integration tasks
+ - **T009, T010 (dataset URLs)** must be verified with version capture before problem loading implementation
+ - **T012 (StarCoder verification)** must be completed before LLM integration
+ - **T007 (base models)** must precede T008 (database schema) - schema depends on entity definitions
+ - **T006 (logging infrastructure)** must succeed T004 (environment config) - infrastructure before usage
+ - **T005 (consent flow)** must succeed T004 (environment config) - config before consent
+ - **T053a/T053b (data protection)** must complete BEFORE any data collection in Phase 3 per Constitution VII
+ - **T057 (compatibility test)** must complete before user story implementation to verify infrastructure feasibility
 - **User Stories (Phase 3+)**: Data-flow dependencies exist between stories
-  - **US1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-  - **US2 (P2)**: Depends on US1 submissions being available (T019 code submission must complete first)
-  - **US3 (P3)**: Depends on US2 metrics being available (T032 metric aggregation must complete first)
-  - Stories can proceed in parallel ONLY if data dependencies are satisfied
+ - **US1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+ - **US2 (P2)**: Depends on US1 submissions being available (T019 code submission must complete first)
+ - **US3 (P3)**: Depends on US2 metrics being available (T032 metric aggregation must complete first)
+ - Stories can proceed in parallel ONLY if data dependencies are satisfied
 - **Polish (Phase 6)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-  - T023 (JaCoText integration) depends on T011b/T011c resolution confirmation
-  - T024 (StarCoder integration) depends on T012 completion
-  - T024a (fallback logic) depends on T023 and T024
+ - T023 (JaCoText integration) depends on T011b/T011c resolution confirmation
+ - T024 (StarCoder integration) depends on T012 completion
+ - T024a (fallback logic) depends on T023 and T024
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 submissions being available
-  - T028-T031 (individual metrics) can run in parallel
-  - T032 (aggregation) MUST come after T028-T031 complete
-  - T033-T035 (edge case handling) can run in parallel
+ - T028-T031 (individual metrics) can run in parallel
+ - T032 (aggregation) MUST come after T028-T031 complete
+ - T033-T035 (edge case handling) can run in parallel
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 metrics being available
-  - T038 (CSV data loader) MUST precede T039-T043 (statistical tests)
-  - T039-T043 (statistical tests) can run in parallel after T038
-  - T042-T043a (correction + verification) can run in parallel after T039-T041
-  - T044 (sensitivity analysis) MUST come after T039-T043 complete
-  - T045/T045a/T045b (export + traceability) can run in parallel after statistical tests
+ - T038 (CSV data loader) MUST precede T039-T043 (statistical tests)
+ - T039-T043 (statistical tests) can run in parallel after T038
+ - T042-T043a (correction + verification) can run in parallel after T039-T041
+ - T044 (sensitivity analysis) MUST come after T039-T043 complete
+ - T045/T045a/T045b (export + traceability) can run in parallel after statistical tests
 
 ### Within Each User Story
 
@@ -229,8 +229,8 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-  - T004, T009, T010, T011a, T011b, T011c, T012, T053a, T053b, T055a, T056a, T057 can run in parallel (config, dataset/model verification, data protection, checksums, compatibility)
-  - T005/T006 depend on T004 completion
+ - T004, T009, T010, T011a, T011b, T011c, T012, T053a, T053b, T055a, T056a, T057 can run in parallel (config, dataset/model verification, data protection, checksums, compatibility)
+ - T005/T006 depend on T004 completion
 - Once Foundational phase completes, US1 can start independently
 - US2 can start once US1 submission infrastructure is complete
 - US3 can start once US2 metric infrastructure is complete
@@ -267,8 +267,8 @@ Task: "Verify GitHub Actions free-tier compatibility"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-   - **Must resolve T011a/T011b/T011c (JaCoText gap)** before proceeding
-   - **Must complete T053a/T053b (data protection)** before any data collection
+ - **Must resolve T011a/T011b/T011c (JaCoText gap)** before proceeding
+ - **Must complete T053a/T053b (data protection)** before any data collection
 3. Complete Phase 3: User Story 1
 4. Run T050a/T051a/T052a (US1 tests)
 5. **STOP and VALIDATE**: Test User Story 1 independently
@@ -288,9 +288,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (experiment interface)
-   - Developer B: User Story 2 (quality assessment) - waits for US1 submissions
-   - Developer C: User Story 3 (statistical analysis) - waits for US2 metrics
+ - Developer A: User Story 1 (experiment interface)
+ - Developer B: User Story 2 (quality assessment) - waits for US1 submissions
+ - Developer C: User Story 3 (statistical analysis) - waits for US2 metrics
 3. Stories complete and integrate independently
 4. Each developer runs their story's test tasks immediately after implementation
 

@@ -17,7 +17,7 @@ This feature quantifies how data cleaning strategies (outlier removal, missing v
 **Project Type**: Data Analysis Pipeline / CLI
 **Performance Goals**: ≤6 hours runtime, ≤7 GB RAM usage
 **Constraints**: No GPU/CUDA; CPU-only statistical methods; bootstrap iterations capped for feasibility; verified dataset URLs only.
-**Scale/Scope**: 2 verified datasets (UCI HAR, UCI Shopper); sample sizes varying (n<50 to >200).
+**Scale/Scope**: Multiple verified datasets (UCI HAR, UCI Shopper); sample sizes varying (n<50 to >200).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

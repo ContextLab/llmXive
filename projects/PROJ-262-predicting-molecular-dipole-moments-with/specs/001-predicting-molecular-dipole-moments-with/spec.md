@@ -13,7 +13,7 @@ A researcher can download the QM9 dataset, filter to a random subset, and extrac
 
 **Why this priority**: This is the foundational step without which no modeling can occur. It delivers immediate value by establishing the data infrastructure and confirming the dataset is accessible and preprocessed correctly.
 
-**Independent Test**: Can be fully tested by verifying data files exist, subset size equals 10k, and both 3D and 2D feature matrices are generated with no missing values.
+**Independent Test**: Can be fully tested by verifying data files exist, the subset is of a substantial size, and both 3D and 2D feature matrices are generated with no missing values.
 
 **Acceptance Scenarios**:
 

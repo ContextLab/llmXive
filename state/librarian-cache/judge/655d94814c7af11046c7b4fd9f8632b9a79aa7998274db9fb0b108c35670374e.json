@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.59613/0kz0g282",
+  "judged_at": "2026-06-28T21:37:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+  "rationale": "The paper focuses on corporate governance and stock market performance in Indonesia, which is an off-domain mismatch for the user's question regarding movie review sentiment and box office revenue. It does not share the relevant variables, mechanism, or empirical population required for inclusion in a literature review on this specific topic.",
+  "relevant": false
+}

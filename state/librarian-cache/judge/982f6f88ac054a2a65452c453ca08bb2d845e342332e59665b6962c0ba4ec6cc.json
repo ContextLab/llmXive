@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1016/j.heliyon.2023.e14834",
+  "judged_at": "2026-06-28T22:00:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+  "rationale": "This paper satisfies criteria (a) and (b) as it empirically measures the same core mechanism (temporal/delay discounting) and dependent variable (procrastination) within the same psychological domain, providing essential prior work on the relationship the user is investigating.",
+  "relevant": true
+}

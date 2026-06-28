@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1093/schbul/sbaa029.630",
+  "judged_at": "2026-06-28T22:01:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+  "rationale": "This paper does not address temporal discounting, procrastination, or their relationship on cognitive tasks—it focuses on dual-process theory, conflict processing, and delusional belief in schizophrenia, which are distinct psychological constructs with no measurable connection to the user's variables (temporal discounting, procrastination, cognitive task performance). This falls under the rejection rule for distinct constructs sharing only the broad domain of psychology without any overlap in me",
+  "relevant": false
+}

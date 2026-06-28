@@ -1,0 +1,25 @@
+- artifact_hash: cb60f31b9e03c1cb06522b71d19b89df29b1eff73ab92fb957985b8d10868d09
+  artifact_path: projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/specs/001-the-impact-of-visual-crowding-on-facial/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'The Ryerson Audio-Visual Database of Emotional Speech and Song (RAVDESS):
+    A dynamic, multimodal set of facial and vocal expressions in North American English
+    | PLOS One'
+  kind: url
+  value: https://doi.org/10.1371/journal.pone.0196391
+  verification_status: verified
+  verified_against_url: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0196391
+  verified_at: '2026-06-28T21:40:14.652313Z'
+- artifact_hash: cb60f31b9e03c1cb06522b71d19b89df29b1eff73ab92fb957985b8d10868d09
+  artifact_path: projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/specs/001-the-impact-of-visual-crowding-on-facial/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'The Ryerson Audio-Visual Database of Emotional Speech and Song (RAVDESS):
+    A dynamic, multimodal set of facial and vocal expressions in North American English'
+  kind: doi
+  value: 10.1371/journal.pone.0196391
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1371/journal.pone.0196391
+  verified_at: '2026-06-28T21:40:14.652313Z'

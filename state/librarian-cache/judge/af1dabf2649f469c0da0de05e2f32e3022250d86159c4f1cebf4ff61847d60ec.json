@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1080/21642850.2025.2520838",
+  "judged_at": "2026-06-28T21:50:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+  "rationale": "This paper satisfies inclusion criterion (a) and (b) as it measures the same core mechanism (temporal/delay discounting) and independent variable within the same psychological domain, characterizing the construct even though the outcome behavior (food choice) differs from procrastination.",
+  "relevant": true
+}

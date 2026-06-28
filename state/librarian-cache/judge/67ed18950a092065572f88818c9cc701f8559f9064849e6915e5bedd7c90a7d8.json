@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.61538/pajbm.v6i1.1154",
+  "judged_at": "2026-06-28T21:37:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available movie review sentiment and box office revenue statistics",
+  "rationale": "This paper is off-domain entirely, studying banking regulation and financial performance in Tanzania rather than movie sentiment and box office revenue, and shares only superficial homonym keywords (\"review\", \"performance\") without addressing the user's specific mechanism or variables.",
+  "relevant": false
+}

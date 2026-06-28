@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Alloy Composition Schema"
+description: "Schema for alloy composition records with elemental stoichiometries and phase labels"
+type: "object"
+required:
+  - composition_id
+  - elements
+  - stoichiometries
+  - phase_label
+  - label_confidence
+  - source_dataset
+  - checksum
+properties:
+  composition_id:
+    type: "string"
+    description: "Unique identifier for the alloy composition"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  elements:
+    type: "array"
+    description: "Elemental symbols (e.g., [\"Cu\", \"Zr\"])"
+    items:
+      type: "string"
+      pattern: "^[A-Z][a-z]?$"
+    minItems: 3
+  stoichiometries:
+    type: "array"
+    description: "Atomic fractions summing to 1.0"
+    items:
+      type: "number"
+      minimum: 0
+      maximum: 1
+    minItems: 3
+  phase_label:
+    type: "string"
+    description: "Glass-forming or crystalline phase label"
+    enum:
+      - "glass-forming"
+      - "crystalline"
+  label_confidence:
+    type: "string"
+    description: "Confidence level of phase label"
+    enum:
+      - "experimental"
+      - "DFT-derived"
+  source_dataset:
+    type: "string"
+    description: "Origin database for this composition"
+  checksum:
+    type: "string"
+    description: "SHA-256 checksum of raw data file"
+    pattern: "^[a-f0-9]{64}$"
+additionalProperties: false

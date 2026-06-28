@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1002.3035",
+  "judged_at": "2026-06-28T21:47:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+  "rationale": "The paper reviews the general functional role of emotions in cognition and neuromodulators but does not address the specific constructs of temporal discounting or procrastination, failing to measure the relevant variables or mechanisms required for the literature review.",
+  "relevant": false
+}

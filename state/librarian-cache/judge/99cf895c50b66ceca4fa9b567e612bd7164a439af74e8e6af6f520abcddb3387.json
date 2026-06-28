@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.10735",
+  "judged_at": "2026-06-28T21:52:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of temporal discounting in procrastination on cognitive tasks psychology",
+  "rationale": "This paper measures the core independent variable (temporal discounting/intertemporal choice) and its underlying cognitive mechanisms (time estimation), satisfying criteria (a) and (b) as essential prior work on the construct central to the user's question.",
+  "relevant": true
+}
