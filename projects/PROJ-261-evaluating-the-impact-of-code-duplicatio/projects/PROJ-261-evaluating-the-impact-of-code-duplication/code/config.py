@@ -1,90 +1,213 @@
 """
-Configuration module for the "Evaluating the Impact of Code Duplication on LLM Code Understanding"
-project.
+Configuration module for the code duplication research pipeline.
 
-This module centralises all reproducibility‑related parameters such as random seeds,
-clone‑detection thresholds, and model loading specifications.  Down‑stream code
-(e.g., data loading, AST cloning, model inference, correlation analysis, and
-visualisation) should import from here rather than hard‑coding values.
-
-The design follows a simple, dependency‑free approach:
-* Constants are defined at module level for easy import.
-* A ``Config`` dataclass bundles the three logical groups.
-* ``get_config()`` returns a singleton instance for convenience.
+Centralizes all configurable parameters including random seeds, thresholds,
+model parameters, and runtime limits for reproducibility (SC-005).
 """
+import os
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-from __future__ import annotations
+# Project root path
+PROJECT_ROOT = Path(__file__).parent.parent
 
-import dataclasses
-from typing import Dict, List
+# Default configuration values
+_DEFAULT_CONFIG = {
+    # Random seed for reproducibility
+    'random_seed': 42,
 
-# ----------------------------------------------------------------------
-# Random seeds – ensure reproducibility across the whole pipeline
-# ----------------------------------------------------------------------
-RANDOM_SEED: int = 42  # Python's ``random`` seed
-NUMPY_SEED: int = 42   # NumPy seed (if NumPy is used downstream)
-TORCH_SEED: int = 42   # PyTorch seed (for model inference)
+    # Clone detection thresholds (SC-007, T043)
+    'clone_thresholds': [0.7, 0.8, 0.9],
 
-# ----------------------------------------------------------------------
-# Thresholds – values that control clone detection and sensitivity analysis
-# ----------------------------------------------------------------------
-# Primary clone‑detection similarity threshold (used by ``ast_cloner``)
-CLONE_DETECTION_THRESHOLD: float = 0.8
+    # Memory limits (SC-002, T023)
+    'memory_limit_mb': 7000,
 
-# Sensitivity‑analysis thresholds for the correlation study (Phase 3, Task T040)
-SENSITIVITY_THRESHOLDS: List[float] = [0.7, 0.8, 0.9]
+    # Runtime limits (SC-001)
+    'max_runtime_seconds': 86400,  # 24 hours
 
-# ----------------------------------------------------------------------
-# Model parameters – specifications for loading the LLM used for perplexity
-# ----------------------------------------------------------------------
-MODEL_PARAMS: Dict[str, str] = {
-    "model_name": "Salesforce/codegen-350M-mono",
-    # Quantisation strategy – bitsandbytes 8‑bit is the default for this project
-    "quantization": "bitsandbytes_8bit",
-    # Device selection – overridden by environment variable if needed
-    "device": "cuda",
+    # Validation thresholds
+    'min_valid_segments': 1000,  # SC-003
+
+    # Statistical analysis
+    'correlation_method': 'spearman',
+    'significance_threshold': 0.05,
+
+    # Visualization
+    'figure_format': 'png',
+    'figure_dpi': 300,
+
+    # Checksum
+    'checksum_algorithm': 'sha256',
+
+    # Data sources
+    'dataset_name': 'codeparrot/github-code',
+    'model_name': 'Salesforce/codegen-350M-mono',
+    'quantization_bits': 8,
+
+    # Processing flags
+    'streaming_enabled': True,
+    'pii_scan_enabled': True,
 }
 
-# ----------------------------------------------------------------------
-# Dataclass that groups the above values – convenient for passing around
-# ----------------------------------------------------------------------
-@dataclasses.dataclass(frozen=True)
-class Config:
-    """Immutable configuration container."""
+# Runtime configuration (can be overridden)
+_runtime_config: Dict[str, Any] = {}
 
-    random_seed: int = RANDOM_SEED
-    numpy_seed: int = NUMPY_SEED
-    torch_seed: int = TORCH_SEED
-
-    clone_detection_threshold: float = CLONE_DETECTION_THRESHOLD
-    sensitivity_thresholds: List[float] = dataclasses.field(
-        default_factory=lambda: SENSITIVITY_THRESHOLDS
-    )
-
-    model_params: Dict[str, str] = dataclasses.field(
-        default_factory=lambda: MODEL_PARAMS
-    )
-
-# A module‑level singleton – most code will simply import ``CONFIG``
-CONFIG = Config()
-
-def get_config() -> Config:
+def get_clone_thresholds() -> List[float]:
     """
-    Return the global immutable configuration instance.
+    Get the list of clone detection thresholds for sensitivity analysis.
 
-    The function exists primarily for type‑checkers and for code that prefers a
-    callable over a module‑level constant.
+    Returns:
+        List of threshold values (0.7, 0.8, 0.9) as per T043.
     """
-    return CONFIG
+    return _runtime_config.get('clone_thresholds', _DEFAULT_CONFIG['clone_thresholds'])
 
-__all__ = [
-    "RANDOM_SEED",
-    "NUMPY_SEED",
-    "TORCH_SEED",
-    "CLONE_DETECTION_THRESHOLD",
-    "SENSITIVITY_THRESHOLDS",
-    "MODEL_PARAMS",
-    "Config",
-    "CONFIG",
-    "get_config",
-]
+def get_random_seed() -> int:
+    """
+    Get the random seed for reproducibility.
+
+    Returns:
+        Random seed value (default: 42).
+    """
+    return _runtime_config.get('random_seed', _DEFAULT_CONFIG['random_seed'])
+
+def get_memory_limit_mb() -> int:
+    """
+    Get the memory limit in megabytes for model inference.
+
+    Returns:
+        Memory limit in MB (default: 7000 for 7GB limit per SC-002).
+    """
+    return _runtime_config.get('memory_limit_mb', _DEFAULT_CONFIG['memory_limit_mb'])
+
+def get_max_runtime_seconds() -> int:
+    """
+    Get the maximum allowed runtime in seconds.
+
+    Returns:
+        Maximum runtime (default: 86400 seconds = 24 hours per SC-001).
+    """
+    return _runtime_config.get('max_runtime_seconds', _DEFAULT_CONFIG['max_runtime_seconds'])
+
+def get_min_valid_segments() -> int:
+    """
+    Get the minimum number of valid segments required.
+
+    Returns:
+        Minimum valid segments (default: 1000 per SC-003).
+    """
+    return _runtime_config.get('min_valid_segments', _DEFAULT_CONFIG['min_valid_segments'])
+
+def get_correlation_method() -> str:
+    """
+    Get the correlation method for statistical analysis.
+
+    Returns:
+        Correlation method name (default: 'spearman').
+    """
+    return _runtime_config.get('correlation_method', _DEFAULT_CONFIG['correlation_method'])
+
+def get_significance_threshold() -> float:
+    """
+    Get the significance threshold for statistical tests.
+
+    Returns:
+        P-value threshold (default: 0.05).
+    """
+    return _runtime_config.get('significance_threshold', _DEFAULT_CONFIG['significance_threshold'])
+
+def get_figure_format() -> str:
+    """
+    Get the output format for visualization figures.
+
+    Returns:
+        Figure format string (default: 'png').
+    """
+    return _runtime_config.get('figure_format', _DEFAULT_CONFIG['figure_format'])
+
+def get_figure_dpi() -> int:
+    """
+    Get the DPI setting for figure output.
+
+    Returns:
+        DPI value (default: 300 for publication quality).
+    """
+    return _runtime_config.get('figure_dpi', _DEFAULT_CONFIG['figure_dpi'])
+
+def get_checksum_algorithm() -> str:
+    """
+    Get the checksum algorithm for artifact tracking.
+
+    Returns:
+        Checksum algorithm name (default: 'sha256').
+    """
+    return _runtime_config.get('checksum_algorithm', _DEFAULT_CONFIG['checksum_algorithm'])
+
+def get_dataset_name() -> str:
+    """
+    Get the HuggingFace dataset name.
+
+    Returns:
+        Dataset identifier string.
+    """
+    return _runtime_config.get('dataset_name', _DEFAULT_CONFIG['dataset_name'])
+
+def get_model_name() -> str:
+    """
+    Get the HuggingFace model name.
+
+    Returns:
+        Model identifier string.
+    """
+    return _runtime_config.get('model_name', _DEFAULT_CONFIG['model_name'])
+
+def get_quantization_bits() -> int:
+    """
+    Get the quantization bit width for model loading.
+
+    Returns:
+        Quantization bits (default: 8 for 8-bit quantization).
+    """
+    return _runtime_config.get('quantization_bits', _DEFAULT_CONFIG['quantization_bits'])
+
+def get_streaming_enabled() -> bool:
+    """
+    Get whether streaming mode is enabled for data loading.
+
+    Returns:
+        Boolean flag for streaming mode.
+    """
+    return _runtime_config.get('streaming_enabled', _DEFAULT_CONFIG['streaming_enabled'])
+
+def get_pii_scan_enabled() -> bool:
+    """
+    Get whether PII scanning is enabled.
+
+    Returns:
+        Boolean flag for PII scanning (Constitution Principle III).
+    """
+    return _runtime_config.get('pii_scan_enabled', _DEFAULT_CONFIG['pii_scan_enabled'])
+
+def get_all_config() -> Dict[str, Any]:
+    """
+    Get the complete configuration dictionary.
+
+    Returns:
+        Dictionary containing all configuration parameters.
+    """
+    config = _DEFAULT_CONFIG.copy()
+    config.update(_runtime_config)
+    return config
+
+def set_config(key: str, value: Any) -> None:
+    """
+    Set a runtime configuration value.
+
+    Args:
+        key: Configuration parameter name.
+        value: Configuration parameter value.
+    """
+    _runtime_config[key] = value
+
+def reset_config() -> None:
+    """Reset all configuration to defaults."""
+    _runtime_config.clear()

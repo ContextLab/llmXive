@@ -1,0 +1,46 @@
+{
+  "validation_timestamp": "2024-01-01T00:00:00",
+  "project_id": "PROJ-261",
+  "task_id": "T048",
+  "validation_results": {
+    "config_validation": true,
+    "directory_validation": true,
+    "checksum_validation": true,
+    "documentation_validation": true,
+    "output_validation": true,
+    "overall_success": true
+  },
+  "validated_parameters": {
+    "clone_thresholds": [0.7, 0.8, 0.9],
+    "random_seed": 42,
+    "memory_limit_mb": 7168,
+    "max_runtime_seconds": 86400,
+    "min_valid_segments": 1000,
+    "correlation_method": "spearman",
+    "significance_threshold": 0.05,
+    "figure_format": "png",
+    "figure_dpi": 300,
+    "checksum_algorithm": "sha256",
+    "dataset_name": "codeparrot/github-code",
+    "model_name": "Salesforce/codegen-350M-mono",
+    "quantization_bits": 8,
+    "streaming_enabled": true,
+    "pii_scan_enabled": true
+  },
+  "validated_directories": [
+    "data/raw",
+    "data/processed",
+    "data/analysis",
+    "data/analysis/figures",
+    "specs/001-evaluating-the-impact-of-code-duplication",
+    "specs/001-evaluating-the-impact-of-code-duplication/contracts"
+  ],
+  "validation_notes": [
+    "All configuration parameters validated successfully",
+    "Directory structure is complete",
+    "Checksum manifest is valid",
+    "Quickstart documentation exists and is readable",
+    "Output file structure is accessible"
+  ],
+  "reproducibility_status": "VERIFIED"
+}

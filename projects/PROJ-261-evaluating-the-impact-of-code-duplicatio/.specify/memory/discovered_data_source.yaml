@@ -1,0 +1,8 @@
+status: none
+intent: download codeparrot github-code dataset via huggingface datasets python package
+  dataset
+required_fields:
+- code
+- repo_name
+- file_path
+- language

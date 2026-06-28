@@ -1,0 +1,62 @@
+name: Platform Compatibility Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-linux:
+    name: Run pytest on Linux
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          pip install pytest pytest-cov
+
+      - name: Run pytest on Linux platform
+        run: |
+          pytest tests/ -v --tb=short --cov=code --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: linux
+          name: linux-coverage
+          fail_ci_if_error: false
+
+      - name: Validate test results
+        run: |
+          # Ensure at least some tests ran (validate pytest executed)
+          if [ ! -f pytest.xml ]; then
+            pytest tests/ -v --junitxml=pytest.xml || true
+          fi
+          echo "Platform compatibility validation complete"

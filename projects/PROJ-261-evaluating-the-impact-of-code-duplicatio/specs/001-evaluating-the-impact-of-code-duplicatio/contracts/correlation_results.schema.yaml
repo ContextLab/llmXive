@@ -1,20 +1,72 @@
+# Schema for correlation_results.csv
+# Defines the structure of Spearman correlation analysis results
+$schema: http://json-schema.org/draft-07/schema#
 type: object
-description: Schema for correlation analysis results between duplication and model metrics.
 properties:
-  metric_x:
-    type: string
-    description: Name of the first metric (e.g., clone_density).
-  metric_y:
-    type: string
-    description: Name of the second metric (e.g., perplexity).
-  correlation_coefficient:
+  correlation_id:
+    type: integer
+    description: "Unique identifier for this correlation result"
+    minimum: 0
+  threshold:
     type: number
-    description: Spearman rank correlation coefficient.
+    description: "Clone detection threshold used (0.7, 0.8, or 0.9)"
+    enum: [0.7, 0.8, 0.9]
+  correlation_type:
+    type: string
+    description: "Type of correlation computed"
+    enum: ["clone_perplexity", "clone_accuracy", "perplexity_accuracy"]
+  spearman_rho:
+    type: number
+    description: "Spearman rank correlation coefficient (-1.0 to 1.0)"
+    minimum: -1.0
+    maximum: 1.0
   p_value:
     type: number
-    description: Two‑tailed p‑value associated with the correlation.
+    description: "Two-tailed p-value for significance testing"
+    minimum: 0.0
+    maximum: 1.0
+  sample_size:
+    type: integer
+    description: "Number of data points in correlation"
+    minimum: 2
+  significance_level:
+    type: number
+    description: "Alpha threshold for significance (default 0.05)"
+    minimum: 0.0
+    maximum: 1.0
+  is_significant:
+    type: boolean
+    description: "Whether p_value < significance_level"
+  confidence_interval_95:
+    type: array
+    description: "95% confidence interval for rho"
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+  method:
+    type: string
+    description: "Correlation computation method"
+    enum: ["spearman", "pearson", "kendall"]
+  timestamp:
+    type: string
+    description: "ISO 8601 timestamp of computation"
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of input data files"
+    minLength: 64
+    maxLength: 64
 required:
-  - metric_x
-  - metric_y
-  - correlation_coefficient
+  - correlation_id
+  - threshold
+  - correlation_type
+  - spearman_rho
   - p_value
+  - sample_size
+  - significance_level
+  - is_significant
+  - confidence_interval_95
+  - method
+  - timestamp
+additionalProperties: false

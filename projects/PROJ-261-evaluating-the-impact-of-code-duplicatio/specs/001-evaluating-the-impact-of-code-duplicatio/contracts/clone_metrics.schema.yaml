@@ -1,16 +1,49 @@
+# Schema for clone_metrics.csv
+# Defines the structure of clone density metrics computed by ast_cloner.py
+$schema: http://json-schema.org/draft-07/schema#
 type: object
-description: Schema for clone metrics generated per source file.
 properties:
   file_path:
     type: string
-    description: Relative path to the source code file.
+    description: "Relative path to the Python source file"
+    minLength: 1
+  segment_id:
+    type: integer
+    description: "Unique identifier for the code segment"
+    minimum: 0
   clone_density:
     type: number
-    description: Proportion of code that participates in clones (0.0 – 1.0).
-  total_clones:
+    description: "AST-based clone density score (0.0 to 1.0)"
+    minimum: 0.0
+    maximum: 1.0
+  segment_length:
     type: integer
-    description: Number of distinct clone groups detected in the file.
+    description: "Number of AST nodes in the segment"
+    minimum: 1
+  clone_count:
+    type: integer
+    description: "Number of clone instances found"
+    minimum: 0
+  threshold_used:
+    type: number
+    description: "Clone detection threshold applied"
+    minimum: 0.0
+    maximum: 1.0
+  timestamp:
+    type: string
+    description: "ISO 8601 timestamp of computation"
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the source file"
+    minLength: 64
+    maxLength: 64
 required:
   - file_path
+  - segment_id
   - clone_density
-  - total_clones
+  - segment_length
+  - clone_count
+  - threshold_used
+  - timestamp
+additionalProperties: false

@@ -1,154 +1,229 @@
 """
-Utility for computing and tracking checksums of data artifacts.
+Checksum manifest module for artifact tracking and reproducibility.
 
-This module provides a lightweight, thread‑safe manifest that records the
-cryptographic hash (SHA‑256 by default) of any file that participates in the
-pipeline.  The manifest lives in ``data/analysis/artifact_hashes.json`` and
-can be queried or updated from any part of the code base.
-
-Typical usage:
-
->>> from checksum_manifest import record_artifact, verify_artifact
->>> checksum = record_artifact(Path("data/processed/clone_metrics.csv"))
->>> is_valid = verify_artifact(Path("data/processed/clone_metrics.csv"))
+Implements SC-006 by computing and storing checksums for all output files,
+intermediate files, and logs to ensure data integrity and versioning.
 """
-
 import hashlib
 import json
+import logging
+from datetime import datetime
 from pathlib import Path
-from threading import RLock
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
-# ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-# Default location for the manifest file.  ``Path(__file__)`` points to the
-# ``code`` directory; we step up two levels to the project root and then
-# into ``data/analysis``.
-_DEFAULT_MANIFEST: Path = (
-    Path(__file__).parents[2] / "data" / "analysis" / "artifact_hashes.json"
-)
-_LOCK = RLock()
+from config import PROJECT_ROOT, get_checksum_algorithm
 
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
-def compute_hash(file_path: Path, algorithm: str = "sha256") -> str:
-    """
-    Compute the hexadecimal digest of *file_path* using *algorithm*.
+# Configure logging
+logger = logging.getLogger(__name__)
 
-    Parameters
-    ----------
-    file_path: Path
-        Path to the file whose checksum should be calculated.
-    algorithm: str, optional
-        Name of the hashlib algorithm (default ``'sha256'``).
+MANIFEST_PATH = PROJECT_ROOT / 'data' / 'analysis' / 'checksum_manifest.json'
 
-    Returns
-    -------
-    str
-        Hexadecimal hash string.
-    """
-    file_path = Path(file_path)
-    hasher = hashlib.new(algorithm)
-    with file_path.open("rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            hasher.update(chunk)
-    return hasher.hexdigest()
-
-def _load_manifest(manifest_path: Path) -> Dict[str, str]:
-    """
-    Load the JSON manifest from *manifest_path*.
-
-    If the file does not exist or is malformed, an empty dict is returned.
-    """
-    if manifest_path.is_file():
-        try:
-            return json.loads(manifest_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            return {}
-    return {}
-
-def _save_manifest(manifest: Dict[str, str], manifest_path: Path) -> None:
-    """
-    Persist *manifest* to *manifest_path* in a pretty‑printed JSON format.
-    """
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_text(
-        json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8"
+def setup_logging() -> None:
+    """Configure logging for the manifest module."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
-# ----------------------------------------------------------------------
-# Public API
-# ----------------------------------------------------------------------
-def record_artifact(
-    file_path: Path,
-    manifest_path: Optional[Path] = None,
-    algorithm: str = "sha256",
-) -> str:
+def compute_file_checksum(file_path: Path, algorithm: str = None) -> str:
     """
-    Compute the checksum of *file_path* and store it in the manifest.
+    Compute the checksum of a file.
 
-    Parameters
-    ----------
-    file_path: Path
-        The file to hash.
-    manifest_path: Path, optional
-        Override the default manifest location.
-    algorithm: str, optional
-        Hash algorithm to use (default ``'sha256'``).
+    Args:
+        file_path: Path to the file to checksum.
+        algorithm: Hash algorithm to use (default: from config).
 
-    Returns
-    -------
-    str
-        The computed checksum.
+    Returns:
+        Hex digest of the file checksum.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the algorithm is not supported.
     """
-    file_path = Path(file_path)
-    manifest_path = Path(manifest_path) if manifest_path else _DEFAULT_MANIFEST
-    checksum = compute_hash(file_path, algorithm)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
 
-    with _LOCK:
-        manifest = _load_manifest(manifest_path)
-        manifest[str(file_path)] = checksum
-        _save_manifest(manifest, manifest_path)
+    if algorithm is None:
+        algorithm = get_checksum_algorithm()
 
-    return checksum
+    if algorithm not in hashlib.algorithms_available:
+        raise ValueError(f"Unsupported algorithm: {algorithm}")
 
-def get_recorded_hash(
-    file_path: Path,
-    manifest_path: Optional[Path] = None,
-) -> Optional[str]:
+    hasher = hashlib.new(algorithm)
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            hasher.update(chunk)
+
+    return hasher.hexdigest()
+
+def compute_all_artifact_checksums(
+    artifact_paths: List[Path],
+    algorithm: str = None
+) -> Dict[str, str]:
     """
-    Retrieve the stored checksum for *file_path* if it exists.
+    Compute checksums for multiple artifacts.
 
-    Returns ``None`` when the file is not present in the manifest.
+    Args:
+        artifact_paths: List of file paths to checksum.
+        algorithm: Hash algorithm to use.
+
+    Returns:
+        Dictionary mapping file paths (as strings) to checksums.
     """
-    file_path = Path(file_path)
-    manifest_path = Path(manifest_path) if manifest_path else _DEFAULT_MANIFEST
-    with _LOCK:
-        manifest = _load_manifest(manifest_path)
-    return manifest.get(str(file_path))
+    checksums = {}
+    for path in artifact_paths:
+        try:
+            checksums[str(path)] = compute_file_checksum(path, algorithm)
+        except (FileNotFoundError, ValueError) as e:
+            logger.warning(f"Could not compute checksum for {path}: {e}")
+    return checksums
 
-def verify_artifact(
-    file_path: Path,
-    manifest_path: Optional[Path] = None,
-    algorithm: str = "sha256",
+def load_manifest() -> Optional[Dict[str, Any]]:
+    """
+    Load the existing checksum manifest.
+
+    Returns:
+        Manifest dictionary or None if file does not exist.
+    """
+    if not MANIFEST_PATH.exists():
+        return None
+
+    try:
+        with open(MANIFEST_PATH, 'r') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Failed to load manifest: {e}")
+        return None
+
+def save_manifest(manifest: Dict[str, Any]) -> None:
+    """
+    Save the checksum manifest to disk.
+
+    Args:
+        manifest: Manifest dictionary to save.
+    """
+    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(MANIFEST_PATH, 'w') as f:
+        json.dump(manifest, f, indent=2, default=str)
+    logger.info(f"Manifest saved to {MANIFEST_PATH}")
+
+def record_artifact_checksums(
+    artifact_hashes: Dict[str, str],
+    component: str = None
+) -> None:
+    """
+    Record artifact checksums in the manifest.
+
+    Args:
+        artifact_hashes: Dictionary of file paths to checksums.
+        component: Optional component name for grouping.
+    """
+    manifest = load_manifest() or {
+        'created_at': datetime.now().isoformat(),
+        'updated_at': datetime.now().isoformat(),
+        'artifact_hashes': {},
+        'components': {}
+    }
+
+    manifest['updated_at'] = datetime.now().isoformat()
+
+    if component:
+        if 'components' not in manifest:
+            manifest['components'] = {}
+        manifest['components'][component] = {
+            'updated_at': datetime.now().isoformat(),
+            'artifacts': list(artifact_hashes.keys())
+        }
+
+    manifest['artifact_hashes'].update(artifact_hashes)
+    save_manifest(manifest)
+
+def verify_artifact_checksums(
+    artifact_paths: List[Path],
+    expected_hashes: Dict[str, str] = None
 ) -> bool:
     """
-    Re‑compute the checksum of *file_path* and compare it to the stored value.
+    Verify that artifact checksums match expected values.
 
-    Returns ``True`` if the current hash matches the recorded one, otherwise
-    ``False`` (including the case where no entry exists).
+    Args:
+        artifact_paths: List of file paths to verify.
+        expected_hashes: Optional dictionary of expected checksums.
+
+    Returns:
+        True if all checksums match, False otherwise.
     """
-    recorded = get_recorded_hash(file_path, manifest_path)
-    if recorded is None:
-        return False
-    current = compute_hash(file_path, algorithm)
-    return current == recorded
+    if expected_hashes is None:
+        manifest = load_manifest()
+        if manifest is None:
+            logger.warning("No manifest found for verification")
+            return False
+        expected_hashes = manifest.get('artifact_hashes', {})
 
-__all__ = [
-    "compute_hash",
-    "record_artifact",
-    "get_recorded_hash",
-    "verify_artifact",
-]
+    all_valid = True
+    for path in artifact_paths:
+        path_str = str(path)
+        if path_str not in expected_hashes:
+            logger.warning(f"No expected checksum for {path_str}")
+            continue
+
+        try:
+            actual_hash = compute_file_checksum(path)
+            if actual_hash != expected_hashes[path_str]:
+                logger.error(f"Checksum mismatch for {path_str}")
+                all_valid = False
+            else:
+                logger.info(f"Checksum verified for {path_str}")
+        except (FileNotFoundError, ValueError) as e:
+            logger.error(f"Failed to verify {path_str}: {e}")
+            all_valid = False
+
+    return all_valid
+
+def get_artifact_hashes() -> Dict[str, str]:
+    """
+    Get all artifact hashes from the manifest.
+
+    Returns:
+        Dictionary of file paths to checksums.
+    """
+    manifest = load_manifest()
+    if manifest is None:
+        return {}
+    return manifest.get('artifact_hashes', {})
+
+def add_custom_artifact(
+    file_path: Path,
+    custom_name: str = None
+) -> str:
+    """
+    Add a custom artifact to the manifest.
+
+    Args:
+        file_path: Path to the artifact file.
+        custom_name: Optional custom name for the artifact.
+
+    Returns:
+        The computed checksum.
+    """
+    checksum = compute_file_checksum(file_path)
+    name = custom_name or str(file_path)
+    record_artifact_checksums({name: checksum})
+    return checksum
+
+def main() -> None:
+    """Main entry point for checksum manifest operations."""
+    setup_logging()
+    logger.info("Checksum manifest module loaded")
+    logger.info(f"Manifest path: {MANIFEST_PATH}")
+
+    # Example: list all tracked artifacts
+    hashes = get_artifact_hashes()
+    if hashes:
+        logger.info(f"Tracked artifacts: {len(hashes)}")
+        for name, checksum in hashes.items():
+            logger.info(f"  {name}: {checksum[:16]}...")
+    else:
+        logger.info("No artifacts tracked yet")
+
+if __name__ == '__main__':
+    main()
