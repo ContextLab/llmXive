@@ -1,0 +1,923 @@
+{
+  "fetched_at": "2026-06-28T20:57:23Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers",
+      "target_n": 5
+    },
+    "duration_seconds": 450.331,
+    "ended_at": "2026-06-28T20:57:23Z",
+    "expansion": null,
+    "extracted_queries": [
+      "surface modification polymer interfacial bonding",
+      "plasma treatment polymer adhesion strength",
+      "QSPR machine learning polymer adhesion",
+      "lap shear peel strength test",
+      "surface energy roughness wetting adhesion"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "https://doi.org/10.1002/pc.71209"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers materials science": 3,
+      "QSPR machine learning polymer adhesion": 6,
+      "lap shear peel strength test": 6,
+      "plasma treatment polymer adhesion strength": 6,
+      "surface energy roughness wetting adhesion": 6,
+      "surface modification polymer interfacial bonding": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T20:49:53Z",
+    "term_input": {
+      "normalized": "predicting the impact of surface treatments on the adhesion strength of polymers materials science",
+      "raw": "Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Phosphorus (P) is considered to be one of the key elements for life, making it an important element to look for in the abundance analysis of spectra of stellar systems. Yet, there exists only a handful of spectroscopic studies to estimate the P abundances and investigate its trend across a range of metallicities. We have observed full HK band spectra at a spectral resolving power of R=45,000 with IGRINS instrument. Abundances are determined using SME in combination with 1D MARCS stellar atmosphere models. The investigated sample of stars have reliable stellar parameters estimated using optical FIES spectra (GILD; Jönsson et al. in prep.). In order to determine the P abundances from the 16482.92 Angstrom P line, we take special care of the CO($ν=7-4$) blend. We determine the C, N, O abundances from atomic carbon and a range of non-blended molecular lines (CO, CN, OH) which are aplenty in the H band region of K giant stars, assuring an appropriate modelling of the blending CO($ν=7-4$) line. We present [P/Fe] vs [Fe/H] trend for 38 K giant stars in the metallicity range of -1.2 dex $<$ [Fe/H] $<$ 0.4 dex. We find that our trend matches well with the compiled literature sample of prominently dwarf stars and limited number of giant stars. Our trend is found to be higher by $\\sim$ 0.05 - 0.1 dex compared to the theoretical chemical evolution trend in Cescutti et al. 2012 resulting from core collapse supernova (type II) of massive stars with the P yields from Kobayashi et al. (2006) arbitrarily increased by a factor of 2.75. Thus the enhancement factor might need to be $\\sim$ 0.05 - 0.1 dex higher to match our trend. We also find an empirically determined primary behaviour for phosphorus. Furthermore, the phosphorus abundance is found to be elevated by $\\sim$ 0.6 - 0.9 dex in two metal poor s-enriched stars compared to the theoretical chemical evolution trend.",
+          "claimed_authors": [
+            "G. Nandakumar",
+            "N. Ryde",
+            "M. Montelius",
+            "B. Thorsbro",
+            "H. Jönsson",
+            "G. Mace",
+            "Lund Observatory",
+            "Department of Astronomy",
+            "Theoretical Physics",
+            "Lund University",
+            "Box 43",
+            "SE-221 00 Lund",
+            "Sweden",
+            "Kapteyn Astronomical Institute",
+            "University of Groningen",
+            "Landleven 12",
+            "NL-9747 AD Groningen",
+            "the Netherlands",
+            "Department of Astronomy",
+            "School of Science",
+            "The University of Tokyo",
+            "7-3-1 Hongo",
+            "Bunkyo-ku",
+            "Tokyo 113-0033",
+            "Japan",
+            "Materials Science",
+            "Applied Mathematics",
+            "Malmö University",
+            "SE-205 06 Malmö",
+            "Sweden",
+            "Department of Astronomy",
+            "McDonald Observatory",
+            "The University of Texas",
+            "Austin",
+            "TX 78712",
+            "USA"
+          ],
+          "claimed_title": "The Galactic Chemical Evolution of phosphorus observed with IGRINS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.04940"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='The Galactic Chemical Evolution of phosphorus observed with IGRINS')",
+        "failed_at": "2026-06-28T20:52:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            "Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            "8700",
+            "Leoben",
+            "Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            "8700",
+            "Leoben",
+            "Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            "D-09107",
+            "Chemnitz",
+            "Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            "D-12489",
+            "Berlin",
+            "Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            "8700",
+            "Leoben",
+            "Austria.",
+            "Centre for Materials",
+            "Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            "09126",
+            "Chemnitz",
+            "Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-06-28T20:52:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            "LIGO Scientific Collaboration",
+            "Virgo Collaboration",
+            "Fermi GBM",
+            "INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            "GRAWITA",
+            ":",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            "ATCA",
+            ":",
+            "Australia Telescope Compact Array",
+            "ASKAP",
+            ":",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            "OzGrav",
+            "DWF",
+            "AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            "J-GEM",
+            "GROWTH",
+            "JAGWAR",
+            "Caltech- NRAO",
+            "TTU-NRAO",
+            "NuSTAR Collaborations",
+            "Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            "ePESSTO",
+            "GROND",
+            "Texas Tech University",
+            "SALT Group",
+            "TOROS",
+            ":",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            "MWA",
+            ":",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            "LWA",
+            ":",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            "DFN",
+            ":",
+            "Desert Fireball Network",
+            "ATLAS",
+            "High Time Resolution Universe Survey",
+            "RIMAS",
+            "RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-06-28T20:52:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Lin Tang",
+            "Qingyi Hu",
+            "Xinyi Pan",
+            "Y. Lei",
+            "Lizhi Li",
+            "Yuanlin Wang",
+            "Wencai Zhou",
+            "Jupen Liu",
+            "Jiani Zhang",
+            "Xi Liu"
+          ],
+          "claimed_title": "Surface modification of PBO fibers with random copolymer containing benzoxazole for improving surface activity, and enhancing interfacial bonding strength with cyanate ester resins",
+          "claimed_venue": "Advanced Composites and Hybrid Materials",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1007/s42114-024-01119-7"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Surface modification of PBO fibers with random copolymer containing benzoxazole for improving surface activity, and enhancing interfacial bonding strength with cyanate ester resins')",
+        "failed_at": "2026-06-28T20:52:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has long been known for elastomers that the velocity of crack propagation jumps as a function of strain. On the other hand, such a jump has not been reported in the literature for polymers which do not exhibit a rubbery plateau in the storage-modulus plot. Here, we report observation of jumps in crack propagation for semi-crystalline polymer sheets without the rubbery plateau, as a result of pulling the sheets at a constant speed. We discuss the advantages of this crack-propagation test under constant-speed stretching and provide physical interpretation of the velocity jump observed for non-elastomer sheets on the basis of a recently proposed theory for the velocity jump in crack propagation.",
+          "claimed_authors": [
+            "Takako Tomizawa",
+            "Ko Okumura"
+          ],
+          "claimed_title": "Velocity jump in the crack propagation induced on a semi-crystalline polymer sheet by constant-speed stretching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.03250"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Velocity jump in the crack propagation induced on a semi-crystalline polymer sheet by constant-speed stretching')",
+        "failed_at": "2026-06-28T20:52:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mixtures of ideal polymers with hard spheres whose diameters are smaller than the radius of gyration of the polymer, exhibit extensive immiscibility. The interfacial tension between demixed phases of these mixtures is estimated, as is the barrier to nucleation. The barrier is found to scale linearly with the radius of the polymer, causing it to become large for large polymers. Thus for large polymers nucleation is suppressed and phase separation proceeds via spinodal decomposition, as it does in polymer blends.",
+          "claimed_authors": [
+            "Richard P. Sear"
+          ],
+          "claimed_title": "Interfacial tension and nucleation in mixtures of colloids and long ideal polymer coils",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "cond-mat/0202440"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Interfacial tension and nucleation in mixtures of colloids and long ideal polymer coils')",
+        "failed_at": "2026-06-28T20:52:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a study of the polymer-filler interfacial effects on filler dispersion and mechanical reinforcement in Polystyrene (PS) / silica nanocomposites by direct comparison of two model systems: un-grafted and PS-grafted silica dispersed in PS matrix. The structure of nanoparticles has been investigated by combining Small Angle Neutron Scattering (SANS) measurements and Transmission Electronic Microscopic (TEM) images. The mechanical properties were studied over a wide range of deformation by plate/plate rheology and uni-axial stretching. At low silica volume fraction, the particles arrange, for both systems, in small finite size non-connected aggregates and the materials exhibit a solid-like behavior independent of the local polymer/fillers interactions suggesting that reinforcement is dominated by additional long range effects. At high silica volume fraction, a continuous connected network is created leading to a fast increase of reinforcement whose amplitude is then directly dependent on the strength of the local particle/particle interactions and lower with grafting likely due to deformation of grafted polymer.",
+          "claimed_authors": [
+            "Chloé Chevigny",
+            "Nicolas Jouault",
+            "Florent Dalmas",
+            "François Boué",
+            "Jacques Jestin"
+          ],
+          "claimed_title": "Tuning the Mechanical Properties in Model Nanocomposites: Influence of the Polymer-Filler Interfacial Interactions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1107.1882"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Tuning the Mechanical Properties in Model Nanocomposites: Influence of the Polymer-Filler Interfacial Interactions')",
+        "failed_at": "2026-06-28T20:52:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Extreme-ultraviolet pulses can propagate through ionised solid-density targets, unlike optical pulses and, thus, have the potential to probe the interior of such plasmas on sub-femtosecond timescales. We present a synthetic diagnostic method for solid-density laser-generated plasmas based on the dispersion of an extreme-ultraviolet attosecond probe pulse, in a pump--probe scheme. We demonstrate the theoretical feasibility of this approach through calculating the dispersion of an extreme-ultraviolet probe pulse propagating through a laser-generated plasma. The plasma dynamics is calculated using a particle-in-cell simulation, whereas the dispersion of the probe is calculated with an external pseudo-spectral wave solver, allowing for high accuracy when calculating the dispersion. The application of this method is illustrated on thin-film plastic and aluminium targets irradiated by a high-intensity pump pulse. By comparing the dispersion of the probe pulse at different delays relative to the pump pulse, it is possible to follow the evolution of the plasma as it disintegrates. The high-frequency end of the dispersion provides information on the line-integrated electron density, whereas lower frequencies are more affected by the highest density encountered along the path of the probe. In addition, the presence of thin-film interference could be used to study the evolution of the plasma surface.",
+          "claimed_authors": [
+            "Andréas Sundström",
+            "István Pusztai",
+            "Per Eng-Johnsson",
+            "Tünde Fülöp"
+          ],
+          "claimed_title": "Attosecond dispersion as a diagnostics tool for solid-density laser-generated plasmas",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.00406"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Attosecond dispersion as a diagnostics tool for solid-density laser-generated plasmas')",
+        "failed_at": "2026-06-28T20:52:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wavelet analysis and compression tools are reviewed and different applications to study MHD and plasma turbulence are presented. We introduce the continuous and the orthogonal wavelet transform and detail several statistical diagnostics based on the wavelet coefficients. We then show how to extract coherent structures out of fully developed turbulent flows using wavelet-based denoising. Finally some multiscale numerical simulation schemes using wavelets are described. Several examples for analyzing, compressing and computing one, two and three dimensional turbulent MHD or plasma flows are presented.",
+          "claimed_authors": [
+            "Marie Farge",
+            "Kai Schneider"
+          ],
+          "claimed_title": "Wavelet transforms and their applications to MHD and plasma turbulence: a review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.05650"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Wavelet transforms and their applications to MHD and plasma turbulence: a review')",
+        "failed_at": "2026-06-28T20:52:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The effect of changes in plasma parameters, that are characteristic near or at an L-H transition in fusion edge plasmas, on fluctuation correlation lengths are analysed by means of drift-Alfven turbulence computations. Scalings by density gradient length, collisionality, plasma beta, and by an imposed shear flow are considered. It is found that strongly sheared flows lead to the appearence of long-range correlations in electrostatic potential fluctuations parallel and perpendicular to the magnetic field.",
+          "claimed_authors": [
+            "Stefan J. Konzett",
+            "Dirk Reiser",
+            "Alexander Kendl"
+          ],
+          "claimed_title": "Correlation length scalings in fusion edge plasma turbulence computations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1109.1997"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Correlation length scalings in fusion edge plasma turbulence computations')",
+        "failed_at": "2026-06-28T20:52:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Md. Habibur Rahman Sobuz",
+            "Mita Khatun",
+            "Md. Kawsarul Islam Kabbo",
+            "N. M. Sutan"
+          ],
+          "claimed_title": "An explainable machine learning model for encompassing the mechanical strength of polymer-modified concrete",
+          "claimed_venue": "Asian Journal of Civil Engineering",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1007/s42107-024-01230-6"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='An explainable machine learning model for encompassing the mechanical strength of polymer-modified concrete')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Kamrun N. Keya",
+            "Amirreza Daghighi",
+            "Gerardo M. Casañola-Martín",
+            "Wenjie Xia",
+            "B. Rasulev"
+          ],
+          "claimed_title": "Comparative evaluation of machine Learning-based QSPR techniques for predicting polymer glass transition temperature",
+          "claimed_venue": "Discover Materials",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.1007/s43939-026-00587-6"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Comparative evaluation of machine Learning-based QSPR techniques for predicting polymer glass transition temperature')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The sheet metal forming process stands as a cornerstone in metal forming operations, boasting broad applications across diverse sectors such as automotive, aerospace, and marine industries. With a history spanning over four decades, it remains an irreplaceable method. However, the ongoing emphasis on optimizing strength-to-weight ratios has spurred researchers to explore alternative approaches. Among these, the fabrication of sandwich sheets has emerged as a promising concept, maintaining the desired balance between strength and weight. The present work aimed to fabricate and test Al5052 base sheet material (Lap shear test) and Al5052-PVC-Al5052 sandwich sheets (Lap shear and T-Peel Tests) in various rolling direction combinations. For Lap shear test three different types of test samples were made by riveting such as base material (1mm thickness), base material with PVC 0.5 and 1mm thickness in lap area. These lap shear test specimens were made in different rolling direction combinations, for instance, with base sheet (0°-0°,45°-45°, 90°-90°, 0°-45°, 90°-45° and 0°-90°).T-Peel test performed with the sandwich material with PVC 0.5mm thickness in different rolling directions. Based on the study, the primary outcomes were identified in terms of the maximum shear strength and pulling force. Additionally, the failure mechanisms were observed, particularly in the rivet zone of both the base and sandwich sheets. Maximum Lap shear strength shown for the base is 2.344 kN (90°-45°), PVC 0.5mm thickness is 2.674 kN (45°-PVC-45°), and PVC 1mm thickness is 2.460 kN (90°-PVC-45°). The maximum peeling force in T-Peel test with PVC 0.5mm thickness is 71.1 kN (45°-PVC-45°). The results indicate a significant enhancement in both maximum shear strength and peeling (pulling force) due to the presence of PVC.",
+          "claimed_authors": [
+            "C. Padhy",
+            "P. Praveen",
+            "K. Reddy"
+          ],
+          "claimed_title": "Investigating the Structural Strength of Al5052-PVC-Al5052 Sandwich Sheets Using Lap-Shear and T-Peel Testing",
+          "claimed_venue": "International Journal of Automotive and Mechanical Engineering",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.15282/ijame.22.2.2025.1.0938"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Investigating the Structural Strength of Al5052-PVC-Al5052 Sandwich Sheets Using Lap-Shear and T-Peel Testing')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The applicability of two different joining processes for producing lap joints from high-strength steel sheets is investigated, reflecting their increasing use in advanced lightweight structures with demanding performance requirements. The work is primarily focused on the joining-by-forming process known as double-flush riveting, evaluated in two variants: one utilizing forged holes and the other employing machined holes. The performance of these two variants is compared with conventional fusion-based resistance spot welding using lap joints fabricated from 2 mm high-strength low-alloy S500MC steel sheets under varying geometric and process conditions, with support from finite element modelling. Results indicate that both double-flush riveting variants produce similar joint cross-sectional geometries, but the machined hole variant simplifies sheet preparation and eliminates the need for a progressive tooling system. Tensile lap-shear and peel test results reveal that double-flush riveted joints with forged holes exhibit superior strength, attributed to strain hardening in the forged regions. Furthermore, for nuggets and rivets of equivalent size, both double-flush riveting variants surpass resistance spot welding in terms of the mechanical strength of the final joints. These results suggest that double-flush riveting represents a promising alternative for assembling high-strength steel sheets in lightweight structural applications.",
+          "claimed_authors": [
+            "Rui F. V. Sampaio",
+            "João P. M. Pragana",
+            "I. Bragança",
+            "Carlos M. A. Silva",
+            "Paulo A. F. Martins"
+          ],
+          "claimed_title": "Joinability and Performance of Double-Flush Riveted and Resistance-Welded Lap Joints in High-Strength Steel Sheets",
+          "claimed_venue": "Journal of Manufacturing and Materials Processing",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.3390/jmmp10030091"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Joinability and Performance of Double-Flush Riveted and Resistance-Welded Lap Joints in High-Strength Steel Sheets')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "V. Sitterle",
+            "Wei Sun",
+            "M. Levenston"
+          ],
+          "claimed_title": "A modified lap test to more accurately estimate interfacial shear strength for bonded tissues.",
+          "claimed_venue": "Journal of Biomechanics",
+          "claimed_year": 2008,
+          "primary_pointer": "https://doi.org/10.1016/j.jbiomech.2008.09.006"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='A modified lap test to more accurately estimate interfacial shear strength for bonded tissues.')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A long-standing goal in robotics is a generalist policy that can be deployed zero-shot on new robot embodiments without per-embodiment adaptation. Despite large-scale multi-embodiment pre-training, existing Vision-Language-Action models (VLAs) remain tightly coupled to their training embodiments and typically require costly fine-tuning. We introduce Language-Action Pre-training (LAP), a simple recipe that represents low-level robot actions directly in natural language, aligning action supervision with the pre-trained vision-language model's input-output distribution. LAP requires no learned tokenizer, no costly annotation, and no embodiment-specific architectural design. Based on LAP, we present LAP-3B, which to the best of our knowledge is the first VLA to achieve substantial zero-shot transfer to previously unseen robot embodiments without any embodiment-specific fine-tuning. Across multiple novel robots and manipulation tasks, LAP-3B attains over 50% average zero-shot success, delivering roughly a 2x improvement over the strongest prior VLAs. We further show that LAP enables efficient adaptation and favorable scaling, while unifying action prediction and VQA in a shared language-action format that yields additional gains through co-training.",
+          "claimed_authors": [
+            "Lihan Zha",
+            "Asher J. Hancock",
+            "Mingtong Zhang",
+            "Tenny Yin",
+            "Yixuan Huang",
+            "Dhruv Shah",
+            "Allen Z. Ren",
+            "Anirudha Majumdar"
+          ],
+          "claimed_title": "LAP: Language-Action Pre-Training Enables Zero-shot Cross-Embodiment Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.10556"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='LAP: Language-Action Pre-Training Enables Zero-shot Cross-Embodiment Transfer')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many essential manipulation tasks - such as food preparation, surgery, and craftsmanship - remain intractable for autonomous robots. These tasks are characterized not only by contact-rich, force-sensitive dynamics, but also by their \"implicit\" success criteria: unlike pick-and-place, task quality in these domains is continuous and subjective (e.g. how well a potato is peeled), making quantitative evaluation and reward engineering difficult. We present a learning framework for such tasks, using peeling with a knife as a representative example. Our approach follows a two-stage pipeline: first, we learn a robust initial policy via force-aware data collection and imitation learning, enabling generalization across object variations; second, we refine the policy through preference-based finetuning using a learned reward model that combines quantitative task metrics with qualitative human feedback, aligning policy behavior with human notions of task quality. Using only 50-200 peeling trajectories, our system achieves over 90% average success rates on challenging produce including cucumbers, apples, and potatoes, with performance improving by up to 40% through preference-based finetuning. Remarkably, policies trained on a single produce category exhibit strong zero-shot generalization to unseen in-category instances and to out-of-distribution produce from different categories while maintaining over 90% success rates.",
+          "claimed_authors": [
+            "Toru Lin",
+            "Shuying Deng",
+            "Zhao-Heng Yin",
+            "Pieter Abbeel",
+            "Jitendra Malik"
+          ],
+          "claimed_title": "How to Peel with a Knife: Aligning Fine-Grained Manipulation with Human Preference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03280"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='How to Peel with a Knife: Aligning Fine-Grained Manipulation with Human Preference')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "[Abridged]\n  Simulations and observations of the microwave sky are of great importance for understanding the Universe that we reside in. Specifically, knowledge of the CMB and its foregrounds - including the SZ effect from clusters of galaxies and radio point sources - tell us about the Universe on its very largest scales, and also what the Universe is made of.\n  We describe the creation of software to carry out large numbers of virtual sky simulations. The simulations include the CMB, SZ effect and point sources, and are designed to examine the effects of point sources and the SZ effect on present and recent observations of the CMB. Utilizing sets of 1,000 simulations, we find that the power spectrum resulting from the SZ effect is expected to have a larger standard deviation by a factor of 3 than would be expected from purely Gaussian realizations, and is significantly skewed towards increased values for the power spectrum. The effects of the clustering of galaxy clusters, residual point sources and uncertainties in the gas physics are also investigated, as are the implications for the excess power measured in the CMB power spectrum by the CBI and BIMA.\n  We carry out end-to-end simulations for OCRA-p observations of point sources. The introduction of simulated 1/ f noise significantly reduces the predicted ability of the instruments to observe weak sources by measuring the sources for long periods of time.\n  The OCRA-p receiver has been used to observe point sources in the VSA fields so that they can be subtracted from observations of the CMB power spectrum. We find that these point sources are split between steep and flat spectrum sources. We have also observed 550 CRATES flat spectrum radio sources, which will be useful for comparison to Planck satellite observations. Finally, the assembly and commissioning of the OCRA-F receiver is outlined.\n  [Abridged]",
+          "claimed_authors": [
+            "Michael Peel"
+          ],
+          "claimed_title": "Simulations and Observations of the Microwave Universe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1006.2760"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Simulations and Observations of the Microwave Universe')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Bacterial fouling is a persistent problem causing the deterioration and failure of functional surfaces for industrial equipment/components; numerous human, animal, and plant infections/diseases; and energy waste due to the inefficiencies at internal and external geometries of transport systems. This work gains new insights into the effect of surface roughness on bacterial fouling by systematically studying bacterial adhesion on model hydrophobic (methyl-terminated) surfaces with roughness scales spanning from ∼2 nm to ∼390 nm. Additionally, a surface energy integration framework is developed to elucidate the role of surface roughness on the energetics of bacteria and substrate interactions. For a given bacteria type and surface chemistry; the extent of bacterial fouling was found to demonstrate up to a 75-fold variation with surface roughness. For the cases showing hydrophobic wetting behavior, both increased effective surface area with increasing roughness and decreased activation energy with increased surface roughness was concluded to enhance the extent of bacterial adhesion. For the cases of superhydrophobic surfaces, the combination of factors including (i) the surpassing of Laplace pressure force of interstitial air over bacterial adhesive force, (ii) the reduced effective substrate area for bacteria wall due to air gaps to have direct/solid contact, and (iii) the reduction of attractive van der Waals force that holds adhering bacteria on the substrate were summarized to weaken the bacterial adhesion. Overall, this study is significant in the context of designing antifouling coatings and systems as well as explaining variations in bacterial contamination and biofilm formation processes on functional surfaces.",
+          "claimed_authors": [
+            "Minchen Mu",
+            "Shuhao Liu",
+            "William DeFlorio",
+            "Li Hao",
+            "Xunhao Wang",
+            "K. S. Salazar",
+            "Matthew Taylor",
+            "A. Castillo",
+            "L. Cisneros-Zevallos",
+            "J. Oh",
+            "Y. Min",
+            "M. Akbulut"
+          ],
+          "claimed_title": "Influence of Surface Roughness, Nanostructure, and Wetting on Bacterial Adhesion",
+          "claimed_venue": "Langmuir",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1021/acs.langmuir.3c00091"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Influence of Surface Roughness, Nanostructure, and Wetting on Bacterial Adhesion')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This study analyzes the chemical bonding mechanism between conductive Cu foil and dielectric prepreg (PPG) substrate using a silane coupling agent to improve adhesion and optimize signal integrity for high speed printed circuit board (PCB). The silane coupling agent reacts with Cu foil to form Si–O–Cu bonds, and the organic functional groups simultaneously bond with PPG to form strong adhesion. Compared to conventional etching methods, this method provides high adhesion without increasing the roughness of the copper foil surface. Its nonetching characteristic minimizes reflection and attenuation during high‐frequency transmission. Surface energy analysis shows that specific PPG had the lowest polar surface energy, indicating the best interaction with the silane coupling agent. Wetting coefficient analysis shows that PPG with optimized composition had the most balanced interfacial adhesion behavior, which was experimentally verified by peel test results with the highest adhesion due to the formation of strong Si–O–Cu bonds. Consequently, return loss testing showed that the optimized PPG‐based PCBs maintained good signal integrity upto 40 GHz, an improvement of about 30% over conventional etching. This suggests that the selection of PPG for nonetching silane coupling agents is effective in high‐speed signal transmission applications.",
+          "claimed_authors": [
+            "Woongsik Jang",
+            "Jin Young Kim",
+            "Haeng Un Yeo",
+            "Hansol Son",
+            "Kyoung-Soo Kim",
+            "Hyunsoo Lim",
+            "D. Wang"
+          ],
+          "claimed_title": "Reduced Energy Loss via Wetting–Adhesion Relationship in Copper/Prepreg Interfaces for High‐Frequency Communication Systems",
+          "claimed_venue": "International Journal of Energy Research",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1155/er/5539438"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Reduced Energy Loss via Wetting–Adhesion Relationship in Copper/Prepreg Interfaces for High‐Frequency Communication Systems')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The surface roughness, surface free energy (SFE) of composites, and composite wettability by dental adhesives are determining factors in achieving a strong and durable adhesion (e.g., composite repair, luting adhesively bonded indirect restorations). In this study, the SFE of one nanohydrid and two bulk-fill composites was investigated in relation to the wetting ability of five different dental adhesives. The profilometry and scanning electron microscopy (SEM) measurement justified that the sandblasting produced a significantly rough surface in which the different filler amounts, filler distribution, and resin-filler ratio participated. The SFE of the tested composite was between 45.65 and 49.07 mJ/m2 regardless of surface treatment. Despite the similarity in SFE, the adhesives wet the surface of the composites in different ways that were between 16.01° and 35.10°. The contact angle of solvent-free dental adhesive was lower due to sandblasting supporting the micromechanical retention. Based on our results, it was found that sandblasting, the most frequently recommended surface treatment, does not change the surface energy but causes a change in the contact angle, which can be explained by the different surface tension of the dental adhesives. It was concluded that the dental adhesive parameters have a more important role in wettability.",
+          "claimed_authors": [
+            "M. Szalóki",
+            "Zsófia Szabó",
+            "R. Martos",
+            "A. Csík",
+            "G. Szőllősi",
+            "Csaba Hegedűs"
+          ],
+          "claimed_title": "The Surface Free Energy of Resin-Based Composite in Context of Wetting Ability of Dental Adhesives",
+          "claimed_venue": "Applied Sciences",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.3390/app132112061"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='The Surface Free Energy of Resin-Based Composite in Context of Wetting Ability of Dental Adhesives')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tree frogs possess soft structured toe pads with channels that help squeeze out fluid from the region between the toe pad and the contacting surfaces. This structure enables them to walk on wet and rough surfaces. We present our preliminary result aiming at understanding the role of surface structure on hydrodynamic drainage forces. We have used the surface forces apparatus to measure the drainage forces (approach and retraction) in silicone oil. We compare the drainage force measured between two smooth PMMA surfaces with the one measure when one of the two surfaces has a structure with channels. We have observed that the presence of channels reduces the hydrodynamic drainage forces when the surfaces come together and reduces the adhesion when the surfaces are pulled apart. Our force measurements were compared to Reynolds theory and we discuss the possible role of elastohydrodynamic deformation in tree frog adhesion.",
+          "claimed_authors": [
+            "Rohini Gupta",
+            "Joelle Frechette"
+          ],
+          "claimed_title": "Role of Hydrodynamic Drainage in Adhesion to Wet Surfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.12491"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Role of Hydrodynamic Drainage in Adhesion to Wet Surfaces')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Adhesion control at the interface of two surfaces is crucial in various applications, including the design of micro- and nanodevices such as microfluidic devices, triboelectric nanogenerators, biochips, and electronic sensors. Several factors influence adhesion, including sample preparation, surface energy, mechanical properties such as modulus of elasticity, and surface texture or roughness. This study specifically investigates the effect of surface roughness on the adhesion behavior of the elastomer polydimethylsiloxane (PDMS), focusing on a complementary interface with identical roughness. To create surface roughness, sandpapers with grit sizes ranging from N = 120 to N = 2000 were used during the molding process. The surface roughness of the PDMS elastomer was then characterized using a stylus profilometer. Interfacial adhesion was evaluated through wedge test experiments, which enabled the analysis of the relationship between surface roughness, work of adhesion, and equilibrium crack length. Furthermore, the study also explores the correlation between the real area of contact and the work of adhesion.",
+          "claimed_authors": [
+            "Susheel Kumar",
+            "Krishnacharya Khare",
+            "Manjesh K. Singh"
+          ],
+          "claimed_title": "Study of surface roughness modulation on the adhesion behavior of PDMS elastomer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.09603"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='Study of surface roughness modulation on the adhesion behavior of PDMS elastomer')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            "The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-28T20:52:55Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hamed Abdoli",
+            "Olaf Diegel",
+            "S. Bickerton"
+          ],
+          "title": "Surface topology modification using 3D printing techniques to enhance the interfacial bonding strength between polymer substrates and prepreg carbon fibre-reinforced polymers",
+          "venue": "The International Journal of Advanced Manufacturing Technology",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.1007/s00170-024-13217-3",
+        "summary": "Carbon fibre-reinforced polymers (CFRPs) are increasingly utilised in combination with plastics and metals to manufacture hybrid components. Although hybrid components provide a combination of the advantages of the constituent materials, there are some challenges for the manufacture of high-quality hybrid components, including potentially weak interfacial bonding between the constituent materials. This paper presents a study focused on enhancing the interfacial strength of hybrid components by using additive manufacturing (AM) to manipulate the surface topology of a substrate component. Specifically, the study involved conducting experiments on a polyamide/CFRP hybrid component in which the PA12 substrates were manufactured with a controlled surface topology using polymer powder bed fusion. The mechanical testing study revealed several key findings, including an increase in bonding strength by modifying the substrate surface features, and significant improvements in out-of-plane interlaminar bonding strength by adding substrate surface features such as pins or fluorite lattices. It is shown that normal strength was enhanced by up to 53% between the substrate and pure epoxy, and by 126% between the substrate and a CFRP laminate. These results highlight the potential benefits of using AM technologies to enhance the interfacial strength of hybrid components and suggest directions for future research in this area.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://link.springer.com/article/10.1007/s00170-024-13217-3",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [
+            "https://doi.org/10.1007/s00170-024-13217-3",
+            "https://link.springer.com/10.1007/s00170-024-13217-3",
+            "https://link.springer.com/article/10.1007/s00170-024-13217-3",
+            "https://idp.springer.com/authorize?response_type=cookie&client_id=springerlink&redirect_uri=https%3A%2F%2Flink.springer.com%2Farticle%2F10.1007%2Fs00170-024-13217-3"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T20:52:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hui Fang",
+            "Yan Fang",
+            "Fangjuan Wu",
+            "Xinfeng Fan",
+            "Shaowei Guo",
+            "Li Huang"
+          ],
+          "title": "Dual‐Scale Synergistic Surface Modification of Carbon Fiber Fabric for Enhanced Interfacial Bonding and Mechanical Properties of\n PA6\n Composites",
+          "venue": "Polymer Composites",
+          "year": 2026
+        },
+        "primary_pointer": "https://doi.org/10.1002/pc.71209",
+        "summary": "Carbon fiber fabric (CFF)/polyamide 6 (PA6) composites suffer from poor interfacial bonding due to incomplete fiber wetting and void formation. This study presents a dual‐scale synergistic surface modification strategy combining mild alkaline etching with 3‐aminopropyltriethoxysilane (KH550) coating. Optimal etching parameters were established at 3 h with 5 wt% NaOH solution at 60°C. The synergistic mechanism operates at micrometer and nanometer scales: alkaline etching creates microscopic grooves and introduces oxygen‐containing functional groups, while KH550 coating forms strong covalent SiOC bonds and hydrogen bonding with the PA6 matrix. CFF/PA6 composites were prepared using resin transfer molding (RTM) with in situ polymerization. The optimized K‐CFF/PA6 composite exhibited superior mechanical properties: tensile strength of 688.1 MPa (29.6% higher than R‐CFF/PA6 composite), Young's modulus of 29.2 GPa (18.7% higher), flexural strength of 472.3 MPa (75.5% higher), and flexural modulus of 23.1 GPa (43.9% higher). Most notably, the composite achieved the lowest porosity (0.498%) among reported materials, with interfacial layer thickness increasing from 540 to 930 nm. Comprehensive characterization confirmed the dual‐scale synergistic mechanism. This strategy offers significant advantages over conventional oxidation methods by preserving fiber integrity while achieving superior mechanical performance, rendering it suitable for industrial‐scale applications in aerospace and automotive sectors.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://4spepublications.onlinelibrary.wiley.com/doi/10.1002/pc.71209",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1002/pc.71209"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T20:52:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dong Hyun Kim",
+            "H. Kim",
+            "Yunki Jung",
+            "Jin-Yong Hong",
+            "Young-Pyo Jeon",
+            "Jea Uk Lee"
+          ],
+          "title": "Plasma Treatment of Metal Surfaces for Enhanced Bonding Strength of Metal–Polymer Hybrid Structures",
+          "venue": "Polymers",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.3390/polym17020165",
+        "summary": "The adhesion between metals and polymers plays a pivotal role in numerous industrial applications, especially within the automotive and aerospace sectors, where there is a growing demand for materials that are both lightweight and durable. This study introduces an innovative technique to improve the adhesion between a metal and a polymer in hybrid structures through the synergistic use of anodization and plasma treatment. By forming a nanoporous oxide layer on aluminum surfaces, anodization enhances the interface for polymer binding. Plasma treatment further augments the surface properties by increasing the concentration of functional groups, thus allowing better polymer infiltration during the 3D printing process. Comprehensive analyses, including X-ray photoelectron spectroscopy, energy dispersive X-ray spectroscopy, and contact angle measurements confirm the substantial enhancement in the bonding strength achieved through this method. Additionally, cross-sectional analysis via focused ion-beam etching provides a detailed view of polymer integration into the treated layers. The findings suggest significant potential for these surface modification strategies to advance the development of lightweight, robust composites suitable for use in sectors such as automotive, aerospace, and consumer electronics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.mdpi.com/2073-4360/17/2/165",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [
+            "https://doi.org/10.3390/polym17020165"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T20:52:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. Shimizu",
+            "K. Fukada",
+            "S. Endo",
+            "Shinji Kambara"
+          ],
+          "title": "Enhanced Adhesion of Direct Sputtered Copper Seed Layer on Cycloolefin Polymer through Vacuum Ultraviolet Irradiation and Oxygen Plasma Treatment",
+          "venue": "ECS Journal of Solid State Science and Technology",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1149/2162-8777/adc486",
+        "summary": "This study introduce a novel surface modification process involving vacuum ultraviolet (VUV) irradiation followed by oxygen plasma treatment to enhance the adhesion between a cycloolefin polymer (COP) film, known for its excellent dielectric properties, and a copper plating layer with a direct sputtered copper seed layer, intended for use in antenna circuits for 6G communications. Various surface analyses revealed that oxygen plasma treatment after VUV irradiation increased the quantity of functional groups in the extreme surface layer of the COP film more than oxygen plasma treatment alone and removed the brittle modified layer formed by VUV irradiation. This dual effect resulted in a peel strength of 1 kN/m, exceeding the 0.8 kN/m achieved with oxygen plasma treatment alone, confirming the synergistic effect of VUV irradiation and oxygen plasma treatment. Based on the surface analysis results, a process model was constructed explaining how oxygen plasma treatment etched away part of the modified layer containing the functional groups formed by VUV irradiation, while simultaneously introduced additional functional groups to the newly exposed surface layer.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://validate.perfdrive.com/fb803c746e9148689b3984a31fccd902/?ssa=58103eae-8a28-4e91-8eb2-a919cfd6882f&ssb=24408229790&ssc=https%3A%2F%2Fiopscience.iop.org%2Farticle%2F10.1149%2F2162-8777%2Fadc486&ssi=ad439c0b-cnvj-460b-9519-4afb2070618f&ssk=botmanager_support@radware.com&ssm=18648823337596477103719685626698&ssn=492219640913ff15993c0d7f815118a8b6a204d033a3-1abe-4d94-9ee0ce&sso=16aa41ea-d1667cb754d900a1d6d8de6d44b7b6587f7277a3c13c7bb3&ssp=41671039151782650008178265616282766&ssq=00670377997179096564779971049498552381268&ssr=MTc0LjE2OS4xMTQuNTc=&sst=llmxive-librarian/1.0%20(https://github.com/ContextLab/llmXive)&ssu=&ssv=&ssw=&ssx=eyJyZCI6ImlvcC5vcmciLCJfX3V6bWYiOiI3ZjkwMDAwNGQwMzNhMy0xYWJlLTRkOTQtOTFlYS1kMTY2N2NiNzU0ZDkxLTE3ODI2Nzk5NzEwODQwLTAwNGJmNmMxMGE4NTE3NjljZjkxMCIsInV6bXgiOiI3ZjkwMDA5NjFhYzk1ZC1jN2NhLTRmY2MtYWYyNy03ODFmYTc0ZGU2YmQxLTE3ODI2Nzk5NzEwODUwLTg0ZjY1NjEyNjIwNWE4OWQxMCJ9",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.1149/2162-8777/adc486",
+            "https://iopscience.iop.org/article/10.1149/2162-8777/adc486"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T20:52:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. Shimizu",
+            "S. Endo"
+          ],
+          "title": "Adhesion Characteristics of Directly Sputtered Copper Seed Layer on Cycloolefin Polymer with Atmospheric Pressure Plasma Treatment",
+          "venue": "International Conference on Electronic Packaging and iMAPS All Asia Conference",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.23919/ICEP-IAAC64884.2025.11002997",
+        "summary": "This study explores atmospheric pressure plasma treatment as an alternative to vacuum processes for the direct formation of copper seed layers on smooth cycloolefin polymer (COP) films, targeting next-generation $6\\mathrm{G}$ antenna circuits. The peel strength between the COP film and the copper plating layer increased as the water contact angle decreased, reaching 0.6 $\\text{kN}/\\mathrm{m}-\\mathrm{s}$ urpassing the 0.5 $\\text{kN}/\\mathrm{m}$ threshold required for circuit pattern formation. Failure modes observed during peel tests, including interface failure between the COP film and the copper plating layer as well as substrate failure, were attributed to $\\text{Cu}_{2}\\mathrm{O}$ formation at the interface and the mitigation of COP surface brittleness. These findings underscore the potential of atmospheric pressure plasma treatment to enhance productivity and reduce equipment costs compared to vacuum-base processes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://ieeexplore.ieee.org/document/11002997/",
+          "http_status": 202,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.23919/ICEP-IAAC64884.2025.11002997"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T20:52:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. S. Perna"
+          ],
+          "title": "A machine learning approach for adhesion forecasting of cold-sprayed coatings on polymer-based substrates",
+          "venue": "Materials Research Proceedings",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.21741/9781644902479-7",
+        "summary": "Abstract. Cold spray is a novel production technology for creating metallic layers on various materials. Using a pressurized gas travelling at supersonic speeds, the metallic particles are accelerated and impact the target surface obtaining adhesion through mechanical interlocking between the powders and the substrate. This method is especially well suited for coating thermosensitive materials like composites since it only requires a little amount of heat, as the powders remain in a solid state. The quality and comprehension of this manufacturing process can be greatly improved by using machine learning techniques. In order to evaluate the characteristics of the particle's deformation upon collision, the goal of this work is to forecast it using machine learning approaches. The parameters chosen as an input for the model were related to 3 macro-categories: process parameters, powder parameters and substrate parameters. As regards the output parameters, flattening and penetration were chosen as they are the main characteristics of the coating on which homogeneity and adhesion depend. In order to obtain reliable results, a mix of data FEM and experimental data were used to train the neural network. The model was then tested on a dataset of experimental data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://mrforum.com/product/9781644902479-7/",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [
+            "https://doi.org/10.21741/9781644902479-7",
+            "https://www.mrforum.com/product/9781644902479-7",
+            "https://mrforum.com/product/9781644902479-7"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T20:52:52Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of surface treatments on the adhesion strength of polymers materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

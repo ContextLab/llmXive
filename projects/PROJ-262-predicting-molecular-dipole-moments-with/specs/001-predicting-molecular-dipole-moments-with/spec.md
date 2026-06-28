@@ -9,7 +9,7 @@
 
 ### User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1)
 
-A researcher can download the QM9 dataset, filter to a 10k random subset, and extract both 3D coordinates and 2D descriptors (Morgan fingerprints, Coulomb matrices) for baseline comparison.
+A researcher can download the QM9 dataset, filter to a random subset, and extract both 3D coordinates and 2D descriptors (Morgan fingerprints, Coulomb matrices) for baseline comparison.
 
 **Why this priority**: This is the foundational step without which no modeling can occur. It delivers immediate value by establishing the data infrastructure and confirming the dataset is accessible and preprocessed correctly.
 
@@ -61,13 +61,13 @@ A researcher can apply permutation importance to the Random Forest and saliency 
 - **FR-002**: System MUST extract 3D coordinates, atom types, and bond connectivity from the dataset
 - **FR-003**: System MUST generate 2D descriptors (Morgan fingerprints, Coulomb matrices) for baseline comparison
 - **FR-004**: System MUST implement a lightweight SchNet-style GNN using PyTorch Geometric in CPU-only mode
-- **FR-005**: System MUST train and evaluate both GNN and Random Forest models with identical train/test splits across 5 random seeds, using 50 epochs with early stopping (patience=10)
+- **FR-005**: System MUST train and evaluate both GNN and Random Forest models with identical train/test splits across multiple random seeds, using 50 epochs with early stopping (patience=10)
 - **FR-006**: System MUST compute MAE and RMSE metrics for dipole moment predictions on a held-out test set
 - **FR-007**: System MUST apply permutation importance to Random Forest features and saliency mapping to GNN node embeddings (2 methods total)
 - **FR-008**: System MUST perform paired t-tests (α=0.05) comparing RMSE distributions between GNN and baseline
 - **FR-009**: System MUST visualize feature importance maps on representative molecules to correlate with chemical intuition
 - **FR-010**: System MUST complete execution within 6h on 2 CPU cores (constraint applies to entire pipeline from data download through final visualization)
-- **FR-011**: System MUST validate predictions against QM9 quantum calculation reference data (physical experimental measurements are out of scope for this computational feature; QM9 dipole moments are derived from DFT calculations at the B3LYP/6-31G(2df,p) level per the dataset specification)
+- **FR-011**: System MUST validate predictions against QM9 quantum calculation reference data (physical experimental measurements are out of scope for this computational feature; Dipole moments from a benchmark molecular dataset are derived from DFT calculations at the B3LYP/6-31G(2df,p) level per the dataset specification)
 - **FR-012**: System MUST report confidence intervals for both MAE and RMSE (95% CI computed across 5 random seeds)
 - **FR-013**: System MUST operate within 8GB memory footprint throughout entire pipeline execution
 

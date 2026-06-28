@@ -1,0 +1,55 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Born Prediction Schema"
+description: "Schema for validating data/born_predictions.csv"
+type: "object"
+properties:
+  ion_id:
+    type: "string"
+    description: "Unique ion identifier matching experimental dataset"
+    minLength: 1
+  solvent_id:
+    type: "string"
+    description: "Unique solvent identifier matching experimental dataset"
+    minLength: 1
+  ionic_radius_angstrom:
+    type: "number"
+    description: "Ionic radius in Angstroms (≥0.01 precision)"
+    minimum: 0
+  radius_uncertainty_angstrom:
+    type: "number"
+    description: "Radius uncertainty in Angstroms"
+    minimum: 0
+  dielectric_constant:
+    type: "number"
+    description: "Solvent dielectric constant (dimensionless)"
+    minimum: 1
+  dielectric_uncertainty:
+    type: "number"
+    description: "Dielectric constant uncertainty"
+    minimum: 0
+  ion_charge:
+    type: "integer"
+    description: "Ion charge (e.g., +1, -1)"
+  predicted_delta_g:
+    type: "number"
+    description: "Born model prediction in kcal/mol"
+  predicted_delta_g_uncertainty:
+    type: "number"
+    description: "Propagated uncertainty in predicted ΔG (kcal/mol) via first-order error propagation"
+    minimum: 0
+  prediction_method:
+    type: "string"
+    description: "Prediction method identifier"
+    const: "born_continuum"
+required:
+  - ion_id
+  - solvent_id
+  - ionic_radius_angstrom
+  - radius_uncertainty_angstrom
+  - dielectric_constant
+  - dielectric_uncertainty
+  - ion_charge
+  - predicted_delta_g
+  - predicted_delta_g_uncertainty
+  - prediction_method
+additionalProperties: false

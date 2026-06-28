@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2209.08054",
+  "judged_at": "2026-06-28T20:41:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of code generation on long-term code maintainability computer science",
+  "rationale": "This paper focuses on scientific data and code preservation for reproducibility (likely in high-energy physics given \"Snowmass 2021\"), which is a distinct construct from software engineering maintainability regarding AI code generation. It shares only homonym keywords (\"code\", \"long-term\") without addressing the user's specific mechanism (code generation impact) or domain (software evolution/maintainability).",
+  "relevant": false
+}

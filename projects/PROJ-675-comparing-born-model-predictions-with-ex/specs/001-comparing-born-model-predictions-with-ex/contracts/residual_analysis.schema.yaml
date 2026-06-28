@@ -1,0 +1,64 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Residual Analysis Schema"
+description: "Schema for validating data/residual_analysis.csv"
+type: "object"
+properties:
+  ion_id:
+    type: "string"
+    description: "Unique ion identifier"
+    minLength: 1
+  solvent_id:
+    type: "string"
+    description: "Unique solvent identifier"
+    minLength: 1
+  residual:
+    type: "number"
+    description: "Residual: experimental - theoretical in kcal/mol"
+  residual_relative:
+    type: "number"
+    description: "Relative residual: residual / |experimental_delta_g| (dimensionless)"
+  combined_uncertainty:
+    type: "number"
+    description: "Combined experimental + predicted uncertainty (kcal/mol)"
+    minimum: 0
+  within_measurement_error:
+    type: "boolean"
+    description: "True if |residual| < combined_uncertainty"
+  ion_size_class:
+    type: "string"
+    description: "Categorical ion size class"
+    enum:
+      - "small"
+      - "medium"
+      - "large"
+  solvent_class:
+    type: "string"
+    description: "Categorical solvent class"
+    enum:
+      - "water"
+      - "alcohol"
+      - "aprotic"
+  p_value:
+    type: "number"
+    description: "Statistical significance from regression"
+    minimum: 0
+    maximum: 1
+  multiple_comparison_corrected:
+    type: "boolean"
+    description: "Whether multiple-comparison correction was applied"
+  breakdown_flag:
+    type: "boolean"
+    description: "True if residual exceeds RMSE threshold"
+required:
+  - ion_id
+  - solvent_id
+  - residual
+  - residual_relative
+  - combined_uncertainty
+  - within_measurement_error
+  - ion_size_class
+  - solvent_class
+  - p_value
+  - multiple_comparison_corrected
+  - breakdown_flag
+additionalProperties: false

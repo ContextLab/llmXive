@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.21741/9781644902479-7",
+  "judged_at": "2026-06-28T20:57:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of surface treatments on the adhesion strength of polymers materials science",
+  "rationale": "The paper satisfies criterion (b) as it measures the dependent variable (adhesion) on the user's domain (polymer-based substrates) using a specific surface treatment (cold spray). It also aligns with criterion (a) by investigating the physical mechanism of adhesion relevant to surface modification.",
+  "relevant": true
+}

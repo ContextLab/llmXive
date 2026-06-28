@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.14464",
+  "judged_at": "2026-06-28T20:44:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of code generation on long-term code maintainability computer science",
+  "rationale": "This paper satisfies criterion (b) as it measures the user's dependent variable (long-term maintenance costs/technical debt) within the same domain (software engineering), and criterion (f) as \"technical debt\" is a canonical alternative vocabulary for code maintainability issues.",
+  "relevant": true
+}

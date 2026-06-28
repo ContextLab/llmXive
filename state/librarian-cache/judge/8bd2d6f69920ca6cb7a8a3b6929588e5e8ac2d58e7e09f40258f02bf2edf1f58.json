@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1149/2162-8777/adc486",
+  "judged_at": "2026-06-28T20:55:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of surface treatments on the adhesion strength of polymers materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it empirically measures the impact of specific surface treatments (VUV and oxygen plasma) on the adhesion strength of a polymer (cycloolefin polymer), directly addressing the core mechanism and variables within the materials science domain.",
+  "relevant": true
+}

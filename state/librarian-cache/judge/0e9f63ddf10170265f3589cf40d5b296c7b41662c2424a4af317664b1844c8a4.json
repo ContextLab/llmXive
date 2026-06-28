@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.23919/ICEP-IAAC64884.2025.11002997",
+  "judged_at": "2026-06-28T20:56:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of surface treatments on the adhesion strength of polymers materials science",
+  "rationale": "This paper directly measures the same mechanism the user is asking about: surface treatment (atmospheric pressure plasma treatment) affecting adhesion strength (peel strength) of polymers (cycloolefin polymer). It satisfies acceptance criteria (a) same-mechanism evidence and (b) independent/dependent variable on the same domain, as it empirically studies the relationship between surface treatments and polymer adhesion strength in materials science.",
+  "relevant": true
+}

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-07T09:14:29.594453Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-675-comparing-born-model-predictions-with-ex
-last_run_id: f4a30bcd-3b51-404e-963d-c4de206da75d
+last_run_id: dc33ca21-96d9-40a7-8809-182f3c0ac0bf
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex
 title: Comparing Born Model Predictions with Experimental Solvation Energies of Small
   Ions
-updated_at: '2026-06-28T01:50:20.141011Z'
+updated_at: '2026-06-28T21:18:03.587842Z'

@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a comparative study of 3D conformational geometry versus 2D connectivity for predicting molecular dipole moments. The technical approach trains a SchNet-style GNN (leveraging 3D coordinates) against a Random Forest baseline (using 2D descriptors only) on a 10k random subset of QM9, with feature attribution analysis to identify structural drivers of predictive variance.
+This feature implements a comparative study of 3D conformational geometry versus 2D connectivity for predicting molecular dipole moments. The technical approach trains a SchNet-style GNN (leveraging 3D coordinates) against a Random Forest baseline (using 2D descriptors only) on a random subset of QM9, with feature attribution analysis to identify structural drivers of predictive variance.
 
 ## Technical Context
 
@@ -26,7 +26,7 @@ This feature implements a comparative study of 3D conformational geometry versus
 
 | Principle | Compliance Status | Implementation Notes | Spec Traceability |
 |-----------|-------------------|---------------------|------------------|
-| I. Reproducibility | ✅ PASS | Random seeds pinned in code/; QM9 fetched from canonical HuggingFace sources; requirements.txt with exact versions | T009, SC-005 |
+| I. Reproducibility | ✅ PASS | Random seeds pinned in code/; Quantum chemistry datasets fetched from canonical HuggingFace sources; requirements.txt with exact versions | T009, SC-005 |
 | II. Verified Accuracy | ✅ PASS | All dataset URLs verified against HuggingFace datasets.load_dataset(); DOI 10.1038/sdata.2014.22 cited as reference only (no URL fabricated) | T015, FR-001 |
 | III. Data Hygiene | ✅ PASS | Raw data checksummed in state/projects/*.yaml; transformations write new files; no in-place modifications | T004, T016, T017, T018 |
 | IV. Single Source of Truth | ✅ PASS | All figures/statistics trace to data/ rows and code/ blocks; no hand-typed numbers in paper artifacts | T046, T054 |

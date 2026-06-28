@@ -1,0 +1,682 @@
+{
+  "fetched_at": "2026-06-28T20:46:52Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Impact of Code Generation on Long-Term Code Maintainability",
+      "target_n": 5
+    },
+    "duration_seconds": 514.863,
+    "ended_at": "2026-06-28T20:46:52Z",
+    "expansion": null,
+    "extracted_queries": [
+      "LLM code generation technical debt",
+      "GitHub Copilot developer behavior patterns",
+      "code smells refactoring frequency",
+      "defect density patch acceptance rate",
+      "automation bias developer cognitive load"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2304.14464"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Impact of Code Generation on Long-Term Code Maintainability computer science": 3,
+      "GitHub Copilot developer behavior patterns": 6,
+      "LLM code generation technical debt": 6,
+      "automation bias developer cognitive load": 6,
+      "code smells refactoring frequency": 6,
+      "defect density patch acceptance rate": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2209.08054",
+          "rationale": "This paper focuses on scientific data and code preservation for reproducibility (likely in high-energy physics given \"Snowmass 2021\"), which is a distinct construct from software engineering maintainability regarding AI code generation. It shares only homonym keywords (\"code\", \"long-term\") without addressing the user's specific mechanism (code generation impact) or domain (software evolution/maintainability).",
+          "title": "Reinterpretation and Long-Term Preservation of Data and Code"
+        },
+        {
+          "primary_pointer": "2402.12317",
+          "rationale": "This paper focuses on execution accuracy of code generation through retrieval-augmented methods, not on long-term code maintainability. While it shares the code generation domain, it measures a fundamentally different outcome variable (execution correctness vs. maintainability), failing to satisfy any of the acceptance criteria (a-f) for literature review inclusion.",
+          "title": "EVOR: Evolving Retrieval for Code Generation"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1007/s10664-024-10548-3",
+          "rationale": "This paper does not satisfy any acceptance criteria (a-f) because it measures LLM performance on SATD identification/classification tasks rather than the impact of code generation on maintainability. While SATD is related to maintainability (criterion b), the paper does not measure code generation as an independent variable or maintainability outcomes as a dependent variable—it evaluates detection accuracy, not the causal relationship between generated code and long-term maintainability.",
+          "title": "An empirical study on the effectiveness of large language models for SATD identification and classification"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T20:38:17Z",
+    "term_input": {
+      "normalized": "evaluating the impact of code generation on long-term code maintainability computer science",
+      "raw": "Evaluating the Impact of Code Generation on Long-Term Code Maintainability computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-06-28T20:40:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Amid the exponential acceleration and increasing complexity of software development, orthodox Application Security practices demonstrably fail to keep pace. The divergence between the velocity of continuous integration and deployment (CI/CD) and the inertia of manual security reviews accrues security technical debt and escalates the risk of compromise. This work presents a comprehensive, reproducible methodology for designing and deploying an AI-assisted framework intended to automate the full vulnerability-management lifecycle in source code. The proposed framework’s architecture comprises four pivotal modules: a continuous scanning module; a large-language-model (LLM)–based analysis and prioritization module; a patch (fix) generation module; and a proactive validation module. A step-by-step implementation protocol, a metric system for evaluating efficacy, and a risk analysis for the application of generative artificial intelligence were delineated. The scientific contribution lies in a systematic approach to self-healing code, in which AI evolves from an assistant proposing candidate remedies to an autonomous agent capable of performing the entire security cycle, detection through integration of remediations. This article targets DevSecOps engineers, security architects, lead developers, and technical managers responsible for embedding automated vulnerability management into CI/CD pipelines and for adopting LLM solutions for automatic patch generation and validation.",
+          "claimed_authors": [
+            "Kateryna Kuznetsova"
+          ],
+          "claimed_title": "Proactive Cybersecurity Methodology: An AI-Assisted Framework for Continuous Source-Code Vulnerability Analysis and Remediation",
+          "claimed_venue": "Universal Library of Innovative Research and Studies",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.70315/uloap.ulirs.2024.0102010"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Proactive Cybersecurity Methodology: An AI-Assisted Framework for Continuous Source-Code Vulnerability Analysis and Remediation')",
+        "failed_at": "2026-06-28T20:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Incorporating the business perspective into prioritizing technical debt is essential to contribute to decision making in industry. In this paper, we evolve and evaluate a business-driven approach for technical debt prioritization. The approach was evaluated during a five-month industrial case study with business and technical stakeholders' active participation. The results show that the approach contributed to aligning business criteria between the business and technical stakeholders. We also observed a downward trend in the amount of technical debt that affects high-value business assets. Moreover, we identified eight business factors that affect the decision making related to the prioritization of technical debt. The study results suggest that the proposed business-driven technical debt prioritization approach can help teams to focus their efforts on paying off the business' most relevant debt.",
+          "claimed_authors": [
+            "Rodrigo Rebouças de Almeida",
+            "Rafael do Nascimento Ribeiro",
+            "Christoph Treude",
+            "Uirá Kulesza"
+          ],
+          "claimed_title": "Business-Driven Technical Debt Prioritization: An Industrial Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.09711"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Business-Driven Technical Debt Prioritization: An Industrial Case Study')",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Technical debt has become a common metaphor for the accumulation of software design and implementation choices that seek fast initial gains but that are under par and counterproductive in the long run. However, as a metaphor, technical debt does not offer actionable advice on how to get rid of it. To get to a practical level in solving problems, more focused mechanisms are needed. Commonly used approaches for this include identifying code smells as quick indications of possible problems in the codebase and detecting the presence of AntiPatterns that refer to overt, recurring problems in design. There are known remedies for both code smells and AntiPatterns. In paper, our goal is to show how to effectively use common tools and the existing body of knowledge on code smells and AntiPatterns to detect technical debt and pay it back. We present two main results: (i) How a combination of static code analysis and manual inspection was used to detect code smells in a codebase leading to the discovery of AntiPatterns; and (ii) How AntiPatterns were used to identify, characterize, and fix problems in the software. The experiences stem from a private company and its long-lasting software product development effort.",
+          "claimed_authors": [
+            "Jacinto Ramirez Lahti",
+            "Antti-Pekka Tuovinen",
+            "Tommi Mikkonen"
+          ],
+          "claimed_title": "Experiences on Managing Technical Debt with Code Smells and AntiPatterns",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.11486"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Experiences on Managing Technical Debt with Code Smells and AntiPatterns')",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "As artificial intelligence tools like GitHub Copilot become more integrated into software development workflows, they are transforming how architects approach modern software design. Although enterprises are exploring the potential of GenAl tools to improve developer productivity, limited research exists on their impact on the role of software architects. Traditionally, architects use various tools to create architectural blueprints, including Unified Modeling Language (UML) diagrams, class diagrams, sequence diagrams, use case diagrams, component diagrams, deployment diagrams, activity diagrams, and state diagrams, to name a few. Many of these diagrams follow repetitive patterns that could be automated with well-defined contexts. This paper examines Copilot's role in supporting architects through various stages of architectural development, evaluating how closely Copilot-generated outputs align with established architectural principles. By analyzing deviations, the study discusses how refined prompts can yield more accurate results. This research ultimately seeks to determine Copilot's potential to enhance productivity, ensure consistency, and support architectural decision-making, while offering insights into best practices for integrating AI into modern software architecture.",
+          "claimed_authors": [
+            "Renjith Ramachandran"
+          ],
+          "claimed_title": "Empowering Software Architects with Artificial Intelligence: Analyzing GitHub Copilot's Role in Modern Architecture Design",
+          "claimed_venue": "2025 7th International Conference on Software Engineering and Computer Science (CSECS)",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1109/CSECS64665.2025.11009821"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title=\"Empowering Software Architects with Artificial Intelligence: Analyzing GitHub Copilot's Role in Modern Architecture Design\")",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This review synthesizes early evidence (2019–2023) on GitHub Copilot and comparable LLM assistants, focusing on their impact on developer productivity, code correctness, and adoption in real workflows. Across controlled studies and field reports, assistants consistently accelerate boilerplate creation, scaffolding, and routine transformations, with smaller or mixed effects on open-ended design and debugging. Gains are highly contingent on task type, developer experience, prompt quality, and integration with tests and review. Correctness and security remain variable; unvetted suggestions can introduce defects or insecure patterns, underscoring the need for linters, unit/property tests, and human code review. Usability, privacy, and governance shape adoption, while CI/CD integration and standardized PR practices convert raw speed into reliable delivery. We highlight evaluation pitfalls in measuring “productivity,” and outline near-term priorities: governed use, outcome-oriented metrics, AI-augmented review, and expansion to richer IDE and organizational contexts.",
+          "claimed_authors": [
+            "S. Adepoju"
+          ],
+          "claimed_title": "Github Copilot's Impact on Developer Productivity : A Review of Early Evidence",
+          "claimed_venue": "International Journal of Scientific Research in Science and Technology",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.32628/ijsrst2221192"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title=\"Github Copilot's Impact on Developer Productivity : A Review of Early Evidence\")",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Despite advancements in IDE tooling, code understanding, generation, and automated repair, debugging continues to present significant challenges. Existing debugging strategies available to developers in literature are often too mechanical and rigid for day-to-day issues. Recent advances in Large Language Models (LLMs) promise practical solutions that allow for more free-form debugging strategies. While LLMs offer satisfactory assistance in some cases, they often leap to action without sufficient context, making implicit assumptions and providing inaccurate responses. Moreover, the dialogue between developers and LLMs predominantly takes the form of question-answer pairs, placing the burden of formulating the correct questions and sustaining multi-turn conversations on the developer. We introduce Robin, a novel multi-agent conversational AI-assistant within GitHub Copilot Chat, specifically designed for debugging. Robin moves beyond the question-answer pairs by introducing the investigate & respond pattern, that focuses on using information gathered automatically from the IDE or gathered interactively from the developer before responding. Robin incorporates a general debugging strategy to systematically analyze bugs to sustain collaborative interactions while ensuring that the conversation does not deviate from the debugging task at hand. Through a within-subjects user study with 16 industry professionals, we find that equipping Robin to-(1) leverage the insert expansion interaction pattern, (2) facilitate turn-taking, and (3) utilize debugging strategies-leads to lowered conversation barriers, a 2.5 x improvement in bug localization and a substantial 3.5x improvement in bug resolution compared to AI-assisted debugging in Visual Studio prior to Robin.",
+          "claimed_authors": [
+            "Yasharth Bajpai",
+            "Bhavya Chopra",
+            "Param Biyani",
+            "Cagri Aslan",
+            "Dustin Coleman",
+            "Sumit Gulwani",
+            "Chris Parnin",
+            "Arjun Radhakrishna",
+            "Gustavo Soares"
+          ],
+          "claimed_title": "Let’s Fix this Together: Conversational Debugging with GitHub Copilot",
+          "claimed_venue": "IEEE Symposium on Visual Languages / Human-Centric Computing Languages and Environments",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1109/VL/HCC60511.2024.00011"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Let’s Fix this Together: Conversational Debugging with GitHub Copilot')",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a comprehensive evaluation of GitHub Copilot's deployment and impact on developer productivity at Zoominfo, a leading Go-To-Market (GTM) Intelligence Platform. We describe our systematic four-phase approach to evaluating and deploying GitHub Copilot across our engineering organization, involving over 400 developers. Our analysis combines both quantitative metrics, focusing on acceptance rates of suggestions given by GitHub Copilot and qualitative feedback given by developers through developer satisfaction surveys. The results show an average acceptance rate of 33% for suggestions and 20% for lines of code, with high developer satisfaction scores of 72%. We also discuss language-specific performance variations, limitations, and lessons learned from this medium-scale enterprise deployment. Our findings contribute to the growing body of knowledge about AI-assisted software development in enterprise settings.",
+          "claimed_authors": [
+            "Gal Bakal",
+            "Ali Dasdan",
+            "Yaniv Katz",
+            "Michael Kaufman",
+            "Guy Levin"
+          ],
+          "claimed_title": "Experience with GitHub Copilot for Developer Productivity at Zoominfo",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.13282"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Experience with GitHub Copilot for Developer Productivity at Zoominfo')",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In software development there is a constant pressure to produce code faster and faster without compromising on quality. New tools supporting developers are created in response to this demand. Currently a new generation of such solutions is about to be launched - Artificial Intelligence driven tools. On 29 June 2021 Github Copilot was announced. It uses trained model to generate code based on human understandable language. The focus of this research was to investigate software developers' approach to this tool. For this purpose a survey containing 18 questions was prepared and shared with programmers. A total of 42 answers were gathered. The results of the research indicate that developers' opinions are divided. Most of them met Github Copilot before attending the survey. The attitude to the tool was mostly positive but not many participants were willing to use it. Concerns are caused by security issues associated with using of Github Copilot.",
+          "claimed_authors": [
+            "Mateusz Jaworski",
+            "Dariusz Piotrkowski"
+          ],
+          "claimed_title": "Study of software developers' experience using the Github Copilot Tool in the software development process",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.04991"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title=\"Study of software developers' experience using the Github Copilot Tool in the software development process\")",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study investigates the real-world impact of the generative AI (GenAI) tool GitHub Copilot on developer activity and perceived productivity. We conducted a mixed-methods case study in NAV IT, a large public sector agile organization. We analyzed 26,317 unique non-merge commits from 703 of NAV IT's GitHub repositories over a two-year period, focusing on commit-based activity metrics from 25 Copilot users and 14 non-users. The analysis was complemented by survey responses on their roles and perceived productivity, as well as 13 interviews. Our analysis of activity metrics revealed that individuals who used Copilot were consistently more active than non-users, even prior to Copilot's introduction. We did not find any statistically significant changes in commit-based activity for Copilot users after they adopted the tool, although minor increases were observed. This suggests a discrepancy between changes in commit-based metrics and the subjective experience of productivity.",
+          "claimed_authors": [
+            "Viktoria Stray",
+            "Elias Goldmann Brandtzæg",
+            "Viggo Tellefsen Wivestad",
+            "Astri Barbala",
+            "Nils Brede Moe"
+          ],
+          "claimed_title": "Developer Productivity With and Without GitHub Copilot: A Longitudinal Mixed-Methods Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.20353"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Developer Productivity With and Without GitHub Copilot: A Longitudinal Mixed-Methods Case Study')",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Background: Code refactoring aims to improve code structures via code transformations. A single transformation rarely suffices to fully remove code smells that reveal poor code structures. Most transformations are applied in batches, i.e. sets of interrelated transformations, rather than in isolation. Nevertheless, empirical knowledge on batch application, or batch refactoring, is scarce. Such scarceness helps little to improve current refactoring practices. Aims: We analyzed 57 open and closed software projects. We aimed to understand batch application from two perspectives: characteristics that typically constitute a batch (e.g., the variety of transformation types employed), and the batch effect on smells. Method: We analyzed 19 smell types and 13 transformation types. We identified 4,607 batches, each applied by the same developer on the same code element (method or class); we expected to have batches whose transformations are closely interrelated. We computed (1) the frequency in which five batch characteristic manifest, (2) the probability of each batch characteristics to remove smells, and (3) the frequency in which batches introduce and remove smells. Results: Most batches are quite simple: although most batches are applied on more than one method (90%), they are usually composed of the same transformation type (72%) and only two transformations (57%). Batches applied on a single method are 2.6 times more prone to fully remove smells than batches affecting more than one method. Surprisingly, batches mostly ended up introducing (51%) or not fully removing (38%) smells. Conclusions: The batch simplicity suggests that developers have sub-explored the combinations of transformations within a batch. We summarized some batches that may fully remove smells, so that developers can incorporate them into current refactoring practices.",
+          "claimed_authors": [
+            "Ana Carla Bibiano",
+            "Eduardo Fernandes",
+            "Daniel Oliveira",
+            "Alessandro F. Garcia",
+            "Marcos Kalinowski",
+            "B. Neto",
+            "R. Oliveira",
+            "Anderson Oliveira",
+            "Diego Cedrim"
+          ],
+          "claimed_title": "A Quantitative Study on Characteristics and Effect of Batch Refactoring on Code Smells",
+          "claimed_venue": "International Symposium on Empirical Software Engineering and Measurement",
+          "claimed_year": 2019,
+          "primary_pointer": "https://doi.org/10.1109/ESEM.2019.8870183"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='A Quantitative Study on Characteristics and Effect of Batch Refactoring on Code Smells')",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "W. Abdelmoez",
+            "E. Kosba",
+            "Ali falah Iesa"
+          ],
+          "claimed_title": "Risk-Based Code Smells Detection Tool",
+          "claimed_venue": "",
+          "claimed_year": 2016,
+          "primary_pointer": "https://www.semanticscholar.org/paper/33e0e617806f292a97665ec7bf42d38f23e786e3"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Risk-Based Code Smells Detection Tool')",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Many undergraduate students focus on achieving the core functionality of their assignments in order to pass the autograder, without investing time upfront to refine their design or afterwards to refactor their working solution. Thus, students do not focus on structuring their code in order to increase readability and avoid code duplication. The frequency and scope of code smells varies with the problem at hand and the student’s programming experience, however intermediate students often write verbose code with room for refactoring. To investigate this topic, this study has examined in detail the solutions written by second year students to solve a simple string task called Arrows. This task is used as a case study because by its description is likely to lead to code duplication. We have analysed the quality of their implementation in terms of modularity, duplication and the presence of code smells. The analysis confirmed code duplication is often overlooked, with only 19% extracting code into one or two helper methods and 37% having multiple code duplication smells. Other common novice code smell have also been identified as well as one reliability issue: ignoring to check out-of-range access to the string.",
+          "claimed_authors": [
+            "C. Izu",
+            "Y. Hui"
+          ],
+          "claimed_title": "On the Need to Clean Student's Duplicated and Verbose Code: The Arrows Problem",
+          "claimed_venue": "IFAC Symposium on Advances in Control Education",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1145/3716640.3716648"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title=\"On the Need to Clean Student's Duplicated and Verbose Code: The Arrows Problem\")",
+        "failed_at": "2026-06-28T20:40:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a tertiary systematic literature review of previous surveys, secondary systematic literature reviews, and systematic mappings. We identify the main observations (what we know) and challenges (what we do not know) on code smells and refactoring. We show that code smells and refactoring have a strong relationship with quality attributes, i.e., with understandability, maintainability, testability, complexity, functionality, and reusability. We argue that code smells and refactoring could be considered as the two faces of a same coin. Besides, we identify how refactoring affects quality attributes, more than code smells. We also discuss the implications of this work for practitioners, researchers, and instructors. We identify 13 open issues that could guide future research work. Thus, we want to highlight the gap between code smells and refactoring in the current state of software-engineering research. We wish that this work could help the software-engineering research community in collaborating on future work on code smells and refactoring.",
+          "claimed_authors": [
+            "Guilherme Lacerda",
+            "Fabio Petrillo",
+            "Marcelo Pimenta",
+            "Yann Gael Gueheneuc"
+          ],
+          "claimed_title": "Code Smells and Refactoring: A Tertiary Systematic Review of Challenges and Observations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.10777"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Code Smells and Refactoring: A Tertiary Systematic Review of Challenges and Observations')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated batch refactoring has become a de-facto mechanism to restructure software that may have significant design flaws negatively impacting the code quality and maintainability. Although automated batch refactoring techniques are known to significantly improve overall software quality and maintainability, their impact on resource utilization is not well studied. This paper aims to bridge the gap between batch refactoring code smells and consumption of resources. It determines the relationship between software code smell batch refactoring, and resource consumption. Next, it aims to design algorithms to predict the impact of code smell refactoring on resource consumption. This paper investigates 16 code smell types and their joint effect on resource utilization for 31 open source applications. It provides a detailed empirical analysis of the change in application CPU and memory utilization after refactoring specific code smells in isolation and in batches. This analysis is then used to train regression algorithms to predict the impact of batch refactoring on CPU and memory utilization before making any refactoring decisions. Experimental results also show that our ANN-based regression model provides highly accurate predictions for the impact of batch refactoring on resource consumption. It allows the software developers to intelligently decide which code smells they should refactor jointly to achieve high code quality and maintainability without increasing the application resource utilization. This paper responds to the important and urgent need of software engineers across a broad range of software applications, who are looking to refactor code smells and at the same time improve resource consumption. Finally, it brings forward the concept of resource aware code smell refactoring to the most crucial software applications.",
+          "claimed_authors": [
+            "Asif Imran",
+            "Tevfik Kosar",
+            "Jaroslaw Zola",
+            "Muhammed Fatih Bulut"
+          ],
+          "claimed_title": "Predicting the Impact of Batch Refactoring Code Smells on Application Resource Consumption",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.15763"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Predicting the Impact of Batch Refactoring Code Smells on Application Resource Consumption')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "In this study, we aimed to address the primary challenges encountered in industrial integrated circuit (IC) surface defect detection, particularly focusing on the imbalance in information density arising from difficulties in data sample collection. To this end, we have developed a new hybrid architecture model for IC surface defect detection (SDDM), based on ResNet and Vision Transformer (ViT). The core innovation of SDDM lies in the integration of the concepts of image information density and dataset information density, effectively identifying and processing areas of high information density through multi-channel image segmentation techniques. The convolution operations performed within each patch of the model help to precisely capture positional information, thereby meticulously differentiating the complex details on the surface defect detection of ICs. We optimized the model to make it more suitable for industrial applications, significantly reducing computational and operational costs. The experimental results confirmed that the improved SDDM model achieved an accuracy rate of 98.6% on datasets with uneven information density, effectively enhancing the productivity of IC packaging and testing companies, particularly in handling datasets with imbalanced information density.",
+          "claimed_authors": [
+            "Xiaobin Wang",
+            "Shuang Gao",
+            "Jianlan Guo",
+            "Chu Wang",
+            "Liping Xiong",
+            "Yuntao Zou"
+          ],
+          "claimed_title": "Deep Learning-Based Integrated Circuit Surface Defect Detection: Addressing Information Density Imbalance for Industrial Application",
+          "claimed_venue": "International Journal of Computational Intelligence Systems",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1007/s44196-024-00423-w"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Deep Learning-Based Integrated Circuit Surface Defect Detection: Addressing Information Density Imbalance for Industrial Application')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Common elands are also kept in small fenced areas where they utilise different habitats in search of forage when scarce. Ecologists need to understand forage availability and determine how dry season patch burning can influence diet selection of the common elands in protected areas and this prompted the study in the Eland Sanctuary Park. Two sites were selected: i.e. burnt and unburnt. The burning exercise was done on the 16th of June, 2023 and the area was left for two weeks for regrowth. Forty random sample plots were set on the 1st of July, 2023, consisting of twenty-four in unburnt and sixteen in burnt site each of size 25m x 25m. Data collection was done from the 1st to 10th of July, 2023, recording number of plant species utilised and eland spoors in each plot. Plant species selectivity was determined using preference ratios and frequencies of acceptance which was calculated at species level. Mann-Whitney U-test was used to determine the significant differences in common eland spoor density between burnt and unburnt areas at p = 0.05 after the Kolmogorov-Smirnov normality test at p = 0.005 (N =24, P= 0.070). Results showed that Macaranga capensis, Pinus patula, and Sclerocarya birrea had a high preference ratio in the unburnt area, while, Laodetia simplex, Cymbopogon plurinodis, and Themeda triandra had a high acceptance rate after burning. However, there was no strong correlation between spoor abundance and number of plants utilised in both burnt and unburnt areas. Ecologists should acknowledge dry season patch burning at intervals to facilitate regrowth and retain forage palatability for the common eland. ",
+          "claimed_authors": [
+            "I. Mahakata",
+            "Milcent Chikara"
+          ],
+          "claimed_title": "Forage Availability and the Effects of Dry Season Patch Burning on Diet and Habitat Selection by the Common Eland in Eland Sanctuary Park, Zimbabwe",
+          "claimed_venue": "Journal of Wildlife and Conservation",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.54536/jwc.v1i1.2341"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Forage Availability and the Effects of Dry Season Patch Burning on Diet and Habitat Selection by the Common Eland in Eland Sanctuary Park, Zimbabwe')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The high-density microprojection array patch (HD-MAP) is a novel vaccine delivery system with potential for self-administered vaccination. HD-MAPs provide an alternative to needle and syringe (N&S) vaccination. Additional advantages could include reduced cold-chain requirements, reduced vaccine dose, reduced vaccine wastage, an alternative for needle phobic patients and elimination of needlestick injuries. The drivers and potential benefits of vaccination by self-administering HD-MAPs are high patient acceptance and preference, higher vaccination rates, speed of roll-out, cost-savings, and reduced sharps and environmental waste. The HD-MAP presents a unique approach in pandemic preparedness and routine vaccination of adults. It could alleviate strain on the healthcare workforce and allows vaccine administration by minimally-trained workers, guardian or subjects themselves. Self-vaccination using HD-MAPs could occur in vaccination hubs with supervision, at home after purchasing at the pharmacy, or direct distribution to in-home settings. As a result, it has the potential to increase vaccine coverage and expand the reach of vaccines, while also reducing labor costs associated with vaccination. Key challenges remain around shifting the paradigm from medical professionals administrating vaccines using N&S to a future of self-administration using HD-MAPs. Greater awareness of HD-MAP technology and improving our understanding of the implementation processes required for adopting this technology, are critical factors underpinning HD-MAP uptake by the public.",
+          "claimed_authors": [
+            "E. Hacker",
+            "B. Baker",
+            "T. Lake",
+            "C. Ross",
+            "M. Cox",
+            "C. Davies",
+            "S. R. Skinner",
+            "R. Booy",
+            "A. Forster"
+          ],
+          "claimed_title": "Vaccine microarray patch self-administration: An innovative approach to improve pandemic and routine vaccination rates.",
+          "claimed_venue": "Vaccine",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1016/j.vaccine.2023.08.027"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Vaccine microarray patch self-administration: An innovative approach to improve pandemic and routine vaccination rates.')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new modification of the Hermite cubic rectangular patch is proposed: the S-Patch, which is based on the requirement that diagonal curves must be of degree 3 instead of degree 6 as it is in the case of the Hermite patch. Theoretical derivation of conditions is presented and some experimental results as well. The S-Patch is convenient for applications, where different tessellation of the u-v domain is needed, boundary and diagonal curves of different degrees are not acceptable.",
+          "claimed_authors": [
+            "Vaclav Skala",
+            "Vit Ondracka"
+          ],
+          "claimed_title": "S-patch: Modification of the Hermite parametric patch",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.11875"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='S-patch: Modification of the Hermite parametric patch')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Autoregressive models, built based on the Next Token Prediction (NTP) paradigm, show great potential in developing a unified framework that integrates both language and vision tasks. Pioneering works introduce NTP to autoregressive visual generation tasks. In this work, we rethink the NTP for autoregressive image generation and extend it to a novel Next Patch Prediction (NPP) paradigm. Our key idea is to group and aggregate image tokens into patch tokens with higher information density. By using patch tokens as a more compact input sequence, the autoregressive model is trained to predict the next patch, significantly reducing computational costs. To further exploit the natural hierarchical structure of image data, we propose a multi-scale coarse-to-fine patch grouping strategy. With this strategy, the training process begins with a large patch size and ends with vanilla NTP where the patch size is 1$\\times$1, thus maintaining the original inference process without modifications. Extensive experiments across a diverse range of model sizes demonstrate that NPP could reduce the training cost to around 0.6 times while improving image generation quality by up to 1.0 FID score on the ImageNet 256x256 generation benchmark. Notably, our method retains the original autoregressive model architecture without introducing additional trainable parameters or specifically designing a custom image tokenizer, offering a flexible and plug-and-play solution for enhancing autoregressive visual generation.",
+          "claimed_authors": [
+            "Yatian Pang",
+            "Peng Jin",
+            "Shuo Yang",
+            "Bin Lin",
+            "Bin Zhu",
+            "Zhenyu Tang",
+            "Liuhan Chen",
+            "Francis E. H. Tay",
+            "Ser-Nam Lim",
+            "Harry Yang",
+            "Li Yuan"
+          ],
+          "claimed_title": "Next Patch Prediction for Autoregressive Visual Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.15321"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Next Patch Prediction for Autoregressive Visual Generation')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ability to synthesize personalized group photos and specify the positions of each identity offers immense creative potential. While such imagery can be visually appealing, it presents significant challenges for existing technologies. A persistent issue is identity (ID) leakage, where injected facial features interfere with one another, resulting in low face resemblance, incorrect positioning, and visual artifacts. Existing methods suffer from limitations such as the reliance on segmentation models, increased runtime, or a high probability of ID leakage. To address these challenges, we propose ID-Patch, a novel method that provides robust association between identities and 2D positions. Our approach generates an ID patch and ID embeddings from the same facial features: the ID patch is positioned on the conditional image for precise spatial control, while the ID embeddings integrate with text embeddings to ensure high resemblance. Experimental results demonstrate that ID-Patch surpasses baseline methods across metrics, such as face ID resemblance, ID-position association accuracy, and generation efficiency. Project Page is: https://byteaigc.github.io/ID-Patch/",
+          "claimed_authors": [
+            "Yimeng Zhang",
+            "Tiancheng Zhi",
+            "Jing Liu",
+            "Shen Sang",
+            "Liming Jiang",
+            "Qing Yan",
+            "Sijia Liu",
+            "Linjie Luo"
+          ],
+          "claimed_title": "ID-Patch: Robust ID Association for Group Photo Personalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.13632"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='ID-Patch: Robust ID Association for Group Photo Personalization')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Objective: Determine the relationship between cognitive load (CL) and automation bias (AB). Background: Clinical decision support (CDS) for electronic prescribing can improve safety but introduces the risk of AB, where reliance on CDS replaces vigilance in information seeking and processing. We hypothesized high CL generated by high task complexity would increase AB errors. Method: One hundred twenty medical students prescribed medicines for clinical scenarios using a simulated e-prescribing system in a randomized controlled experiment. Quality of CDS (correct, incorrect, and no CDS) and task complexity (low and high) were varied. CL, omission errors (failure to detect prescribing errors), and commission errors (acceptance of false positive alerts) were measured. Results: Increasing complexity from low to high significantly increased CL, F(1, 118) = 71.6, p < .001. CDS reduced CL in high-complexity conditions compared to no CDS, F(2, 117) = 4.72, p = .015. Participants who made omission errors in incorrect and no CDS conditions exhibited lower CL compared to those who did not, F(1, 636.49) = 3.79, p = .023. Conclusion: Results challenge the notion that AB is triggered by increasing task complexity and associated increases in CL. Omission errors were associated with lower CL, suggesting errors may stem from an insufficient allocation of cognitive resources. Application: This is the first research to examine the relationship between CL and AB. Findings suggest designers and users of CDS systems need to be aware of the risks of AB. Interventions that increase user vigilance and engagement may be beneficial and deserve further investigation.",
+          "claimed_authors": [
+            "D. Lyell",
+            "F. Magrabi",
+            "E. Coiera"
+          ],
+          "claimed_title": "The Effect of Cognitive Load and Task Complexity on Automation Bias in Electronic Prescribing",
+          "claimed_venue": "Hum. Factors",
+          "claimed_year": 2018,
+          "primary_pointer": "https://doi.org/10.1177/0018720818781224"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='The Effect of Cognitive Load and Task Complexity on Automation Bias in Electronic Prescribing')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "D. Lyell",
+            "F. Magrabi",
+            "E. Coiera"
+          ],
+          "claimed_title": "Cognitive_load_and_automation_bias_-_Appendices – Supplemental material for The Effect of Cognitive Load and Task Complexity on Automation Bias in Electronic Prescribing",
+          "claimed_venue": "",
+          "claimed_year": 2018,
+          "primary_pointer": "https://doi.org/10.25384/sage.6802166"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Cognitive_load_and_automation_bias_-_Appendices – Supplemental material for The Effect of Cognitive Load and Task Complexity on Automation Bias in Electronic Prescribing')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Background The rapid expansion of generative artificial intelligence (GenAI) systems such as ChatGPT, Google Gemini, and Claude is transforming how individuals access and interpret health information. While these tools enhance accessibility and engagement, they also introduce risks related to misinformation, hallucination, and automation bias, raising concerns about how users evaluate and act on AI-generated advice. Objective This study examines the psychological and cognitive determinants influencing whether individuals follow or verify AI-generated health advice, focusing on the roles of eHealth literacy, cognitive load, and technology self-efficacy within the context of Saudi Arabia’s digital health transformation. Methods A cross-sectional online survey was conducted among 487 Saudi adults with prior experience using GenAI for health-related purposes. Validated instruments, including the eHealth Literacy Scale (eHEALS), Cognitive Load Scale, and Computer and Information Technology Self-Efficacy Scale, were employed. Structural Equation Modeling (SEM) was used to test direct, mediating, and moderating relationships. Results Verification intention was positively predicted by eHealth literacy (β = 0.36, p <0.001) and technology self-efficacy (β = 0.25, p <0.001), while both reduced reliance on unverified AI advice. Cognitive load increased following behavior (β = 0.29, p <0.001) and reduced verification (β = –0.27, p <0.001). Cognitive load partially mediated the relationship between eHealth literacy and verification, while technology self-efficacy mitigated the negative impact of cognitive load. The model explained 56% of the variance in verification and 44% in following intentions. Conclusion eHealth literacy and technology self-efficacy support critical evaluation of AI-generated health information, whereas cognitive load acts as a barrier to informed decision-making. These findings highlight the need for user-centered AI design strategies—such as simplified outputs and verification prompts—and targeted literacy initiatives to promote safe and effective use of AI in healthcare.",
+          "claimed_authors": [
+            "A. Alhur",
+            "B. Alnasser"
+          ],
+          "claimed_title": "Modeling Behavioral Determinants of Following and Verifying AI-Generated Health Advice: The Roles of eHealth Literacy, Cognitive Load, and Technology Self-Efficacy",
+          "claimed_venue": "Journal of Multidisciplinary Healthcare",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.2147/JMDH.S582741"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Modeling Behavioral Determinants of Following and Verifying AI-Generated Health Advice: The Roles of eHealth Literacy, Cognitive Load, and Technology Self-Efficacy')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motion simulators allow researchers to safely investigate the interaction of drivers with a vehicle. However, many studies that use driving simulator data to predict cognitive load only employ two levels of workload, leaving a gap in research on employing deep learning methodologies to analyze cognitive load, especially in challenging low-light conditions. Often, studies overlook or solely focus on scenarios in bright daylight. To address this gap and understand the correlation between performance and cognitive load, this study employs functional near-infrared spectroscopy (fNIRS) and eye-tracking data, including fixation duration and gaze direction, during simulated driving tasks in low visibility conditions, inducing various mental workloads. The first stage involves the statistical estimation of useful features from fNIRS and eye-tracking data. ANOVA will be applied to the signals to identify significant channels from fNIRS signals. Optimal features from fNIRS, eye-tracking and vehicle dynamics are then combined in one chunk as input to the CNN and LSTM model to predict workload variations. The proposed CNN-LSTM model achieved 99% accuracy with neurological data and 89% with vehicle dynamics to predict cognitive load, indicating potential for real-time assessment of driver mental state and guide designers for the development of safe adaptive systems.",
+          "claimed_authors": [
+            "Mehshan Ahmed Khan",
+            "Houshyar Asadi",
+            "Mohammad Reza Chalak Qazani",
+            "Chee Peng Lim",
+            "Saied Nahavandi"
+          ],
+          "claimed_title": "Functional near-infrared spectroscopy (fNIRS) and Eye tracking for Cognitive Load classification in a Driving Simulator Using Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.06349"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Functional near-infrared spectroscopy (fNIRS) and Eye tracking for Cognitive Load classification in a Driving Simulator Using Deep Learning')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The human brain is autonomously active. To understand the functional role of this self-sustained neural activity, and its interplay with the sensory data input stream, is an important question in cognitive system research and we review here the present state of theoretical modelling.\n  This review will start with a brief overview of the experimental efforts, together with a discussion of transient vs. self-sustained neural activity in the framework of reservoir computing. The main emphasis will be then on two paradigmal neural network architectures showing continuously ongoing transient-state dynamics: saddle point networks and networks of attractor relics.\n  Self-active neural networks are confronted with two seemingly contrasting demands: a stable internal dynamical state and sensitivity to incoming stimuli. We show, that this dilemma can be solved by networks of attractor relics based on competitive neural dynamics, where the attractor relics compete on one side with each other for transient dominance, and on the other side with the dynamical influence of the input signals. Unsupervised and local Hebbian-style online learning then allows the system to build up correlations between the internal dynamical transient states and the sensory input stream. An emergent cognitive capability results from this set-up. The system performs online, and on its own, a non-linear independent component analysis of the sensory data stream, all the time being continuously and autonomously active. This process maps the independent components of the sensory input onto the attractor relics, which acquire in this way a semantic meaning.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognitive computation with autonomously active neural networks: an emerging field",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0901.3028"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Generation on Long-Term Code Maintainability compu', candidate_title='Cognitive computation with autonomously active neural networks: an emerging field')",
+        "failed_at": "2026-06-28T20:40:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuecai Zhu",
+            "Nikolaos Tsantalis",
+            "Peter C. Rigby"
+          ],
+          "title": "AI-Generated Smells: An Analysis of Code and Architecture in LLM and Agent-Driven Development",
+          "venue": "",
+          "year": 2026
+        },
+        "primary_pointer": "2605.02741",
+        "summary": "The promise of Large Language Models in automated software engineering is often measured by functional correctness, overlooking the critical issue of long term maintainability. This paper presents a systematic audit of technical debt in AI-generated software, revealing that AI does not eliminate flaws but rather introduces a distinct machine signature of defects. Our multi-scale analysis, spanning single-file algorithmic tasks and complex, agent generated systems, identifies a fundamental Reasoning-Complexity Trade-off: as models become more capable, they generate increasingly bloated and coupled code. This architectural decay is so pronounced that we establish a Volume-Quality Inverse Law, where code volume is a near perfect predictor of structural degradation. Crucially, we demonstrate that neither functional correctness nor detailed prompting mitigates this decay. These findings challenge the current paradigm of prompt-driven generation, reframing the central problem of AI-based software engineering from one of code generation to one of architectural complexity management. We conclude that future progress depends on equipping agents with explicit architectural foresight to ensure the software they build is not just functional, but also maintainable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2605.02741",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T20:40:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Benedikt Dornauer",
+            "Michael Felderer",
+            "Johannes Weinzerl",
+            "Mircea-Cristian Racasan",
+            "Martin Hess"
+          ],
+          "title": "SoHist: A Tool for Managing Technical Debt through Retro Perspective Code Analysis",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.14464",
+        "summary": "Technical debt is often the result of Short Run decisions made during code development, which can lead to long-term maintenance costs and risks. Hence, evaluating the progression of a project and understanding related code quality aspects is essential.\n  Fortunately, the prioritization process for addressing technical debt can be expedited with code analysis tools like the established SonarQube. Unfortunately, we experienced some limitations with this tool and have had some requirements from the industry that were not yet addressed.\n  Through this experience report and the analysis of scientific papers, this work contributes: (1) a reassessment of technical debt within the industry, (2) considers the benefits of employing SonarQube as well as its limitations when evaluating and prioritizing technical debt, (3) introduces a novel tool named SoHist which addresses these limitations and offers additional features for the assessment and prioritization of technical debt, and (4) exemplifies the usage of this tool in two industrial settings in the ITEA3 SmartDelta project.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.14464",
+          "http_status": 200,
+          "pdf_sample_score": 0.1996,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T20:40:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Américo Rio",
+            "Fernando Brito e Abreu"
+          ],
+          "title": "PHP code smells in web apps: survival and anomalies",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2101.00090",
+        "summary": "Context: Code smells are considered symptoms of poor design, leading to future problems, such as reduced maintainability. Except for anecdotal cases (e. g. code dropout), a code smell survives until it gets explicitly refactored or removed. This paper presents a longitudinal study on the survival of code smells for web apps built with PHP.\n  Objectives: RQ: (i) code smells survival depends on their scope? (ii) practitioners attitudes towards code smells removal in web apps have changed throughout time? (iii) how long code smells survive in web applications? (iv) are there sudden variations (anomalies) in the density of code smells through the evolution of web apps?\n  Method: We analyze the evolution of 6 code smells in 8 web applications written in PHP at the server side, across several years, using the survival analysis technique. We classify code smells according to scope in two categories: scattered and localized. Scattered code smells are expected to be more harmful since their influence is not circumscribed as in localized code smells. We split the observations for each web app into two equal and consecutive timeframes, to test the hypothesis that code smells awareness has increased throughout time. As for the anomalies, we standardize their detection criteria.\n  Results: We present some evidence that code smells survival depends on their scope: the average survival rate decreases in some of them, while the opposite is observed for the remainder. The survival of localized code smells is around 4 years, while the scattered ones live around 5 years. Around 60% of the smells are removed, and some live through all the application life. We also show how a graphical representation of anomalies found in the evolution of code smells allows unveiling the story of a development project and make managers aware of the need for enforcing regular refactoring practices.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2101.00090",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T20:40:47Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the impact of code generation on long-term code maintainability computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,7 +1,3 @@
----
-description: "Task list template for feature implementation"
----
-
 # Tasks: Predicting Molecular Dipole Moments with Graph Neural Networks
 
 **Input**: Design documents from `/specs/001-predicting-molecular-dipole-moments/`
@@ -26,9 +22,9 @@ description: "Task list template for feature implementation"
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization and basic structure per FR-030 Constitution requirements for reproducibility and versioning discipline
 
-- [X] T001 Create project structure per implementation plan in `projects/001-predicting-molecular-dipole-moments/`
+- [X] T001 Create project structure with exact directories: projects/001-predicting-molecular-dipole-moments/code/, tests/, data/raw/, data/processed/, data/checkpoints/, data/reports/, results/, state/, specs/ in `projects/001-predicting-molecular-dipole-moments/`
 - [X] T002 Initialize Python 3.11 project with requirements.txt in `projects/001-predicting-molecular-dipole-moments/code/requirements.txt`
 - [X] T003 [P] Configure linting and formatting tools (black, flake8, isort) in `.pre-commit-config.yaml`
 
@@ -36,16 +32,19 @@ description: "Task list template for feature implementation"
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. All tasks trace to FR-001 through FR-013 requirements.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup data directory structure (data/raw/, data/processed/, data/checkpoints/) per plan.md in `projects/001-predicting-molecular-dipole-moments/`
+- [X] T004 Setup data directory structure (data/raw/, data/processed/, data/checkpoints/, data/reports/) per plan.md in `projects/001-predicting-molecular-dipole-moments/`
 - [X] T005 [P] Initialize state tracking with state/projects/001-predicting-molecular-dipole-moments.yaml
 - [X] T006 [P] Configure pytest 7.4.3 with contract test framework in `projects/001-predicting-molecular-dipole-moments/tests/`
 - [X] T007 [P] Create YAML contract schema files in `projects/001-predicting-molecular-dipole-moments/tests/contracts/` (molecule.schema.yaml, feature_set.schema.yaml, model_output.schema.yaml)
 - [X] T008 Configure environment configuration management with.env.example and config.py in `projects/001-predicting-molecular-dipole-moments/code/`
 - [X] T009 Setup reproducibility framework with pinned random seeds in `projects/001-predicting-molecular-dipole-moments/code/utils/reproducibility.py`
+- [X] T049 [P] Implement 6h time limit wrapper in `projects/001-predicting-molecular-dipole-moments/code/utils/pipeline_time_limit.py` (FR-010, SC-003, enforced throughout entire pipeline)
+- [X] T050 [P] Enforce 2 CPU cores constraint across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/cpu_constraint.py` (FR-010, SC-003)
+- [X] T052 [P] Enforce memory constraint (< 8GB) across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/memory_constraint.py` (FR-013)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -53,9 +52,9 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to 10k random subset, extract 3D coordinates and 2D descriptors for baseline comparison
+**Goal**: Download QM dataset, filter to 10k random subset, extract 3D coordinates and 2D descriptors for baseline comparison
 
-**Independent Test**: Verify data files exist, subset size equals 10k, and {{claim:c_f03012ef}}
+**Independent Test**: Verify data files exist, subset size equals 10k, and both 3D and 2D feature matrices are generated with no missing values
 
 ### Tests for User Story 1
 
@@ -70,10 +69,10 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 1
 
 - [X] T015 [US1] Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (FR-001, QM9 dataset DOI 10.1038/sdata.2014.22)
-- [X] T016 [US1] Create 10k random subset with reproducibility seed in `projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py` (MUST precede T017/T018 per spec computational efficiency requirement FR-010)
+- [X] T016 [US1] Create a random subset with reproducibility seed in `projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py` (T016 creates the 10k subset used as input for T017/T018 per spec computational efficiency requirement FR-010)
 - [X] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/001-predicting-molecular-dipole-moments/code/data/preprocess_3d.py` (FR-002, depends on T016)
 - [X] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/001-predicting-molecular-dipole-moments/code/data/extract_2d_descriptors.py` (FR-003, depends on T016)
-- [X] T019 [US1] Add validation for missing 3D coordinates handling in `projects/001-predicting-molecular-dipole-moments/code/data/handle_missing_coords.py` (edge case acceptance criteria)
+- [X] T019 [US1] Add validation for missing 3D coordinates handling in `projects/001-predicting-molecular-dipole-moments/code/data/handle_missing_coords.py` (generates data/reports/excluded_molecules.csv with columns {'molecule_id', 'exclusion_reason', 'exclusion_timestamp'} per User Story 1 acceptance criteria)
 - [X] T020 [US1] Generate output files: data/processed/molecules_10k.parquet, features_3d.parquet, features_2d.parquet
 - [X] T021 [US1] Handle QM9 DOI link inaccessible edge case with retry/fallback in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (Edge Case: DOI inaccessible)
 
@@ -102,9 +101,9 @@ description: "Task list template for feature implementation"
 - [X] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/001-predicting-molecular-dipole-moments/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
-- [X] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
+- [X] T032 [US2] Validate predictions against standard quantum calculation reference data (B3LYP/6-31G(2df,p) level) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, uses QM9 dataset specification DOI 10.1038/sdata.2014.22)
 - [X] T033 [US2] Save model checkpoints to data/checkpoints/model_seed_{N}.pt and rf_seed_{N}.pkl
-- [X] T034 [US2] Generate results/metrics.csv with performance across all 5 seeds (SC-005, FR-006)
+- [X] T034 [US2] Generate results/metrics.csv with columns {'seed', 'model', 'mae', 'rmse', 'mae_ci_lower', 'mae_ci_upper', 'rmse_ci_lower', 'rmse_ci_upper'} across all 5 seeds (SC-005, FR-006, FR-012)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,13 +125,13 @@ description: "Task list template for feature implementation"
 
 - [X] T038 [P] [US3] Implement permutation importance for Random Forest in `projects/001-predicting-molecular-dipole-moments/code/attribution/permutation_importance.py` (FR-007)
 - [X] T039 [P] [US3] Implement saliency mapping for GNN node embeddings in `projects/001-predicting-molecular-dipole-moments/code/attribution/saliency_mapping.py` (FR-007)
-- [X] T040 [US3] Rank structural contributions (electronegative atom placement, local bond angles) in `projects/001-predicting-molecular-dipole-moments/code/attribution/rank_contributions.py` (FR-007, SC-002)
+- [X] T040 [US3] Rank structural contributions (electronegative atom placement, local bond angles) and verify ≥3 features identified in results/attributions.json in `projects/001-predicting-molecular-dipole-moments/code/attribution/rank_contributions.py` (FR-007, SC-002)
 - [X] T041 [US3] Implement paired t-tests (α=0.05) comparing RMSE distributions in `projects/001-predicting-molecular-dipole-moments/code/analysis/statistical_tests.py` (FR-008, SC-004)
 - [X] T042 [US3] Generate results/attributions.json with feature importance rankings
-- [X] T043 [US3] Generate results/significance.csv with t-test p-values across 5 seeds
+- [X] T043 [US3] Generate results/significance.csv with columns {'seed', 't_statistic', 'p_value', 'significant_at_alpha_0.05'} across 5 seeds (FR-008)
 - [X] T044 [US3] Compute confidence intervals (95%) for MAE and RMSE metrics in `projects/001-predicting-molecular-dipole-moments/code/analysis/confidence_intervals.py` (FR-012, SC-001)
-- [X] T045 [US3] Visualize feature importance maps on representative molecules in `projects/001-predicting-molecular-dipole-moments/code/analysis/visualize_features.py` (FR-009, responsible for feature attribution visualizations only)
-- [X] T046 [US3] Generate results/figures/*.png for model performance charts and general result visualizations (responsible for non-feature-attribution visualizations)
+- [X] T045 [US3] Visualize feature importance maps on representative molecules (data/processed/attributions_*.png) in `projects/001-predicting-molecular-dipole-moments/code/analysis/visualize_features.py` (FR-009, feature attribution visualizations only with traceability to data rows)
+- [X] T046 [US3] Generate results/figures/performance_*.png for model performance charts with explicit traceability to data rows in `projects/001-predicting-molecular-dipole-moments/code/analysis/generate_performance_charts.py` (responsible for non-feature-attribution visualizations, Constitution Principle IV compliance)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,23 +141,18 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Align tasks with spec requirements and ensure all FRs are implemented
 
-- [X] T049 [US1+US2+US3] Implement {{claim:c_0f9c05be}} wrapper in `projects/001-predicting-molecular-dipole-moments/code/utils/pipeline_time_limit.py` (FR-010, SC-003, applies to entire pipeline not just training)
-- [X] T050 [US1+US2+US3] Enforce 2 CPU cores constraint across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/cpu_constraint.py` (FR-010, SC-003)
 - [X] T051 [US1+US2+US3] Validate RMSE variance < 10% threshold across 5 seeds in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_variance.py` (SC-005)
-- [X] T052 [US1+US2+US3] Enforce memory constraint (< 8GB) across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/memory_constraint.py` (FR-013)
-- [X] T053 [US1+US2+US3] {{claim:c_0ecfde8e}} in `projects/001-predicting-molecular-dipole-moments/code/utils/validate_urls.py` (spec.md Assumptions)
+- [X] T053 [US1+US2+US3] Validate all cited literature URLs in `projects/001-predicting-molecular-dipole-moments/code/utils/validate_urls.py` (spec.md Assumptions)
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 7: Documentation & Polish
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Final documentation and end-to-end validation
 
-- [X] T054 [P] Documentation updates in specs/001-predicting-molecular-dipole-moments/ (README.md, quickstart.md, research.md) per plan.md structure
-- [X] T055 [P] Code cleanup and refactoring across all modules (FR-001 through FR-013 traceability)
-- [X] T056 [P] Additional unit tests in tests/unit/ for edge cases
-- [X] T057 [P] Run quickstart.md validation to verify end-to-end pipeline in `specs/001-predicting-molecular-dipole-moments/quickstart.md` per plan.md structure
-- [X] T058 [P] Generate final results summary with all metrics, attributions, and visualizations
+- [X] T054 [P] Update documentation files: README.md (project overview), quickstart.md (end-to-end pipeline validation), research.md (limitations documented per spec assumptions) in `projects/001-predicting-molecular-dipole-moments/specs/001-predicting-molecular-dipole-moments/` (plan.md structure)
+- [X] T057 [P] Run quickstart.md validation to verify end-to-end pipeline in `projects/001-predicting-molecular-dipole-moments/specs/001-predicting-molecular-dipole-moments/quickstart.md` per plan.md structure
+- [X] T058 [P] Generate final results summary with all metrics, attributions, and visualizations in `projects/001-predicting-molecular-dipole-moments/results/summary.md`
 - [X] T059 [P] Update state/projects/001-predicting-molecular-dipole-moments.yaml with completion timestamps and content hashes
 
 ---
@@ -173,7 +167,7 @@ description: "Task list template for feature implementation"
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Validation **(Phase 6): Depends on all user stories being complete
-- **Polish **(Phase 7): Depends on all desired user stories and validation being complete
+- **Documentation & Polish **(Phase 7): Depends on all desired user stories and validation being complete
 
 ### User Story Dependencies
 
@@ -191,6 +185,8 @@ description: "Task list template for feature implementation"
 - Evaluation before attribution analysis
 - Attribution before statistical tests
 - Validation before visualization
+- Constraint wrappers (T049, T050, T052) must be implemented in Phase 2 before any training runs
+- Physical geometry constraints validated before model training to ensure valid input data
 
 ### Parallel Opportunities
 
@@ -238,8 +234,9 @@ Task: "Implement 2D Morgan fingerprints and Coulomb matrix generation in code/da
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add Validation (Phase 6) → Address all reviewer concerns
-6. Each story adds value without breaking previous stories
+5. Add Validation (Phase 6) → Address all requirements
+6. Add Documentation & Polish (Phase 7) → Finalize project
+7. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -268,18 +265,21 @@ With multiple developers:
 - **Critical**: Contract schemas are YAML files in tests/contracts/ per plan.md (T007 updated)
 - **Critical**: Documentation paths updated from docs/ to specs/001-predicting-molecular-dipole-moments/ per plan.md structure
 - **Critical**: T031 (metric computation) maps to FR-006, not SC-001
-- **Critical**: T034 (metrics.csv) maps to FR-006 and SC-005
+- **Critical**: T034 (metrics.csv) maps to FR-006 and SC-005 with explicit column specification
 - **Critical**: T044 (confidence intervals) maps to FR-012 and SC-001
-- **Critical**: T045 (feature importance visualizations) and T046 (performance charts) have clear division of responsibility
-- **Critical**: T047/T048 removed - hydration and conformational assumptions documented directly in spec.md
-- **Critical**: T049 (global time limit) added to Phase 6 to enforce FR-010/SC-003 across entire pipeline
-- **Critical**: Task IDs renumbered sequentially to eliminate gaps and ensure T001-T059 continuous numbering
+- **Critical**: T045 (feature importance visualizations) and T046 (performance charts) have clear division of responsibility with Constitution Principle IV compliance
+- **Critical**: Phase 7 removed - out-of-scope work (experimental validation, conformational ensembles, hydration controls) documented in spec.md Assumptions and research.md as future work
 - **Critical**: All FR-001 through FR-013 now have explicit task references in task descriptions
 - **Critical**: All Success Criteria SC-001 through SC-005 now have explicit task mappings
 - **Critical**: Edge case for QM9 DOI inaccessible now addressed by T021
 - **Critical**: Memory footprint constraint (< 8GB) documented in spec.md and enforced in tasks T012, T022, T035, T052
 - **Critical**: 3D geometry preservation requirements traceable to T009 (reproducibility) and T017 (coordinate preprocessing)
-- **Critical**: T050 enforces 2 CPU cores constraint across entire pipeline (FR-010, SC-003)
+- **Critical**: T049, T050, T052 moved to Phase 2 Foundational to enforce 6h/2CPU/8GB constraints during training runs (FR-010, SC-003, FR-013)
 - **Critical**: T051 validates RMSE variance < 10% threshold (SC-005)
 - **Critical**: T053 validates all cited literature URLs (spec.md Assumptions)
 - **Critical**: quickstart.md documented in plan.md structure for T054/T057 reference
+- **Critical**: T019 generates exclusion report (data/reports/excluded_molecules.csv) per User Story 1 acceptance criteria
+- **Critical**: T040 validates ≥3 structural features identified per SC-002
+- **Critical**: T032 references QM9 dataset specification DOI 10.1038/sdata.2014.22 for FR-011 validation
+- **Critical**: T055 and T056 removed as non-executable; code quality enforced via T003 and T006
+- **Critical**: T034 and T043 have explicit column specifications for downstream task dependencies

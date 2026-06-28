@@ -31,21 +31,9 @@
   verification_status: unreachable
   verified_against_url: https://oeis.org/A008299
   verified_at: '2026-06-24T21:21:17.157543Z'
-- artifact_hash: ba530be865a408ed7f5b4ef33392d78645650a3c3a9949a7aa4a021df332ab8b
+- artifact_hash: 83a2fceac3dfc9288b4316e8dc4bbebbaf4b6d89693c36f78c48c1ad3964421e
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2305.18454] PubChemQC B3LYP/6-31G*//PM6 dataset: the Electronic
-    Structures of 86 Million Molecules using B3LYP/6-31G* calculations'
-  kind: url
-  value: https://arxiv.org/abs/2305.18454
-  verification_status: verified
-  verified_against_url: https://arxiv.org/abs/2305.18454
-  verified_at: '2026-06-27T07:44:39.749511Z'
-- artifact_hash: ba530be865a408ed7f5b4ef33392d78645650a3c3a9949a7aa4a021df332ab8b
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: Quantum chemistry structures and properties of 134 kilo molecules
@@ -53,4 +41,4 @@
   value: 10.1038/sdata.2014.22
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-06-27T07:44:39.749511Z'
+  verified_at: '2026-06-28T21:17:59.853273Z'

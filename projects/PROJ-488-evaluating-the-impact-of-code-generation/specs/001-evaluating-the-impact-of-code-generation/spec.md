@@ -19,7 +19,7 @@ The system MUST download and preprocess human-written and LLM-generated code dat
 
 1. **Given** the HuggingFace Datasets library is installed, **When** the system downloads CodeSearchNet and CodeParrot/CodeGen, **Then** both datasets load without authentication errors and produce ≥1000 Python snippets per group after filtering.
 2. **Given** both datasets are loaded, **When** the filtering pipeline executes, **Then** the resulting human and LLM groups have function lengths with median difference ≤20% and language type is exclusively Python.
-3. **Given** the filtered datasets, **When** a sample of 10 snippets per group is inspected, **Then** all snippets contain valid Python syntax that can be parsed by the AST module without errors.
+3. **Given** the filtered datasets, **When** a a sample of snippets per group is inspected., **Then** all snippets contain valid Python syntax that can be parsed by the AST module without errors.
 
 ---
 
@@ -29,7 +29,7 @@ The system MUST run established static analysis tools (radon for complexity, pyl
 
 **Why this priority**: This implements the core measurement mechanism. Without metric extraction, the comparative analysis cannot proceed. This is the second critical slice after data ingestion.
 
-**Independent Test**: Can be fully tested by running the metric extraction on a subset of 100 snippets per group and verifying that (1) all snippets receive numeric scores, (2) score distributions are not degenerate (variance > 0), and (3) total runtime ≤30 minutes on CPU-only hardware.
+**Independent Test**: Can be fully tested by running the metric extraction on a subset of snippets per group and verifying that (1) all snippets receive numeric scores, (2) score distributions are not degenerate (variance > 0), and (3) total runtime ≤30 minutes on CPU-only hardware.
 
 **Acceptance Scenarios**:
 
@@ -95,7 +95,7 @@ The system MUST apply Mann-Whitney U tests with Cliff's delta effect size to com
 - **SC-001**: Dataset overlap between human and LLM groups is measured against the ±20% median function length difference threshold (See US-1)
 - **SC-002**: Metric extraction completeness is measured against the ≥95% snippet parsing success rate (See US-2)
 - **SC-003**: Statistical test validity is measured against effect size reporting (Cliff's delta), power ≥0.8, and independence/distribution assumption checks (See US-3)
-- **SC-004**: Compute feasibility is measured against the constraint that total analysis runtime ≤6 hours on 2-core CPU-only hardware with ≤7 GB RAM (See US-2, US-3)
+- **SC-004**: Compute feasibility is measured against the constraint that total analysis runtime ≤6 hours on CPU-only hardware with ≤7 GB RAM (See US-2, US-3)
 - **SC-005**: Threshold sensitivity is measured against the requirement that any significance threshold (e.g., p < 0.05) produces a sensitivity report showing how headline rates vary across {0.01, 0.05, 0.1} (See US-3)
 
 ## Assumptions

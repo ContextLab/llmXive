@@ -1,0 +1,47 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Experimental Solvation Energy Dataset Schema"
+description: "Schema for validating data/experimental_solvation.csv"
+type: "object"
+properties:
+  ion_id:
+    type: "string"
+    description: "Unique ion identifier (e.g., \"Na+\", \"Cl-\")"
+    minLength: 1
+  solvent_id:
+    type: "string"
+    description: "Unique solvent identifier (e.g., \"water\", \"ethanol\")"
+    minLength: 1
+  experimental_delta_g:
+    type: "number"
+    description: "Experimental solvation free energy in kcal/mol"
+  experimental_uncertainty:
+    type: "number"
+    description: "Uncertainty estimate for experimental value in kcal/mol"
+    minimum: 0
+  temperature_celsius:
+    type: "number"
+    description: "Measurement temperature in degrees Celsius"
+  temperature_uncertainty:
+    type: "number"
+    description: "Temperature uncertainty in degrees Celsius"
+    minimum: 0
+  source_reference:
+    type: "string"
+    description: "Citation for this measurement"
+    minLength: 1
+  data_quality_flag:
+    type: "string"
+    description: "Quality flag: \"complete\" or \"uncertainty_missing\""
+    enum:
+      - "complete"
+      - "uncertainty_missing"
+required:
+  - ion_id
+  - solvent_id
+  - experimental_delta_g
+  - experimental_uncertainty
+  - temperature_celsius
+  - temperature_uncertainty
+  - source_reference
+  - data_quality_flag
+additionalProperties: false

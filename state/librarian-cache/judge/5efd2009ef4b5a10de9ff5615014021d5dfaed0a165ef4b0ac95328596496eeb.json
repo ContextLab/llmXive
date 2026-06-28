@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1007/s00170-024-13217-3",
+  "judged_at": "2026-06-28T20:53:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of surface treatments on the adhesion strength of polymers materials science",
+  "rationale": "This paper measures the effect of surface topology modification (a specific surface treatment) on interfacial bonding strength in polymer substrates, satisfying criteria (a) and (b) by providing same-mechanism evidence and independent/dependent variables on the same materials science domain.",
+  "relevant": true
+}

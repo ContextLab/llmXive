@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1007/s10664-024-10548-3",
+  "judged_at": "2026-06-28T20:42:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of code generation on long-term code maintainability computer science",
+  "rationale": "This paper does not satisfy any acceptance criteria (a-f) because it measures LLM performance on SATD identification/classification tasks rather than the impact of code generation on maintainability. While SATD is related to maintainability (criterion b), the paper does not measure code generation as an independent variable or maintainability outcomes as a dependent variable—it evaluates detection accuracy, not the causal relationship between generated code and long-term maintainability.",
+  "relevant": false
+}

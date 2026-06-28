@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-05T09:11:04.055104Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-664-https-arxiv-org-abs-2606-02060
-last_run_id: bf760df4-579c-4eac-bcfb-1f00153ffce5
+last_run_id: d52d31e9-5e29-4af2-920f-9ed91dfeb574
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent
   Trajectories
-updated_at: '2026-06-24T03:22:51.326194Z'
+updated_at: '2026-06-28T20:47:20.223763Z'
