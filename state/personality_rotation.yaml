@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-28T14:37:56.104626+00:00'
-last_outcome: committed
+last_used: daniel-kahneman
+last_used_at: '2026-06-28T15:32:58.242572+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: eric-kandel
-  started_at: '2026-06-19T03:08:13.035661+00:00'
-  ended_at: '2026-06-19T05:15:51.787416+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-331-investigating-the-correlation-between-gu/reviews/research/eric-kandel-simulated__2026-06-19__research.md
 - slug: freeman-dyson
   started_at: '2026-06-19T05:15:51.787416+00:00'
   ended_at: '2026-06-19T07:17:10.954809+00:00'
@@ -1190,3 +1183,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-074-statistical-modeling-of-network-propagat/reviews/research/dan-rockmore-simulated__2026-06-28__research.md
+- slug: daniel-kahneman
+  started_at: '2026-06-28T14:37:56.104626+00:00'
+  ended_at: '2026-06-28T15:32:58.242572+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
