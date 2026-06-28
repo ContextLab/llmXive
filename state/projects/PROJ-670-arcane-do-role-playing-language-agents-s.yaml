@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-670-arcane-do-role-playing-language-agents-s
-last_run_id: null
+last_run_id: 024aef79-cd18-4878-a95b-ceabd7538259
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-670-arcane-do-role-playing-language-agents-s/round-2
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?'
-updated_at: '2026-06-12T13:11:10.545209Z'
+updated_at: '2026-06-28T10:11:34.712258Z'

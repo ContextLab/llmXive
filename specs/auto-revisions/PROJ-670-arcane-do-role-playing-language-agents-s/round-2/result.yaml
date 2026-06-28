@@ -1,0 +1,307 @@
+project_id: PROJ-670-arcane-do-role-playing-language-agents-s
+round: 2
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 9ce1fe796de0
+  text: Several in-text citations (e.g., \citep{character_ai}, \citep{park2023GenerativeAgent},
+    \citep{shao-etal-2023-characterllm}, \citep{wang-etal-2024-rolellm}, \citep{Markel2023GPTeach})
+    are not present in the bibliography. Add the missing bibliography entries or remove
+    the citations to ensure every reference is verifiable.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 3e12cfe418ff
+  text: The claim that "Arc is the only mode that supplies the per-chapter trajectory
+    PTF scores" should be double-checked against the description of the evaluation
+    protocol to confirm no other mode inadvertently provides trajectory information.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 8ecebd03863b
+  text: Verify that all quantitative statements (e.g., performance numbers in Table
+    1 and Table 2) exactly match the reported results; any rounding inconsistencies
+    should be clarified.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: b7c5dc08d88b
+  text: 'Add specific library versions (e.g., vLLM, transformers) to Appendix: Training
+    Setup for reproducibility.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 57accbcf7fdf
+  text: 'Specify exact data paths and JSON schemas for the ArcANE dataset in Appendix:
+    Datapoint information.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 0b3b730a64fc
+  text: Include a description of testing infrastructure (unit/integration tests) for
+    the pipeline stages.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 59f4dd34dd71
+  text: Ensure released code follows the modular structure described (Arc Construction,
+    Probe Generation, Training).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 574d87415a88
+  text: Clarify license compatibility for Harry Potter-derived probes under CC-BY-4.0,
+    as the source text is copyrighted (Appendix \S\ref{app:datapoint}).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 583a8599bb91
+  text: Specify a dataset version number (e.g., v1.0) to ensure reproducibility of
+    the benchmark split and schema.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 31fb296e3216
+  text: Report the validation drop rate (number of probes marked 'unavailable' vs.
+    total generated) to assess data quality filtering rigor (Appendix \S\ref{app:probe-details}).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 234e6fe063d0
+  text: Verify the arXiv ID date (2606.05553 implies June 2026) to ensure provenance
+    links are valid and not simulated.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 3c4706f01a9a
+  text: Correct the typo 'LLm' to 'LLM' in the caption of Figure 7 (fig:annotation_2)
+    in the Appendix.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: d3b385a92fd4
+  text: Expand the caption of Figure 2 (fig:pipeline) to explicitly describe the top
+    (arc construction) and bottom (probe generation) stages for better self-containment.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 98c8cc21798d
+  text: Ensure all figure files (PDF/JPEG) are high-resolution enough for print legibility,
+    particularly for text-heavy screenshots like Figures 5, 6, and 7.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: ef8a61df94c5
+  text: Define acronyms like RAG, SFT, DPO, and LoRA at first use in the main text
+    rather than relying on Appendix references for core methodology.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 5fb4fba69ff1
+  text: Simplify or briefly gloss psychological terms (e.g., 'Agency-Communion', 'McAdams'
+    Layer') to ensure accessibility for non-specialist NLP readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 2bde94f8a90b
+  text: Reduce reliance on custom validator names (Q-Voice, Q-PhaseFit) in the main
+    text; consider descriptive names or a summary table.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 84c61431242b
+  text: Revise Abstract and Section 5.3 claims regarding 'other role-playing model
+    families'. Appendix Table tab:main_results_added shows HER-32B performs better
+    with RAG than Arc on Overall (47.0 vs 46.4) and In-Scenario metrics, contradicting
+    the claim that the Arc pattern carries over universally.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 1ce980d5b523
+  text: Qualify the Conclusion's statement about low-popularity novels. Section 3.3
+    labels this slice 'unvalidated' (no human annotation), yet the Conclusion presents
+    it as a robust carry-over of the benchmark's success without this caveat.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: c6dd9fd9349e
+  text: Correct the numerical range in the Conclusion. The text claims a lift of '+4.1
+    to +15.3', but Appendix Table tab:main_results_extra3 shows ArcANE-32B achieves
+    a lift of 16.2 (65.5 - 49.3) on the low-popularity slice.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 7c1ba8b3a6cb
+  text: The paper acknowledges dual-use risks (impersonation) only in Limitations.
+    Expand this discussion in the main text to include potential mitigation strategies
+    for downstream users (e.g., watermarking, disclosure requirements).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 486d8b04cd00
+  text: The dataset includes probes derived from Harry Potter (copyrighted). Releasing
+    these under CC-BY-4.0 may infringe copyright. Clarify the legal basis for public
+    release or restrict access to the copyrighted subset.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: d50b01bd0e0d
+  text: Appendix mentions one human study was 'non-compensated'. Ensure this aligns
+    with institutional IRB/ethics guidelines regarding research labor, even for colleagues.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: a4d2e1dfbe48
+  text: Report statistical significance (p-values or confidence intervals) for main
+    results in Table 2 to substantiate claims of superiority.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: cd4c71bc28f8
+  text: Clarify the extent of human validation on probe reference responses (gt_action,
+    gt_thought), not just Character Arcs.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: cd135143d9e1
+  text: Provide independent human evaluation of model responses to validate the LLM
+    judge's absolute accuracy, beyond anchored calibration.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 12d77dc838fd
+  text: Add statistical significance testing (e.g., paired t-tests or Wilcoxon) for
+    the main results in Table 1 to substantiate claims of superiority over baselines.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 78218a49737d
+  text: Report confidence intervals or standard deviations for all mean scores to
+    quantify variance in LLM generation and judging.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 58d3791b1f50
+  text: Address multiple comparisons correction (e.g., Bonferroni or FDR) given the
+    36 model-mode combinations tested.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: cbad1bf6dbc7
+  text: 'The LaTeX source generally follows good formatting conventions: headings
+    use \section with proper labels, figures include \centering, \includegraphics,
+    a caption placed before the \label, and appropriate placement specifiers. Tables
+    are defined within table* environments, use booktabs rules, and have captions
+    preceding labels, which is correct. Citations consistently use the \citep command,
+    and the bibliography is included via \bibliography{custom}. However, the preamble
+    contains several redunda'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: af33c2f682b9
+  text: Replace informal phrasing 'tops every other context strategy' in Abstract
+    with 'outperforms' for formal tone.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: a76c3b5dddcf
+  text: "Correct LaTeX typo 'S\ref{sec:additional}' to '\\S\ref{sec:additional}' or\
+    \ 'Section \ref{sec:additional}' in Section 5.2."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+- id: 56bffc0ae126
+  text: Rephrase convoluted sentence in Section 6.2 regarding Hagrid to improve clarity
+    and flow.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 33 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-28T10:11:34.673489+00:00'
