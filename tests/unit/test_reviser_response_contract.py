@@ -197,6 +197,87 @@ def test_total_failure_raises_runtimeerror():
         )
 
 
+def test_issue355_fenced_responses_only_shape_returns_no_artifacts():
+    """Issue #355: the model answered concerns but emitted NO revised artifact —
+    a ```json-fenced ``{"responses": [...]}``-only reply with no
+    ``===BEGIN_ARTIFACT`` block. This must NOT raise the 'neither markers nor
+    parseable legacy JSON' RuntimeError: the fence is stripped, the change-log
+    parses, and the result is ({}, responses) — "no artifact change this round".
+    The per-reviser caller then raises its own 'no usable' message which the
+    bounded retry/degrade machinery handles (never a panel crash)."""
+    reply = (
+        "```json\n"
+        "{\n"
+        '  "responses": [\n'
+        "    {\n"
+        '      "concern_id": "spec_coverage-1a2b3c4d",\n'
+        '      "response": "Added a traceability entry mapping FR-014 to the '
+        'new module src/analysis/models_rumination.py and described it."\n'
+        "    }\n"
+        "  ]\n"
+        "}\n"
+        "```\n"
+    )
+    artifacts, responses = parse_reviser_response(
+        reply, expected_artifacts=["projects/PROJ-167/specs/001-x/plan.md"]
+    )
+    assert artifacts == {}
+    assert len(responses) == 1
+    assert responses[0]["concern_id"] == "spec_coverage-1a2b3c4d"
+
+
+def test_issue355_truncated_changelog_is_classified_malformed_not_engine_bug():
+    """The exact live #355 payload: a ```json change-log so long the model's
+    output was CUT OFF mid-string before any artifact block. The reply is not
+    parseable JSON, so the parser raises the 'parseable JSON' RuntimeError — and
+    that error MUST be classified as a recoverable malformed reply (so the engine
+    degrades to 'no artifact change this round' instead of crashing the panel),
+    NOT as a genuine engine defect."""
+    from llmxive.convergence.revisers._reviser_response import (
+        is_malformed_reply_error,
+    )
+
+    truncated = (
+        "```json\n"
+        "{\n"
+        '  "responses": [\n'
+        "    {\n"
+        '      "concern_id": "spec_coverage-1a2b3c4d",\n'
+        '      "response": "Added a traceability entry mapping FR-014 to the '
+        "new module"  # <-- cut off mid-string, no closing quote/brace/fence
+    )
+    with pytest.raises(RuntimeError, match="parseable") as exc_info:
+        parse_reviser_response(
+            truncated, expected_artifacts=["projects/PROJ-167/specs/001-x/plan.md"]
+        )
+    assert is_malformed_reply_error(exc_info.value)
+
+
+def test_is_malformed_reply_error_classifier():
+    """The single shared classifier used by both the reviser-level corrective
+    re-pass and the engine's revise loop. Malformed-reply signatures degrade;
+    backend outages and genuine engine defects do NOT."""
+    from llmxive.backends.base import BackendUnavailable
+    from llmxive.convergence.revisers._reviser_response import (
+        is_malformed_reply_error,
+    )
+
+    assert is_malformed_reply_error(
+        RuntimeError("PlanReviser: backend did not return parseable JSON: ...")
+    )
+    assert is_malformed_reply_error(
+        RuntimeError("PlanReviser: response JSON has no usable 'updated_artifacts'")
+    )
+    # Backend outage subclasses RuntimeError but is NOT a malformed reply.
+    assert not is_malformed_reply_error(BackendUnavailable("endpoint down"))
+    # A genuine engine defect (no malformed-reply signature) must still surface.
+    assert not is_malformed_reply_error(RuntimeError("KeyError: 'unexpected'"))
+    assert not is_malformed_reply_error(
+        RuntimeError("response tried to write artifacts outside the plan set")
+    )
+    assert not is_malformed_reply_error(ValueError("not even a RuntimeError"))
+
+
 def test_response_format_block_documents_both_parts():
     assert "===BEGIN_ARTIFACT" in RESPONSE_FORMAT_BLOCK
     assert "===END_ARTIFACT===" in RESPONSE_FORMAT_BLOCK

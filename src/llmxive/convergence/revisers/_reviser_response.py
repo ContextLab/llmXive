@@ -470,6 +470,32 @@ def pick_expected_artifact(
     return body
 
 
+def is_malformed_reply_error(exc: BaseException) -> bool:
+    """True iff ``exc`` is the "reviser reply was unusable" RuntimeError.
+
+    EVERY reviser's malformed-reply path raises a ``RuntimeError`` whose
+    message carries one of these signatures (verify with the raise sites in
+    this package): ``"... backend did not return parseable JSON ..."`` (the
+    reply did not parse at all, incl. the ```json + ``{"responses": [...]}``-only
+    shape with a truncated/invalid change-log — issue #355) or ``"... response
+    JSON has no usable ..."`` (parsed, but no revised-artifact body). It is the
+    SINGLE classifier shared by :func:`run_pass_with_artifact_retry` (the
+    reviser-level corrective re-pass) and the convergence engine's revise loop
+    (graceful "no artifact change this round" degradation), so the two layers
+    never drift on what counts as a recoverable LLM flake vs. a genuine engine
+    defect. A ``BackendError`` (backend outage) is NOT a malformed reply even
+    though it subclasses ``RuntimeError`` — callers must check it first.
+    """
+    from llmxive.backends.base import BackendError
+
+    if isinstance(exc, BackendError):
+        return False
+    if not isinstance(exc, RuntimeError):
+        return False
+    msg = str(exc)
+    return "no usable" in msg or "parseable" in msg
+
+
 def run_pass_with_artifact_retry(run_pass, *, reviser_name: str):
     """Call ``run_pass()``; on the zero-artifact RuntimeError, make ONE
     corrective re-pass with :data:`MISSING_ARTIFACTS_REPROMPT` appended to
@@ -485,7 +511,7 @@ def run_pass_with_artifact_retry(run_pass, *, reviser_name: str):
     except BackendError:
         raise
     except RuntimeError as exc:
-        if "no usable" not in str(exc) and "parseable" not in str(exc):
+        if not is_malformed_reply_error(exc):
             raise
         logging.getLogger(__name__).warning(
             "%s: reply unusable (%s) — corrective re-pass", reviser_name,
@@ -497,6 +523,7 @@ __all__ = [
     "MISSING_ARTIFACTS_REPROMPT",
     "RESPONSE_FORMAT_BLOCK",
     "build_concern_responses",
+    "is_malformed_reply_error",
     "parse_reviser_response",
     "pick_expected_artifact",
     "run_pass_with_artifact_retry",

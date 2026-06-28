@@ -29,6 +29,7 @@ from llmxive.backends.base import (
 from llmxive.tools.summarize import estimate_tokens, summarize
 
 from .kickback import route_kickback
+from .revisers._reviser_response import is_malformed_reply_error
 from .types import (
     Concern,
     ConcernResponse,
@@ -449,6 +450,20 @@ def run_convergence(
             # the revise call once before propagating. Backend outages
             # (BackendError subclasses RuntimeError!) keep their clean-abort
             # path — never retried here.
+            #
+            # Issue #355: under a heavy concern load the reviser model can
+            # PERSISTENTLY spend its whole output budget on the per-concern
+            # change-log and never emit the revised artifact — the reply parses
+            # to ``{"responses": [...]}`` only (often ```json-fenced and
+            # truncated), so every layer (the reviser's own corrective re-pass,
+            # then both engine attempts here) raises the same malformed-reply
+            # RuntimeError. Crashing the panel on an LLM flake is wrong: a
+            # malformed reply that survives the retries is simply "no artifact
+            # change this round" — let the bounded loop continue (R3 sees the
+            # concerns unaddressed → they stay open → cap reached → adaptive
+            # kickback). We NEVER fabricate an artifact, and genuine engine
+            # defects (any non-malformed RuntimeError) still surface.
+            new_arts, responses = {}, []
             for revise_attempt in (1, 2):
                 try:
                     new_arts, responses = spec.reviser.revise(
@@ -458,12 +473,32 @@ def run_convergence(
                 except BackendError:
                     raise
                 except RuntimeError as exc:
-                    if revise_attempt == 2:
+                    if revise_attempt == 1:
+                        logger.warning(
+                            "reviser reply malformed (attempt 1/2): %s — "
+                            "retrying", exc,
+                        )
+                        continue  # one retry for ANY RuntimeError (defect #12)
+                    # Retry exhausted. A reply that is malformed in the
+                    # recognized way (issue #355: a ```json ``{"responses": [...]}``
+                    # only / truncated change-log with no artifact) is an LLM
+                    # flake, not an engine defect — degrade to "no artifact
+                    # change this round" so the bounded loop carries the open
+                    # concerns forward to the next round / adaptive kickback
+                    # instead of crashing the panel + filing a spurious
+                    # engine-failure issue. Any OTHER RuntimeError is a genuine
+                    # engine defect and still surfaces.
+                    if not is_malformed_reply_error(exc):
                         raise
                     logger.warning(
-                        "reviser reply malformed (attempt %d/2): %s — retrying",
-                        revise_attempt, exc,
+                        "reviser reply malformed after 2 attempts (%s) — "
+                        "treating as no artifact change this round; the open "
+                        "concerns carry forward to the next round/kickback "
+                        "(issue #355)",
+                        str(exc)[:160],
                     )
+                    new_arts, responses = {}, []
+                    break
         artifacts = {**artifacts, **new_arts}
         response_history.extend(responses)
         seen = _present(artifacts)
