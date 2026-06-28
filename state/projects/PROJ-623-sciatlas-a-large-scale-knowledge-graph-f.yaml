@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research'
-updated_at: '2026-06-15T08:12:41.618266Z'
+updated_at: '2026-06-28T06:29:33.832231Z'

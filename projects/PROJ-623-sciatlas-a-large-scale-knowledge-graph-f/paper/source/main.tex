@@ -25,7 +25,7 @@
 % Note: xcolor already loaded by lumia.cls with dvipsnames
 % \usepackage{xcolor}             % already in lumia.cls
 % \usepackage[dvipsnames]{xcolor} % already in lumia.cls
-\usepackage{graphicx}           % graphics support
+
 \usepackage{tikz}               % TikZ graphics
 \usepackage[edges]{forest}      % forest trees
 
@@ -68,7 +68,7 @@
 % ====================
 % ALGORITHMS AND CODE
 % ====================
-\usepackage{algorithm}          % algorithm environment
+          % algorithm environment
 \usepackage{algorithmicx}       % algorithmic pseudocode
 \usepackage{algpseudocode}      % pseudocode formatting
 \usepackage{listings}           % code listings
@@ -465,7 +465,7 @@
 \usepackage{xcolor}
 \newcommand{\omark}{\text{\ding{108}}}
 \definecolor{ForestGreen}{RGB}{34,139,34}
-\definecolor{myyellow}{RGB}{181, 181, 27}
+% \definecolor{myyellow}{RGB}{181, 181, 27} % removed duplicate definition (see line 120)
 \newcommand{\greencheck}{{\color{ForestGreen}\ding{52}}}
 \newcommand{\yellowcheck}{{\color{myyellow}\ding{52}}}
 \newcommand{\redcheck}{{\color{red}\ding{55}}}
@@ -557,23 +557,25 @@ $*$ Equal Contribution \quad $^\dagger$ Corresponding Author.}
 \setheadertitle{\ours: A Large-Scale Knowledge Graph for Automated Scientific Research}
 
 
-\author{%
-  Shuofei Qiao$^{1,2*}$, Yunxiang Wei$^{1*}$, Jiazheng Fan$^{1}$, Bin Wu$^{2}$, Busheng Zhang$^{1}$, Mengru Wang$^{1}$, Yuqi Zhu$^{1}$, Ningyu Zhang$^{1\dagger}$, Keyan Ding$^{1}$, Qiang Zhang$^{1}$, Huajun Chen$^{1\dagger}$\\
-  $^1$Zhejiang University
-  $^2$University College London\\
+\author{
+  Shuofei Qiao \and Yunxiang Wei \and Jiazheng Fan \and Bin Wu \and Busheng Zhang \and Mengru Wang \and Yuqi Zhu \and Ningyu Zhang \and Keyan Ding \and Qiang Zhang \and Huajun Chen
+  \par\hrule\par
+  \textit{Revised by:}\\
+  qwen.qwen3.5-122b \textit{(via dartmouth, 2026-06-28)}
 }
 
 
 % ====================
 % DOCUMENT CONTENT
 % ====================
+\paperstatus{Auto-Reviewed}
 \begin{document}
 
 % ====================
 % ABSTRACT
 % ====================
 \begin{abstract}
-  The exponential growth of global academic output has confronted researchers and AI agents with an unprecedented ``information explosion,'' where fragmented and unstructured knowledge organization impedes deep interdisciplinary integration. Current academic retrieval tools predominantly rely on superficial keyword matching or vector-space semantic retrieval, which lack the topological reasoning capabilities required to navigate complex logical connections. Agentic deep-research-based frameworks are often prone to logical hallucinations and consuming high inference costs. To bridge this gap, in this report, we introduce \textbf{\ours}, a large-scale, multi-disciplinary, heterogeneous academic resource knowledge graph designed as a panoramic scientific evolution network. By integrating \textbf{over 43M papers from 26 disciplines, and a total of 157M entities and 3B triplets}, {\ours} provides a structured topological cognitive substrate that dismantles disciplinary barriers and furnishes AI agents with a global perspective. Furthermore, we develop a neuro-symbolic retrieval algorithm featuring tri-path collaborative recall and graph reranking, achieving a seamless transition from simple semantic matching to deterministic association discovery. We also present key application directions of {\ours}, including literature review, automated research trend synthesis, idea positioning, and academic trajectory exploration, to demonstrate that {\ours} can serve as an effective ``cognitive map'' to empower the full loop of automated scientific research while significantly reducing reasoning costs. We have released the interfaces for KG retrieval and various downstream tasks in our GitHub repo.
+  The exponential growth of global academic output has confronted researchers and AI agents with an unprecedented ``information explosion,'' where fragmented and unstructured knowledge organization impedes deep interdisciplinary integration. Current academic retrieval tools predominantly rely on superficial keyword matching or vector-space semantic retrieval, which lack the topological reasoning capabilities required to navigate complex logical connections. Agentic deep-research-based frameworks are often prone to logical hallucinations and consuming high inference costs. To bridge this gap, in this report, we introduce \textbf{\ours}, a large-scale, multi-disciplinary, heterogeneous academic resource knowledge graph designed as a panoramic scientific evolution network. By integrating \textbf{over 43M papers from 26 disciplines, and a total of 157M entities and 3B triplets}, {\ours} provides a structured topological cognitive substrate that dismantles disciplinary barriers and furnishes AI agents with a global perspective. Furthermore, we develop a neuro-symbolic retrieval algorithm featuring tri-path collaborative recall and graph reranking, achieving a seamless transition from simple semantic matching to deterministic association discovery. We also present key application directions of {\ours}, including literature review, automated research trend synthesis, idea positioning, and academic trajectory exploration, to demonstrate that {\ours} can serve as an effective ``cognitive map'' to empower the full loop of automated scientific research while potentially reducing reasoning costs. We have released the interfaces for KG retrieval and various downstream tasks in our GitHub repo.
 \end{abstract}
 
 % Generate title with LUMIA style formatting

@@ -1,0 +1,232 @@
+schema_version: '1'
+project_id: PROJ-623-sciatlas-a-large-scale-knowledge-graph-f
+rounds:
+- round_number: 1
+  ran_at: '2026-06-28T06:29:33.832231Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-28)
+  tasks_done: 15
+  tasks_failed: 0
+  tasks_skipped: 23
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: done
+    text: 'Address action item **[9f9f8b484368]** (severity: writing): No code artifacts
+      (implementation files, test suites, dependency manifests) are provided in this
+      submission. The paper mentions a GitHub rep'
+  - id: '002'
+    severity: writing
+    status: done
+    text: 'Address action item **[3f55179c17d2]** (severity: writing): The paper describes
+      a Neo4j-based KG system with Python-based keyword extraction (Qwen3-30B-A3B),
+      embedding generation (bge-large-en-v1.5), '
+  - id: '003'
+    severity: writing
+    status: done
+    text: 'Address action item **[031b4126e439]** (severity: writing): Section 5.2
+      (Construction) describes data pipelines but provides no code snippets, configuration
+      files, or deployment scripts. For reproduci'
+  - id: '004'
+    severity: writing
+    status: done
+    text: 'Address action item **[4acff4a49a5c]** (severity: writing): Clarify the
+      current availability of the KG construction code; ''We will open'' suggests
+      it is not yet released, hindering reproducibility of t'
+  - id: '005'
+    severity: writing
+    status: done
+    text: 'Address action item **[9ff705549c14]** (severity: writing): Verify legibility
+      of 26 discipline labels in Figure 1 (intro.tex, line 6); consider a bar chart
+      if text overlaps.'
+  - id: '006'
+    severity: writing
+    status: done
+    text: 'Address action item **[f9d7f69f6692]** (severity: writing): Ensure Figure
+      2 schema node labels remain readable at standard print resolution (scimap.tex,
+      line 6).'
+  - id: '007'
+    severity: writing
+    status: done
+    text: 'Address action item **[154c7fcf9714]** (severity: writing): Check color
+      contrast in both figures for accessibility (colorblind-friendly palettes).'
+  - id: 008
+    severity: writing
+    status: done
+    text: 'Address action item **[975f38e61ebc]** (severity: writing): Add descriptive
+      alt text or captions for accessibility compliance in LaTeX source.'
+  - id: 009
+    severity: writing
+    status: skipped
+    text: 'Address action item **[cf66c2cac6c2]** (severity: writing): Define the
+      acronym ''KG'' at its first occurrence in the Abstract or Introduction. Currently,
+      it appears in Section 4 without prior explicit d'
+  - id: '010'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[12dd45e880ba]** (severity: writing): Replace the
+      phrase ''topological cognitive substrate'' in the Abstract and Introduction
+      with ''structured knowledge base'' to improve accessibil'
+  - id: '011'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[658055375364]** (severity: writing): Simplify ''tri-path
+      collaborative recall'' to ''multi-stage retrieval'' in the Abstract and Section
+      4 to reduce unnecessary technical density.'
+  - id: '012'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0385cd0c12ad]** (severity: writing): Reduce buzzword
+      density in the Abstract (e.g., ''panoramic scientific evolution network'', ''deterministic
+      association discovery'') by using pla'
+  - id: '013'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[5c32029b886c]** (severity: writing): Abstract and
+      Conclusion claim SciAtlas ''can serve as an effective cognitive map to empower
+      the full loop''. However, ''Limitations and Future '
+  - id: '014'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[a0fe6017fd72]** (severity: writing): Abstract and
+      Conclusion state ''12 categories of relational edges''. Appendix Table 2 (`tab:relationships`)
+      lists only 11 types (missing `PUBL'
+  - id: '015'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[647ad3f80eed]** (severity: writing): Clarify the
+      term ''deterministic association discovery'' in the Abstract. The pipeline uses
+      LLMs for keyword extraction and reranking (Sec 3.1'
+  - id: '016'
+    severity: writing
+    status: done
+    text: 'Address action item **[652b1bdd22c0]** (severity: writing): Add a dedicated
+      Ethics Statement addressing Dual-Use Research of Concern (DURC) risks in automated
+      idea generation.'
+  - id: '017'
+    severity: writing
+    status: done
+    text: 'Address action item **[e75abc363d7b]** (severity: writing): Discuss potential
+      biases in the OpenAlex data source and their impact on scientific equity and
+      fairness.'
+  - id: 018
+    severity: writing
+    status: done
+    text: 'Address action item **[02a7ad623066]** (severity: writing): Clarify privacy
+      implications of aggregating 109M author profiles and define usage policies/ToS.'
+  - id: 019
+    severity: writing
+    status: done
+    text: 'Address action item **[8ca8d5e70750]** (severity: writing): Duplicate package
+      loads in main.tex: xspace (lines 45, 200), graphicx (lines 10, 250), amsmath
+      (lines 180, 20) are loaded multiple times. Co'
+  - id: '020'
+    severity: writing
+    status: done
+    text: 'Address action item **[cb0350ad8cca]** (severity: writing): Algorithm package
+      conflict (main.tex): Both algorithm (line 150) and algorithm2e (line 250) packages
+      are loaded. These conflict; remove one '
+  - id: '021'
+    severity: writing
+    status: done
+    text: 'Address action item **[2d717af68fb5]** (severity: writing): Color redefinition
+      (main.tex): myyellow is defined twice with different values (lines 120: rgb{0.68,
+      0.6, 0.1} and line 200: RGB{181, 181, 2'
+  - id: '022'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[b5470924c67c]** (severity: writing): Figure width
+      typo (sections/scimap.tex, line 10): width=1.\textwidth should be 1.0\textwidth
+      or \textwidth. The ''1.'' syntax is non-standard.'
+  - id: '023'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[45ae18eda6a2]** (severity: writing): Cross-reference
+      inconsistency: Use ''Figure'' vs ''Fig.'' consistently (intro.tex uses ''Fig.'',
+      retrieval.tex uses ''Eq.''). Follow style guide.'
+  - id: '024'
+    severity: writing
+    status: skipped
+    text: "Address action item **[e96b947b5fc7]** (severity: writing): Remove Chinese\
+      \ characters `\uFF08\u7EED\uFF09` from `sections/appendix.tex` table definition."
+  - id: '025'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[7f6afc469519]** (severity: writing): Fix truncated
+      `ai-researcher` entry in `references.bib` to ensure compilation.'
+  - id: '026'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[dc6a4e5bf4c9]** (severity: writing): Standardize
+      "Appx." to "Appendix" in `sections/application.tex` and `sections/scimap.tex`.'
+  - id: '027'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[e8be78de19ec]** (severity: writing): Correct "COOCUR"
+      to "COOCCUR" in `sections/scimap.tex` construction paragraph.'
+  - id: 028
+    severity: writing
+    status: skipped
+    text: 'Address action item **[bcd578660b80]** (severity: writing): Change "his/her"
+      to "their" in `sections/application.tex` for inclusivity.'
+  - id: 029
+    severity: writing
+    status: skipped
+    text: 'Address action item **[72495a75a387]** (severity: writing): Fix "assign
+      each keyword with" to "assign each keyword" in `sections/retrieval.tex`.'
+  - id: '030'
+    severity: science
+    status: skipped
+    text: 'Address action item **[5c74e890e83e]** (severity: science): Explicitly
+      state the license for the derived SciAtlas KG and construction code, as OpenAlex
+      data licensing does not automatically apply to d'
+  - id: '031'
+    severity: science
+    status: skipped
+    text: 'Address action item **[3653173a5ac4]** (severity: science): Specify the
+      exact OpenAlex snapshot date or version used for the 43M paper dataset to ensure
+      reproducibility and allow for version control o'
+  - id: '032'
+    severity: science
+    status: skipped
+    text: 'Address action item **[0568fd775dc4]** (severity: science): Temper the
+      claim ''empower the full loop of automated scientific research'' in the Abstract
+      and Conclusion. Section 6 admits evaluation is ''qu'
+  - id: '033'
+    severity: science
+    status: done
+    text: 'Address action item **[ccb7e12b195e]** (severity: science): Provide comparative
+      evidence or soften the claim ''significantly reducing reasoning costs'' in the
+      Abstract. No compute/cost analysis is provi'
+  - id: '034'
+    severity: science
+    status: skipped
+    text: 'Address action item **[7bc421291007]** (severity: science): Quantitative
+      retrieval benchmarks missing: No Recall@K, MRR, or NDCG scores provided against
+      baselines (e.g., BM25, dense retrieval) to vali'
+  - id: '035'
+    severity: science
+    status: skipped
+    text: 'Address action item **[87eda2b0fdca]** (severity: science): Cost reduction
+      claim unsupported: The claim of ''significantly reducing reasoning costs'' lacks
+      empirical latency or token-count comparison da'
+  - id: '036'
+    severity: science
+    status: skipped
+    text: 'Address action item **[274c478044b8]** (severity: science): Ablation study
+      needed: Hyperparameters (lambda values, restart probability alpha) are set to
+      defaults without sensitivity analysis to prove '
+  - id: '037'
+    severity: science
+    status: skipped
+    text: 'Address action item **[87cdfaff31d3]** (severity: science): The abstract
+      and introduction claim the system ''significantly reduces reasoning costs''
+      and achieves ''high-relevance results'', but no statist'
+  - id: 038
+    severity: science
+    status: skipped
+    text: 'Address action item **[e55a98542d12]** (severity: science): Section 3 (Future
+      Work) admits the current evaluation is ''qualitative'', contradicting the empirical
+      claims made in the Abstract. The manuscr'

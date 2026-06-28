@@ -3,17 +3,60 @@
   "arxiv_url": "https://arxiv.org/abs/2605.22878",
   "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research",
   "authors": [
-    "Shuofei Qiao",
-    "Yunxiang Wei",
-    "Jiazheng Fan",
-    "Bin Wu",
-    "Busheng Zhang",
-    "Mengru Wang",
-    "Yuqi Zhu",
-    "Ningyu Zhang",
-    "Keyan Ding",
-    "Qiang Zhang",
-    "Huajun Chen"
+    {
+      "name": "Shuofei Qiao",
+      "kind": "human"
+    },
+    {
+      "name": "Yunxiang Wei",
+      "kind": "human"
+    },
+    {
+      "name": "Jiazheng Fan",
+      "kind": "human"
+    },
+    {
+      "name": "Bin Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Busheng Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Mengru Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Yuqi Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Ningyu Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Keyan Ding",
+      "kind": "human"
+    },
+    {
+      "name": "Qiang Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Huajun Chen",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-28T06:29:33.832231Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "abstract": "The exponential growth of global academic output has confronted researchers and AI agents with an unprecedented ``information explosion,'' where fragmented and unstructured knowledge organization impedes deep interdisciplinary integration. Current academic retrieval tools predominantly rely on superficial keyword matching or vector-space semantic retrieval, which lack the topological reasoning capabilities required to navigate complex logical connections. Agentic deep-research-based frameworks are often prone to logical hallucinations and consuming high inference costs. To bridge this gap, in this report, we introduce SciAtlas, a large-scale, multi-disciplinary, heterogeneous academic resource knowledge graph designed as a panoramic scientific evolution network. By integrating over 43M papers from 26 disciplines, and a total of 157M entities and 3B triplets, SciAtlas provides a structured topological cognitive substrate that dismantles disciplinary barriers and furnishes AI agents with a global perspective. Furthermore, we develop a neuro-symbolic retrieval algorithm featuring tri-path collaborative recall and graph reranking, achieving a seamless transition from simple semantic matching to deterministic association discovery. We also present key application directions of SciAtlas, including literature review, automated research trend synthesis, idea positioning, and academic trajectory exploration, to demonstrate that SciAtlas can serve as an effective ``cognitive map'' to empower the full loop of automated scientific research while significantly reducing reasoning costs. We have released the interfaces for KG retrieval and various downstream tasks in our GitHub repo.",
