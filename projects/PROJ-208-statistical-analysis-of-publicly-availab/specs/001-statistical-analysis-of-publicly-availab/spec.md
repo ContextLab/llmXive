@@ -76,7 +76,7 @@ A researcher can execute ANOVA/Kruskal-Wallis tests for categorical predictors, 
 - **FR-006**: System MUST calculate VIF from the full model design matrix after fitting and flag collinearity when VIF≥5; pairwise |r|≥0.7 triggers VIF calculation (See US-3)
 - **FR-007**: System MUST perform sensitivity analysis sweeping any decision cutoffs over {0.01, 0.05, 0.1} and report how false-positive/false-negative rates vary (See US-3)
 - **FR-008**: System MUST include the phrase "associational" or "correlational" in all result text when describing relationships between variables (See US-3)
-- **FR-009**: System MUST complete all data collection and analysis within ≤6 hours on a 2-CPU, 7GB RAM GitHub Actions runner (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
+- **FR-009**: System MUST complete all data collection and analysis within ≤6 hours on a multi-core CPU, 7GB RAM GitHub Actions runner (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
 - **FR-010**: System MUST use only CPU-tractable methods (no GPU/CUDA, no 8-bit quantization, no deep network training from scratch) (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
 
 ### Key Entities *(include if feature involves data)*

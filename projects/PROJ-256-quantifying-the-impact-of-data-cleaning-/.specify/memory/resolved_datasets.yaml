@@ -1,0 +1,725 @@
+resolved_at: '2026-06-28T19:09:53.125659+00:00'
+datasets:
+- intent: 10.48550/arXiv.1907.11692
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_releas/32817029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/1907.11692
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_releas/32817029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4432825
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21001851
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21001851
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20995956
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20995956
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19813475
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: F1-score
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 98811
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 82904
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94356
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_releas/32817029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1753520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stp.ust.edu.ua/article/view/325888
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/26268
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18063014
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6936930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21006937
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21006937
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/945784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21002461
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21002461
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20015164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15016031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7502186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/199064
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21008950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21008950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21010017
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21010017
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.82595/scilifelab.hmwse-7kf30
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+- intent: IQR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/IQRA512/gpt_prompts.csv/resolve/main/gpt_prompts.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 74565
+      parsed: true
+  - url: https://huggingface.co/datasets/iqrabatool/medbot-llama2-500/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/iqrabatool/TTS-test_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/IQRA512/gpt_prompts.csv/resolve/main/gpt_prompts.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/iqrabatool/medbot-llama2-500/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/iqrabatool/TTS-test_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/iqrabatool/Data/resolve/main/Data2.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/iqrabatool/hui-audio-corpus-german-other-dataset/resolve/main/others_Clean.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8220477
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15178476
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14935892
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/article/118414/element/2/13/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14886266
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ukb7p/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/TNF_inhibitors_for_the_long-term_management_of_juvenile_idiopathic_arthritis_associated_uveitis_real-life_data_from_the_ITHACA_cohort/32815266/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/TNF_inhibitors_for_the_long-term_management_of_juvenile_idiopathic_arthritis_associated_uveitis_real-life_data_from_the_ITHACA_cohort/32815266
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20992034
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20992034
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_Otta_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_offici/32817047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Immunoinformatics_design_of_E8L_protein-driven_multi-epitope_candidate_vaccine_against_different_Monkeypox_variants_based_on_Monobody/30860186
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6373741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_Otta_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_offici/32817047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Immunoinformatics_design_of_E8L_protein-driven_multi-epitope_candidate_vaccine_against_different_Monkeypox_variants_based_on_Monobody/30860186
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21006241
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21006241
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20998071
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20998071
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20971027
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_Otta_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_offici/32817047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Immunoinformatics_design_of_E8L_protein-driven_multi-epitope_candidate_vaccine_against_different_Monkeypox_variants_based_on_Monobody/30860186
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10358914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5603470
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: KNN
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-006
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-007
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-008
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-009
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-010
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: PNG
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-011
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-003
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-005
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-006
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-28T18:30:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predictive coding llms: implementing hierarchical error minimization computer science",
+  "rationale": "The paper proposes a Polynomial Chaos-based architecture for neural networks, which is a distinct mathematical framework from Predictive Coding and hierarchical error minimization, sharing only general deep learning domain keywords. It has no measurable connection to the specific predictive coding mechanism or hierarchical error signals required for the user's research question.",
+  "relevant": false
+}

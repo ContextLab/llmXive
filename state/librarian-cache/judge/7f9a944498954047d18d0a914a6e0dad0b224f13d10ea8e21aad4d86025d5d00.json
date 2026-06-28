@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.13273",
+  "judged_at": "2026-06-28T18:31:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predictive coding llms: implementing hierarchical error minimization computer science",
+  "rationale": "This paper is off-domain entirely, focusing on medical image classification using hypercomplex-valued CNNs rather than predictive coding architectures for Large Language Models. It shares only the broad keyword \"neural networks\" without addressing the specific mechanism (hierarchical error minimization) or the target domain (LLMs/NLP) required for inclusion.",
+  "relevant": false
+}

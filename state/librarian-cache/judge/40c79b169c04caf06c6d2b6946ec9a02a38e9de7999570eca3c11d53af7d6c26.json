@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.06610",
+  "judged_at": "2026-06-28T18:32:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predictive coding llms: implementing hierarchical error minimization computer science",
+  "rationale": "The paper focuses on hierarchical attention mechanisms for document classification, which is a distinct algorithmic construct from predictive coding and hierarchical error minimization, sharing only the common keyword \"hierarchical\". It does not measure the specific mechanism (predictive coding/error minimization) or utilize the specific framework (LLMs/Predictive Coding) required for the user's research question.",
+  "relevant": false
+}

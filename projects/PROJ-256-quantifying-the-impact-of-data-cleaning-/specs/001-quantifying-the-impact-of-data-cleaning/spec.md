@@ -72,15 +72,15 @@ The research question is: Can large language models effectively generate data qu
 The method is: We will evaluate the performance of a large language model in generating data quality reports for a collection of datasets, comparing the generated reports to established data quality metrics.
 
 References: (DOI/arXiv/author-year) (as of 2024‑01‑26) that have n ≥ 20 and at least one numeric outcome variable (See US‑1)
-- **FR-002**: System MUST apply IQR‑based outlier removal with k=1.5 threshold (standard community default per Tukey, 1977) and record the number of rows removed per dataset (See US‑2)
+- **FR-002**: System MUST apply IQR‑based outlier removal with k=1.5 threshold (standard community default per Tukey) and record the number of rows removed per dataset (See US‑2)
 - **FR-003**: System MUST implement 3 missing‑value imputation strategies (mean, median, KNN with k=5) and allow selection of which to apply per dataset; after imputation, targeted columns must contain zero missing values (See US‑2)
 - **FR-004**: System MUST execute t‑tests and linear regressions using scipy/statsmodels on both raw and cleaned data, recording p‑values (rounded to ≥3 decimal places), 95 % confidence intervals, and effect sizes (Cohen's d for t‑tests, R² for regression) (See US‑2)
 - **FR-005**: System MUST compute absolute p‑value difference (|p_cleaned − p_baseline|, rounded to 3 decimal places), relative CI width change ((CI_width_cleaned − CI_width_baseline)/CI_width_baseline × 100, rounded to 2 decimal places), and effect‑size delta for each cleaning strategy (See US‑3)
-- **FR-006**: System MUST sweep exactly 3 outlier threshold values (k ∈ {1.5, 2.0}) and, for each, report (a) false‑positive rate estimated via A substantial number of permutation null datasets will be generated.
+- **FR-006**: System MUST sweep multiple outlier threshold values (k ∈ {1.5, 2.0}) and, for each, report (a) false‑positive rate estimated via A substantial number of permutation null datasets will be generated.
 
 The research question is: Can we identify robust biomarkers for predicting treatment response in patients with glioblastoma using multi-omics data integration? ()
 
-The method will involve integrating genomic, transcriptomic, and proteomic data, followed by feature selection using a permutation-based approach to assess biomarker stability and predictive power. (Lee et al., 2020) per original dataset (outcome variable permuted within the dataset) and (b) inconsistency rate defined as the proportion of datasets where significance status (p ≤ 0.05 vs. p > 0.05) changes between baseline and cleaned analysis (See US‑3)
+The method will involve integrating genomic, transcriptomic, and proteomic data, followed by feature selection using a permutation-based approach to assess biomarker stability and predictive power. (Lee et al., recent) per original dataset (outcome variable permuted within the dataset) and (b) inconsistency rate defined as the proportion of datasets where significance status (p ≤ 0.05 vs. p > 0.05) changes between baseline and cleaned analysis (See US‑3)
 - **FR-007**: System MUST apply multiple‑comparison correction (Benjamini‑Hochberg) when >1 hypothesis test is run across datasets, controlling family‑wise error rate at α ≤ 0.05 (See US‑3)
 - **FR-008**: System MUST stratify results by dataset size bins (n<50, 50‑200, >200) and missingness rate bins (0‑[deferred], 5‑[deferred], 10‑[deferred], >20%) with ≥1 dataset per bin (See US‑3)
 - **FR-009**: System MUST compute bootstrap variance estimates for each metric shift using a minimum of 1000 resamples per dataset and report a 95 % confidence interval for the shift (See US‑3, Constitution Principle VI)
@@ -111,7 +111,7 @@ The method will involve integrating genomic, transcriptomic, and proteomic data,
 ## Assumptions
 
 - Datasets from UCI Machine Learning Repository and OpenML are publicly accessible without authentication and fit within standard RAM and disk constraints. (sample if needed)
-- Analysis runs on GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job)
+- Analysis runs on GitHub Actions free‑tier runner (Multiple CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job)
 - Python environment with scipy, statsmodels, scikit‑learn, pandas, numpy is available via standard package installation
 - IQR‑based outlier removal uses k=1.5 threshold as community standard (Tukey, 1977); sensitivity analysis sweeps k ∈ {1.0, 1.5, 2.0}
 - Multiple‑comparison correction uses Benjamini‑Hochberg method as appropriate for the number of tests

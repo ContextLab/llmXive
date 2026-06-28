@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05639",
+  "judged_at": "2026-06-28T18:30:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predictive coding llms: implementing hierarchical error minimization computer science",
+  "rationale": "This paper focuses on Radial Basis Function (RBF) networks and active subspaces for interpretability and feature selection, which is a distinct construct from predictive coding and hierarchical error minimization in Large Language Models. It does not measure the same mechanism, establish a baseline for the user's variables, or serve as a foundational reference for the specific theoretical framework requested.",
+  "relevant": false
+}
