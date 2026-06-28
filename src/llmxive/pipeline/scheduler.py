@@ -245,21 +245,40 @@ def _stage_target(stage: Stage, base_target: float) -> float:
 def _stage_weights_with_floor(
     by_stage: dict[Stage, list[Project]], *, now: datetime | None = None
 ) -> dict[Stage, float]:
-    """LOAD-BALANCING stage weights (user policy): drive every pipeline stage
-    toward an EQUAL share of the active population, with up to +25% headroom at
+    """LOAD-BALANCING stage weights (user policy): drive the project
+    distribution toward UNIFORMITY across the WHOLE pipeline — an equal share
+    of the active population in every column — with up to +25% headroom at
     `brainstormed`.
 
     A stage's weight is how far its queue exceeds its target — so the fullest
-    stages drain first and the populations equalize. When every stage is at or
-    under target (already balanced) we fall back to draining proportional to
-    queue depth so flow still advances. The MIN_STAGE_SHARE floor keeps every
-    eligible stage pickable so nothing is ever fully starved (FR-006); the
-    within-stage pick (`priority_score`) handles staleness/oldest-first.
+    stages drain first and the populations equalize across all columns. When
+    every stage is at or under target (already balanced) we fall back to
+    draining proportional to queue depth so flow still advances. The
+    MIN_STAGE_SHARE floor keeps every eligible stage pickable so nothing is
+    ever fully starved (FR-006); the within-stage pick (`priority_score`)
+    handles staleness/oldest-first.
+
+    The equal-share target is computed over the FULL pipeline breadth, not just
+    the currently-occupied stages. If we divided ``total`` by the number of
+    OCCUPIED stages, the target would float upward as the pipeline collapses
+    onto a few lumpy columns (e.g. 11 occupied stages → target ~73 for an
+    800-project population), so giant piles barely register as "over target"
+    and the balancer under-drains them — the distribution stays lumpy instead
+    of spreading toward uniform. Dividing by the full-pipeline breadth instead
+    pins the target at the "uniform across all columns" level (~total / 20),
+    so over-full stages drain hard toward it and the populations equalize.
+
+    Denominator = ``max(len(by_stage), len(STAGE_PROGRESSION))``: the canonical
+    20-stage ``STAGE_PROGRESSION`` is the SSoT for "all pipeline columns", and
+    ``max`` keeps the target correct even if more distinct stages are occupied
+    than the canonical progression lists (some advanceable stages, e.g.
+    ``validated``, live outside ``STAGE_PROGRESSION``) — in that case the
+    occupied count is the true breadth and yields the lower, fairer target.
     """
     counts = {s: len(c) for s, c in by_stage.items()}
     total = sum(counts.values())
-    nstages = len(by_stage)
-    if total <= 0 or nstages == 0:
+    nstages = max(len(by_stage), len(STAGE_PROGRESSION))
+    if total <= 0 or len(by_stage) == 0:
         return {s: 0.0 for s in by_stage}
     base_target = total / nstages
     over = {

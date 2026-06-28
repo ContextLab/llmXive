@@ -149,8 +149,12 @@ def test_balancer_weights_overflow_with_brainstorm_headroom() -> None:
             ))
         return out
 
-    # base target = 210 / 3 = 70. validated & brainstormed both 100 (over base);
-    # flesh_out_complete 10 (under). brainstorm target 70*1.25=87.5, validated's 70.
+    # base target is now the FULL-pipeline uniform share: total / max(occupied,
+    # len(STAGE_PROGRESSION)) = 210 / max(3, 20) = 210/20 = 10.5 (NOT 210/3=70 —
+    # the target is "uniform across all columns", so it doesn't float up when only
+    # a few stages are occupied). validated & brainstormed both 100 (far over base);
+    # flesh_out_complete 10 (still under 10.5 → floor only). brainstorm target
+    # 10.5*1.25=13.125, validated's 10.5 → brainstormed drains slightly less.
     by_stage = {
         Stage.VALIDATED: projs(Stage.VALIDATED, 100),
         Stage.BRAINSTORMED: projs(Stage.BRAINSTORMED, 100),
@@ -160,3 +164,70 @@ def test_balancer_weights_overflow_with_brainstorm_headroom() -> None:
     assert w[Stage.VALIDATED] > w[Stage.FLESH_OUT_COMPLETE]  # over-target drains first
     assert w[Stage.VALIDATED] > w[Stage.BRAINSTORMED]   # +25% headroom -> drained less
     assert w[Stage.FLESH_OUT_COMPLETE] > 0              # floor keeps it pickable
+
+
+def test_full_pipeline_uniform_target_drains_a_lumpy_pile() -> None:
+    """Spec: load-balance toward UNIFORMITY across ALL pipeline columns.
+
+    The equal-share target is the full-pipeline uniform share
+    ``total / max(occupied, len(STAGE_PROGRESSION))`` — NOT ``total / occupied``,
+    which would float upward (and under-drain giant piles) when only a few
+    columns are populated. With a lumpy distribution we assert:
+      (a) the giant pile (200) receives the DOMINANT share of the weight, and
+      (b) a stage whose count is over the full-pipeline target has positive
+          overflow and a final weight strictly ABOVE the MIN_STAGE_SHARE floor,
+          while a stage well below the target gets ONLY the floor.
+    """
+    from llmxive.pipeline.scheduler import (
+        MIN_STAGE_SHARE,
+        STAGE_PROGRESSION,
+        _stage_target,
+        _stage_weights_with_floor,
+    )
+
+    now = datetime.now(UTC)
+    counter = [9000]
+
+    def projs(stage: Stage, n: int) -> list[Project]:
+        out = []
+        for _ in range(n):
+            counter[0] += 1
+            out.append(Project(
+                id=f"PROJ-{counter[0]}-w", title="t", field="t",
+                current_stage=stage, created_at=now, updated_at=now,
+                artifact_hashes={},
+            ))
+        return out
+
+    # Lumpy: one 200-deep pile, one mid stage over target, two tiny stages.
+    # Stages chosen so Project validation needs no speckit dirs. total = 243,
+    # full-pipeline target = 243 / max(4, 20) = 243/20 = 12.15 (the
+    # OCCUPIED-only target would be 243/4 = 60.75 and the 40-deep stage would
+    # NOT count as over-target — the bug this fix corrects).
+    counts = {
+        Stage.PROJECT_INITIALIZED: 200,   # the giant pile
+        Stage.FLESH_OUT_IN_PROGRESS: 40,  # over the full-pipeline target (12.15)
+        Stage.VALIDATED: 1,               # well below target -> floor only
+        Stage.FLESH_OUT_COMPLETE: 2,      # well below target -> floor only
+    }
+    by_stage = {s: projs(s, n) for s, n in counts.items()}
+    total = sum(counts.values())
+    target = total / max(len(by_stage), len(STAGE_PROGRESSION))
+    assert target == pytest.approx(12.15)  # full-pipeline share, not 243/4=60.75
+
+    over = {s: max(0.0, counts[s] - _stage_target(s, target)) for s in by_stage}
+    floor = MIN_STAGE_SHARE * sum(over.values())
+    w = _stage_weights_with_floor(by_stage)
+
+    # (a) the 200-pile dominates the pick weight.
+    pile_share = w[Stage.PROJECT_INITIALIZED] / sum(w.values())
+    assert pile_share > 0.6, w
+
+    # (b) the over-target mid stage has positive overflow AND a weight above the
+    # floor; the well-below stages have zero overflow and sit exactly at the floor.
+    assert over[Stage.FLESH_OUT_IN_PROGRESS] > 0
+    assert w[Stage.FLESH_OUT_IN_PROGRESS] > floor
+    assert over[Stage.VALIDATED] == 0.0
+    assert over[Stage.FLESH_OUT_COMPLETE] == 0.0
+    assert w[Stage.VALIDATED] == pytest.approx(floor)
+    assert w[Stage.FLESH_OUT_COMPLETE] == pytest.approx(floor)
