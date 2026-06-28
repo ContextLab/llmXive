@@ -153,29 +153,48 @@ def test_declare_missing_imports_adds_thirdparty_skips_stdlib_and_local(tmp_path
 
 
 def test_data_artifact_ground_truth_surfaces_real_csv_headers(tmp_path) -> None:
-    """The DATA-contract ground-truth block must surface what producers actually
-    wrote (real CSV headers), so the auto-fix loop can reconcile a consumer's
-    'missing columns {model, rmse, mae}' against the producer's true columns
-    (the PROJ-262 metrics-CSV oscillation: the failure shows only the
-    consumer's expectation, never the producer's output)."""
-    from llmxive.execution.stage import _actual_data_artifacts_feedback
+    """The DATA-contract block must surface what the producer actually wrote (real
+    CSV header) against what the failing consumer requires, so the auto-fix loop
+    can reconcile a consumer's 'missing columns {model, rmse, mae}' against the
+    producer's true columns (the PROJ-262 metrics-CSV oscillation: the failure
+    shows only the consumer's expectation, never the producer's output)."""
+    from llmxive.execution.data_contract import (
+        find_data_contract_issues,
+        render_data_contract_feedback,
+    )
 
     proj = tmp_path / "PROJ-262-x"
+    (proj / "code").mkdir(parents=True)
     (proj / "results").mkdir(parents=True)
-    (proj / "data").mkdir(parents=True)
     # Producer wrote DIFFERENT column names than a consumer expects.
     (proj / "results" / "metrics.csv").write_text(
-        "model_name,val_rmse,val_mae\ngnn,0.31,0.22\n", encoding="utf-8"
+        "seed,model_name,val_rmse,val_mae\n0,gnn,0.31,0.22\n", encoding="utf-8"
     )
-    (proj / "data" / "processed.parquet").write_bytes(b"\x00" * 64)
-
-    fb = _actual_data_artifacts_feedback(proj)
+    (proj / "code" / "make_metrics.py").write_text(
+        "import csv\n"
+        "with open('results/metrics.csv','w') as f:\n"
+        "    w=csv.DictWriter(f,fieldnames=['seed','model_name','val_rmse','val_mae'])\n"
+        "    w.writeheader()\n",
+        encoding="utf-8",
+    )
+    (proj / "code" / "use_metrics.py").write_text(
+        "import pandas as pd\n"
+        "df=pd.read_csv('results/metrics.csv')\n",
+        encoding="utf-8",
+    )
+    failures = [
+        'File "/x/code/use_metrics.py", line 9, in load\n'
+        "ValueError: Metrics CSV missing columns: {'rmse', 'mae', 'model'}"
+    ]
+    issues = find_data_contract_issues(proj, failures)
+    fb = render_data_contract_feedback(issues)
     # The implementer now SEES the producer's real header to align against.
-    assert "model_name,val_rmse,val_mae" in fb
-    assert "metrics.csv" in fb and "processed.parquet" in fb
-    assert "reconcile consumers against THESE" in fb
-    # Empty / absent project dir → no block (best-effort, never crashes).
-    assert _actual_data_artifacts_feedback(tmp_path / "nope") == ""
+    assert "model_name" in fb and "val_rmse" in fb
+    assert "metrics.csv" in fb
+    assert "make_metrics.py" in fb  # the producer to edit
+    assert "DATA CONTRACT" in fb
+    # Empty failures → no issues, no block (best-effort, never crashes).
+    assert render_data_contract_feedback(find_data_contract_issues(proj, [])) == ""
 
 
 def test_execution_feedback_flags_regressions(tmp_path) -> None:
@@ -184,7 +203,8 @@ def test_execution_feedback_flags_regressions(tmp_path) -> None:
     must call it out prominently so the loop reverts the breakage instead of
     oscillating toward the fix-round cap."""
     from types import SimpleNamespace
-    from llmxive.execution.stage import _write_execution_feedback, _FEEDBACK_FILENAME
+
+    from llmxive.execution.stage import _FEEDBACK_FILENAME, _write_execution_feedback
 
     mem = tmp_path / ".specify" / "memory"
     res = SimpleNamespace(reason="2 command(s) failed", declared_missing=[], artifacts_produced=[])
@@ -208,8 +228,11 @@ def test_compute_infra_failures_flagged_distinctly(tmp_path) -> None:
     free CPU CI lacks the hardware); they must be flagged for a METHOD re-scope,
     not edited in place (PROJ-261 bitsandbytes / PROJ-262 GNN dead-ends)."""
     from types import SimpleNamespace
+
     from llmxive.execution.stage import (
-        _compute_infra_failures, _write_execution_feedback, _FEEDBACK_FILENAME,
+        _FEEDBACK_FILENAME,
+        _compute_infra_failures,
+        _write_execution_feedback,
     )
 
     fails = [

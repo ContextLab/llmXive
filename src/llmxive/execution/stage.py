@@ -351,8 +351,30 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
     except Exception as exc:
         logger.warning("shared-contract analysis skipped: %s", exc)
         contract_issues = []
-    _write_execution_feedback(mem, res, failures, contract_issues, regressions)
-    reopened = _reopen_failing_tasks(project_dir, res, contract_issues)
+    # Cross-script DATA-schema contract analysis (sibling of shared_contract):
+    # ground the implementer in the REAL artifacts so it can reconcile a
+    # consumer's "missing columns" / KeyError / "FileNotFoundError: <csv>" against
+    # what the producer actually wrote — instead of oscillating for 12 rounds on a
+    # trivial column-rename (the live PROJ-262 metrics-CSV stall).
+    try:
+        from llmxive.execution.data_contract import (
+            accumulate_data_contract_issues,
+            find_data_contract_issues,
+        )
+
+        data_contract_issues = find_data_contract_issues(project_dir, failures)
+        data_contract_issues = accumulate_data_contract_issues(
+            mem, project_dir, data_contract_issues
+        )
+    except Exception as exc:
+        logger.warning("data-contract analysis skipped: %s", exc)
+        data_contract_issues = []
+    _write_execution_feedback(
+        mem, res, failures, contract_issues, regressions, data_contract_issues
+    )
+    reopened = _reopen_failing_tasks(
+        project_dir, res, contract_issues, data_contract_issues
+    )
     logger.info("re-opened %d task(s) for the auto-fix loop", reopened)
     return False
 
@@ -435,6 +457,7 @@ def _write_execution_feedback(
     mem_dir: Path, res: AnalysisRunResult, failures: list[str],
     contract_issues: list | None = None,
     regressions: list[str] | None = None,
+    data_contract_issues: list | None = None,
 ) -> None:
     mem_dir.mkdir(parents=True, exist_ok=True)
     lines = [
@@ -539,81 +562,28 @@ def _write_execution_feedback(
     except Exception as exc:
         logger.warning("deliverable-repair feedback skipped: %s", exc)
 
-    # Cross-file DATA-contract ground truth: show what the PRODUCERS actually
-    # wrote so the implementer can reconcile a consumer's "missing columns" /
-    # KeyError / "FileNotFoundError: <csv>" against reality (the failure shows
-    # only the consumer's EXPECTATION, never the producer's columns → the
-    # fix-loop oscillates: the live PROJ-262 metrics-CSV column stall).
-    try:
-        ground_truth = _actual_data_artifacts_feedback(mem_dir.parent.parent)
-        if ground_truth:
-            lines.append(ground_truth)
-    except Exception as exc:
-        logger.warning("data-artifact ground-truth feedback skipped: %s", exc)
+    # Cross-script DATA-contract guidance: per data file, the REAL columns/keys the
+    # producer wrote vs what the consumers require, the exact rename diff, and the
+    # producer/consumer scripts — so the implementer reconciles a consumer's
+    # "missing columns" / KeyError / "FileNotFoundError: <csv>" against reality
+    # instead of oscillating on the consumer's EXPECTATION alone (the live PROJ-262
+    # metrics-CSV column stall). Grounded in the actual artifacts, never a guess.
+    if data_contract_issues:
+        try:
+            from llmxive.execution.data_contract import render_data_contract_feedback
+
+            block = render_data_contract_feedback(data_contract_issues)
+            if block:
+                lines.append(block)
+        except Exception as exc:
+            logger.warning("data-contract feedback skipped: %s", exc)
 
     (mem_dir / _FEEDBACK_FILENAME).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def _actual_data_artifacts_feedback(project_dir: Path) -> str:
-    """List the real on-disk data/results files + their CSV headers as the
-    DATA-contract ground truth for the auto-fix loop.
-
-    A consumer failing ``missing columns {model, rmse, mae}`` /
-    ``KeyError: 'rmse'`` / ``FileNotFoundError: results/significance.csv`` is a
-    cross-file mismatch: it expects column names or a path the UPSTREAM producer
-    did not write. The traceback shows only the consumer's EXPECTATION — never
-    the producer's ACTUAL output — so the implementer can't align them and the
-    loop burns its fix-round budget oscillating (PROJ-262). The producers that
-    DID succeed have already written their files this run, so surface them.
-    """
-    roots = ("data", "results", "figures", "output", "outputs")
-    found: list[str] = []
-    for name in roots:
-        root = project_dir / name
-        if not root.is_dir():
-            continue
-        for p in sorted(root.rglob("*")):
-            if not p.is_file() or "/.venv/" in str(p) or p.name == ".gitkeep":
-                continue
-            rel = p.relative_to(project_dir).as_posix()
-            if p.suffix.lower() == ".csv":
-                try:
-                    first = p.read_text(encoding="utf-8", errors="replace").splitlines()
-                    cols = first[0] if first else "(empty file)"
-                except OSError:
-                    cols = "(unreadable)"
-                found.append(f"- `{rel}` — actual CSV header: `{cols[:300]}`")
-            else:
-                try:
-                    sz = p.stat().st_size
-                except OSError:
-                    sz = -1
-                found.append(f"- `{rel}` ({sz} bytes)")
-            if len(found) >= 50:
-                break
-        if len(found) >= 50:
-            break
-    if not found:
-        return ""
-    return "\n".join([
-        "",
-        "## Files your producers ACTUALLY wrote — reconcile consumers against THESE",
-        "",
-        "A `missing columns` / `KeyError` / `FileNotFoundError: <file>` failure "
-        "above is a cross-file DATA-contract mismatch: a consumer expects column "
-        "names or a path the UPSTREAM producer did not write. The traceback shows "
-        "only what the consumer EXPECTS — here is what actually landed on disk. "
-        "Make the PRODUCER write the exact column names / path the consumers need "
-        "(or make the consumers read these actual names). Fix the ROOT producer "
-        "first: a script failing on a missing INPUT file is a CASCADE that clears "
-        "once its producer is fixed — do not edit the cascade victim in isolation.",
-        "",
-        *found,
-    ])
-
-
 def _reopen_failing_tasks(
-    project_dir: Path, res: AnalysisRunResult, contract_issues: list | None = None
+    project_dir: Path, res: AnalysisRunResult, contract_issues: list | None = None,
+    data_contract_issues: list | None = None,
 ) -> int:
     """Un-check tasks.md lines that reference a failed/missing script path or
     its stem, so the implementer re-implements them. Returns count re-opened.
@@ -644,6 +614,16 @@ def _reopen_failing_tasks(
             from llmxive.execution.shared_contract import defining_files
 
             targets |= defining_files(contract_issues)
+        except Exception:
+            pass
+    # Re-open the PRODUCER (and consumer) scripts behind a cross-script DATA-schema
+    # mismatch, so the implementer fixes the canonical producer (not just the
+    # failing consumer it happened to see this round).
+    if data_contract_issues:
+        try:
+            from llmxive.execution.data_contract import reopen_targets
+
+            targets |= reopen_targets(data_contract_issues)
         except Exception:
             pass
     if not targets:
