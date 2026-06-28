@@ -1,12 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-28T15:32:58.242572+00:00'
+last_used: david-krakauer
+last_used_at: '2026-06-28T16:00:08.056476+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-19T05:15:51.787416+00:00'
-  ended_at: '2026-06-19T07:17:10.954809+00:00'
-  outcome: abstained
-  action: abstain
 - slug: geoffrey-west
   started_at: '2026-06-19T07:17:10.954809+00:00'
   ended_at: '2026-06-19T09:13:22.712065+00:00'
@@ -1186,5 +1181,10 @@ history:
 - slug: daniel-kahneman
   started_at: '2026-06-28T14:37:56.104626+00:00'
   ended_at: '2026-06-28T15:32:58.242572+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: david-krakauer
+  started_at: '2026-06-28T15:32:58.242572+00:00'
+  ended_at: '2026-06-28T16:00:08.056476+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
