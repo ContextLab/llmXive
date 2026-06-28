@@ -216,6 +216,11 @@ a:hover { color: var(--accent-2); }
    .col / .col-head / .col-body / .issue kanban styles below). */
 .ip-board .col { flex: 0 0 300px; max-width: 300px; max-height: 74vh; }
 .ip-board .col-body { overflow-y: auto; }
+/* Empty pipeline-skeleton columns (a forward stage holding no projects right
+   now): kept visible so the full research -> paper flow always reads as a
+   kanban, but compact + dimmed so the populated columns stay the focus. */
+.ip-board .col.empty { flex: 0 0 132px; max-width: 132px; opacity: 0.55; }
+.ip-board .col.empty .col-body { min-height: 0; }
 .ip-empty { text-align: center; padding: 40px; color: var(--muted); }
 
 /* Column briefly flashes when its phase bar is clicked. */

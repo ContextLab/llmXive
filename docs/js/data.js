@@ -41,6 +41,25 @@
     "publish_blocked", "human_input_needed", "blocked", "agent_blocked",
   ];
 
+  // The forward research + paper pipeline stages (NOT the needs-attention /
+  // terminal block above). The In-Progress board renders a column for EVERY one
+  // of these always — even when momentarily empty — so the complete pipeline
+  // skeleton, including the whole paper lane, is visible as a kanban at a glance
+  // (previously empty stages rendered no column, so the mostly-empty paper lane
+  // looked "missing"). Empty needs-attention/terminal stages stay hidden until
+  // a project actually lands there. Revision states (validator_revise,
+  // research_full_revision) are deliberately excluded — they show only when used.
+  const PIPELINE_FLOW_STAGES = new Set([
+    "brainstormed", "flesh_out_in_progress", "flesh_out_complete",
+    "validated", "project_initialized",
+    "specified", "clarify_in_progress", "clarified",
+    "planned", "tasked", "analyze_in_progress", "analyzed",
+    "in_progress", "research_complete", "research_review", "research_accepted",
+    "paper_drafting_init", "paper_specified", "paper_clarified", "paper_planned",
+    "paper_tasked", "paper_analyzed", "paper_in_progress", "paper_complete",
+    "paper_review", "paper_accepted", "awaiting_publication_signoff",
+  ]);
+
   // Stage → tab mapping (FR-005). Mirrors src/llmxive/web_data.py. TWO project
   // tabs: `papers` (Published = `posted` only) and `inProgress` (every other
   // lifecycle stage, DERIVED from IN_PROGRESS_STAGE_ORDER so tab membership and
@@ -63,7 +82,7 @@
     tasked: "Tasked",
     analyze_in_progress: "Analyzing",
     analyzed: "Analyzed",
-    in_progress: "In progress",
+    in_progress: "Implementation",
     research_complete: "Research complete",
     research_review: "Research review",
     research_accepted: "Research accepted",
@@ -161,7 +180,9 @@
     const sections = [];
     for (const stage of IN_PROGRESS_STAGE_ORDER) {
       const items = byStage[stage];
-      if (!items.length) continue;               // skip empty stages
+      // Always emit the forward pipeline stages (so the paper lane is visible
+      // even when empty); other (needs-attention/terminal) stages only when populated.
+      if (!items.length && !PIPELINE_FLOW_STAGES.has(stage)) continue;
       items.sort((a, b) => (b.updated_at || "").localeCompare(a.updated_at || ""));
       sections.push({ stage, label: STAGE_LABELS[stage] || stage, items });
     }
@@ -197,7 +218,7 @@
   }
 
   window.LlmxiveData = {
-    EMPTY, TAB_STAGE_SETS, IN_PROGRESS_STAGE_ORDER, STAGE_LABELS,
+    EMPTY, TAB_STAGE_SETS, IN_PROGRESS_STAGE_ORDER, PIPELINE_FLOW_STAGES, STAGE_LABELS,
     loadPayload, projectsByTab, inProgressByStage, authorNames, relativeTime,
   };
 })();
