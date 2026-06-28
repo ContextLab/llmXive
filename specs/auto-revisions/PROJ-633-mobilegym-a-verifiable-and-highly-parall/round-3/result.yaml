@@ -1,0 +1,520 @@
+project_id: PROJ-633-mobilegym-a-verifiable-and-highly-parall
+round: 3
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 3a2c0ab564dc
+  text: Section 5.2 cites AndroidWorld and MobileWorld as examples of benchmarks using
+    'string-similarity or substring heuristics' for free-text query answers. However,
+    AndroidWorld uses programmatic state verification (ADB/SQL) and MobileWorld uses
+    backend database queries, not string similarity. This misrepresents the cited
+    works' methodologies. Please correct the citation or the claim.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 1a2fdddcbaec
+  text: "Add an explicit data\u2011license statement for the MobileGym\u2011Bench\
+    \ synthetic dataset (e.g., CC\u2011BY\u20114.0 or a custom permissive license)\
+    \ and include it in the paper and repository."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 60700f93c0dd
+  text: "Provide a persistent identifier (DOI or Zenodo archive) for the released\
+    \ benchmark data and code, and cite it in the bibliography to avoid future link\u2011\
+    rot."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: f0104d810a0e
+  text: Include a detailed schema description (e.g., JSON schema) for the structured
+    environment state and task parameters, preferably as a separate appendix or linked
+    file.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: f7913ec32b61
+  text: Document the versioning strategy for the benchmark (e.g., version numbers,
+    changelog) and how users can retrieve specific versions of the data and task templates.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: a2965029eaae
+  text: "Clarify the data generation pipeline for the synthetic world data (source\
+    \ of the 50,000+ real user sessions, sampling methods, random seeds) to ensure\
+    \ reproducibility and to address potential missing\u2011data handling."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 30b8ae127643
+  text: Verify that all external URLs (e.g., arXiv links, model cards) are archived
+    (e.g., via Internet Archive) or include fallback citations to mitigate link rot.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 87a01079626e
+  text: "Add explicit alt\u2011text for every figure using the `\\captionsetup{alt=...}`\
+    \ command (or the `alt=` key in `\\caption`). This is required for accessibility\
+    \ and is currently missing for all figures."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: e77cb61016b5
+  text: "Increase the minimum font size of text inside diagrams (Figure\u202F2, Figure\u202F\
+    3, and the AnswerSheet illustration) to at least 8\u202Fpt when printed, ensuring\
+    \ legibility at journal column width."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: c25c331b29ad
+  text: "Verify that the colour palette used in the workflow and architecture diagrams\
+    \ is colour\u2011blind safe (e.g., avoid red\u2011green combos) and provide a\
+    \ high\u2011contrast version if needed."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: e439eb036892
+  text: "Check that all axis labels, legends, and units in the performance plot (Figure\u202F\
+    5) are clearly readable at the final print size; add missing axis titles if any."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 05c0a0727cb9
+  text: "Replace the term \u201Cinteraction fidelity\u201D (Abstract, \xA71) with\
+    \ a clearer phrase such as \u201Crealistic interaction\u201D to aid non\u2011\
+    specialist readers."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 727a35008fa8
+  text: "Define the acronym \u201CRL\u201D (Abstract, \xA71) at first use; spell out\
+    \ \u201Creinforcement learning\u201D before using the abbreviation."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 0a4706a36048
+  text: "The phrase \u201Cverifiable outcome signals\u201D (Abstract, \xA71) is jargon;\
+    \ consider \u201Cdeterministic outcome signals\u201D or \u201Cclearly measurable\
+    \ results\u201D."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 59cc3fc36fee
+  text: "Replace \u201Cscalable online RL\u201D (Abstract, \xA71) with \u201Cscalable\
+    \ reinforcement\u2011learning\u201D and explain why scalability matters."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: cdb6ae490c17
+  text: "The term \u201Clow\u2011cost parallel rollouts\u201D (Abstract, \xA71) should\
+    \ be clarified; e.g., \u201Ccheap parallel executions of tasks\u201D."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: f590955b4ce7
+  text: "In \xA73.1, \u201Clayered state model\u201D is introduced without explanation;\
+    \ replace with \u201Cmulti\u2011layer state model\u201D and briefly describe the\
+    \ layers."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 4890898f7591
+  text: "The acronym \u201CGRPO\u201D (\xA75.2) is never defined; add a brief definition\
+    \ (e.g., \u201CGroup\u2011wise Reinforcement\u2011Learning with Policy Optimization\u201D\
+    )."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: cd3fa56114a4
+  text: "Replace \u201CAnswerSheet protocol\u201D (\xA74.2) with a more descriptive\
+    \ phrase like \u201Cstructured answer\u2011form protocol\u201D and explain its\
+    \ purpose on first mention."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 71316885daec
+  text: "The repeated use of \u201CVLM judge\u201D (multiple sections) is opaque;\
+    \ define \u201CVLM\u201D as \u201Cvision\u2011language model\u201D at first occurrence."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 5dd335a5bda4
+  text: "The phrase \u201Cdeterministic state\u2011based judging\u201D (Abstract,\
+    \ \xA71) can be simplified to \u201Cdeterministic evaluation using the environment\u2019\
+    s state\u201D."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: c9ef7f9e600b
+  text: "In Table\u202F1 caption, replace \u201CFull\u2011environment state comparison\u201D\
+    \ with \u201CComplete state comparison across the whole environment\u201D for\
+    \ clarity."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: c1aea7f8909d
+  text: "The term \u201Chigh\u2011consequence actions\u201D (\xA71) is vague; clarify\
+    \ with examples such as \u201Csending real messages or making payments\u201D."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 0a841e749b9b
+  text: "Avoid the abbreviation \u201CJSON\u201D without context; briefly note it\
+    \ stands for \u201CJavaScript Object Notation\u201D when first used."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: a43c14f57589
+  text: "In \xA75.3, replace \u201CGRPO training gain\u201D with \u201Cperformance\
+    \ improvement from GRPO training\u201D to make the result more accessible."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: d4a551ab4a76
+  text: "The term \u201Chigh\u2011risk subset\u201D (Appendix\u202FF) should be clarified;\
+    \ explain that it refers to tasks involving irreversible operations."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: ead6b50d6e18
+  text: "Define \u201CVLM\u2011judge audit\u201D (Appendix\u202FI) on first use; explain\
+    \ that it is an evaluation of vision\u2011language model judging errors."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 375de09a82ce
+  text: "Replace \u201Cdeterministic judges\u201D (\xA74.1) with \u201Cdeterministic\
+    \ evaluation functions\u201D for better readability."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 3cf477c1439b
+  text: "In the abstract, the phrase \u201Cverifiable outcome signals through deterministic\
+    \ state\u2011based judging over structured JSON state\u201D is overly dense; break\
+    \ into two sentences for clarity."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 984279682ac0
+  text: "The term \u201Cparallel rollouts\u201D (\xA71) may be unfamiliar; add a brief\
+    \ explanation such as \u201Crunning many task simulations at the same time\u201D\
+    ."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: aca854dd336b
+  text: The Sim-to-Real transfer claim (95.1% retained gain) is based on a filtered
+    subset (59 tasks) that excludes 8 tasks deemed 'unreproducible' on real devices.
+    This selection bias risks overstating the generalizability of the transfer rate.
+    Please clarify the subset selection criteria and discuss how excluding unreproducible
+    tasks affects the validity of the 95.1% figure as a benchmark-wide metric.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: b344cdcf2446
+  text: The Abstract claims MobileGym enables capabilities 'previously out of reach'.
+    AndroidWorld and similar emulators do support online RL, albeit at higher cost.
+    This phrasing overstates the novelty. Consider revising to 'more scalable' or
+    'cost-effective' to accurately reflect the contribution relative to existing emulator-based
+    RL.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: b4021bbc39b9
+  text: The paper claims to cover 'everyday mobile use' with 12 everyday apps, but
+    admits the backend logic is synthetic (Section 2.1). This limitation should be
+    more prominently stated in the Abstract and Introduction to avoid overclaiming
+    the realism of the 'everyday' claim, as synthetic backends may not capture real-world
+    logic drift.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: f8e437da3876
+  text: "The Benchmark Datasheet (\xA71) claims interaction patterns are 'derived\
+    \ from 50,000+ real user sessions.' Please clarify the source of this data, whether\
+    \ consent was obtained, and if IRB approval was granted. If synthetic, rephrase\
+    \ to avoid implying real user data usage."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: e70bd1f6792b
+  text: The title page lists 'llmXive-implementer-v1.0' as a reviser/author. This
+    requires explicit disclosure of AI contribution per current authorship guidelines
+    (e.g., CRediT taxonomy) to ensure transparency and accountability.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 0c20bb7e57e4
+  text: Add a dedicated 'Safety and Ethics' section discussing dual-use risks (e.g.,
+    automated fraud, spam) of agents trained on MobileGym, and outline mitigation
+    strategies for releasing the platform and trained models.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 9190001143f2
+  text: "In \xA7\ref{sec:exp:sim2real}, simulation results are 4-seed averages while\
+    \ real-device results are pass@1. This statistical asymmetry inflates confidence\
+    \ in the '95.1% retained gain' metric. Please clarify this limitation or provide\
+    \ variance estimates for real-device runs."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 7ba09d3bf2f3
+  text: The 59-task signal subset for Sim-to-Real is selected based on simulation
+    performance (Uplift/Stable-pass/Mid). This selection bias risks overestimating
+    general transferability. Discuss this effect more prominently in the main text,
+    not just Appendix E.1.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 8d5d26c8abcd
+  text: "GRPO training uses only 10 steps (\xA7\ref{app:exp-config}). A learning curve\
+    \ or justification for this short horizon is needed to rule out overfitting or\
+    \ initialization artifacts as the source of the +12.8 pt gain."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 2572145bd96d
+  text: "The manuscript reports success rates (SR) and progress rates (PR) for multiple\
+    \ models but provides only point estimates and standard deviations from a small\
+    \ number of trials (4 for open\u2011source models, 1 for proprietary models).\
+    \ Add appropriate statistical significance testing (e.g., paired t\u2011tests\
+    \ or non\u2011parametric tests) to support claims of superiority, and report confidence\
+    \ intervals for all key metrics."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: df1ed371a98b
+  text: "Multiple models and multiple difficulty strata are compared simultaneously,\
+    \ which raises a multiple\u2011comparisons problem. Apply a correction method\
+    \ (e.g., Bonferroni, Holm\u2011\u0160id\xE1k, or false discovery rate) and disclose\
+    \ adjusted p\u2011values or confidence intervals."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 819dd9eb4276
+  text: "The variance estimates (\xB1 values) are presented without indicating the\
+    \ number of runs or the underlying distribution assumptions. Clarify the exact\
+    \ number of random seeds per model, provide the raw per\u2011seed results in an\
+    \ appendix, and justify the use of mean\u202F\xB1\u202FSD versus median or other\
+    \ robust statistics."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 0b4c6fa81de9
+  text: "For the Sim\u2011to\u2011Real transfer experiment, the gain is reported as\
+    \ a percentage point increase (e.g., +12.8\u202Fpt) without a statistical test\
+    \ of whether this uplift is significant given the small sample (59 tasks). Perform\
+    \ a hypothesis test (e.g., McNemar\u2019s test for paired binary outcomes) and\
+    \ report the corresponding p\u2011value and confidence interval."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: e7aac553b92b
+  text: "The paper mixes heterogeneous evaluation protocols (AnswerSheet extra budget,\
+    \ different step budgets per task) but does not assess whether these protocol\
+    \ differences bias the reported metrics. Conduct an ablation or sensitivity analysis\
+    \ to quantify the impact of the extra 15\u2011step budget on SR/PR."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 463831a334d2
+  text: "The unexpected side\u2011effects (USE) metric is presented as a simple percentage\
+    \ without any statistical assessment of its reliability across runs. Provide inter\u2011\
+    run reliability statistics (e.g., Cohen\u2019s \u03BA) or confidence intervals\
+    \ to demonstrate stability."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 689c6ede2461
+  text: "The high\u2011risk subset results are shown as raw percentages without any\
+    \ statistical comparison to the full set. Include statistical tests to determine\
+    \ whether performance on high\u2011risk tasks differs significantly from overall\
+    \ performance."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 97638d8cc2bf
+  text: "The VLM\u2011judge error analysis reports counts but does not assess whether\
+    \ the error rate differs between base and trained models beyond descriptive numbers.\
+    \ Apply a proportion test (e.g., chi\u2011square or Fisher\u2019s exact test)\
+    \ and report significance."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 3995b909297d
+  text: "Overall, the manuscript lacks a pre\u2011registered analysis plan or power\
+    \ analysis to justify the chosen number of tasks, trials, and models. Add a brief\
+    \ discussion of statistical power or justify why the current sample sizes are\
+    \ sufficient."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 97cf199b186b
+  text: 'Fix broken text in Section 6.3 (Efficiency Analysis): ''used $$ system shade
+    (800) $>$ keyboard...'' appears to be placeholder or corrupted LaTeX.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: d361f308f1c8
+  text: 'Complete the cut-off sentence in Section 6.3 regarding HMR: ''code edits
+    become effective in $'' ends abruptly.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 45de1ee56d30
+  text: "Reorganize subsections in Section 6.3: 'Standardized App-layer architecture',\
+    \ 'Input injection...', and 'LLM-assisted...' belong in System Design (\xA76.1),\
+    \ not Efficiency Analysis."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: fb7989aa46df
+  text: "Move 'Benchmark Datasheet' (\xA71) to an Appendix or after Introduction;\
+    \ it is non-standard to place it before the Introduction."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 2983ecfd3bec
+  text: 'Fix grammar in Section 8.2: ''costly and manual state restoration'' should
+    be ''costly due to manual state restoration''.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+- id: 081bd84ae21c
+  text: Remove 'llmXive-implementer-v1.0' from author list and title block; this appears
+    to be an intake artifact, not an author.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 54 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-28T07:40:26.377656+00:00'
