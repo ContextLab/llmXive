@@ -59,7 +59,7 @@ The system MUST apply Mann-Whitney U tests with Cliff's delta effect size to com
 
 - What happens when HuggingFace Datasets API rate limits are exceeded during download? System MUST implement exponential backoff with ≥3 retry attempts at 60-second intervals before failing gracefully with error code 101. (Justification: Required for reproducible data ingestion in CI environments with rate-limited APIs)
 - How does the system handle code snippets that fail AST parsing? System MUST log the snippet ID, skip metric extraction for that snippet, and continue processing; ≥95% of snippets must pass parsing to proceed to statistical analysis.
-- What happens when the static analysis tools produce NaN or out-of-range scores for ≥5% of snippets? System MUST flag the batch for re-run with different tool parameters and if failure persists, halt with error code 102 and diagnostic report.
+- What happens when the static analysis tools produce NaN or out-of-range scores for ≥5% of snippets? System MUST flag the batch for re-run with different tool parameters and if failure persists, halt with a designated error code and diagnostic report.
 - What happens when datasets where human and LLM function length distributions differ by >20% after filtering? System MUST retry filtering with adjusted criteria; if >30% after retry, halt with error code 103 and diagnostic report.
 
 ## Requirements *(mandatory)*
