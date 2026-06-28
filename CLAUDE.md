@@ -73,13 +73,25 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
   advancement decisions are PERSISTED by the graph (never reduced to a
   stage name). Auto-revision rounds cap at
   `advancement.MAX_REVISION_ROUNDS` → honest terminal.
-- Human escalation is RARE by design (spec 023): infeasible ideas archive
-  + re-brainstorm under a bounded cap (`IDEA_RETRY_CAP` →
-  `validator_rejected` terminal); engine failures file deduped GitHub
-  issues and stay schedulable; surviving escalations carry exhaustion
-  evidence (`state/escalations/`). The ONE sanctioned human gate is
-  publication sign-off: a maintainer-vote GitHub issue parsed by the
-  `signoff-poll` lane (`llmxive.integrations.signoff_gate`).
+- Human input is required for EXACTLY ONE thing: the publication DOI
+  sign-off (a maintainer-vote GitHub issue parsed by the `signoff-poll`
+  lane / `llmxive.integrations.signoff_gate`). Everything else is handled
+  autonomously and NEVER parks at `human_input_needed` (`graph.py` has zero
+  `return Stage.HUMAN_INPUT_NEEDED`). Infeasible ideas archive + bounded
+  re-brainstorm → `validator_rejected` terminal. When the execution OR
+  convergence fix-loop exhausts its per-tier round cap it ESCALATES the
+  model tier (`execution_status` `model_tier` ladder: registered default →
+  `openai.gpt-oss-120b` → optional `LLMXIVE_EXECUTION_PAID_TIERS` via the
+  paid opt-in + credit guard) and retries the cap; when ALL tiers exhaust it
+  routes back to `planned`/`paper_planned` with a DETERMINISTIC (no-LLM)
+  re-plan report (artifacts produced + failing commands / unresolved panel
+  concerns + an "adjust the approach" note) the planner ingests. The
+  execution fix-loop also self-heals data-contract bugs: a cross-script
+  schema mismatch (CSV columns, a missing intermediate file) is detected
+  from the failure, the REAL produced artifact's schema is read, and the
+  implementer is shown the exact mismatch + producer to fix
+  (`execution/data_contract.py`, sibling to `shared_contract.py`). Engine
+  failures file deduped GitHub issues and stay schedulable.
 - Every paper's compile/restyle/audit outcome lives in
   `state/paper_status/<id>.json` (spec 023 / FR-022): silent fallbacks
   are rejected at write time; audit defects feed a bounded repair loop
