@@ -142,7 +142,12 @@ def test_parse_response_invalid_yaml_raises():
         _parse_response(bad, lens="x", stage="y", default_artifact="z")
 
 
-def test_parse_response_unknown_severity_raises():
+def test_parse_response_unknown_severity_coerces_not_crashes():
+    """An off-vocabulary severity word must NOT crash the panel (the live
+    PROJ-492 ``severity 'medium'``/``'overreach'`` engine-failure family). Per
+    the ``coerce_severity`` fix (fcf8a3d52) an unrecognised token defaults to
+    ``writing`` with a warning so a single odd severity can never hard-stall the
+    stage; the concern is preserved, not dropped."""
     bad = (
         "---\n"
         "verdict: minor_revision\n"
@@ -151,8 +156,13 @@ def test_parse_response_unknown_severity_raises():
         "    text: x\n"
         "---\nprose"
     )
-    with pytest.raises(RuntimeError, match="unknown severity"):
-        _parse_response(bad, lens="x", stage="y", default_artifact="z")
+    verdict, concerns = _parse_response(
+        bad, lens="x", stage="y", default_artifact="z",
+    )
+    assert verdict == "minor_revision"
+    assert len(concerns) == 1
+    assert concerns[0].severity.value == "writing"
+    assert concerns[0].text == "x"
 
 
 def test_parse_response_no_concerns_is_accept():

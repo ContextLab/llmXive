@@ -359,6 +359,69 @@ def _force_block_scalar_all_freetext_keys(yaml_text: str) -> str:
     return "\n".join(out) + ("\n" if yaml_text.endswith("\n") else "")
 
 
+def _fold_wrapped_metadata_scalars(yaml_text: str) -> str:
+    """Re-join a NON-free-text scalar value the model wrapped across physical
+    lines (the live PROJ-492 tasks-panel ``[ordering]`` + ``[scope]`` "while
+    scanning a simple key" crash: a long ``artifact_path:`` value broken mid-path
+    into ``artifact_path: projects/PROJ-492-evaluating-the-statistical-`` /
+    ``validity-of-p/tasks.md``).
+
+    YAML reads the orphan continuation line as a fresh key candidate with no
+    colon and raises "while scanning a simple key", aborting the WHOLE panel —
+    and the line-scan ``_salvage_review`` only rescues a NON-accept review, so a
+    clean ACCEPT whose ``artifact_path:`` wraps would still hard-crash the panel.
+
+    This repair folds each orphan continuation line (a non-blank line that is NOT
+    a doc boundary, NOT a list item, and does NOT itself introduce a ``key:``)
+    back into the preceding scalar value. It deliberately EXCLUDES the
+    ``_FREE_TEXT_KEYS`` (``text``/``location``/``response``/``what_changed``) —
+    those wrapped-prose values are owned by the block-scalar repairs, which join
+    with a space; wrapped metadata (paths / hashes / ids) is contiguous, so it is
+    rejoined with NO separator. The repair is purely STRUCTURAL — it reconstructs
+    the value the model line-wrapped; it never invents a ``verdict:`` or a
+    concern, so it cannot cause a false convergence.
+    """
+    lines = yaml_text.splitlines()
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        m = _KEY_LINE_RE.match(line)
+        value = m.group("value").rstrip() if (m and m.group("value")) else None
+        # Only fold a non-free-text key whose value is a PLAIN scalar (not a
+        # block/flow/quoted/comment marker the existing repairs already own).
+        if (
+            m is not None
+            and m.group("key") not in _FREE_TEXT_KEYS
+            and value
+            and not value.startswith(("|", ">", "[", "{", "'", '"', "#", "&", "*"))
+        ):
+            indent = m.group("indent")
+            listmarker = m.group("listmarker") or ""
+            absorbed: list[str] = []
+            j = i + 1
+            while j < len(lines):
+                nxt = lines[j]
+                if not nxt.strip():
+                    break
+                if _DOC_BOUNDARY_RE.match(nxt):
+                    break
+                if _LIST_ITEM_RE.match(nxt):
+                    break
+                if _KEY_LINE_RE.match(nxt) is not None:
+                    break
+                absorbed.append(nxt.strip())
+                j += 1
+            if absorbed:
+                folded = value + "".join(absorbed)
+                out.append(f"{indent}{listmarker}{m.group('key')}: {folded}")
+                i = j
+                continue
+        out.append(line)
+        i += 1
+    return "\n".join(out) + ("\n" if yaml_text.endswith("\n") else "")
+
+
 # Characters that may legally follow a backslash inside a YAML double-quoted
 # scalar (YAML 1.1 escape set + whitespace/line-continuation). Anything else —
 # notably a LaTeX command like ``\cite`` / ``\ref`` / ``\section`` (``\c``,
@@ -406,10 +469,13 @@ def _safe_yaml_load(yaml_text: str) -> object:
     2. Double INVALID backslash escapes in double-quoted scalars
        (``_fix_invalid_dq_escapes``) — fixes LaTeX (``\\cite``) quoting
        WITHOUT mangling the scalar. Try again.
-    3. CONSERVATIVE repair ``_reformat_unquoted_scalars``. Try again.
-    4. AGGRESSIVE repair ``_force_block_scalar_all_freetext_keys`` (rewrites
+    3. FOLD a wrapped NON-free-text scalar (``_fold_wrapped_metadata_scalars``) —
+       fixes a long ``artifact_path:`` the model line-wrapped (the "while
+       scanning a simple key" crash) by rejoining the orphan continuation.
+    4. CONSERVATIVE repair ``_reformat_unquoted_scalars``. Try again.
+    5. AGGRESSIVE repair ``_force_block_scalar_all_freetext_keys`` (rewrites
        free-text keys as block scalars). Final attempt.
-    5. If all fail, raise the ORIGINAL ``YAMLError`` so the caller's message
+    6. If all fail, raise the ORIGINAL ``YAMLError`` so the caller's message
        points at the LLM's actual output, not the repaired version.
     """
     try:
@@ -422,13 +488,33 @@ def _safe_yaml_load(yaml_text: str) -> object:
                 return yaml.safe_load(deescaped)
             except yaml.YAMLError:
                 pass
-        # Stage 3: conservative repair (also re-run on the de-escaped text).
+        # Stage 3: fold a wrapped non-free-text scalar (e.g. a line-broken
+        # artifact_path). Runs on the ORIGINAL text — it targets metadata
+        # keys the free-text repairs deliberately skip, so it composes with
+        # them rather than conflicting. Also retried after the conservative
+        # pass below for inputs that need both.
+        folded = _fold_wrapped_metadata_scalars(yaml_text)
+        if folded != yaml_text:
+            try:
+                return yaml.safe_load(folded)
+            except yaml.YAMLError:
+                pass
+        # Stage 4: conservative repair (also re-run on the de-escaped text).
         conservative = _reformat_unquoted_scalars(yaml_text)
         if conservative != yaml_text:
             try:
                 return yaml.safe_load(conservative)
             except yaml.YAMLError:
                 pass
+        # Stage 4b: conservative repair ON TOP of the metadata fold, for a
+        # response that wraps BOTH a metadata scalar AND a free-text value.
+        if folded != yaml_text:
+            folded_conservative = _reformat_unquoted_scalars(folded)
+            if folded_conservative != folded:
+                try:
+                    return yaml.safe_load(folded_conservative)
+                except yaml.YAMLError:
+                    pass
         # Stage 3: aggressive repair (force ALL free-text keys to block
         # scalars). Run on the ORIGINAL text (not the conservative
         # output) so the two repairs don't compound into broken output.

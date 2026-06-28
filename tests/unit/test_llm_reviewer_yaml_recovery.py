@@ -371,6 +371,115 @@ def test_fix_invalid_dq_escapes_leaves_valid_escapes_untouched():
     assert r"\section" in val     # \s was invalid -> doubled -> literal backslash
 
 
+# --- Wrapped non-free-text scalar (line-broken artifact_path) -----------
+
+
+def test_wrapped_artifact_path_scalar_recovers():
+    """Production crash repros 543d8ab2 (PROJ-492 tasks ``[ordering]``) +
+    b2d488a8 (plan ``[scope]``): the model wrapped a long ``artifact_path:``
+    value mid-path across two physical lines, so YAML read the orphan
+    continuation as a fresh key with no colon and raised "while scanning a
+    simple key", aborting the whole panel. ``_safe_yaml_load`` now folds the
+    wrapped scalar back together.
+    """
+    bad = (
+        "reviewer_name: ordering\n"
+        "artifact_path: projects/PROJ-492-evaluating-the-statistical-\n"
+        "validity-of-p/tasks.md\n"
+        "artifact_hash: 0000000000000000000000000000000000000000000000000000000000000000\n"
+        "verdict: accept\n"
+        "concerns: []\n"
+    )
+    # Sanity: the standard parser MUST crash so the recovery path is exercised.
+    try:
+        yaml.safe_load(bad)
+        crashed = False
+    except yaml.YAMLError:
+        crashed = True
+    assert crashed, "test fixture must trigger a YAML crash"
+
+    out = _safe_yaml_load(bad)
+    assert out["verdict"] == "accept"
+    assert out["concerns"] == []
+    # The wrapped path is rejoined contiguously (no injected space mid-path).
+    assert (
+        out["artifact_path"]
+        == "projects/PROJ-492-evaluating-the-statistical-validity-of-p/tasks.md"
+    )
+
+
+def test_fold_does_not_touch_free_text_keys():
+    """The metadata fold MUST leave ``_FREE_TEXT_KEYS`` to the block-scalar
+    repairs (which join wrapped prose with a space, not contiguously)."""
+    from llmxive.convergence.llm_reviewer import _fold_wrapped_metadata_scalars
+    src = (
+        "concerns:\n"
+        "  - severity: writing\n"
+        "    text: a wrapped sentence that\n"
+        "spills onto the next line\n"
+    )
+    # text: is free-text → fold returns it UNCHANGED (block-scalar repair owns it)
+    assert _fold_wrapped_metadata_scalars(src) == src
+    # but _safe_yaml_load still recovers it overall (via the free-text repair)
+    out = _safe_yaml_load(src)
+    assert "wrapped sentence" in out["concerns"][0]["text"]
+
+
+def test_fold_preserves_wellformed_input():
+    """A well-formed mapping is returned byte-for-byte by the fold."""
+    from llmxive.convergence.llm_reviewer import _fold_wrapped_metadata_scalars
+    good = (
+        "reviewer_name: scope\n"
+        "artifact_path: a/b/c.md\n"
+        "artifact_hash: deadbeef\n"
+        "verdict: accept\n"
+        "concerns: []\n"
+    )
+    assert _fold_wrapped_metadata_scalars(good) == good
+
+
+def test_fold_stops_at_next_key_and_list_item():
+    """Folding MUST NOT swallow a following real key or list item."""
+    from llmxive.convergence.llm_reviewer import _fold_wrapped_metadata_scalars
+    src = (
+        "stage: tasked\n"
+        "artifact_path: projects/PROJ-X/a-\n"
+        "b/tasks.md\n"
+        "verdict: minor_revision\n"
+        "concerns:\n"
+        "  - severity: requirement\n"
+        "    text: do X\n"
+    )
+    out = _safe_yaml_load(_fold_wrapped_metadata_scalars(src))
+    assert out["artifact_path"] == "projects/PROJ-X/a-b/tasks.md"
+    assert out["verdict"] == "minor_revision"
+    assert out["concerns"][0]["text"] == "do X"
+
+
+def test_parse_response_accept_with_wrapped_path_does_not_crash_panel():
+    """End-to-end: a CLEAN ACCEPT review whose ``artifact_path:`` is line-wrapped
+    must parse to ('accept', []) — NOT crash the panel. (The line-scan salvage
+    only rescues NON-accept reviews, so before the fold an accepter's wrapped
+    metadata still hard-stalled the stage.)"""
+    from llmxive.convergence.llm_reviewer import _parse_response
+    resp = (
+        "---\n"
+        "reviewer_name: scope\n"
+        "stage: planned\n"
+        "artifact_path: projects/PROJ-492-evaluating-the-statistical-\n"
+        "validity-of-p/specs/001-x/plan.md\n"
+        "verdict: accept\n"
+        "concerns: []\n"
+        "---\n"
+        "No concerns.\n"
+    )
+    verdict, concerns = _parse_response(
+        resp, lens="scope", stage="planned", default_artifact="plan.md",
+    )
+    assert verdict == "accept"
+    assert concerns == []
+
+
 def test_parse_response_accepts_json_review_object():
     """A panel reviewer that emits its review as a JSON object (```json {...})
     instead of YAML frontmatter must still parse — temperature=0 makes a
