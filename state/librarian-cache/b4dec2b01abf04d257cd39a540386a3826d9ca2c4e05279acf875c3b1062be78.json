@@ -1,0 +1,385 @@
+{
+  "fetched_at": "2026-06-28T05:23:17Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data",
+      "target_n": 5
+    },
+    "duration_seconds": 294.893,
+    "ended_at": "2026-06-28T05:23:17Z",
+    "expansion": null,
+    "extracted_queries": [
+      "reverse engineering gene networks",
+      "time course RNA-seq profiling",
+      "dynamical systems ODE modeling",
+      "AUROC AUPR network evaluation",
+      "perturbation response causal discovery"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.08946"
+      ]
+    },
+    "per_query_hit_count": {
+      "AUROC AUPR network evaluation": 3,
+      "Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biology": 3,
+      "dynamical systems ODE modeling": 3,
+      "perturbation response causal discovery": 3,
+      "reverse engineering gene networks": 2,
+      "time course RNA-seq profiling": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2605.11622",
+          "rationale": "The paper focuses on predicting bulk RNA-seq expression levels from histology images (WSI), whereas the user's question concerns inferring Gene Regulatory Network dynamics from time-series RNA-seq data. This represents a distinct construct sharing only the keyword \"RNA-Seq\" but differing fundamentally in input modality, output target, and biological mechanism.",
+          "title": "RNA-FM: Flow-Matching Generative Model for Genome-wide RNA-Seq Prediction"
+        },
+        {
+          "primary_pointer": "2406.05258",
+          "rationale": "The paper focuses on cell annotation and data processing pipelines for scRNA-seq, which is a distinct construct from predicting Gene Regulatory Network dynamics, sharing only general data modality keywords (RNA-seq, ML) without addressing the specific mechanism or variables of interest.",
+          "title": "Advances in Machine Learning, Statistical Methods, and AI for Single-Cell RNA Annotation Using Raw Count Matrices in scRNA-seq Data"
+        },
+        {
+          "primary_pointer": "2209.03427",
+          "rationale": "This paper is off-domain entirely for the user's research question. While it addresses causal discovery from time series data (methodologically related to GRN inference), it does not work on biological data, gene regulatory networks, or RNA-Seq data, and fails to satisfy any acceptance criteria (a-f) as it lacks the required biological domain connection.",
+          "title": "Causal discovery for time series with latent confounders"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T05:18:22Z",
+    "term_input": {
+      "normalized": "predicting gene regulatory network dynamics from time-series rna-seq data biology",
+      "raw": "Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gene Ontology (GO) project is the largest resource for cataloguing gene function. The combination of solid conceptual underpinnings and a practical set of features have made the GO a widely adopted resource in the research community and an essential resource for data analysis. In this chapter, we provide a concise primer for all users of the GO. We briefly introduce the structure of the ontology and explain how to interpret annotations associated with the GO.",
+          "claimed_authors": [
+            "Pascale Gaudet",
+            "Nives Škunca",
+            "James C. Hu",
+            "Christophe Dessimoz"
+          ],
+          "claimed_title": "Primer on the Gene Ontology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01876"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Primer on the Gene Ontology')",
+        "failed_at": "2026-06-28T05:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gene Ontology (GO) is a formidable resource but there are several considerations about it that are essential to understand the data and interpret it correctly. The GO is sufficiently simple that it can be used without deep understanding of its structure or how it is developed, which is both a strength and a weakness. In this chapter, we discuss some common misinterpretations of the ontology and the annotations. A better understanding of the pitfalls and the biases in the GO should help users make the most of this very rich resource. We also review some of the misconceptions and misleading assumptions commonly made about GO, including the effect of data incompleteness, the importance of annotation qualifiers, and the transitivity or lack thereof associated with different ontology relations. We also discuss several biases that can confound aggregate analyses such as gene enrichment analyses. For each of these pitfalls and biases, we suggest remedies and best practices.",
+          "claimed_authors": [
+            "Pascale Gaudet",
+            "Christophe Dessimoz"
+          ],
+          "claimed_title": "Gene Ontology: Pitfalls, Biases, Remedies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01875"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Gene Ontology: Pitfalls, Biases, Remedies')",
+        "failed_at": "2026-06-28T05:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Space-time distributions')",
+        "failed_at": "2026-06-28T05:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The scope of the paper is a theoretical analysis of the dynamical system, the model of which was reduced to Weierstrasse function. A fractal structure of the trajectory was proved and the entropy of the system information designated.",
+          "claimed_authors": [
+            "Marek Berezowski"
+          ],
+          "claimed_title": "Fractal trajectories of the dynamical system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.03152"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Fractal trajectories of the dynamical system')",
+        "failed_at": "2026-06-28T05:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linear time-periodic (LTP) dynamical systems frequently appear in the modeling of phenomena related to fluid dynamics, electronic circuits, and structural mechanics via linearization centered around known periodic orbits of nonlinear models. Such LTP systems can reach orders that make repeated simulation or other necessary analysis prohibitive, motivating the need for model reduction.\n  We develop here an algorithmic framework for constructing reduced models that retains the linear time-periodic structure of the original LTP system. Our approach generalizes optimal approaches that have been established previously for linear time-invariant (LTI) model reduction problems. We employ an extension of the usual H2 Hardy space defined for the LTI setting to time-periodic systems and within this broader framework develop an a posteriori error bound expressible in terms of related LTI systems. Optimization of this bound motivates our algorithm. We illustrate the success of our method on two numerical examples.",
+          "claimed_authors": [
+            "Caleb C. Magruder",
+            "Serkan Gugercin",
+            "Christopher A. Beattie"
+          ],
+          "claimed_title": "Linear time-periodic dynamical systems: An H2 analysis and a model reduction framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.03248"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Linear time-periodic dynamical systems: An H2 analysis and a model reduction framework')",
+        "failed_at": "2026-06-28T05:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents Carleman-Fourier linearization for analyzing nonlinear real dynamical systems with periodic vector fields. Using Fourier basis functions, this novel framework transforms such dynamical systems into equivalent infinite-dimensional linear dynamical systems. In this paper, we establish the exponential convergence of the primary block in the finite-section approximation of this linearized system to the state vector of the original nonlinear system. To showcase the efficacy of our approach, we apply it to the Kuramoto model, a prominent model for coupled oscillators. The results demonstrate promising accuracy in approximating the original system's behavior.",
+          "claimed_authors": [
+            "Nader Motee",
+            "Qiyu Sun"
+          ],
+          "claimed_title": "Carleman-Fourier linearization of nonlinear real dynamical systems with quasi-periodic fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.01498"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Carleman-Fourier linearization of nonlinear real dynamical systems with quasi-periodic fields')",
+        "failed_at": "2026-06-28T05:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
+          "claimed_authors": [
+            "ILC Technology Network"
+          ],
+          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.01172"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
+        "failed_at": "2026-06-28T05:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Korean VLBI Network (KVN) is the first dedicated mm-wavelength VLBI Network in East Asia and will be available from the middle of 2008. KVN consists of three stations and has the maximum observation frequency of 129 GHz with the maximum baseline length of 480 km. KVN has unique characteristics in the multifrequency, simultaneous observing system. By taking advantage of this we are considering various science topics, including not only maser emitting regions and young stellar objects in our galaxy, but also extragalactic objects. Construction of the first site is in progress. We are concurrently developing components, including receivers, data acquisition systems, and a correlator, and also arranging the international collaboration.",
+          "claimed_authors": [
+            "Kiyoaki Wajima",
+            "Hyun-Goo Kim",
+            "Seog-Tae Han",
+            "Duk-Gyoo Roh",
+            "Do-Heung Je",
+            "Se-Jin Oh",
+            "Seog-Oh Wi",
+            "Korean VLBI Network Group"
+          ],
+          "claimed_title": "Korean VLBI Network: the First Dedicated Mm-Wavelength VLBI Network in East Asia",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0511065"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Korean VLBI Network: the First Dedicated Mm-Wavelength VLBI Network in East Asia')",
+        "failed_at": "2026-06-28T05:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Results from a photometric search for extrasolar planetary transits across the eclipsing binary CM Dra are presented. The TEP (Transits of Extrasolar Planets) network has observed this star since 1994, and a lightcurve with 617 hours of coverage has been obtained. The data give a complete phase coverage of the CM Dra system at each of the 3 years of observations, with a noise of less than 5 mmag. New epoch and period values for CM Dra are derived, and a low flare rate of 0.025/hr has been confirmed. The absence of periodic variations in eclipse minimum times excludes the presence of very massive planets with periods of less than a few years. The lightcurve was visually scanned for the presence of unusual events which may be indicative of transits of extrasolar planets with 'massive earth' sizes. Six suspicious events were found which are being followed up for future transits, by planets with sizes between 1.5 and 2.5 RE (Earth Radii). However, none of these events has amplitudes compatible with planets larger than 2.5 RE. Coplanar planets larger than 2.5 RE and with orbital periods of less than 60 days can therefore be ruled out with a confidence of about 80%. Planets smaller than 1.5 RE cannot be detected in the data without a sub-noise detection algorithm. A preliminary signal detection analysis shows that there is a 50% detection confidence for 2 RE planets with a period from 10 to 30 days with the current data. This data-set demonstrates that it is possible to detect terrestrial sized planets with ground based photometry, and that strong constraints on the sizes of planets orbiting in the plane of the CM Dra system can be set.",
+          "claimed_authors": [
+            "TEP Network",
+            " :",
+            "H. J. Deeg",
+            "L. R. Doyle",
+            "V. P. Kozhevnikov",
+            "E. L. Martin",
+            "B. Oetiker",
+            "E. Palaiologou",
+            "J. Schneider",
+            "C. Afonso",
+            "E. W. Dunham",
+            "J. M. Jenkins",
+            "Z. Ninkov",
+            "R. P. S. Stone",
+            "P. E. Zakharova"
+          ],
+          "claimed_title": "Near-Term Detectability of Terrestrial Extrasolar Planets: TEP Network Observations of CM Draconis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "astro-ph/9806371"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Near-Term Detectability of Terrestrial Extrasolar Planets: TEP Network Observations of CM Draconis')",
+        "failed_at": "2026-06-28T05:20:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed as an analogue of the train/test split in correlation-based machine learning and as an enhancement of current causal validation strategies that are consistent with the logic of scientific discovery. The effectiveness of the method is illustrated using Pearl's sprinkler example, before a thorough simulation-based investigation is conducted. Limits of the technique are identified by studying exemplary failing scenarios, which are furthermore used to propose a list of topics for future research and improvements of the presented version of quantitative probing. The code for integrating quantitative probing into causal analysis, as well as the code for the presented simulation-based studies of the effectiveness of quantitative probing is provided in two separate open-source Python packages.",
+          "claimed_authors": [
+            "Daniel Grünbaum",
+            "Maike L. Stern",
+            "Elmar W. Lang"
+          ],
+          "claimed_title": "Quantitative probing: Validating causal models using quantitative domain knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.03013"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biolog', candidate_title='Quantitative probing: Validating causal models using quantitative domain knowledge')",
+        "failed_at": "2026-06-28T05:20:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Atte Aalto",
+            "Lauri Viitasaari",
+            "Pauliina Ilmonen",
+            "Laurent Mombaerts",
+            "Jorge Goncalves"
+          ],
+          "title": "Continuous time Gaussian process dynamical models in gene regulatory network inference",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1808.08161",
+        "summary": "One of the focus areas of modern scientific research is to reveal mysteries related to genes and their interactions. The dynamic interactions between genes can be encoded into a gene regulatory network (GRN), which can be used to gain understanding on the genetic mechanisms behind observable phenotypes. GRN inference from time series data has recently been a focus area of systems biology. Due to low sampling frequency of the data, this is a notoriously difficult problem. We tackle the challenge by introducing the so-called continuous-time Gaussian process dynamical model, based on Gaussian process framework that has gained popularity in nonlinear regression problems arising in machine learning. The model dynamics are governed by a stochastic differential equation, where the dynamics function is modelled as a Gaussian process. We prove the existence and uniqueness of solutions of the stochastic differential equation. We derive the probability distribution for the Euler discretised trajectories and establish the convergence of the discretisation. We develop a GRN inference method called BINGO, based on the developed framework. BINGO is based on MCMC sampling of trajectories of the GPDM and estimating the hyperparameters of the covariance function of the Gaussian process. Using benchmark data examples, we show that BINGO is superior in dealing with poor time resolution and it is computationally feasible.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1808.08161",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T05:20:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vân Anh Huynh-Thu",
+            "Guido Sanguinetti"
+          ],
+          "title": "Gene regulatory network inference: an introductory survey",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1801.04087",
+        "summary": "Gene regulatory networks are powerful abstractions of biological systems. Since the advent of high-throughput measurement technologies in biology in the late 90s, reconstructing the structure of such networks has been a central computational problem in systems biology. While the problem is certainly not solved in its entirety, considerable progress has been made in the last two decades, with mature tools now available. This chapter aims to provide an introduction to the basic concepts underpinning network inference tools, attempting a categorisation which highlights commonalities and relative strengths. While the chapter is meant to be self-contained, the material presented should provide a useful background to the later, more specialised chapters of this book.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1801.04087",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T05:20:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Olivia Angelin-Bonnet",
+            "Patrick J. Biggs",
+            "Matthieu Vignes"
+          ],
+          "title": "Gene regulatory networks: a primer in biological processes and statistical modelling",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1805.01098",
+        "summary": "Modelling gene regulatory networks not only requires a thorough understanding of the biological system depicted but also the ability to accurately represent this system from a mathematical perspective. Throughout this chapter, we aim to familiarise the reader with the biological processes and molecular factors at play in the process of gene expression regulation.We first describe the different interactions controlling each step of the expression process, from transcription to mRNA and protein decay. In the second section, we provide statistical tools to accurately represent this biological complexity in the form of mathematical models. Amongst other considerations, we discuss the topological properties of biological networks, the application of deterministic and stochastic frameworks and the quantitative modelling of regulation. We particularly focus on the use of such models for the simulation of expression data that can serve as a benchmark for the testing of network inference algorithms.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1805.01098",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T05:20:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kevin Debeire",
+            "Jakob Runge",
+            "Andreas Gerhardus",
+            "Veronika Eyring"
+          ],
+          "title": "Bootstrap aggregation and confidence measures to improve time series causal discovery",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.08946",
+        "summary": "Learning causal graphs from multivariate time series is a ubiquitous challenge in all application domains dealing with time-dependent systems, such as in Earth sciences, biology, or engineering, to name a few. Recent developments for this causal discovery learning task have shown considerable skill, notably the specific time-series adaptations of the popular conditional independence-based learning framework. However, uncertainty estimation is challenging for conditional independence-based methods. Here, we introduce a novel bootstrap approach designed for time series causal discovery that preserves the temporal dependencies and lag structure. It can be combined with a range of time series causal discovery methods and provides a measure of confidence for the links of the time series graphs. Furthermore, next to confidence estimation, an aggregation, also called bagging, of the bootstrapped graphs by majority voting results in bagged causal discovery methods. In this work, we combine this approach with the state-of-the-art conditional-independence-based algorithm PCMCI+. With extensive numerical experiments we empirically demonstrate that, in addition to providing confidence measures for links, Bagged-PCMCI+ improves in precision and recall as compared to its base algorithm PCMCI+, at the cost of higher computational demands. These statistical performance improvements are especially pronounced in the more challenging settings (short time sample size, large number of variables, high autocorrelation). Our bootstrap approach can also be combined with other time series causal discovery algorithms and can be of considerable use in many real-world applications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.08946",
+          "http_status": 200,
+          "pdf_sample_score": 0.3255,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T05:20:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting gene regulatory network dynamics from time-series rna-seq data biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

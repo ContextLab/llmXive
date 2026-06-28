@@ -9,35 +9,35 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can gene regulatory network (GRN) inference methods, when applied to publicly available time-series RNA-Seq datasets, accurately predict downstream gene expression changes following a perturbation? Specifically, can GRNs inferred from early time points (0–6 hours) forecast expression levels at later time points (24–48 hours) with statistically significant accuracy?
+Do gene regulatory network structures inferred from early post-perturbation time points capture true biological regulatory mechanisms that determine downstream gene expression dynamics at later time points?
 
 ## Motivation
 
-Validating inferred GRN structures remains a major challenge in computational biology. Most GRN inference methods lack ground-truth benchmarks for dynamic prediction. This study addresses that gap by testing whether early-time GRN models can predict later gene expression, providing a practical validation metric for network reconstruction quality.
+Validating inferred GRN structures remains a major challenge in computational biology. Most GRN inference methods lack ground-truth benchmarks for dynamic prediction. This study addresses that gap by testing whether early-time GRN models can predict later gene expression, providing a practical validation metric for network reconstruction quality and enabling selection of inference strategies that best capture biological causality.
 
 ## Related work
 
-- [Continuous time Gaussian process dynamical models in gene regulatory network inference (2018)](http://arxiv.org/abs/1808.08161v3) — Proposes dynamical models for capturing temporal gene interactions relevant to time-series GRN inference.
-- [Gene regulatory networks: a primer in biological processes and statistical modelling (2018)](http://arxiv.org/abs/1805.01098v1) — Provides statistical modelling foundations for GRN reconstruction from expression data.
-- [Gene regulatory network inference: an introductory survey (2018)](http://arxiv.org/abs/1801.04087v2) — Surveys existing GRN inference algorithms and their limitations.
-- [A survey of best practices for RNA-seq data analysis (2016)](https://doi.org/10.1186/s13059-016-0881-8) — Outlines preprocessing and normalization pipelines for RNA-seq data used in network inference.
+- [Continuous time Gaussian process dynamical models in gene regulatory network inference](https://arxiv.org/abs/1808.08161) — Proposes dynamical models for capturing temporal gene interactions relevant to time-series GRN inference.
+- [Gene regulatory network inference: an introductory survey](https://arxiv.org/abs/1801.04087) — Surveys existing GRN inference algorithms and their limitations, providing context for method comparison.
+- [Gene regulatory networks: a primer in biological processes and statistical modelling](https://arxiv.org/abs/1805.01098) — Provides statistical modelling foundations for GRN reconstruction from expression data.
+- [Bootstrap aggregation and confidence measures to improve time series causal discovery](https://arxiv.org/abs/2306.08946) — Addresses time-series causal discovery challenges applicable to GRN inference robustness assessment.
 
 ## Expected results
 
-We expect GRN models trained on early time points to predict later expression levels with moderate accuracy (Pearson r > 0.6) on held-out perturbation datasets. Prediction accuracy should vary significantly across inference methods, with dynamical models outperforming static correlation-based approaches. Results will demonstrate which GRN inference strategies are most suitable for dynamic forecasting.
+We expect GRN models trained on early time points to predict later expression levels with moderate accuracy (Pearson r > 0.6) on held-out perturbation datasets. Prediction accuracy should vary significantly across inference methods, with dynamical models outperforming static correlation-based approaches. Results will demonstrate which GRN inference strategies are most suitable for dynamic forecasting and provide evidence on whether inferred networks capture true regulatory mechanisms.
 
 ## Methodology sketch
 
-- Download 3–5 time-series RNA-Seq datasets from GEO/ENCODE with known perturbations (e.g., GSEXXXXX series with drug treatment at 0, 6, 24, 48h time points).
+- Download 3–5 time-series RNA-Seq datasets from GEO/ENCODE with known perturbations (e.g., GSEXXXXX series with drug treatment at 0, 6, 24, 48h time points) using `wget`/`curl`.
 - Preprocess raw count matrices using standard RNA-seq pipeline (trimming, alignment via STAR, quantification via featureCounts).
 - Normalize expression data using TMM or DESeq2 variance-stabilizing transformation.
 - Apply 3 GRN inference methods: GENIE3 (tree-based), GRNBoost2 (gradient boosting), and Gaussian Process Dynamical Model.
-- Split data temporally: train on 0–6h time points, test prediction on 24–48h expression.
+- Split data temporally: train on 0–6h time points, test prediction on 24–48h expression (held-out validation).
 - Generate predicted expression values for test time points using inferred network structure and early-time inputs.
-- Compute prediction accuracy using Pearson correlation and RMSE between predicted and observed expression.
+- Compute prediction accuracy using Pearson correlation and RMSE between predicted and observed expression on held-out time points.
 - Perform statistical comparison of methods using paired t-tests across datasets (n ≥ 3).
-- Assess robustness via sensitivity analysis: vary inference parameters and measure prediction stability.
-- Visualize top-predicted regulatory edges with known literature support for validation.
+- Assess robustness via bootstrap aggregation (following [2306.08946]) to measure confidence in inferred edges.
+- Validate inferred edges against known transcription factor–target relationships from ChIP-Seq databases (e.g., JASPAR, TRRUST) as independent ground truth.
 
 ## Duplicate-check
 
@@ -45,6 +45,23 @@ We expect GRN models trained on early time points to predict later expression le
 - Closest match: None found (no prior fleshed-out ideas in corpus).
 - Verdict: NOT a duplicate
 
----
 
-**Scope compliance**: Methodology fits GitHub Actions free-tier limits: public datasets downloadable via `wget`, computation via Python/R on 2 CPU cores (GENIE3 and GRNBoost2 scale to ~500 genes in <3h), statistical tests lightweight. No GPU required.
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-28T05:23:17Z
+**Outcome**: exhausted
+**Original term**: Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biology
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data biology | 4 |
+
+### Verified citations
+
+1. **Continuous time Gaussian process dynamical models in gene regulatory network inference** (2018). Atte Aalto, Lauri Viitasaari, Pauliina Ilmonen, Laurent Mombaerts, Jorge Goncalves. arXiv. [1808.08161](https://arxiv.org/abs/1808.08161). PDF-sampled: No.
+2. **Gene regulatory network inference: an introductory survey** (2018). Vân Anh Huynh-Thu, Guido Sanguinetti. arXiv. [1801.04087](https://arxiv.org/abs/1801.04087). PDF-sampled: No.
+3. **Gene regulatory networks: a primer in biological processes and statistical modelling** (2018). Olivia Angelin-Bonnet, Patrick J. Biggs, Matthieu Vignes. arXiv. [1805.01098](https://arxiv.org/abs/1805.01098). PDF-sampled: No.
+4. **Bootstrap aggregation and confidence measures to improve time series causal discovery** (2023). Kevin Debeire, Jakob Runge, Andreas Gerhardus, Veronika Eyring. arXiv. [2306.08946](https://arxiv.org/abs/2306.08946). PDF-sampled: No.

@@ -159,6 +159,10 @@
     "classified_at": "2026-06-26T21:17:03Z",
     "verdict": false
   },
+  "PROJ-289-predicting-gene-regulatory-network-dynam::1.6.0": {
+    "classified_at": "2026-06-28T05:20:15Z",
+    "verdict": false
+  },
   "PROJ-291-predicting-the-impact-of-residual-stress::1.6.0": {
     "classified_at": "2026-06-25T05:44:46Z",
     "verdict": false

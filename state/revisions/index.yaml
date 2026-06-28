@@ -213,3 +213,6 @@ ready:
 - project_id: PROJ-615-mega-asr-towards-in-the-wild-2-speech-re
   revision_spec_path: specs/auto-revisions/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/round-1
   queued_at: '2026-06-27T19:49:23.636916+00:00'
+- project_id: PROJ-796-in-context-world-modeling-for-robotic-co
+  revision_spec_path: specs/auto-revisions/PROJ-796-in-context-world-modeling-for-robotic-co/round-1
+  queued_at: '2026-06-28T06:00:34.660719+00:00'

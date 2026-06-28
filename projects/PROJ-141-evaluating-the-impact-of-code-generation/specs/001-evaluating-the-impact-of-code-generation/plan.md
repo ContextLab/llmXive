@@ -16,7 +16,7 @@ This project implements a controlled within-subject experiment to evaluate how L
 **Target Platform**: Linux (GitHub Actions runner)  
 **Project Type**: web-service + analysis pipeline  
 **Performance Goals**: ≤6 h total runtime for full analysis pipeline; ≤1s timestamp precision; ≥95% problem loading rate  
-**Constraints**: NO GPU/CUDA; models ≤1GB and CPU-tractable; 7 GB RAM, 14 GB disk limits; no PII in committed data  
+**Constraints**: NO GPU/CUDA; models ≤1GB and CPU-tractable; Specified RAM and disk storage limits; no PII in committed data  
 **Scale/Scope**: A sample of participants, within-subject design (2 conditions), HumanEval + medium Codeforces problems
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.

@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-796-in-context-world-modeling-for-robotic-co
-last_run_id: null
+last_run_id: 97dd356a-d54b-4107-8bef-b8f56a921aa6
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-796-in-context-world-modeling-for-robotic-co/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: In-Context World Modeling for Robotic Control
-updated_at: '2026-06-27T08:58:12.012477Z'
+updated_at: '2026-06-28T06:00:34.689877Z'

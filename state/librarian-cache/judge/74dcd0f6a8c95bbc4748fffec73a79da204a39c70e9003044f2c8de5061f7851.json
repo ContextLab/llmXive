@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.05258",
+  "judged_at": "2026-06-28T05:22:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting gene regulatory network dynamics from time-series rna-seq data biology",
+  "rationale": "The paper focuses on cell annotation and data processing pipelines for scRNA-seq, which is a distinct construct from predicting Gene Regulatory Network dynamics, sharing only general data modality keywords (RNA-seq, ML) without addressing the specific mechanism or variables of interest.",
+  "relevant": false
+}

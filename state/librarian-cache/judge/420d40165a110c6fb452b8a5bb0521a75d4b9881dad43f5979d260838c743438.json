@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2209.03427",
+  "judged_at": "2026-06-28T05:23:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting gene regulatory network dynamics from time-series rna-seq data biology",
+  "rationale": "This paper is off-domain entirely for the user's research question. While it addresses causal discovery from time series data (methodologically related to GRN inference), it does not work on biological data, gene regulatory networks, or RNA-Seq data, and fails to satisfy any acceptance criteria (a-f) as it lacks the required biological domain connection.",
+  "relevant": false
+}
