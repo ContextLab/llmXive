@@ -228,3 +228,6 @@ ready:
 - project_id: PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin
   revision_spec_path: specs/auto-revisions/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/round-1
   queued_at: '2026-06-28T18:08:59.351681+00:00'
+- project_id: PROJ-776-planbench-xl-evaluating-long-horizon-pla
+  revision_spec_path: specs/auto-revisions/PROJ-776-planbench-xl-evaluating-long-horizon-pla/round-1
+  queued_at: '2026-06-28T21:49:10.127218+00:00'

@@ -1,0 +1,225 @@
+project_id: PROJ-776-planbench-xl-evaluating-long-horizon-pla
+arxiv_id: '2606.22388'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-28T21:49:10.099557+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 5c9361ab5177
+    text: Add missing bibliography entries for all cited keys (e.g., vllm, GPT-5.4,
+      likert1932technique, justus2024bootstrap, ToolLLM, LiveAPIBench). Currently,
+      many citations in the text (Abstract, Sec 3.1, Appendix) have no corresponding
+      entry in custom.bib, making claims unverifiable.
+    severity: science
+  - id: f6bf3985b55c
+    text: Verify the existence and citation of proprietary models (e.g., GPT-5.4,
+      DeepSeek-V4). If these are future/internal models, provide technical reports
+      or API documentation references. Currently, no bibliography entries exist for
+      these model keys.
+    severity: science
+  - id: f3769890addf
+    text: Ensure all numerical claims (e.g., 51.90% accuracy, 11.36% under blocking)
+      are explicitly linked to the correct tables/figures in the text. Some claims
+      in the Abstract lack direct figure/table references.
+    severity: writing
+  - id: 1b6fc898233f
+    text: Code repository not accessible for review. Authors should provide public
+      GitHub link with complete implementation, test suite, and dependency specifications
+      for reproducibility.
+    severity: science
+  - id: f283a2f2e803
+    text: No evidence of modular code structure or test coverage metrics in manuscript.
+      Add Appendix section documenting code organization, test strategy, and CI/CD
+      pipeline.
+    severity: science
+  - id: 76f1ea4ed36a
+    text: Specify the exact Creative Commons license version (e.g., CC-BY 4.0) for
+      the benchmark dataset in the Ethics Statements.
+    severity: writing
+  - id: 7ef02bebf2df
+    text: Provide a permanent version identifier (Git tag or commit hash) for the
+      GitHub repository and Hugging Face dataset to ensure reproducibility.
+    severity: writing
+  - id: 5d1658926f98
+    text: Report inter-annotator agreement metrics (e.g., Krippendorff's alpha) for
+      the human annotation data beyond mean Likert scores.
+    severity: writing
+  - id: 8bd7ea078ae6
+    text: Link to the explicit data schema definition (e.g., JSON Schema) used for
+      the 1,665 tools to clarify structure and constraints.
+    severity: writing
+  - id: c938bba2208d
+    text: Resolve label mismatch between Figure~\ref{fig:task_step} in text and file
+      Figures/task_steps_pdf.pdf. Ensure \label{fig:task_step} is defined.
+    severity: writing
+  - id: f53f3b87ea25
+    text: Add alt text to all figures for accessibility compliance (e.g., \alttext
+      or equivalent).
+    severity: writing
+  - id: efff0d14f617
+    text: Ensure color palettes in Figure~\ref{fig:noisy_tool_type_mix} are distinguishable
+      in grayscale print.
+    severity: writing
+  - id: 597d0d5c1753
+    text: Verify font legibility in tcolorbox listings (e.g., Figure~\ref{fig:case_irrecoverable_drift_wrong_tool_value})
+      at print scale.
+    severity: writing
+  - id: 8801b5c7aac0
+    text: Define acronyms (LLM, API, MCP, EGT, ITCR, UIRR) at first use in main text.
+    severity: writing
+  - id: 7e8dca128831
+    text: Expand 'pp' to 'percentage points' in Section 3.1 and 3.2.
+    severity: writing
+  - id: 57cb1c0536ee
+    text: Replace 'datatypes' with 'data types' throughout the manuscript.
+    severity: writing
+  - id: 4ad62b77c51e
+    text: Simplify 'retrieval-time blockers' to 'blocked tools' for clarity.
+    severity: writing
+  - id: 9dc673953557
+    text: Standardize hyphenation for 'ground truth' and 'tool use'.
+    severity: writing
+  - id: 4941de716856
+    text: Qualify generalizations in Abstract and Conclusion regarding 'massive-tool
+      environments' to reflect the retail domain constraint.
+    severity: writing
+  - id: fb7e479de87f
+    text: Acknowledge related retrieval benchmarks (e.g., ToolRet, LiveMCPBench) when
+      claiming novelty on 'retrieval-limited tool visibility'.
+    severity: writing
+  - id: c4f3158ebd10
+    text: Appendix H (Human Annotation) describes five annotators rating tools but
+      lacks IRB approval or informed consent documentation. Add a statement confirming
+      ethical guidelines followed.
+    severity: writing
+  - id: a16b9298cc01
+    text: The dataset release (HuggingFace) requires an explicit statement confirming
+      no Personally Identifiable Information (PII) is included, given the 'retail
+      domain' context.
+    severity: writing
+  - id: 463374be273d
+    text: Safety claims rely on models like 'GPT-5.4' which appear non-existent. Clarify
+      if these are placeholders; otherwise, safety evaluations are invalid.
+    severity: science
+  - id: 3adfbec2682e
+    text: Resolve contradiction between text claiming 'highly consistent' seed results
+      and Figure 12 caption stating 'variation 20 pp'. 20pp variance undermines benchmark
+      reliability.
+    severity: science
+  - id: 863a93bfd19f
+    text: Clarify potential bias from using GPT-5.2 for data construction when evaluating
+      GPT-5.4. Provide ablation or justification.
+    severity: science
+  - id: 27f6d4162d07
+    text: Justify 327-task sample size for statistical power across 10 models and
+      multiple blocking conditions.
+    severity: science
+  - id: aa9febb46db4
+    text: "Multiple comparisons across 10 models \xD7 multiple blocking conditions\
+      \ lack correction (e.g., Bonferroni, FDR). Report adjusted p-values or confidence\
+      \ intervals to control Type I error inflation."
+    severity: science
+  - id: 2ee103f27d40
+    text: Seed variability shows 20 pp accuracy swings (Figure seed_acc, Appendix
+      E002). This exceeds reported CI widths (~2.94 pp). Re-run with more seeds or
+      report seed-dependent variance explicitly.
+    severity: science
+  - id: 365f2dab97e0
+    text: No explicit hypothesis tests reported for model comparisons. Confidence
+      intervals alone are insufficient; add paired tests (e.g., McNemar, bootstrap
+      t-tests) with effect sizes.
+    severity: science
+  - id: 860620e06d17
+    text: Sample size (327 tasks) lacks power analysis justification. Explain why
+      this size detects meaningful differences given observed variance.
+    severity: science
+  - id: 2a098887eee6
+    text: Replace the undefined macros \BENCH{}, \bench{}, and \linkblock with either
+      proper definitions or explicit text; undefined commands cause LaTeX compilation
+      failures.
+    severity: writing
+  - id: 02397e8bbdeb
+    text: Convert the unnumbered sections \section*{Limitations} and \section*{Ethics
+      Statements} to numbered sections (\section{Limitations} etc.) to maintain a
+      consistent heading hierarchy throughout the document.
+    severity: writing
+  - id: bbafb4eb1748
+    text: Ensure that all tables are wrapped in a proper table environment (e.g.,
+      \begin{table}...\end{table}) rather than being inserted via \input{Tables/...}
+      alone; otherwise they will not be floated or captioned correctly.
+    severity: writing
+  - id: 59abaa4edd13
+    text: Add the required package imports for tcolorbox, listings, and any custom
+      commands used (e.g., \usepackage{tcolorbox, listings}) in the preamble to avoid
+      missing-package errors.
+    severity: writing
+  - id: 7b57afaf4baa
+    text: 'Standardize citation commands: use either \citep{...} or \citet{...} consistently
+      throughout the manuscript; mixing styles can lead to inconsistent bibliography
+      formatting.'
+    severity: writing
+  - id: ef0f902cfaac
+    text: 'Check figure placement: figure* environments span two columns and should
+      appear at the top of a page; verify that the intended layout matches the journal''s
+      guidelines, and replace with regular figure if single-column width is desired.'
+    severity: writing
+  - id: 1c0505d831f4
+    text: Wrap the itemize environments that include custom spacing options inside
+      a \begin{itemize}[...]\end{itemize} block that loads the enumitem package; otherwise
+      LaTeX will raise an undefined option error.
+    severity: writing
+  - id: f712d7270624
+    text: Verify that all \label{...} commands are placed after the corresponding
+      \caption{...} within figures/tables to ensure correct cross-reference linking.
+    severity: writing
+  - id: 01b535929cb5
+    text: "Several sentences contain run\u2011on structures and missing commas, reducing\
+      \ readability (e.g., abstract first sentence, \xA74.1 description of blocking).\
+      \ Insert appropriate punctuation and consider splitting long sentences."
+    severity: writing
+  - id: 39ffae018d9d
+    text: 'Inconsistent use of the benchmark name: sometimes "\BENCH{}", sometimes
+      "\bench{}". Standardize to a single macro (e.g., \bench) throughout the manuscript.'
+    severity: writing
+  - id: f7431724cb98
+    text: "Figure captions often start with lower\u2011case letters and lack sufficient\
+      \ description of what is being shown (e.g., Fig\u202F2, Fig\u202F3). Capitalize\
+      \ the first word and add a brief explanatory clause."
+    severity: writing
+  - id: 426dad8b280e
+    text: The LaTeX macro for the benchmark name (\BENCH{}) is defined but never used
+      consistently; also the macro name appears in the source as "\BENCH{}" and "\bench{}".
+      Define a single macro and replace all occurrences.
+    severity: writing
+  - id: 86bb1623172c
+    text: "The \u201CLimitations\u201D and \u201CEthics Statements\u201D sections\
+      \ are placed before the main body and lack proper section numbering. Move them\
+      \ to after the conclusion and use \\section*{} for unnumbered sections."
+    severity: writing
+  - id: d63568286de0
+    text: "Some tables and figures are referenced without a preceding \u201CFig.\u201D\
+      \ or \u201CTable\u201D (e.g., \"see Figure~\\ref{fig:task_step}\"). Ensure consistent\
+      \ referencing style."
+    severity: writing
+  - id: ed7ba2ab2306
+    text: The bibliography entries contain inconsistent capitalization and missing
+      periods (e.g., "arXiv preprint arXiv:2603.03202"). Apply a uniform bibliography
+      style (e.g., ACL style).
+    severity: writing
+  - id: 8b7eb46d07af
+    text: The abstract contains a stray footnote marker ("\footnote{*Equal contribution.}")
+      that appears outside the abstract environment. Relocate the footnote to the
+      author block.
+    severity: writing
+  - id: d0f093200764
+    text: Multiple instances of "\textbf{...}" are used inside section headings, which
+      is unnecessary and can cause formatting issues. Remove bold formatting from
+      headings.
+    severity: writing
+  - id: f52cec2c484d
+    text: "The \u201CTakeaway\u201D environment is used without a preceding definition;\
+      \ ensure the custom environment is defined in the preamble or replace with a\
+      \ standard \\paragraph{}."
+    severity: writing
