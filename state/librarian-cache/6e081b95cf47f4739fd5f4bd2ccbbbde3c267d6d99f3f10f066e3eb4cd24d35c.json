@@ -1,0 +1,534 @@
+{
+  "fetched_at": "2026-06-28T21:51:15Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Alloying on Creep Resistance via Public Data",
+      "target_n": 5
+    },
+    "duration_seconds": 774.972,
+    "ended_at": "2026-06-28T21:51:15Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Machine learning creep property prediction"
+        ],
+        [
+          2,
+          "Data-driven alloy creep modeling"
+        ],
+        [
+          3,
+          "Materials informatics for creep resistance"
+        ],
+        [
+          4,
+          "Computational prediction of creep strength"
+        ],
+        [
+          5,
+          "Alloy composition effects on creep"
+        ],
+        [
+          6,
+          "High-temperature mechanical property prediction"
+        ],
+        [
+          7,
+          "Nickel-based superalloy creep data"
+        ],
+        [
+          8,
+          "Public materials databases for creep"
+        ],
+        [
+          9,
+          "Machine learning assisted alloy design"
+        ],
+        [
+          10,
+          "Accelerated materials discovery creep"
+        ],
+        [
+          11,
+          "Creep rupture life prediction models"
+        ],
+        [
+          12,
+          "Statistical learning for metallurgical properties"
+        ],
+        [
+          13,
+          "Composition-property relationships in alloys"
+        ],
+        [
+          14,
+          "Time-dependent deformation prediction"
+        ],
+        [
+          15,
+          "Integrated computational materials engineering"
+        ],
+        [
+          16,
+          "Thermodynamic modeling of creep"
+        ],
+        [
+          17,
+          "Microstructure-property relationships creep"
+        ],
+        [
+          18,
+          "Open data materials science creep"
+        ],
+        [
+          19,
+          "Dislocation dynamics creep simulation"
+        ],
+        [
+          20,
+          "High-throughput experimentation creep"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Machine learning creep property prediction": 5,
+        "Predicting the Impact of Alloying on Creep Resistance via Public Data materials science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "surrogate model creep resistance estimation",
+      "high-throughput experimental creep alloy dataset",
+      "alloy design feature engineering informatics",
+      "minimum creep rate rupture time",
+      "microstructure evolution precipitation strengthening kinetics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1811.01239"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting the Impact of Alloying on Creep Resistance via Public Data materials science": 3,
+      "alloy design feature engineering informatics": 3,
+      "high-throughput experimental creep alloy dataset": 3,
+      "microstructure evolution precipitation strengthening kinetics": 3,
+      "minimum creep rate rupture time": 3,
+      "surrogate model creep resistance estimation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "2304.06533",
+          "rationale": "This paper does not address the user's research question on alloying effects on creep resistance. While both are materials science papers, the candidate paper studies magnetic ordering in 2D van der Waals minerals, which is a completely different physical property (magnetic vs. mechanical/creep) and material system (layered minerals vs. alloys for high-temperature creep). This falls under the rejection rule for \"no measurable connection to the user's mechanism, domain, variables, or empirical se",
+          "title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals"
+        },
+        {
+          "primary_pointer": "1808.02734",
+          "rationale": "This paper investigates the rheology of partially molten geophysical materials (melt porosity effects), which is a distinct construct from the user's specific focus on the impact of alloying in metallic systems, sharing only the keyword \"creep.\" It fails to address the independent variable (alloying) or the specific material domain (alloys vs. partially molten rocks) required for the user's literature review.",
+          "title": "The viscosities of partially molten materials undergoing diffusion creep"
+        },
+        {
+          "primary_pointer": "2412.13277",
+          "rationale": "This paper is off-domain entirely (astrophysics/cosmology vs. materials science) and discusses a distinct construct sharing only a homonym keyword (\"creep\" in space-time analogy vs. material creep resistance).",
+          "title": "Analogy of space-time as an elastic medium, estimation creep coefficient of space from MOND theory, gravitational lensing and via time data from the GPS effect, discussion of the results for dark matter and Einstein's field equation"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "This paper is off-domain entirely, focusing on the integrity of data sources for official government statistics rather than materials science or alloy property prediction. It shares only high-level keywords like \"machine learning\" and \"data\" without addressing the specific domain, variables, or mechanisms required for the user's research question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "This paper is off-domain entirely, as it focuses on machine learning validation standards specifically within biology, whereas the user's question concerns materials science (alloying and creep resistance). It does not address the specific mechanism, variables, or empirical population required for the user's research.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "This paper is off-domain entirely, as it is a general survey on machine learning methodology (learning curves for algorithm selection) rather than a study addressing the specific materials science domain, variables (alloying, creep resistance), or empirical data required by the user's question. It does not satisfy any inclusion criteria (a-f) because it lacks a measurable connection to the physical mechanism or domain of interest.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general machine learning survey on active learning for data streams and does not address materials science, alloying, or creep resistance. It is rejected as off-domain entirely, lacking any measurable connection to the specific physical variables or empirical setting of the user's question.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2303.15563",
+          "rationale": "The paper is off-domain entirely, focusing on privacy-preserving machine learning in healthcare rather than materials science or creep resistance prediction. It shares only the general term \"machine learning\" but addresses a distinct construct and empirical population.",
+          "title": "Privacy-preserving machine learning for healthcare: open challenges and future perspectives"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T21:38:20Z",
+    "term_input": {
+      "normalized": "predicting the impact of alloying on creep resistance via public data materials science",
+      "raw": "Predicting the Impact of Alloying on Creep Resistance via Public Data materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Via is a forthcoming all-sky spectroscopic survey that will achieve 100 m s$^{-1}$ radial velocity stability for millions of faint ($G \\lesssim 21$) stars while reaching LSST's single-visit depth ($r \\approx 24$) for transient spectroscopy, opening new regimes in near-field cosmology and time-domain astrophysics. Via will deploy identical fiber-fed, multi-object spectrographs on the 6.5m MMT and Magellan/Clay telescopes for a five-year, dual-hemisphere survey of $>2{,}000{,}000$ stars beginning in 2027 - timed to complement LSST. Each instrument has 576 robotically positioned fibers over a $1^\\circ$ field of view, feeding two spectrographs: Viaspec ($R \\approx 15{,}000$; 505-595 nm; 540 fibers) and Boombox ($R \\approx 1{,}000$; 360-1010 nm; 36 fibers). Four key goals drive the survey: (1) a comprehensive survey of velocity perturbations in cold stellar streams, sensitive to $M \\lesssim 10^7$ subhalos below the threshold of galaxy formation, a stringent test of the particle nature of dark matter; (2) a chemodynamical census of Milky Way satellite galaxies to understand the formation of the faintest galaxies; (3) the first 3D tomographic maps of cold gas in the circumgalactic medium via NaI absorption; and (4) the rapid characterization of thousands of transients to the single-epoch survey depth of LSST. Ancillary science - including the Ly$α$ forest at $z \\approx 3$-$4$, polluted white dwarfs, exoplanet host characterization, fast radio burst host galaxies, and extragalactic dwarf galaxies - will leverage spare fibers in every pointing. The Via Project is a collaboration between the Center for Astrophysics $|$ Harvard & Smithsonian, Carnegie Observatories, Stanford University, and Yale University.",
+          "claimed_authors": [
+            " The Via Collaboration"
+          ],
+          "claimed_title": "The Via Project: Overview of the Science, Instrument, and Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.18332"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='The Via Project: Overview of the Science, Instrument, and Survey')",
+        "failed_at": "2026-06-28T21:41:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proposed as blanket structural materials for fusion power reactors, reduced activation ferritic/martensitic (RAFM) steel undergoes volume expanding and contracting in a cyclic mode under service environment. Particularly, being subjected to significant fluxes of fusion neutrons RAFM steel suffers considerable local volume variations in the radiation damage involved regions. It is necessary to study the structure properties of the alloying elements in contraction and expansion states. In this paper we studied local substitution structures of thirteen alloying elements Al, Co, Cr, Cu, Mn, Mo, Nb, Ni, Si, Ta, Ti, V, and W in bcc Fe and calculated their substitutional energies in the volume variation range from -1.0% to 1.0%. From the structure relaxation results of the first five neighbor shells around the substitutional atom we find the relaxation in each neighbor shell keeps approximately uniform within the volume variation from -1.0% to 1.0% except those of Mn and the relaxation of the fifth neighbor shell is stronger than that of the third and forth, indicating that the lattice distortion due to the substitution atom is easier to spread in <111> direction than in other direction. The relaxation pattern and intensity are related to the size and electron structure of the substitutional atom. For some alloying elements, such as Mo, Nb, Ni, Ta, Ti and W, the substitutional energy decreases noticeably when the volume increases. Further analysis show that the substitutional energy comprises the energy variation originated from local structure relaxation and the chemical potential difference of the substitutional atom between its elemental crystalline state and the solid solution phase in bcc Fe. We think the approximately uniform relaxation of each neighbor shell around a substitutional atom give rise to a linear decrease in the substitutional energy with the increasing volume.",
+          "claimed_authors": [
+            "Wei Liu",
+            "Wei-Lu Wang",
+            "C. S. Liu",
+            "Q. F. Fang",
+            "Qun-Ying Huang",
+            "Yi-Can Wu",
+            "Key Laboratory of Materials Physics",
+            "Institute of Solid State Physics",
+            "Chinese Academy of Sciences",
+            "P. O. Box 1129",
+            "Hefei 230031",
+            "P. R. China",
+            "Institute of Plasma Physics",
+            "Chinese Academy of Sciences",
+            "Hefei 230031",
+            "P. R. China"
+          ],
+          "claimed_title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.3001"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe')",
+        "failed_at": "2026-06-28T21:41:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Extrusion-based 3D printing has become one of the most common additive manufacturing methods and is widely used in engineering. This contribution presents the results of flexural creep experiments on 3D printed PLA specimens, focusing on changes in creep behavior due to physical aging. It is shown experimentally that the creep curves obtained on aged specimens are shifted to each other on the logarithmic time scale in a way that the theory of physical aging can explain. The reason for the physical aging of 3D printed thermoplastics is assumed to be the special heat treatment that the polymer undergoes during extrusion. Additionally, results of a long-term flexural creep experiment are shown, demonstrating that non-negligible creep over long periods can be observed even at temperatures well below the glass transition temperature. Such creep effects should be considered for designing components made of 3D printed thermoplastics.",
+          "claimed_authors": [
+            "Marcel Fischbach",
+            "Kerstin Weinberg"
+          ],
+          "claimed_title": "Effect of physical aging on the flexural creep in 3D printed thermoplastic",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.11240"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Effect of physical aging on the flexural creep in 3D printed thermoplastic')",
+        "failed_at": "2026-06-28T21:41:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A micromechanical model at the microscale within a crystal plasticity self-consistent model, is used to analyse loading histories in Type 316H stainless steel, common to structural components in high-temperature power plants. The study compares the SCM predictions on changes in mechanical behaviour and creep properties to analyses via the UK R5 structural assessment code. Plant-relevant cyclic-creep histories in Type 316H stainless steel at 550C are examined with focus on the estimation of accumulated creep strain. This aims to quantify how better understanding of creep deformation under cyclic loading can inform R5 code life assessment methods, which are strain based. The effect of cyclic plasticity on primary and secondary creep is quantified. The levels of creep strain accumulated during different dwells, following loading from different macroscopic stress states, is also evaluated and link is made to experimental observations in explaining the response. The impact of displacement- and load-controlled dwells on the evolution of the cyclic hysteresis loop is examined which revealed how different assumptions for creep strain accumulation could employ information from SCM results to reduce uncertainty. It also provides guidance in the development of interpolation frameworks for structural parameters, based on the SCM results which could be used directly in structural assessment and design approaches to estimate the accumulation of inelastic strain with a lower degree of conservatism.",
+          "claimed_authors": [
+            "Markian Petkov",
+            "Marc Chevalier",
+            "David Dean",
+            "Alan C. F. Cocks"
+          ],
+          "claimed_title": "Creep-fatigue interactions in a polycrystalline structural material under typical high-temperature power plant operating conditions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.00320"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Creep-fatigue interactions in a polycrystalline structural material under typical high-temperature power plant operating conditions')",
+        "failed_at": "2026-06-28T21:41:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-28T21:41:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Compositionally complex alloys hold the promise of simultaneously attaining superior combinations of properties, such as corrosion resistance, light-weighting, and strength. Achieving this goal is a challenge due in part to a large number of possible compositions and structures in the vast alloy design space. High-throughput methods offer a path forward, but a strong connection between the synthesis of an alloy of a given composition and structure with its properties has not been fully realized to date. Here, we present the rapid identification of corrosion-resistant alloys based on combinations of Al and Cr in a base Al-Co-Cr-Fe-Ni alloy. Previously unstudied alloy stoichiometries were identified using a combination of high-throughput experimental screening coupled with key metallurgical and electrochemical corrosion tests, identifying alloys with excellent passivation behavior. The alloy native oxide performance and its self-healing attributes were probed using rapid tests in deaerated 0.1 mol/L H2SO4. Importantly, a correlation was found between the electrochemical impedance modulus of the exposure-modified air-formed film and self-healing rate of the CCAs. Multi-element extended x-ray absorption fine structure analyses connected more ordered type chemical short-range order in the Ni-Al 1st nearest-neighbor shell to poorer corrosion resistance. This report underscores the utility of high throughput exploration of compositionally complex alloys for the identification and rapid screening of a vast stoichiometric space.",
+          "claimed_authors": [
+            "Debashish Sur",
+            "Emily F. Holcombe",
+            "William H. Blades",
+            "Elaf A. Anber",
+            "Daniel L. Foley",
+            "Brian L. DeCost",
+            "Jing Liu",
+            "Jason Hattrick-Simpers",
+            "Karl Sieradzki",
+            "Howie Joress",
+            "John R. Scully",
+            "Mitra L. Taheri"
+          ],
+          "claimed_title": "An experimental high-throughput to high-fidelity study towards discovering Al-Cr containing corrosion-resistant compositionally complex alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.07988"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='An experimental high-throughput to high-fidelity study towards discovering Al-Cr containing corrosion-resistant compositionally complex alloys')",
+        "failed_at": "2026-06-28T21:41:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this progress report we present a new approach to the ab-initio guided bottom up design of beta-Ti alloys for biomedical applications using a quantum mechanical simulation method in conjunction with experiments. Parameter-free density functional theory calculations are used to provide theoretical guidance in selecting and optimizing Ti-based alloys with respect to three constraints: (i) the use of non-toxic alloy elements; (ii) the stabilization of the body centered cubic beta phase at room temperature; (iii) the reduction of the elastic stiffness compared to existing Ti-based alloys. Following the theoretical predictions, the alloys of interest are cast and characterized with respect to their crystallographic structure, microstructure, texture, and elastic stiffness. Due to the complexity of the ab initio calculations, the simulations have been focused on a set of binary systems of Ti with two different high melting bcc metals, namely, Nb and Mo. Various levels of model approximations to describe mechanical and thermodynamic properties are tested and critically evaluated. The experiments are conducted both, on some of the binary alloys and on two more complex engineering alloy variants, namely, Ti-35wt.%Nb-7wt.%Zr-5wt.%Ta and a Ti-20wt.%Mo-7wt.%Zr-5wt.%Ta.",
+          "claimed_authors": [
+            "D. Raabe",
+            "B. Sander",
+            "M. Friak",
+            "D. Ma",
+            "J. Neugebauer"
+          ],
+          "claimed_title": "Ab-initio simulation and experimental validation of beta-titanium alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0811.0157"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Ab-initio simulation and experimental validation of beta-titanium alloys')",
+        "failed_at": "2026-06-28T21:41:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Feature engineering is the process of using domain knowledge to extract features from raw data via data mining techniques and is a key step to improve the performance of machine learning algorithms. In the multi-party feature engineering scenario (features are stored in many different IoT devices), direct and unlimited multivariate feature transformations will quickly exhaust memory, power, and bandwidth of devices, not to mention the security of information threatened. Given this, we present a framework called FLFE to conduct privacy-preserving and communication-preserving multi-party feature transformations. The framework pre-learns the pattern of the feature to directly judge the usefulness of the transformation on a feature. Explored the new useful feature, the framework forsakes the encryption-based algorithm for the well-designed feature exchange mechanism, which largely decreases the communication overhead under the premise of confidentiality. We made experiments on datasets of both open-sourced and real-world thus validating the comparable effectiveness of FLFE to evaluation-based approaches, along with the far more superior efficacy.",
+          "claimed_authors": [
+            "Pei Fang",
+            "Zhendong Cai",
+            "Hui Chen",
+            "QingJiang Shi"
+          ],
+          "claimed_title": "FLFE: A Communication-Efficient and Privacy-Preserving Federated Feature Engineering Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.02557"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='FLFE: A Communication-Efficient and Privacy-Preserving Federated Feature Engineering Framework')",
+        "failed_at": "2026-06-28T21:41:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ability of Generative AI (GAI) technology to automatically check, synthesize and modify software engineering artifacts promises to revolutionize all aspects of software engineering. Using GAI for software engineering tasks is consequently one of the most rapidly expanding fields of software engineering research, with over a hundred LLM-based code models having been published since 2021. However, the overwhelming majority of existing code models share a major weakness - they are exclusively trained on the syntactic facet of software, significantly lowering their trustworthiness in tasks dependent on software semantics. To address this problem, a new class of \"Morescient\" GAI is needed that is \"aware\" of (i.e., trained on) both the semantic and static facets of software. This, in turn, will require a new generation of software observation platforms capable of generating large quantities of execution observations in a structured and readily analyzable way. In this paper, we present a vision and roadmap for how such \"Morescient\" GAI models can be engineered, evolved and disseminated according to the principles of open science.",
+          "claimed_authors": [
+            "Marcus Kessel",
+            "Colin Atkinson"
+          ],
+          "claimed_title": "Morescient GAI for Software Engineering (Extended Version)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.04710"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Morescient GAI for Software Engineering (Extended Version)')",
+        "failed_at": "2026-06-28T21:41:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Space-time distributions')",
+        "failed_at": "2026-06-28T21:41:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Important physical observations in rupture dynamics such as static fault friction, short-slip, self-healing, and supershear phenomenon in cracks are studied. A continuum model of rupture dynamics is developed using the field dislocation mechanics (FDM) theory. The energy density function in our model encodes accepted and simple physical facts related to rocks and granular materials under compression. We work within a 2-dimensional ansatz of FDM where the rupture front is allowed to move only in a horizontal fault layer sandwiched between elastic blocks. Damage via the degradation of elastic modulus is allowed to occur only in the fault layer, characterized by the amount of plastic slip. The theory dictates the evolution equation of the plastic shear strain to be a Hamilton-Jacobi (H-J) equation, resulting in the representation of a propagating rupture front, which is fully coupled to elastodynamics in the whole domain. Our simulations recover static friction laws as emergent features of our model, without putting in by hand any such discontinuous criteria. Estimates of material parameters of cohesion and friction angle are deduced. Short-slip and slip-weakening (crack-like) behaviors are also reproduced as a function of the degree of damage behind the rupture front. The long-time behavior of a moving rupture front is probed, and it is deduced that the equilibrium profiles under no shear stress are not traveling wave profiles under non-zero shear load. However, it is shown that a traveling wave structure is likely attained in the limit of long times. Finally, a crack-like damage front is driven by an initial impact loading, and it is observed in our simulations that an upper bound to the crack speed is the dilatational wave speed of the material unless the material is put under pre-stressed conditions, in which case supersonic motion can be obtained.",
+          "claimed_authors": [
+            "Abhishek Arora",
+            "Amit Acharya"
+          ],
+          "claimed_title": "Emergent fault friction and supershear in a continuum model of geophysical rupture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.09378"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Emergent fault friction and supershear in a continuum model of geophysical rupture')",
+        "failed_at": "2026-06-28T21:41:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Rate theory of the radiation-induced precipitation in solids is modified with account of non-equilibrium fluctuations driven by the gas of lattice solitons (a.k.a. quodons) produced by irradiation. According to quantitative estimations, a steady-state density of the quodon gas under sufficiently intense irradiation can be as high as the density of phonon gas. The quodon gas may be a powerful driver of the chemical reaction rates under irradiation, the strength of which exponentially increases with irradiation flux and may be comparable with strength of the phonon gas that exponentially increases with temperature. The modified rate theory is applied to modelling of copper precipitation in FeCu binary alloys under electron irradiation. In contrast to the classical rate theory, which disagrees strongly with experimental data on all precipitation parameters, the modified rate theory describes quite well both the evolution of precipitates and the matrix concentration of copper measured by different methods",
+          "claimed_authors": [
+            "Vladimir Dubinko",
+            "Roman Shapovalov"
+          ],
+          "claimed_title": "Theory of a quodon gas. With application to precipitation kinetics in solids under irradiation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.4314"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Theory of a quodon gas. With application to precipitation kinetics in solids under irradiation')",
+        "failed_at": "2026-06-28T21:41:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although mutations drive the evolutionary process, the rates at which the mutations occur are themselves subject to evolutionary forces. Our purpose here is to understand the role of selection and random genetic drift in the evolution of mutation rates, and we address this question in asexual populations at mutation-selection equilibrium neglecting selective sweeps. Using a multitype branching process, we calculate the fixation probability of a rare nonmutator in a large asexual population of mutators, and find that a nonmutator is more likely to fix when the deleterious mutation rate of the mutator population is high. Compensatory mutations in the mutator population are found to decrease the fixation probability of a nonmutator when the selection coefficient is large. But, surprisingly, the fixation probability changes nonmonotonically with increasing compensatory mutation rate when the selection is mild. Using these results for the fixation probability and a drift-barrier argument, we find a novel relationship between the mutation rates and the population size. We also discuss the time to fix the nonmutator in an adapted population of asexual mutators, and compare our results with experiments.",
+          "claimed_authors": [
+            "Ananthu James",
+            "Kavita Jain"
+          ],
+          "claimed_title": "Fixation probability of rare nonmutator and evolution of mutation rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.03632"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Fixation probability of rare nonmutator and evolution of mutation rates')",
+        "failed_at": "2026-06-28T21:41:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Precipitation strengthening is a key strengthening method for metallic materials. However, the temperature effect on precipitation strengthening is still unclear to date. Based on dislocation theory, a thermally-activated precipitation strengthening model is built by considering the competition between shear and bypass mechanisms. For medium-sized precipitate particles, the thermally-activated shear mechanism dominates the precipitation strengthening, resulting in a plateau region. While, for large or very fine precipitate particles, the thermally-activated bypass mechanism dominates the precipitation strengthening, leading to the strengthening or weakening regions. Moreover, the effects of precipitate phase volume fraction, temperature, shear modulus, strain rate, and mobile dislocation density on precipitation strengthening are also investigated. This study not only provides new insights into precipitation strengthening from the perspective of thermal activation but also offers clear guidance for the design of new materials.",
+          "claimed_authors": [
+            "Guangpeng Sun",
+            "Liqiang zhang",
+            "Bin Wen"
+          ],
+          "claimed_title": "Thermally-activated precipitation strengthening",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16551"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Creep Resistance via Public Data materials ', candidate_title='Thermally-activated precipitation strengthening')",
+        "failed_at": "2026-06-28T21:41:36Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dongwon Shin",
+            "Yukinori Yamamoto",
+            "Michael P. Brady",
+            "Sangkeun Lee",
+            "J. Allen Haynes"
+          ],
+          "title": "Modern Data Analytics Approach to Predict Creep of High-Temperature Alloys",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1811.01239",
+        "summary": "A breakthrough in alloy design often requires comprehensive understanding in complex multi-component/multi-phase systems to generate novel material hypotheses. We introduce a modern data analytics workflow that leverages high-quality experimental data augmented with advanced features obtained from high-fidelity models. Herein, we use an example of a consistently-measured creep dataset of developmental high-temperature alloy combined with scientific alloy features populated from a high-throughput computational thermodynamic approach. Extensive correlation analyses provide ranking insights for most impactful alloy features for creep resistance, evaluated from a large set of candidate features suggested by domain experts. We also show that we can accurately train machine learning models by integrating high-ranking features obtained from correlation analyses. The demonstrated approach can be extended beyond incorporating thermodynamic features, with input from domain experts used to compile lists of features from other alloy physics, such as diffusion kinetics and microstructure evolution.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1811.01239",
+          "http_status": 200,
+          "pdf_sample_score": 0.2203,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:41:35Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of alloying on creep resistance via public data materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

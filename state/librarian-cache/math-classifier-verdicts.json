@@ -71,6 +71,10 @@
     "classified_at": "2026-06-26T10:09:36Z",
     "verdict": false
   },
+  "PROJ-137-predicting-the-impact-of-alloying-on-cre::1.6.0": {
+    "classified_at": "2026-06-28T21:41:34Z",
+    "verdict": false
+  },
   "PROJ-142-predicting-solubility-in-mixed-solvents-::1.6.0": {
     "classified_at": "2026-06-28T14:38:19Z",
     "verdict": false
@@ -81,6 +85,10 @@
   },
   "PROJ-159-predicting-molecular-permeability-throug::1.6.0": {
     "classified_at": "2026-06-26T06:12:18Z",
+    "verdict": false
+  },
+  "PROJ-167-the-impact-of-self-compassion-on-resilie::1.6.0": {
+    "classified_at": "2026-06-28T21:29:40Z",
     "verdict": false
   },
   "PROJ-169-predicting-the-elastic-moduli-of-2d-mate::1.6.0": {

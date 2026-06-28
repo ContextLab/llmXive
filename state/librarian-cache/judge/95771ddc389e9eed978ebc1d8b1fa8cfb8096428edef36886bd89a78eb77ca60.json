@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.01239",
+  "judged_at": "2026-06-28T21:46:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on creep resistance via public data materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the same physical mechanism (alloy composition impact on creep resistance) using data analytics within the same materials science domain, providing relevant prior work on the variables and methodology.",
+  "relevant": true
+}

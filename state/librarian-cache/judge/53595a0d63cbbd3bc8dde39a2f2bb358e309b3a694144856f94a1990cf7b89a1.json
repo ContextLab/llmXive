@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.13277",
+  "judged_at": "2026-06-28T21:47:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on creep resistance via public data materials science",
+  "rationale": "This paper is off-domain entirely (astrophysics/cosmology vs. materials science) and discusses a distinct construct sharing only a homonym keyword (\"creep\" in space-time analogy vs. material creep resistance).",
+  "relevant": false
+}

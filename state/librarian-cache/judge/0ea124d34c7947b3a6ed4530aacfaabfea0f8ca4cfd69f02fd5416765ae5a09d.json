@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-06-28T21:50:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on creep resistance via public data materials science",
+  "rationale": "The paper is a general machine learning survey on active learning for data streams and does not address materials science, alloying, or creep resistance. It is rejected as off-domain entirely, lacking any measurable connection to the specific physical variables or empirical setting of the user's question.",
+  "relevant": false
+}

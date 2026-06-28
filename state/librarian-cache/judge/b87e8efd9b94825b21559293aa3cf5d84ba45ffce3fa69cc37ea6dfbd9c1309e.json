@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2112.03789",
+  "judged_at": "2026-06-28T21:31:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+  "rationale": "This paper is off-domain entirely (financial mathematics vs. psychology) and relies on a homonym keyword (\"resilience\") that refers to a distinct construct (market price impact recovery vs. psychological recovery from feedback).",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1808.02734",
+  "judged_at": "2026-06-28T21:45:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on creep resistance via public data materials science",
+  "rationale": "This paper investigates the rheology of partially molten geophysical materials (melt porosity effects), which is a distinct construct from the user's specific focus on the impact of alloying in metallic systems, sharing only the keyword \"creep.\" It fails to address the independent variable (alloying) or the specific material domain (alloys vs. partially molten rocks) required for the user's literature review.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.13187",
+  "judged_at": "2026-06-28T21:35:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+  "rationale": "This paper focuses on digital emotion regulation via social media, which does not measure the specific variables of self-compassion or resilience to negative feedback required for the user's question. It falls under the rejection rule for distinct constructs sharing only broad thematic keywords (emotion/psychology) without addressing the specific mechanisms or empirical setting.",
+  "relevant": false
+}

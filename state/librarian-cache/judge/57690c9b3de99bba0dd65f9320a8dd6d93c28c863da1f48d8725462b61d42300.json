@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-28T21:47:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on creep resistance via public data materials science",
+  "rationale": "This paper is off-domain entirely, focusing on the integrity of data sources for official government statistics rather than materials science or alloy property prediction. It shares only high-level keywords like \"machine learning\" and \"data\" without addressing the specific domain, variables, or mechanisms required for the user's research question.",
+  "relevant": false
+}

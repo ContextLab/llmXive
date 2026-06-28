@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.15383",
+  "judged_at": "2026-06-28T21:33:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+  "rationale": "This paper satisfies criterion (b) as it measures the user's independent variable (Self-Compassion) and a proximal dependent variable (Emotion Regulation/Stress Response) within the same psychological domain, providing relevant evidence for the underlying mechanism of resilience.",
+  "relevant": true
+}

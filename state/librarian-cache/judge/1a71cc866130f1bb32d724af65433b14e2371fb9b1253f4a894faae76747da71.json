@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.15563",
+  "judged_at": "2026-06-28T21:51:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on creep resistance via public data materials science",
+  "rationale": "The paper is off-domain entirely, focusing on privacy-preserving machine learning in healthcare rather than materials science or creep resistance prediction. It shares only the general term \"machine learning\" but addresses a distinct construct and empirical population.",
+  "relevant": false
+}

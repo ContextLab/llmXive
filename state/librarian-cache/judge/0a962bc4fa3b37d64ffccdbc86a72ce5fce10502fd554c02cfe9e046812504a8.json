@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.00002",
+  "judged_at": "2026-06-28T21:36:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+  "rationale": "The paper investigates Virtual Reality interventions for general emotion regulation in youth, which does not measure self-compassion or resilience to negative feedback specifically. It fails to meet any inclusion criteria as it addresses a distinct intervention and psychological constructs unrelated to the user's specific mechanism and variables.",
+  "relevant": false
+}

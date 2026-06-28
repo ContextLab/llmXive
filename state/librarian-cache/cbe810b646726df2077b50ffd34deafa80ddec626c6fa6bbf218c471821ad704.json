@@ -1,0 +1,503 @@
+{
+  "fetched_at": "2026-06-28T21:36:42Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Self-Compassion on Resilience to Negative Feedback",
+      "target_n": 5
+    },
+    "duration_seconds": 611.005,
+    "ended_at": "2026-06-28T21:36:42Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "self-compassion coping with criticism"
+        ],
+        [
+          2,
+          "self-compassion emotional regulation feedback"
+        ],
+        [
+          3,
+          "psychological resilience negative evaluation"
+        ],
+        [
+          4,
+          "self-kindness resilience to failure"
+        ],
+        [
+          5,
+          "ego threat self-compassion response"
+        ],
+        [
+          6,
+          "self-compassion performance feedback emotions"
+        ],
+        [
+          7,
+          "mindfulness self-compassion criticism"
+        ],
+        [
+          8,
+          "adaptive coping negative social feedback"
+        ],
+        [
+          9,
+          "self-forgiveness resilience criticism"
+        ],
+        [
+          10,
+          "self-compassion stress buffering feedback"
+        ],
+        [
+          11,
+          "shame reduction self-compassion feedback"
+        ],
+        [
+          12,
+          "self-compassion workplace feedback resilience"
+        ],
+        [
+          13,
+          "self-compassion academic feedback coping"
+        ],
+        [
+          14,
+          "self-compassion versus self-esteem feedback"
+        ],
+        [
+          15,
+          "negative affect self-compassion recovery"
+        ],
+        [
+          16,
+          "threat response self-compassion criticism"
+        ],
+        [
+          17,
+          "self-compassion intervention feedback resilience"
+        ],
+        [
+          18,
+          "interpersonal feedback self-compassion well-being"
+        ],
+        [
+          19,
+          "self-compassion scale negative evaluation"
+        ],
+        [
+          20,
+          "resilience building self-compassion feedback"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Self-Compassion on Resilience to Negative Feedback psychology": 0,
+        "self-compassion coping with criticism": 2,
+        "self-compassion emotional regulation feedback": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "self-kindness common humanity mindfulness",
+      "social evaluation feedback task",
+      "affective recovery persistence failure",
+      "resilience measure feedback scale",
+      "self-integrity buffering hypothesis"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2502.15383"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Self-Compassion on Resilience to Negative Feedback psychology": 3,
+      "affective recovery persistence failure": 3,
+      "resilience measure feedback scale": 2,
+      "self-integrity buffering hypothesis": 3,
+      "self-kindness common humanity mindfulness": 3,
+      "social evaluation feedback task": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2112.03789",
+          "rationale": "This paper is off-domain entirely (financial mathematics vs. psychology) and relies on a homonym keyword (\"resilience\") that refers to a distinct construct (market price impact recovery vs. psychological recovery from feedback).",
+          "title": "Self-exciting price impact via negative resilience in stochastic order books"
+        },
+        {
+          "primary_pointer": "2602.18467",
+          "rationale": "The paper investigates self-compassion in the context of body composition metrics rather than resilience to negative feedback, failing to address the dependent variable or the specific psychological mechanism central to the user's research question. It does not meet inclusion criteria as it lacks a measurable connection to the core relationship under study (rejection rule: no measurable connection to user's mechanism, domain, or variables).",
+          "title": "Identifying Body Composition Measures That Correlate with Self-Compassion and Social Support"
+        },
+        {
+          "primary_pointer": "2307.13187",
+          "rationale": "This paper focuses on digital emotion regulation via social media, which does not measure the specific variables of self-compassion or resilience to negative feedback required for the user's question. It falls under the rejection rule for distinct constructs sharing only broad thematic keywords (emotion/psychology) without addressing the specific mechanisms or empirical setting.",
+          "title": "Digital Emotion Regulation on Social Media"
+        },
+        {
+          "primary_pointer": "2212.00002",
+          "rationale": "The paper investigates Virtual Reality interventions for general emotion regulation in youth, which does not measure self-compassion or resilience to negative feedback specifically. It fails to meet any inclusion criteria as it addresses a distinct intervention and psychological constructs unrelated to the user's specific mechanism and variables.",
+          "title": "Investigating the Feasibility of Virtual Reality for Emotion Regulation with Youth"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T21:26:31Z",
+    "term_input": {
+      "normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+      "raw": "The Impact of Self-Compassion on Resilience to Negative Feedback psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Urbanization is rapidly increasing, with urban populations expected to grow significantly by 2050, particularly in developing regions. This expansion brings challenges related to chronic stresses and acute shocks, such as the COVID-19 pandemic, which has underscored the critical role of urban form in a city's capacity to manage public health crises. Despite the heightened interest in urban resilience, research examining the relationship between urban morphology and pandemic resilience remains limited, often focusing solely on density and its effect on disease transmission. This work aims to address this gap by evaluating existing frameworks that analyze the relationship between urban resilience and urban form. By critically reviewing these frameworks, with a particular emphasis on theoretical and quantitative approaches, this study seeks to transfer the knowledge gained to better understand the relationship between pandemic resilience and urban morphology. The work also links theoretical ideas with quantitative frameworks, offering a cohesive analysis. The anticipated novelty of this study lies in its comprehensive assessment of urban resilience frameworks and the identification of the current gaps in integrating resilience to pandemic thinking into urban planning and design. The goal is not only to enhance the understanding of urban resilience but also to offer practical guidance for developing more adaptive and effective frameworks for assessing resilience to pandemics in urban environments, thereby preparing cities to better withstand and recover from future crises.",
+          "claimed_authors": [
+            "Yue Sun",
+            "Ryan Weightman",
+            "Anye Shi",
+            "Timur Dogan",
+            "Samitha Samaranayake"
+          ],
+          "claimed_title": "A Review of Urban Resilience Frameworks: Transferring Knowledge to Enhance Pandemic Resilience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.17371"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='A Review of Urban Resilience Frameworks: Transferring Knowledge to Enhance Pandemic Resilience')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding mind-brain-environment relations is one of the key topics in psychology. Kurt Lewin, inspired by theoretical physics, tried to establish topological and vector psychology analyzing patterns of interaction between the individual and her/his environment. The time is ripe to reformulate his ambitious goals, searching for ways to interpret objectively measured brain processes in terms of suitable psychological constructs. Connecting cognitive and social psychology constructs to neurophenomics, as it is done now in psychiatry, should ground them in physical reality.",
+          "claimed_authors": [
+            "Włodzisław Duch"
+          ],
+          "claimed_title": "Kurt Lewin, psychological constructs and sources of brain cognitive activity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.01767"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Kurt Lewin, psychological constructs and sources of brain cognitive activity')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The proliferation of assistive chatbots offering efficient, personalized communication has driven widespread over-reliance on them for decision-making, information-seeking and everyday tasks. This dependence was found to have adverse consequences on information retention as well as lead to superficial emotional attachment. As such, this work introduces 8bit-GPT; a language model simulated on a legacy Macintosh Operating System, to evoke reflection on the nature of Human-AI interaction and the consequences of anthropomorphic rhetoric. Drawing on reflective design principles such as slow-technology and counterfunctionality, this work aims to foreground the presence of chatbots as a tool by defamiliarizing the interface and prioritizing inefficient interaction, creating a friction between the familiar and not.",
+          "claimed_authors": [
+            "Hala Sheta"
+          ],
+          "claimed_title": "8bit-GPT: Exploring Human-AI Interaction on Obsolete Macintosh Operating Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.05025"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='8bit-GPT: Exploring Human-AI Interaction on Obsolete Macintosh Operating Systems')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current state of the art acoustic models can easily comprise more than 100 million parameters. This growing complexity demands larger training datasets to maintain a decent generalization of the final decision function. An ideal dataset is not necessarily large in size, but large with respect to the amount of unique speakers, utilized hardware and varying recording conditions. This enables a machine learning model to explore as much of the domain-specific input space as possible during parameter estimation. This work introduces Common Phone, a gender-balanced, multilingual corpus recorded from more than 11.000 contributors via Mozilla's Common Voice project. It comprises around 116 hours of speech enriched with automatically generated phonetic segmentation. A Wav2Vec 2.0 acoustic model was trained with the Common Phone to perform phonetic symbol recognition and validate the quality of the generated phonetic annotation. The architecture achieved a PER of 18.1 % on the entire test set, computed with all 101 unique phonetic symbols, showing slight differences between the individual languages. We conclude that Common Phone provides sufficient variability and reliable phonetic annotation to help bridging the gap between research and application of acoustic models.",
+          "claimed_authors": [
+            "Philipp Klumpp",
+            "Tomás Arias-Vergara",
+            "Paula Andrea Pérez-Toro",
+            "Elmar Nöth",
+            "Juan Rafael Orozco-Arroyave"
+          ],
+          "claimed_title": "Common Phone: A Multilingual Dataset for Robust Acoustic Modelling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.05912"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Common Phone: A Multilingual Dataset for Robust Acoustic Modelling')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mindfulness training is widely recognized for its benefits in reducing depression, anxiety, and loneliness. With the rise of smartphone-based mindfulness apps, digital meditation has become more accessible, but sustaining long-term user engagement remains a challenge. This paper explores whether respiration biosignal feedback and mindfulness skill estimation enhance system usability and skill development. We develop a smartphone's accelerometer-based respiration tracking algorithm, eliminating the need for additional wearables. Unlike existing methods, our approach accurately captures slow breathing patterns typical of mindfulness meditation. Additionally, we introduce the first quantitative framework to estimate mindfulness skills-concentration, sensory clarity, and equanimity-based on accelerometer-derived respiration data. We develop and test our algorithms on 261 mindfulness sessions in both controlled and real-world settings. A user study comparing an experimental group receiving biosignal feedback with a control group using a standard app shows that respiration feedback enhances system usability. Our respiration tracking model achieves a mean absolute error (MAE) of 1.6 breaths per minute, closely aligning with ground truth data, while our mindfulness skill estimation attains F1 scores of 80-84% in tracking skill progression. By integrating respiration tracking and mindfulness estimation into a commercial app, we demonstrate the potential of smartphone sensors to enhance digital mindfulness training.",
+          "claimed_authors": [
+            "Mohammad Nur Hossain Khan",
+            "David creswell",
+            "Jordan Albert",
+            "Patrick O'Connell",
+            "Shawn Fallon",
+            "Mathew Polowitz",
+            "Xuhai \"orson\" Xu",
+            "Bashima islam"
+          ],
+          "claimed_title": "Mindfulness Meditation and Respiration: Accelerometer-Based Respiration Rate and Mindfulness Progress Estimation to Enhance App Engagement and Mindfulness Skills",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.17688"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Mindfulness Meditation and Respiration: Accelerometer-Based Respiration Rate and Mindfulness Progress Estimation to Enhance App Engagement and Mindfulness Skills')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although beneficial information abounds on social media, the dissemination of harmful information such as so-called ``fake news'' has become a serious issue. Therefore, many researchers have devoted considerable effort to limiting the diffusion of harmful information. A promising approach to limiting diffusion of such information is link deletion methods in social networks. Link deletion methods have been shown to be effective in reducing the size of information diffusion cascades generated by synthetic models on a given social network. In this study, we evaluate the effectiveness of link deletion methods by using actual logs of retweet cascades, rather than by using synthetic diffusion models. Our results show that even after deleting 10\\%--50\\% of links from a social network, the size of cascades after link deletion is estimated to be only 50\\% the original size under the optimistic estimation, which suggests that the effectiveness of the link deletion strategy for suppressing information diffusion is limited. Moreover, our results also show that there is a considerable number of cascades with many seed users, which renders link deletion methods inefficient.",
+          "claimed_authors": [
+            "Shiori Furukawa",
+            "Sho Tsugawa"
+          ],
+          "claimed_title": "Empirical Evaluation of Link Deletion Methods for Limiting Information Diffusion on Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.21470"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Empirical Evaluation of Link Deletion Methods for Limiting Information Diffusion on Social Media')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The increasing pervasiveness of social media creates new opportunities to study human social behavior, while challenging our capability to analyze their massive data streams. One of the emerging tasks is to distinguish between different kinds of activities, for example engineered misinformation campaigns versus spontaneous communication. Such detection problems require a formal definition of meme, or unit of information that can spread from person to person through the social network. Once a meme is identified, supervised learning methods can be applied to classify different types of communication. The appropriate granularity of a meme, however, is hardly captured from existing entities such as tags and keywords. Here we present a framework for the novel task of detecting memes by clustering messages from large streams of social data. We evaluate various similarity measures that leverage content, metadata, network features, and their combinations. We also explore the idea of pre-clustering on the basis of existing entities. A systematic evaluation is carried out using a manually curated dataset as ground truth. Our analysis shows that pre-clustering and a combination of heterogeneous features yield the best trade-off between number of clusters and their quality, demonstrating that a simple combination based on pairwise maximization of similarity is as effective as a non-trivial optimization of parameters. Our approach is fully automatic, unsupervised, and scalable for real-time detection of memes in streaming data.",
+          "claimed_authors": [
+            "Emilio Ferrara",
+            "Mohsen JafariAsbagh",
+            "Onur Varol",
+            "Vahed Qazvinian",
+            "Filippo Menczer",
+            "Alessandro Flammini"
+          ],
+          "claimed_title": "Clustering Memes in Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1310.2665"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Clustering Memes in Social Media')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces BReG-NeXt, a residual-based network architecture using a function wtih bounded derivative instead of a simple shortcut path (a.k.a. identity mapping) in the residual units for automatic recognition of facial expressions based on the categorical and dimensional models of affect. Compared to ResNet, our proposed adaptive complex mapping results in a shallower network with less numbers of training parameters and floating point operations per second (FLOPs). Adding trainable parameters to the bypass function further improves fitting and training the network and hence recognizing subtle facial expressions such as contempt with a higher accuracy. We conducted comprehensive experiments on the categorical and dimensional models of affect on the challenging in-the-wild databases of AffectNet, FER2013, and Affect-in-Wild. Our experimental results show that our adaptive complex mapping approach outperforms the original ResNet consisting of a simple identity mapping as well as other state-of-the-art methods for Facial Expression Recognition (FER). Various metrics are reported in both affect models to provide a comprehensive evaluation of our method. In the categorical model, BReG-NeXt-50 with only 3.1M training parameters and 15 MFLOPs, achieves 68.50% and 71.53% accuracy on AffectNet and FER2013 databases, respectively. In the dimensional model, BReG-NeXt achieves 0.2577 and 0.2882 RMSE value on AffectNet and Affect-in-Wild databases, respectively.",
+          "claimed_authors": [
+            "Behzad Hasani",
+            "Pooran Singh Negi",
+            "Mohammad H. Mahoor"
+          ],
+          "claimed_title": "BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08495"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How could we gather affect annotations in a rapid, unobtrusive, and accessible fashion? How could we still make sure that these annotations are reliable enough for data-hungry affect modelling methods? This paper addresses these questions by introducing PAGAN, an accessible, general-purpose, online platform for crowdsourcing affect labels in videos. The design of PAGAN overcomes the accessibility limitations of existing annotation tools, which often require advanced technical skills or even the on-site involvement of the researcher. Such limitations often yield affective corpora that are restricted in size, scope and use, as the applicability of modern data-demanding machine learning methods is rather limited. The description of PAGAN is accompanied by an exploratory study which compares the reliability of three continuous annotation tools currently supported by the platform. Our key results reveal higher inter-rater agreement when annotation traces are processed in a relative manner and collected via unbounded labelling.",
+          "claimed_authors": [
+            "David Melhart",
+            "Antonios Liapis",
+            "Georgios N. Yannakakis"
+          ],
+          "claimed_title": "PAGAN: Video Affect Annotation Made Easy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01008"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='PAGAN: Video Affect Annotation Made Easy')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Developing robust and correctable visuomotor policies for robotic manipulation is challenging due to the lack of self-recovery mechanisms from failures and the limitations of simple language instructions in guiding robot actions. To address these issues, we propose a scalable data generation pipeline that automatically augments expert demonstrations with failure recovery trajectories and fine-grained language annotations for training. We then introduce Rich languAge-guided failure reCovERy (RACER), a supervisor-actor framework, which combines failure recovery data with rich language descriptions to enhance robot control. RACER features a vision-language model (VLM) that acts as an online supervisor, providing detailed language guidance for error correction and task execution, and a language-conditioned visuomotor policy as an actor to predict the next actions. Our experimental results show that RACER outperforms the state-of-the-art Robotic View Transformer (RVT) on RLbench across various evaluation settings, including standard long-horizon tasks, dynamic goal-change tasks and zero-shot unseen tasks, achieving superior performance in both simulated and real world environments. Videos and code are available at: https://rich-language-failure-recovery.github.io.",
+          "claimed_authors": [
+            "Yinpei Dai",
+            "Jayjun Lee",
+            "Nima Fazeli",
+            "Joyce Chai"
+          ],
+          "claimed_title": "RACER: Rich Language-Guided Failure Recovery Policies for Imitation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.14674"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='RACER: Rich Language-Guided Failure Recovery Policies for Imitation Learning')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We are concerned with an appropriate mathematical measure of resilience in the face of targeted node attacks for arbitrary degree networks, and subsequently comparing the resilience of different scale-free network models with the proposed measure. We strongly motivate our resilience measure termed \\emph{vertex attack tolerance} (VAT), which is denoted mathematically as $τ(G) = \\min_{S \\subset V} \\frac{|S|}{|V-S-C_{max}(V-S)|+1}$, where $C_{max}(V-S)$ is the largest connected component in $V-S$. We attempt a thorough comparison of VAT with several existing resilience notions: conductance, vertex expansion, integrity, toughness, tenacity and scattering number. Our comparisons indicate that for artbitrary degree distributions VAT is the only measure that fully captures both the major \\emph{bottlenecks} of a network and the resulting \\emph{component size distribution} upon targeted node attacks (both captured in a manner proportional to the size of the attack set). For the case of $d$-regular graphs, we prove that $τ(G) \\le dΦ(G)$, where $Φ(G)$ is the conductance of the graph $G$. Conductance and expansion are well-studied measures of robustness and bottlenecks in the case of regular graphs but fail to capture resilience in the case of highly heterogeneous degree graphs. Regarding comparison of different scale-free graph models, our experimental results indicate that PLOD graphs with degree distributions identical to BA graphs of the same size exhibit consistently better vertex attack tolerance than the BA type graphs, although both graph types appear asymptotically resilient for BA generative parameter $m = 2$. BA graphs with $m = 1$ also appear to lack resilience, not only exhibiting very low VAT values, but also great transparency in the identification of the vulnerable node sets, namely the hubs, consistent with well known previous work.",
+          "claimed_authors": [
+            "John Matta",
+            "Jeffrey Borwey",
+            "Gunes Ercal"
+          ],
+          "claimed_title": "Comparative Resilience Notions and Vertex Attack Tolerance of Scale-Free Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.0103"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Comparative Resilience Notions and Vertex Attack Tolerance of Scale-Free Networks')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Networks are at the core of modeling many engineering contexts, mainly in the case of infrastructures and communication systems. The resilience of a network, which is the property of the system capable of absorbing external shocks, is then of paramount relevance in the applications. This paper deals with this topic by advancing a theoretical proposal for measuring the resilience of a network. The proposal is based on the study of the shocks propagation along the patterns of connections among nodes. The theoretical model is tested on the real-world instances of two important airport systems in the US air traffic network; Illinois (including the hub of Chicago) and New York states (with JFK airport).",
+          "claimed_authors": [
+            "Roy Cerqueti",
+            "Giovanna Ferraro",
+            "Antonio Iovanella"
+          ],
+          "claimed_title": "Measuring network resilience through connection patterns",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.07731"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Measuring network resilience through connection patterns')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Seeding strategies for influence maximization in social networks have been studied for more than a decade. They have mainly relied on the activation of all resources (seeds) simultaneously in the beginning; yet, it has been shown that sequential seeding strategies are commonly better. This research focuses on studying sequential seeding with buffering, which is an extension to basic sequential seeding concept. The proposed method avoids choosing nodes that will be activated through the natural diffusion process, which is leading to better use of the budget for activating seed nodes in the social influence process. This approach was compared with sequential seeding without buffering and single stage seeding. The results on both real and artificial social networks confirm that the buffer-based consecutive seeding is a good trade-off between the final coverage and the time to reach it. It performs significantly better than its rivals for a fixed budget. The gain is obtained by dynamic rankings and the ability to detect network areas with nodes that are not yet activated and have high potential of activating their neighbours.",
+          "claimed_authors": [
+            "Jarosław Jankowski",
+            "Piotr Bródka",
+            "Radosław Michalski",
+            "Przemysław Kazienko"
+          ],
+          "claimed_title": "Seeds Buffering for Information Spreading Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.04863"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Seeds Buffering for Information Spreading Processes')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The sample complexity of simple binary hypothesis testing is the smallest number of i.i.d.\\ samples required to distinguish between two distributions $p$ and $q$ in either: (i) the prior-free setting, with type-I error at most $α$ and type-II error at most $β$; or (ii) the Bayesian setting, with Bayes error at most $δ$ and prior distribution $(π, 1-π)$. This problem has only been studied when $α= β$ (prior-free) or $π= 1/2$ (Bayesian), and the sample complexity is known to be characterized by the Hellinger divergence between $p$ and $q$, up to multiplicative constants. In this paper, we derive a formula that characterizes the sample complexity (up to multiplicative constants that are independent of $p$, $q$, and all error parameters) for: (i) all $0 \\le α, β\\le 1/8$ in the prior-free setting; and (ii) all $δ\\le π/4$ in the Bayesian setting. In particular, the formula admits equivalent expressions in terms of certain divergences from the Jensen--Shannon and Hellinger families. The main technical result concerns an $f$-divergence inequality between members of the Jensen--Shannon and Hellinger families, which is proved by a combination of information-theoretic tools and case-by-case analyses. We explore applications of our results to (i) robust hypothesis testing, (ii) distributed (locally-private and communication-constrained) hypothesis testing, (iii) sequential hypothesis testing, and (iv) hypothesis testing with erasures.",
+          "claimed_authors": [
+            "Ankit Pensia",
+            "Varun Jog",
+            "Po-Ling Loh"
+          ],
+          "claimed_title": "The Sample Complexity of Simple Binary Hypothesis Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.16981"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='The Sample Complexity of Simple Binary Hypothesis Testing')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the paper, we first prove a sufficient condition for the Riemann hypothesis which involves the order of magnitude of the partial sum of the Liouville function. Then we show a formula which is curiously related to the proved sufficient condition.",
+          "claimed_authors": [
+            "Hisanobu Shinya"
+          ],
+          "claimed_title": "On an arithmetical approach to the Riemann hypothesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0906.4155"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='On an arithmetical approach to the Riemann hypothesis')",
+        "failed_at": "2026-06-28T21:29:41Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lara Chehayeb",
+            "Katarzyna Olszynska",
+            "Chirag Bhuvaneshwara",
+            "Dimitra Tsovaltzi"
+          ],
+          "title": "Effects of a Co-Regulation Model for MR Teacher Training: HRV and Self-Compassion as Indicators of Emotion Regulation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.15383",
+        "summary": "Teachers play a pivotal role in fostering students' emotional and cognitive development. Teachers need to regulate their emotions in order to co-regulate students. Here using a unique mixed method approach, we investigate the relationship between self-compassion, treating oneself with compassion, and physiological stress responses among pre-service teachers. Heart rate variability (HRV) was measured during a mixed reality (MR) teacher training scenario environment designed to simulate socio-emotional conflict in class. Recorded interviews that followed the MR-training were analyzed for observed self-compassion. Findings suggest that less emotional stress during the MR-training correlates with higher levels of self-compassion during the interview. MR-trainings and self-compassion may be valuable tools to train teacher emotion regulation and well-being.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.15383",
+          "http_status": 200,
+          "pdf_sample_score": 0.1787,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T21:31:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

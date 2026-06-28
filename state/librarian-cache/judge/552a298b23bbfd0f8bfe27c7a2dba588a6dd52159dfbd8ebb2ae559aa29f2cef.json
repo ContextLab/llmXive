@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-28T21:48:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on creep resistance via public data materials science",
+  "rationale": "This paper is off-domain entirely, as it focuses on machine learning validation standards specifically within biology, whereas the user's question concerns materials science (alloying and creep resistance). It does not address the specific mechanism, variables, or empirical population required for the user's research.",
+  "relevant": false
+}
