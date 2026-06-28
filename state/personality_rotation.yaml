@@ -1,12 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-28T17:30:54.861351+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-06-28T17:56:41.961948+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: marie-curie
-  started_at: '2026-06-19T12:47:24.497269+00:00'
-  ended_at: '2026-06-19T14:03:38.979322+00:00'
-  outcome: abstained
-  action: abstain
 - slug: richard-feynman
   started_at: '2026-06-19T14:03:38.979322+00:00'
   ended_at: '2026-06-19T16:49:32.892860+00:00'
@@ -1182,5 +1177,10 @@ history:
 - slug: geoffrey-west
   started_at: '2026-06-28T16:56:01.952009+00:00'
   ended_at: '2026-06-28T17:30:54.861351+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-28T17:30:54.861351+00:00'
+  ended_at: '2026-06-28T17:56:41.961948+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
