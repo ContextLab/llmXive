@@ -1,12 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-28T19:34:13.514317+00:00'
-last_outcome: committed
+last_used: rosalind-franklin
+last_used_at: '2026-06-28T20:02:47.511017+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: ada-lovelace
-  started_at: '2026-06-19T18:36:12.838703+00:00'
-  ended_at: '2026-06-19T19:34:12.836179+00:00'
-  outcome: abstained
-  action: abstain
 - slug: alan-turing
   started_at: '2026-06-19T19:34:12.836179+00:00'
   ended_at: '2026-06-19T20:32:04.565105+00:00'
@@ -1190,3 +1185,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/reviews/research/richard-feynman-simulated__2026-06-28__research.md
+- slug: rosalind-franklin
+  started_at: '2026-06-28T19:34:13.514317+00:00'
+  ended_at: '2026-06-28T20:02:47.511017+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
