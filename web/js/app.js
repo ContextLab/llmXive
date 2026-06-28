@@ -382,17 +382,25 @@
     // cardHTML, which is where it's lazily built for the card grids).
     _buildActivityByProject();
     const visible = inProgressVisible();
+    const term = searchState["inProgress"] || "";
+    const anyFacet = ipFacets.stage || ipFacets.field || ipFacets.author || ipFacets.keyword;
+    const filtered = !!(term || anyFacet);
     // Bucket by stage, then apply the chosen sort within each stage.
-    const sections = D.inProgressByStage(payload, visible)
+    let sections = D.inProgressByStage(payload, visible)
       .map(sec => ({ ...sec, items: sortInProgress(sec.items) }));
 
-    renderPhaseGraph(sections);
+    // Phase bar-graph: only stages that actually hold projects (a 0-height bar
+    // is noise) even though the columns below show the empty pipeline skeleton.
+    renderPhaseGraph(sections.filter(s => s.items.length));
+
+    // Columns: show the full forward-pipeline skeleton (incl. the empty paper
+    // lane) by default; when searching/filtering, drop empty columns so the
+    // matching results stay focused.
+    if (filtered) sections = sections.filter(s => s.items.length);
 
     el.replaceChildren();
-    if (!sections.length) {
+    if (!sections.some(s => s.items.length)) {
       el.classList.add("ip-board-empty");
-      const term = searchState["inProgress"] || "";
-      const anyFacet = ipFacets.stage || ipFacets.field || ipFacets.author || ipFacets.keyword;
       const empty = document.createElement("div");
       empty.className = "ip-empty";
       // A facet (not just search) can zero the board — say so.
@@ -403,7 +411,7 @@
     }
     el.classList.remove("ip-board-empty");
     const html = sections.map(sec => ''
-      + '<div class="col" data-stage="' + escapeHtml(sec.stage) + '">'
+      + '<div class="col' + (sec.items.length ? '' : ' empty') + '" data-stage="' + escapeHtml(sec.stage) + '">'
       + '<div class="col-head"><span class="name"><span class="dot"></span>' + escapeHtml(sec.label) + '</span>'
       + '<span class="count">' + sec.items.length + '</span></div>'
       + '<div class="col-body">' + sec.items.map(issueHTML).join("") + '</div>'
