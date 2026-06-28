@@ -1,0 +1,367 @@
+project_id: PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: a59824046e09
+  text: Code repository link lacks commit hash/version pinning. Add specific git commit
+    SHA to ensure reproducibility of the exact benchmark version used in experiments.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 17ee64b7f58f
+  text: Appendix D describes harness implementations but provides no test coverage
+    metrics. Add unit/integration test counts and coverage percentages for the adapter
+    protocol and each claw.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: a8e8a32234e7
+  text: Dependency specifications (UV, Docker images) need exact version pinning.
+    Include requirements.txt, pyproject.toml, or Dockerfile with pinned versions for
+    full reproducibility from scratch.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 64843692b793
+  text: Benchmark construction algorithm (Sec 4.2) describes objective function but
+    omits exact coefficient values (cost_alpha, RANK_EPS, lambda). Add these to appendix
+    for reproducibility.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 00dfe0aa002d
+  text: Explicitly state the license of the Claw-SWE-Bench artifact (e.g., MIT) in
+    Appendix I, not just upstream licenses.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 9a2d9966df38
+  text: Add a version tag or commit hash for the code/data release to ensure reproducibility
+    and prevent link rot.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 1653b1012d40
+  text: Document the schema of the benchmark instances (JSON fields) or reference
+    the exact SWE-bench schema version used.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 0c3ad5a87a73
+  text: Reference the specific script or method used for 'Future-commit history is
+    removed' cleaning step in Section 2.3.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: b40bb41df8dd
+  text: Standardize figure file naming convention (e.g., fig_01_pareto.pdf, fig_02_framework.pdf)
+    instead of mixed F1_, C_figure3, F2a_ patterns.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 524afb407006
+  text: Replace PNG figures (C_figure3.png, F_leak_fix_openclaw_multilingual.png)
+    with vector PDFs for print scalability and sharpness.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: eab23690664a
+  text: Add descriptive sub-captions to Figure 3 (fig:dist) panels instead of generic
+    '(a) Per-language parity' labels.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: d98474fb59dd
+  text: Move Figure 1 (pareto_frontier) from Introduction to Results section for better
+    narrative flow.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 21891dbd99ab
+  text: Include accessibility alt-text for all figures using the caption package or
+    arXiv-compliant metadata.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: ef9abe9a957a
+  text: Define 'claw' as 'agent harness' at first use; currently used as internal
+    jargon for frameworks like OpenClaw.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 6807fe6cc7a3
+  text: Define 'pp' as 'percentage points' before using in Abstract and Section 5.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: f77d664e1e83
+  text: Replace 'leak-fix' with 'future-commit cleanup' or define the term explicitly.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 8e456c235abd
+  text: "The paper demonstrates strong internal consistency in numerical claims (e.g.,\
+    \ 29.4 pp model spread, 27.4 pp claw spread, Lite-80 0.4 pp deviation all match\
+    \ tables). However, several logical gaps weaken causal conclusions: Adapter Diagnostic\
+    \ (Section 5.1): The 19.1%\u219273.4% improvement is attributed to 'adapter importance,'\
+    \ but Table 1 shows the change involves fundamental patch extraction methodology\
+    \ (direct diff vs. file-edit based). This conflates harness capability with patch\
+    \ extraction mechani"
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: e8235e5349f9
+  text: Clarify whether the adapter is part of the harness or a separate component.
+    The 'bare adapter' vs. 'full adapter' comparison conflates adapter design with
+    harness implementation, overreaching the claim that the adapter alone enables
+    SWE-bench compliance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: ffb0c570aef4
+  text: "Validate Lite-80 rankings against full-350 rankings across a wider set of\
+    \ models/claws. The current validation (5-claw \xD7 2-model grid) is insufficient\
+    \ to support the claim that Lite-80 is suitable for 'preliminary model or claw\
+    \ comparisons'."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 83fa06f49e73
+  text: Softening the claim that 'cost-aware Pareto analysis is essential' to 'recommended'
+    or providing evidence that non-Pareto analysis leads to incorrect conclusions.
+    The current claim overreaches the evidence.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 83982cbee704
+  text: Clarify the specific criteria used to exclude security-sensitive issues from
+    the 350-instance benchmark, as claimed in Appendix I. Upstream SWE-bench datasets
+    have historically contained security-related bugs.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 226de5d1c64c
+  text: Add a statement regarding the scrubbing of Personally Identifiable Information
+    (PII) from GitHub issue discussions included in the benchmark dataset.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: f57d366d7611
+  text: Include a Conflict of Interest statement regarding the evaluation of models
+    from companies where authors may have affiliations (e.g., TokenRhythm, Infinigence
+    AI).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 333f12222651
+  text: Detail the security measures ensuring Docker containers cannot escape to the
+    host system during agent execution, given the exec tool access granted to agents.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 8c0597d9b364
+  text: Report variance (std dev) or confidence intervals for Pass@1 metrics in Tables
+    A2 and B to validate significance of reported differences.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 91cef7418417
+  text: Clarify confounding between harness architecture and tool permissions in the
+    claw sweep (Appendix D) to isolate the 'harness' variable.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 1af4d61643db
+  text: Add 95% confidence intervals (e.g., Wilson score) to all Pass@1 tables (Table
+    1, Table 2, Appendix tables).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 7c8ad277c314
+  text: Discuss multiple-comparison correction for the 9-model sweep in Section 5.2
+    to control Type I error.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: bec950d41588
+  text: Address single-run variance limitation in Section 7; provide bootstrap estimates
+    or acknowledge conflation of stochasticity.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 9e94dd764a37
+  text: Discuss repository-level clustering effects (43 repos) in Section 3.1 assumptions.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: b69a96a620bd
+  text: "Abstract uses markdown-style bold (**text**) instead of LaTeX \\textbf{}\
+    \ which will cause compilation errors. Replace all **350**, **8**, **43**, **19.1\u202F\
+    %**, **73.4\u202F%**, etc. with \\textbf{350}, \\textbf{8}, \\textbf{43}, \\textbf{19.1\u202F\
+    %}, \\textbf{73.4\u202F%}."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: b4446b20f250
+  text: Figure 1 in Introduction (e000) uses \captionof inside a center environment
+    instead of a proper figure environment. Standardize to \begin{figure}...\caption{}...\end{figure}
+    for consistency with other figures in Results section.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 4e460389e717
+  text: 'Inconsistent caption usage: Introduction uses \captionof while Results section
+    uses \caption within figure environments. Choose one approach and apply consistently
+    across all figures.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 79a3e6943a76
+  text: The abstract effectively summarizes the benchmark's purpose and key results.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: e670c4f43fd5
+  text: Section structure is logical, moving from problem statement to methodology
+    to results.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: a07ca6dc8029
+  text: 'Most technical descriptions are precise and well-organized. Areas for Improvement:'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 226fd0ca267b
+  text: "Terminology Definition: The term \"claw\" is used throughout (e.g., \"5 claws\
+    \ \xD7 2 models\") without a clear early definition. Readers unfamiliar with the\
+    \ project may be confused. Define \"claw = harness\" in the Introduction or add\
+    \ a brief glossary."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: e8b6452643ed
+  text: 'Formatting Consistency: Numerical values use bold formatting inconsistently.
+    Some are bolded (350, 80) while others are not (350, 80). Apply bold only for
+    key results to avoid visual clutter.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: 6ab2d359c285
+  text: "Figure Captions: Figure captions vary significantly in length. Fig. 1 caption\
+    \ is 3 lines; Fig. 2 caption is 1 line. Standardize to 1\u20132 sentences for\
+    \ better readability and consistency."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+- id: cc104403d2d4
+  text: "Redundancy: Section 3.2 (Lite\u201180 Construction Detail) repeats content\
+    \ from Section 3.1. Consolidate these sections to avoid redundancy and improve\
+    \ flow."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 40 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-28T18:08:59.336737+00:00'
