@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-28T16:56:01.952009+00:00'
-last_outcome: committed
+last_used: geoffrey-west
+last_used_at: '2026-06-28T17:30:54.861351+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: linus-pauling
-  started_at: '2026-06-19T11:03:36.826560+00:00'
-  ended_at: '2026-06-19T12:47:24.497269+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/reviews/research/linus-pauling-simulated__2026-06-19__research.md
 - slug: marie-curie
   started_at: '2026-06-19T12:47:24.497269+00:00'
   ended_at: '2026-06-19T14:03:38.979322+00:00'
@@ -1186,3 +1179,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-257-investigating-the-statistical-properties/reviews/research/freeman-dyson-simulated__2026-06-28__research.md
+- slug: geoffrey-west
+  started_at: '2026-06-28T16:56:01.952009+00:00'
+  ended_at: '2026-06-28T17:30:54.861351+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
