@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2210.10456",
+  "judged_at": "2026-06-28T02:36:41Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of visual salience on attentional bias in moral judgements psychology",
+  "rationale": "The paper focuses on algorithmic fairness and statistical group fairness criteria, without addressing visual salience, attentional bias, or moral judgment processes in psychology; thus it does not match any of the inclusion categories (a‑f).",
+  "relevant": false
+}

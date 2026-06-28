@@ -1,0 +1,11 @@
+- artifact_hash: 856d1ecdc87799f682d19ef817b7dd0d287ab17f0dbc4744c9078d2bf7258e4b
+  artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.XXXXXX
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXXX
+  verified_at: '2026-06-28T01:31:52.444083Z'

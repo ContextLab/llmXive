@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.10980",
+  "judged_at": "2026-06-28T02:37:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of visual salience on attentional bias in moral judgements psychology",
+  "rationale": "This paper is off-domain entirely, focusing on AI governance and organizational auditing rather than the psychological mechanisms of visual salience and attentional bias in human moral judgment. It falls under the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"ethics/moral\" in a policy context versus a cognitive psychology context).",
+  "relevant": false
+}

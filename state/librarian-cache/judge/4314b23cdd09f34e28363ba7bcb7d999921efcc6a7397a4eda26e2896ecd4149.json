@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1202.4918",
+  "judged_at": "2026-06-28T02:27:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of visual salience on attentional bias in moral judgements psychology",
+  "rationale": "The paper studies quantum decision theory and social interactions, without addressing visual salience, attentional bias, or moral judgment processes; it is unrelated to the psychological constructs of the user's question.",
+  "relevant": false
+}

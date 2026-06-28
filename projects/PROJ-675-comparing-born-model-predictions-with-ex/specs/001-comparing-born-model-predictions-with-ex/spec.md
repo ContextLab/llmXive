@@ -41,17 +41,18 @@ The researcher implements the Born equation in Python and validates it against k
 
 ### User Story 3 - Regression Analysis and Breakdown Detection (Priority: P3)
 
-The researcher performs statistical regression of residuals against 1/r and 1/ε, identifies systematic deviation patterns, and determines the breakdown threshold where Born model accuracy falls below acceptable limits.
+The researcher performs statistical regression of residuals against independent variables (ion size class, solvent class), identifies systematic deviation patterns, generates diagnostic plots, and determines the breakdown threshold where Born model accuracy falls below acceptable limits.
 
 **Why this priority**: This delivers the core research output—the accuracy map that identifies when continuum dielectric assumptions fail.
 
-**Independent Test**: Can be fully tested by running the regression pipeline and verifying that RMSE, correlation coefficient, and p-values are computed with multiple-comparison correction applied.
+**Independent Test**: Can be fully tested by running the regression pipeline and verifying that RMSE, correlation coefficient, p-values, and diagnostic plots are computed with multiple-comparison correction applied.
 
 **Acceptance Scenarios**:
 
 1. **Given** the computed Born predictions and experimental values, **When** the researcher calculates residuals (experimental - theoretical), **Then** RMSE is computed overall and stratified by solvent class (water, alcohols, aprotic)
-2. **Given** multiple hypothesis tests (regression slopes for 1/r, 1/ε, solvent classes), **When** statistical significance is assessed, **Then** family-wise error correction (Bonferroni or Benjamini-Hochberg) is applied with p < 0.05 threshold
+2. **Given** multiple hypothesis tests (regression slopes for ion size class, solvent class), **When** statistical significance is assessed, **Then** family-wise error correction (Bonferroni or Benjamini-Hochberg) is applied with p < 0.05 threshold
 3. **Given** the accuracy thresholds (RMSE < 5 kcal/mol, correlation > 0.8), **When** the researcher identifies breakdown regimes, **Then** a sensitivity analysis sweeps the RMSE threshold over {4.5, 5.0, 5.5} kcal/mol and reports how classification rates vary
+4. **Given** regression results, **When** diagnostic visualizations are generated, **Then** three plots are produced: (a) predicted vs. experimental scatter, (b) residual vs. ionic radius, (c) residual vs. dielectric constant
 
 ---
 
@@ -66,20 +67,21 @@ The researcher performs statistical regression of residuals against 1/r and 1/ε
 
 ### Functional Requirements
 
-- **FR-001**: System MUST compile experimental solvation energies from NIST Chemistry WebBook and CRC Handbook with ≥30 complete ion-solvent pairs (See US-1)
-- **FR-002**: System MUST extract ionic radii from Shannon crystal radii database with ≥0.01 Å precision for all ions in the dataset (See US-1)
-- **FR-003**: System MUST implement the Born equation ΔG = -(z²e²)/(8πε₀r)(1 - 1/ε) in Python without GPU dependencies (See US-2)
-- **FR-004**: System MUST validate Born calculator against ≥5 reference ion-water pairs with ≤1% relative error tolerance (See US-2)
+- **FR-001**: System MUST compile experimental solvation energies from NIST Chemistry WebBook OR CRC Handbook with ≥30 complete ion-solvent pairs (See US-1)
+- **FR-002**: System MUST extract ionic radii from Shannon crystal radii database with ≥0.01 Å precision for all ions in the dataset, with documentation that crystal radii may differ from effective solvated radii (See US-1)
+- **FR-003**: System MUST implement the Born equation ΔG = -(z²e²)/(8πε₀r)(1 - 1/ε) in Python without requiring GPU hardware or GPU-specific libraries such as CUDA, PyTorch GPU, or TensorFlow GPU (See US-2)
+- **FR-004**: System MUST validate Born calculator against ≥5 reference ion-water pairs from independent experimental data or high-level theoretical calculations (MD/DFT) with ≤1% relative error tolerance (See US-2)
 - **FR-005**: System MUST compute residuals and RMSE stratified by solvent class (water, alcohols, aprotic) (See US-3)
-- **FR-006**: System MUST apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) to all hypothesis tests with p < 0.05 threshold (See US-3)
+- **FR-006**: System MUST apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) to all hypothesis tests with p < 0.05 threshold, testing against independent variables (ion size class, solvent class) rather than 1/r and 1/ε (See US-3)
 - **FR-007**: System MUST perform sensitivity analysis on RMSE threshold over {4.5, 5.0, 5.5} kcal/mol and report classification rate variation (See US-3)
 - **FR-008**: System MUST document experimental uncertainty bounds for all solvation energy values, or flag pairs where uncertainty is unavailable (See US-1)
+- **FR-009**: System MUST generate diagnostic plots: (a) predicted vs. experimental scatter, (b) residual vs. ionic radius, (c) residual vs. dielectric constant (See US-3)
 
 ### Key Entities *(include if feature involves data)*
 
 - **IonSolventPair**: Represents a single experimental measurement; key attributes include ion identifier, solvent identifier, experimental ΔG (kcal/mol), uncertainty estimate, temperature (°C)
 - **BornPrediction**: Represents a theoretical calculation; key attributes include ion identifier, solvent identifier, predicted ΔG (kcal/mol), ionic radius (Å), dielectric constant (dimensionless)
-- **ResidualAnalysis**: Represents regression output; key attributes include residual (kcal/mol), 1/r (Å⁻¹), 1/ε (dimensionless), solvent class, statistical significance (p-value)
+- **ResidualAnalysis**: Represents regression output; key attributes include residual (kcal/mol), ion size class, solvent class, statistical significance (p-value)
 
 ## Success Criteria *(mandatory)*
 
@@ -90,17 +92,18 @@ The researcher performs statistical regression of residuals against 1/r and 1/ε
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Dataset completeness is measured against the requirement of ≥30 complete ion-solvent pairs with uncertainty bounds (See US-1)
-- **SC-002**: Born calculator accuracy is measured against literature reference values with ≤1% relative error tolerance (See US-2)
+- **SC-002**: Born calculator accuracy is measured against independent experimental data or high-level theoretical calculations with ≤1% relative error tolerance (See US-2)
 - **SC-003**: Model accuracy breakdown is measured by RMSE threshold (4.5, 5.0, 5.5 kcal/mol) and correlation coefficient (0.8 cutoff) across solvent classes (See US-3)
 - **SC-004**: Statistical validity is measured by application of multiple-comparison correction with p < 0.05 significance threshold (See US-3)
 - **SC-005**: Experimental uncertainty coverage is measured as the percentage of dataset pairs with documented uncertainty bounds (See US-1)
+- **SC-006**: Diagnostic visualization completeness is measured by generation of all three required plots (See US-3)
 
 ## Assumptions
 
-- NIST Chemistry WebBook and CRC Handbook contain sufficient experimental solvation energy data for ≥30 ion-solvent pairs with uncertainty estimates
-- Shannon crystal radii database provides consistent ionic radius values across all ions in the experimental dataset
+- NIST Chemistry WebBook OR CRC Handbook contain sufficient experimental solvation energy data for ≥30 ion-solvent pairs with uncertainty estimates
+- Shannon crystal radii database provides consistent ionic radius values across all ions in the experimental dataset, with acknowledgment that crystal radii may differ from effective solvated radii required by the Born model
 - Experimental solvation energies were measured at controlled temperature (±0.5°C) or temperature specifications are available for dielectric constant correction
 - All required variables (experimental ΔG, solvent ε, ionic radius r, ion charge z) exist in the compiled dataset; if any are missing, the pair is excluded from analysis
-- Computational resources on GitHub Actions free tier (2 CPU cores, ~7 GB RAM) are sufficient for analytical Born calculations and linear regression on the dataset
+- Computational resources on GitHub Actions free tier (standard free-tier specifications) are sufficient for analytical Born calculations and linear regression on the dataset
 - The Born model uses macroscopic dielectric constants; no molecular-scale corrections (nonlocal electrostatics) are applied in this baseline comparison
-- Single-ion absolute solvation energies are experimentally accessible in the literature; if only relative values exist, they are normalized using a reference ion (e.g., tetraphenylarsonium/tetraphenylborate convention)
+- Single-ion absolute solvation energies are NOT experimentally measurable in isolation. All measurements are of neutral electrolyte pairs normalized using an extra-thermodynamic assumption (e.g., tetraphenylarsonium/tetraphenylborate convention). This limitation affects the validity boundary of all downstream comparisons and must be acknowledged in any interpretation of results.
