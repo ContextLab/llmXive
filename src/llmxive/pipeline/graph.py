@@ -379,20 +379,31 @@ def run_one_step(
     # instead of dispatching the implementer again. A failed run records the
     # tracebacks + re-opens the failing tasks (the bounded auto-fix loop);
     # success lets _decide_next_stage advance IN_PROGRESS -> RESEARCH_COMPLETE.
-    # Past the fix-round cap _decide_next_stage escalates honestly. This is
-    # what stops a hollow, never-executed implementation from reaching review
-    # (the PROJ-552 finding: 68/68 'done' but empty data/figures).
+    # At the per-tier fix-round cap _decide_next_stage autonomously ESCALATES
+    # the model tier (resetting fix_rounds, staying IN_PROGRESS so the next
+    # tick re-runs the loop with the new model) and, once all tiers are
+    # exhausted, RE-PLANS deterministically (routes to PLANNED) — it never
+    # parks at human_input_needed. This is what stops a hollow, never-executed
+    # implementation from reaching review (PROJ-552: 68/68 'done' but empty
+    # data/figures).
     _exec_project_dir = repo / "projects" / project.id
     if (
         project.current_stage == Stage.IN_PROGRESS
         and _all_tasks_done(_exec_project_dir)
         and not execution_status.is_ok(project.id, repo_root=repo)
-        and execution_status.fix_rounds(project.id, repo_root=repo)
-            < execution_status.MAX_EXECUTION_FIX_ROUNDS
     ):
-        from llmxive.execution.stage import execute_and_gate
-        execute_and_gate(_exec_project_dir, repo_root=repo)
-        project = project_store.load(project.id, repo_root=repo)
+        _at_cap = (
+            execution_status.fix_rounds(project.id, repo_root=repo)
+            >= execution_status.MAX_EXECUTION_FIX_ROUNDS
+        )
+        # Below the cap → RUN the analysis (records the outcome, may flip ok).
+        # At/over the cap → DO NOT re-run; let _decide_next_stage apply the
+        # autonomous exhaustion flow (model escalation or deterministic
+        # re-plan) on the already-recorded failure.
+        if not _at_cap:
+            from llmxive.execution.stage import execute_and_gate
+            execute_and_gate(_exec_project_dir, repo_root=repo)
+            project = project_store.load(project.id, repo_root=repo)
         next_stage = _decide_next_stage(project, _exec_project_dir, repo_root=repo)
         if next_stage != project.current_stage:
             if not is_valid_transition(project.current_stage, next_stage):
@@ -400,18 +411,13 @@ def run_one_step(
                     f"invalid transition {project.current_stage.value} "
                     f"-> {next_stage.value}"
                 )
-            upd: dict[str, Any] = {
-                "current_stage": next_stage,
-                "updated_at": datetime.now(UTC),
-                "last_run_id": run_id,
-            }
-            if next_stage == Stage.HUMAN_INPUT_NEEDED and not project.human_escalation_reason:
-                upd["human_escalation_reason"] = (
-                    _human_escalation_reason_from_markers(_exec_project_dir)
-                    or ("analysis execution failed after the fix-round cap: the "
-                        "code does not run cleanly / produces no real artifacts.")
-                )
-            project = project.model_copy(update=upd)
+            project = project.model_copy(
+                update={
+                    "current_stage": next_stage,
+                    "updated_at": datetime.now(UTC),
+                    "last_run_id": run_id,
+                }
+            )
         project_store.save(project, repo_root=repo)
         return project
 
@@ -585,6 +591,27 @@ def run_one_step(
         _batch_cap = IMPLEMENT_TASK_BATCH if _is_implement_batch else 1
         _deadline = time.monotonic() + IMPLEMENT_BATCH_BUDGET_SECONDS
         _processed = 0
+        # EXECUTION FIX-LOOP MODEL OVERRIDE (autonomous exhaustion handling):
+        # when the research implementer fixes a failed analysis run in_progress,
+        # resolve the project's current model tier → a model override on its
+        # agent call. Tier 0 = no override = the registered default; a higher
+        # tier returns the ladder's model id (reusing the router's `model=`
+        # override and the paid credit guard). The override applies ONLY to the
+        # execution fix-loop implementer, not any other stage.
+        _model_for_run = entry.default_model
+        if agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS:
+            _model_for_run = execution_status.execution_model_override(
+                project.id,
+                default_model=entry.default_model,
+                repo_root=repo,
+            )
+            if _model_for_run != entry.default_model:
+                logger.info(
+                    "execution fix-loop: dispatching implementer for %s with "
+                    "escalated model override %r (tier %d)",
+                    project.id, _model_for_run,
+                    execution_status.model_tier(project.id, repo_root=repo),
+                )
         while True:
             sk_ctx = SlashCommandContext(
                 project_id=project.id,
@@ -596,7 +623,7 @@ def run_one_step(
                 prompt_template_path=repo / entry.prompt_path,
                 default_backend=entry.default_backend,
                 fallback_backends=entry.fallback_backends,
-                default_model=entry.default_model,
+                default_model=_model_for_run,
                 prompt_version=entry.prompt_version,
                 agent_name=entry.name,
             )
@@ -835,6 +862,66 @@ def _write_doc_kickback_feedback(
     (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(
         "\n".join(lines) + "\n", encoding="utf-8"
     )
+
+
+def _write_execution_replan_feedback(
+    project_dir: Path, rec: dict[str, Any]
+) -> str:
+    """DETERMINISTIC re-plan report for the execution fix-loop (NO LLM call).
+
+    When every model tier has exhausted its fix-round cap without a clean run,
+    the project re-plans (routes to PLANNED) with a machine-generated markdown
+    report the Planner ingests on its next run — written to the SAME
+    doc-stage kickback-ingestion file the convergence kickback uses
+    (``.specify/memory/kickback_feedback.md``), so the Planner reads it via its
+    existing recent-comments injection (SSoT — no new ingestion channel).
+
+    The report contains: (a) "What worked" = the artifacts that WERE produced
+    (with paths); (b) "What failed" = each failing command + its error tail;
+    (c) the explicit adjust-the-approach instruction. Returns the report text.
+    """
+    artifacts = [str(a) for a in (rec.get("artifacts") or [])]
+    failures = [str(f) for f in (rec.get("failures") or [])]
+    reason = str(rec.get("reason") or "").strip()
+    tier = rec.get("model_tier", 0)
+    lines: list[str] = [
+        "# Re-plan: the analysis could not be made to run — adjust the approach",
+        "",
+        "The execution fix-loop exhausted EVERY model tier (the registered "
+        f"default plus escalations, last tier={tier}) without producing a clean, "
+        "real run. Rather than escalate to a human, the pipeline is RE-PLANNING "
+        "this project: re-derive the implementation approach using the evidence "
+        "below so the new plan AVOIDS the failures that blocked the last one.",
+        "",
+    ]
+    if reason:
+        lines += [f"**Last execution summary**: {reason}", ""]
+    lines += ["## What worked (artifacts that WERE produced)", ""]
+    if artifacts:
+        lines += [f"- `{a}`" for a in artifacts]
+    else:
+        lines.append("- (no real artifacts were produced)")
+    lines += ["", "## What failed (commands + error tails)", ""]
+    if failures:
+        lines += [f"- {f}" for f in failures]
+    else:
+        lines.append("- (no per-command failures recorded; the run produced no "
+                     "real data/figure artifacts)")
+    lines += [
+        "",
+        "## Required change",
+        "",
+        "The implementation approach needs adjustment given the errors above — "
+        "re-plan with a design that avoids them. Keep what worked; replace the "
+        "parts of the method that produced the failures above with a "
+        "CPU-tractable, dependency-light alternative that the free CI can run.",
+        "",
+    ]
+    text = "\n".join(lines) + "\n"
+    memory_dir = project_dir / ".specify" / "memory"
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(text, encoding="utf-8")
+    return text
 
 
 def _archive_idea_files(project_dir: Path) -> list[tuple[str, str]]:
@@ -1162,7 +1249,40 @@ def _decide_next_stage(
             return Stage.RESEARCH_COMPLETE
         if (execution_status.fix_rounds(project.id, repo_root=repo_root)
                 >= execution_status.MAX_EXECUTION_FIX_ROUNDS):
-            return Stage.HUMAN_INPUT_NEEDED
+            # Autonomous exhaustion handling: a project NEVER parks at
+            # human_input_needed for an execution failure (the sole human gate
+            # is publication DOI sign-off). At the fix-round cap:
+            #   1. MODEL ESCALATION — bump to the next usable model tier and
+            #      RESET fix_rounds, retrying the full cap with a different
+            #      (stronger/free-second-opinion/opt-in-paid) model. The project
+            #      stays IN_PROGRESS; the dispatch resolver threads the tier's
+            #      model override into the implementer call.
+            #   2. ALL TIERS EXHAUSTED — RE-PLAN: write a DETERMINISTIC report
+            #      (no LLM) of what worked + what failed + adjust-the-approach,
+            #      reset BOTH fix_rounds and model_tier, and route to PLANNED.
+            try:
+                new_tier = execution_status.bump_model_tier(
+                    project.id, repo_root=repo_root
+                )
+                logger.info(
+                    "execution fix-loop hit the cap for %s — escalating to "
+                    "model tier %d (model=%r) and resetting fix_rounds",
+                    project.id, new_tier,
+                    execution_status.tier_model(new_tier) or "<registered default>",
+                )
+                return Stage.IN_PROGRESS
+            except ValueError:
+                # No higher usable tier → re-plan deterministically.
+                rec = execution_status.load(project.id, repo_root=repo_root) or {}
+                _write_execution_replan_feedback(project_dir, rec)
+                execution_status.reset_fix_loop(project.id, repo_root=repo_root)
+                logger.info(
+                    "execution fix-loop exhausted ALL model tiers for %s — "
+                    "re-planning (deterministic report written; routing to "
+                    "PLANNED; NOT human_input_needed)",
+                    project.id,
+                )
+                return Stage.PLANNED
         return Stage.IN_PROGRESS
 
     # Paper-Implementer special-case: stay paper_in_progress until ALL

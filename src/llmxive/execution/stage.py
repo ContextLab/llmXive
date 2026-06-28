@@ -11,9 +11,12 @@ and GATES ``research_complete`` on real artifacts:
   and RE-OPEN (un-check) the tasks whose scripts failed or are missing so
   the next implementer tick fixes them — the bounded auto-fix loop.
 
-The loop is bounded by ``execution_status.MAX_EXECUTION_FIX_ROUNDS``; the
-graph escalates to ``human_input_needed`` past the cap (honest terminal,
-not silent advance).
+The loop is bounded by ``execution_status.MAX_EXECUTION_FIX_ROUNDS`` PER MODEL
+TIER. Past the cap the graph autonomously ESCALATES the model tier (resetting
+fix_rounds) and, once every tier is exhausted, RE-PLANS with a deterministic
+report (routes to ``planned``) — it NEVER parks a project at
+``human_input_needed`` for an execution failure (the sole human gate is
+publication DOI sign-off).
 """
 
 from __future__ import annotations

@@ -100,7 +100,15 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     },
     Stage.ANALYZE_IN_PROGRESS: {Stage.ANALYZED, Stage.HUMAN_INPUT_NEEDED},
     Stage.ANALYZED: {Stage.IN_PROGRESS},
-    Stage.IN_PROGRESS: {Stage.RESEARCH_COMPLETE, Stage.IN_PROGRESS, Stage.HUMAN_INPUT_NEEDED},
+    # IN_PROGRESS -> PLANNED: the execution fix-loop, having exhausted every
+    # model tier without a clean run, RE-PLANS (re-derive the approach with a
+    # deterministic report) instead of escalating to a human (autonomous
+    # exhaustion handling). HUMAN_INPUT_NEEDED is retained only for unrelated
+    # legacy markers — the execution path never routes there anymore.
+    Stage.IN_PROGRESS: {
+        Stage.RESEARCH_COMPLETE, Stage.IN_PROGRESS,
+        Stage.PLANNED, Stage.HUMAN_INPUT_NEEDED,
+    },
     # research_complete is now a brief checkpoint where the
     # specialist reviewers run before research_review, so we allow
     # the same outgoing transitions as research_review (review
