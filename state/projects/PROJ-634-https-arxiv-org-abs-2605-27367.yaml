@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-634-https-arxiv-org-abs-2605-27367
-last_run_id: null
+last_run_id: 92946bcc-2dba-4c2a-bd96-fc4d502ca281
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-634-https-arxiv-org-abs-2605-27367/round-2
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SpatialBench: Is Your Spatial Foundation Model an All-Round Player?'
-updated_at: '2026-06-19T10:35:20.107617Z'
+updated_at: '2026-06-28T10:32:56.135955Z'

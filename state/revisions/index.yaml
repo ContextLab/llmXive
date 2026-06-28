@@ -219,6 +219,6 @@ ready:
 - project_id: PROJ-633-mobilegym-a-verifiable-and-highly-parall
   revision_spec_path: specs/auto-revisions/PROJ-633-mobilegym-a-verifiable-and-highly-parall/round-3
   queued_at: '2026-06-28T07:40:26.398960+00:00'
-- project_id: PROJ-670-arcane-do-role-playing-language-agents-s
-  revision_spec_path: specs/auto-revisions/PROJ-670-arcane-do-role-playing-language-agents-s/round-2
-  queued_at: '2026-06-28T10:11:34.684665+00:00'
+- project_id: PROJ-634-https-arxiv-org-abs-2605-27367
+  revision_spec_path: specs/auto-revisions/PROJ-634-https-arxiv-org-abs-2605-27367/round-2
+  queued_at: '2026-06-28T10:32:56.110536+00:00'

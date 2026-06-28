@@ -1,0 +1,68 @@
+# Revision Specification: Paper Science Revision — PROJ-634-https-arxiv-org-abs-2605-27367 round 2
+
+**Generated**: 2026-06-28T10:32:56.096392+00:00
+**Kind**: paper_science
+**Project**: PROJ-634-https-arxiv-org-abs-2605-27367
+**Round**: 2
+
+## Input
+
+Address the following reviewer-raised action items:
+
+- **[50e7907410ba] (severity: science)** Multiple citations reference papers dated 2025-2026 (e.g., wang2025cut3r, xie2026scal3r, zhang2026loger, chen2026lingbotmap). The arXiv ID 2605.27367 suggests May 2026, a future date. Verify these are legitimate preprints and not fabricated citations.
+- **[24ed499777ed] (severity: science)** Abstract claims 19 datasets, 546 scenes, 41 models across 6 paradigms. Verify these counts match the actual tables (tab:datasets_summary, tab:main_leaderboard_filtered). Scene counts may differ across density regimes (Single: 179, Sparse: 129, Medium: 129, Dense: 109).
+- **[6d48e8487cec] (severity: science)** Introduction claims +47%/+59% depth improvement and +3.1%/+5.5% pose improvement for DA-Next vs DA3-Giant on sparse/medium inputs. Verify these percentages match Tab. 5 (sparse: 0.095→0.050 AbsRel, medium: 0.086→0.035 AbsRel) and pose metrics in the tables.
+- **[75e847141a7a] (severity: writing)** Table references need verification: Tab. 1 (benchmark_summary.tex) shows 19 datasets but some entries are truncated. Ensure all cited datasets (e.g., Lingbot-Depth, RoboTwin, Xperience) have complete results in the per-dataset tables.
+- **[53768ab09357] (severity: writing)** Code repository access is not verifiable in the provided input; include a public GitHub link with CI/CD badges in the manuscript.
+- **[ff6de3fa49d9] (severity: science)** Reproducibility scripts (e.g., run_eval.sh, train.sh) are not provided; add a 'Reproducibility' section with exact commands.
+- **[7db706f6e75d] (severity: writing)** Dependency hygiene cannot be assessed; provide a requirements.txt or environment.yml file in the repository.
+- **[5ba7746fd84d] (severity: writing)** Complete the license table (Table 1, e003) for all 19 datasets; currently 60 rows are omitted, preventing compliance verification.
+- **[8df1b1e1b00b] (severity: writing)** Explicitly declare the license for the new DA-Next-5M dataset in Section appendix:datasets.
+- **[ddd6c24048cc] (severity: writing)** Specify exact versions (e.g., ScanNet++ v1.0) for all external datasets to ensure reproducibility.
+- **[0947ae2fc652] (severity: writing)** Provide commit hashes or release tags for the benchmark code repository (github.com/Ropedia/SpatialBench).
+- **[146390fad62e] (severity: writing)** Convert raster PNG plots (e.g., averagedataset.png, geobench_p*.png) to vector PDF format to ensure axis labels and text remain legible at print resolution.
+- **[d4c53c2e2a04] (severity: writing)** Fix LaTeX caption syntax error in Fig.~\ref{Fig.corelation_average}: remove '\\' before '(N)' to prevent compilation warnings or formatting issues.
+- **[583639eb3879] (severity: writing)** Consolidate the four regime-specific correlation figures (averagedataset, sparse, medium, dense) into a single multi-panel figure to reduce redundancy and save space.
+- **[8d6288e5d50f] (severity: writing)** Define acronyms 'OOD' (Out-of-Distribution) and 'GT' (Ground Truth) explicitly at first use in the Abstract or Introduction to aid non-specialist readers.
+- **[84f3de11ebc4] (severity: writing)** Expand 'SfM', 'SLAM', 'TTT', and 'SE(3)' upon first mention in 'Benchmark Design' and 'Model Architecture' sections to clarify technical scope.
+- **[43536750149b] (severity: writing)** Replace 'deterministic, cross-paradigm benchmark' with 'consistent, multi-method benchmark' in the Abstract to reduce unnecessary jargon density.
+- **[1bd0ace2e7ad] (severity: writing)** Clarify 'intrinsics' and 'extrinsics' in the 'Data Collection' section (e.g., 'camera internal/external parameters') for broader accessibility.
+- **[ac2cf3de7126] (severity: science)** Clarify model naming consistency (VGGT vs VGGT-Long vs VGGT-Omega) across tables to support the 'Overall Ranking' claim.
+- **[4df0641b9841] (severity: science)** Align baseline model name in Introduction ('DA3-Giant') with tables ('DA3-Streaming') to validate performance gain claims.
+- **[780f6dfccc47] (severity: science)** Provide ablation or clarification to support 'Data quality outweighs volume' claim, isolating architecture from data effects.
+- **[b6bf1e949527] (severity: writing)** Temper the title and conclusion claims regarding 'All-Round Player' to explicitly reflect the geometric scope (depth, pose, reconstruction) rather than broader spatial intelligence.
+- **[db1176812104] (severity: science)** Qualify the 'Data quality outweighs data volume' claim to acknowledge architectural confounds between DA3 and other evaluated models, avoiding universal generalization.
+- **[66c9ddc58402] (severity: writing)** Explicitly link the 'Bounded-memory enables scaling' finding to the H200 hardware constraints in the main text, not just the limitations appendix.
+- **[4b1a687b67d6] (severity: writing)** Add a Data Ethics and Privacy subsection addressing: (1) consent mechanisms for datasets containing human subjects (e.g., ScanNet++, Aria, Waymo); (2) privacy protections applied to real-world imagery; (3) license compliance across all 19 aggregated datasets. Table tab:dataset_profile_summary_cited shows licenses but lacks privacy discussion.
+- **[e13eabcdb338] (severity: writing)** Include a Dual-Use Considerations paragraph in the Limitations section (appendix/limitation.tex) acknowledging potential misuse of spatial foundation models for surveillance, autonomous weapons, or other harmful applications. This is standard practice for computer vision papers with deployment implications.
+- **[a722fda7567d] (severity: writing)** Add a Safety Considerations statement addressing deployment in safety-critical applications (autonomous vehicles, robotics). The paper evaluates camera pose, depth, and trajectory estimation—metrics directly relevant to safety-critical systems. Current text (secs/limitation.tex) only discusses evaluation cost and memory constraints.
+- **[63d72bc73269] (severity: science)** Report scene-level variance (std dev) for key metrics in main tables (e.g., Tab:main_leaderboard_filtered) to assess robustness beyond point estimates.
+- **[25b04ac8e9e4] (severity: science)** Clarify data overlap between DA-Next training sets (Tab:training_datasets) and benchmark evaluation sets (Tab:datasets_summary) to rule out data leakage on Ego/Wrist views.
+- **[59804c266daf] (severity: science)** Justify hyperparameter consistency across paradigms; TTT methods may require specific tuning not captured by 'recommended configurations' (Appendix:limit).
+- **[459582ee323c] (severity: science)** Provide measures of variability (e.g., standard deviation, confidence intervals) for all reported quantitative metrics (AbsRel, AUC@30, ATE, etc.) across scenes and datasets to convey statistical uncertainty.
+- **[7195a034d5b9] (severity: science)** When comparing models, perform appropriate statistical significance tests (e.g., paired t‑test or Wilcoxon signed‑rank test) and report p‑values to substantiate claims of superiority.
+- **[f44b860b842c] (severity: science)** Apply a multiple‑comparisons correction (e.g., Bonferroni, Holm‑Bonferroni, or Benjamini‑Hochberg FDR) to control family‑wise error rate given the large number of model‑dataset comparisons.
+- **[5c35b7ebad23] (severity: writing)** Document random seeds, evaluation order, and any stochastic components of the evaluation pipeline to ensure full reproducibility of the reported numbers.
+- **[ad94a5fdb378] (severity: writing)** Include a brief statistical analysis section describing the methodology for aggregating per‑scene results (e.g., mean vs. median) and justification for the chosen aggregation strategy.
+- **[d0d1ce10afb4] (severity: writing)** Ensure all required LaTeX packages for color tables (e.g., colortbl, xcolor, booktabs) are loaded in the preamble; missing packages cause compilation warnings or missing colors.
+- **[37b36b868341] (severity: writing)** In tables that use `esizebox{	extwidth}{!}{...}` verify that the column specifications (e.g., `>{\columncolor{subcol}}c`) match the number of columns; mismatches lead to mis‑aligned cells.
+- **[e7e5fbd7c21b] (severity: writing)** Place `\label{...}` commands *after* the `\caption{...}` for every figure and table to guarantee correct cross‑references.
+- **[54eef1b5002d] (severity: writing)** Check that all sectioning commands follow a proper hierarchy (e.g., `\section` → `\subsection` → `\subsubsection`). Some sections such as "Additional Findings" appear after a figure without a preceding `\section`; insert a clear section heading if needed.
+- **[110250488c40] (severity: writing)** Verify that long inline equations or numeric lists are broken with line‑wraps or `llowbreak` to avoid overfull hboxes, especially in dense tables where numbers run together.
+- **[48073d0e3572] (severity: writing)** Confirm that all citations use the same style (`\citep` or `\citet`) consistently and that the bibliography style matches the journal’s requirements (e.g., numeric vs author‑year).
+- **[a8d7f14fb45d] (severity: writing)** For figures with the `[t]` placement specifier, consider adding `[htbp]` to give LaTeX more flexibility and prevent large empty spaces.
+- **[812bd80ef42a] (severity: writing)** Resolve sentence fragments in secs/benchmark.tex (lines 45-50) and secs/danext.tex (lines 20-30) by adding subjects or verbs.
+- **[9fdb178a9231] (severity: writing)** Replace LaTeX escape character \& with 'and' in running text (e.g., secs/benchmark.tex, line 65) for typographic correctness.
+- **[f0f7551dd6fb] (severity: writing)** Unify verb tense usage throughout the manuscript; ensure present tense for paper content and past tense for experimental actions.
+
+
+## Success Criterion
+
+After the implementer applies this revision, the project returns to
+``paper_review`` and the per-specialist re-review protocol confirms
+each of the 45 action item(s) above as ADEQUATELY ADDRESSED.
+
+## Out of scope
+
+- New experiments not directly required by a ``science``-severity item above.
+- Refactors / cleanups not required by an action item.
