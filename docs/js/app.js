@@ -177,13 +177,14 @@
   }
 
   // ── In-Progress faceted filter + sort state ──────────────────────────
-  // Four facets (phase/stage, field, author, keyword). Each holds a single
-  // selected value ("" = no filter for that facet) — populated from the
-  // distinct values actually present in buckets.inProgress (see
-  // populateInProgressFacets). `ipSort` ∈ "updated" (recently updated, the
-  // default) | "title" (A–Z). All four facets + the free-text search + sort
-  // compose; an empty facet set shows everything.
-  const ipFacets = { stage: "", field: "", author: "", keyword: "" };
+  // Three facets (phase/stage, field, author). Each holds a single selected
+  // value ("" = no filter for that facet) — populated from the distinct values
+  // actually present in buckets.inProgress (see populateInProgressFacets).
+  // (A separate keyword facet was redundant with the Field facet + the
+  // free-text search, which still matches keyword text — so it was removed.)
+  // `ipSort` ∈ "updated" (recently updated, the default) | "title" (A–Z). All
+  // facets + the free-text search + sort compose; an empty facet set shows everything.
+  const ipFacets = { stage: "", field: "", author: "" };
   let ipSort = "updated";
 
   // Does a project pass ALL currently-selected In-Progress facets? (Search is
@@ -193,7 +194,6 @@
     if (ipFacets.stage && item.current_stage !== ipFacets.stage) return false;
     if (ipFacets.field && (item.field || "") !== ipFacets.field) return false;
     if (ipFacets.author && !D.authorNames(item).includes(ipFacets.author)) return false;
-    if (ipFacets.keyword && !(item.keywords || []).includes(ipFacets.keyword)) return false;
     return true;
   }
 
@@ -339,9 +339,11 @@
     const max = sections.reduce((m, s) => Math.max(m, s.items.length), 0) || 1;
     const html = '<div class="phasebar-track">'
       + sections.map(sec => {
-          const pct = Math.max(4, Math.round((sec.items.length / max) * 100));
+          // Empty pipeline stages render no bar (height 0) — the distribution
+          // shows real pile-ups, not a misleading min-height stub.
+          const pct = sec.items.length ? Math.max(4, Math.round((sec.items.length / max) * 100)) : 0;
           return ''
-            + '<button type="button" class="phasebar-item" data-stage="' + escapeHtml(sec.stage) + '"'
+            + '<button type="button" class="phasebar-item' + (sec.items.length ? '' : ' empty') + '" data-stage="' + escapeHtml(sec.stage) + '"'
             + ' title="' + escapeHtml(sec.label) + ': ' + sec.items.length + ' — jump to column">'
             + '<span class="phasebar-count">' + sec.items.length + '</span>'
             + '<span class="phasebar-barwrap"><span class="phasebar-bar" style="height:' + pct + '%"></span></span>'
@@ -383,20 +385,19 @@
     _buildActivityByProject();
     const visible = inProgressVisible();
     const term = searchState["inProgress"] || "";
-    const anyFacet = ipFacets.stage || ipFacets.field || ipFacets.author || ipFacets.keyword;
+    const anyFacet = ipFacets.stage || ipFacets.field || ipFacets.author;
     const filtered = !!(term || anyFacet);
     // Bucket by stage, then apply the chosen sort within each stage.
     let sections = D.inProgressByStage(payload, visible)
       .map(sec => ({ ...sec, items: sortInProgress(sec.items) }));
 
-    // Phase bar-graph: only stages that actually hold projects (a 0-height bar
-    // is noise) even though the columns below show the empty pipeline skeleton.
-    renderPhaseGraph(sections.filter(s => s.items.length));
-
-    // Columns: show the full forward-pipeline skeleton (incl. the empty paper
-    // lane) by default; when searching/filtering, drop empty columns so the
-    // matching results stay focused.
+    // Columns AND the phase bar-graph both show the full forward-pipeline
+    // skeleton (incl. the empty paper lane) so the distribution reads across
+    // every column at a glance; when searching/filtering, drop empty entries so
+    // the matching results stay focused.
     if (filtered) sections = sections.filter(s => s.items.length);
+
+    renderPhaseGraph(sections);
 
     el.replaceChildren();
     if (!sections.some(s => s.items.length)) {
@@ -1048,11 +1049,9 @@
     // Field / author / keyword: distinct values, A–Z.
     const fields = new Set();
     const authors = new Set();
-    const keywords = new Set();
     for (const p of items) {
       if (p.field) fields.add(p.field);
       for (const n of D.authorNames(p)) authors.add(n);
-      for (const k of (p.keywords || [])) if (k) keywords.add(k);
     }
     const sortAZ = arr => [...arr].sort((a, b) => a.localeCompare(b));
 
@@ -1075,8 +1074,6 @@
       sortAZ(fields).map(v => ({ value: v, label: v })), ipFacets.field);
     fill('[data-ip-facet="author"]',
       sortAZ(authors).map(v => ({ value: v, label: v })), ipFacets.author);
-    fill('[data-ip-facet="keyword"]',
-      sortAZ(keywords).map(v => ({ value: v, label: v })), ipFacets.keyword);
   }
 
   // Wire the In-Progress facet selects + sort chips + "Clear filters" button.
@@ -1112,7 +1109,7 @@
     const clearBtn = document.querySelector("[data-ip-clear]");
     if (clearBtn) {
       clearBtn.addEventListener("click", () => {
-        ipFacets.stage = ipFacets.field = ipFacets.author = ipFacets.keyword = "";
+        ipFacets.stage = ipFacets.field = ipFacets.author = "";
         document.querySelectorAll("[data-ip-facet]").forEach(s => { s.value = ""; });
         renderInProgress();
       });
