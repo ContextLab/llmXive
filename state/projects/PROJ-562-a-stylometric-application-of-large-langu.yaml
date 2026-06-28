@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-562-a-stylometric-application-of-large-langu/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: A Stylometric Application of Large Language Models
-updated_at: '2026-06-11T16:41:00.662456Z'
+updated_at: '2026-06-28T10:10:39.502021Z'

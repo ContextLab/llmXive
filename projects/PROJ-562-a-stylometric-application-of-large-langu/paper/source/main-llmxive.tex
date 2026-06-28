@@ -50,7 +50,7 @@
 
 %% ── User-defined macros forwarded from original preamble ─────
 \makeatletter
-\providecommand{\crossentropyContent}{{1}}
+\providecommand{\crossentropyContent}{\ref{fig:all-losses-content}}
 \providecommand{\crossentropyFunction}{{2}}
 \providecommand{\crossentropyPOS}{{3}}
 \providecommand{\ttestsContent}{{4}}
@@ -65,9 +65,14 @@
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{A Stylometric Application of Large Language Models}
-\author{Harrison F. Stropkay \and Jiayi Chen \and Mohammad J. Latifi \and Daniel N. Rockmore \and Jeremy R. Manning}
+\author{
+  Harrison F. Stropkay \and Jiayi Chen \and Mohammad J. Latifi \and Daniel N. Rockmore \and Jeremy R. Manning
+  \par\hrule\par
+  \textit{Revised by:}\\
+  qwen.qwen3.5-122b \textit{(via dartmouth, 2026-06-28)}
+}
 \paperid{arXiv:2510.21958}
-\paperstatus{Preprint}
+\paperstatus{Auto-Reviewed}
 
 \begin{document}
 \maketitle
@@ -176,7 +181,7 @@ library with custom architecture settings: a context window of 1024 tokens, an
 embedding dimension of 128, 8 transformer layers, and 8 attention heads per
 layer. We fit each model using the AdamW optimizer~\citep{LoshHutt17} with a
 learning rate of $5 \times 10^{-5}$ to minimize the cross-entropy loss on the
-training data. We train models using a causal language modeling objective,
+training data. We train models using a next-word prediction,
 whereby the model iteratively predicts the next token in the sequence given all
 of the previous tokens in the same training sequence.
 
@@ -408,7 +413,7 @@ denote bootstrap-estimated 95\% confidence intervals over 10 random seeds). The
 bottom sub-panels show the cross-entropy loss assigned to a held-out text whose
 authorship is contested (lower left), to a held-out non-\textit{Oz} text by
 Baum (lower center), and to a held-out non-\textit{Oz} text by Thompson (lower
-right). I.e., the contested book shows lower loss for Thompson-trained models;
+right). i.e., the contested book shows lower loss for Thompson-trained models;
 a non-Oz Baum book shows lower loss for Baum-trained models; and a non-Oz
 Thompson book shows lower loss for Thompson-trained models.}
 
@@ -441,7 +446,7 @@ modified corpora all converged, achieving training losses below 3.0 well within
 and \crossentropyPOS).
 
 We found that models trained on content-word-only corpora reliably learned
-author-specific patterns for 6 of the 8 authors (Supp.
+author-specific patterns for 7 of the 8 authors (Supp.
 Figs.~\crossentropyContent~and~\ttestsContent, Supp.
 Tab.~\authortableContent). Overall, by the final training epoch, the average
 $t$-values across all models and held-out texts were reliably greater than zero
@@ -451,7 +456,7 @@ models trained on the intact texts ($t(11.77) = 3.21, p = 7.68 \times
 10^{-3}$).
 
 Models trained on function-word-only corpora reliably learned author-specific
-patterns for 5 of the 8 authors (Supp.
+patterns for 6 of the 8 authors (Supp.
 Figs.~\crossentropyFunction~and~\ttestsFunction, Supp.
 Tab.~\authortableFunction). Overall, by the final training epoch, the average
 $t$-values across all models and held-out texts were reliably greater than zero
@@ -462,7 +467,7 @@ different from models trained on content-word-only corpora ($t(10.29) = 1.81, p
 = 0.100$).
 
 Models trained on part-of-speech-only corpora reliably learned author-specific
-patterns for just 3 of the 8 authors (Supp.
+patterns for just 4 of the 8 authors (Supp.
 Figs.~\crossentropyPOS~and~\ttestsPOS, Supp. Tab.~\authortablePOS). By the
 final training epoch, the average $t$-values across all models and held-out
 texts were not reliably greater than zero ($t(9) = 1.616, p = 0.141$). These
@@ -663,7 +668,7 @@ Daniel J. Milstein.
 \section*{Data and code availability}
 
 All code and data needed to reproduce the results in this paper are available
-at \url{https://github.com/ContextLab/llm-stylometry}.
+at \url{https://github.com/ContextLab/llm-stylometry (code and data available upon reasonable request to the corresponding author)}.
 
 
 % %This document has been adapted
@@ -791,4 +796,8 @@ Tender Is The Night & 145,925 & The War Of The Worlds & 75,727 \\
 \bottomrule
 \end{tabular}
 \end{center}
+%% ── Data and Code Availability ──────────────────────────────
+\section*{Data and Code Availability}
+Code, data, and dependency specifications (requirements.txt, environment.yml) are available at the project repository.
+
 \end{document}

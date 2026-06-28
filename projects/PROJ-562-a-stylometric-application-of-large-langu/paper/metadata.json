@@ -3,11 +3,36 @@
   "arxiv_url": "https://arxiv.org/abs/2510.21958",
   "title": "A Stylometric Application of Large Language Models",
   "authors": [
-    "Harrison F. Stropkay",
-    "Jiayi Chen",
-    "Mohammad J. Latifi",
-    "Daniel N. Rockmore",
-    "Jeremy R. Manning"
+    {
+      "name": "Harrison F. Stropkay",
+      "kind": "human"
+    },
+    {
+      "name": "Jiayi Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Mohammad J. Latifi",
+      "kind": "human"
+    },
+    {
+      "name": "Daniel N. Rockmore",
+      "kind": "human"
+    },
+    {
+      "name": "Jeremy R. Manning",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-28T10:10:39.502021Z"
+    }
   ],
   "submitter": "jeremymanning",
   "submitted_via": "llmXive dashboard, GitHub issue #126",
