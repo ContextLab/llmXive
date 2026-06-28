@@ -180,17 +180,20 @@ def run_analysis(
     import os
     import time
 
-    # Fit the analysis to the ACTUAL CI job, not a hypothetical 6h GHA max. The
-    # implement/review lanes set LLMXIVE_RUN_WALL_BUDGET_S (2400s) and time out
-    # at 120-150 min; a single execute_and_gate that ran for the old 5h
-    # overall_deadline overran the job and got the WHOLE run CANCELLED mid-step
-    # (no progress committed — the live 94-min stuck run). Cap the analysis at
-    # the declared wall budget (a sane 2700s when unset/local) so it always
-    # finishes + commits within the job.
+    # Cap a single execute_and_gate so it can't blow the CI job timeout. By
+    # default this tracks LLMXIVE_RUN_WALL_BUDGET_S (the run-loop wall budget,
+    # 2400s in CI) — a single analysis fitting one wall-budget window keeps the
+    # implement lane safe. ``LLMXIVE_ANALYSIS_DEADLINE_S`` OVERRIDES it to DECOUPLE
+    # the two: if a lane ever raises its wall budget for more task-implementation
+    # throughput, it can pin the analysis deadline smaller here so worst-case
+    # (wall_budget + analysis_deadline + commit) still clears the job timeout.
+    # (Today no lane sets it, so behavior is unchanged.) Sane 2700s when neither
+    # is set (local).
     if overall_deadline_s is None:
-        _wall = os.environ.get("LLMXIVE_RUN_WALL_BUDGET_S")
+        _dl = (os.environ.get("LLMXIVE_ANALYSIS_DEADLINE_S")
+               or os.environ.get("LLMXIVE_RUN_WALL_BUDGET_S"))
         try:
-            overall_deadline_s = float(_wall) if _wall else 2700.0
+            overall_deadline_s = float(_dl) if _dl else 2700.0
         except ValueError:
             overall_deadline_s = 2700.0
 
