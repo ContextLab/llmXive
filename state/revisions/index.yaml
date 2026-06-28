@@ -222,3 +222,6 @@ ready:
 - project_id: PROJ-634-https-arxiv-org-abs-2605-27367
   revision_spec_path: specs/auto-revisions/PROJ-634-https-arxiv-org-abs-2605-27367/round-2
   queued_at: '2026-06-28T10:32:56.110536+00:00'
+- project_id: PROJ-751-moebius-0-2b-lightweight-image-inpaintin
+  revision_spec_path: specs/auto-revisions/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/round-2
+  queued_at: '2026-06-28T12:54:32.854980+00:00'
