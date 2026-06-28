@@ -1,0 +1,149 @@
+resolved_at: '2026-06-28T15:20:59.339816+00:00'
+datasets:
+- intent: ECDF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/autoevaluate/autoeval-staging-eval-project-efa0c910-63e6-4e94-9ead-ecdfc9f84f6e-117113/resolve/main/predictions.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 81904
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/autoevaluate/autoeval-staging-eval-project-efa0c910-63e6-4e94-9ead-ecdfc9f84f6e-117113/resolve/main/predictions.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/677de0eeed10cd314ca083a2/d2ea107515564f35c5123de8bd44e29ba7a24b97b70bce44e35e81519e5e93c3?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27ir_spec.zip%3B+filename%3D%22ir_spec.zip%22%3B&response-content-type=application%2Fzip&user_id=public&X-Xet-Cas-Uid=public&Expires=1782663588&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc3ZGUwZWVlZDEwY2QzMTRjYTA4M2EyL2QyZWExMDc1MTU1NjRmMzVjNTEyM2RlOGJkNDRlMjliYTdhMjRiOTdiNzBiY2U0NGUzNWU4MTUxOWU1ZTkzYzNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3aXJfc3BlYy56aXAlM0IrZmlsZW5hbWUlM0QlMjJpcl9zcGVjLnppcCUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MjY2MzU4OH19fV19&Signature=MEQCIDO1d~BMow5HRXrgKPtImPbn0yhLk~n8doQ8bFYQ7O~OAiAV2rE~~QlAwbSG3BSlAr9MH2Ie6iA6cLdxRo5pL4mp0Q__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Cosmic_Acceleration_Principle_Version_III_Update/32816777
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Southwestern_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_release/32816771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Dataset/32816750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/a_novel_idea/32816756
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Augustine_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32816768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6854465
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19890160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5816911
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7990560
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19484523
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.26949
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20730417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20730417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.gxd2547sd
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20591572
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Cosmic_Acceleration_Principle_Version_III_Update/32816777
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Southwestern_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_release/32816771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Dataset/32816750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/a_novel_idea/32816756
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Augustine_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32816768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8104865
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6532734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rgk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: API
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []

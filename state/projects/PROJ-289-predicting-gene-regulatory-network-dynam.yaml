@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T03:16:43.837187Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-289-predicting-gene-regulatory-network-dynam
-last_run_id: b5fe2cb4-c9e5-43e6-8664-c080fc5f4cf2
+last_run_id: e183f239-e644-4e87-a36b-fed5f52e6b6c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Gene Regulatory Network Dynamics from Time-Series RNA-Seq Data
-updated_at: '2026-06-28T05:23:37.226738Z'
+updated_at: '2026-06-28T15:19:40.989742Z'

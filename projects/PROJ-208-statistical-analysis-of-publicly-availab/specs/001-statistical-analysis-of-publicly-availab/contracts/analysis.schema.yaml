@@ -1,0 +1,99 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for individual analysis result records"
+type: "object"
+properties:
+  result_id:
+    type: "integer"
+    minimum: 1
+    description: "Unique result identifier"
+  test_type:
+    type: "string"
+    enum:
+      - "Kruskal-Wallis"
+      - "ANOVA"
+      - "Linear Mixed-Effects"
+      - "Kolmogorov-Smirnov"
+      - "Correlation"
+    description: "Statistical test type"
+  predictor:
+    type: "string"
+    description: "Predictor variable name"
+  outcome:
+    type: "string"
+    description: "Outcome variable name"
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value"
+  adjusted_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Holm-Bonferroni adjusted p-value (FR-004)"
+  effect_size:
+    type: "number"
+    description: "Effect size metric"
+  effect_size_type:
+    type: "string"
+    enum:
+      - "Cohen's f"
+      - "epsilon-squared"
+      - "R²"
+      - "MAE"
+      - "correlation"
+    description: "Type of effect size"
+  ci_lower:
+    type: "number"
+    description: "Confidence interval lower bound"
+  ci_upper:
+    type: "number"
+    description: "Confidence interval upper bound"
+  ci_level:
+    type: "number"
+    enum:
+      - 0.95
+    description: "Confidence level"
+  vif:
+    type: "number"
+    minimum: 1
+    nullable: true
+    description: "Variance inflation factor (flag if ≥5, FR-006)"
+  vif_flagged:
+    type: "boolean"
+    description: "Whether VIF exceeds threshold"
+  sensitivity_cutoff:
+    type: "number"
+    enum:
+      - 0.01
+      - 0.05
+      - 0.1
+    nullable: true
+    description: "Alpha cutoff for sensitivity analysis (FR-007)"
+  associational_language:
+    type: "boolean"
+    description: "Whether result text includes associational/correlational language (FR-008)"
+  generated_at:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of result generation"
+  checksum:
+    type: "string"
+    description: "SHA-256 checksum of result record"
+required:
+  - result_id
+  - test_type
+  - predictor
+  - outcome
+  - p_value
+  - adjusted_p_value
+  - effect_size
+  - effect_size_type
+  - ci_lower
+  - ci_upper
+  - ci_level
+  - vif_flagged
+  - associational_language
+  - generated_at
+  - checksum

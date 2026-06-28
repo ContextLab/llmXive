@@ -1,0 +1,266 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for validated statistical analysis output"
+type: "object"
+properties:
+  distribution_analysis:
+    type: "object"
+    properties:
+      ecdf_generated:
+        type: "boolean"
+        description: "Whether ECDF plot was generated (US-2, SC-002)"
+      log_normal_fit:
+        type: "object"
+        properties:
+          ks_statistic:
+            type: "number"
+            minimum: 0
+            description: "Kolmogorov-Smirnov statistic"
+          p_value:
+            type: "number"
+            minimum: 0
+            maximum: 1
+            description: "KS test p-value (SC-002)"
+          aic:
+            type: "number"
+            description: "Akaike Information Criterion"
+        required:
+          - ks_statistic
+          - p_value
+          - aic
+      weibull_fit:
+        type: "object"
+        properties:
+          ks_statistic:
+            type: "number"
+            minimum: 0
+            description: "Kolmogorov-Smirnov statistic"
+          p_value:
+            type: "number"
+            minimum: 0
+            maximum: 1
+            description: "KS test p-value (SC-002)"
+          aic:
+            type: "number"
+            description: "Akaike Information Criterion"
+        required:
+          - ks_statistic
+          - p_value
+          - aic
+      outliers:
+        type: "object"
+        properties:
+          count:
+            type: "integer"
+            minimum: 0
+            description: "Number of outliers (>30 days)"
+          percentage:
+            type: "number"
+            minimum: 0
+            maximum: 100
+            description: "Percentage of total dataset"
+        required:
+          - count
+          - percentage
+      lilliefors_limitation_noted:
+        type: "boolean"
+        description: "Whether Lilliefors correction limitation was acknowledged"
+    required:
+      - ecdf_generated
+      - log_normal_fit
+      - weibull_fit
+      - outliers
+      - lilliefors_limitation_noted
+  hypothesis_tests:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        test_type:
+          type: "string"
+          description: "Test name (e.g., Kruskal-Wallis, ANOVA)"
+        predictor:
+          type: "string"
+          description: "Predictor variable name"
+        p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Raw p-value"
+        adjusted_p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Holm-Bonferroni adjusted p-value (FR-004, SC-003)"
+        effect_size:
+          type: "number"
+          description: "Effect size metric"
+        ci_lower:
+          type: "number"
+          description: "Confidence interval lower bound"
+        ci_upper:
+          type: "number"
+          description: "Confidence interval upper bound"
+        significant:
+          type: "boolean"
+          description: "Whether adjusted p < 0.05 (SC-003)"
+      required:
+        - test_type
+        - predictor
+        - p_value
+        - adjusted_p_value
+        - effect_size
+        - ci_lower
+        - ci_upper
+        - significant
+  mixed_effects_model:
+    type: "object"
+    properties:
+      random_intercepts:
+        type: "string"
+        description: "Random intercept grouping (e.g., repository)"
+      fixed_effects:
+        type: "array"
+        items:
+          type: "string"
+          description: "Fixed effect predictor names"
+      repository_controls:
+        type: "array"
+        items:
+          type: "string"
+          description: "Repository-level control variables (star_count, contributor_count, language)"
+      loo_cv:
+        type: "object"
+        properties:
+          mae:
+            type: "number"
+            minimum: 0
+            description: "Leave-one-out cross-validation MAE (SC-004)"
+          mae_std:
+            type: "number"
+            minimum: 0
+            description: "MAE standard deviation across folds"
+          r_squared:
+            type: "number"
+            minimum: 0
+            maximum: 1
+            description: "R² metric (SC-004, expected ≥0.15 from literature)"
+          r_squared_std:
+            type: "number"
+            minimum: 0
+            description: "R² standard deviation across folds"
+          folds:
+            type: "integer"
+            minimum: 2
+            description: "Number of LOO-CV folds (equals number of repositories)"
+        required:
+          - mae
+          - mae_std
+          - r_squared
+          - r_squared_std
+          - folds
+      convergence:
+        type: "string"
+        description: "Model convergence status"
+      endogeneity_notes:
+        type: "array"
+        items:
+          type: "string"
+          description: "Notes on endogeneity limitations (e.g., comments_count)"
+    required:
+      - random_intercepts
+      - fixed_effects
+      - repository_controls
+      - loo_cv
+      - convergence
+  collinearity:
+    type: "object"
+    properties:
+      vif_calculated:
+        type: "boolean"
+        description: "Whether VIF was calculated (FR-006)"
+      predictors_flagged:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            predictor:
+              type: "string"
+              description: "Predictor name"
+            vif:
+              type: "number"
+              minimum: 1
+              description: "Variance inflation factor (flag if ≥5)"
+          required:
+            - predictor
+            - vif
+      pairwise_correlations:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            predictor_1:
+              type: "string"
+            predictor_2:
+              type: "string"
+            correlation:
+              type: "number"
+              minimum: -1
+              maximum: 1
+          required:
+            - predictor_1
+            - predictor_2
+            - correlation
+    required:
+      - vif_calculated
+      - predictors_flagged
+      - pairwise_correlations
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        cutoff:
+          type: "number"
+          enum:
+            - 0.01
+            - 0.05
+            - 0.1
+          description: "Alpha cutoff (FR-007)"
+        status_changes:
+          type: "integer"
+          description: "Number of hypotheses that changed significance status at this cutoff"
+        note:
+          type: "string"
+          description: "Note that FP/FN rates cannot be computed without ground truth"
+      required:
+        - cutoff
+        - status_changes
+        - note
+  compute_metrics:
+    type: "object"
+    properties:
+      runtime_hours:
+        type: "number"
+        minimum: 0
+        maximum: 6
+        description: "Total runtime in hours (SC-005 requires ≤6)"
+      memory_peak_gb:
+        type: "number"
+        minimum: 0
+        maximum: 7
+        description: "Peak memory usage in GB (SC-005 requires ≤7)"
+      gpu_usage:
+        type: "boolean"
+        description: "Whether GPU was used (SC-005 requires false)"
+    required:
+      - runtime_hours
+      - memory_peak_gb
+      - gpu_usage
+required:
+  - distribution_analysis
+  - hypothesis_tests
+  - mixed_effects_model
+  - collinearity
+  - sensitivity_analysis
+  - compute_metrics

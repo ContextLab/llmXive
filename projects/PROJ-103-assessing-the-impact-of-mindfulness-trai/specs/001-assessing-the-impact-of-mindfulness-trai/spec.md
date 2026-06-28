@@ -113,4 +113,4 @@ The system MUST perform random-effects meta-analysis of effect sizes across ≥3
 - All findings are framed as ASSOCIATIONAL (not causal) since the design is observational without random assignment; causal claims are avoided in all output
 - Measurement validity is ensured by using functionally-defined DMN masks (Yeo 7-network atlas) and standard fMRIPrep preprocessing with bandpass filtering and nuisance regression; no new questionnaires or instruments are introduced
 - Temporal autocorrelation in fMRI time series is addressed via AR(1) prewhitening or permutation testing (10,000 iterations) to maintain Type I error control
-- Small sample sizes (n<30) typical in fMRI studies are addressed via bootstrapped 95% confidence intervals (10,000 iterations) for effect sizes to avoid normality assumption violations
+- Small sample sizes (n<30) typical in fMRI studies are addressed via bootstrapped 95% confidence intervals (a sufficient number of iterations) for effect sizes to avoid normality assumption violations
