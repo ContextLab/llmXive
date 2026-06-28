@@ -196,6 +196,19 @@ free models are always tried first (Constitution Principle IV — free-first). T
 single source of truth for per-agent model assignments is
 [`agents/registry.yaml`](agents/registry.yaml).
 
+**GPU-bound analyses** (8-bit `bitsandbytes` inference, CUDA kernels, large-RAM
+jobs) that cannot run on the free CPU-only GitHub Actions runner are not parked.
+When the execution gate hits a compute-environment failure (GPU/CUDA/OOM), the
+implement lane offloads the *same* quickstart run-book to **Kaggle's free GPU**
+(~30 GPU-h/week, T4/P100), polls it asynchronously without holding a runner, and
+pulls the produced artifacts back when the kernel finishes — so the project keeps
+advancing instead of grinding the auto-fix loop
+([`execution/offload.py`](src/llmxive/execution/offload.py); issue #367). The
+lane is gated on a single `KAGGLE_API_TOKEN` secret (the verbatim `kaggle.json`
+the Kaggle site issues); absent it, everything runs exactly as before. Still
+free-first: the design-stage prompts prefer CPU-tractable methods, and GPU
+offload is the fallback only for genuinely GPU-bound work.
+
 ## The website
 
 The public dashboard at <https://context-lab.com/llmXive> is a no-build static

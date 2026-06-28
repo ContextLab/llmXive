@@ -92,6 +92,13 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
   harness-signed receipts (`src/llmxive/results/`) — never hallucinated.
 - All references must be validated against the live source (download/fetch,
   not memory) before commit.
+- The dedicated execution stage (`src/llmxive/execution/stage.py`) RUNS each
+  project's analysis end-to-end and gates `research_complete` on real artifacts.
+  GPU-bound runs the free CPU CI cannot satisfy are offloaded to Kaggle's free
+  GPU (`src/llmxive/execution/offload.py`; issue #367) instead of being parked:
+  an in-flight offload records an async tri-state in `execution_status` that
+  NEVER bumps `fix_rounds`, so it polls to completion without escalating to
+  `human_input_needed`. Gated on the `KAGGLE_API_TOKEN` secret (inert without it).
 
 ### Testing
 - `pytest tests/unit tests/contract tests/integration` — offline suites.
