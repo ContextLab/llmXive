@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.00753",
+  "judged_at": "2026-06-28T17:13:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from chatbot to digital colleague: the paradigm shift toward persistent autonomous ai computer science",
+  "rationale": "This paper satisfies criteria (a) same-mechanism evidence and (b) independent-or-dependent variable on the same domain, as it directly studies LLM-based autonomous agents and human-agent collaboration systems—the core mechanism and domain of the user's question about the paradigm shift toward persistent autonomous AI as \"digital colleagues.\" As a comprehensive survey, it would serve as a canonical reference for a literature review on this topic.",
+  "relevant": true
+}

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-16T09:58:06.998302Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-705-from-chatbot-to-digital-colleague-the-pa
-last_run_id: 5e2e53cb-16ae-45d2-aafc-9deb554d0d81
+last_run_id: a8aba5c4-6724-47a9-bf0f-3fc90e65c167
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomous
   AI'
-updated_at: '2026-06-28T00:02:39.017837Z'
+updated_at: '2026-06-28T17:17:49.879557Z'

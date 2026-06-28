@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.04289",
+  "judged_at": "2026-06-28T17:16:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from chatbot to digital colleague: the paradigm shift toward persistent autonomous ai computer science",
+  "rationale": "This paper investigates the alignment dimensions required for autonomous agents to collaborate with humans, which constitutes a core mechanism of the \"Digital Colleague\" paradigm shift described in the question (Criteria a, b). It provides essential empirical findings on the design requirements for human-agent collaboration within the same domain of Generative AI autonomous systems.",
+  "relevant": true
+}

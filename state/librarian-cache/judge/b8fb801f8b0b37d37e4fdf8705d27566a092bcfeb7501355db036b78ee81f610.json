@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.11677",
+  "judged_at": "2026-06-28T17:11:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from chatbot to digital colleague: the paradigm shift toward persistent autonomous ai computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same domain (LLM-powered autonomous agents) and discusses the evolution of interaction paradigms (from reactive control to collaborative foresight), which aligns with the user's focus on the shift from chatbots to digital colleagues (Rule b/f). It provides canonical context on the limitations of current models versus future collaborative frameworks relevant to the user's research topic.",
+  "relevant": true
+}

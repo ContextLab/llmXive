@@ -1,0 +1,849 @@
+{
+  "fetched_at": "2026-06-28T17:16:44Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomous AI",
+      "target_n": 5
+    },
+    "duration_seconds": 702.074,
+    "ended_at": "2026-06-28T17:16:44Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Autonomous AI agents"
+        ],
+        [
+          2,
+          "Human-agent collaboration"
+        ],
+        [
+          3,
+          "Persistent memory in language models"
+        ],
+        [
+          4,
+          "Agentic workflows"
+        ],
+        [
+          5,
+          "Long-term context in LLMs"
+        ],
+        [
+          6,
+          "Human-AI teaming"
+        ],
+        [
+          7,
+          "Digital employees and AI workers"
+        ],
+        [
+          8,
+          "Stateful conversational agents"
+        ],
+        [
+          9,
+          "Proactive AI assistants"
+        ],
+        [
+          10,
+          "Autonomous task execution"
+        ],
+        [
+          11,
+          "Evolution of chatbots to agents"
+        ],
+        [
+          12,
+          "Collaborative AI systems"
+        ],
+        [
+          13,
+          "Context-aware autonomous systems"
+        ],
+        [
+          14,
+          "AI workflow automation"
+        ],
+        [
+          15,
+          "Human-in-the-loop AI"
+        ],
+        [
+          16,
+          "Generative AI knowledge work"
+        ],
+        [
+          17,
+          "Personal AI assistants"
+        ],
+        [
+          18,
+          "Task-oriented dialogue systems"
+        ],
+        [
+          19,
+          "Multi-agent collaboration"
+        ],
+        [
+          20,
+          "AI persistence and continuity"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Autonomous AI agents": 3,
+        "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomous AI computer science": 0,
+        "Human-agent collaboration": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "conversational AI autonomous systems",
+      "human AI team collaboration dynamics",
+      "persistent stateful memory agent architecture",
+      "collaborative agent trust autonomy evaluation",
+      "proactive planning tool use reasoning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2511.02841"
+      ]
+    },
+    "per_query_hit_count": {
+      "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomous AI computer science": 3,
+      "collaborative agent trust autonomy evaluation": 3,
+      "conversational AI autonomous systems": 3,
+      "human AI team collaboration dynamics": 3,
+      "persistent stateful memory agent architecture": 3,
+      "proactive planning tool use reasoning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T17:05:02Z",
+    "term_input": {
+      "normalized": "from chatbot to digital colleague: the paradigm shift toward persistent autonomous ai computer science",
+      "raw": "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomous AI computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence (AI) is understood to affect the content of people's decisions. Here, using a behavioral implementation of the classic Newcomb's paradox in 1,305 participants, we show that AI can also change how people decide. In this paradigm, belief in predictive authority can lead individuals to constrain decision-making, forgoing a guaranteed reward. Over 40% of participants treated AI as such a predictive authority. This significantly increased the odds of forgoing the guaranteed reward by a factor of 3.39 (95% CI: 2.45-4.70) compared with random framing, and reduced earnings by 10.7-42.9%. The effect appeared across AI presentations and decision contexts and persisted even when predictions failed. When people believe AI can predict their behavior, they may self-constrain it in anticipation of that prediction.",
+          "claimed_authors": [
+            "Aoi Naito",
+            "Hirokazu Shirado"
+          ],
+          "claimed_title": "AI prediction leads people to forgo guaranteed rewards",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28944"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='AI prediction leads people to forgo guaranteed rewards')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The chapter discusses the foundational impact of modern generative AI models on information access (IA) systems. In contrast to traditional AI, the large-scale training and superior data modeling of generative AI models enable them to produce high-quality, human-like responses, which brings brand new opportunities for the development of IA paradigms. In this chapter, we identify and introduce two of them in details, i.e., information generation and information synthesis. Information generation allows AI to create tailored content addressing user needs directly, enhancing user experience with immediate, relevant outputs. Information synthesis leverages the ability of generative AI to integrate and reorganize existing information, providing grounded responses and mitigating issues like model hallucination, which is particularly valuable in scenarios requiring precision and external knowledge. This chapter delves into the foundational aspects of generative models, including architecture, scaling, and training, and discusses their applications in multi-modal scenarios. Additionally, it examines the retrieval-augmented generation paradigm and other methods for corpus modeling and understanding, demonstrating how generative AI can enhance information access systems. It also summarizes potential challenges and fruitful directions for future studies.",
+          "claimed_authors": [
+            "Qingyao Ai",
+            "Jingtao Zhan",
+            "Yiqun Liu"
+          ],
+          "claimed_title": "Foundations of GenIR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.02842"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Foundations of GenIR')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conversational AI systems are becoming famous in day to day lives. In this paper, we are trying to address the following key question: To identify whether design, as well as development efforts for search oriented conversational AI are successful or not.It is tricky to define 'success' in the case of conversational AI and equally tricky part is to use appropriate metrics for the evaluation of conversational AI. We propose four different perspectives namely user experience, information retrieval, linguistic and artificial intelligence for the evaluation of conversational AI systems. Additionally, background details of conversational AI systems are provided including desirable characteristics of personal assistants, differences between chatbot and an AI based personal assistant. An importance of personalization and how it can be achieved is explained in detail. Current challenges in the development of an ideal conversational AI (personal assistant) are also highlighted along with guidelines for achieving personalized experience for users.",
+          "claimed_authors": [
+            "Mahipal Jadeja",
+            "Neelanshi Varia"
+          ],
+          "claimed_title": "Perspectives for Evaluating Conversational AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.04734"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Perspectives for Evaluating Conversational AI')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep reinforcement learning is revolutionizing the artificial intelligence field. Currently, it serves as a good starting point for constructing intelligent autonomous systems which offer a better knowledge of the visual world. It is possible to scale deep reinforcement learning with the use of deep learning and do amazing tasks such as use of pixels in playing video games. In this paper, key concepts of deep reinforcement learning including reward function, differences between reinforcement learning and supervised learning and models for implementation of reinforcement are discussed. Key challenges related to the implementation of reinforcement learning in conversational AI domain are identified as well as discussed in detail. Various conversational models which are based on deep reinforcement learning (as well as deep learning) are also discussed. In summary, this paper discusses key aspects of deep reinforcement learning which are crucial for designing an efficient conversational AI.",
+          "claimed_authors": [
+            "Mahipal Jadeja",
+            "Neelanshi Varia",
+            "Agam Shah"
+          ],
+          "claimed_title": "Deep Reinforcement Learning for Conversational AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.05067"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Deep Reinforcement Learning for Conversational AI')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most conversational recommendation approaches are either not explainable, or they require external user's knowledge for explaining or their explanations cannot be applied in real time due to computational limitations. In this work, we present a real time category based conversational recommendation approach, which can provide concise explanations without prior user knowledge being required. We first perform an explainable user model in the form of preferences over the items' categories, and then use the category preferences to recommend items. The user model is performed by applying a BERT-based neural architecture on the conversation. Then, we translate the user model into item recommendation scores using a Feed Forward Network. User preferences during the conversation in our approach are represented by category vectors which are directly interpretable. The experimental results on the real conversational recommendation dataset ReDial demonstrate comparable performance to the state-of-the-art, while our approach is explainable. We also show the potential power of our framework by involving an oracle setting of category preference prediction.",
+          "claimed_authors": [
+            "Nikolaos Kondylidis",
+            "Jie Zou",
+            "Evangelos Kanoulas"
+          ],
+          "claimed_title": "Category Aware Explainable Conversational Recommendation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.08733"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Category Aware Explainable Conversational Recommendation')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            " LIGO Scientific Collaboration",
+            " Virgo Collaboration",
+            "Fermi GBM",
+            " INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            " GRAWITA",
+            " :",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            " ATCA",
+            " :",
+            "Australia Telescope Compact Array",
+            " ASKAP",
+            " :",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            " OzGrav",
+            " DWF",
+            " AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            " J-GEM",
+            " GROWTH",
+            " JAGWAR",
+            "Caltech- NRAO",
+            " TTU-NRAO",
+            "NuSTAR Collaborations",
+            " Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            " ePESSTO",
+            " GROND",
+            "Texas Tech University",
+            "SALT Group",
+            " TOROS",
+            " :",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            " MWA",
+            " :",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            " LWA",
+            " :",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            " DFN",
+            " :",
+            "Desert Fireball Network",
+            " ATLAS",
+            "High Time Resolution Universe Survey",
+            " RIMAS",
+            " RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_authors": [
+            "Chaeyeon Lim"
+          ],
+          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16770"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The recent rapid advancement of LLM-based AI systems has accelerated our search and production of information. While the advantages brought by these systems seemingly improve the performance or efficiency of human activities, they do not necessarily enhance human capabilities. Recent research has started to examine the impact of generative AI on individuals' cognitive abilities, especially critical thinking. Based on definitions of critical thinking across psychology and education, this position paper proposes the distinction between demonstrated and performed critical thinking in the era of generative AI and discusses the implication of this distinction in research and development of AI systems that aim to augment human critical thinking.",
+          "claimed_authors": [
+            "Katelyn Xiaoying Mei",
+            "Nic Weber"
+          ],
+          "claimed_title": "Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.14689"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Applications with low data reuse and frequent irregular memory accesses, such as graph or sparse linear algebra workloads, fail to scale well due to memory bottlenecks and poor core utilization. While prior work with prefetching, decoupling, or pipelining can mitigate memory latency and improve core utilization, memory bottlenecks persist due to limited off-chip bandwidth. Approaches doing processing in-memory (PIM) with Hybrid Memory Cube (HMC) overcome bandwidth limitations but fail to achieve high core utilization due to poor task scheduling and synchronization overheads. Moreover, the high memory-per-core ratio available with HMC limits strong scaling.\n  We introduce Dalorex, a hardware-software co-design that achieves high parallelism and energy efficiency, demonstrating strong scaling with >16,000 cores when processing graph and sparse linear algebra workloads. Over the prior work in PIM, both using 256 cores, Dalorex improves performance and energy consumption by two orders of magnitude through (1) a tile-based distributed-memory architecture where each processing tile holds an equal amount of data, and all memory operations are local; (2) a task-based parallel programming model where tasks are executed by the processing unit that is co-located with the target data; (3) a network design optimized for irregular traffic, where all communication is one-way, and messages do not contain routing metadata; (4) novel traffic-aware task scheduling hardware that maintains high core utilization; and (5) a data placement strategy that improves work balance.\n  This work proposes architectural and software innovations to provide the greatest scalability to date for running graph algorithms while still being programmable for other domains.",
+          "claimed_authors": [
+            "Marcelo Orenes-Vera",
+            "Esin Tureci",
+            "David Wentzlaff",
+            "Margaret Martonosi"
+          ],
+          "claimed_title": "Dalorex: A Data-Local Program Execution and Architecture for Memory-bound Applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.13219"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Dalorex: A Data-Local Program Execution and Architecture for Memory-bound Applications')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Membership inference attacks (MIAs) test whether a target data record belongs to a system's private data, and have become a standard tool to measure privacy leakage in machine learning systems. Prior work has primarily focused on training corpora or retrieval databases. However, MIAs against agent memory have received less attention, even though such memory can contain sensitive user-agent interactions, retrieved facts, and user preferences. Therefore, in this work, we focus on chat agent memory MIAs, where an adversary infers whether a candidate memory unit belongs to the chat agent's memory store. We propose Multi-Recall Memory MIA (MRMMIA), a unified attack that utilizes multiple recall probes to the agent to extract the membership signal across black-box, gray-box, and white-box settings. Our experiments demonstrate that MRMMIA consistently outperforms baselines. Our results expose the privacy risk in agents and provide an initial evaluation framework for membership leakage in chat-agent memory systems.",
+          "claimed_authors": [
+            "Kai Chen",
+            "Yan Pang",
+            "Tianhao Wang"
+          ],
+          "claimed_title": "MRMMIA: Membership Inference Attacks on Memory in Chat Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27825"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='MRMMIA: Membership Inference Attacks on Memory in Chat Agents')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistent memory attacks against LLM agents achieve high attack success rates against open-source models. In these attacks, malicious instructions injected via RAG-retrieved documents are stored in persistent memory and executed in later sessions. However, no systematic evaluation of defense effectiveness against this attack class exists. We evaluate six defenses across four architectural layers against delayed-trigger attacks on nine open-source models (5,040 runs, N=40 per condition). Four defenses fail at approximately baseline attack success rate: input-level filtering (Minimizer, Sanitizer) and retrieval-level filtering (RAG Sanitizer, RAG LLM Judge) achieve 88-89% ASR, statistically indistinguishable from the undefended baseline of 88.6%. Prompt Hardening partially fails at 77.8% ASR, with the reduction driven by two models at 0%: one genuine defense effect and one model-level refusal independent of the defense. The architectural explanation holds: input-level defenses cannot observe RAG-injected content, and retrieval-level classifiers are defeated by compliance-framed semantic masking. One defense, tool-gating at the memory layer (Memory Sandbox), reduces ASR to 0% for eight of nine models by removing the recall capability the attack requires. The exception inverts the defense entirely: a reasoning model that achieves 0% ASR under no defense via execution refusal inverts to 100% ASR under Memory Sandbox, because removing explicit recall forces the model onto the RAG pathway where its refusal mechanism does not activate. Memory Sandbox imposes zero utility cost in the absence of attack (BTCR = 100% across all conditions). These results provide the first systematic characterization of why each defense class fails against persistent memory attacks, enabling informed defense investment decisions.",
+          "claimed_authors": [
+            "Jun Wen Leong"
+          ],
+          "claimed_title": "Defense effectiveness across architectural layers: a mechanistic evaluation of persistent memory attacks on stateful LLM agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.08442"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Defense effectiveness across architectural layers: a mechanistic evaluation of persistent memory attacks on stateful LLM agents')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper examines how trust is formed, maintained, or diminished over time in the context of human-autonomy teaming with an optionally piloted aircraft. Whereas traditional factor-based trust models offer a static representation of human confidence in technology, here we discuss how variations in the underlying factors lead to variations in trust, trust thresholds, and human behaviours. Over 200 hours of flight test data collected over a multi-year test campaign from 2021 to 2023 were reviewed. The dispositional-situational-learned, process-performance-purpose, and IMPACTS homeostasis trust models are applied to illuminate trust trends during nominal autonomous flight operations. The results offer promising directions for future studies on trust dynamics and design-for-trust in human-autonomy teaming.",
+          "claimed_authors": [
+            "Jeremy C. -H. Wang",
+            "Ming Hou",
+            "David Dunwoody",
+            "Marko Ilievski",
+            "Justin Tomasi",
+            "Edward Chao",
+            "Carl Pigeon"
+          ],
+          "claimed_title": "Flight Testing an Optionally Piloted Aircraft: a Case Study on Trust Dynamics in Human-Autonomy Teaming",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.16227"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Flight Testing an Optionally Piloted Aircraft: a Case Study on Trust Dynamics in Human-Autonomy Teaming')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Trust region methods are widely applied in single-agent reinforcement learning problems due to their monotonic performance-improvement guarantee at every iteration. Nonetheless, when applied in multi-agent settings, the guarantee of trust region methods no longer holds because an agent's payoff is also affected by other agents' adaptive behaviors. To tackle this problem, we conduct a game-theoretical analysis in the policy space, and propose a multi-agent trust region learning method (MATRL), which enables trust region optimization for multi-agent learning. Specifically, MATRL finds a stable improvement direction that is guided by the solution concept of Nash equilibrium at the meta-game level. We derive the monotonic improvement guarantee in multi-agent settings and empirically show the local convergence of MATRL to stable fixed points in the two-player rotational differential game. To test our method, we evaluate MATRL in both discrete and continuous multiplayer general-sum games including checker and switch grid worlds, multi-agent MuJoCo, and Atari games. Results suggest that MATRL significantly outperforms strong multi-agent reinforcement learning baselines.",
+          "claimed_authors": [
+            "Ying Wen",
+            "Hui Chen",
+            "Yaodong Yang",
+            "Zheng Tian",
+            "Minne Li",
+            "Xu Chen",
+            "Jun Wang"
+          ],
+          "claimed_title": "A Game-Theoretic Approach to Multi-Agent Trust Region Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.06828"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='A Game-Theoretic Approach to Multi-Agent Trust Region Optimization')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While we pay attention to the latest advances in clinical natural language processing (NLP), we can notice some resistance in the clinical and translational research community to adopt NLP models due to limited transparency, interpretability, and usability. In this study, we proposed an open natural language processing development framework. We evaluated it through the implementation of NLP algorithms for the National COVID Cohort Collaborative (N3C). Based on the interests in information extraction from COVID-19 related clinical notes, our work includes 1) an open data annotation process using COVID-19 signs and symptoms as the use case, 2) a community-driven ruleset composing platform, and 3) a synthetic text data generation workflow to generate texts for information extraction tasks without involving human subjects. The corpora were derived from texts from three different institutions (Mayo Clinic, University of Kentucky, University of Minnesota). The gold standard annotations were tested with a single institution's (Mayo) ruleset. This resulted in performances of 0.876, 0.706, and 0.694 in F-scores for Mayo, Minnesota, and Kentucky test datasets, respectively. The study as a consortium effort of the N3C NLP subgroup demonstrates the feasibility of creating a federated NLP algorithm development and benchmarking platform to enhance multi-institution clinical NLP study and adoption. Although we use COVID-19 as a use case in this effort, our framework is general enough to be applied to other domains of interest in clinical NLP.",
+          "claimed_authors": [
+            "Sijia Liu",
+            "Andrew Wen",
+            "Liwei Wang",
+            "Huan He",
+            "Sunyang Fu",
+            "Robert Miller",
+            "Andrew Williams",
+            "Daniel Harris",
+            "Ramakanth Kavuluru",
+            "Mei Liu",
+            "Noor Abu-el-rub",
+            "Dalton Schutte",
+            "Rui Zhang",
+            "Masoud Rouhizadeh",
+            "John D. Osborne",
+            "Yongqun He",
+            "Umit Topaloglu",
+            "Stephanie S Hong",
+            "Joel H Saltz",
+            "Thomas Schaffter",
+            "Emily Pfaff",
+            "Christopher G. Chute",
+            "Tim Duong",
+            "Melissa A. Haendel",
+            "Rafael Fuentes",
+            "Peter Szolovits",
+            "Hua Xu",
+            "Hongfang Liu",
+            "National COVID Cohort Collaborative",
+            "Natural Language Processing",
+            " Subgroup",
+            "National COVID Cohort Collaborative"
+          ],
+          "claimed_title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10780"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The tool-use Large Language Models (LLMs) that integrate with external Python interpreters have significantly enhanced mathematical reasoning capabilities for open-source LLMs, while tool-free methods chose another track: augmenting math reasoning data. However, a great method to integrate the above two research paths and combine their advantages remains to be explored. In this work, we firstly include new math questions via multi-perspective data augmenting methods and then synthesize code-nested solutions to them. The open LLMs (i.e., Llama-2) are finetuned on the augmented dataset to get the resulting models, MuMath-Code ($μ$-Math-Code). During the inference phase, our MuMath-Code generates code and interacts with the external python interpreter to get the execution results. Therefore, MuMath-Code leverages the advantages of both the external tool and data augmentation. To fully leverage the advantages of our augmented data, we propose a two-stage training strategy: In Stage-1, we finetune Llama-2 on pure CoT data to get an intermediate model, which then is trained on the code-nested data in Stage-2 to get the resulting MuMath-Code. Our MuMath-Code-7B achieves 83.8 on GSM8K and 52.4 on MATH, while MuMath-Code-70B model achieves new state-of-the-art performance among open methods -- achieving 90.7% on GSM8K and 55.1% on MATH. Extensive experiments validate the combination of tool use and data augmentation, as well as our two-stage training strategy. We release the proposed dataset along with the associated code for public use.",
+          "claimed_authors": [
+            "Shuo Yin",
+            "Weihao You",
+            "Zhilong Ji",
+            "Guoqiang Zhong",
+            "Jinfeng Bai"
+          ],
+          "claimed_title": "MuMath-Code: Combining Tool-Use Large Language Models with Multi-perspective Data Augmentation for Mathematical Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.07551"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='MuMath-Code: Combining Tool-Use Large Language Models with Multi-perspective Data Augmentation for Mathematical Reasoning')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Complex physical models are the most advanced tools available for producing realistic simulations of the climate system. However, such levels of realism imply high computational cost and restrictions on their use for policymaking and risk assessment. Two central characteristics of climate change are uncertainty and that it is a dynamic problem in which international actions can significantly alter climate projections and information needs, including partial and full compliance of global climate goals. Here we present AIRCC-Clim, a simple climate model emulator that produces regional probabilistic climate change projections of monthly and annual temperature and precipitation, as well as risk measures, based both on standard and user-defined emissions scenarios for six greenhouse gases. AIRCC-Clim emulates 37 atmosphere-ocean coupled general circulation models with low computational and technical requirements for the user. This standalone, user-friendly software is designed for a variety of applications including impact assessments, climate policy evaluation and integrated assessment modelling.",
+          "claimed_authors": [
+            "Francisco Estrada",
+            "Oscar Calderón-Bustamante",
+            "Wouter Botzen",
+            "Julián A. Velasco",
+            "Richard S. J. Tol"
+          ],
+          "claimed_title": "AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.01762"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomo', candidate_title='AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures')",
+        "failed_at": "2026-06-28T17:07:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yongheng Zhang",
+            "Ziang Liu",
+            "Jiaxuan Zhu",
+            "Shuai Wang",
+            "Xiangqi Chen",
+            "Haojing Huang",
+            "Jiayi Kuang",
+            "Siyu Chen",
+            "Ao Shen",
+            "Hao Wu",
+            "Qiufeng Wang",
+            "Qian-Wen Zhang",
+            "Junnan Dong",
+            "Wenhao Jiang",
+            "Ying Shen",
+            "Hai-Tao Zheng",
+            "Yinghui Li",
+            "Di Yin",
+            "Xing Sun",
+            "Philip S. Yu"
+          ],
+          "title": "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent Autonomous AI",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.14502",
+        "summary": "Large Language Models (LLMs) are undergoing a fundamental transformation from conversational generators into integrated AI systems capable of reasoning, action, memory, and self-improvement. We conceptualize this transition as a shift from Chatbot to Digital Colleague: from conversational answers to persistent work. We organize this transition along two tightly coupled dimensions. First, at the cognitive core level, LLMs are advancing from Chatbot-era \"fast thinking\" systems driven by next-token prediction toward Thinking LLMs that leverage inference-time computation, Chain-of-Thought reasoning, reflection, process supervision, and reinforcement learning to support more deliberate and reliable cognition. Second, at the tool-augmented task execution level, LLMs are progressing from tool-calling Agents that invoke external resources in an ad hoc manner toward OpenClaw-style workstation systems (OpenClaw) equipped with persistent Workspaces, skills, verification loops, and governance. The \"Workspace + Skill\" paradigm makes episodic tool use colleague-like via state persistence, reusable procedures, task closure, and experience reuse. We examine data construction shifts from instruction-response pairs to State-Action-Observation trajectories and evaluation from static benchmarks to sandboxed, auditable, self-evolving AI ecosystems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.14502",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T17:07:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Saikat Maiti"
+          ],
+          "title": "Caging the Agents: A Zero Trust Security Architecture for Autonomous AI in Healthcare",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.17419",
+        "summary": "Autonomous AI agents powered by large language models are being deployed in production with capabilities including shell execution, file system access, database queries, and multi-party communication. Recent red teaming research demonstrates that these agents exhibit critical vulnerabilities in realistic settings: unauthorized compliance with non-owner instructions, sensitive information disclosure, identity spoofing, cross-agent propagation of unsafe practices, and indirect prompt injection through external resources [7]. In healthcare environments processing Protected Health Information, every such vulnerability becomes a potential HIPAA violation. This paper presents a security architecture deployed for nine autonomous AI agents in production at a healthcare technology company. We develop a six-domain threat model for agentic AI in healthcare covering credential exposure, execution capability abuse, network egress exfiltration, prompt integrity failures, database access risks, and fleet configuration drift. We implement four-layer defense in depth: (1) kernel level workload isolation using gVisor on Kubernetes, (2) credential proxy sidecars preventing agent containers from accessing raw secrets, (3) network egress policies restricting each agent to allowlisted destinations, and (4) a prompt integrity framework with structured metadata envelopes and untrusted content labeling. We report results from 90 days of deployment including four HIGH severity findings discovered and remediated by an automated security audit agent, progressive fleet hardening across three VM image generations, and defense coverage mapped to all eleven attack patterns from recent literature. All configurations, audit tooling, and the prompt integrity framework are released as open source.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.17419",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T17:08:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrés Holgado-Sánchez",
+            "Holger Billhardt",
+            "Alberto Fernández",
+            "Sascha Ossowski"
+          ],
+          "title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.04518",
+        "summary": "Agreement Technologies refer to open computer systems in which autonomous software agents interact with one another, typically on behalf of humans, in order to come to mutually acceptable agreements. With the advance of AI systems in recent years, it has become apparent that such agreements, in order to be acceptable to the involved parties, must remain aligned with ethical principles and moral values. However, this is notoriously difficult to ensure, especially as different human users (and their software agents) may hold different value systems, i.e. they may differently weigh the importance of individual moral values. Furthermore, it is often hard to specify the precise meaning of a value in a particular context in a computational manner. Methods to estimate value systems based on human-engineered specifications, e.g. based on value surveys, are limited in scale due to the need for intense human moderation. In this article, we propose a novel method to automatically \\emph{learn} value systems from observations and human demonstrations. In particular, we propose a formal model of the \\emph{value system learning} problem, its instantiation to sequential decision-making domains based on multi-objective Markov decision processes, as well as tailored preference-based and inverse reinforcement learning algorithms to infer value grounding functions and value systems. The approach is illustrated and evaluated by two simulated use cases.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.04518",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T17:08:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sandro Rodriguez Garzon",
+            "Awid Vaziry",
+            "Enis Mert Kuzu",
+            "Dennis Enrique Gehrmann",
+            "Buse Varkan",
+            "Alexander Gaballa",
+            "Axel Küpper"
+          ],
+          "title": "AI Agents with Decentralized Identifiers and Verifiable Credentials",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.02841",
+        "summary": "A fundamental limitation of current LLM-based AI agents is their inability to build differentiated trust among each other at the onset of an agent-to-agent dialogue. However, autonomous and interoperable trust establishment becomes essential once agents start to operate beyond isolated environments and engage in dialogues across individual or organizational boundaries. A promising way to fill this gap in Agentic AI is to equip agents with long-lived digital identities and introduce tamper-proof and flexible identity-bound attestations of agents, provisioned by commonly trusted third parties and designed for cross-domain verifiability. This article presents a conceptual framework and a prototypical multi-agent system, where each agent is endowed with a self-sovereign digital identity. It combines a unique and ledger-anchored W3C Decentralized Identifier (DID) of an agent with a set of third-party issued W3C Verifiable Credentials (VCs). This enables agents at the start of a dialog to prove ownership of their self-controlled DIDs for authentication purposes and to establish various cross-domain trust relationships through the spontaneous exchange of their self-hosted DID-bound VCs. A comprehensive evaluation of the prototypical implementation demonstrates technical feasibility but also reveals limitations once an agent's LLM is in sole charge to control the respective security procedures.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.02841",
+          "http_status": 200,
+          "pdf_sample_score": 0.251,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T17:08:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gaole He",
+            "Brian Y. Lim"
+          ],
+          "title": "From Control to Foresight: Simulation as a New Paradigm for Human-Agent Collaboration",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.11677",
+        "summary": "Large Language Models (LLMs) are increasingly used to power autonomous agents for complex, multi-step tasks. However, human-agent interaction remains pointwise and reactive: users approve or correct individual actions to mitigate immediate risks, without visibility into subsequent consequences. This forces users to mentally simulate long-term effects, a cognitively demanding and often inaccurate process. Users have control over individual steps but lack the foresight to make informed decisions. We argue that effective collaboration requires foresight, not just control. We propose simulation-in-the-loop, an interaction paradigm that enables users and agents to explore simulated future trajectories before committing to decisions. Simulation transforms intervention from reactive guesswork into informed exploration, while helping users discover latent constraints and preferences along the way. This perspective paper characterizes the limitations of current paradigms, introduces a conceptual framework for simulation-based collaboration, and illustrates its potential through concrete human-agent collaboration scenarios.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.11677",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T17:08:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lan Xiao",
+            "Catherine Holloway"
+          ],
+          "title": "Channelling, Coordinating, Collaborating: A Three-Layer Framework for Disability-Centered Human-Agent Collaboration",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.26252",
+        "summary": "AI accessibility tools have mostly been designed for individual use, helping one person overcome a specific functional barrier. But for many people with disabilities, complex tasks are accomplished through collaboration with others who bring complementary abilities, not solitary effort. We propose a three-layer framework, Channelling, Coordinating, and Co-Creating, that rethinks AI's role in ability-diverse collaboration: establishing shared informational ground across abilities, mediating workflows between collaborators with different abilities, and contributing as a bounded partner toward shared goals. Grounded in the Ability-Diverse Collaboration framework, grounding theory, and Carlile's 3T framework, it extends the ``agents as remote collaborators'' vision by centring the collaborative, interdependent ways people with disabilities already work.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.26252",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T17:08:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Henry Peng Zou",
+            "Wei-Chieh Huang",
+            "Yaozu Wu",
+            "Jizhou Guo",
+            "Yankai Chen",
+            "Chunyu Miao",
+            "Hoang Nguyen",
+            "Yue Zhou",
+            "Weizhi Zhang",
+            "Liancheng Fang",
+            "Hanrong Zhang",
+            "Fangxin Wang",
+            "Pengfei Zhang",
+            "Huacan Wang",
+            "Langzhou He",
+            "Yangning Li",
+            "Dongyuan Li",
+            "Renhe Jiang",
+            "Xue Liu",
+            "Philip S. Yu"
+          ],
+          "title": "LLM-Based Human-Agent Collaboration and Interaction Systems: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.00753",
+        "summary": "Recent advances in large language models (LLMs) have sparked growing interest in building fully autonomous agents. However, fully autonomous LLM-based agents still face significant challenges, including limited reliability due to hallucinations, difficulty in handling complex tasks, and substantial safety and ethical risks, all of which limit their feasibility and trustworthiness in real-world applications. To overcome these limitations, LLM-based human-agent systems (LLM-HAS) incorporate human-provided information, feedback, or control into the agent system to enhance system performance, reliability, and safety. These human-agent collaboration systems enable humans and LLM-based agents to collaborate effectively by leveraging their complementary strengths. This paper provides the first comprehensive and structured survey of LLM-HAS. It clarifies fundamental concepts, systematically presents core components shaping these systems, including environment and profiling, human feedback, interaction types, orchestration, and communication, explores emerging applications, and discusses unique challenges and opportunities arising from human-AI collaboration. By consolidating current knowledge and offering a structured overview, we aim to foster further research and innovation in this rapidly evolving interdisciplinary field. Paper lists and resources are available at https://github.com/HenryPengZou/Awesome-Human-Agent-Collaboration-Interaction-Systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.00753",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T17:08:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ray-Yuan Chung",
+            "Xuhai Xu",
+            "Ari Pollack"
+          ],
+          "title": "Rethinking Health Agents: From Siloed AI to Collaborative Decision Mediators",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.24986",
+        "summary": "Large language model based health agents are increasingly used by health consumers and clinicians to interpret health information and guide health decisions. However, most AI systems in healthcare operate in siloed configurations, supporting individual users rather than the multi-stakeholder relationships central to healthcare. Such use can fragment understanding and exacerbate misalignment among patients, caregivers, and clinicians. We reframe AI not as a standalone assistant, but as a collaborator embedded within multi-party care interactions. Through a clinically validated fictional pediatric chronic kidney disease case study, we show that breakdowns in adherence stem from fragmented situational awareness and misaligned goals, and that siloed use of general-purpose AI tools does little to address these collaboration gaps. We propose a conceptual framework for designing AI collaborators that surface contextual information, reconcile mental models, and scaffold shared understanding while preserving human decision authority.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.24986",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T17:08:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nitesh Goyal",
+            "Minsuk Chang",
+            "Michael Terry"
+          ],
+          "title": "Designing for Human-Agent Alignment: Understanding what humans want from their agents",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.04289",
+        "summary": "Our ability to build autonomous agents that leverage Generative AI continues to increase by the day. As builders and users of such agents it is unclear what parameters we need to align on before the agents start performing tasks on our behalf. To discover these parameters, we ran a qualitative empirical research study about designing agents that can negotiate during a fictional yet relatable task of selling a camera online. We found that for an agent to perform the task successfully, humans/users and agents need to align over 6 dimensions: 1) Knowledge Schema Alignment 2) Autonomy and Agency Alignment 3) Operational Alignment and Training 4) Reputational Heuristics Alignment 5) Ethics Alignment and 6) Human Engagement Alignment. These empirical findings expand previous work related to process and specification alignment and the need for values and safety in Human-AI interactions. Subsequently we discuss three design directions for designers who are imagining a world filled with Human-Agent collaborations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.04289",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T17:08:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "from chatbot to digital colleague: the paradigm shift toward persistent autonomous ai computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

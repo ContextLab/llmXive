@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.04518",
+  "judged_at": "2026-06-28T17:09:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from chatbot to digital colleague: the paradigm shift toward persistent autonomous ai computer science",
+  "rationale": "This paper studies autonomous software agents (criterion b - independent variable on the same domain), which is a core component of the user's question about persistent autonomous AI, even though it focuses specifically on value system learning rather than the full chatbot-to-colleague paradigm shift. For a literature review, this would be a valid citation when discussing the technical foundations of autonomous AI agents and their alignment with human values.",
+  "relevant": true
+}

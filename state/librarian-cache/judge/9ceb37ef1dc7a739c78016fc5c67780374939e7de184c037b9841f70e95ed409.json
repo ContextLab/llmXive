@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.17419",
+  "judged_at": "2026-06-28T17:09:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from chatbot to digital colleague: the paradigm shift toward persistent autonomous ai computer science",
+  "rationale": "This paper studies autonomous AI agents in production deployment settings, which directly addresses the core mechanism (autonomous AI agents) and domain (persistent/production AI systems) of the user's research question about the paradigm shift toward persistent autonomous AI. While the paper focuses on security architecture rather than the paradigm shift itself, it provides empirical evidence about autonomous AI agents in real-world deployment, satisfying acceptance criteria (a) same-mechanism ",
+  "relevant": true
+}
