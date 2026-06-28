@@ -44,12 +44,23 @@ jobs:
       LLMXIVE_PAID_OPT_IN: "1"
       LLMXIVE_PAID_BUDGET_FRACTION: "0.9"
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # GPU-offload lane (issue #367): GPU-bound projects that fail on this free
+      # CPU-only runner are dispatched to Kaggle's free GPU instead of grinding.
+      # KAGGLE_API_TOKEN is the verbatim kaggle.json the Kaggle site issues
+      # ({"username":...,"key":...}); offload._ensure_kaggle_auth parses it and
+      # writes ~/.kaggle/kaggle.json for the CLI. GATED-ON-SECRETS — when the
+      # secret is unset, offload.is_available() is False and the lane runs
+      # EXACTLY as before. (KAGGLE_USERNAME/KAGGLE_KEY are also honored if set.)
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
     steps:
       - uses: actions/checkout@v5
         with: { ref: main }
       - uses: actions/setup-python@v6
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
+      # GPU-offload lane (issue #367): the Kaggle CLI. Inert unless
+      # KAGGLE_USERNAME/KAGGLE_KEY secrets are set (offload.is_available()).
+      - run: pip install kaggle
       - run: python -m llmxive preflight
       # Load-balanced by default: scheduler picks the most over-target stages
       # (incl. in_progress execute-and-gate). A manual run may pass `stage` to

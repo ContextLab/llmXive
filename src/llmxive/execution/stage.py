@@ -228,6 +228,14 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
     project_id = project_dir.name
     repo = repo_root or project_dir.parent.parent
 
+    # GPU-offload lane (issue #367): a project whose analysis already has a
+    # Kaggle GPU kernel in flight is POLLED here instead of re-running the
+    # (doomed CPU-only) analysis. A pending offload is NOT a failure — it never
+    # bumps fix_rounds, so _decide_next_stage keeps the project IN_PROGRESS and
+    # polling, never escalating to human_input_needed.
+    if execution_status.is_offload_pending(project_id, repo_root=repo):
+        return _poll_offload(project_dir, repo)
+
     # If a verified real data source was discovered, GUARANTEE its package is
     # declared so the per-project venv installs it (the implementer wires the
     # `import` but often forgets requirements.txt → ModuleNotFoundError). Safe:
@@ -275,6 +283,38 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
     except Exception as exc:
         logger.warning("_declare_missing_imports skipped: %s", exc)
 
+    # GPU-offload lane (issue #367): if the local run FAILED on a COMPUTE-
+    # ENVIRONMENT limit the free CPU CI cannot satisfy (GPU/CUDA/8-bit/OOM) AND
+    # Kaggle offload is configured, DISPATCH the same run-book to Kaggle's free
+    # GPU instead of burning a fix-round on a hardware gap the implementer can't
+    # close. record_offload(status=submitted) does NOT bump fix_rounds → the
+    # project stays IN_PROGRESS and the next tick polls (no human_input_needed).
+    # Do NOT re-dispatch when this round already has a FAILED offload sub-record
+    # (we are in the post-failure local pass): we must record one honest local
+    # failure (bumping fix_rounds once) rather than thrash dispatch↔poll forever.
+    _prior_offload = execution_status.offload_state(project_id, repo_root=repo)
+    _offload_already_failed = bool(_prior_offload and _prior_offload.get("status") == "failed")
+    if not res.ok and failures and not _offload_already_failed:
+        try:
+            infra = _compute_infra_failures(failures)
+            if infra:
+                from llmxive.execution import offload
+
+                if offload.is_available():
+                    kernel_ref = offload.dispatch(project_dir, repo)
+                    if kernel_ref:
+                        execution_status.record_offload(
+                            project_id, status="submitted",
+                            kernel_ref=kernel_ref, repo_root=repo,
+                        )
+                        logger.info(
+                            "offloaded %s to Kaggle GPU kernel %s (compute-infra "
+                            "failure: %s)", project_id, kernel_ref, infra[:2],
+                        )
+                        return False  # pending — poll on the next tick
+        except Exception as exc:  # never let offload break the local fallback
+            logger.warning("GPU offload dispatch skipped for %s: %s", project_id, exc)
+
     execution_status.record(
         project_id, ok=res.ok, reason=res.reason,
         artifacts=res.artifacts_produced, failures=failures, repo_root=repo,
@@ -315,6 +355,80 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
     reopened = _reopen_failing_tasks(project_dir, res, contract_issues)
     logger.info("re-opened %d task(s) for the auto-fix loop", reopened)
     return False
+
+
+def _poll_offload(project_dir: Path, repo: Path) -> bool:
+    """Poll an in-flight Kaggle GPU kernel (issue #367) instead of re-running the
+    local analysis. Returns True iff retrieval landed real artifacts (the gate
+    advances to research_complete); False keeps the project IN_PROGRESS.
+
+    * running   → leave pending, return False (NO fix_rounds bump).
+    * complete  → retrieve; re-verify the pulled files exist & are non-empty; on
+      real artifacts record ok=True + mint receipts + clear offload + return
+      True; if retrieve yields nothing real → mark the offload failed and fall
+      through to ONE normal local-failure pass.
+    * error / cancelAcknowledged → mark the offload failed and fall through to
+      the normal local-failure path (which bumps fix_rounds once).
+    """
+    from llmxive.execution import offload
+
+    project_id = project_dir.name
+    off = execution_status.offload_state(project_id, repo_root=repo)
+    kernel_ref = (off or {}).get("kernel_ref")
+    if not kernel_ref:  # defensive: pending with no ref → drop & re-run locally
+        execution_status.clear_offload(project_id, repo_root=repo)
+        return execute_and_gate(project_dir, repo_root=repo)
+
+    status = offload.poll(kernel_ref)
+    if status == "running":
+        execution_status.record_offload(
+            project_id, status="running", kernel_ref=kernel_ref, repo_root=repo,
+        )
+        logger.info("offload %s still running on Kaggle (%s)", project_id, kernel_ref)
+        return False
+
+    if status == "complete":
+        pulled = offload.retrieve(kernel_ref, project_dir)
+        real = [
+            rel for rel in pulled
+            if (project_dir / rel).is_file() and (project_dir / rel).stat().st_size > 0
+        ]
+        if real:
+            execution_status.record(
+                project_id, ok=True,
+                reason=f"GPU offload complete via Kaggle kernel {kernel_ref}",
+                artifacts=real, failures=[], repo_root=repo,
+            )
+            res = AnalysisRunResult(ok=True, artifacts_produced=real, reason="offload ok")
+            _mint_artifact_receipts(project_dir, res, repo)
+            execution_status.clear_offload(project_id, repo_root=repo)
+            (project_dir / ".specify" / "memory" / _FEEDBACK_FILENAME).unlink(missing_ok=True)
+            logger.info("offload %s retrieved %d artifact(s) from Kaggle", project_id, len(real))
+            return True
+        logger.warning(
+            "offload %s completed but retrieved no real artifacts; falling back", project_id
+        )
+        execution_status.record_offload(
+            project_id, status="failed", kernel_ref=kernel_ref, repo_root=repo,
+        )
+        return _run_local_after_failed_offload(project_dir, repo)
+
+    # error / cancelAcknowledged / unknown-terminal → failed, then local fallback.
+    logger.warning("offload %s ended status=%s; falling back to local path", project_id, status)
+    execution_status.record_offload(
+        project_id, status="failed", kernel_ref=kernel_ref, repo_root=repo,
+    )
+    return _run_local_after_failed_offload(project_dir, repo)
+
+
+def _run_local_after_failed_offload(project_dir: Path, repo: Path) -> bool:
+    """After a failed offload, run the normal local execute-and-gate ONCE. The
+    offload sub-record is marked ``failed`` (not pending) so this re-entry does
+    NOT loop back into ``_poll_offload``; and because ``offload.is_available()``
+    is still True the very same compute-infra failure would re-dispatch — so we
+    leave the failed sub-record in place to record one honest local failure
+    (bumping fix_rounds once) rather than thrash dispatch↔poll."""
+    return execute_and_gate(project_dir, repo_root=repo)
 
 
 def _write_execution_feedback(
