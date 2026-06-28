@@ -1,1 +1,22 @@
-[]
+- artifact_hash: ded6e5623f00e68b4b67dcc988168d0550690efca8ecca0626c670499badedc0
+  artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv%60
+  verified_at: '2026-06-28T02:23:11.764056Z'
+- artifact_hash: ded6e5623f00e68b4b67dcc988168d0550690efca8ecca0626c670499badedc0
+  artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/snap-stanford/stark/resolve/main/qa/amazon/stark_qa/stark_qa.csv`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/snap-stanford/stark/resolve/main/qa/amazon/stark_qa/stark_qa.csv%60
+  verified_at: '2026-06-28T02:23:11.764056Z'
