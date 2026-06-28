@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "Connectivity Matrix Schema"
+description: "Schema for DMN connectivity matrix output with NBS correction"
+required:
+  - subject_id
+  - scan_type
+  - node_pair
+  - node1
+  - node2
+  - pearson_corr
+  - fisher_z
+  - time_series_length
+properties:
+  subject_id:
+    type: "string"
+    description: "Subject identifier within dataset"
+  scan_type:
+    type: "string"
+    description: "Pre or post intervention scan"
+    enum:
+      - "pre"
+      - "post"
+  node_pair:
+    type: "string"
+    description: "Node pair identifier in format node1-node2"
+    pattern: "^[A-Za-z_]+-[A-Za-z_]+$"
+  node1:
+    type: "string"
+    description: "First DMN node name"
+    enum:
+      - "PCC"
+      - "mPFC"
+      - "IPL"
+      - "angular_gyrus"
+  node2:
+    type: "string"
+    description: "Second DMN node name"
+    enum:
+      - "PCC"
+      - "mPFC"
+      - "IPL"
+      - "angular_gyrus"
+  pearson_corr:
+    type: "number"
+    description: "Raw Pearson correlation coefficient"
+    minimum: -1.0
+    maximum: 1.0
+  fisher_z:
+    type: "number"
+    description: "Fisher-transformed correlation"
+  ar1_residual:
+    type: "number"
+    description: "AR(1) prewhitening residual"
+    nullable: true
+  time_series_length:
+    type: "integer"
+    description: "Length of extracted time series"
+    minimum: 1
+  nbs_p_value:
+    type: "number"
+    description: "Network-Based Statistic corrected p-value"
+    minimum: 0.0
+    maximum: 1.0
+  nbs_significant:
+    type: "boolean"
+    description: "Significant at alpha=0.05 threshold"
+  effect_size:
+    type: "number"
+    description: "Cohen's d effect size for pre vs post change"
+  boot_ci_lower:
+    type: "number"
+    description: "Bootstrapped 95% CI lower bound"
+  boot_ci_upper:
+    type: "number"
+    description: "Bootstrapped 95% CI upper bound"
+additionalProperties: false

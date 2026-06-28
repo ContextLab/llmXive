@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "OpenNeuro Dataset Schema"
+description: "Schema for validated OpenNeuro fMRI dataset metadata"
+required:
+  - dataset_id
+  - source_url
+  - scan_count
+  - subject_count
+  - design_status
+  - checksum
+properties:
+  dataset_id:
+    type: "string"
+    description: "OpenNeuro dataset identifier"
+    pattern: "^ds[0-9]{6}$"
+  source_url:
+    type: "string"
+    description: "Canonical download URL for dataset"
+    format: "uri"
+  scan_count:
+    type: "integer"
+    description: "Total number of fMRI scans in dataset"
+    minimum: 2
+  subject_count:
+    type: "integer"
+    description: "Total number of subjects in dataset"
+    minimum: 1
+  design_status:
+    type: "string"
+    description: "Pre/post design verification status"
+    enum:
+      - "verified"
+      - "failed"
+      - "missing"
+  mindfulness_metadata:
+    type: "object"
+    description: "Mindfulness intervention metadata"
+    properties:
+      protocol:
+        type: "string"
+        description: "Intervention protocol type"
+      duration:
+        type: "string"
+        description: "Intervention duration"
+    required: []
+  checksum:
+    type: "string"
+    description: "SHA256 checksum of dataset bundle"
+    pattern: "^[a-f0-9]{64}$"
+  download_timestamp:
+    type: "string"
+    description: "Dataset fetch timestamp in ISO8601 format"
+    format: "date-time"
+additionalProperties: false

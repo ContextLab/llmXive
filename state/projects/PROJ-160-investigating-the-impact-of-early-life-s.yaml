@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T17:22:36.291024Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-160-investigating-the-impact-of-early-life-s
-last_run_id: d1577aec-6e75-4e7b-a2d0-3ef84d22c879
+last_run_id: a489aedc-8289-4cb3-8ab8-7eef4799d9fe
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s
 title: Investigating the Impact of Early Life Stress on Hippocampal Subfield Volumes
-updated_at: '2026-06-26T00:16:49.504553Z'
+updated_at: '2026-06-28T08:53:11.815240Z'

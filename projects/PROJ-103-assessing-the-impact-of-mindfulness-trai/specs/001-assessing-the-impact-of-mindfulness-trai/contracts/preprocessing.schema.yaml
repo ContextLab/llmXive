@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "fMRIPrep Output Schema"
+description: "Schema for fMRIPrep preprocessing output metadata"
+required:
+  - subject_id
+  - bold_path
+  - motion_params_file
+  - confound_file
+  - qc_report_path
+  - preprocessing_status
+  - mni_space
+  - smoothing_mm
+properties:
+  subject_id:
+    type: "string"
+    description: "Subject identifier within dataset"
+  bold_path:
+    type: "string"
+    description: "Path to preprocessed BOLD image in MNI152 space"
+    pattern: "^data/processed/fmriprep_outputs/"
+  motion_params_file:
+    type: "string"
+    description: "Path to motion parameters file from fMRIPrep"
+  confound_file:
+    type: "string"
+    description: "Path to confound regressors file"
+  qc_report_path:
+    type: "string"
+    description: "Path to fMRIPrep HTML quality control report"
+    pattern: "\\.html$"
+  preprocessing_status:
+    type: "string"
+    description: "fMRIPrep execution status"
+    enum:
+      - "success"
+      - "failed"
+      - "timeout"
+  preprocessing_timestamp:
+    type: "string"
+    description: "Preprocessing completion timestamp in ISO8601 format"
+    format: "date-time"
+  mni_space:
+    type: "string"
+    description: "Normalization space used"
+    const: "MNI152"
+  smoothing_mm:
+    type: "number"
+    description: "Smoothing kernel size in millimeters"
+    const: 6.0
+  bandpass_low:
+    type: "number"
+    description: "Low frequency cutoff for bandpass filter"
+    const: 0.01
+  bandpass_high:
+    type: "number"
+    description: "High frequency cutoff for bandpass filter"
+    const: 0.1
+  motion_exclusion_flag:
+    type: "boolean"
+    description: "True if subject exceeds motion threshold (>3mm/3°)"
+  exclusion_reason:
+    type: "string"
+    description: "Reason for subject exclusion if any"
+    nullable: true
+additionalProperties: false
