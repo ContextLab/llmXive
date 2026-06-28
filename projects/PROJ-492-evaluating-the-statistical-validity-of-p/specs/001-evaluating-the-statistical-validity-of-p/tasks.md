@@ -60,10 +60,10 @@
 - [X] T009 Set up structured logging infrastructure in `src/utils/logger.py` with error‑code format `ERR-###` (verify logs contain correct codes).
 - [X] T010 Initialize configuration constants (random seeds, thresholds, resource caps) in `src/config.py` with deterministic seed (`SEED = 42`) AND ensure all modules import SEED from config and set RNG seeds at startup (verify `src/config.py` defines `SEED = 42` and all RNGs are seeded per Constitution Principle I).
 - [X] T011 Implement generic helper functions (`checksum`, `domain_from_url`, `safe_float`, `parse_inequality_p`) in `src/utils/helpers.py` (run unit test for each helper).
-- [ ] T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies, enforces CPU ≤ 2 vCPU, RAM ≤ 2 GB, timeout a predefined duration, and runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010].
-- [ ] T013 Create Dockerfile for optional local execution (uses only CPU‑compatible base image) (build Docker image successfully). **(No dependency on T012)**
-- [ ] T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py` (FR‑024) (verify `manifest.json` contains SHA256 hashes) [DEPENDS ON: T007].
-- [ ] T015 Create `data/manual_validation/` directory structure for real‑world validation annotations (verify directory exists).
+- [X] T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies, enforces CPU ≤ 2 vCPU, RAM ≤ 2 GB, timeout a predefined duration, and runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010].
+- [X] T013 Create Dockerfile for optional local execution (uses only CPU‑compatible base image) (build Docker image successfully). **(No dependency on T012)**
+- [X] T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py` (FR‑024) (verify `manifest.json` contains SHA256 hashes) [DEPENDS ON: T007].
+- [X] T015 Create `data/manual_validation/` directory structure for real‑world validation annotations (verify directory exists).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,15 +77,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T018 URL ingestion and deduplication in `src/audit/ingestor.py` (reads `input/urls.csv`) (verify `output/urls_deduped.csv` exists). **DEPENDS ON:** None.
-- [ ] T019 HTML fetching with retries and timeout in `src/audit/fetcher.py` (uses `requests`) (verify fetched HTML files are saved to `data/raw/`). **DEPENDS ON:** T018.
-- [ ] T020 Extraction logic in `src/audit/extractor.py` → produces `ABSummary` objects, handles missing fields, logs `ERR-001`‑`ERR-099` (FR‑007) (verify extraction JSON exists and logs contain appropriate ERR codes). **DEPENDS ON:** T019.
-- [ ] T020b **[P]** Run unit tests `tests/unit/test_error_message_format.py` to ensure all logged error‑message descriptions are ≤ a length that is sufficiently long for the intended analysis. and follow FR‑007 naming conventions. **DEPENDS ON:** T020.
-- [ ] T020c Archive provenance metadata in `data/provenance_log.csv` per Constitution Principle VII (verify file exists with URL, repository identifier, fetch timestamp **and** that each row contains all three fields). **DEPENDS ON:** T020.
-- [ ] T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL, repository identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`). **DEPENDS ON:** T020c.
-- [ ] T021 Unit tests for extractor covering missing metric, inequality p‑value, malformed HTML, conflicting sample sizes (tests/unit/test_extractor.py) (verify all tests pass) [DEPENDS ON: T020].
-- [ ] T022 Implement outcome‑type detection heuristics in `src/audit/test_type_detector.py` (detect binary vs continuous only, no extra test‑type handling) (verify detector returns correct type).
-- [ ] T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two‑proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline per FR‑012) (verify reconstructed values match known fixtures). **DEPENDS ON:** T062 (Monte‑Carlo validation) **AND** T022.
+- [X] T018 URL ingestion and deduplication in `src/audit/ingestor.py` (reads `input/urls.csv`) (verify `output/urls_deduped.csv` exists). **DEPENDS ON:** None.
+- [X] T019 HTML fetching with retries and timeout in `src/audit/fetcher.py` (uses `requests`) (verify fetched HTML files are saved to `data/raw/`). **DEPENDS ON:** T018.
+- [X] T020 Extraction logic in `src/audit/extractor.py` → produces `ABSummary` objects, handles missing fields, logs `ERR-001`‑`ERR-099` (FR‑007) (verify extraction JSON exists and logs contain appropriate ERR codes). **DEPENDS ON:** T019.
+- [X] T020b **[P]** Run unit tests `tests/unit/test_error_message_format.py` to ensure all logged error‑message descriptions are ≤ a length that is sufficiently long for the intended analysis. and follow FR‑007 naming conventions. **DEPENDS ON:** T020.
+- [X] T020c Archive provenance metadata in `data/provenance_log.csv` per Constitution Principle VII (verify file exists with URL, repository identifier, fetch timestamp **and** that each row contains all three fields). **DEPENDS ON:** T020.
+- [X] T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL, repository identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`). **DEPENDS ON:** T020c.
+- [X] T021 Unit tests for extractor covering missing metric, inequality p‑value, malformed HTML, conflicting sample sizes (tests/unit/test_extractor.py) (verify all tests pass) [DEPENDS ON: T020].
+- [X] T022 Implement outcome‑type detection heuristics in `src/audit/test_type_detector.py` (detect binary vs continuous only, no extra test‑type handling) (verify detector returns correct type).
+- [X] T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two‑proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline per FR‑012) (verify reconstructed values match known fixtures). **DEPENDS ON:** T062 (Monte‑Carlo validation) **AND** T022.
 - [ ] T024 Unit tests for reconstructor with known inputs (tests/unit/test_reconstructor.py) (verify all tests pass) [DEPENDS ON: T023].
 - [ ] T025 Implement inconsistency validator in `src/audit/validator.py` applying FR‑004 thresholds (absolute p‑difference > 0.05, relative effect‑size > 5 %) **and verify that sample‑size mismatch entries are excluded from aggregate prevalence estimates** per FR‑004b (generate `AuditRecord` objects with data_quality_warning messages for sample‑size discrepancies, writing `output/audit_report.json`). **DEPENDS ON:** T023.
 - [ ] T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to verify that any entry with a missing baseline conversion rate is flagged in the audit notes as required by FR‑012. **DEPENDS ON:** T025.

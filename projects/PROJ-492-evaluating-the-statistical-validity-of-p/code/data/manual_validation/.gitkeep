@@ -1,0 +1,6 @@
+# This file ensures the manual_validation directory is tracked by git
+# Placeholder for real-world validation annotations (FR-031b)
+# Actual annotation files will be created by T069c
+# Source URLs: data/manual_validation/source_urls.csv
+# Annotated labels: data/manual_validation/real_world_labels.csv
+# Provenance metadata: data/manual_validation/provenance/
