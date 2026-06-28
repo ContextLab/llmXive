@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.19595",
+  "judged_at": "2026-06-28T10:22:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the predictive power of machine learning for organic reaction outcomes chemistry",
+  "rationale": "This paper is off-domain entirely, focusing on medical imaging (CT scans for abdominal trauma) rather than organic chemistry reaction outcomes, sharing only the general application of machine learning without relevant domain, variable, or mechanism overlap.",
+  "relevant": false
+}

@@ -1,0 +1,453 @@
+{
+  "fetched_at": "2026-06-28T10:17:10Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Complexity with Information Theory",
+      "target_n": 5
+    },
+    "duration_seconds": 645.31,
+    "ended_at": "2026-06-28T10:17:10Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Shannon entropy molecular graphs"
+        ],
+        [
+          2,
+          "Information theoretic molecular descriptors"
+        ],
+        [
+          3,
+          "Algorithmic information theory chemical structures"
+        ],
+        [
+          4,
+          "Quantifying molecular structural complexity"
+        ],
+        [
+          5,
+          "Kolmogorov complexity chemistry"
+        ],
+        [
+          6,
+          "Entropy based chemical complexity metrics"
+        ],
+        [
+          7,
+          "Graph entropy molecular complexity"
+        ],
+        [
+          8,
+          "Information content of molecular graphs"
+        ],
+        [
+          9,
+          "Topological information indices"
+        ],
+        [
+          10,
+          "Cheminformatics information content"
+        ],
+        [
+          11,
+          "Molecular graph complexity measures"
+        ],
+        [
+          12,
+          "Structural complexity assessment chemistry"
+        ],
+        [
+          13,
+          "Algorithmic complexity organic molecules"
+        ],
+        [
+          14,
+          "Entropy descriptors QSAR"
+        ],
+        [
+          15,
+          "Information theory cheminformatics"
+        ],
+        [
+          16,
+          "Quantitative chemical complexity"
+        ],
+        [
+          17,
+          "Spectral entropy molecular structure"
+        ],
+        [
+          18,
+          "Computational complexity chemical graphs"
+        ],
+        [
+          19,
+          "Information theoretic drug design"
+        ],
+        [
+          20,
+          "Structural information metrics chemistry"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Molecular Complexity with Information Theory chemistry": 0,
+        "Shannon entropy molecular graphs": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Shannon entropy molecular structure",
+      "QM9 ZINC molecular descriptors",
+      "graph entropy topological indices",
+      "synthesis accessibility score QSAR",
+      "minimum description length molecules"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1505.04658"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Molecular Complexity with Information Theory chemistry": 3,
+      "QM9 ZINC molecular descriptors": 2,
+      "Shannon entropy molecular structure": 2,
+      "graph entropy topological indices": 2,
+      "minimum description length molecules": 3,
+      "synthesis accessibility score QSAR": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2107.09581",
+          "rationale": "The paper applies information theory to algebraic topology and operads rather than chemical structures or molecular properties, making it off-domain for a chemistry-focused literature review despite sharing the keyword \"entropy\".",
+          "title": "Entropy as a Topological Operad Derivation"
+        },
+        {
+          "primary_pointer": "quant-ph/0305062",
+          "rationale": "The paper addresses mathematical bounds between entropy types in quantum physics and probability theory, without applying these measures to molecular structures or chemical complexity. It is rejected as a distinct construct sharing only homonym keywords (entropy) without relevance to the user's specific domain (chemistry/molecules).",
+          "title": "Renyi extrapolation of Shannon entropy"
+        },
+        {
+          "primary_pointer": "quant-ph/0408192",
+          "rationale": "The paper analyzes the theoretical dynamics of entropy measures in quantum and classical systems without addressing molecular complexity or chemical prediction tasks, representing a distinct construct sharing only homonym keywords (entropy/information theory) rather than the specific domain variables required.",
+          "title": "Differential entropy and time"
+        },
+        {
+          "primary_pointer": "1807.02622",
+          "rationale": "This paper is a theoretical mathematics work on Rényi entropy power inequalities without any application to chemistry or molecular systems. While it shares information theory terminology (entropy, Rényi), it does not measure molecular complexity, apply to chemical domains, or establish any connection to the user's chemistry-focused research question—this is an off-domain rejection under the \"distinct construct sharing only homonym keywords\" rule.",
+          "title": "Rényi Entropy Power Inequalities via Normal Transport and Rotation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T10:06:25Z",
+    "term_input": {
+      "normalized": "predicting molecular complexity with information theory chemistry",
+      "raw": "Predicting Molecular Complexity with Information Theory chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Relations between Shannon entropy and Renyi entropies of integer order are discussed. For any N-point discrete probability distribution for which the Renyi entropies of order two and three are known, we provide an lower and an upper bound for the Shannon entropy. The average of both bounds provide an explicit extrapolation for this quantity. These results imply relations between the von Neumann entropy of a mixed quantum state, its linear entropy and traces.",
+          "claimed_authors": [
+            "Karol Zyczkowski"
+          ],
+          "claimed_title": "Renyi extrapolation of Shannon entropy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "quant-ph/0305062"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='Renyi extrapolation of Shannon entropy')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposes a novel approach to semantic ontology alignment using contextual descriptors. A formalization was developed that enables the integration of essential and contextual descriptors to create a comprehensive knowledge model. The hierarchical structure of the semantic approach and the mathematical apparatus for analyzing potential conflicts between concepts, particularly in the example of \"Transparency\" and \"Privacy\" in the context of artificial intelligence, are demonstrated. Experimental studies showed a significant improvement in ontology alignment metrics after the implementation of contextual descriptors, especially in the areas of privacy, responsibility, and freedom & autonomy. The application of contextual descriptors achieved an average overall improvement of approximately 4.36%. The results indicate the effectiveness of the proposed approach for more accurately reflecting the complexity of knowledge and its contextual dependence.",
+          "claimed_authors": [
+            "Eduard Manziuk",
+            "Oleksander Barmak",
+            "Pavlo Radiuk",
+            "Vladislav Kuznetsov",
+            "Iurii Krak",
+            "Sergiy Yakovlev"
+          ],
+          "claimed_title": "Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.19113"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Three general molecular descriptors, namely the general sum-connectivity index, general Platt index and ordinary generalized geometric-arithmetic index, are studied here. Best possible bounds for the aforementioned descriptors of arbitrary saturated hydrocarbons are derived. These bounds are expressed in terms of number of carbon atoms and number of carbon-carbon bonds of the considered hydrocarbons.",
+          "claimed_authors": [
+            "Akbar Ali",
+            "Zhibin Du",
+            "Kiran Shehzadi"
+          ],
+          "claimed_title": "Estimating Some General Molecular Descriptors of Saturated Hydrocarbons",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.11115"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='Estimating Some General Molecular Descriptors of Saturated Hydrocarbons')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this note a notion of generalized topological entropy for arbitrary subsets of the space of all sequences in a compact topological space is introduced. It is shown that for a continuous map on a compact space the generalized topological entropy of the set of all orbits of the map coincides with the classical topological entropy of the map. Some basic properties of this new notion of entropy are considered; among them are: the behavior of the entropy with respect to disjoint union, cartesian product, component restriction and dilation, shift mapping, and some continuity properties with respect to Vietoris topology. As an example, it is shown that any self-similar structure of a fractal given by a finite family of contractions gives rise to a notion of intrinsic topological entropy for subsets of the fractal. A generalized notion of Bowen's entropy associated to any increasing sequence of compatible semimetrics on a topological space is introduced and some of its basic properties are considered. As a special case for $1\\leq p\\leq\\infty$ the Bowen $p$-entropy of sets of sequences of any metric space is introduced. It is shown that the notions of generalized topological entropy and Bowen $\\infty$-entropy for compact metric spaces coincide.",
+          "claimed_authors": [
+            "Maysam Maysami Sadr",
+            "Mina Shahrestani"
+          ],
+          "claimed_title": "Topological Entropy for Arbitrary Subsets of Infinite Product Spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.12856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='Topological Entropy for Arbitrary Subsets of Infinite Product Spaces')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+          "claimed_authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.02639"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
+          "claimed_authors": [
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
+          ],
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nonlinear inter-modality registration is often challenging due to the lack of objective functions that are good proxies for alignment. Here we propose a synthesis-by-registration method to convert this problem into an easier intra-modality task. We introduce a registration loss for weakly supervised image translation between domains that does not require perfectly aligned training data. This loss capitalises on a registration U-Net with frozen weights, to drive a synthesis CNN towards the desired translation. We complement this loss with a structure preserving constraint based on contrastive learning, which prevents blurring and content shifts due to overfitting. We apply this method to the registration of histological sections to MRI slices, a key step in 3D histology reconstruction. Results on two different public datasets show improvements over registration based on mutual information (13% reduction in landmark error) and synthesis-based algorithms such as CycleGAN (11% reduction), and are comparable to a registration CNN with label supervision. Code and data are publicly available at \\url{https://github.com/acasamitjana/SynthByReg}",
+          "claimed_authors": [
+            "Adrià Casamitjana",
+            "Matteo Mancini",
+            "Juan Eugenio Iglesias"
+          ],
+          "claimed_title": "Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.14449"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The results of Brownian dynamics simulations of a single DNA molecule in shear flow are presented taking into account the effect of internal viscosity. The dissipative mechanism of internal viscosity is proved necessary in the research of DNA dynamics. A stochastic model is derived on the basis of the balance equation for forces acting on the chain. The Euler method is applied to the solution of the model. The extensions of DNA molecules for different Weissenberg numbers are analyzed. Comparison with the experimental results available in the literature is carried out to estimate the contribution of the effect of internal viscosity.",
+          "claimed_authors": [
+            "Jack Yang",
+            "Roderick V. N. Melnik"
+          ],
+          "claimed_title": "Effect of Internal Viscosity on Brownian Dynamics of DNA Molecules in Shear Flow",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "q-bio/0703003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='Effect of Internal Viscosity on Brownian Dynamics of DNA Molecules in Shear Flow')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove that the Minimum Description Length learning rule exhibits tempered overfitting. We obtain tempered agnostic finite sample learning guarantees and characterize the asymptotic behavior in the presence of random label noise.",
+          "claimed_authors": [
+            "Naren Sarayu Manoj",
+            "Nathan Srebro"
+          ],
+          "claimed_title": "Interpolation Learning With Minimum Description Length",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.07263"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='Interpolation Learning With Minimum Description Length')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This tutorial provides an overview of and introduction to Rissanen's Minimum Description Length (MDL) Principle. The first chapter provides a conceptual, entirely non-technical introduction to the subject. It serves as a basis for the technical introduction given in the second chapter, in which all the ideas of the first chapter are made mathematically precise. The main ideas are discussed in great conceptual and technical detail. This tutorial is an extended version of the first two chapters of the collection \"Advances in Minimum Description Length: Theory and Application\" (edited by P.Grunwald, I.J. Myung and M. Pitt, to be published by the MIT Press, Spring 2005).",
+          "claimed_authors": [
+            "Peter Grunwald"
+          ],
+          "claimed_title": "A tutorial introduction to the minimum description length principle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "math/0406077"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Molecular Complexity with Information Theory chemistry', candidate_title='A tutorial introduction to the minimum description length principle')",
+        "failed_at": "2026-06-28T10:08:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yonatan Savir",
+            "Tsvi Tlusty"
+          ],
+          "title": "Molecular Recognition as an Information Channel: The Role of Conformational Changes",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1007.4467",
+        "summary": "Molecular recognition, which is essential in processing information in biological systems, takes place in a crowded noisy biochemical environment and requires the recognition of a specific target within a background of various similar competing molecules. We consider molecular recognition as a transmission of information via a noisy channel and use this analogy to gain insights on the optimal, or fittest, molecular recognizer. We focus on the optimal structural properties of the molecules such as flexibility and conformation. We show that conformational changes upon binding, which often occur during molecular recognition, may optimize the detection performance of the recognizer. We thus suggest a generic design principle termed 'conformational proofreading' in which deformation enhances detection. We evaluate the optimal flexibility of the molecular recognizer, which is analogous to the stochasticity in a decision unit. In some scenarios, a flexible recognizer, i.e., a stochastic decision unit, performs better than a rigid, deterministic one. As a biological example, we discuss conformational changes during homologous recombination, the process of genetic exchange between two DNA strands.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1007.4467",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T10:08:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tsvi Tlusty"
+          ],
+          "title": "The physical language of molecular codes: A rate-distortion approach to the evolution and emergence of biological codes",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1007.4471",
+        "summary": "The function of the organism hinges on the performance of its information-processing networks, which convey information via molecular recognition. Many paths within these networks utilize molecular codebooks, such as the genetic code, to translate information written in one class of molecules into another molecular \"language\" . The present paper examines the emergence and evolution of molecular codes in terms of rate-distortion theory and reviews recent results of this approach. We discuss how the biological problem of maximizing the fitness of an organism by optimizing its molecular coding machinery is equivalent to the communication engineering problem of designing an optimal information channel. The fitness of a molecular code takes into account the interplay between the quality of the channel and the cost of resources which the organism needs to invest in its construction and maintenance. We analyze the dynamics of a population of organisms that compete according to the fitness of their codes. The model suggests a generic mechanism for the emergence of molecular codes as a phase transition in an information channel. This mechanism is put into biological context and demonstrated in a simple example.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1007.4471",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T10:08:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xueliang Li",
+            "Meiqin Wei"
+          ],
+          "title": "A survey of recent results in (generalized) graph entropies",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1505.04658",
+        "summary": "The entropy of a graph was first introduced by Rashevsky \\cite{Rashevsky} and Trucco \\cite{Trucco} to interpret as the structural information content of the graph and serve as a complexity measure. In this paper, we first state a number of definitions of graph entropy measures and generalized graph entropies. Then we survey the known results about them from the following three respects: inequalities and extremal properties on graph entropies, relationships between graph structures, graph energies, topological indices and generalized graph entropies, complexity for calculation of graph entropies. Various applications of graph entropies together with some open problems and conjectures are also presented for further research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1505.04658",
+          "http_status": 200,
+          "pdf_sample_score": 0.1601,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T10:08:47Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular complexity with information theory chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

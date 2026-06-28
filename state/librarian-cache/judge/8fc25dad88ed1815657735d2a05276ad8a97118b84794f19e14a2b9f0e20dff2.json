@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-06-28T10:27:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the predictive power of machine learning for organic reaction outcomes chemistry",
+  "rationale": "This paper focuses on ML interpretability using energy landscape methods rather than assessing predictive power for organic reaction outcomes. It does not satisfy any acceptance criteria (a-f) as it lacks connection to the chemistry domain, organic reactions, or predictive performance metrics for chemical outcomes—this is an off-domain methodology paper that doesn't address the user's specific research question.",
+  "relevant": false
+}

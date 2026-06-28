@@ -35,6 +35,10 @@
     "classified_at": "2026-06-13T04:35:32Z",
     "verdict": false
   },
+  "PROJ-084-assessing-the-predictive-power-of-machin::1.6.0": {
+    "classified_at": "2026-06-28T10:20:30Z",
+    "verdict": false
+  },
   "PROJ-094-evaluating-the-effectiveness-of-retrieva::1.6.0": {
     "classified_at": "2026-06-24T22:46:29Z",
     "verdict": false
@@ -197,6 +201,10 @@
   },
   "PROJ-426-the-impact-of-parasocial-relationships-w::1.6.0": {
     "classified_at": "2026-06-24T18:39:12Z",
+    "verdict": false
+  },
+  "PROJ-431-predicting-molecular-complexity-with-inf::1.6.0": {
+    "classified_at": "2026-06-28T10:08:46Z",
     "verdict": false
   },
   "PROJ-435-the-impact-of-visual-attention-patterns-::1.6.0": {

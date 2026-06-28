@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-06-28T10:26:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the predictive power of machine learning for organic reaction outcomes chemistry",
+  "rationale": "The paper is a general survey on machine learning learning curves and does not address the specific domain of organic chemistry or reaction outcomes, falling under the \"off-domain entirely\" rejection rule (e.g., analogous to an astrophysics paper for a gut-microbiome question). While it discusses assessing predictive power (a methodological concept), it lacks the necessary empirical connection to the user's specific application domain required for a canonical literature review reference.",
+  "relevant": false
+}

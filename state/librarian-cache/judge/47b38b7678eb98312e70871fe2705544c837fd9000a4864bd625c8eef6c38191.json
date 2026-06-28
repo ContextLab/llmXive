@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.12511",
+  "judged_at": "2026-06-28T10:26:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the predictive power of machine learning for organic reaction outcomes chemistry",
+  "rationale": "The paper proposes a general machine learning evaluation framework using entropy and rough set theory but does not apply to or address the specific domain of organic chemistry reaction outcomes, making it off-domain for a literature review focused on chemical prediction tasks. It fails to meet the domain-specific requirement (rule b) as it does not measure variables on the user's empirical population (chemical reactions).",
+  "relevant": false
+}

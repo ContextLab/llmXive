@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1505.04658",
+  "judged_at": "2026-06-28T10:13:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular complexity with information theory chemistry",
+  "rationale": "This paper surveys graph entropies, which are the foundational information-theoretic methods for quantifying structural complexity in molecular graphs, satisfying the canonical reference criterion (Rule d). It defines the core mechanism (entropy as a complexity measure) the user is investigating, even if the survey covers general graph structures rather than exclusively chemical populations (Rule a).",
+  "relevant": true
+}
