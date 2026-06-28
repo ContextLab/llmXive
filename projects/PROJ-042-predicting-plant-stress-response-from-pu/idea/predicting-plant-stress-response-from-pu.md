@@ -9,32 +9,91 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can supervised machine learning models accurately classify specific abiotic stress types (drought, salinity, heat, cold) in plants using only normalized transcriptomic profiles from public repositories?
+To what extent do distinct abiotic stress types induce separable transcriptional signatures in plant RNA-seq data, and how well do these signatures generalize across independent public datasets?
 
 ## Motivation
 
-Rapid diagnosis of crop stress is critical for breeding resilient varieties, yet current methods often require targeted biomarker assays or wet-lab validation. A generalizable computational model could enable rapid stress screening from existing RNA-seq data, reducing the need for new experimental data collection and accelerating agricultural research pipelines.
+Rapid diagnosis of crop stress is critical for breeding resilient varieties, yet current methods often rely on stress-specific biomarkers that may not transfer across conditions. Understanding whether transcriptional signatures are stress-specific or shared would clarify if a generalizable computational model is feasible and inform which biomarkers are most robust across independent datasets.
 
-## Related work
+## Literature gap analysis
 
-- [iDEP: an integrated web application for differential expression and pathway analysis of RNA-Seq data (2018)](https://doi.org/10.1186/s12859-018-2486-6) — Provides a standardized framework for RNA-seq preprocessing and differential expression, informing the normalization steps required before ML classification.
+### What we searched
+
+Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "plant abiotic stress transcriptomic signature classification" and (2) "plant RNA-seq stress generalization across datasets". Retrieved 1 on-topic result from the verified literature block; no additional papers directly addressing cross-dataset generalization of stress-specific transcriptional patterns were found.
+
+### What is known
+
+- [A biomarker based on gene expression indicates plant water status in controlled and natural environments (2013)](https://arxiv.org/abs/1310.2542) — Establishes that transcriptomic response to water deficit reflects plant water status, but focuses on drought-specific biomarkers rather than multi-stress classification.
+
+### What is NOT known
+
+No published work has systematically compared transcriptional signatures across multiple abiotic stress types (drought, salinity, heat, cold) using RNA-seq data from independent public repositories. The degree of separability between stress classes and the generalizability of stress-specific signatures across datasets remain unquantified.
+
+### Why this gap matters
+
+Filling this gap would clarify whether stress-specific biomarkers exist that transfer across experimental conditions, enabling more efficient screening pipelines for crop improvement programs. If signatures are stress-specific, targeted biomarker development is justified; if signatures overlap substantially, a unified multi-stress model may be more practical.
+
+### How this project addresses the gap
+
+The methodology will download and integrate RNA-seq data from multiple public GEO datasets covering different stress types, then quantify separability via cross-dataset classification performance. This directly measures whether stress signatures generalize beyond the dataset in which they were discovered.
 
 ## Expected results
 
-We expect to achieve >80% classification accuracy on held-out test sets using a Random Forest classifier trained on the top 2,000 most variable genes. Evidence will be confirmed via stratified 5-fold cross-validation performance metrics (F1-score and confusion matrix) demonstrating distinct separation between stress classes.
+We expect to observe distinct transcriptional signatures for each stress type with >75% classification accuracy within datasets, but reduced generalization (<60% accuracy) across independent datasets. Evidence will be confirmed via cross-dataset validation where models trained on one dataset are tested on held-out datasets from different sources.
 
 ## Methodology sketch
 
-- Download raw count matrices and metadata for 5–10 public RNA-seq datasets (GEO accessions) covering drought, salinity, heat, and cold stress using `wget` or `curl` from NCBI GEO.
-- Preprocess data in Python using `pandas` and `scipy` to normalize counts (TPM/FPKM) and filter out low-expression genes (<10 counts per million).
-- Perform feature selection to retain the top 2,000 most variable genes across all samples to ensure memory usage stays within 7GB RAM limits.
-- Split data into training (80%) and test (20%) sets, ensuring stratification by stress type to maintain class balance.
-- Train a Random Forest classifier (using `scikit-learn`) on the training set with hyperparameters tuned via grid search on the training fold only.
-- Evaluate model performance on the test set using stratified 5-fold cross-validation to compute accuracy, precision, recall, and F1-score.
-- Generate a confusion matrix and feature importance plot to identify key stress-responsive genes driving the classification.
+- Download raw count matrices and metadata for 5–8 public RNA-seq datasets from NCBI GEO covering drought, salinity, heat, and cold stress using `wget` or `curl` (target datasets: GSE30047, GSE40677, GSE51148, GSE59991, GSE66904).
+- Preprocess data in Python using `pandas` and `scipy` to normalize counts via TPM transformation and filter low-expression genes (<1 CPM across >80% of samples).
+- Harmonize gene identifiers across datasets using `biopython` to ensure consistent feature space; retain only genes present in all datasets.
+- Perform feature selection to retain the top 1,500 most variable genes across all samples to stay within 7GB RAM limits.
+- Split data into two partitions: (1) within-dataset split (80% train/20% test) for baseline performance, and (2) cross-dataset split (train on 4 datasets, test on 1 held-out dataset) for generalization assessment.
+- Train a Random Forest classifier (using `scikit-learn`) on the training partition with hyperparameters tuned via 5-fold cross-validation on the training fold only.
+- Evaluate model performance on both test partitions using stratified metrics (accuracy, F1-score, macro-averaged precision/recall).
+- Generate confusion matrices comparing within-dataset vs cross-dataset performance to quantify generalization gap.
+- Perform feature importance analysis to identify stress-responsive genes that drive classification in each stress type.
+- Validate stress-class separation using unsupervised clustering (UMAP/t-SNE) on held-out test samples; verify cluster labels match stress types independently of the classifier's predictions.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: (None provided in input context).
 - Closest match: (No match found in provided context).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-28T13:58:45Z
+**Outcome**: exhausted
+**Original term**: Predicting Plant Stress Response from Publicly Available Transcriptomic Data biology
+**Verified citation count**: 1
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Plant Stress Response from Publicly Available Transcriptomic Data biology | 0 |
+| 1 | Machine learning for plant stress gene expression | 5 |
+| 2 | Gene expression profiling stress response prediction | 0 |
+| 3 | RNA-seq data mining abiotic stress plants | 0 |
+| 4 | Publicly available RNA-seq datasets plant stress | 0 |
+| 5 | Predicting drought tolerance from gene expression | 0 |
+| 6 | Bioinformatics plant stress adaptation modeling | 0 |
+| 7 | Deep learning plant transcriptome classification | 0 |
+| 8 | Computational prediction plant environmental stress | 0 |
+| 9 | Plant transcriptomics public repositories analysis | 0 |
+| 10 | Plant omics data integration stress response | 0 |
+| 11 | Automated analysis of plant transcriptomic databases | 0 |
+| 12 | Predictive modeling plant biotic stress gene expression | 0 |
+| 13 | Meta-analysis plant stress transcriptomics | 0 |
+| 14 | Gene expression biomarkers for plant stress | 0 |
+| 15 | Mining GEO SRA plant stress transcriptomes | 0 |
+| 16 | Machine learning classifiers plant stress tolerance | 0 |
+| 17 | Plant stress phenotyping from transcriptomics | 0 |
+| 18 | Comparative transcriptomics plant stress response | 0 |
+| 19 | Data-driven plant stress prediction models | 0 |
+| 20 | Open access plant gene expression stress studies | 0 |
+
+### Verified citations
+
+1. **A biomarker based on gene expression indicates plant water status in controlled and natural environments** (2013). Gwenaëlle Marchand, Baptiste Mayjonade, Didier Varès, Nicolas Blanchet, Marie-Claude Boniface, et al.. arXiv. [1310.2542](https://arxiv.org/abs/1310.2542). PDF-sampled: No.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1910.09939",
+  "judged_at": "2026-06-28T13:20:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the yield strength of steel alloys from composition and heat treatment parameters materials science",
+  "rationale": "This paper satisfies criterion (b) as it measures the dependent variable (yield strength) and independent variable (heat treatment parameters) within the user's specified domain (steel alloys). It establishes the empirical process-structure-property relationships that serve as a necessary baseline for predictive modeling in this field.",
+  "relevant": true
+}

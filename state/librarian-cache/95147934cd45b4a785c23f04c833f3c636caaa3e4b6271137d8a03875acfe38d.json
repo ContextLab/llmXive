@@ -1,0 +1,529 @@
+{
+  "fetched_at": "2026-06-28T13:25:08Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatment Parameters",
+      "target_n": 5
+    },
+    "duration_seconds": 500.118,
+    "ended_at": "2026-06-28T13:25:08Z",
+    "expansion": null,
+    "extracted_queries": [
+      "flow stress steel alloy composition",
+      "low alloy steel mechanical property dataset",
+      "materials informatics composition microstructure property",
+      "model accuracy steel yield strength regression",
+      "solid solution strengthening precipitation hardening"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2010.14777"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatment Parameters materials science": 3,
+      "flow stress steel alloy composition": 3,
+      "low alloy steel mechanical property dataset": 3,
+      "materials informatics composition microstructure property": 3,
+      "model accuracy steel yield strength regression": 3,
+      "solid solution strengthening precipitation hardening": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2302.11439",
+          "rationale": "The paper investigates Ni-Mn-In Heusler alloys, which are a distinct material class from Steel Alloys, and focuses on magnetocaloric properties and specific phase transformations not central to standard steel yield strength prediction, making it off-domain for this specific research question.",
+          "title": "Influence of Gd-rich precipitates on the martensitic transformation, magnetocaloric effect and mechanical properties of Ni-Mn-In Heusler alloys -- A comparative study"
+        },
+        {
+          "primary_pointer": "1901.04133",
+          "rationale": "The paper focuses on thermal transport properties (thermal conductivity, thermoelectricity) rather than the mechanical property (yield strength) specified in the user's question, representing a distinct construct that does not satisfy the inclusion criteria for mechanism, variable, or population overlap. While both fall under materials informatics, the specific property prediction task and material classes (thermal interface/thermoelectric vs. steel alloys) are too divergent to serve as canonica",
+          "title": "Materials discovery and properties prediction in thermal transport via materials informatics: a mini-review"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-28T13:16:48Z",
+    "term_input": {
+      "normalized": "predicting the yield strength of steel alloys from composition and heat treatment parameters materials science",
+      "raw": "Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatment Parameters materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proposed as blanket structural materials for fusion power reactors, reduced activation ferritic/martensitic (RAFM) steel undergoes volume expanding and contracting in a cyclic mode under service environment. Particularly, being subjected to significant fluxes of fusion neutrons RAFM steel suffers considerable local volume variations in the radiation damage involved regions. It is necessary to study the structure properties of the alloying elements in contraction and expansion states. In this paper we studied local substitution structures of thirteen alloying elements Al, Co, Cr, Cu, Mn, Mo, Nb, Ni, Si, Ta, Ti, V, and W in bcc Fe and calculated their substitutional energies in the volume variation range from -1.0% to 1.0%. From the structure relaxation results of the first five neighbor shells around the substitutional atom we find the relaxation in each neighbor shell keeps approximately uniform within the volume variation from -1.0% to 1.0% except those of Mn and the relaxation of the fifth neighbor shell is stronger than that of the third and forth, indicating that the lattice distortion due to the substitution atom is easier to spread in <111> direction than in other direction. The relaxation pattern and intensity are related to the size and electron structure of the substitutional atom. For some alloying elements, such as Mo, Nb, Ni, Ta, Ti and W, the substitutional energy decreases noticeably when the volume increases. Further analysis show that the substitutional energy comprises the energy variation originated from local structure relaxation and the chemical potential difference of the substitutional atom between its elemental crystalline state and the solid solution phase in bcc Fe. We think the approximately uniform relaxation of each neighbor shell around a substitutional atom give rise to a linear decrease in the substitutional energy with the increasing volume.",
+          "claimed_authors": [
+            "Wei Liu",
+            "Wei-Lu Wang",
+            "C. S. Liu",
+            "Q. F. Fang",
+            "Qun-Ying Huang",
+            "Yi-Can Wu",
+            "Key Laboratory of Materials Physics",
+            "Institute of Solid State Physics",
+            "Chinese Academy of Sciences",
+            "P. O. Box 1129",
+            "Hefei 230031",
+            "P. R. China",
+            "Institute of Plasma Physics",
+            "Chinese Academy of Sciences",
+            "Hefei 230031",
+            "P. R. China"
+          ],
+          "claimed_title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.3001"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe')",
+        "failed_at": "2026-06-28T13:19:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-06-28T13:19:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Ladle stirring is an important step of the steelmaking process to homogenize the temperature and the chemical composition of the liquid steel and to remove inclusions before casting. Gas is injected from the bottom of the bath to induce a turbulent flow of the liquid steel. Multiphase modeling of ladle stirring can become computationally expensive, especially when used within optimal flow control problems. This paper focuses therefore on single-phase flow models. It aims at improving the existing models from the literature. Simulations in a 2d axial-symmetrical configuration, as well as, in a real 3d laboratory-scale ladle, are performed. The results obtained with the present model are in a relative good agreement with experimental data and suggest that it can be used as an efficient model in optimal flow control problems.",
+          "claimed_authors": [
+            "Najib Alia",
+            "Volker John",
+            "Seppo Ollila"
+          ],
+          "claimed_title": "Re-visiting the single-phase flow model for liquid steel ladle stirred by gas",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.11535"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='Re-visiting the single-phase flow model for liquid steel ladle stirred by gas')",
+        "failed_at": "2026-06-28T13:19:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this study, a framework to determine the dynamic flow stress equation of materials based on discrete data of varied (or instantaneous) strain-rate from split Hopkinson pressure bar (SHPB) experiments is proposed. The conventional constant strain-rate requirement in SHPB test is purposely relaxed to generate rich dynamic flow stress data which are widely and diversely distributed in plastic strain and strain-rate space. Two groups of independent SHPB tests, i.e. Group A (without shaper) and Group B (with shaper) were conducted on the C54400 phosphor-bronze copper alloy at room temperature, obtaining flow stress data (FSD) (two-dimensional (2D) matrix). Data qualification criteria were proposed to screen the FSD, with which qualified FSD were obtained. The qualified FSD of Group A were coarsely filled with missing data and were reconstructed by the Artificial Neural Network (ANN). As a result, finely-filled FSD of Group A were obtained, which were carefully evaluated by the qualified FSD of Group B. The evaluation proves the effectiveness of ANN in FSD prediction. Next, the finely-filled FSD from Group A were decomposed by Singular Value Decomposition (SVD) method. Discrete and analytical flow stress equation f(strain, strain-rate)_ana were obtained from the SVD results. Finally, flow stress equation (f(strain, strain-rate)_MJC) based on conventional method were established. Five uncertainties inherent in the conventional method in the determination of the flow stress equation were identified. The comparison between f(strain, strain-rate)_ana and f(strain, strain-rate)_MJC demonstrated the effectiveness and reliability of the flow stress equation obtained from the proposed method.",
+          "claimed_authors": [
+            "Xianglin Huang",
+            "Q. M. Li"
+          ],
+          "claimed_title": "Determination of dynamic flow stress equation based on discrete experimental data: Part 1 Methodology and the dependence of dynamic flow stress on strain-rate",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.04697"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='Determination of dynamic flow stress equation based on discrete experimental data: Part 1 Methodology and the dependence of dynamic flow stress on strain-rate')",
+        "failed_at": "2026-06-28T13:19:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have explored here the case of three-dimensional non-stationary flows of helical type for the incompressible couple stress fluid with given Bernoulli-function in the whole space (the Cauchy problem). In our presentation, the case of non-stationary helical flows with constant coefficient of proportionality alpha between velocity and the curl field of flow is investigated. Conditions for the existence of the exact solution for the aforementioned type of flows are obtained, for which non-stationary helical flow with invariant Bernoulli-function is considered satisfying to Laplace equation. The spatial and time-dependent parts of the pressure field of the fluid flow should be determined via Bernoulli-function, if components of the velocity of the flow are already obtained. Analytical and numerical findings have been outlined including outstandung graphical presentations of various types of constructed solution in illuminating dynamical snap-shots which demonstrate developing in time the structural behaviour of topology of the aforepresented solutions.",
+          "claimed_authors": [
+            "Sergey V. Ershkov",
+            "Evgeniy Yu. Prosviryakov",
+            "Mikhail A. Artemov",
+            "Dmytro D. Leshchenko"
+          ],
+          "claimed_title": "On a new type of non-stationary helical flows for incompressible couple stress fluid",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.03242"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='On a new type of non-stationary helical flows for incompressible couple stress fluid')",
+        "failed_at": "2026-06-28T13:19:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-28T13:19:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-28T13:19:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Rapid and reliable qualification of advanced materials remains a bottleneck in industrial manufacturing, particularly for heterogeneous structures produced via non-conventional additive manufacturing processes. This study introduces a novel framework that links microstructure informatics with a range of expert characterization knowledge using customized and hybrid vision-language representations (VLRs). By integrating deep semantic segmentation with pre-trained multi-modal models (CLIP and FLAVA), we encode both visual microstructural data and textual expert assessments into shared representations. To overcome limitations in general-purpose embeddings, we develop a customized similarity-based representation that incorporates both positive and negative references from expert-annotated images and their associated textual descriptions. This allows zero-shot classification of previously unseen microstructures through a net similarity scoring approach. Validation on an additively manufactured metal matrix composite dataset demonstrates the framework's ability to distinguish between acceptable and defective samples across a range of characterization criteria. Comparative analysis reveals that FLAVA model offers higher visual sensitivity, while the CLIP model provides consistent alignment with the textual criteria. Z-score normalization adjusts raw unimodal and cross-modal similarity scores based on their local dataset-driven distributions, enabling more effective alignment and classification in the hybrid vision-language framework. The proposed method enhances traceability and interpretability in qualification pipelines by enabling human-in-the-loop decision-making without task-specific model retraining. By advancing semantic interoperability between raw data and expert knowledge, this work contributes toward scalable and domain-adaptable qualification strategies in engineering informatics.",
+          "claimed_authors": [
+            "Mutahar Safdar",
+            "Gentry Wood",
+            "Max Zimmermann",
+            "Guy Lamouche",
+            "Priti Wanjara",
+            "Yaoyao Fiona Zhao"
+          ],
+          "claimed_title": "Linking heterogeneous microstructure informatics with expert characterization knowledge through customized and hybrid vision-language representations for industrial qualification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.20243"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='Linking heterogeneous microstructure informatics with expert characterization knowledge through customized and hybrid vision-language representations for industrial qualification')",
+        "failed_at": "2026-06-28T13:19:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+          "claimed_authors": [
+            "Mohammadreza Karamad",
+            "Rishikesh Magar",
+            "Yuting Shi",
+            "Samira Siahrostami",
+            "Ian D. Gates",
+            "Amir Barati Farimani"
+          ],
+          "claimed_title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.06415"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='Orbital Graph Convolutional Neural Network for Material Property Prediction')",
+        "failed_at": "2026-06-28T13:19:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study presents a novel coupled mechano-electro-chemical formulation for predicting stress corrosion cracking (SCC) phenomena in steel structures using the phase field method. SCC is a complex damage process that arises from the interaction between mechanical loading and corrosion in a corrosive electrolyte environment. The proposed formulation introduces a new phase-field parameter that aggregates the damage due to mechanical loading and electro-chemical corrosion. To achieve this goal, the internal energies governing the SCC phenomenon are separated into elastic-damage strain energy, the interfacial reaction energy, and energy resulting from changes in corrosion ion concentration. The Allen-Cahn equation is modified to include all energy contributions and calculate the phase field parameter. Furthermore, a specific interfacial kinetic coefficient is introduced to the mechanical energy to take into account corrosion current effects on mechanical properties. The Cahn-Hilliard equation is applied to model the corrosion ion concentration in the domain and the mechanical state of the body is obtained by solving the equilibrium equations. Several numerical examples are presented to validate the robustness and accuracy of the proposed formulation. Finally, the method is applied to predict crack propagation resulting from SCC on two practical engineering problems, yielding promising results.",
+          "claimed_authors": [
+            "M. Askari",
+            "P. Broumand",
+            "M. Javidi"
+          ],
+          "claimed_title": "Numerical Modeling of Stress Corrosion Cracking in Steel Structures with Phase Field Method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.16739"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='Numerical Modeling of Stress Corrosion Cracking in Steel Structures with Phase Field Method')",
+        "failed_at": "2026-06-28T13:19:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "SoLid is a neutrino experiment at very-short baseline searching for active-to-sterile oscillations of reactor antineutrinos. The detection principle is based on the pairing of two types of solid scintillators: polyvinyl toluene and $^6$Li:ZnS(Ag), which is a new technology used in this field of Physics. In addition to good neutron-gamma discrimination, this setup allows the detector to be highly segmented; the basic detection unit is a 5 cm cube. High segmentation provides numerous advantages including precise localisation of the Inverse Beta Decay (IBD) products, the derivation of an antineutrino energy estimator based on the isolated positron energy, and a powerful background reduction tool that relies on the topological signature of the signal. Finally, the system is read out by a network of WLS fibres coupled to photosensors. A relative electromagnetic calibration is performed with horizontal cosmic muons. This source poses the simplest calibration problem in which a single detection unit is involved. In addition, large muon energy deposits allow us to perform a calibration at the most detailed level (i.e. per fibre) and to accurately define the fraction of energy escaping to neighbouring detection cells. A statistical precision at the sub-percent level is reached. The paper also discusses two methods to calibrate the absolute energy scale. The first method relies on horizontal muons, though the precision is limited to around 10\\% because of the uncertainty in the energy distribution of such muons. A novel, alternative method based on the radioactive AmBe source is proposed. It takes advantage of the electron-positron pair-production process and provides a calibration point at 3.4 MeV (i.e. in the core of the IBD positron spectrum). The paper is concluded with various cross-check including a determination of the energy spectrum of the standard cosmogenic background candle: $^{12}$B.",
+          "claimed_authors": [
+            " SoLid collaboration"
+          ],
+          "claimed_title": "Electromagnetic energy calibration of the SoLid detector with horizontal muons",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.05180"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='Electromagnetic energy calibration of the SoLid detector with horizontal muons')",
+        "failed_at": "2026-06-28T13:19:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A high-throughput methodology is proposed, based on the combination of diffusion couples and advanced nanomechanical testing methods, to directly measure alloying effects on the critical resolved shear stress (CRSS) of individual deformation modes in Mg alloys. The methodology is tested in Mg-Zn alloys by assessing the alloying effects, up to Zn contents of 2 at.%, on basal slip, extension twining and pyramidal slip in two metallurgical condition: as-quenched, for which the Zn solute atoms remain homogenously dispersed in solid solution; and peak-aged, for which the Zn atoms form rod-shape $MgZn_{2}$ precipitates. A combined approach including micromechanical testing, transmission Kikuchi diffraction, and high-resolution transmission electron microscopy was performed to reveal the corresponding deformation mechanisms. It was found that the CRSS enhancement for basal slip and extension twinning by $MgZn_{2}$ precipitates is considerably larger than the effect of Zn in solid solution, while the strengthening of pyramidal slip is similar in both cases. As a result, the anisotropy ratios remain high and similar to pure Mg in the solid solution strengthened Mg-Zn alloys. However, they are substantially reduced in precipitation strengthened Mg-Zn alloys.",
+          "claimed_authors": [
+            "N. Li",
+            "C. Wang",
+            "M. A. Monclús",
+            "L. Yang",
+            "J. M. Molina-Aldareguia"
+          ],
+          "claimed_title": "Solid solution and precipitation strengthening effects in basal slip, extension twinning and pyramidal slip in Mg-Zn alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.03287"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='Solid solution and precipitation strengthening effects in basal slip, extension twinning and pyramidal slip in Mg-Zn alloys')",
+        "failed_at": "2026-06-28T13:19:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The SoLid experiment is a very-short-baseline experiment aimed at searching for nuclear reactor-produced active to sterile antineutrino oscillations. The detection principle is based on the pairing of two types of solid scintillators: polyvinyl toluene and $^6$LiF:ZnS(Ag), which is a new technology used in this field of Physics. In addition to good neutron-gamma discrimination, this setup allows the detector to be highly segmented (the basic detection unit is a 5 cm side cube). High segmentation provides numerous advantages, including the precise location of Inverse Beta Decay (IBD) products, the derivation of the considerate antineutrino energy estimator, and a powerful background reduction tool based on the topological signature of the signal. Finally, the system is read out by a network of wavelength-shifting fibres coupled to a photodetector (MPPC). This paper describes the design of the reconstruction algorithm that allows maximum use of the granularity of the detector. The goal of the algorithm is to convert the output of the optical-fibre readout to the list of the detection units from which it originated. This paper provides a performance comparison for three methods and concludes with a choice of the baseline approach for the experiment.",
+          "claimed_authors": [
+            " The SoLid collaboration"
+          ],
+          "claimed_title": "The CCube reconstruction algorithm for the SoLid experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.03580"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatmen', candidate_title='The CCube reconstruction algorithm for the SoLid experiment')",
+        "failed_at": "2026-06-28T13:19:32Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Soumya Sridar",
+            "Yunhao Zhao",
+            "Kun Li",
+            "Xin Wang",
+            "Wei Xiong"
+          ],
+          "title": "Post-Heat Treatment Design of High-Strength Low-Alloy Steels Processed by Laser Powder Bed Fusion",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1910.09939",
+        "summary": "In this study, a post-heat treatment design for additively manufactured copper-bearing high-strength low-alloy (HSLA)-100 steel is performed by understanding the process-structure-property relationships. Hot isostatic pressing (HIP) is designed to reduce the porosity from 3% to less than 1% for the HSLA-100 steel processed by laser powder bed fusion (LPBF). Quenching dilatometry is employed to design the HIP parameters with the optimized cooling rate for the maximum amount of martensite transformed after HIP. Afterward, a post-heat treatment step with cyclic re-austenitization is introduced for an effective grain refinement to compensate the coarsened microstructure after HIP. Finally, tempering is optimized through microstructure characterization and microhardness. A two-fold increase in the yield strength of the HSLA with tailored microstructure during post-heat treatment is achieved in comparison with the as-built HSLA.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1910.09939",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T13:19:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Evgeniya Kabliman",
+            "Gabriel Kronberger"
+          ],
+          "title": "Identification of Empirical Constitutive Models for Age-Hardenable Aluminium Alloy and High-Chromium Martensitic Steel Using Symbolic Regression",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.08424",
+        "summary": "Process-structure-property relationships are fundamental in materials science and engineering and are key to the development of new and improved materials. Symbolic regression serves as a powerful tool for uncovering mathematical models that describe these relationships. It can automatically generate equations to predict material behaviour under specific manufacturing conditions and optimize performance characteristics such as strength and elasticity.\n  The present work illustrates how symbolic regression can derive constitutive models that describe the behaviour of various metallic alloys during plastic deformation. Constitutive modelling is a mathematical framework for understanding the relationship between stress and strain in materials under different loading conditions. In this study, two materials (age-hardenable aluminium alloy and high-chromium martensitic steel) and two different testing methods (compression and tension) are considered to obtain the required stress-strain data. The results highlight the benefits of using symbolic regression while also discussing potential challenges.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.08424",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T13:19:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Itsaso Arrayago",
+            "Kim J. R. Rasmussen",
+            "Esther Real"
+          ],
+          "title": "Statistical analysis of the material, geometrical and imperfection characteristics of structural stainless steels and members",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2010.14777",
+        "summary": "Traditional member-based two-step design approaches included in current structural codes for steel structures, as well as more recent system-based direct-design alternatives, require building rigorous structural reliability frameworks for the calibration of partial coefficients (resistance factors) to achieve specified target reliability requirements. Key design parameters affecting the strength of structures and their random variations are generally modelled by nominal or characteristic values in design standards, which are combined with partial coefficients that need to be calibrated from measurements on real samples. While the statistical characterization of material and geometric properties of structural steels has been consolidated over the last decades, information about the characterization of structural stainless steels is virtually non-existent due to the limited pool of available data. Thus, this paper presents the basic ingredient for developing reliability frameworks for stainless steel structures and components by statistically characterizing the main random parameters affecting their strength through a comprehensive database collected from the literature. Based on the collected data, appropriate probabilistic models are proposed for geometric properties, material properties, imperfections and residual stresses of different stainless steel alloys and cross-section or product types. The data is equally applicable to member-based reliability analyses as described in existing codes and system-based analyses targeted at the direct-design of stainless steel structures by advanced analysis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2010.14777",
+          "http_status": 200,
+          "pdf_sample_score": 0.3869,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-28T13:19:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the yield strength of steel alloys from composition and heat treatment parameters materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

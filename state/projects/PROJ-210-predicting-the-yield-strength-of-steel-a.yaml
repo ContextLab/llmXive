@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T17:22:58.212471Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-210-predicting-the-yield-strength-of-steel-a
-last_run_id: 4cdf4b84-821c-41f6-aa51-1d533489394f
+last_run_id: 422ffe23-ece6-4f5b-98e5-931e5edbf0f8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatment
   Parameters
-updated_at: '2026-06-13T16:11:22.870926Z'
+updated_at: '2026-06-28T13:25:45.592961Z'

@@ -1,0 +1,11 @@
+- artifact_hash: 18eb30edbf16825c8d6e2ffdd308a2d3f13488fc75b3c46f084d0c8ff37e0080
+  artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 20k.txt
+  kind: url
+  value: https://raw.githubusercontent.com/first20hours/google-10000-english/master/20k.txt
+  verification_status: verified
+  verified_against_url: https://raw.githubusercontent.com/first20hours/google-10000-english/master/20k.txt
+  verified_at: '2026-06-28T13:26:47.594826Z'

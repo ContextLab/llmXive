@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.04133",
+  "judged_at": "2026-06-28T13:24:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the yield strength of steel alloys from composition and heat treatment parameters materials science",
+  "rationale": "The paper focuses on thermal transport properties (thermal conductivity, thermoelectricity) rather than the mechanical property (yield strength) specified in the user's question, representing a distinct construct that does not satisfy the inclusion criteria for mechanism, variable, or population overlap. While both fall under materials informatics, the specific property prediction task and material classes (thermal interface/thermoelectric vs. steel alloys) are too divergent to serve as canonica",
+  "relevant": false
+}

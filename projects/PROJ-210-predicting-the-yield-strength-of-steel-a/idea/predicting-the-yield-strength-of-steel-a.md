@@ -9,34 +9,55 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can machine learning regression models, trained on publicly available datasets of steel alloy compositions and heat treatment parameters, accurately predict yield strength (R² > 0.8) for unseen alloy compositions?
+How do elemental composition and heat treatment parameters jointly determine yield strength in steel alloys, and which specific interactions (e.g., carbon content × cooling rate) carry the most predictive signal for mechanical properties?
 
 ## Motivation
 
-Experimental determination of yield strength is time-consuming and costly; accurate ML predictions could accelerate materials discovery by screening candidate compositions in silico. This project addresses the gap in generalizable models that account for complex interactions between elemental ratios and thermal processing schedules.
+Experimental determination of yield strength requires costly mechanical testing and months of sample preparation; accurate computational models could accelerate alloy design by screening candidate compositions in silico. This project addresses the gap in understanding which composition-heat-treatment interactions dominate yield strength prediction, moving beyond additive feature models to capture synergistic effects.
 
 ## Related work
 
-- [Post-Heat Treatment Design of High-Strength Low-Alloy Steels Processed by Laser Powder Bed Fusion](http://arxiv.org/abs/1910.09939v3) — Demonstrates process-structure-property relations in HSLA steels, relevant for feature engineering heat treatment parameters.
-- [Microstructural evolution of a low-alloy steel / nickel superalloy dissimilar metal weld during post-weld heat treatment](http://arxiv.org/abs/1911.12223v1) — Provides context on how post-weld heat treatment alters microstructure and mechanical properties in low-alloy steels.
-- [Statistical analysis of the material, geometrical and imperfection characteristics of structural stainless steels and members](http://arxiv.org/abs/2010.14777v2) — Offers statistical frameworks for analyzing structural steel characteristics, supporting the validation methodology.
+- [Post-Heat Treatment Design of High-Strength Low-Alloy Steels Processed by Laser Powder Bed Fusion](https://arxiv.org/abs/1910.09939) — Establishes process-structure-property relations for HSLA steels, demonstrating that post-heat treatment significantly alters microstructure and mechanical properties in ways that depend on thermal history.
+- [Identification of Empirical Constitutive Models for Age-Hardenable Aluminium Alloy and High-Chromium Martensitic Steel Using Symbolic Regression](https://arxiv.org/abs/2511.08424) — Uses symbolic regression to derive interpretable constitutive models linking composition and processing to mechanical properties in martensitic steel, validating ML approaches for steel property prediction.
+- [Statistical analysis of the material, geometrical and imperfection characteristics of structural stainless steels and members](https://arxiv.org/abs/2010.14777) — Provides statistical frameworks for analyzing structural steel characteristics and variability, supporting rigorous validation of property prediction models.
 
 ## Expected results
 
-The model is expected to achieve a coefficient of determination (R²) above 0.8 on a held-out test set, confirming that composition and heat treatment are dominant predictors. Feature importance analysis will likely identify carbon content and cooling rate as top contributors, providing physical interpretability.
+The analysis is expected to identify 2-3 dominant interaction terms (e.g., carbon content × cooling rate, chromium × tempering temperature) that explain >15% of yield strength variance beyond main effects. Feature importance rankings will reveal whether compositional or thermal parameters carry stronger predictive signal, with potential null results if heat treatment effects are negligible for certain alloy families.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download tabular steel alloy datasets (composition, heat treatment, yield strength) from the NIST Materials Data Repository (https://www.nist.gov/mml/materials-databases) or equivalent open Zenodo records via `wget`.
-- **Preprocessing**: Clean missing values, normalize temperature/cooling rate features, and encode categorical heat treatment types (e.g., quenching, tempering).
-- **Feature Engineering**: Generate interaction features for elemental ratios (e.g., C/Mn, Cr/Ni) and derived thermal parameters (e.g., cooling rate × holding time).
-- **Model Selection**: Train baseline Linear Regression, Random Forest, and XGBoost regressors using `scikit-learn` (CPU-only mode).
-- **Validation**: Perform 5-fold cross-validation to assess generalization; limit dataset size to <50k rows to ensure execution within 7 GB RAM.
-- **Evaluation**: Compute RMSE, MAE, and R²; generate SHAP plots for feature interpretability.
-- **Hardware Constraints**: Ensure all computation runs on 2 CPU cores within 6 hours; avoid large model grids or deep learning.
+- **Data Acquisition**: Download tabular steel alloy datasets from NIST Materials Data Repository (https://www.nist.gov/mml/materials-databases) and Materials Project (https://materialsproject.org) via `wget`; target datasets with ≥500 samples containing composition (%C, %Mn, %Cr, etc.), heat treatment parameters (tempering temperature, cooling rate, holding time), and measured yield strength (MPa).
+- **Preprocessing**: Remove samples with missing yield strength values; normalize temperature/cooling rate to 0-1 scale; encode categorical heat treatment types (quenching, tempering, annealing) as one-hot vectors.
+- **Feature Engineering**: Generate pairwise interaction features for elemental ratios (C/Mn, Cr/Ni) and thermal parameters (cooling rate × holding time); compute derived metallurgical indices (e.g., carbon equivalent, hardenability factor).
+- **Model Training**: Fit regularized Linear Regression, Random Forest, and XGBoost regressors using `scikit-learn` and `xgboost` in CPU-only mode; tune hyperparameters via 3-fold cross-validation with ≤100 grid points total.
+- **Statistical Testing**: Apply 5-fold cross-validation with stratified sampling; compare model performance using paired t-tests on R² scores across folds; compute partial dependence plots for top interaction terms.
+- **Feature Interpretability**: Generate SHAP summary plots to rank features by mean absolute SHAP value; extract interaction SHAP values for candidate interaction terms; test statistical significance of interaction effects via permutation importance.
+- **Validation Independence**: Ensure test set yield strength measurements are experimentally determined and independent of training composition/heat treatment data; no derived quantities used for validation.
+- **Resource Constraints**: Limit dataset to ≤10,000 rows; restrict model training to ≤4 hours total on 2 CPU cores; monitor RAM usage to stay under 6 GB.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in input.
 - Closest match: None.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-28T13:25:08Z
+**Outcome**: exhausted
+**Original term**: Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatment Parameters materials science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting the Yield Strength of Steel Alloys from Composition and Heat Treatment Parameters materials science | 3 |
+
+### Verified citations
+
+1. **Post-Heat Treatment Design of High-Strength Low-Alloy Steels Processed by Laser Powder Bed Fusion** (2019). Soumya Sridar, Yunhao Zhao, Kun Li, Xin Wang, Wei Xiong. arXiv. [1910.09939](https://arxiv.org/abs/1910.09939). PDF-sampled: No.
+2. **Identification of Empirical Constitutive Models for Age-Hardenable Aluminium Alloy and High-Chromium Martensitic Steel Using Symbolic Regression** (2025). Evgeniya Kabliman, Gabriel Kronberger. arXiv. [2511.08424](https://arxiv.org/abs/2511.08424). PDF-sampled: No.
+3. **Statistical analysis of the material, geometrical and imperfection characteristics of structural stainless steels and members** (2020). Itsaso Arrayago, Kim J. R. Rasmussen, Esther Real. arXiv. [2010.14777](https://arxiv.org/abs/2010.14777). PDF-sampled: No.

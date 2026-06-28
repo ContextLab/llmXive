@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.21666",
+  "judged_at": "2026-06-28T13:51:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available transcriptomic data biology",
+  "rationale": "The paper uses aerial imagery for stress detection rather than transcriptomic data, representing a distinct data modality and empirical setting that does not align with the user's specific constraint on input data type. This falls under the rejection rule for having no measurable connection to the user's mechanism, domain, or empirical setting.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-28T13:52:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available transcriptomic data biology",
+  "rationale": "This paper provides general ML validation recommendations for biology but does not measure plant stress response, transcriptomic data, or any variables specific to the user's research question. It fails to satisfy any acceptance criteria (a-f) as it lacks connection to the specific domain (plants), data type (transcriptomics), or mechanism (stress response prediction) the user is investigating.",
+  "relevant": false
+}

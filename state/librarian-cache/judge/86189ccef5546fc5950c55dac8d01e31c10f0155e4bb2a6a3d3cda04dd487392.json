@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.08424",
+  "judged_at": "2026-06-28T13:24:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the yield strength of steel alloys from composition and heat treatment parameters materials science",
+  "rationale": "This paper satisfies criterion (b) because it investigates mechanical strength and constitutive behavior in high-chromium martensitic steel, which falls within the user's domain of steel alloys and addresses the same dependent variable category (strength/yield behavior). Additionally, it explores process-structure-property relationships using symbolic regression, providing relevant methodological context for predicting material properties from processing conditions.",
+  "relevant": true
+}

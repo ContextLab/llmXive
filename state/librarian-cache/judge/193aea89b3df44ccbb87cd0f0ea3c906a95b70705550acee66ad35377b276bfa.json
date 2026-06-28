@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2010.14777",
+  "judged_at": "2026-06-28T13:25:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the yield strength of steel alloys from composition and heat treatment parameters materials science",
+  "rationale": "This paper satisfies criterion (b) as it measures material properties including strength parameters on the same domain (steel alloys - specifically stainless steels), providing statistical characterization of the dependent variable (strength) even though it doesn't address the full prediction task from composition and heat treatment parameters. For a literature review, this establishes the empirical baseline for material property distributions in steel alloys that would be relevant background fo",
+  "relevant": true
+}

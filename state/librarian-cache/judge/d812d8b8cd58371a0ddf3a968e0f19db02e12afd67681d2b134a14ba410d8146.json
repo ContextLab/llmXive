@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.11597",
+  "judged_at": "2026-06-28T13:51:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available transcriptomic data biology",
+  "rationale": "The paper uses RGB-T imaging data rather than transcriptomic data, failing to address the specific data modality (independent variable) central to the user's research question. While both address plant stress, the lack of connection to transcriptomic variables means it does not provide the canonical prior work expected for a review focused on genomic prediction.",
+  "relevant": false
+}

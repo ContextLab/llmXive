@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.11439",
+  "judged_at": "2026-06-28T13:22:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the yield strength of steel alloys from composition and heat treatment parameters materials science",
+  "rationale": "The paper investigates Ni-Mn-In Heusler alloys, which are a distinct material class from Steel Alloys, and focuses on magnetocaloric properties and specific phase transformations not central to standard steel yield strength prediction, making it off-domain for this specific research question.",
+  "relevant": false
+}

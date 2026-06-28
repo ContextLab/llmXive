@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T15:40:53.450524Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-445-predicting-the-impact-of-composition-on-
-last_run_id: db49487a-aa8a-450f-8035-7ee0353708e3
+last_run_id: e5c31c34-3ee3-4b96-b5a2-bbe508acf23b
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-445-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on
 title: Predicting the Impact of Composition on the Glass Transition Temperature of
   Chalcogenide Glasses
-updated_at: '2026-06-27T15:35:40.933752Z'
+updated_at: '2026-06-28T13:46:40.670671Z'
