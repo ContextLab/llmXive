@@ -255,28 +255,6 @@ def _incomplete_task_count(project_dir: Path, *, paper: bool) -> int:
     return candidates[0].read_text(encoding="utf-8").count("- [ ]")
 
 
-def _human_input_marker(project_dir: Path) -> bool:
-    return (
-        (project_dir / ".specify" / "memory" / "human_input_needed.yaml").exists()
-        or (project_dir / "paper" / ".specify" / "memory" / "human_input_needed.yaml").exists()
-    )
-
-
-def _write_human_escalation_marker(
-    memory_dir: Path, reason: str, stage_label: str
-) -> None:
-    """Drop a ``human_input_needed.yaml`` recording why the project escalated
-    (convergence-kickback cap exceeded or unroutable target). The reason is
-    also surfaced onto the Project's ``human_escalation_reason`` field by
-    ``run_one_step`` (read back from this marker)."""
-    import yaml
-
-    memory_dir.mkdir(parents=True, exist_ok=True)
-    (memory_dir / "human_input_needed.yaml").write_text(
-        yaml.safe_dump({"reason": reason, "stage": stage_label}), encoding="utf-8"
-    )
-
-
 def _human_escalation_reason_from_markers(project_dir: Path) -> str | None:
     """Read the ``reason`` from whichever ``human_input_needed.yaml`` marker
     exists (research- or paper-side), for surfacing onto the Project."""
@@ -591,15 +569,25 @@ def run_one_step(
         _batch_cap = IMPLEMENT_TASK_BATCH if _is_implement_batch else 1
         _deadline = time.monotonic() + IMPLEMENT_BATCH_BUDGET_SECONDS
         _processed = 0
-        # EXECUTION FIX-LOOP MODEL OVERRIDE (autonomous exhaustion handling):
-        # when the research implementer fixes a failed analysis run in_progress,
-        # resolve the project's current model tier → a model override on its
-        # agent call. Tier 0 = no override = the registered default; a higher
-        # tier returns the ladder's model id (reusing the router's `model=`
-        # override and the paid credit guard). The override applies ONLY to the
-        # execution fix-loop implementer, not any other stage.
+        # MODEL-TIER OVERRIDE (autonomous exhaustion handling — SHARED ladder).
+        # The per-project ``model_tier`` (execution_status) is the SSoT model
+        # ladder for BOTH autonomous loops:
+        #   * the execution fix-loop implementer (IN_PROGRESS), and
+        #   * the doc-stage convergence panels (SPECIFIED/CLARIFIED/PLANNED +
+        #     paper twins): when a panel exhausts its kickback cap, the
+        #     escalate block bumps the tier and re-enters the review loop, so
+        #     the NEXT dispatch of the doc-stage agent must run its convergence
+        #     reviser/panel on the escalated model. Threading the override into
+        #     ``ctx.default_model`` flows it straight to ``build_*_reviewspec(
+        #     model=ctx.default_model)`` — the same `model=` router override the
+        #     execution implementer uses, gated by the same paid credit guard.
+        # Tier 0 = no override = the registered default.
         _model_for_run = entry.default_model
-        if agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS:
+        _exec_fix = (
+            agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS
+        )
+        _panel_stage = project.current_stage in _STAGE_PANEL_LABEL
+        if _exec_fix or _panel_stage:
             _model_for_run = execution_status.execution_model_override(
                 project.id,
                 default_model=entry.default_model,
@@ -607,9 +595,10 @@ def run_one_step(
             )
             if _model_for_run != entry.default_model:
                 logger.info(
-                    "execution fix-loop: dispatching implementer for %s with "
-                    "escalated model override %r (tier %d)",
-                    project.id, _model_for_run,
+                    "model-tier escalation: dispatching %s for %s (stage=%s) "
+                    "with escalated model override %r (tier %d)",
+                    agent_name, project.id, project.current_stage.value,
+                    _model_for_run,
                     execution_status.model_tier(project.id, repo_root=repo),
                 )
         while True:
@@ -773,8 +762,7 @@ def run_one_step(
 
 def _convergence_kickback_memory_dirs(project_dir: Path) -> list[Path]:
     """The two memory dirs a doc-stage panel may drop its sentinel into:
-    the research-side and the paper-side ``.specify/memory/`` (mirrors
-    ``_human_input_marker``)."""
+    the research-side and the paper-side ``.specify/memory/``."""
     return [
         project_dir / ".specify" / "memory",
         project_dir / "paper" / ".specify" / "memory",
@@ -862,6 +850,75 @@ def _write_doc_kickback_feedback(
     (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(
         "\n".join(lines) + "\n", encoding="utf-8"
     )
+
+
+def _panel_is_paper(stage_label: str) -> bool:
+    """Whether a convergence panel ``stage_label`` belongs to the PAPER track.
+
+    The paper-track panels (``paper_spec`` / ``paper_plan`` / ``paper_tasks``)
+    all carry the ``paper`` prefix; the research-track panels (``spec`` /
+    ``plan`` / ``tasks``) do not. Used to derive the stage-appropriate RE-WORK
+    stage when a convergence panel exhausts its model-escalation ladder.
+    """
+    return stage_label.startswith("paper")
+
+
+def _panel_rework_stage(stage_label: str) -> Stage:
+    """The deterministic RE-PLAN stage a convergence panel routes to once every
+    model tier has exhausted its kickback cap (autonomous exhaustion handling).
+
+    Research panels re-plan at :data:`Stage.PLANNED`; paper panels at
+    :data:`Stage.PAPER_PLANNED`. Mirrors the execution path's route-to-PLANNED
+    fallback — the planner re-derives the approach from the deterministic
+    concerns report so the next panel sees a genuinely revised artifact rather
+    than the same residue. NEVER ``human_input_needed``.
+    """
+    return Stage.PAPER_PLANNED if _panel_is_paper(stage_label) else Stage.PLANNED
+
+
+def _write_convergence_replan_feedback(
+    project_dir: Path, decision: KickbackDecision, *, paper: bool
+) -> str:
+    """DETERMINISTIC (no-LLM) re-plan report for a convergence panel that
+    exhausted EVERY model tier without reaching unanimous acceptance.
+
+    Mirrors :func:`_write_execution_replan_feedback`: a machine-generated
+    markdown report of the UNRESOLVED panel concerns + the explicit
+    adjust-the-approach instruction, written to the SAME doc-stage
+    kickback-ingestion file the planner already reads
+    (``.specify/memory/kickback_feedback.md`` — the paper twin uses the
+    ``paper/`` memory dir). Returns the report text.
+
+    SSoT: same ingestion channel as :func:`_write_doc_kickback_feedback`; the
+    only difference is the framing (re-PLAN the approach vs. revise-in-place)
+    because the model ladder is exhausted, so a fresh plan — not another
+    in-place tweak by the same models — is what breaks the loop.
+    """
+    base = (project_dir / "paper") if paper else project_dir
+    memory_dir = base / ".specify" / "memory"
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    lines = [
+        "# Re-plan: the panel could not converge — adjust the approach",
+        "",
+        "The convergence panel for this stage exhausted EVERY model tier (the "
+        "registered default plus escalations) across its kickback cap without "
+        "reaching unanimous acceptance. Rather than escalate to a human, the "
+        "pipeline is RE-PLANNING this project: re-derive the implementation "
+        "approach so the new plan RESOLVES each unresolved concern below — do "
+        "NOT merely re-state the prior design.",
+        "",
+        f"**Why it could not converge**: {decision.reason}",
+        "",
+        "## Unresolved concerns (resolve these in the new plan)",
+        "",
+    ]
+    if decision.unresolved_concerns:
+        lines.extend(f"- {c}" for c in decision.unresolved_concerns)
+    else:
+        lines.append("- (no per-concern bodies were carried; see the reason above)")
+    text = "\n".join(lines) + "\n"
+    (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(text, encoding="utf-8")
+    return text
 
 
 def _write_execution_replan_feedback(
@@ -1086,58 +1143,80 @@ def _decide_next_stage(
         if decision is None:
             continue
         if decision.escalate:
-            reason = (
-                f"Convergence kickback cap exceeded: the {decision.stage_label!r} "
-                f"convergence panel kicked the project back "
-                f"{decision.count} time(s) (cap={CONVERGENCE_KICKBACK_CAP}) without "
-                f"reaching unanimous acceptance. A human must intervene. "
-                f"Last reason: {decision.reason}"
-            )
-            _write_human_escalation_marker(mem_dir, reason, decision.stage_label)
-            # Spec 023 / FR-017: every surviving human escalation carries
-            # machine-checkable exhaustion evidence and feeds the digest.
-            from llmxive.state.escalations import EscalationRecord, write_record
+            # AUTONOMOUS exhaustion handling (mirrors the execution path,
+            # commit 3068830e3): a convergence panel NEVER parks a project at
+            # human_input_needed (the sole human gate is publication DOI
+            # sign-off). At the per-stage kickback cap:
+            #   1. MODEL ESCALATION — bump to the next usable model tier
+            #      (the shared execution_status ladder: registered default →
+            #      free second-opinion → opt-in paid) so the panel/reviser
+            #      retries with a stronger/different model, and re-enter the
+            #      review loop at the SAME stage. ``consume_convergence_kickback``
+            #      already reset the per-stage kickback count on this decision,
+            #      so the retry starts from a clean count. The dispatch resolver
+            #      threads the tier's model override into the doc-stage agent
+            #      (and thus its convergence reviser/panel), exactly as the
+            #      execution fix-loop implementer is threaded.
+            #   2. ALL TIERS EXHAUSTED — RE-PLAN deterministically (no LLM):
+            #      write a report of the unresolved concerns to the planner's
+            #      ingestion file and route to the stage-appropriate re-work
+            #      stage (research → PLANNED, paper → PAPER_PLANNED), resetting
+            #      BOTH the model tier and the kickback count so the re-planned
+            #      project starts clean.
             try:
-                write_record(
-                    EscalationRecord(
-                        project_id=project.id,
-                        stage=decision.stage_label,
-                        loop="convergence-kickback",
-                        bound=CONVERGENCE_KICKBACK_CAP,
-                        rounds_used=decision.count,
-                        attempts=[
-                            {
-                                "round": str(decision.count),
-                                "summary": (decision.reason or "")[:500],
-                                "outcome": "panel did not converge",
-                            }
-                        ],
-                        recommended_action=(
-                            "Review the unresolved panel concerns and either "
-                            "revise the content manually or terminate the "
-                            "project honestly."
-                        ),
-                    ),
-                    repo_root=repo_root,
+                new_tier = execution_status.bump_model_tier(
+                    project.id, repo_root=repo_root
                 )
-            except Exception as rec_exc:  # never block the routing decision
-                logger.warning("escalation-record write failed: %s", rec_exc)
-            return Stage.HUMAN_INPUT_NEEDED
+                logger.info(
+                    "convergence panel %r hit the kickback cap for %s — "
+                    "escalating to model tier %d (model=%r) and retrying the "
+                    "review loop (NOT human_input_needed)",
+                    decision.stage_label, project.id, new_tier,
+                    execution_status.tier_model(new_tier)
+                    or "<registered default>",
+                )
+                # Stay in the review loop at the current stage: the next tick
+                # re-runs the panel with the escalated model. Returning the
+                # current stage is a no-op transition (the project stays put
+                # and is re-picked by the scheduler).
+                return project.current_stage
+            except ValueError:
+                # No higher usable model tier → re-plan deterministically.
+                _paper = _panel_is_paper(decision.stage_label)
+                _write_convergence_replan_feedback(
+                    project_dir, decision, paper=_paper
+                )
+                execution_status.reset_fix_loop(project.id, repo_root=repo_root)
+                for _md in _convergence_kickback_memory_dirs(project_dir):
+                    reset_kickback_count(_md, decision.stage_label)
+                rework_stage = _panel_rework_stage(decision.stage_label)
+                logger.info(
+                    "convergence panel %r exhausted ALL model tiers for %s — "
+                    "re-planning (deterministic concerns report written; "
+                    "routing to %s; NOT human_input_needed). Last reason: %s",
+                    decision.stage_label, project.id, rework_stage.value,
+                    decision.reason,
+                )
+                return rework_stage
         try:
             target_stage = Stage(decision.to_stage or "")
         except ValueError:
+            # A convergence kickback that names an INVALID stage is a ROUTING
+            # BUG, not a human matter. Route to the SAFE deterministic
+            # re-work fallback (research → PLANNED, paper → PAPER_PLANNED) so
+            # the planner re-derives a clean approach — NEVER human_input_needed.
+            rework_stage = _panel_rework_stage(decision.stage_label)
             logger.warning(
-                "convergence_kickback to_stage %r is not a valid Stage; "
-                "escalating %s to human_input_needed",
-                decision.to_stage, project.id,
+                "convergence_kickback to_stage %r is not a valid Stage "
+                "(malformed routing) for %s; re-routing to %s and writing a "
+                "deterministic re-plan note. Reason: %s",
+                decision.to_stage, project.id, rework_stage.value,
+                decision.reason,
             )
-            _write_human_escalation_marker(
-                mem_dir,
-                f"convergence kickback named unknown stage "
-                f"{decision.to_stage!r}; cannot auto-route. {decision.reason}",
-                decision.stage_label,
+            _write_convergence_replan_feedback(
+                project_dir, decision, paper=_panel_is_paper(decision.stage_label)
             )
-            return Stage.HUMAN_INPUT_NEEDED
+            return rework_stage
         # Persist the panel's diagnosis where the content agent will read it.
         # When a kickback routes to a CONTENT stage (flesh_out / brainstorm),
         # the sentinel (and its concern bodies) was just DELETED by
@@ -1175,8 +1254,53 @@ def _decide_next_stage(
             missing_ok=True
         )
 
-    if _human_input_marker(project_dir):
-        return Stage.HUMAN_INPUT_NEEDED
+    # AUTONOMOUS handling of a lingering ``human_input_needed.yaml`` marker.
+    # The convergence-kickback path no longer WRITES this marker (it escalates
+    # the model tier then re-plans deterministically — see the escalate block
+    # above). Other doc-stage caps (clarifier attempts, tasker analyze-loop,
+    # paper-implement) may still drop the marker; per the user-directed rule —
+    # human input is required ONLY for the publication DOI sign-off — NONE of
+    # these may park the project. So instead of routing to HUMAN_INPUT_NEEDED,
+    # consume the marker, write a DETERMINISTIC re-plan note from its reason,
+    # and route to the stage-appropriate RE-WORK stage (research → PLANNED,
+    # paper → PAPER_PLANNED) so the planner re-derives a clean approach. The
+    # publication sign-off gate (awaiting_publication_signoff) is a SEPARATE
+    # mechanism (signoff_gate) and never uses this marker.
+    paper_marker = (
+        project_dir / "paper" / ".specify" / "memory" / "human_input_needed.yaml"
+    )
+    research_marker = (
+        project_dir / ".specify" / "memory" / "human_input_needed.yaml"
+    )
+    marker = (
+        paper_marker if paper_marker.exists()
+        else research_marker if research_marker.exists()
+        else None
+    )
+    if marker is not None:
+        is_paper = marker == paper_marker
+        reason = _human_escalation_reason_from_markers(project_dir) or (
+            "a bounded doc-stage loop hit its cap"
+        )
+        rework_stage = Stage.PAPER_PLANNED if is_paper else Stage.PLANNED
+        # Reuse the deterministic re-plan ingestion file the planner reads.
+        synthetic = KickbackDecision(
+            to_stage=rework_stage.value,
+            escalate=False,
+            stage_label="paper_plan" if is_paper else "plan",
+            reason=reason,
+            count=0,
+            unresolved_concerns=(),
+        )
+        _write_convergence_replan_feedback(project_dir, synthetic, paper=is_paper)
+        marker.unlink(missing_ok=True)
+        logger.info(
+            "consumed a lingering human_input_needed marker for %s → "
+            "re-planning at %s (deterministic note written; NOT "
+            "human_input_needed). Reason: %s",
+            project.id, rework_stage.value, reason,
+        )
+        return rework_stage
 
     # Scope-rejection from flesh-out (spec 023 / FR-014): an idea judged
     # infeasible for the execution environment is ARCHIVED and a

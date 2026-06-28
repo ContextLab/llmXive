@@ -133,22 +133,121 @@ def test_decide_routes_convergence_kickback(tmp_path: Path) -> None:
     assert not (mem / "convergence_kickback.yaml").exists()
 
 
-def test_decide_escalates_after_cap(tmp_path: Path) -> None:
+def test_decide_escalates_model_tier_at_cap_then_replans(tmp_path: Path) -> None:
+    """AUTONOMOUS exhaustion (mirrors the execution path): a convergence panel
+    NEVER parks at human_input_needed. At the kickback cap it BUMPS the model
+    tier and re-enters the review loop (returns the current stage to retry with
+    a stronger model); only when EVERY model tier is exhausted does it route to
+    the stage-appropriate re-work stage (research → PLANNED) with a
+    deterministic concerns report, resetting the tier + kickback count.
+
+    This replaces the old assertion that the cap routed to HUMAN_INPUT_NEEDED —
+    that park is exactly what the user-directed flow eliminates (human input is
+    required ONLY for the publication DOI sign-off)."""
     from llmxive.pipeline.graph import _decide_next_stage
+    from llmxive.state import execution_status
 
     project = _spec_project()
     project_dir = tmp_path / "projects" / project.id
     mem = project_dir / ".specify" / "memory"
 
+    # The default ladder has tiers 0..N-1; the cap-hit bumps to the next usable
+    # tier each time and stays in the review loop, until no higher tier remains.
+    n_tiers = len(execution_status.model_tier_ladder())
+    assert n_tiers >= 2, "ladder must have at least a default + one escalation"
+
+    # Drive the cap (CAP+1 kickbacks) once per tier-bump: each cap-hit escalates
+    # the tier and returns the CURRENT stage (retry), NOT human_input_needed.
+    for expected_tier in range(1, n_tiers):
+        last_stage = None
+        for _ in range(CONVERGENCE_KICKBACK_CAP + 1):
+            _write_sentinel(mem, to_stage="flesh_out_in_progress", stage="spec")
+            last_stage = _decide_next_stage(project, project_dir, repo_root=tmp_path)
+        assert last_stage == project.current_stage  # stayed in the review loop
+        assert last_stage != Stage.HUMAN_INPUT_NEEDED
+        assert execution_status.model_tier(project.id, repo_root=tmp_path) == expected_tier
+        # No human marker is ever written.
+        assert not (mem / "human_input_needed.yaml").exists()
+
+    # Now the top tier is reached: the next cap-hit EXHAUSTS the ladder and
+    # routes to the deterministic re-work stage (research → PLANNED).
     last_stage = None
     for _ in range(CONVERGENCE_KICKBACK_CAP + 1):
         _write_sentinel(mem, to_stage="flesh_out_in_progress", stage="spec")
         last_stage = _decide_next_stage(project, project_dir, repo_root=tmp_path)
-    assert last_stage == Stage.HUMAN_INPUT_NEEDED
-    # The escalation reason marker is written for run_one_step to surface.
-    assert (mem / "human_input_needed.yaml").exists()
-    payload = yaml.safe_load((mem / "human_input_needed.yaml").read_text())
-    assert "cap exceeded" in payload["reason"].lower()
+    assert last_stage == Stage.PLANNED
+    assert last_stage != Stage.HUMAN_INPUT_NEEDED
+    # Deterministic re-plan report written to the planner's ingestion file.
+    replan = (mem / "kickback_feedback.md").read_text()
+    assert "Re-plan" in replan and "adjust the approach" in replan
+    # Tier + kickback count reset for a clean re-plan.
+    assert execution_status.model_tier(project.id, repo_root=tmp_path) == 0
+    assert not (mem / "human_input_needed.yaml").exists()
+
+
+def test_decide_paper_panel_replans_to_paper_planned(tmp_path: Path) -> None:
+    """A PAPER-track panel that exhausts its model ladder re-plans at
+    PAPER_PLANNED (not PLANNED, not human_input_needed)."""
+    from llmxive.pipeline.graph import _decide_next_stage
+    from llmxive.state import execution_status
+
+    now = datetime.now(UTC)
+    project = Project(
+        id="PROJ-903-paper-kickback",
+        title="X",
+        field="mathematics",
+        current_stage=Stage.PAPER_SPECIFIED,
+        created_at=now,
+        updated_at=now,
+        speckit_research_dir="specs/001-x",
+        speckit_paper_dir="paper/specs/001-x",
+    )
+    project_dir = tmp_path / "projects" / project.id
+    mem = project_dir / "paper" / ".specify" / "memory"
+
+    n_tiers = len(execution_status.model_tier_ladder())
+    # Bump through every tier, then exhaust.
+    for _ in range(n_tiers):
+        for _ in range(CONVERGENCE_KICKBACK_CAP + 1):
+            _write_sentinel(mem, to_stage="paper_drafting_init", stage="paper_spec")
+            last_stage = _decide_next_stage(project, project_dir, repo_root=tmp_path)
+    assert last_stage == Stage.PAPER_PLANNED
+    assert last_stage != Stage.HUMAN_INPUT_NEEDED
+    # Re-plan note written to the PAPER memory dir.
+    assert (mem / "kickback_feedback.md").exists()
+    assert not (mem / "human_input_needed.yaml").exists()
+
+
+def test_decide_invalid_to_stage_routes_to_planned(tmp_path: Path) -> None:
+    """A convergence kickback that names an INVALID stage is a ROUTING BUG, not
+    a human matter: it routes to the safe deterministic re-work stage (research
+    → PLANNED) with a re-plan note — NEVER human_input_needed."""
+    from llmxive.pipeline.graph import _decide_next_stage
+
+    project = _spec_project()
+    project_dir = tmp_path / "projects" / project.id
+    mem = project_dir / ".specify" / "memory"
+    # A non-empty but invalid stage name (empty would escalate via the cap path;
+    # this exercises the Stage(...) ValueError branch).
+    mem.mkdir(parents=True, exist_ok=True)
+    (mem / "convergence_kickback.yaml").write_text(
+        yaml.safe_dump(
+            {
+                "to_stage": "not_a_real_stage",
+                "worst_severity": "science",
+                "reason": "did not converge",
+                "stage": "spec",
+                "unresolved_concerns": [],
+                "artifact_links": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    next_stage = _decide_next_stage(project, project_dir, repo_root=tmp_path)
+    assert next_stage == Stage.PLANNED
+    assert next_stage != Stage.HUMAN_INPUT_NEEDED
+    assert (mem / "kickback_feedback.md").exists()
+    assert not (mem / "human_input_needed.yaml").exists()
 
 
 def test_decide_resets_counter_on_advance(tmp_path: Path) -> None:
