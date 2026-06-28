@@ -344,7 +344,7 @@
             + '<button type="button" class="phasebar-item" data-stage="' + escapeHtml(sec.stage) + '"'
             + ' title="' + escapeHtml(sec.label) + ': ' + sec.items.length + ' — jump to column">'
             + '<span class="phasebar-count">' + sec.items.length + '</span>'
-            + '<span class="phasebar-bar" style="height:' + pct + '%"></span>'
+            + '<span class="phasebar-barwrap"><span class="phasebar-bar" style="height:' + pct + '%"></span></span>'
             + '<span class="phasebar-label">' + escapeHtml(sec.label) + '</span>'
             + '</button>';
         }).join("")
