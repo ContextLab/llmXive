@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Output Schema"
+description: "Schema for statistical analysis results and metric scores."
+type: "object"
+properties:
+  snippet_metrics:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        snippet_id:
+          type: "string"
+          description: "Unique identifier for the code snippet."
+        source_dataset:
+          type: "string"
+          description: "Name of the source dataset (e.g., CodeSearchNet)."
+        repository:
+          type: "string"
+          description: "Source repository identifier (for independence assumption handling)."
+        group:
+          type: "string"
+          enum:
+            - "human"
+            - "llm"
+          description: "Origin group of the snippet."
+        cyclomatic_complexity:
+          type: "number"
+          description: "Cyclomatic complexity score from radon."
+        potential_bug_count:
+          type: "integer"
+          description: "Potential bug indicators from pylint."
+        style_inconsistency:
+          type: "number"
+          description: "Style inconsistency score."
+      required:
+        - "snippet_id"
+        - "source_dataset"
+        - "repository"
+        - "group"
+        - "cyclomatic_complexity"
+        - "potential_bug_count"
+  statistical_results:
+    type: "object"
+    properties:
+      metric_name:
+        type: "string"
+        description: "Name of the metric being tested."
+      mann_whitney_u:
+        type: "number"
+        description: "U statistic from Mann-Whitney U test."
+      p_value:
+        type: "number"
+        description: "P-value from Mann-Whitney U test."
+      cliff_delta:
+        type: "number"
+        description: "Cliff's Delta effect size."
+      is_significant:
+        type: "boolean"
+        description: "Whether p < 0.05 after correction."
+    required:
+      - "metric_name"
+      - "mann_whitney_u"
+      - "p_value"
+      - "cliff_delta"
+      - "is_significant"
+  review_guidelines:
+    type: "array"
+    items:
+      type: "string"
+      description: "Specific recommendation for review standards."
+required:
+  - "snippet_metrics"
+  - "statistical_results"
+  - "review_guidelines"
