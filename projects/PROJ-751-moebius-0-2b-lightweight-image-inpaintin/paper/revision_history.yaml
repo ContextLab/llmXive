@@ -1,0 +1,382 @@
+schema_version: '1'
+project_id: PROJ-751-moebius-0-2b-lightweight-image-inpaintin
+rounds:
+- round_number: 1
+  ran_at: '2026-06-28T03:26:46.476749Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-28)
+  tasks_done: 27
+  tasks_failed: 0
+  tasks_skipped: 34
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: done
+    text: 'Address action item **[227614792a75]** (severity: writing): Remove all
+      leftover TODO and review comments (e.g., TODO REVIEW, TODO FINAL) from the LaTeX
+      source to avoid confusion and ensure a clean fin'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[2dd22c7412e8]** (severity: writing): Avoid redefining
+      standard color names (red, green, blue) in preamble; use uniquely named colors
+      to prevent clashes with packages that rely o'
+  - id: '003'
+    severity: writing
+    status: done
+    text: 'Address action item **[d26157a9e5eb]** (severity: writing): Consolidate
+      duplicate package imports (e.g., pifont is loaded twice) and eliminate unused
+      packages to improve dependency hygiene.'
+  - id: '004'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0615a76fdc25]** (severity: writing): Provide a reproducibility
+      package (e.g., a Makefile or build script) that lists all required LaTeX packages
+      and their versions, and document'
+  - id: '005'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[a5e14e9e8c11]** (severity: writing): Ensure that
+      all external resources (figures, tables) are referenced with relative paths
+      that match the repository layout, and verify that th'
+  - id: '006'
+    severity: writing
+    status: done
+    text: "Address action item **[b11b67d6a887]** (severity: writing): Consider moving\
+      \ large tables and figure definitions into separate, well\u2011named subfiles\
+      \ and include them via \\input or \\include; this improve"
+  - id: '007'
+    severity: writing
+    status: done
+    text: "Address action item **[9f9670e4cd00]** (severity: writing): Add an explicit\
+      \ data availability and licensing statement for all external datasets used (Places2,\
+      \ CelebA\u2011HQ, FFHQ, LVIS, DeepFakeFace), inc"
+  - id: 008
+    severity: writing
+    status: done
+    text: "Address action item **[dbfcc7173339]** (severity: writing): Provide a public\
+      \ code repository (e.g., GitHub) for Moebius with a clear open\u2011source license,\
+      \ and reference the exact commit/tag used for th"
+  - id: 009
+    severity: writing
+    status: skipped
+    text: 'Address action item **[435af6447f4b]** (severity: writing): Document the
+      provenance and version of the teacher model (PixelHacker) and any other pretrained
+      components (VAE, LCG embeddings), including '
+  - id: '010'
+    severity: writing
+    status: done
+    text: 'Address action item **[a9989b2878b5]** (severity: writing): Archive all
+      external URLs (project page, dataset links, pretrained model links) using a
+      service like archive.org or provide DOIs to mitigate'
+  - id: '011'
+    severity: writing
+    status: done
+    text: 'Address action item **[946a986c3acf]** (severity: writing): Specify the
+      data preprocessing pipeline (mask generation, train/val splits) in a reproducible
+      schema (e.g., JSON/YAML) and include it as sup'
+  - id: '012'
+    severity: writing
+    status: skipped
+    text: "Address action item **[131ce7ae6f5c]** (severity: writing): Provide a legend\
+      \ or clearer annotation for Figure\u202F1 (overall pipeline) and Figure\u202F\
+      2 (L\u03BB\u202FMI block) so that each colored component is explicit"
+  - id: '013'
+    severity: writing
+    status: skipped
+    text: "Address action item **[5fb382ce8e5c]** (severity: writing): In Figure\u202F\
+      4 (representation alignment heatmaps) include a color bar and specify the colormap\
+      \ used; ensure the colormap is color\u2011blind\u2011friend"
+  - id: '014'
+    severity: writing
+    status: done
+    text: "Address action item **[ae3692f4d789]** (severity: writing): Increase the\
+      \ line thickness and font size of any axis labels or tick marks in quantitative\
+      \ plots (e.g., Figure\u202F6 user\u2011study bar chart) to gu"
+  - id: '015'
+    severity: writing
+    status: skipped
+    text: "Address action item **[3ce6a3bcebf4]** (severity: writing): Consider adding\
+      \ unit annotations (e.g., \u201Cms/step\u201D on the latency axis) directly\
+      \ on the axis labels of plots that report performance metrics "
+  - id: '016'
+    severity: writing
+    status: done
+    text: 'Address action item **[3a6c9309a621]** (severity: writing): Verify that
+      all figures are referenced in the main text in the order they appear and that
+      each figure caption fully explains the visual cont'
+  - id: '017'
+    severity: writing
+    status: done
+    text: "Address action item **[ddf1ccef1e5f]** (severity: writing): Define all\
+      \ acronyms on first use (e.g., GLA, DWConv, FFN, LCG, KD, LPIPS, FID, LDM, VAE,\
+      \ CFG, BF16, E\u2011LatentLPIPS, MuON, L40S, RTX\u202F3090, SDX"
+  - id: 018
+    severity: writing
+    status: skipped
+    text: "Address action item **[e4540cc6658e]** (severity: writing): Replace vague\
+      \ buzzwords such as \u201C10B\u2011level\u201D, \u201Cindustrial foundation\
+      \ models\u201D, \u201Ctask\u2011specific specialist\u201D, and \u201Crepresentation\
+      \ bottleneck\u201D wit"
+  - id: 019
+    severity: writing
+    status: skipped
+    text: "Address action item **[8e7ae12feb80]** (severity: writing): Simplify overly\
+      \ technical block names like \u201CLocal\u2011$\\lambda$ Mix Interaction ($L\\\
+      lambda MI$) block\u201D and \u201CLocal\u2011$\\lambda$\u201D/\u201CInteractive\u2011\
+      $\\lamb"
+  - id: '020'
+    severity: writing
+    status: skipped
+    text: "Address action item **[e64a195968ce]** (severity: writing): Avoid redundant\
+      \ jargon when describing the same concept (e.g., repeatedly using \u201Clatent\
+      \ diffusion backbone\u201D, \u201Clatent diffusion framework\u201D, \u201C"
+  - id: '021'
+    severity: writing
+    status: done
+    text: "Address action item **[a9142e10498f]** (severity: writing): Explain domain\u2011\
+      specific terms such as \u201Ccross\u2011attention equivalents\u201D, \u201C\
+      self\u2011attention equivalents\u201D, and \u201Cgradient\u2011based losses\u201D\
+      \ in lay terms "
+  - id: '022'
+    severity: writing
+    status: skipped
+    text: "Address action item **[d8ea140665b2]** (severity: writing): Remove or rephrase\
+      \ marketing\u2011style phrases like \u201Chighly efficient lightweight specialist\u201D\
+      , \u201Coptimal synergy\u201D, and \u201Cextreme compression\u201D to i"
+  - id: '023'
+    severity: writing
+    status: done
+    text: 'Address action item **[651d6f4d6a86]** (severity: writing): Provide a brief
+      glossary or footnote for specialized symbols (e.g., $\lambda$, $\mathbf{E}_{\text{LCG}}$,
+      $\mathbf{Q}^l$, $\mathbf{K}^l$, $\'
+  - id: '024'
+    severity: writing
+    status: done
+    text: "Address action item **[e79d0be50852]** (severity: writing): Clarify hardware\
+      \ references (e.g., \u201CL40S GPU\u201D, \u201CRTX\u202F3090\u201D) by stating\
+      \ they are NVIDIA GPUs and why they were chosen, rather than assuming re"
+  - id: '025'
+    severity: writing
+    status: skipped
+    text: "Address action item **[373788c22984]** (severity: writing): Replace the\
+      \ term \u201Cadaptive multi\u2011granularity distillation\u201D with a simpler\
+      \ description such as \u201Ca dynamic knowledge\u2011distillation method that "
+  - id: '026'
+    severity: writing
+    status: skipped
+    text: "Address action item **[d8aa5c69cd84]** (severity: writing): Avoid using\
+      \ the word \u201Csynergy\u201D repeatedly; substitute with \u201Ccombined effect\u201D\
+      \ or \u201Cinteraction\u201D where appropriate."
+  - id: '027'
+    severity: writing
+    status: done
+    text: "Address action item **[af73ce37e670]** (severity: writing): Resolve the\
+      \ contradictory statements about Gated Linear Attention (GLA): earlier sections\
+      \ treat GLA as capable of cross\u2011attention (GLA\u2011CA), "
+  - id: 028
+    severity: writing
+    status: done
+    text: "Address action item **[d447c6060180]** (severity: writing): Clarify that\
+      \ the reported >15\xD7 total inference speed\u2011up is obtained by using fewer\
+      \ sampling steps (20) than the industrial baselines (50/28)"
+  - id: 029
+    severity: writing
+    status: skipped
+    text: "Address action item **[35d467449f37]** (severity: writing): Explicitly\
+      \ state that the parameter count comparison (0.22\u202FB vs 11.9\u202FB) does\
+      \ not account for differences in model architecture, training dat"
+  - id: '030'
+    severity: writing
+    status: skipped
+    text: "Address action item **[a88439f12ef9]** (severity: writing): Add a dedicated\
+      \ Ethics & Safety discussion section that addresses potential dual\u2011use\
+      \ risks of image inpainting (e.g., deep\u2011fake generation, "
+  - id: '031'
+    severity: writing
+    status: skipped
+    text: "Address action item **[b4c56a9f7659]** (severity: writing): Provide explicit\
+      \ statements about the provenance and consent for the training datasets (Places2,\
+      \ CelebA\u2011HQ, FFHQ), confirming that all image"
+  - id: '032'
+    severity: writing
+    status: done
+    text: "Address action item **[172deace5b15]** (severity: writing): Include a data\u2011\
+      privacy impact assessment describing how the model handles personally identifiable\
+      \ information (PII) in the training data and"
+  - id: '033'
+    severity: writing
+    status: done
+    text: "Address action item **[db5b5d9c705b]** (severity: writing): Discuss responsible\
+      \ deployment guidelines, including recommended user authentication, rate\u2011\
+      limiting, and monitoring to deter abusive use (e."
+  - id: '034'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0d9e3d7191eb]** (severity: writing): Provide details
+      on random seed initialization, data shuffling, and any nondeterministic operations
+      (e.g., GPU kernels) to ensure full reprod'
+  - id: '035'
+    severity: writing
+    status: skipped
+    text: "Address action item **[8ce22c7aac6a]** (severity: writing): Move the \\\
+      keywords command out of the abstract environment (currently lines\u202F31\u2011\
+      34) to follow LNCS style."
+  - id: '036'
+    severity: writing
+    status: skipped
+    text: "Address action item **[baf938a03b07]** (severity: writing): Remove or resolve\
+      \ the numerous \\vspace{-0.5em} adjustments before sections (e.g., lines\u202F\
+      84,\u202F115,\u202F138) \u2013 they are hacky and can cause inconsi"
+  - id: '037'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[c559ef63b140]** (severity: writing): Fix invalid
+      LaTeX labels that contain spaces, such as \label{tab: abla_distill}, \label{tab:
+      abla_CFG}, and \label{tab: abla_ood} (see table'
+  - id: 038
+    severity: writing
+    status: done
+    text: "Address action item **[5a175af7c54a]** (severity: writing): Eliminate leftover\
+      \ TODO comments and review\u2011only macros (e.g., lines\u202F9\u201113,\u202F\
+      20\u201123) before the camera\u2011ready version."
+  - id: 039
+    severity: writing
+    status: skipped
+    text: "Address action item **[fffb64d29b92]** (severity: writing): Avoid redefining\
+      \ standard color names (red, green, blue) in preamble.tex \u2013 they clash\
+      \ with xcolor defaults and may affect other packages."
+  - id: '040'
+    severity: writing
+    status: done
+    text: "Address action item **[c6749241ed91]** (severity: writing): Consider removing\
+      \ the manual suppression of hyperref warnings (\\makeatletter\\def\\Hy@Warning#1{}\\\
+      makeatother) \u2013 it hides useful diagnostics."
+  - id: '041'
+    severity: writing
+    status: skipped
+    text: "Address action item **[f8777b4a13af]** (severity: writing): Check the placement\
+      \ of wrapfigure and wraptable environments (lines\u202F274\u2011285,\u202F332\u2011\
+      350) \u2013 negative \\vspace may cause overlapping with surround"
+  - id: '042'
+    severity: writing
+    status: done
+    text: 'Address action item **[5f18465409ae]** (severity: writing): Ensure all
+      figure captions are placed immediately after \includegraphics and before \label,
+      and that they start with a capital letter and no'
+  - id: '043'
+    severity: writing
+    status: done
+    text: 'Address action item **[a6b542ec480d]** (severity: writing): Verify that
+      all tables use consistent column specifications; the custom >{\hspace{2pt}}c<{\hspace{2pt}}
+      syntax can lead to misaligned column'
+  - id: '044'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ad2a657d444f]** (severity: writing): Sentences in
+      the abstract and introduction are excessively long and contain multiple commas,
+      making them hard to follow. Break them into sho'
+  - id: '045'
+    severity: writing
+    status: done
+    text: "Address action item **[9fe66a5553a2]** (severity: writing): Inconsistent\
+      \ use of hyphens and en\u2011dashes (e.g., \"10B-level\", \"0.2B\", \"$L\\lambda\
+      \ MI$\") leads to visual clutter. Standardize terminology and "
+  - id: '046'
+    severity: writing
+    status: done
+    text: "Address action item **[58861f7b13d5]** (severity: writing): The term \"\
+      Local\u2011$\\lambda$\" and similar symbols are introduced without a clear definition\
+      \ before first use, causing confusion for readers unf"
+  - id: '047'
+    severity: writing
+    status: done
+    text: 'Address action item **[f55a94b031d2]** (severity: writing): Frequent use
+      of informal abbreviations such as "ie", "eg", "etc" inside sentences without
+      proper punctuation; replace with proper Latin form'
+  - id: 048
+    severity: writing
+    status: skipped
+    text: 'Address action item **[148864ed9362]** (severity: writing): The paper mixes
+      past and present tense inconsistently (e.g., "We propose Moebius, a highly efficient
+      lightweight inpainting framework" vs. "'
+  - id: 049
+    severity: writing
+    status: skipped
+    text: 'Address action item **[23fd67890889]** (severity: writing): Figure and
+      table captions are overly verbose and sometimes repeat information already in
+      the main text. Shorten captions to essential descri'
+  - id: '050'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[2502020227f6]** (severity: writing): The bibliography
+      includes placeholder entries (e.g., Anonymous24) that are irrelevant to the
+      current manuscript; remove or replace them.'
+  - id: '051'
+    severity: writing
+    status: done
+    text: 'Address action item **[47021622c895]** (severity: writing): The LaTeX source
+      contains commented TODO notes and unused packages (e.g., axessibility, marvosym)
+      that should be cleaned up before final sub'
+  - id: '052'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[e144ac2b1e4d]** (severity: writing): In the method
+      section, the notation "$\mathbf{X}^l$ shaped as $B\times H''\times W''\times
+      C$" is dense; consider adding a brief explanatory s'
+  - id: '053'
+    severity: science
+    status: skipped
+    text: "Address action item **[0eeaf7af483a]** (severity: science): Clarify the\
+      \ fairness of speed\u2011up claims: the paper compares Moebius (20 sampling\
+      \ steps) with industrial models that use 50/28 steps. Explici"
+  - id: '054'
+    severity: science
+    status: skipped
+    text: "Address action item **[ea8b72cbe906]** (severity: science): Provide a more\
+      \ rigorous justification for the adaptive gradient\u2011norm weighting in the\
+      \ multi\u2011granularity distillation. Include a brief theore"
+  - id: '055'
+    severity: science
+    status: skipped
+    text: "Address action item **[7725ccc1d014]** (severity: science): Temper the\
+      \ claim that Moebius \u201Crivals or even surpasses\u201D 10B\u2011level models.\
+      \ In several benchmarks (e.g., Places2 Test FID) FLUX.1\u2011Fill\u2011Dev ac"
+  - id: '056'
+    severity: science
+    status: skipped
+    text: "Address action item **[c1d56420d36a]** (severity: science): Add a discussion\
+      \ of the limitations observed in the failure\u2011case analysis (tiny background\
+      \ details) and quantify how often these occur relat"
+  - id: '057'
+    severity: science
+    status: done
+    text: "Address action item **[ebedcf382e48]** (severity: science): Provide statistical\
+      \ significance testing (e.g., confidence intervals) for the reported FID/LPIPS\
+      \ improvements to substantiate the claim of \u201C"
+  - id: 058
+    severity: science
+    status: skipped
+    text: "Address action item **[7ad3095a4eb7]** (severity: science): Report variance\
+      \ (e.g., standard deviation) and confidence intervals for all quantitative metrics\
+      \ (FID, LPIPS, user\u2011study percentages) across"
+  - id: 059
+    severity: science
+    status: skipped
+    text: "Address action item **[05477426e536]** (severity: science): Apply appropriate\
+      \ statistical tests (e.g., paired t\u2011test, Wilcoxon signed\u2011rank) when\
+      \ comparing Moebius against baselines and correct for mul"
+  - id: '060'
+    severity: science
+    status: done
+    text: "Address action item **[d1e8d03bdd6b]** (severity: science): Clarify the\
+      \ stability of the adaptive gradient\u2011based loss weighting (e.g., handling\
+      \ of near\u2011zero gradient norms, sensitivity analysis) and i"
+  - id: '061'
+    severity: science
+    status: skipped
+    text: "Address action item **[9a5b03c373d4]** (severity: science): Include a power\
+      \ analysis or sample\u2011size justification for the user study to demonstrate\
+      \ that the reported preference percentages are statist"

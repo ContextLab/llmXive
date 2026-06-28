@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Moebius: 0.2B Lightweight Image Inpainting Framework with 10B-Level Performance'
-updated_at: '2026-06-25T00:16:40.186389Z'
+updated_at: '2026-06-28T03:26:46.476749Z'
