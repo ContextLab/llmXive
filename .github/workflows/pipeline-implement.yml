@@ -1,7 +1,14 @@
 name: Pipeline — Implement
 on:
   schedule:
-    - cron: '45 */8 * * *'   # every 8 hours
+    # Every 4h — the implement lane is the in_progress -> research_complete
+    # drain, and it was throttled to 3x/day while its feeder (research-speckit,
+    # every 4h) filled in_progress 6x/day, so projects piled up at in_progress.
+    # Match the feeder cadence so the drain keeps up. Safe: cancel-in-progress
+    # is false (queued, never cancelled) and runs finish well under the 120-min
+    # timeout (the run_analysis deadline is capped at the wall budget), so a 4h
+    # gap never overlaps.
+    - cron: '45 */4 * * *'   # every 4 hours
   workflow_dispatch:
     inputs:
       stage:
