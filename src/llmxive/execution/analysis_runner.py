@@ -166,8 +166,8 @@ def run_analysis(
     project_dir: Path,
     *,
     quickstart_path: Path | None = None,
-    per_cmd_timeout_s: int = 1800,
-    overall_deadline_s: float = 18000.0,  # 5h — under the 6h GHA-class budget
+    per_cmd_timeout_s: int = 1200,
+    overall_deadline_s: float | None = None,
 ) -> AnalysisRunResult:
     """Run the quickstart analysis run-book in the project venv and verify
     real artifacts were produced.
@@ -177,7 +177,22 @@ def run_analysis(
     a non-zero exit, a timeout, or a zero-artifact run all yield ``ok=False``
     with a diagnostic ``reason`` (the gate kicks back to the implementer).
     """
+    import os
     import time
+
+    # Fit the analysis to the ACTUAL CI job, not a hypothetical 6h GHA max. The
+    # implement/review lanes set LLMXIVE_RUN_WALL_BUDGET_S (2400s) and time out
+    # at 120-150 min; a single execute_and_gate that ran for the old 5h
+    # overall_deadline overran the job and got the WHOLE run CANCELLED mid-step
+    # (no progress committed — the live 94-min stuck run). Cap the analysis at
+    # the declared wall budget (a sane 2700s when unset/local) so it always
+    # finishes + commits within the job.
+    if overall_deadline_s is None:
+        _wall = os.environ.get("LLMXIVE_RUN_WALL_BUDGET_S")
+        try:
+            overall_deadline_s = float(_wall) if _wall else 2700.0
+        except ValueError:
+            overall_deadline_s = 2700.0
 
     project_dir = Path(project_dir)
     if quickstart_path is None:

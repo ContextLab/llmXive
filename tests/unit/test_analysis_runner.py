@@ -114,3 +114,41 @@ def test_resolve_script_token_set(tmp_path) -> None:
         "code/reproducibility/validation_status_generator.py"
     # genuinely missing -> None (a real gap, not drift)
     assert _resolve_script(tmp_path, "code/analysis/correlation.py") is None
+
+
+def test_overall_deadline_reads_wall_budget_env(tmp_path, monkeypatch) -> None:
+    """run_analysis caps its overall deadline at LLMXIVE_RUN_WALL_BUDGET_S so a
+    long execute_and_gate can NEVER overrun the CI job (the old 5h default let a
+    single analysis blow past the 120-min job timeout -> the whole run was
+    cancelled mid-step, losing all committed progress). With a tiny budget the
+    deadline fires after the first command and the run reports deadline_exceeded."""
+    import time
+    import types
+
+    from llmxive.execution import analysis_runner as ar
+
+    proj = tmp_path / "projects" / "PROJ-900-deadline"
+    (proj / "specs" / "001-x").mkdir(parents=True)
+    (proj / "code").mkdir()
+    (proj / "code" / "a.py").write_text("x=1\n", encoding="utf-8")
+    (proj / "code" / "b.py").write_text("x=2\n", encoding="utf-8")
+    (proj / "specs" / "001-x" / "quickstart.md").write_text(
+        "```bash\npython code/a.py\npython code/b.py\n```\n", encoding="utf-8")
+
+    def _fake_run(project_dir, args, timeout_s, extra_env=None):
+        time.sleep(0.05)  # advance real monotonic time past the tiny deadline
+        return types.SimpleNamespace(
+            ok=True, returncode=0, duration_s=0.05, timed_out=False,
+            stdout="", stderr="",
+        )
+    monkeypatch.setattr(ar.sandbox, "run_in_venv", _fake_run)
+
+    monkeypatch.setenv("LLMXIVE_RUN_WALL_BUDGET_S", "0.01")  # deadline from env
+    res = ar.run_analysis(proj)  # overall_deadline_s=None -> resolves from env
+    assert res.deadline_exceeded is True
+    assert "deadline" in (res.reason or "").lower()
+
+    # Control: no env + the sane default (2700s) must NOT trip on a fast run.
+    monkeypatch.delenv("LLMXIVE_RUN_WALL_BUDGET_S", raising=False)
+    res2 = ar.run_analysis(proj)
+    assert res2.deadline_exceeded is False
