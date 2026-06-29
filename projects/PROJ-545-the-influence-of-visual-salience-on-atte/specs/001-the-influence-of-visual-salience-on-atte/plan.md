@@ -86,7 +86,7 @@ projects/PROJ-545-the-influence-of-visual-salience-on-atte/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
 | **Grid Search vs. Optimization** | Spec requires grid search (FR-004). | Gradient descent is unstable for aDDM likelihood surfaces; grid search ensures robustness within CPU limits. |
-| **Subsampling for Fit** | 50k rows may exceed 30-min CPU limit for 11 grid steps. | Full fit on 50k rows risks timeout; stratified 10k sample guarantees US-002 convergence. |
+| **Subsampling for Fit** | 50k rows may exceed 30-min CPU limit for grid steps. | Full fit on 50k rows risks timeout; stratified sample guarantees US-002 convergence. |
 | **Choice-Only aDDM** | RT data unavailable in dataset. | Full aDDM requires RT; choice-only variant is the only feasible option given data constraints. |
 | **5-Fold CV Requirement** | SC-002 mandates ≥95% convergence rate. | Single split insufficient; 5-fold CV measures generalizability and convergence stability. |
 

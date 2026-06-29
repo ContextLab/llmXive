@@ -1,0 +1,242 @@
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: grid search over salience weights 0.0 to 1.0 in steps of 0.1 11 steps
+    total
+  claim_id: c_da6441fd
+  context: Implementation for User Story 2 - T021
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/fit.py` to perform grid search over salience weights
+    (0.0 to 1.0 in steps of 0.1, 11 steps total) and drift rates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:30:36Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation on stratified 10k sample ensure 95% convergence
+    rate
+  claim_id: c_83b6696f
+  context: Implementation for User Story 2 - T022
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Integrate 5-fold cross-validation loop in `code/models/fit.py` on a stratified\
+    \ 10k sample to ensure \u226595% convergence rate"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:30:49Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: fetch Moral Machine data subset 50k rows
+  claim_id: c_6ef5af31
+  context: Implementation for User Story 1 - T012
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/data/download.py` to fetch Moral Machine data (subset\
+    \ \u2264 50k rows)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:30:49Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Outcome Effect defined as mean difference in choice probability between
+    groups with >5 lives lost vs <=5 lives lost
+  claim_id: c_63efa21e
+  context: Implementation for Reviewer Concerns - T041
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outcome_Effect_defined_as_mean_difference_in_choice_probabil
+  kind: entity_fact
+  raw_text: Implement a sensitivity check that compares the 'Salience Effect' size
+    against the 'Outcome Effect' size, where 'Outcome Effect' is defined as the mean
+    difference in choice probability between groups with >5 lives lost vs <=5 lives
+    lost
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:31:10Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: run Salience-Only vs Moral-Attribute-Only model comparison
+  claim_id: c_fcb0ef97
+  context: Implementation for Reviewer Concerns - T043
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_Salience-Only_vs_Moral-Attribute-Only_model_comparison
+  kind: entity_fact
+  raw_text: Implement `code/models/fit.py` to run a specific 'Salience-Only' vs. 'Moral-Attribute-Only'
+    model comparison to determine if the choice survives when attention is withdrawn
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:31:31Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: fetch moral machine data subset less than or equal to 50000 rows
+  claim_id: c_24ae28e2
+  context: 'Phase 3: User Story 1 - Data Ingestion and Salience Computation, Implementation
+    for User Story 1, Task T012'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_moral_machine_data_subset_less_than_or_equal_to_50000
+  kind: magnitude
+  raw_text: "Implement `code/data/download.py` to fetch Moral Machine data (subset\
+    \ \u2264 50k rows) with broken-URL fallback logic"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:39:19Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: grid search over salience weights 0.0 to 1.0 in 11 steps
+  claim_id: c_73f33ec6
+  context: 'Phase 4: User Story 2 - aDDM Simulation and Parameter Fitting, Implementation
+    for User Story 2, Task T021'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/fit.py` to perform grid search over salience weights
+    (0.0 to 1.0 in steps of 0.1, 11 steps total)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:39:30Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation on 10000 sample to ensure 95 percent convergence
+    rate
+  claim_id: c_d6deb693
+  context: 'Phase 4: User Story 2 - aDDM Simulation and Parameter Fitting, Implementation
+    for User Story 2, Task T022'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Integrate 5-fold cross-validation loop in `code/models/fit.py` on a stratified\
+    \ 10k sample to ensure \u226595% convergence rate"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:39:30Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: include lives saved lost species age gender as control variables
+  claim_id: c_f1d63876
+  context: 'Phase 5: User Story 3 - Model Comparison, Sensitivity, and Philosophical
+    Framing, Implementation for User Story 3, Task T029'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_lives_saved_lost_species_age_gender_as_control_varia
+  kind: entity_fact
+  raw_text: Add logic to include proxy confounders (lives saved/lost, species, age,
+    gender) as control variables in the model input matrix
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:39:49Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: compare salience effect size against outcome effect size defined as mean
+    difference in choice probability between groups with more than 5 lives lost versus
+    less than or equal to 5 lives lost
+  claim_id: c_86adfaae
+  context: 'Phase 6: Reviewer Concerns - Aristotelian & Socratic Refinements, Implementation
+    for Reviewer Concerns, Task T041'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compare_salience_effect_size_against_outcome_effect_size_def
+  kind: magnitude
+  raw_text: Add a sensitivity check in `code/analysis/compare.py` that compares the
+    'Salience Effect' size against the 'Outcome Effect' size, where 'Outcome Effect'
+    is defined as the mean difference in choice probability between groups with >5
+    lives lost vs <=5 lives lost
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:40:37Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: calculate pearson correlation coefficient between magnitude of salience
+    score and absolute value of choice probability shift
+  claim_id: c_9f3be625
+  context: 'Phase 6: Reviewer Concerns - Aristotelian & Socratic Refinements, Implementation
+    for Reviewer Concerns, Task T042'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_pearson_correlation_coefficient_between_magnitude
+  kind: entity_fact
+  raw_text: 'Implement a ''Spectacle vs. Good'' metric in `code/analysis/compare.py`:
+    calculate the Pearson correlation coefficient between the magnitude of the salience
+    score and the absolute value of the choice probability shift'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:40:58Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: verify every row has numeric salience score within normalized range
+  claim_id: c_152c9d6e
+  context: 'Phase 3: User Story 1 - Data Ingestion and Salience Computation, Independent
+    Test description'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_every_row_has_numeric_salience_score_within_normalize
+  kind: entity_fact
+  raw_text: Verify every row has a numeric salience score within the normalized range
+    and that text-only scenarios do not crash
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:41:24Z'
+- artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: verify convergence within 30 minutes on 2-core cpu
+  claim_id: c_e24bc71b
+  context: 'Phase 4: User Story 2 - aDDM Simulation and Parameter Fitting, Independent
+    Test description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify convergence within 30 mins on 2-core CPU and output of log-likelihood
+    metrics
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:41:40Z'

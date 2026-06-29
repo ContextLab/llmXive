@@ -1,0 +1,265 @@
+# Tasks: The Influence of Visual Salience on Attentional Bias in Moral Decision-Making
+
+**Input**: Design documents from `/specs/001-visual-salience-aDDM/`
+**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- Include exact file paths in descriptions
+
+## Path Conventions
+
+- **Single project**: `src/`, `tests/` at repository root
+- **Web app**: `backend/src/`, `frontend/src/`
+- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
+- Paths shown below assume single project - adjust based on plan.md structure
+
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
+-->
+
+## Phase 1: Setup (Shared Infrastructure)
+
+**Purpose**: Project initialization and basic structure
+
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-545-the-influence-of-visual-salience-on-atte/`)
+- [X] T002 Initialize Python 3.11 project with dependencies (numpy, scipy, pandas, opencv-python, scikit-learn, numba) in `code/requirements.txt`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
+
+---
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+
+- [X] T004 Setup data directory structure (`data/raw/`, `data/processed/`) and `.gitignore` rules for large files
+- [X] T005 [P] Implement base logging and error handling infrastructure in `code/__init__.py` and `code/utils/logger.py`
+- [X] T006 [P] Setup environment configuration management (loaders for `data/` paths and random seeds)
+- [X] T007 Create base schema definitions for `Scenario` and `ModelParameters` in `code/data_models.py`
+- [X] T008 Implement data checksumming utility for raw file verification in `code/utils/checksum.py`
+
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+---
+
+## Phase 3: User Story 1 - Data Ingestion and Salience Computation (Priority: P1) 🎯 MVP
+
+**Goal**: Ingest Moral Machine dataset, compute visual/textual salience, and produce a clean CSV with `salience_score` and proxy control variables.
+
+**Independent Test**: Run the pipeline on a representative subset of the data.; verify every row has a numeric salience score within the normalized range and that text-only scenarios do not crash.
+
+### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [X] T010 [P] [US1] Contract test for schema validation in `tests/contract/test_salience_schema.py::test_schema_validates_salience_score_range`
+- [X] T011 [P] [US1] Integration test for text-only fallback in `tests/integration/test_text_fallback.py::test_text_fallback_assigns_score`
+
+### Implementation for User Story 1
+
+- [X] T012 [P] [US1] Implement `code/data/download.py` to fetch Moral Machine data (subset ≤ 50k rows) with broken-URL fallback logic (FR-001)
+- [X] T013 [P] [US1] Implement `code/data/salience.py` for ITTI/GBVS image processing (CPU-only, float64) and text-heuristic fallback (FR-002)
+- [X] T014 [US1] Implement `code/data/preprocess.py` to merge salience scores, handle missing images, and extract proxy control variables (lives saved/lost, species, age, gender) per FR-008
+- [X] T016 [US1] Add robust error handling for non-converging salience computations: log failure to `logs/salience_errors.log` (schema: timestamp, row_id, reason), skip row, cap retries at a bounded limit (Edge Case: Non-convergence)
+- [X] T015 [US1] [FR-008] [SC-004] Add VIF calculation logic in `code/analysis/diagnostics.py` to flag collinearity > 5.0. Calculate VIF for the combined `salience_score` and separately for `visual_salience` and `text_salience` components against proxy controls. Output collinearity flags to a report generated by the script (Edge Case: Collinearity)
+
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+---
+
+## Phase 4: User Story 2 - aDDM Simulation and Parameter Fitting (Priority: P2)
+
+**Goal**: Implement the choice-only aDDM variant and fit parameters via grid search on CPU.
+
+**Independent Test**: Run fitting on a held-out test set; verify convergence within 30 mins on 2-core CPU and output of log-likelihood metrics.
+
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+
+- [X] T018 [P] [US2] Contract test for parameter output schema in `tests/contract/test_addm_params.py::test_params_output_schema`
+- [X] T019 [P] [US2] Integration test for grid search convergence on subset in `tests/integration/test_addm_convergence.py::test_convergence_on_10k_sample`
+
+### Implementation for User Story 2
+
+- [X] T020 [P] [US2] Implement `code/models/addm.py` with choice-only drift diffusion logic (no RT data) using NumPy/SciPy (FR-003)
+- [X] T021 [US2] Implement `code/models/fit.py` to perform grid search over salience weights (0.0 to 1.0 in steps of 0.1, 11 steps total) and drift rates (FR-004)
+- [X] T022 [US2] [SC-002] Integrate 5-fold cross-validation loop in `code/models/fit.py` on a stratified 10k sample (per plan.md Complexity Tracking) to ensure ≥95% convergence rate
+- [X] T023 [US2] Add logic to handle non-convergence (log failure, exclude scenario, cap retries at a reasonable limit) per Edge Case
+- [X] T024 [US2] Implement "Choice-Only" specific documentation in `research.md` acknowledging the lack of RT data and parameter identifiability constraints
+
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+
+---
+
+## Phase 5: User Story 3 - Model Comparison, Sensitivity, and Philosophical Framing (Priority: P3)
+
+**Goal**: Compare salience-augmented vs. baseline models, perform sensitivity analysis, and ensure findings are framed as associational correlations with proper controls.
+
+**Independent Test**: Execute comparison script; verify AIC/BIC differences, p-values (Bonferroni corrected), and sensitivity tables for threshold sweeps.
+
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+
+- [X] T035 [P] [US3] Contract test for comparison report schema in `tests/contract/test_comparison_report.py::test_report_schema`
+- [X] T025 [P] [US3] Integration test for sensitivity analysis output in `tests/integration/test_sensitivity_analysis.py::test_sensitivity_threshold_sweep`
+
+### Implementation for User Story 3
+
+- [X] T026 [P] [US3] Implement `code/analysis/compare.py` to compute AIC/BIC differences and perform 5-fold CV comparison (FR-005)
+- [X] T027 [US3] Implement sensitivity analysis sweeping decision thresholds across a range of low probability values and reporting log-likelihood/AIC variation (FR-005)
+- [X] T028 [US3] [FR-007] Implement multiple-comparison correction (Bonferroni) if >3 hypothesis tests are run
+- [X] T029 [US3] [FR-008] Add logic to include proxy confounders (lives saved/lost, species, age, gender) as control variables in the model input matrix to isolate the salience effect (Observational Framing)
+
+**Checkpoint**: All user stories should now be independently functional
+
+---
+
+## Phase 6: Reviewer Concerns - Aristotelian & Socratic Refinements (Priority: P3)
+
+**Goal**: Address specific concerns regarding "actual vs. perceived role," "voluntary/involuntary action," and the definition of "blame" raised by simulated reviewers, using ONLY data columns defined in FR-008.
+
+### Implementation for Reviewer Concerns
+
+- [X] T038 [US3] [Aristotle] Enhance `code/data/preprocess.py` to explicitly create 'Outcome Severity' (derived from `lives_lost` column) and 'Agent Type' (derived from `species` column) as the ONLY valid proxy controls for the three-cause analysis, mapping strictly to defined dataset columns (FR-008).
+- [X] T039 [US3] [Aristotle] Implement an "Agent Agency" flag in `code/data_models.py` based on a heuristic using `species` and `social_status` columns (per FR-008) to approximate voluntary/involuntary distinctions: if `species` is 'human' and `social_status` is 'adult' or 'elderly', flag as 'voluntary'; otherwise 'involuntary'. Explicitly note that 'knowledge' and 'origin of motion' are unmeasurable and this heuristic is a valid proxy for the analysis (Edge Case: Missing Intent Data).
+- [X] T040 [US3] [Socrates] Update `code/analysis/diagnostics.py` to include a "Blame Definition" audit: verify that the target variable is strictly a behavioral outcome (choice) and not a self-reported moral judgment, logging a warning if the dataset contains mixed modalities.
+- [X] T041 [US3] [Socrates] Add a sensitivity check in `code/analysis/compare.py` that compares the "Salience Effect" size against the "Outcome Effect" size, where "Outcome Effect" is defined as the mean difference in choice probability between groups with >5 lives lost vs <=5 lives lost.
+- [X] T042 [US3] [Socrates] Implement a "Spectacle vs. Good" metric in `code/analysis/compare.py`: calculate the Pearson correlation coefficient between the magnitude of the salience score and the absolute value of the choice probability shift.
+- [X] T043 [US3] [Euthyphro] Refine `code/models/fit.py` to run a specific "Salience-Only" vs. "Moral-Attribute-Only" model comparison to determine if the choice survives when attention is withdrawn (Euthyphro-inspired framing).
+
+**Checkpoint**: Reviewer concerns regarding philosophical definitions and causal distinctions are now operationalized in code using valid data proxies.
+
+---
+
+## Phase N: Polish & Cross-Cutting Concerns
+
+**Purpose**: Improvements that affect multiple user stories
+
+- [ ] T032 [P] Update `paper/001_draft.md` with final AIC/BIC results and associational framing statements based on actual results from T026/T027
+- [ ] T033 [P] Refactor `code/models/fit.py` to reduce grid search iterations if runtime exceeds a predefined threshold, ensuring performance constraints are met.
+- [ ] T034 [P] Add unit tests for `code/data/download.py` and `code/data/salience.py` with [deferred] code coverage in `tests/unit/`
+- [ ] T036 [P] [FR-006] Update `paper/001_draft.md` to include the Euthyphro-inspired framing and WYSIATI discussion based on the *actual* results from T026/T027/T041/T042
+- [ ] T037 Run `quickstart.md` validation
+- [ ] T044 [P] [FR-006] Finalize `paper/001_draft.md` narrative to ensure all findings are framed as associational correlations, explicitly avoiding causal language regarding moral virtue, and ensuring no philosophical definitions are hard-coded in `code/` docstrings
+- [ ] T045 [P] [US3] Additional unit tests for `code/analysis/compare.py` in `tests/unit/test_compare_utils.py::test_bonferroni_correction_applied`
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
+- **Review Concerns (Phase 6)**: Depends on US3 completion (requires model outputs to analyze)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 output (salience scores)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires US2 output (model fits)
+- **Reviewer Concerns (Phase 6)**: Requires US3 output (comparison metrics)
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Contract test for schema validation in tests/contract/test_salience_schema.py::test_schema_validates_salience_score_range"
+Task: "Integration test for text-only fallback in tests/integration/test_text_fallback.py::test_text_fallback_assigns_score"
+
+# Launch all models for User Story 1 together:
+Task: "Implement code/data/download.py..."
+Task: "Implement code/data/salience.py..."
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Add Reviewer Concerns (Phase 6) → Integrate philosophical refinements using valid data proxies
+6. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+ - Developer A: User Story 1 (Data & Salience)
+ - Developer B: User Story 2 (aDDM & Fitting)
+ - Developer C: User Story 3 (Comparison & Framing)
+ - Developer D: Reviewer Concerns (Phase 6) - *Can start as soon as US3 framework is defined*
+3. Stories complete and integrate independently
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- **Critical**: Tasks T038, T039, T041, T042, T043 specifically address prior research-stage reviews by using ONLY valid proxy controls (lives lost, species, social status) defined in FR-008, avoiding attempts to measure non-existent 'intent' or 'knowledge' attributes.
+- **Critical**: Task T044 handles the actual paper update based on results, ensuring the narrative is data-driven and avoids hard-coding definitions in code.
+- **Critical**: Phase 6 (T038-T043) directly operationalizes the philosophical critiques from Aristotle, Socrates, and Kahneman into measurable code metrics using only the data columns available in the Moral Machine dataset.
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence

@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (Raw and Processed)
+data/raw/*.csv
+data/raw/*.zip
+data/raw/*.tar.gz
+data/processed/*.csv
+data/processed/*.parquet
+data/processed/*.pkl
+
+# Logs
+logs/*.log
+
+# Figures (Generated)
+figures/*.png
+figures/*.pdf
+figures/*.svg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config
+.env
+config_local.yaml
