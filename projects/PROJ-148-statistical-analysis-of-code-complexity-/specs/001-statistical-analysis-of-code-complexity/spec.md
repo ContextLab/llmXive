@@ -75,7 +75,7 @@ A researcher evaluates model performance on the held-out test set, generates par
 - **FR-006**: System MUST train at least one alternative model (e.g., random forest with 100 trees, max depth 10 if logistic regression is primary) and compare variable importance across models (See US-2)
 - **FR-007**: System MUST evaluate model performance on the held-out test set and compute ROC-AUC, precision-recall AUC, and calibration plots (See US-3)
 - **FR-008**: System MUST apply multiple hypothesis testing correction to regression p-values using an appropriate method for the model type (e.g., selective inference for regularized models, or Benjamini–Hochberg for unregularized models) (See US-3)
-- **FR-009**: System MUST generate partial dependence plots for the top 3 metrics and document practical thresholds in tabular format with metric name, threshold value, and justification (See US-3)
+- **FR-009**: System MUST generate partial dependence plots for the top (most salient) metrics and document practical thresholds in tabular format with metric name, threshold value, and justification. (See US-3)
 
 ### Key Entities *(include if file involves data)*
 

@@ -106,4 +106,4 @@ projects/PROJ-148-statistical-analysis-of-code-complexity-/
 | **Dual Modeling Strategy** | Spec requires primary (L1 LogReg) + alternative (RF) for robustness. | Single model would fail FR-006 and SC-003 (stability check). |
 | **Hypothesis Testing Correction** | Spec requires FDR control (FR-008). | Uncorrected p-values would violate statistical rigor (Assumptions). |
 | **Mixed-Effects Model** | Code units within projects are correlated (methodology-a5c0e953). | Standard LogReg would inflate Type I error rates; mixed-effects required for valid inference. |
-| **Label Validation** | Constitution Principle VII requires label reliability validation. | Manual audit of 100 samples required to confirm ≥85% precision assumption. |
+| **Label Validation** | Constitution Principle VII requires label reliability validation. | Manual audit of a representative sample required to confirm ≥85% precision assumption. |

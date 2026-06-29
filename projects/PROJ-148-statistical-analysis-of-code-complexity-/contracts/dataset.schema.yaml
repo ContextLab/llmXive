@@ -1,0 +1,63 @@
+# Dataset contract schema for the statistical analysis of code complexity
+# Defines the required structure of the processed dataset used throughout the project.
+# The schema follows JSON Schema draft-07 syntax expressed in YAML.
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Code Complexity Dataset"
+description: "Schema for the processed dataset containing code complexity metrics and bug labels."
+type: object
+additionalProperties: false
+
+required:
+  - project_id
+  - file_path
+  - cyclomatic_complexity
+  - loc
+  - token_count
+  - nesting_depth
+  - halstead_volume
+  - bug_label
+
+properties:
+  project_id:
+    type: string
+    description: "Unique identifier for the source project (e.g., GitHub repository name)."
+  file_path:
+    type: string
+    description: "Relative path to the source file within the project."
+  cyclomatic_complexity:
+    type: number
+    description: "Cyclomatic complexity metric as computed by lizard."
+  loc:
+    type: integer
+    description: "Lines of code in the source unit."
+  token_count:
+    type: integer
+    description: "Number of lexical tokens in the source unit."
+  nesting_depth:
+    type: integer
+    description: "Maximum nesting depth of control structures."
+  halstead_volume:
+    type: number
+    description: "Halstead volume metric."
+  bug_label:
+    type: boolean
+    description: "Binary label indicating whether the code unit is associated with a bug‑fix commit."
+
+# Optional metadata fields that may be present in the dataset
+definitions:
+  metadata:
+    type: object
+    additionalProperties: true
+    description: "Optional top‑level metadata (e.g., generation timestamp, version)."
+
+# Example instance (for documentation purposes)
+example:
+  project_id: "apache/commons-lang"
+  file_path: "src/main/java/org/apache/commons/lang3/StringUtils.java"
+  cyclomatic_complexity: 5.0
+  loc: 120
+  token_count: 350
+  nesting_depth: 3
+  halstead_volume: 45.6
+  bug_label: false

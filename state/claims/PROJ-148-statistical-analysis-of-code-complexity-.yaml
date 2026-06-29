@@ -1,0 +1,915 @@
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/data-model.md
+  attempts: 1
+  canonical: validation audit ensures at least 85% precision
+  claim_id: c_60af4804
+  context: "Pipeline stage 4 describes validation that audits a random sample to ensure\
+    \ \u2265\u202F85\u202F% precision."
+  evidence:
+    entailment_evidence: Validation audit ensures at least 85% precision
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Validation_audit_ensures_at_least_85%25_precision
+  kind: magnitude
+  raw_text: "code/data/validate_bug_labels.py audits a random sample to ensure \u2265\
+    \u202F85\u202F% precision."
+  resolved_value: validation audit ensures at least 85% precision
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:30:27Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/data-model.md
+  attempts: 1
+  canonical: metrics with skewness greater than 2 are log-transformed
+  claim_id: c_85e95373
+  context: "Derived features note that metrics with skewness >\u202F2 are log\u2011\
+    transformed."
+  evidence:
+    entailment_evidence: Metrics with skewness greater than 2 are log-transformed
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Metrics_with_skewness_greater_than_2_are_log-transformed
+  kind: magnitude
+  raw_text: "log\u2011transformed versions of highly skewed metrics (skewness >\u202F\
+    2)."
+  resolved_value: metrics with skewness greater than 2 are log-transformed
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:30:29Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/data-model.md
+  attempts: 1
+  canonical: imputation flags used when missingness less than 5%
+  claim_id: c_1bf07c69
+  context: "Derived features indicate Boolean flags for imputed values are used when\
+    \ missingness is below 5\u202F%."
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Imputation_flags_used_when_missingness_less_than_5%25
+  kind: magnitude
+  raw_text: "imputed values (used when <\u202F5\u202F% missing)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-29T17:31:04Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/data-model.md
+  attempts: 1
+  canonical: project-level stratified split uses 70% train and 30% test
+  claim_id: c_801e85f9
+  context: "The split column description specifies a project\u2011level stratified\
+    \ split with 70\u202F% train and 30\u202F% test."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Stratified split assignment (project\u2011level, 70\u202F% train / 30\u202F\
+    % test)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:31:33Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/code/quickstart.md
+  attempts: 1
+  canonical: download at least 10 Java projects from GHTorrent
+  claim_id: c_74bb5f32
+  context: "Step 1 of the data pipeline states: 'Download Java projects (\u226510\
+    \ projects) from GHTorrent.'"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_at_least_10_Java_projects_from_GHTorrent
+  kind: magnitude
+  raw_text: "Download Java projects (\u226510 projects) from GHTorrent."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:32:13Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: download at least 10 Java projects from GHTorrent
+  claim_id: c_cd61173e
+  context: "Goal: Build a reproducible pipeline that downloads \u226510 Java projects\
+    \ from GHTorrent, extracts code units, computes \u22655 complexity metrics with\
+    \ lizard, labels bug\u2011fix occurrences, cleans the data, and creates a stratified\
+    \ train/test split."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_at_least_10_Java_projects_from_GHTorrent
+  kind: magnitude
+  raw_text: "download \u226510 Java projects from GHTorrent"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:32:29Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: dataset.parquet contains at least 10000 rows
+  claim_id: c_afefea50
+  context: "Independent Test: Verify data/processed/dataset.parquet contains \u2265\
+    10\u202F000 rows, \u22655 metric columns, a binary bug_label column, and that\
+    \ the train/test split respects project\u2011level stratification with a [deferred]/30\u202F\
+    % split."
+  evidence:
+    entailment_evidence: Dataset.parquet contains at least 10000 rows
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset.parquet_contains_at_least_10000_rows
+  kind: magnitude
+  raw_text: "data/processed/dataset.parquet contains \u226510\u202F000 rows"
+  resolved_value: dataset.parquet contains at least 10000 rows
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:33:01Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: dataset.parquet contains at least 5 metric columns
+  claim_id: c_0bba5dbc
+  context: "Independent Test: Verify data/processed/dataset.parquet contains \u2265\
+    10\u202F000 rows, \u22655 metric columns, a binary bug_label column, and that\
+    \ the train/test split respects project\u2011level stratification with a [deferred]/30\u202F\
+    % split."
+  evidence:
+    entailment_evidence: Dataset.parquet contains at least 5 metric columns
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset.parquet_contains_at_least_5_metric_columns
+  kind: magnitude
+  raw_text: "data/processed/dataset.parquet contains \u22655 metric columns"
+  resolved_value: dataset.parquet contains at least 5 metric columns
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:33:05Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: train/test split uses 30% test proportion with project-level stratification
+  claim_id: c_7b5a5c6b
+  context: "Independent Test: Verify data/processed/dataset.parquet contains \u2265\
+    10\u202F000 rows, \u22655 metric columns, a binary bug_label column, and that\
+    \ the train/test split respects project\u2011level stratification with a [deferred]/30\u202F\
+    % split."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "train/test split respects project\u2011level stratification with a [deferred]/30\u202F\
+    % split"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:33:35Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: bug-label reliability precision is at least 85 percent
+  claim_id: c_56d7c5ab
+  context: "T014 [US1] Label bug\u2011fix vs. non\u2011bug\u2011fix units using commit\
+    \ messages & issue IDs; T014 [US1] Validate bug\u2011label reliability (sample\
+    \ audit, precision \u2265\u202F85\u202F%)."
+  evidence:
+    entailment_evidence: Bug-label reliability precision is at least 85 percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bug-label_reliability_precision_is_at_least_85_percent
+  kind: magnitude
+  raw_text: "Validate bug\u2011label reliability (sample audit, precision \u2265\u202F\
+    85\u202F%)"
+  resolved_value: bug-label reliability precision is at least 85 percent
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:33:38Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: impute less than 5 percent missing values
+  claim_id: c_3a7fde51
+  context: "T015 [US1] Preprocess: impute <5\u202F% missing values, log\u2011transform\
+    \ metrics with skewness >2, remove rows with >5\u202F% missing."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Impute_less_than_5_percent_missing_values
+  kind: magnitude
+  raw_text: "impute <5\u202F% missing values"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:34:05Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: remove rows with more than 5 percent missing values
+  claim_id: c_baba9f05
+  context: "T015 [US1] Preprocess: impute <5\u202F% missing values, log\u2011transform\
+    \ metrics with skewness >2, remove rows with >5\u202F% missing."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Remove_rows_with_more_than_5_percent_missing_values
+  kind: magnitude
+  raw_text: "remove rows with >5\u202F% missing"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:34:30Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: "primary L1\u2011regularized logistic regression converges within 100\
+    \ iterations and has at least one non\u2011zero coefficient"
+  claim_id: c_cf9a40da
+  context: "Goal: Fit a primary predictive model (L1\u2011regularized logistic regression),\
+    \ an alternative model (Random Forest), extract variable importance, and compare\
+    \ model performance. Independent Test: Primary model converges within 100 iterations\
+    \ and yields at least one non\u2011zero coefficient."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_L1%E2%80%91regularized_logistic_regression_converges_within
+  kind: magnitude
+  raw_text: "primary predictive model (L1\u2011regularized logistic regression) converges\
+    \ within 100 iterations and yields at least one non\u2011zero coefficient"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:34:54Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: "alternative model ROC\u2011AUC is within 0.05 of primary model ROC\u2011\
+    AUC"
+  claim_id: c_364b1e30
+  context: "Independent Test: alternative model achieves ROC\u2011AUC within \xB1\
+    0.05 of the primary model on the held\u2011out test set; Spearman rank correlation\
+    \ of feature rankings \u2265\u202F0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "alternative model achieves ROC\u2011AUC within \xB10.05 of the primary\
+    \ model on the held\u2011out test set"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:35:25Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: Spearman rank correlation of feature rankings is at least 0.7
+  claim_id: c_9c70bc59
+  context: "Independent Test: alternative model achieves ROC\u2011AUC within \xB1\
+    0.05 of the primary model on the held\u2011out test set; Spearman rank correlation\
+    \ of feature rankings \u2265\u202F0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spearman_rank_correlation_of_feature_rankings_is_at_least_0.
+  kind: magnitude
+  raw_text: "Spearman rank correlation of feature rankings \u2265\u202F0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:36:07Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: "ROC\u2011AUC is at least 0.50 baseline"
+  claim_id: c_8908a481
+  context: "Independent Test: ROC\u2011AUC, PR\u2011AUC computed and ROC\u2011AUC\
+    \ \u2265\u202F0.50 baseline; false\u2011discovery rate \u2264\u202F0.05 after\
+    \ correction; PDPs for top\u20113 metrics saved as PNG."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ROC%E2%80%91AUC_is_at_least_0.50_baseline
+  kind: magnitude
+  raw_text: "ROC\u2011AUC \u2265\u202F0.50 baseline"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:36:44Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: false discovery rate is at most 0.05 after correction
+  claim_id: c_290d1376
+  context: "Independent Test: ROC\u2011AUC, PR\u2011AUC computed and ROC\u2011AUC\
+    \ \u2265\u202F0.50 baseline; false\u2011discovery rate \u2264\u202F0.05 after\
+    \ correction; PDPs for top\u20113 metrics saved as PNG."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_discovery_rate_is_at_most_0.05_after_correction
+  kind: magnitude
+  raw_text: "false\u2011discovery rate \u2264\u202F0.05 after correction"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:37:26Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: partial dependence plots for top 3 metrics saved as PNG files
+  claim_id: c_27b2f0fd
+  context: 'Implementation: T030 [US3] Generate partial dependence plots for the three
+    most important metrics.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P18: PNG transparency demonstration 1.png'
+      source_id: Q178051
+      url: https://www.wikidata.org/wiki/Q178051
+      value: PNG
+    filled: true
+  kind: magnitude
+  raw_text: partial dependence plots for the three most important metrics saved as
+    PNG
+  resolved_value: PNG
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:37:38Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: test suite coverage is at least 85 percent
+  claim_id: c_2dd61ab5
+  context: "T039 Run full test suite and enforce coverage \u2265\u202F85\u202F% (pytest,\
+    \ coverage)."
+  evidence:
+    entailment_evidence: Test suite coverage is at least 85 percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Test_suite_coverage_is_at_least_85_percent
+  kind: magnitude
+  raw_text: "coverage \u2265\u202F85\u202F% enforced by test suite"
+  resolved_value: test suite coverage is at least 85 percent
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:37:42Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/README.md
+  attempts: 1
+  canonical: repository implements reproducible pipeline for extracting code complexity
+    metrics and bug prediction
+  claim_id: c_00503d2f
+  context: "This repository implements a reproducible pipeline for extracting code\
+    \ complexity metrics from Java projects, labeling bug\u2011fix commits, training\
+    \ predictive models, and generating evaluation reports."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Repository_implements_reproducible_pipeline_for_extracting_c
+  kind: entity_fact
+  raw_text: "This repository implements a reproducible pipeline for extracting code\
+    \ complexity metrics from Java projects, labeling bug\u2011fix commits, training\
+    \ predictive models, and generating evaluation reports."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:39:09Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 0
+  canonical: dataset.parquet contains at least 10000 rows
+  claim_id: c_8e4fd4a9
+  context: "Independent Test: Verify `data/processed/dataset.parquet` contains \u2265\
+    10\u202F000 rows, \u22655 metric columns, a binary `bug_label` column, and that\
+    \ the train/test split respects project\u2011level stratification."
+  evidence:
+    entailment_evidence: Dataset.parquet contains at least 10000 rows
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset.parquet_contains_at_least_10000_rows
+  kind: magnitude
+  raw_text: "`data/processed/dataset.parquet` contains \u226510\u202F000 rows"
+  resolved_value: dataset.parquet contains at least 10000 rows
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:42:54Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 0
+  canonical: dataset.parquet contains at least 5 metric columns
+  claim_id: c_437b09bc
+  context: "Independent Test: Verify `data/processed/dataset.parquet` contains \u2265\
+    10\u202F000 rows, \u22655 metric columns, a binary `bug_label` column, and that\
+    \ the train/test split respects project\u2011level stratification."
+  evidence:
+    entailment_evidence: Dataset.parquet contains at least 5 metric columns
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset.parquet_contains_at_least_5_metric_columns
+  kind: magnitude
+  raw_text: "`data/processed/dataset.parquet` contains \u22655 metric columns"
+  resolved_value: dataset.parquet contains at least 5 metric columns
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:42:54Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: download at least 10 Java projects from GHTorrent
+  claim_id: c_1d126e44
+  context: "Goal: Build a reproducible pipeline that downloads \u226510 Java projects\
+    \ from GHTorrent, extracts code units, computes metrics, and labels bug\u2011\
+    fix occurrences."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_at_least_10_Java_projects_from_GHTorrent
+  kind: magnitude
+  raw_text: "download \u226510 Java projects from GHTorrent"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:42:57Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: dataset.parquet contains a binary bug_label column
+  claim_id: c_c677b959
+  context: "Independent Test: Verify `data/processed/dataset.parquet` contains \u2265\
+    10\u202F000 rows, \u22655 metric columns, a binary `bug_label` column, and that\
+    \ the train/test split respects project\u2011level stratification."
+  evidence:
+    entailment_evidence: parquet contains a binary bug label column Add languages
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset.parquet_contains_a_binary_bug_label_column
+  kind: entity_fact
+  raw_text: '`data/processed/dataset.parquet` contains a binary `bug_label` column'
+  resolved_value: dataset.parquet contains a binary bug_label column
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:42:59Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: train/test split uses 30% test proportion with project-level stratification
+  claim_id: c_29143e61
+  context: "Goal includes creating a stratified train/test split where the test set\
+    \ is 30\u202F% of the data and each project appears in only one split."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "train/test split respects project\u2011level stratification with a [deferred]/30\u202F\
+    % split"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:42:59Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: pipeline enforces precision at least 85 percent
+  claim_id: c_2800c30f
+  context: "Task T049 requires the data pipeline to enforce bug\u2011label precision\
+    \ \u2265\u202F85\u202F% and abort if the precision falls below that threshold."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_enforces_precision_at_least_85_percent
+  kind: magnitude
+  raw_text: "enforce precision \u2265\u202F85\u202F% (fail pipeline if precision <\u202F\
+    85\u202F%)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:43:33Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: primary model converges within 100 iterations and has at least one non-zero
+    coefficient
+  claim_id: c_c2bb0e90
+  context: "User Story 2 specifies that the L1\u2011regularized logistic regression\
+    \ must converge within 100 iterations and produce at least one non\u2011zero coefficient."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_model_converges_within_100_iterations_and_has_at_lea
+  kind: magnitude
+  raw_text: "primary model converges within 100 iterations and yields at least one\
+    \ non\u2011zero coefficient"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:44:18Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: alternative model ROC-AUC within 0.05 of primary model on test set
+  claim_id: c_79cdf03e
+  context: "The Random Forest alternative model must achieve a ROC\u2011AUC no more\
+    \ than 0.05 away from the primary model on the held\u2011out test set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "alternative model achieves ROC\u2011AUC within \xB10.05 of the primary\
+    \ model on the held\u2011out test set"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:44:18Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: Spearman rank correlation of feature rankings at least 0.7
+  claim_id: c_a957c6fd
+  context: "User Story 2 requires the Spearman rank correlation between feature rankings\
+    \ of the two models to be \u2265\u202F0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spearman_rank_correlation_of_feature_rankings_at_least_0.7
+  kind: magnitude
+  raw_text: "Spearman rank correlation of feature rankings \u2265\u202F0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:44:20Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: ROC-AUC at least 0.50 baseline
+  claim_id: c_4c5965af
+  context: "User Story 3 mandates that the evaluated model achieve a ROC\u2011AUC\
+    \ of at least 0.50, establishing a baseline."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ROC-AUC_at_least_0.50_baseline
+  kind: magnitude
+  raw_text: "ROC\u2011AUC \u2265\u202F0.50 baseline"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:44:22Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: false discovery rate at most 0.05 after correction
+  claim_id: c_57ed3cee
+  context: "Contract test T027 asserts that the false\u2011discovery rate after Benjamini\u2013\
+    Hochberg correction must be \u2264\u202F0.05."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_discovery_rate_at_most_0.05_after_correction
+  kind: magnitude
+  raw_text: "false\u2011discovery rate \u2264\u202F0.05 after correction"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:44:24Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: test coverage at least 85 percent
+  claim_id: c_b0fcadc0
+  context: "Task T039 requires the full test suite to achieve coverage of at least\
+    \ 85\u202F%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_coverage_at_least_85_percent
+  kind: magnitude
+  raw_text: "coverage \u2265\u202F85\u202F%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:44:55Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: compute at least 5 complexity metrics with lizard
+  claim_id: c_eee47fb7
+  context: "User Story 1 aims to extract code units and compute \u22655 complexity\
+    \ metrics using lizard, including cyclomatic complexity, LOC, token count, nesting\
+    \ depth, and Halstead volume."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compute_at_least_5_complexity_metrics_with_lizard
+  kind: magnitude
+  raw_text: "compute \u22655 complexity metrics with lizard (cyclomatic complexity,\
+    \ LOC, token count, nesting depth, Halstead volume)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:44:57Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: download at least 10 java projects from ghtorrent
+  claim_id: c_4b2f0cdf
+  context: "Goal: Build a reproducible pipeline that downloads \u226510 Java projects\
+    \ from GHTorrent, extracts code units, computes \u22655 complexity metrics with\
+    \ lizard, labels bug\u2011fix occurrences, cleans the data, and creates a stratified\
+    \ train/test split."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_at_least_10_java_projects_from_ghtorrent
+  kind: magnitude
+  raw_text: "Download \u226510 Java projects from GHTorrent"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:54:44Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 2
+  canonical: compute at least 5 complexity metrics with lizard
+  claim_id: c_ecec1145
+  context: "Goal: Build a reproducible pipeline that downloads \u226510 Java projects\
+    \ from GHTorrent, extracts code units, computes \u22655 complexity metrics with\
+    \ lizard, labels bug\u2011fix occurrences, cleans the data, and creates a stratified\
+    \ train/test split."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compute_at_least_5_complexity_metrics_with_lizard
+  kind: magnitude
+  raw_text: "computes \u22655 complexity metrics with lizard"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:54:46Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: at least 5 metric columns
+  claim_id: c_1e836ca4
+  context: "Independent Test: Verify {{claim:c_8e4fd4a9}}, \u22655 metric columns,\
+    \ a binary `bug_label` column, and that the train/test split respects project\u2011\
+    level stratification with a [deferred]/30\u202F% split."
+  evidence:
+    entailment_evidence: At least 5 metric columns - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/At_least_5_metric_columns
+  kind: magnitude
+  raw_text: "\u22655 metric columns"
+  resolved_value: at least 5 metric columns
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:54:50Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: "enforce precision of at least 85 percent in bug\u2011label validation"
+  claim_id: c_40602951
+  context: "Integrate bug\u2011label reliability validation into the data pipeline\
+    \ and enforce precision \u2265\u202F85\u202F% (fail pipeline if precision <\u202F\
+    85\u202F%)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enforce_precision_of_at_least_85_percent_in_bug%E2%80%91label_valida
+  kind: magnitude
+  raw_text: "integrate bug\u2011label reliability validation into the data pipeline\
+    \ and enforce precision \u2265\u202F85\u202F% (fail pipeline if precision <\u202F\
+    85\u202F%)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:55:13Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: "primary model converges within 100 iterations with at least one non\u2011\
+    zero coefficient"
+  claim_id: c_eb44dfae
+  context: "Primary model converges within 100 iterations and yields at least one\
+    \ non\u2011zero coefficient."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_model_converges_within_100_iterations_with_at_least
+  kind: magnitude
+  raw_text: "primary model converges within 100 iterations and yields at least one\
+    \ non\u2011zero coefficient"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:55:15Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: "alternative model ROC\u2011AUC within plus\u2011minus 0.05 of primary\
+    \ model"
+  claim_id: c_b7176442
+  context: "Alternative model achieves ROC\u2011AUC within \xB10.05 of the primary\
+    \ model on the held\u2011out test set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "alternative model achieves ROC\u2011AUC within \xB10.05 of the primary\
+    \ model on the held\u2011out test set"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:55:15Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: spearman rank correlation of feature rankings at least 0.7
+  claim_id: c_e84897d6
+  context: "Spearman rank correlation of feature rankings \u2265\u202F0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spearman_rank_correlation_of_feature_rankings_at_least_0.7
+  kind: magnitude
+  raw_text: "Spearman rank correlation of feature rankings \u2265\u202F0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:55:17Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: "roc\u2011auc at least 0.50 baseline"
+  claim_id: c_1056c5be
+  context: "ROC\u2011AUC, PR\u2011AUC computed and ROC\u2011AUC \u2265\u202F0.50 baseline;\
+    \ false\u2011discovery rate \u2264\u202F0.05 after correction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Roc%E2%80%91auc_at_least_0.50_baseline
+  kind: magnitude
+  raw_text: "ROC\u2011AUC \u2265\u202F0.50 baseline"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:55:19Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: false discovery rate at most 0.05 after correction
+  claim_id: c_b4477dc0
+  context: "ROC\u2011AUC, PR\u2011AUC computed and ROC\u2011AUC \u2265\u202F0.50 baseline;\
+    \ false\u2011discovery rate \u2264\u202F0.05 after correction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_discovery_rate_at_most_0.05_after_correction
+  kind: magnitude
+  raw_text: "false\u2011discovery rate \u2264\u202F0.05 after correction"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:55:20Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: test coverage at least 85 percent
+  claim_id: c_df1e0231
+  context: "Run full test suite and enforce coverage \u2265\u202F85\u202F%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_coverage_at_least_85_percent
+  kind: magnitude
+  raw_text: "coverage \u2265\u202F85\u202F%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:55:22Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/README.md
+  attempts: 1
+  canonical: test suite coverage enforced at at least 85 percent
+  claim_id: c_4e15ca3a
+  context: The project enforces test coverage of at least 85 percent when running
+    the test suite.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_suite_coverage_enforced_at_at_least_85_percent
+  kind: magnitude
+  raw_text: "Coverage is enforced at \u2265\u202F85\u202F% (`pytest --cov=code`)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:56:46Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/README.md
+  attempts: 1
+  canonical: metric extraction runs on hardware with at most 2 GB RAM
+  claim_id: c_701d1a05
+  context: "The extraction code is designed to work on machines with limited memory,\
+    \ specifically up to 2\u202FGB of RAM."
+  evidence:
+    entailment_evidence: Metric extraction runs on hardware with at most 2 GB RAM
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Metric_extraction_runs_on_hardware_with_at_most_2_GB_RAM
+  kind: magnitude
+  raw_text: "Metric extraction step processes files in a memory\u2011aware, chunked\
+    \ fashion, enabling execution on modest hardware (\u22642\u202FGB RAM)."
+  resolved_value: metric extraction runs on hardware with at most 2 GB RAM
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:56:48Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/README.md
+  attempts: 1
+  canonical: all random operations use the central seed defined in config.py
+  claim_id: c_404224da
+  context: The pipeline sets a single random seed that is applied to every random
+    process to ensure determinism.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_random_operations_use_the_central_seed_defined_in_config
+  kind: entity_fact
+  raw_text: All stochastic components (data shuffling, model training) use the central
+    seed defined in `code/utils/config.py`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:57:17Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/README.md
+  attempts: 1
+  canonical: dataset sourced from GHTorrent archive of GitHub activity
+  claim_id: c_a97672ac
+  context: Project repositories and commit histories are collected from the GHTorrent
+    dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_sourced_from_GHTorrent_archive_of_GitHub_activity
+  kind: entity_fact
+  raw_text: The dataset of Java projects is obtained from GHTorrent, a comprehensive
+    archive of GitHub activity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:57:44Z'
+- artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/README.md
+  attempts: 1
+  canonical: code complexity metrics extracted with Lizard tool
+  claim_id: c_53b66f01
+  context: The pipeline leverages the Lizard tool to calculate cyclomatic complexity,
+    LOC, token count, nesting depth, and Halstead volume.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_complexity_metrics_extracted_with_Lizard_tool
+  kind: entity_fact
+  raw_text: "Code\u2011complexity metrics are computed using Lizard, a static analysis\
+    \ tool."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:58:20Z'

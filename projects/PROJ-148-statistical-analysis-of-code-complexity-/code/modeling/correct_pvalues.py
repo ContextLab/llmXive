@@ -1,0 +1,184 @@
+"""
+correct_pvalues.py
+
+Apply Benjamini–Hochberg (BH) false discovery rate correction to a CSV file
+containing raw p‑values for model features.
+
+The script expects an input CSV with at least the following columns:
+    - ``feature``  (optional, any identifier)
+    - ``p_value``  (raw p‑value, float in [0, 1])
+
+It produces ``data/model/corrected_pvalues.csv`` which contains the original
+columns plus:
+    - ``p_value_corrected``  (BH‑adjusted p‑value)
+    - ``rejected``           (bool, ``True`` if the corrected p‑value ≤ 0.05)
+
+The script also computes the empirical false‑discovery proportion (FDP),
+defined as the fraction of hypotheses that are rejected after correction.
+An assertion ensures that this proportion does not exceed 0.05; if it does,
+an ``AssertionError`` is raised, causing the pipeline to fail as required
+by the task specification.
+
+Usage
+-----
+.. code-block:: console
+
+    python code/modeling/correct_pvalues.py \
+        --input data/model/pvalues.csv \
+        --output data/model/corrected_pvalues.csv
+
+If omitted, the default paths above are used.
+"""
+
+from __future__ import annotations
+
+import argparse
+import pathlib
+import sys
+
+import pandas as pd
+from statsmodels.stats.multitest import multipletests
+
+from utils.logging import get_logger
+
+LOGGER = get_logger(__name__)
+
+DEFAULT_INPUT_PATH = pathlib.Path("data/model/pvalues.csv")
+DEFAULT_OUTPUT_PATH = pathlib.Path("data/model/corrected_pvalues.csv")
+ALPHA = 0.05  # significance threshold for BH correction
+
+
+def load_pvalues(csv_path: pathlib.Path) -> pd.DataFrame:
+    """Load a CSV containing raw p‑values.
+
+    Parameters
+    ----------
+    csv_path: pathlib.Path
+        Path to the CSV file.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with at least a ``p_value`` column.
+    """
+    if not csv_path.is_file():
+        LOGGER.error("Input p‑value file not found: %s", csv_path)
+        raise FileNotFoundError(f"Input p‑value file not found: {csv_path}")
+
+    df = pd.read_csv(csv_path)
+    if "p_value" not in df.columns:
+        LOGGER.error("Input CSV must contain a 'p_value' column.")
+        raise ValueError("Input CSV must contain a 'p_value' column.")
+    return df
+
+
+def apply_bh_correction(df: pd.DataFrame, alpha: float = ALPHA) -> pd.DataFrame:
+    """Apply Benjamini–Hochberg correction to the ``p_value`` column.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame containing a ``p_value`` column.
+    alpha: float
+        Desired false discovery rate threshold (default 0.05).
+
+    Returns
+    -------
+    pd.DataFrame
+        The original DataFrame with two new columns:
+        ``p_value_corrected`` and ``rejected``.
+    """
+    pvals = df["p_value"].to_numpy()
+    # multipletests returns: rejected, corrected_pvals, _, _
+    rejected, corrected, _, _ = multipletests(pvals, alpha=alpha, method="fdr_bh")
+    df = df.copy()
+    df["p_value_corrected"] = corrected
+    df["rejected"] = rejected
+    return df
+
+
+def compute_fdp(df: pd.DataFrame) -> float:
+    """Compute the empirical false discovery proportion (FDP).
+
+    FDP is defined here as the proportion of hypotheses that are rejected
+    after BH correction.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame that must contain a boolean ``rejected`` column.
+
+    Returns
+    -------
+    float
+        FDP ∈ [0, 1].
+    """
+    if "rejected" not in df.columns:
+        raise ValueError("DataFrame must contain a 'rejected' column.")
+    total = len(df)
+    if total == 0:
+        return 0.0
+    rejected = df["rejected"].sum()
+    return rejected / total
+
+
+def save_corrected(df: pd.DataFrame, out_path: pathlib.Path) -> None:
+    """Write the corrected p‑values DataFrame to ``out_path``."""
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(out_path, index=False)
+    LOGGER.info("Corrected p‑values written to %s", out_path)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Entry point for the script.
+
+    Returns
+    -------
+    int
+        Exit code (0 for success, non‑zero for failure).
+    """
+    parser = argparse.ArgumentParser(
+        description="Apply Benjamini–Hochberg correction to p‑values."
+    )
+    parser.add_argument(
+        "--input",
+        type=pathlib.Path,
+        default=DEFAULT_INPUT_PATH,
+        help="Path to CSV containing raw p‑values (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--output",
+        type=pathlib.Path,
+        default=DEFAULT_OUTPUT_PATH,
+        help="Path where corrected CSV will be saved (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=ALPHA,
+        help="Target FDR for BH correction (default: %(default)s).",
+    )
+    args = parser.parse_args(argv)
+
+    try:
+        df_raw = load_pvalues(args.input)
+        df_corrected = apply_bh_correction(df_raw, alpha=args.alpha)
+        fdp = compute_fdp(df_corrected)
+        LOGGER.info("Empirical false discovery proportion (FDP): %.4f", fdp)
+
+        # Assertion required by the task specification
+        assert fdp <= 0.05, (
+            f"FDP {fdp:.4f} exceeds the allowed threshold of 0.05. "
+            "Pipeline will abort."
+        )
+
+        save_corrected(df_corrected, args.output)
+    except Exception as exc:  # pragma: no cover – defensive logging
+        LOGGER.exception("Failed to correct p‑values: %s", exc)
+        return 1
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,14 @@
+pandas
+scikit-learn
+lizard
+statsmodels
+matplotlib
+seaborn
+pymer4
+pytest
+black
+flake8
+joblib
+numpy
+tqdm
+# any other dependencies already listed remain unchanged
