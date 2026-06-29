@@ -1,0 +1,65 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Taxon Schema
+description: Schema for validating taxonomic classification records.
+type: object
+required:
+  - taxon_id
+  - sample_id
+  - kingdom
+  - phylum
+  - class
+  - order
+  - family
+  - genus
+  - species
+  - abundance
+properties:
+  taxon_id:
+    type: string
+    description: Unique identifier for the taxon entry.
+  sample_id:
+    type: string
+    description: Foreign key linking to the sample metadata.
+    pattern: "^S[0-9]{4,6}$"
+  kingdom:
+    type: string
+    description: Kingdom level classification.
+    minLength: 1
+  phylum:
+    type: string
+    description: Phylum level classification.
+    minLength: 1
+  class:
+    type: string
+    description: Class level classification.
+    minLength: 1
+  order:
+    type: string
+    description: Order level classification.
+    minLength: 1
+  family:
+    type: string
+    description: Family level classification.
+    minLength: 1
+  genus:
+    type: string
+    description: Genus level classification.
+    minLength: 1
+  species:
+    type: string
+    description: Species level classification. Can be empty if unclassified.
+  abundance:
+    type: integer
+    description: Count of reads assigned to this taxon in the sample.
+    minimum: 0
+  relative_abundance:
+    type: number
+    description: Proportion of reads (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
+  confidence_score:
+    type: number
+    description: Classification confidence score (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
+additionalProperties: false

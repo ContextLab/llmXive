@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Disease Incidence Record"
+description: "Schema for validating plant disease incidence records."
+type: object
+required:
+  - sample_id
+  - disease_type
+  - incidence_rate
+  - measurement_date
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier linking to the sample record"
+    pattern: "^S[0-9]+$"
+  disease_type:
+    type: string
+    description: "Type or name of the disease observed"
+  incidence_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of plants showing disease symptoms (0.0 to 1.0)"
+  measurement_date:
+    type: string
+    format: date
+    description: "Date of disease measurement (YYYY-MM-DD)"
+  severity_level:
+    type: string
+    enum: ["low", "medium", "high"]
+    description: "Optional categorical severity assessment"
+  notes:
+    type: string
+    description: "Optional notes about the disease observation"

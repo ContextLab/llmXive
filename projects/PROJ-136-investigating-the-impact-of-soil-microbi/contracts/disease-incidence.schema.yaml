@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Disease Incidence Schema
+description: Schema for validating plant disease incidence records.
+type: object
+required:
+  - record_id
+  - sample_id
+  - disease_type
+  - incidence_rate
+  - measurement_date
+properties:
+  record_id:
+    type: string
+    description: Unique identifier for the disease record.
+    pattern: "^D[0-9]{4,6}$"
+  sample_id:
+    type: string
+    description: Foreign key linking to the sample metadata.
+    pattern: "^S[0-9]{4,6}$"
+  disease_type:
+    type: string
+    description: Name or classification of the observed disease.
+    minLength: 2
+  incidence_rate:
+    type: number
+    description: Proportion of plants showing disease symptoms (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
+  measurement_date:
+    type: string
+    description: Date of disease measurement in ISO 8601 format (YYYY-MM-DD).
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  severity_score:
+    type: number
+    description: Optional severity score (e.g., 1-5 scale).
+    minimum: 0
+    maximum: 10
+  notes:
+    type: string
+    description: Optional observational notes.
+    maxLength: 500
+additionalProperties: false

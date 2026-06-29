@@ -1,0 +1,58 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Soil Microbiome Sample Schema
+description: Schema for validating soil microbiome sample metadata records.
+type: object
+required:
+  - sample_id
+  - plant_species
+  - gps_latitude
+  - gps_longitude
+  - soil_type
+  - sequencing_depth
+properties:
+  sample_id:
+    type: string
+    description: Unique identifier for the sample.
+    pattern: "^S[0-9]{4,6}$"
+  plant_species:
+    type: string
+    description: Scientific name of the plant species at the sample location.
+    minLength: 2
+  gps_latitude:
+    type: number
+    description: GPS latitude coordinate in decimal degrees.
+    minimum: -90
+    maximum: 90
+  gps_longitude:
+    type: number
+    description: GPS longitude coordinate in decimal degrees.
+    minimum: -180
+    maximum: 180
+  soil_type:
+    type: string
+    description: Classification of soil type (e.g., sandy, clay, loam).
+    enum:
+      - sandy
+      - clay
+      - loam
+      - silt
+      - peat
+      - chalk
+      - mixed
+      - unknown
+  sequencing_depth:
+    type: integer
+    description: Total number of reads obtained for the sample.
+    minimum: 1000
+  collection_date:
+    type: string
+    description: Date of sample collection in ISO 8601 format (YYYY-MM-DD).
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  study_id:
+    type: string
+    description: Identifier for the source study (e.g., Qiita ID, MG-RAST ID).
+  source_url:
+    type: string
+    description: URL where the raw data was retrieved from.
+    format: uri
+additionalProperties: false

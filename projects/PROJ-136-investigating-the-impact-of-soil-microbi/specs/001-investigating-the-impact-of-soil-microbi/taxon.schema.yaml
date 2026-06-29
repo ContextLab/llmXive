@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Taxon Record"
+description: "Schema for validating taxonomic classification records."
+type: object
+required:
+  - taxon_id
+  - kingdom
+  - phylum
+  - class
+  - order
+  - family
+  - genus
+  - species
+properties:
+  taxon_id:
+    type: string
+    description: "Unique identifier for the taxon (e.g., ASV or OTU ID)"
+  kingdom:
+    type: string
+    description: "Kingdom classification"
+  phylum:
+    type: string
+    description: "Phylum classification"
+  class:
+    type: string
+    description: "Class classification"
+  order:
+    type: string
+    description: "Order classification"
+  family:
+    type: string
+    description: "Family classification"
+  genus:
+    type: string
+    description: "Genus classification"
+  species:
+    type: string
+    description: "Species classification"
+  confidence_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence score of the classification"
+  is_unclassified:
+    type: boolean
+    description: "Flag indicating if the taxon is unclassified at any level"

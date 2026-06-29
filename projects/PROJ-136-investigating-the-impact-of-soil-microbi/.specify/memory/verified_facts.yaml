@@ -1,0 +1,10 @@
+'|alpha analysi level power use':
+  quote: '0.05'
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.05'
+'|complexity cyclomatic function less reduced than':
+  quote: "1\u201310: Simple procedure, little risk"
+  source_id: Cyclomatic complexity
+  url: https://en.wikipedia.org/wiki/Cyclomatic_complexity
+  value: '10'
