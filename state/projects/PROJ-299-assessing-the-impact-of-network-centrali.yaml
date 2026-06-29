@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T08:56:11.013496Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-299-assessing-the-impact-of-network-centrali
-last_run_id: ab31e8d0-1506-4883-93dc-c5badb987222
+last_run_id: dc7e4bb6-5b90-4d5b-9bd8-0db9b3f26cfd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali
 title: Assessing the Impact of Network Centrality on Age-Related Cognitive Decline
-updated_at: '2026-06-24T22:45:48.364691Z'
+updated_at: '2026-06-29T18:47:13.677395Z'
