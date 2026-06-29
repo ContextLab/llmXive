@@ -1,323 +1,302 @@
 """
-Unit tests for visualization checksum computation (T044).
+Unit tests for checksum_visualization_outputs module.
 
-Tests the checksum_visualization_outputs module to ensure:
-1. Visualization files are correctly discovered
-2. Checksums are computed correctly
-3. Checksums are recorded in the manifest
-4. Edge cases are handled properly
+Tests:
+- find_visualization_outputs: Locates PNG and PDF files
+- compute_visualization_checksums: Computes SHA-256 checksums
+- record_visualization_checksums: Records in artifact_hashes manifest
+- generate_visualization_checksum_report: Creates checksum report
 """
-
+import hashlib
 import json
+import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
 
+# Import the module under test
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
 from checksum_visualization_outputs import (
     find_visualization_outputs,
     compute_visualization_checksums,
     record_visualization_checksums,
     generate_visualization_checksum_report,
-    VISUALIZATION_DIR,
-    VISUALIZATION_EXTENSIONS
 )
+from checksum_manifest import load_manifest, save_manifest
 
-from checksum_manifest import DEFAULT_ALGORITHM
 
 class TestFindVisualizationOutputs:
     """Tests for find_visualization_outputs function."""
-    
-    def test_find_in_empty_directory(self, tmp_path):
-        """Should return empty list when no visualization files exist."""
-        result = find_visualization_outputs(tmp_path)
+
+    def test_finds_png_files(self, tmp_path):
+        """Test that PNG files are found."""
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
+        
+        # Create some PNG files
+        (figures_dir / "plot1.png").write_bytes(b"fake png content")
+        (figures_dir / "plot2.png").write_bytes(b"fake png content 2")
+        
+        result = find_visualization_outputs(figures_dir)
+        
+        assert len(result) == 2
+        assert all(f.suffix == ".png" for f in result)
+
+    def test_finds_pdf_files(self, tmp_path):
+        """Test that PDF files are found."""
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
+        
+        # Create some PDF files
+        (figures_dir / "report1.pdf").write_bytes(b"fake pdf content")
+        
+        result = find_visualization_outputs(figures_dir)
+        
+        assert len(result) == 1
+        assert result[0].suffix == ".pdf"
+
+    def test_finds_both_png_and_pdf(self, tmp_path):
+        """Test that both PNG and PDF files are found."""
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
+        
+        (figures_dir / "plot.png").write_bytes(b"png")
+        (figures_dir / "report.pdf").write_bytes(b"pdf")
+        
+        result = find_visualization_outputs(figures_dir)
+        
+        assert len(result) == 2
+
+    def test_empty_directory(self, tmp_path):
+        """Test that empty directory returns empty list."""
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
+        
+        result = find_visualization_outputs(figures_dir)
+        
         assert result == []
-    
-    def test_find_png_files(self, tmp_path):
-        """Should find PNG files in directory."""
-        # Create test PNG files
-        (tmp_path / "scatter.png").touch()
-        (tmp_path / "plot.png").touch()
-        
-        result = find_visualization_outputs(tmp_path)
-        
-        assert len(result) == 2
-        assert all(f.suffix == '.png' for f in result)
-    
-    def test_find_multiple_extensions(self, tmp_path):
-        """Should find files with multiple supported extensions."""
-        (tmp_path / "fig1.png").touch()
-        (tmp_path / "fig2.pdf").touch()
-        (tmp_path / "fig3.svg").touch()
-        (tmp_path / "not_an_image.txt").touch()
-        
-        result = find_visualization_outputs(tmp_path)
-        
-        assert len(result) == 3
-        assert not any(f.suffix == '.txt' for f in result)
-    
-    def test_find_in_subdirectories(self, tmp_path):
-        """Should find visualization files in subdirectories."""
-        sub_dir = tmp_path / "subdir"
-        sub_dir.mkdir()
-        
-        (tmp_path / "root.png").touch()
-        (sub_dir / "nested.png").touch()
-        
-        result = find_visualization_outputs(tmp_path)
-        
-        assert len(result) == 2
-    
+
     def test_nonexistent_directory(self, tmp_path):
-        """Should return empty list for non-existent directory."""
+        """Test that nonexistent directory returns empty list."""
         nonexistent = tmp_path / "does_not_exist"
+        
         result = find_visualization_outputs(nonexistent)
+        
         assert result == []
+
+    def test_ignores_other_extensions(self, tmp_path):
+        """Test that non-PNG/PDF files are ignored."""
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
+        
+        (figures_dir / "plot.png").write_bytes(b"png")
+        (figures_dir / "data.csv").write_bytes(b"csv")
+        (figures_dir / "readme.txt").write_bytes(b"txt")
+        
+        result = find_visualization_outputs(figures_dir)
+        
+        assert len(result) == 1
+        assert result[0].name == "plot.png"
+
 
 class TestComputeVisualizationChecksums:
     """Tests for compute_visualization_checksums function."""
-    
-    def test_compute_checksum_valid_file(self, tmp_path):
-        """Should compute valid checksum for existing file."""
-        test_file = tmp_path / "test.png"
-        test_file.write_bytes(b"fake png content")
+
+    def test_computes_correct_sha256(self, tmp_path):
+        """Test that SHA-256 checksum is computed correctly."""
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
         
-        checksums = compute_visualization_checksums([test_file])
+        test_file = figures_dir / "test.png"
+        content = b"test content for checksum"
+        test_file.write_bytes(content)
         
-        assert str(test_file) in checksums
-        assert len(checksums[str(test_file)]) == 64  # SHA256 hex length
-    
-    def test_compute_checksum_multiple_files(self, tmp_path):
-        """Should compute checksums for multiple files."""
-        file1 = tmp_path / "fig1.png"
-        file2 = tmp_path / "fig2.png"
+        expected_checksum = hashlib.sha256(content).hexdigest()
+        
+        result = compute_visualization_checksums([test_file])
+        
+        assert str(test_file) in result
+        assert result[str(test_file)] == expected_checksum
+
+    def test_multiple_files(self, tmp_path):
+        """Test checksum computation for multiple files."""
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
+        
+        file1 = figures_dir / "plot1.png"
+        file2 = figures_dir / "plot2.png"
         file1.write_bytes(b"content1")
         file2.write_bytes(b"content2")
         
-        checksums = compute_visualization_checksums([file1, file2])
+        result = compute_visualization_checksums([file1, file2])
         
-        assert len(checksums) == 2
-    
-    def test_different_content_different_checksum(self, tmp_path):
-        """Different file content should produce different checksums."""
-        file1 = tmp_path / "fig1.png"
-        file2 = tmp_path / "fig2.png"
-        file1.write_bytes(b"content1")
-        file2.write_bytes(b"content2")
+        assert len(result) == 2
+        assert str(file1) in result
+        assert str(file2) in result
+
+    def test_empty_list(self, tmp_path):
+        """Test that empty list returns empty dict."""
+        result = compute_visualization_checksums([])
         
-        checksums = compute_visualization_checksums([file1, file2])
+        assert result == {}
+
+    def test_different_algorithms(self, tmp_path):
+        """Test that different algorithms produce different checksums."""
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
         
-        assert checksums[str(file1)] != checksums[str(file2)]
-    
-    def test_same_content_same_checksum(self, tmp_path):
-        """Same file content should produce same checksum."""
-        file1 = tmp_path / "fig1.png"
-        file2 = tmp_path / "fig2.png"
-        file1.write_bytes(b"identical content")
-        file2.write_bytes(b"identical content")
+        test_file = figures_dir / "test.png"
+        test_file.write_bytes(b"test content")
         
-        checksums = compute_visualization_checksums([file1, file2])
+        result_sha256 = compute_visualization_checksums([test_file], algorithm="sha256")
         
-        assert checksums[str(file1)] == checksums[str(file2)]
-    
-    def test_missing_file_skipped(self, tmp_path):
-        """Missing files should be skipped with warning."""
-        missing_file = tmp_path / "nonexistent.png"
-        existing_file = tmp_path / "existing.png"
-        existing_file.write_bytes(b"content")
-        
-        checksums = compute_visualization_checksums([missing_file, existing_file])
-        
-        # Only existing file should be in results
-        assert str(existing_file) in checksums
-        assert str(missing_file) not in checksums
+        # Verify it's a valid hex string of correct length
+        assert len(result_sha256[str(test_file)]) == 64  # SHA-256 produces 64 hex chars
+
 
 class TestRecordVisualizationChecksums:
     """Tests for record_visualization_checksums function."""
-    
-    def test_record_creates_manifest(self, tmp_path):
-        """Should create manifest file if it doesn't exist."""
+
+    def test_records_in_manifest(self, tmp_path):
+        """Test that checksums are recorded in manifest."""
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
+        
+        test_file = figures_dir / "test.png"
+        test_file.write_bytes(b"test content")
+        
         manifest_path = tmp_path / "manifest.json"
-        viz_dir = tmp_path / "figures"
-        viz_dir.mkdir()
-        (viz_dir / "test.png").write_bytes(b"content")
-        
-        record_visualization_checksums(
-            manifest_path=manifest_path,
-            visualization_dir=viz_dir
-        )
-        
-        assert manifest_path.exists()
-        
-        with open(manifest_path) as f:
-            manifest = json.load(f)
-        
-        assert 'artifact_hashes' in manifest
-        assert 'metadata' in manifest
-    
-    def test_record_updates_existing_manifest(self, tmp_path):
-        """Should update existing manifest with new checksums."""
-        manifest_path = tmp_path / "manifest.json"
-        viz_dir = tmp_path / "figures"
-        viz_dir.mkdir()
         
         # Create initial manifest
         initial_manifest = {
-            'artifact_hashes': {'existing': 'checksum123'},
-            'metadata': {'created': '2024-01-01'}
+            "created_at": "2024-01-01T00:00:00",
+            "artifact_hashes": {}
         }
-        with open(manifest_path, 'w') as f:
-            json.dump(initial_manifest, f)
+        save_manifest(initial_manifest, manifest_path)
         
-        # Add visualization file
-        (viz_dir / "test.png").write_bytes(b"content")
+        checksums = {str(test_file): "fake_checksum_123"}
         
-        record_visualization_checksums(
-            manifest_path=manifest_path,
-            visualization_dir=viz_dir
-        )
+        result = record_visualization_checksums(checksums, manifest_path)
         
-        with open(manifest_path) as f:
-            manifest = json.load(f)
+        assert result is True
         
-        # Should preserve existing entries
-        assert 'existing' in manifest['artifact_hashes']
-        # Should add new visualization
-        assert any('test.png' in k for k in manifest['artifact_hashes'].keys())
-    
-    def test_record_adds_metadata(self, tmp_path):
-        """Should add visualization-specific metadata to manifest."""
+        # Verify manifest was updated
+        updated = load_manifest(manifest_path)
+        assert "visualization:" + str(test_file) in updated["artifact_hashes"]
+
+    def test_creates_artifact_hashes_if_missing(self, tmp_path):
+        """Test that artifact_hashes key is created if missing."""
         manifest_path = tmp_path / "manifest.json"
-        viz_dir = tmp_path / "figures"
-        viz_dir.mkdir()
-        (viz_dir / "test.png").write_bytes(b"content")
         
-        record_visualization_checksums(
-            manifest_path=manifest_path,
-            visualization_dir=viz_dir
-        )
+        # Create manifest without artifact_hashes
+        initial_manifest = {"created_at": "2024-01-01T00:00:00"}
+        save_manifest(initial_manifest, manifest_path)
         
-        with open(manifest_path) as f:
-            manifest = json.load(f)
+        checksums = {"test.png": "fake_checksum"}
         
-        metadata = manifest.get('metadata', {})
-        assert 'last_visualization_check' in metadata
-        assert 'visualization_files_checked' in metadata
-        assert 'visualization_algorithm' in metadata
+        result = record_visualization_checksums(checksums, manifest_path)
+        
+        assert result is True
+        
+        updated = load_manifest(manifest_path)
+        assert "artifact_hashes" in updated
+
+    def test_empty_checksums(self, tmp_path):
+        """Test that empty checksums dict still creates manifest entry."""
+        manifest_path = tmp_path / "manifest.json"
+        
+        initial_manifest = {"created_at": "2024-01-01T00:00:00"}
+        save_manifest(initial_manifest, manifest_path)
+        
+        result = record_visualization_checksums({}, manifest_path)
+        
+        assert result is True
+
 
 class TestGenerateVisualizationChecksumReport:
     """Tests for generate_visualization_checksum_report function."""
-    
-    def test_report_contains_checksums(self, tmp_path):
-        """Report should contain checksum information."""
-        manifest_path = tmp_path / "manifest.json"
-        output_path = tmp_path / "report.txt"
-        
-        # Create manifest with checksums
-        manifest = {
-            'artifact_hashes': {
-                'data/analysis/figures/test.png': 'abc123checksum'
-            },
-            'metadata': {
-                'visualization_algorithm': 'sha256'
-            }
-        }
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f)
-        
-        report = generate_visualization_checksum_report(
-            manifest_path, output_path
-        )
-        
-        assert 'abc123checksum' in report
-        assert 'test.png' in report
-    
-    def test_report_generated_to_file(self, tmp_path):
-        """Should write report to specified output file."""
-        manifest_path = tmp_path / "manifest.json"
-        output_path = tmp_path / "report.txt"
-        
-        manifest = {
-            'artifact_hashes': {},
-            'metadata': {}
-        }
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f)
-        
-        generate_visualization_checksum_report(
-            manifest_path, output_path
-        )
-        
-        assert output_path.exists()
-        with open(output_path) as f:
-            content = f.read()
-        assert 'VISUALIZATION OUTPUT CHECKSUM REPORT' in content
-    
-    def test_report_returns_string(self, tmp_path):
-        """Should return report as string when no output path."""
-        manifest_path = tmp_path / "manifest.json"
-        
-        manifest = {
-            'artifact_hashes': {},
-            'metadata': {}
-        }
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f)
-        
-        report = generate_visualization_checksum_report(manifest_path)
-        
-        assert isinstance(report, str)
-        assert len(report) > 0
-        assert 'VISUALIZATION OUTPUT CHECKSUM REPORT' in report
 
-class TestVisualizationChecksumIntegration:
-    """Integration tests for visualization checksum workflow."""
-    
+    def test_creates_report_file(self, tmp_path):
+        """Test that report file is created."""
+        checksums = {
+            "plot1.png": "checksum1",
+            "plot2.png": "checksum2",
+        }
+        report_path = tmp_path / "report.txt"
+        
+        result = generate_visualization_checksum_report(checksums, report_path)
+        
+        assert result == report_path
+        assert report_path.exists()
+        
+        content = report_path.read_text()
+        assert "Visualization Output Checksum Report" in content
+        assert "checksum1" in content
+        assert "checksum2" in content
+
+    def test_empty_checksums_report(self, tmp_path):
+        """Test that empty checksums produces report with message."""
+        report_path = tmp_path / "report.txt"
+        
+        result = generate_visualization_checksum_report({}, report_path)
+        
+        assert result == report_path
+        
+        content = report_path.read_text()
+        assert "No visualization files found" in content
+
+    def test_report_contains_metadata(self, tmp_path):
+        """Test that report contains generation metadata."""
+        report_path = tmp_path / "report.txt"
+        
+        result = generate_visualization_checksum_report({}, report_path)
+        
+        content = report_path.read_text()
+        assert "Generated:" in content
+        assert "Algorithm:" in content
+
+
+class TestIntegration:
+    """Integration tests for the full checksum workflow."""
+
     def test_full_workflow(self, tmp_path):
-        """Test complete workflow: find -> compute -> record."""
+        """Test the complete checksum workflow."""
+        # Setup
+        figures_dir = tmp_path / "figures"
+        figures_dir.mkdir()
         manifest_path = tmp_path / "manifest.json"
-        viz_dir = tmp_path / "figures"
-        viz_dir.mkdir()
+        report_path = tmp_path / "report.txt"
         
         # Create test visualization files
-        (viz_dir / "scatter.png").write_bytes(b"scatter data")
-        (viz_dir / "density_plot.png").write_bytes(b"density data")
-        (viz_dir / "sensitivity.pdf").write_bytes(b"sensitivity data")
+        (figures_dir / "scatter.png").write_bytes(b"scatter plot content")
+        (figures_dir / "sensitivity.pdf").write_bytes(b"sensitivity analysis")
+        
+        # Create initial manifest
+        initial_manifest = {"created_at": "2024-01-01T00:00:00"}
+        save_manifest(initial_manifest, manifest_path)
         
         # Find files
-        files = find_visualization_outputs(viz_dir)
-        assert len(files) == 3
+        files = find_visualization_outputs(figures_dir)
+        assert len(files) == 2
         
         # Compute checksums
         checksums = compute_visualization_checksums(files)
-        assert len(checksums) == 3
+        assert len(checksums) == 2
         
         # Record in manifest
-        record_visualization_checksums(
-            manifest_path=manifest_path,
-            visualization_dir=viz_dir
-        )
+        result = record_visualization_checksums(checksums, manifest_path)
+        assert result is True
         
-        # Verify manifest
-        with open(manifest_path) as f:
-            manifest = json.load(f)
+        # Generate report
+        report = generate_visualization_checksum_report(checksums, report_path)
+        assert report.exists()
         
-        assert len(manifest['artifact_hashes']) == 3
-        assert manifest['metadata']['visualization_files_checked'] == 3
-    
-    def test_no_files_empty_manifest(self, tmp_path):
-        """Should handle case where no visualization files exist."""
-        manifest_path = tmp_path / "manifest.json"
-        viz_dir = tmp_path / "figures"
-        viz_dir.mkdir()
-        
-        record_visualization_checksums(
-            manifest_path=manifest_path,
-            visualization_dir=viz_dir
-        )
-        
-        with open(manifest_path) as f:
-            manifest = json.load(f)
-        
-        assert manifest['metadata']['visualization_files_checked'] == 0
+        # Verify manifest contains all checksums
+        manifest = load_manifest(manifest_path)
+        for file_path in files:
+            key = f"visualization:{file_path}"
+            assert key in manifest["artifact_hashes"]

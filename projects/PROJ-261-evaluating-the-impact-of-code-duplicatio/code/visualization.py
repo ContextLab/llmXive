@@ -1,10 +1,6 @@
 """
-Visualization module for generating publication-ready plots.
-
-Implements T041: Generate scatter plots with regression lines using matplotlib.
-Output formats: PNG and PDF per T042 specification.
-
-This module depends on correlation_results.csv produced by correlation_analysis.py.
+Visualization module for code duplication impact analysis.
+Generates scatter plots with regression lines using matplotlib.
 """
 import logging
 import sys
@@ -12,95 +8,95 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless operation
+matplotlib.use('Agg')  # Non-interactive backend for server environments
 import matplotlib.pyplot as plt
 import numpy as np
-import csv
-
-# Import config for reproducibility parameters
+import pandas as pd
+from scipy import stats
 from config import (
-    get_clone_thresholds,
-    get_random_seed,
-    get_figure_format,
-    get_figure_dpi
+    get_figure_format, get_figure_dpi, get_clone_thresholds,
+    get_random_seed, get_correlation_method
 )
+from checksum_manifest import record_artifact_checksums
 
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Output paths
-PROJECT_ROOT = Path(__file__).parent.parent
-FIGURES_DIR = PROJECT_ROOT / "data" / "analysis" / "figures"
-CORRELATION_RESULTS_PATH = PROJECT_ROOT / "data" / "analysis" / "correlation_results.csv"
+def setup_logging() -> logging.Logger:
+    """Setup and return the logger for this module."""
+    return logger
 
-# Ensure output directory exists
-FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-
-def setup_logging():
-    """Configure logging for visualization module."""
-    logger.info("Visualization module initialized")
-    logger.info(f"Output directory: {FIGURES_DIR}")
-    logger.info(f"Random seed: {get_random_seed()}")
-    logger.info(f"Figure formats: {get_figure_format()}")
-    logger.info(f"Figure DPI: {get_figure_dpi()}")
-
-def load_correlation_data() -> Optional[List[Dict[str, Any]]]:
+def load_correlation_data(
+    data_path: Path,
+    required_columns: List[str] = None
+) -> Optional[pd.DataFrame]:
     """
     Load correlation results from CSV file.
-    
+
+    Args:
+        data_path: Path to correlation_results.csv
+        required_columns: List of columns that must exist
+
     Returns:
-        List of dictionaries containing correlation data, or None if file not found
+        DataFrame with correlation data, or None if loading fails
     """
-    if not CORRELATION_RESULTS_PATH.exists():
-        logger.error(f"Correlation results not found: {CORRELATION_RESULTS_PATH}")
-        return None
-    
+    if required_columns is None:
+        required_columns = ['clone_density', 'perplexity']
+
     try:
-        with open(CORRELATION_RESULTS_PATH, 'r') as f:
-            reader = csv.DictReader(f)
-            data = list(reader)
-        
-        logger.info(f"Loaded {len(data)} correlation result rows")
-        return data
+        if not data_path.exists():
+            logger.warning(f"Correlation data file not found: {data_path}")
+            return None
+
+        df = pd.read_csv(data_path)
+        logger.info(f"Loaded {len(df)} rows from {data_path}")
+
+        # Check for required columns
+        missing_cols = [col for col in required_columns if col not in df.columns]
+        if missing_cols:
+            logger.warning(f"Missing columns in correlation data: {missing_cols}")
+            return None
+
+        # Filter out rows with NaN or infinite values
+        valid_rows = df.dropna(subset=required_columns)
+        valid_rows = valid_rows[np.isfinite(valid_rows[required_columns]).all(axis=1)]
+
+        if len(valid_rows) != len(df):
+            logger.warning(
+                f"Filtered {len(df) - len(valid_rows)} invalid rows "
+                f"(NaN/infinite values)"
+            )
+
+        logger.info(f"Valid data points: {len(valid_rows)}")
+        return valid_rows
+
     except Exception as e:
         logger.error(f"Failed to load correlation data: {e}")
         return None
 
-def compute_regression(x: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def compute_regression(
+    x: np.ndarray,
+    y: np.ndarray
+) -> Tuple[float, float, float, float]:
     """
     Compute linear regression for scatter plot.
-    
+
     Args:
-        x: Independent variable values
-        y: Dependent variable values
-    
+        x: X-axis values
+        y: Y-axis values
+
     Returns:
-        Tuple of (slope, intercept, correlation_coefficient)
+        Tuple of (slope, intercept, r_value, p_value)
     """
-    # Filter out NaN values
-    mask = ~(np.isnan(x) | np.isnan(y))
-    x_clean = x[mask]
-    y_clean = y[mask]
-    
-    if len(x_clean) < 2:
-        logger.warning("Insufficient data points for regression")
-        return np.array([]), np.array([]), 0.0
-    
-    # Compute regression using numpy
-    slope, intercept = np.polyfit(x_clean, y_clean, 1)
-    correlation = np.corrcoef(x_clean, y_clean)[0, 1]
-    
-    # Generate regression line points
-    x_line = np.linspace(x_clean.min(), x_clean.max(), 100)
-    y_line = slope * x_line + intercept
-    
-    logger.info(f"Regression: slope={slope:.4f}, intercept={intercept:.4f}, r={correlation:.4f}")
-    
-    return x_line, y_line, correlation if not np.isnan(correlation) else 0.0
+    if len(x) < 2:
+        return 0.0, 0.0, 0.0, 1.0
+
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+    return slope, intercept, r_value, p_value
 
 def create_scatter_plot_with_regression(
     x: np.ndarray,
@@ -108,223 +104,406 @@ def create_scatter_plot_with_regression(
     x_label: str,
     y_label: str,
     title: str,
+    slope: float,
+    intercept: float,
+    r_value: float,
+    p_value: float,
     output_path: Path,
-    correlation: float = None
-):
+    dpi: int = 300
+) -> bool:
     """
     Create a scatter plot with regression line.
-    
+
     Args:
         x: X-axis values
         y: Y-axis values
         x_label: X-axis label
         y_label: Y-axis label
         title: Plot title
-        output_path: Output file path
-        correlation: Pre-computed correlation coefficient (optional)
-    """
-    # Set random seed for reproducibility
-    np.random.seed(get_random_seed())
-    
-    fig, ax = plt.subplots(figsize=(10, 8), dpi=get_figure_dpi())
-    
-    # Scatter plot
-    ax.scatter(x, y, alpha=0.6, c='steelblue', edgecolors='black', s=50, label='Data Points')
-    
-    # Regression line
-    x_line, y_line, corr = compute_regression(x, y)
-    if len(x_line) > 0:
-        ax.plot(x_line, y_line, 'r-', linewidth=2, label=f'Regression (r={corr:.3f})')
-    
-    # Labels and title
-    ax.set_xlabel(x_label, fontsize=12)
-    ax.set_ylabel(y_label, fontsize=12)
-    ax.set_title(title, fontsize=14, fontweight='bold')
-    
-    # Grid and legend
-    ax.grid(True, alpha=0.3)
-    ax.legend(loc='best')
-    
-    # Save in both PNG and PDF formats
-    formats = get_figure_format()
-    for fmt in formats:
-        output_file = output_path.parent / f"{output_path.stem}.{fmt}"
-        plt.savefig(output_file, dpi=get_figure_dpi(), bbox_inches='tight')
-        logger.info(f"Saved {output_file}")
-    
-    plt.close(fig)
+        slope: Regression slope
+        intercept: Regression intercept
+        r_value: Correlation coefficient
+        p_value: P-value
+        output_path: Path to save the figure
+        dpi: Figure DPI
 
-def create_clone_density_vs_perplexity_plot(data: List[Dict[str, Any]]):
+    Returns:
+        True if plot was successfully created and saved
+    """
+    try:
+        fig, ax = plt.subplots(figsize=(10, 8), dpi=dpi)
+
+        # Scatter plot
+        ax.scatter(x, y, alpha=0.6, edgecolors='k', s=50)
+
+        # Regression line
+        x_line = np.linspace(x.min(), x.max(), 100)
+        y_line = slope * x_line + intercept
+        ax.plot(x_line, y_line, 'r-', linewidth=2, label='Regression line')
+
+        # Labels and title
+        ax.set_xlabel(x_label, fontsize=12)
+        ax.set_ylabel(y_label, fontsize=12)
+        ax.set_title(title, fontsize=14)
+
+        # Add statistics annotation
+        stats_text = f'r = {r_value:.3f}, p = {p_value:.3e}'
+        ax.annotate(
+            stats_text,
+            xy=(0.05, 0.95),
+            xycoords='axes fraction',
+            fontsize=10,
+            verticalalignment='top',
+            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        )
+
+        # Grid and legend
+        ax.grid(True, alpha=0.3)
+        ax.legend(loc='best')
+
+        # Save figure
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=dpi, bbox_inches='tight')
+        plt.close(fig)
+
+        logger.info(f"Saved scatter plot: {output_path}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to create scatter plot: {e}")
+        return False
+
+def create_clone_density_vs_perplexity_plot(
+    df: pd.DataFrame,
+    output_dir: Path,
+    dpi: int = 300
+) -> List[Path]:
     """
     Create scatter plot of clone density vs perplexity.
-    
+
     Args:
-        data: List of correlation result dictionaries
+        df: DataFrame with clone_density and perplexity columns
+        output_dir: Directory to save figures
+        dpi: Figure DPI
+
+    Returns:
+        List of saved figure paths
     """
-    # Extract data points
-    x_values = []
-    y_values = []
-    
-    for row in data:
-        try:
-            clone_density = float(row.get('clone_density', 0))
-            perplexity = float(row.get('perplexity', 0))
-            if not np.isnan(clone_density) and not np.isnan(perplexity):
-                x_values.append(clone_density)
-                y_values.append(perplexity)
-        except (ValueError, TypeError):
-            continue
-    
-    if len(x_values) < 2:
-        logger.warning("Insufficient data for clone density vs perplexity plot")
-        return
-    
-    output_path = FIGURES_DIR / "clone_density_vs_perplexity"
-    create_scatter_plot_with_regression(
-        np.array(x_values),
-        np.array(y_values),
-        "Clone Density",
-        "Perplexity",
-        "Clone Density vs Model Perplexity",
-        output_path
+    saved_paths = []
+
+    if 'clone_density' not in df.columns or 'perplexity' not in df.columns:
+        logger.warning("Missing clone_density or perplexity columns")
+        return saved_paths
+
+    x = df['clone_density'].values
+    y = df['perplexity'].values
+
+    # Filter valid data points
+    valid_mask = np.isfinite(x) & np.isfinite(y)
+    x_valid = x[valid_mask]
+    y_valid = y[valid_mask]
+
+    if len(x_valid) < 2:
+        logger.warning("Insufficient valid data points for scatter plot")
+        return saved_paths
+
+    # Compute regression
+    slope, intercept, r_value, p_value = compute_regression(x_valid, y_valid)
+
+    # Create plot
+    output_path = output_dir / "clone_density_vs_perplexity.png"
+    success = create_scatter_plot_with_regression(
+        x_valid, y_valid,
+        "Clone Density", "Perplexity",
+        "Clone Density vs Perplexity",
+        slope, intercept, r_value, p_value,
+        output_path, dpi
     )
 
-def create_clone_density_vs_accuracy_plot(data: List[Dict[str, Any]]):
+    if success:
+        saved_paths.append(output_path)
+
+        # Also save PDF
+        pdf_path = output_dir / "clone_density_vs_perplexity.pdf"
+        try:
+            fig, ax = plt.subplots(figsize=(10, 8), dpi=dpi)
+            ax.scatter(x_valid, y_valid, alpha=0.6, edgecolors='k', s=50)
+            x_line = np.linspace(x_valid.min(), x_valid.max(), 100)
+            y_line = slope * x_line + intercept
+            ax.plot(x_line, y_line, 'r-', linewidth=2, label='Regression line')
+            ax.set_xlabel("Clone Density", fontsize=12)
+            ax.set_ylabel("Perplexity", fontsize=12)
+            ax.set_title("Clone Density vs Perplexity", fontsize=14)
+            stats_text = f'r = {r_value:.3f}, p = {p_value:.3e}'
+            ax.annotate(
+                stats_text,
+                xy=(0.05, 0.95),
+                xycoords='axes fraction',
+                fontsize=10,
+                verticalalignment='top',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+            )
+            ax.grid(True, alpha=0.3)
+            ax.legend(loc='best')
+            plt.tight_layout()
+            plt.savefig(pdf_path, dpi=dpi, bbox_inches='tight')
+            plt.close(fig)
+            logger.info(f"Saved PDF plot: {pdf_path}")
+            saved_paths.append(pdf_path)
+        except Exception as e:
+            logger.error(f"Failed to save PDF: {e}")
+
+    return saved_paths
+
+def create_clone_density_vs_accuracy_plot(
+    df: pd.DataFrame,
+    output_dir: Path,
+    dpi: int = 300
+) -> List[Path]:
     """
     Create scatter plot of clone density vs bug detection accuracy.
-    
+
     Args:
-        data: List of correlation result dictionaries
+        df: DataFrame with clone_density and accuracy columns
+        output_dir: Directory to save figures
+        dpi: Figure DPI
+
+    Returns:
+        List of saved figure paths
     """
-    # Extract data points
-    x_values = []
-    y_values = []
-    
-    for row in data:
-        try:
-            clone_density = float(row.get('clone_density', 0))
-            accuracy = float(row.get('bug_detection_accuracy', 0))
-            if not np.isnan(clone_density) and not np.isnan(accuracy):
-                x_values.append(clone_density)
-                y_values.append(accuracy)
-        except (ValueError, TypeError):
-            continue
-    
-    if len(x_values) < 2:
-        logger.warning("Insufficient data for clone density vs accuracy plot")
-        return
-    
-    output_path = FIGURES_DIR / "clone_density_vs_accuracy"
-    create_scatter_plot_with_regression(
-        np.array(x_values),
-        np.array(y_values),
-        "Clone Density",
-        "Bug Detection Accuracy (pass@1)",
+    saved_paths = []
+
+    if 'clone_density' not in df.columns:
+        logger.warning("Missing clone_density column")
+        return saved_paths
+
+    if 'accuracy' not in df.columns:
+        logger.warning("No accuracy column in DataFrame")
+        return saved_paths
+
+    x = df['clone_density'].values
+    y = df['accuracy'].values
+
+    # Filter valid data points
+    valid_mask = np.isfinite(x) & np.isfinite(y)
+    x_valid = x[valid_mask]
+    y_valid = y[valid_mask]
+
+    if len(x_valid) < 2:
+        logger.warning("Insufficient valid data points for scatter plot")
+        return saved_paths
+
+    # Compute regression
+    slope, intercept, r_value, p_value = compute_regression(x_valid, y_valid)
+
+    # Create plot
+    output_path = output_dir / "clone_density_vs_accuracy.png"
+    success = create_scatter_plot_with_regression(
+        x_valid, y_valid,
+        "Clone Density", "Bug Detection Accuracy (pass@1)",
         "Clone Density vs Bug Detection Accuracy",
-        output_path
+        slope, intercept, r_value, p_value,
+        output_path, dpi
     )
 
-def create_sensitivity_analysis_plot(data: List[Dict[str, Any]]):
+    if success:
+        saved_paths.append(output_path)
+
+        # Also save PDF
+        pdf_path = output_dir / "clone_density_vs_accuracy.pdf"
+        try:
+            fig, ax = plt.subplots(figsize=(10, 8), dpi=dpi)
+            ax.scatter(x_valid, y_valid, alpha=0.6, edgecolors='k', s=50)
+            x_line = np.linspace(x_valid.min(), x_valid.max(), 100)
+            y_line = slope * x_line + intercept
+            ax.plot(x_line, y_line, 'r-', linewidth=2, label='Regression line')
+            ax.set_xlabel("Clone Density", fontsize=12)
+            ax.set_ylabel("Bug Detection Accuracy (pass@1)", fontsize=12)
+            ax.set_title("Clone Density vs Bug Detection Accuracy", fontsize=14)
+            stats_text = f'r = {r_value:.3f}, p = {p_value:.3e}'
+            ax.annotate(
+                stats_text,
+                xy=(0.05, 0.95),
+                xycoords='axes fraction',
+                fontsize=10,
+                verticalalignment='top',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+            )
+            ax.grid(True, alpha=0.3)
+            ax.legend(loc='best')
+            plt.tight_layout()
+            plt.savefig(pdf_path, dpi=dpi, bbox_inches='tight')
+            plt.close(fig)
+            logger.info(f"Saved PDF plot: {pdf_path}")
+            saved_paths.append(pdf_path)
+        except Exception as e:
+            logger.error(f"Failed to save PDF: {e}")
+
+    return saved_paths
+
+def create_sensitivity_analysis_plot(
+    df: pd.DataFrame,
+    output_dir: Path,
+    dpi: int = 300
+) -> List[Path]:
     """
     Create sensitivity analysis plot across thresholds.
-    
-    Args:
-        data: List of correlation result dictionaries
-    """
-    thresholds = get_clone_thresholds()
-    correlations_by_threshold = {}
-    
-    for threshold in thresholds:
-      threshold_str = str(threshold)
-      correlations = []
-      for row in data:
-          if row.get('threshold') == threshold_str or str(threshold) in str(row.get('threshold', '')):
-              try:
-                  corr = float(row.get('correlation_perplexity', row.get('correlation', 0)))
-                  if not np.isnan(corr):
-                      correlations.append(corr)
-              except (ValueError, TypeError):
-                  continue
-      
-      if correlations:
-          correlations_by_threshold[threshold] = np.mean(correlations)
-    
-    if not correlations_by_threshold:
-        logger.warning("No sensitivity analysis data found")
-        return
-    
-    # Create bar plot
-    fig, ax = plt.subplots(figsize=(10, 6), dpi=get_figure_dpi())
-    
-    threshold_values = list(correlations_by_threshold.keys())
-    correlation_values = list(correlations_by_threshold.values())
-    
-    bars = ax.bar(
-        [str(t) for t in threshold_values],
-        correlation_values,
-        color='steelblue',
-        alpha=0.8,
-        edgecolor='black'
-    )
-    
-    # Add value labels on bars
-    for bar, val in zip(bars, correlation_values):
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 0.01,
-            f'{val:.3f}',
-            ha='center',
-            va='bottom',
-            fontsize=10
-        )
-    
-    ax.set_xlabel('Clone Detection Threshold', fontsize=12)
-    ax.set_ylabel('Mean Correlation Coefficient', fontsize=12)
-    ax.set_title('Sensitivity Analysis: Correlation vs Threshold', fontsize=14, fontweight='bold')
-    ax.set_ylim(0, max(correlation_values) * 1.2 if correlation_values else 1)
-    ax.grid(True, alpha=0.3, axis='y')
-    
-    # Save in both formats
-    output_path = FIGURES_DIR / "sensitivity_analysis"
-    formats = get_figure_format()
-    for fmt in formats:
-        output_file = output_path.parent / f"{output_path.stem}.{fmt}"
-        plt.savefig(output_file, dpi=get_figure_dpi(), bbox_inches='tight')
-        logger.info(f"Saved {output_file}")
-    
-    plt.close(fig)
 
-def generate_all_visualizations():
+    Args:
+        df: DataFrame with threshold, correlation, and p_value columns
+        output_dir: Directory to save figures
+        dpi: Figure DPI
+
+    Returns:
+        List of saved figure paths
     """
-    Generate all required visualizations.
-    
-    This is the main entry point for the visualization pipeline.
+    saved_paths = []
+
+    required_cols = ['threshold', 'correlation', 'p_value']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+
+    if missing_cols:
+        logger.warning(f"Missing columns for sensitivity analysis: {missing_cols}")
+        return saved_paths
+
+    thresholds = df['threshold'].values
+    correlations = df['correlation'].values
+    p_values = df['p_value'].values
+
+    valid_mask = np.isfinite(correlations) & np.isfinite(p_values)
+    thresholds_valid = thresholds[valid_mask]
+    correlations_valid = correlations[valid_mask]
+    p_values_valid = p_values[valid_mask]
+
+    if len(thresholds_valid) < 2:
+        logger.warning("Insufficient data points for sensitivity analysis plot")
+        return saved_paths
+
+    # Create line plot
+    try:
+        fig, ax1 = plt.subplots(figsize=(10, 6), dpi=dpi)
+
+        # Correlation line
+        ax1.plot(thresholds_valid, correlations_valid, 'bo-',
+                linewidth=2, markersize=8, label='Correlation (r)')
+        ax1.set_xlabel('Clone Detection Threshold', fontsize=12)
+        ax1.set_ylabel('Spearman Correlation (r)', fontsize=12, color='b')
+        ax1.tick_params(axis='y', labelcolor='b')
+        ax1.grid(True, alpha=0.3)
+
+        # P-value secondary axis
+        ax2 = ax1.twinx()
+        ax2.plot(thresholds_valid, p_values_valid, 'rs--',
+                linewidth=2, markersize=8, label='P-value')
+        ax2.set_ylabel('P-value', fontsize=12, color='r')
+        ax2.tick_params(axis='y', labelcolor='r')
+
+        # Combined legend
+        lines1, labels1 = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines1 + lines2, labels1 + labels2, loc='best')
+
+        plt.title('Sensitivity Analysis: Correlation vs Threshold', fontsize=14)
+        plt.tight_layout()
+
+        output_path = output_dir / "sensitivity_analysis.png"
+        plt.savefig(output_path, dpi=dpi, bbox_inches='tight')
+        plt.close(fig)
+        logger.info(f"Saved sensitivity analysis plot: {output_path}")
+        saved_paths.append(output_path)
+
+        # Save PDF
+        pdf_path = output_dir / "sensitivity_analysis.pdf"
+        plt.savefig(pdf_path, dpi=dpi, bbox_inches='tight')
+        logger.info(f"Saved sensitivity analysis PDF: {pdf_path}")
+        saved_paths.append(pdf_path)
+
+    except Exception as e:
+        logger.error(f"Failed to create sensitivity analysis plot: {e}")
+
+    return saved_paths
+
+def generate_all_visualizations(
+    correlation_data_path: Path,
+    output_dir: Path
+) -> Dict[str, List[Path]]:
     """
-    setup_logging()
-    
+    Generate all visualizations from correlation results.
+
+    Args:
+        correlation_data_path: Path to correlation_results.csv
+        output_dir: Directory to save all figures
+
+    Returns:
+        Dictionary mapping plot type to list of saved paths
+    """
+    results = {
+        'perplexity_plot': [],
+        'accuracy_plot': [],
+        'sensitivity_plot': []
+    }
+
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     # Load correlation data
-    data = load_correlation_data()
-    if data is None:
-        logger.error("Cannot generate visualizations without correlation data")
-        return False
-    
-    # Generate plots
-    logger.info("Generating clone density vs perplexity plot...")
-    create_clone_density_vs_perplexity_plot(data)
-    
-    logger.info("Generating clone density vs accuracy plot...")
-    create_clone_density_vs_accuracy_plot(data)
-    
-    logger.info("Generating sensitivity analysis plot...")
-    create_sensitivity_analysis_plot(data)
-    
-    logger.info("All visualizations generated successfully")
-    return True
+    df = load_correlation_data(correlation_data_path)
+    if df is None or len(df) == 0:
+        logger.warning("No valid correlation data to visualize")
+        return results
+
+    dpi = get_figure_dpi()
+
+    # Clone density vs perplexity
+    results['perplexity_plot'] = create_clone_density_vs_perplexity_plot(
+        df, output_dir, dpi
+    )
+
+    # Clone density vs accuracy (if accuracy column exists)
+    results['accuracy_plot'] = create_clone_density_vs_accuracy_plot(
+        df, output_dir, dpi
+    )
+
+    # Sensitivity analysis (if threshold data exists)
+    results['sensitivity_plot'] = create_sensitivity_analysis_plot(
+        df, output_dir, dpi
+    )
+
+    # Count total plots
+    total_plots = sum(len(v) for v in results.values())
+    logger.info(f"Generated {total_plots} visualization files")
+
+    return results
 
 def main():
-    """Main entry point."""
-    success = generate_all_visualizations()
-    sys.exit(0 if success else 1)
+    """Main entry point for visualization generation."""
+    logger.info("Starting visualization generation")
+
+    # Get paths from config
+    correlation_data_path = Path("data/analysis/correlation_results.csv")
+    output_dir = Path("data/analysis/figures")
+
+    # Generate visualizations
+    results = generate_all_visualizations(correlation_data_path, output_dir)
+
+    # Record checksums for generated figures
+    all_paths = []
+    for paths in results.values():
+        all_paths.extend(paths)
+
+    if all_paths:
+        record_artifact_checksums(all_paths, "visualization_outputs")
+        logger.info(f"Recorded checksums for {len(all_paths)} visualization files")
+
+    # Summary
+    total_files = sum(len(v) for v in results.values())
+    if total_files == 0:
+        logger.warning("No visualization files were generated")
+    else:
+        logger.info(f"Successfully generated {total_files} visualization files")
+
+    logger.info("Visualization generation complete")
+    return results
 
 if __name__ == "__main__":
     main()

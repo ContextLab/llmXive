@@ -1,280 +1,223 @@
 """
-Checksum Computation for Visualization Outputs
+Checksum computation for visualization outputs.
 
-This module computes and records checksums for all visualization outputs
-(figures, plots) to ensure reproducibility and data integrity.
+This module computes SHA-256 checksums for all visualization files
+in the data/analysis/figures/ directory and records them in the
+artifact_hashes state manifest (checksum_manifest.py).
 
-Task T044: Add checksum computation for visualization outputs and record
-in artifact_hashes state manifest.
-
-SC-006: Checksum tracking for all artifacts
+Per Constitution Principle III (Data Hygiene) and SC-006 (checksum tracking).
 """
-
 import logging
 import sys
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from checksum_manifest import (
+    setup_logging as manifest_setup_logging,
     compute_file_checksum,
     load_manifest,
     save_manifest,
     record_artifact_checksums,
-    DEFAULT_MANIFEST_PATH,
-    DEFAULT_ALGORITHM
+)
+from config import (
+    get_checksum_algorithm,
+    get_figure_format,
 )
 
-# Setup module-level logger
+# Configure module-level logging
 logger = logging.getLogger(__name__)
 
-# Visualization output directory
-VISUALIZATION_DIR = Path("data/analysis/figures")
-
-# Supported visualization file extensions
-VISUALIZATION_EXTENSIONS = ['.png', '.pdf', '.svg', '.jpg', '.jpeg']
+def setup_logging() -> logging.Logger:
+    """Setup logging for this module."""
+    return manifest_setup_logging("checksum_visualization_outputs")
 
 def find_visualization_outputs(
-    base_dir: Path = VISUALIZATION_DIR,
-    extensions: List[str] = None
+    figures_dir: Optional[Path] = None,
 ) -> List[Path]:
     """
-    Find all visualization output files in the specified directory.
+    Find all visualization output files in the figures directory.
     
     Args:
-        base_dir: Base directory to search
-        extensions: List of file extensions to include
+        figures_dir: Path to figures directory. Defaults to data/analysis/figures/
     
     Returns:
-        List of paths to visualization files
+        List of Path objects for visualization files (PNG and PDF)
     """
-    if extensions is None:
-        extensions = VISUALIZATION_EXTENSIONS
+    if figures_dir is None:
+        figures_dir = Path("data/analysis/figures")
     
-    if not base_dir.exists():
-        logger.warning(f"Visualization directory not found: {base_dir}")
+    if not figures_dir.exists():
+        logger.warning(f"Figures directory does not exist: {figures_dir}")
         return []
     
-    visualization_files = []
+    # Find all PNG and PDF files
+    figure_files = []
+    for ext in ["png", "pdf"]:
+        figure_files.extend(figures_dir.glob(f"*.{ext}"))
     
-    for ext in extensions:
-        files = list(base_dir.glob(f"*{ext}"))
-        visualization_files.extend(files)
-        
-        # Also search in subdirectories
-        files = list(base_dir.glob(f"**/*{ext}"))
-        visualization_files.extend(files)
-    
-    # Remove duplicates and sort
-    visualization_files = sorted(set(visualization_files))
-    
-    logger.info(f"Found {len(visualization_files)} visualization files")
-    return visualization_files
+    logger.info(f"Found {len(figure_files)} visualization files in {figures_dir}")
+    return figure_files
 
 def compute_visualization_checksums(
-    visualization_paths: List[Path],
-    algorithm: str = DEFAULT_ALGORITHM
+    figure_files: List[Path],
+    algorithm: Optional[str] = None,
 ) -> Dict[str, str]:
     """
     Compute checksums for all visualization files.
     
     Args:
-        visualization_paths: List of visualization file paths
-        algorithm: Hash algorithm to use
+        figure_files: List of Path objects for visualization files
+        algorithm: Hash algorithm to use. Defaults to config value (sha256)
     
     Returns:
-        Dict mapping file paths to checksums
+        Dictionary mapping file paths (as strings) to checksums
     """
-    checksums = {}
+    if algorithm is None:
+        algorithm = get_checksum_algorithm()
     
-    for path in visualization_paths:
+    checksums = {}
+    for figure_file in figure_files:
         try:
-            checksum = compute_file_checksum(path, algorithm)
-            checksums[str(path)] = checksum
-            logger.info(f"Computed checksum for {path}: {checksum[:16]}...")
-        except (FileNotFoundError, ValueError) as e:
-            logger.warning(f"Failed to compute checksum for {path}: {e}")
+            checksum = compute_file_checksum(figure_file, algorithm)
+            checksums[str(figure_file)] = checksum
+            logger.debug(f"Computed checksum for {figure_file}: {checksum[:16]}...")
+        except Exception as e:
+            logger.error(f"Failed to compute checksum for {figure_file}: {e}")
     
     return checksums
 
 def record_visualization_checksums(
-    manifest_path: Path = DEFAULT_MANIFEST_PATH,
-    visualization_dir: Path = VISUALIZATION_DIR,
-    algorithm: str = DEFAULT_ALGORITHM
-) -> Dict[str, Any]:
+    checksums: Dict[str, str],
+    manifest_path: Optional[Path] = None,
+) -> bool:
     """
-    Find all visualization outputs, compute checksums, and record in manifest.
-    
-    This is the main entry point for T044.
+    Record visualization checksums in the artifact_hashes state manifest.
     
     Args:
-        manifest_path: Path to the checksum manifest
-        visualization_dir: Directory containing visualization outputs
-        algorithm: Hash algorithm to use
+        checksums: Dictionary mapping file paths to checksums
+        manifest_path: Path to manifest file. Defaults to code/checksum_manifest.json
     
     Returns:
-        Updated manifest dictionary
+        True if successfully recorded, False otherwise
     """
-    # Find all visualization outputs
-    visualization_files = find_visualization_outputs(visualization_dir)
+    if manifest_path is None:
+        manifest_path = Path("code/checksum_manifest.json")
     
-    if not visualization_files:
-        logger.warning("No visualization files found to checksum")
-        # Still update manifest to record that we checked
+    try:
+        # Load existing manifest
         manifest = load_manifest(manifest_path)
-        if 'metadata' not in manifest:
-            manifest['metadata'] = {}
-        manifest['metadata']['last_visualization_check'] = datetime.utcnow().isoformat()
-        manifest['metadata']['visualization_files_checked'] = 0
+        
+        # Add visualization checksums to artifact_hashes
+        if "artifact_hashes" not in manifest:
+            manifest["artifact_hashes"] = {}
+        
+        # Record each checksum with metadata
+        for file_path, checksum in checksums.items():
+            key = f"visualization:{file_path}"
+            manifest["artifact_hashes"][key] = {
+                "checksum": checksum,
+                "algorithm": get_checksum_algorithm(),
+                "recorded_at": datetime.utcnow().isoformat(),
+                "type": "visualization_output",
+            }
+        
+        # Save updated manifest
         save_manifest(manifest, manifest_path)
-        return manifest
-    
-    # Compute checksums
-    checksums = compute_visualization_checksums(visualization_files, algorithm)
-    
-    # Record in manifest
-    manifest = load_manifest(manifest_path)
-    
-    if 'artifact_hashes' not in manifest:
-        manifest['artifact_hashes'] = {}
-    
-    # Add visualization-specific entries with prefix
-    for path, checksum in checksums.items():
-        manifest['artifact_hashes'][path] = checksum
-    
-    # Add metadata about visualization checksums
-    if 'metadata' not in manifest:
-        manifest['metadata'] = {}
-    manifest['metadata']['last_visualization_check'] = datetime.utcnow().isoformat()
-    manifest['metadata']['visualization_files_checked'] = len(checksums)
-    manifest['metadata']['visualization_algorithm'] = algorithm
-    
-    # Save updated manifest
-    save_manifest(manifest, manifest_path)
-    
-    logger.info(f"Recorded checksums for {len(checksums)} visualization files")
-    return manifest
+        logger.info(f"Recorded {len(checksums)} visualization checksums in manifest")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to record visualization checksums in manifest: {e}")
+        return False
 
 def generate_visualization_checksum_report(
-    manifest_path: Path = DEFAULT_MANIFEST_PATH,
-    output_path: Optional[Path] = None
-) -> str:
+    checksums: Dict[str, str],
+    output_path: Optional[Path] = None,
+) -> Path:
     """
-    Generate a human-readable report of visualization checksums.
+    Generate a checksum report for visualization outputs.
     
     Args:
-        manifest_path: Path to the checksum manifest
-        output_path: Optional path to write report (if None, returns string)
+        checksums: Dictionary mapping file paths to checksums
+        output_path: Path for report file. Defaults to data/analysis/visualization_checksums.txt
     
     Returns:
-        Report as string
+        Path to the generated report file
     """
-    manifest = load_manifest(manifest_path)
+    if output_path is None:
+        output_path = Path("data/analysis/visualization_checksums.txt")
     
-    report_lines = [
-        "=" * 70,
-        "VISUALIZATION OUTPUT CHECKSUM REPORT",
-        "=" * 70,
-        f"Generated: {datetime.utcnow().isoformat()}",
-        f"Manifest: {manifest_path}",
-        "",
-        "VISUALIZATION FILES:",
-        "-" * 70,
-    ]
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    artifact_hashes = manifest.get('artifact_hashes', {})
-    visualization_files = [
-        (path, checksum) for path, checksum in artifact_hashes.items()
-        if any(path.endswith(ext) for ext in VISUALIZATION_EXTENSIONS)
-    ]
+    with open(output_path, "w") as f:
+        f.write("=" * 60 + "\n")
+        f.write("Visualization Output Checksum Report\n")
+        f.write(f"Generated: {datetime.utcnow().isoformat()}\n")
+        f.write(f"Algorithm: {get_checksum_algorithm()}\n")
+        f.write("=" * 60 + "\n\n")
+        
+        if checksums:
+            for file_path, checksum in checksums.items():
+                f.write(f"{file_path}: {checksum}\n")
+        else:
+            f.write("No visualization files found.\n")
+        
+        f.write("\n" + "=" * 60 + "\n")
+        f.write(f"Total files: {len(checksums)}\n")
+        f.write("=" * 60 + "\n")
     
-    if visualization_files:
-        for path, checksum in sorted(visualization_files):
-            report_lines.append(f"  {path}")
-            report_lines.append(f"    Checksum ({manifest.get('metadata', {}).get('visualization_algorithm', DEFAULT_ALGORITHM)}): {checksum}")
-            report_lines.append("")
-    else:
-        report_lines.append("  No visualization files found in manifest")
-    
-    # Add metadata section
-    metadata = manifest.get('metadata', {})
-    report_lines.extend([
-        "",
-        "METADATA:",
-        "-" * 70,
-        f"  Last visualization check: {metadata.get('last_visualization_check', 'N/A')}",
-        f"  Files checked: {metadata.get('visualization_files_checked', 0)}",
-        f"  Algorithm: {metadata.get('visualization_algorithm', DEFAULT_ALGORITHM)}",
-        "",
-        "=" * 70,
-    ])
-    
-    report = "\n".join(report_lines)
-    
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            f.write(report)
-        logger.info(f"Wrote checksum report to {output_path}")
-    
-    return report
+    logger.info(f"Generated checksum report at {output_path}")
+    return output_path
 
-def main():
-    """Command-line interface for visualization checksum operations."""
-    import argparse
+def main() -> int:
+    """
+    Main entry point for checksum computation of visualization outputs.
     
-    parser = argparse.ArgumentParser(
-        description='Compute and record checksums for visualization outputs'
-    )
-    parser.add_argument(
-        '--manifest',
-        type=Path,
-        default=DEFAULT_MANIFEST_PATH,
-        help='Path to checksum manifest'
-    )
-    parser.add_argument(
-        '--visualizations',
-        type=Path,
-        default=VISUALIZATION_DIR,
-        help='Directory containing visualization outputs'
-    )
-    parser.add_argument(
-        '--algorithm',
-        type=str,
-        default=DEFAULT_ALGORITHM,
-        choices=['sha256', 'md5', 'sha1'],
-        help='Hash algorithm to use'
-    )
-    parser.add_argument(
-        '--report',
-        type=Path,
-        help='Generate checksum report to this file'
-    )
+    Returns:
+        0 on success, 1 on failure
+    """
+    logger = setup_logging()
+    logger.info("=" * 60)
+    logger.info("Visualization Output Checksum Computation")
+    logger.info("=" * 60)
     
-    args = parser.parse_args()
-    
-    # Record visualization checksums
-    manifest = record_visualization_checksums(
-        manifest_path=args.manifest,
-        visualization_dir=args.visualizations,
-        algorithm=args.algorithm
-    )
-    
-    print(f"Recorded checksums for visualization outputs")
-    print(f"Manifest updated: {args.manifest}")
-    
-    # Generate report if requested
-    if args.report:
-        report = generate_visualization_checksum_report(args.manifest, args.report)
-        print(f"Report generated: {args.report}")
-    
-    # Print summary
-    artifact_hashes = manifest.get('artifact_hashes', {})
-    visualization_count = sum(
-        1 for path in artifact_hashes.keys()
-        if any(path.endswith(ext) for ext in VISUALIZATION_EXTENSIONS)
-    )
-    print(f"Visualization files checksummed: {visualization_count}")
+    try:
+        # Find visualization outputs
+        figure_files = find_visualization_outputs()
+        
+        if not figure_files:
+            logger.warning("No visualization files found. Creating empty manifest entry.")
+            # Still create a report showing no files
+            generate_visualization_checksum_report({}, Path("data/analysis/visualization_checksums.txt"))
+            # Record empty checksums in manifest
+            record_visualization_checksums({})
+            return 0
+        
+        # Compute checksums
+        checksums = compute_visualization_checksums(figure_files)
+        
+        if not checksums:
+            logger.error("Failed to compute checksums for any visualization files.")
+            return 1
+        
+        # Generate report
+        generate_visualization_checksum_report(checksums)
+        
+        # Record in manifest
+        if not record_visualization_checksums(checksums):
+            logger.error("Failed to record checksums in manifest.")
+            return 1
+        
+        logger.info("Visualization checksum computation completed successfully.")
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Unexpected error during checksum computation: {e}")
+        import traceback
+        logger.debug(traceback.format_exc())
+        return 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

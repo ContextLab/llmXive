@@ -1,6 +1,8 @@
 """
 Data loader module for downloading and streaming code datasets.
-Handles rate-limiting, network interruptions, and PII scanning.
+
+This module handles downloading code datasets from HuggingFace,
+with streaming support, error handling, and checksum computation.
 """
 import logging
 import time
@@ -9,263 +11,232 @@ import hashlib
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Generator, Tuple
 import pandas as pd
+import os
 
-# Import config for dataset parameters
-from config import (
-    get_dataset_name,
-    get_streaming_enabled,
-    get_random_seed,
-    get_clone_thresholds,
-)
-
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Rate limiting constants
-MAX_RETRIES = 5
-INITIAL_BACKOFF = 1.0
-MAX_BACKOFF = 60.0
+def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
+    """Setup logging configuration."""
+    if log_file:
+        handler = logging.FileHandler(log_file)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        logger.addHandler(handler)
+    return logger
 
-# Network error handling
-NETWORK_TIMEOUT = 30
-NETWORK_RETRIES = 3
+def handle_rate_limit(retry_count: int = 3, base_delay: float = 1.0) -> bool:
+    """Handle rate limiting with exponential backoff."""
+    for attempt in range(retry_count):
+        delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+        logger.warning(f"Rate limit hit, retrying in {delay:.2f}s (attempt {attempt + 1})")
+        time.sleep(delay)
+    return False
 
-def handle_rate_limit(retry_count: int = 0) -> float:
+def handle_network_error(retry_count: int = 3) -> bool:
+    """Handle network errors with retry logic."""
+    for attempt in range(retry_count):
+        delay = 2 ** attempt
+        logger.warning(f"Network error, retrying in {delay}s (attempt {attempt + 1})")
+        time.sleep(delay)
+    return False
+
+def compute_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
+    """Compute checksum of a file."""
+    hash_obj = hashlib.new(algorithm)
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            hash_obj.update(chunk)
+    return hash_obj.hexdigest()
+
+def stream_dataset(
+    dataset_name: str = "codeparrot/github-code-clean",
+    split: str = "train",
+    streaming: bool = True,
+    max_samples: Optional[int] = None
+) -> Generator[Dict[str, Any], None, None]:
     """
-    Handle rate-limiting by implementing exponential backoff.
+    Stream dataset from HuggingFace.
     
     Args:
-        retry_count: Current retry attempt number
-        
-    Returns:
-        Time to wait before next attempt
-    """
-    if retry_count >= MAX_RETRIES:
-        raise RuntimeError(f"Max retries ({MAX_RETRIES}) exceeded due to rate limiting")
-    
-    backoff_time = min(INITIAL_BACKOFF * (2 ** retry_count), MAX_BACKOFF)
-    # Add jitter to prevent thundering herd
-    jitter = random.uniform(0.1, 0.3) * backoff_time
-    wait_time = backoff_time + jitter
-    
-    logger.warning(f"Rate limited. Waiting {wait_time:.2f}s before retry {retry_count + 1}/{MAX_RETRIES}")
-    time.sleep(wait_time)
-    return wait_time
-
-def handle_network_error(retry_count: int = 0) -> float:
-    """
-    Handle network interruptions with exponential backoff.
-    
-    Args:
-        retry_count: Current retry attempt number
-        
-    Returns:
-        Time to wait before next attempt
-    """
-    if retry_count >= NETWORK_RETRIES:
-        raise RuntimeError(f"Network error: max retries ({NETWORK_RETRIES}) exceeded")
-    
-    backoff_time = min(INITIAL_BACKOFF * (2 ** retry_count), MAX_BACKOFF)
-    jitter = random.uniform(0.1, 0.3) * backoff_time
-    wait_time = backoff_time + jitter
-    
-    logger.warning(f"Network error. Waiting {wait_time:.2f}s before retry {retry_count + 1}/{NETWORK_RETRIES}")
-    time.sleep(wait_time)
-    return wait_time
-
-def load_raw_data(dataset_name: Optional[str] = None, streaming: bool = True) -> Any:
-    """
-    Load raw data from HuggingFace datasets.
-    
-    Args:
-        dataset_name: Name of the dataset to load
+        dataset_name: Name of the dataset on HuggingFace
+        split: Dataset split to load
         streaming: Whether to use streaming mode
+        max_samples: Maximum number of samples to yield
         
-    Returns:
-        Dataset object
+    Yields:
+        Dictionary containing dataset samples
     """
     try:
         from datasets import load_dataset
         
-        dataset_name = dataset_name or get_dataset_name()
+        logger.info(f"Loading dataset: {dataset_name}")
         
-        # Try streaming first, fall back to full load if streaming fails
+        # Use streaming mode for large datasets
         if streaming:
-            try:
-                dataset = load_dataset(dataset_name, streaming=True)
-                logger.info(f"Loaded dataset '{dataset_name}' in streaming mode")
-                return dataset
-            except Exception as e:
-                logger.warning(f"Streaming failed ({str(e)}), falling back to full load")
-                dataset = load_dataset(dataset_name, streaming=False)
-                logger.info(f"Loaded dataset '{dataset_name}' in full mode")
-                return dataset
+            dataset = load_dataset(dataset_name, split=split, streaming=True)
         else:
-            dataset = load_dataset(dataset_name, streaming=False)
-            logger.info(f"Loaded dataset '{dataset_name}' in full mode")
-            return dataset
-            
-    except ImportError:
-        raise ImportError("datasets library not installed. Run: pip install datasets")
+            dataset = load_dataset(dataset_name, split=split)
+        
+        sample_count = 0
+        for sample in dataset:
+            yield sample
+            sample_count += 1
+            if max_samples and sample_count >= max_samples:
+                break
+                
     except Exception as e:
         logger.error(f"Failed to load dataset: {str(e)}")
         raise
 
-def stream_dataset(dataset: Any, split: str = 'train', num_samples: int = 1000) -> Generator[Dict[str, Any], None, None]:
+def save_raw_data_to_csv(
+    samples: List[Dict[str, Any]],
+    output_path: Path,
+    columns: Optional[List[str]] = None
+) -> None:
     """
-    Stream samples from a dataset.
+    Save raw data samples to CSV file.
     
     Args:
-        dataset: Dataset object to stream from
-        split: Dataset split to use
-        num_samples: Number of samples to yield
-        
-    Yields:
-        Individual samples as dictionaries
-    """
-    count = 0
-    try:
-        for sample in dataset[split]:
-            if count >= num_samples:
-                break
-            yield sample
-            count += 1
-    except Exception as e:
-        logger.error(f"Error streaming dataset: {str(e)}")
-        raise
-
-def compute_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
-    """
-    Compute SHA-256 checksum of a file.
-    
-    Args:
-        file_path: Path to the file
-        algorithm: Hash algorithm to use
-        
-    Returns:
-        Hex digest of the file checksum
-    """
-    hasher = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(8192), b''):
-            hasher.update(chunk)
-    return hasher.hexdigest()
-
-def save_raw_data_to_csv(samples: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Save raw data samples to CSV format.
-    
-    Args:
-        samples: List of sample dictionaries
+        samples: List of dictionaries containing data samples
         output_path: Path to output CSV file
+        columns: Optional list of columns to include
     """
     if not samples:
         logger.warning("No samples to save")
         return
-    
+        
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Convert to DataFrame and save
+    # Determine columns from first sample if not provided
+    if columns is None:
+        columns = list(samples[0].keys())
+    
+    # Filter to only include existing columns
+    valid_columns = [col for col in columns if col in samples[0]]
+    
+    # Create DataFrame and save
     df = pd.DataFrame(samples)
+    df = df[valid_columns]
     df.to_csv(output_path, index=False)
     logger.info(f"Saved {len(samples)} samples to {output_path}")
 
 def download_and_save_sample(
-    dataset_name: Optional[str] = None,
-    output_path: Optional[Path] = None,
-    num_samples: int = 1000,
-    streaming: bool = True
-) -> Path:
+    output_path: Path,
+    max_samples: int = 1000,
+    dataset_name: str = "codeparrot/github-code-clean"
+) -> Tuple[bool, str]:
     """
-    Download a sample from HuggingFace dataset and save to CSV.
-    Handles rate-limiting and network interruptions.
+    Download dataset and save sample to CSV.
     
     Args:
-        dataset_name: Name of the dataset to download
         output_path: Path to save the CSV file
-        num_samples: Number of samples to download
-        streaming: Whether to use streaming mode
+        max_samples: Maximum number of samples to download
+        dataset_name: Name of the HuggingFace dataset
         
     Returns:
-        Path to the saved CSV file
+        Tuple of (success, message)
     """
-    dataset_name = dataset_name or get_dataset_name()
-    output_path = output_path or Path('data/raw/github-code-sample.csv')
-    
-    retry_count = 0
-    network_retry_count = 0
-    samples = []
-    
-    logger.info(f"Starting download of {num_samples} samples from '{dataset_name}'")
+    output_path = Path(output_path)
     
     try:
-        # Load dataset with retry logic
-        while retry_count < MAX_RETRIES:
-            try:
-                dataset = load_raw_data(dataset_name, streaming=streaming)
-                break
-            except Exception as e:
-                error_str = str(e).lower()
-                if 'rate limit' in error_str or '429' in error_str:
-                    handle_rate_limit(retry_count)
-                    retry_count += 1
-                elif 'network' in error_str or 'connection' in error_str or 'timeout' in error_str:
-                    handle_network_error(network_retry_count)
-                    network_retry_count += 1
-                    retry_count += 1
-                else:
-                    # For other errors (like streaming unsupported), fall back to non-streaming
-                    logger.warning(f"Dataset error: {str(e)}. Attempting non-streaming fallback...")
-                    dataset = load_raw_data(dataset_name, streaming=False)
-                    break
+        logger.info(f"Downloading dataset: {dataset_name}")
+        logger.info(f"Max samples: {max_samples}")
         
-        # Stream samples
-        for sample in stream_dataset(dataset, num_samples=num_samples):
+        samples = []
+        for sample in stream_dataset(
+            dataset_name=dataset_name,
+            streaming=True,
+            max_samples=max_samples
+        ):
             samples.append(sample)
-        
-        # Save to CSV
+            
+        if not samples:
+            return False, "No samples downloaded"
+            
         save_raw_data_to_csv(samples, output_path)
         
         # Compute checksum
         checksum = compute_file_checksum(output_path)
-        logger.info(f"Download complete. Checksum: {checksum[:16]}...")
+        logger.info(f"File checksum: {checksum}")
         
-        return output_path
+        return True, f"Successfully downloaded {len(samples)} samples"
         
     except Exception as e:
-        logger.error(f"Download failed: {str(e)}")
-        raise RuntimeError(f"Download failed: {str(e)}")
+        error_msg = f"Download failed: {str(e)}"
+        logger.error(error_msg)
+        return False, error_msg
+
+def load_raw_data(
+    input_path: Path,
+    columns: Optional[List[str]] = None
+) -> pd.DataFrame:
+    """
+    Load raw data from CSV file.
+    
+    Args:
+        input_path: Path to input CSV file
+        columns: Optional list of columns to load
+        
+    Returns:
+        DataFrame containing the data
+    """
+    input_path = Path(input_path)
+    
+    if not input_path.exists():
+        raise FileNotFoundError(f"Raw data not found: {input_path}")
+    
+    df = pd.read_csv(input_path)
+    
+    if columns:
+        df = df[[col for col in columns if col in df.columns]]
+        
+    return df
 
 def main():
-    """Main entry point for data loader."""
-    import sys
+    """Main entry point for data loading."""
+    import argparse
     
-    # Parse command line arguments
-    num_samples = 1000
-    output_path = Path('data/raw/github-code-sample.csv')
+    parser = argparse.ArgumentParser(description="Download and save code dataset")
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/raw/github-code-sample.csv",
+        help="Output path for CSV file"
+    )
+    parser.add_argument(
+        "--max-samples",
+        type=int,
+        default=1000,
+        help="Maximum number of samples to download"
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="codeparrot/github-code-clean",
+        help="HuggingFace dataset name"
+    )
     
-    for i, arg in enumerate(sys.argv[1:], 1):
-        if arg == '--num-samples' and i < len(sys.argv):
-            num_samples = int(sys.argv[i + 1])
-        elif arg == '--output' and i < len(sys.argv):
-            output_path = Path(sys.argv[i + 1])
+    args = parser.parse_args()
     
-    # Download and save sample
-    try:
-        result_path = download_and_save_sample(
-            num_samples=num_samples,
-            output_path=output_path,
-            streaming=get_streaming_enabled()
-        )
-        logger.info(f"Successfully downloaded to: {result_path}")
-    except Exception as e:
-        logger.error(f"Failed to download: {str(e)}")
-        sys.exit(1)
+    output_path = Path(args.output)
+    success, message = download_and_save_sample(
+        output_path=output_path,
+        max_samples=args.max_samples,
+        dataset_name=args.dataset
+    )
+    
+    if success:
+        logger.info(message)
+    else:
+        logger.error(message)
+        exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

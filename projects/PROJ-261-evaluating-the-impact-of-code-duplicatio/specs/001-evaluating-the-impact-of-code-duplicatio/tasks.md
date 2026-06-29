@@ -121,10 +121,10 @@
 ### Implementation Tasks
 
 - [X] T040 [US3] Extend `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to perform sensitivity analysis for clone‑detection thresholds 0.7, 0.8, 0.9
-- [ ] T041 [US3] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/visualization.py` to generate scatter plots with regression lines using matplotlib
+- [X] T041 [US3] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/visualization.py` to generate scatter plots with regression lines using matplotlib
 - [X] T042 [US3] Save all plots to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/figures/` in documented format (PNG & PDF)
 - [X] T043 [US3] Document random seeds, thresholds (0.7, 0.8, 0.9 explicitly called out), and **ALL** configuration parameters in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/config.py` for reproducibility (SC‑005) - T006 creates config.py infrastructure, T043 documents parameters for reproducibility with explicit threshold documentation
-- [ ] T044 [US3] Add checksum computation for visualization outputs and record in `artifact_hashes` state manifest
+- [X] T044 [US3] Add checksum computation for visualization outputs and record in `artifact_hashes` state manifest
 
 **Checkpoint**: All user stories should now be independently functional
 

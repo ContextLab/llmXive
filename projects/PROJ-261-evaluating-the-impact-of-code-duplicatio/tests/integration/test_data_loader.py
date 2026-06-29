@@ -1,341 +1,474 @@
 """
-Integration tests for data_loader.py focusing on rate-limiting and network-interruption handling.
+Integration test for HuggingFace rate-limiting and network-interruption handling
+during 500 MB download (T015a - US1)
 
-These tests verify that the data loader properly handles:
-- HuggingFace rate-limiting (HTTP 429 responses)
-- Network interruptions (connection errors, timeouts)
-- Retry logic with exponential backoff
+This test validates that the data_loader.py correctly handles:
+1. Rate-limiting (HTTP 429) from HuggingFace Hub
+2. Network interruptions during download
+3. Retry logic with exponential backoff
+
+Per spec.md Independent Test requirements for US1.
 """
+
 import pytest
 import time
-from unittest.mock import patch, MagicMock, Mock
-from pathlib import Path
-import sys
 import os
+import sys
+from pathlib import Path
+from unittest.mock import patch, MagicMock, mock_open, call
+from requests.exceptions import ConnectionError, Timeout
+from http.client import RemoteDisconnected
 
-# Add code directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / 'projects' / 'PROJ-261-evaluating-the-impact-of-code-duplicatio' / 'code'))
 
 from data_loader import (
+    setup_logging,
     handle_rate_limit,
     handle_network_error,
-    load_raw_data,
     stream_dataset,
-    download_and_save_sample,
-    MAX_RETRIES,
-    NETWORK_RETRIES,
-    INITIAL_BACKOFF,
-    MAX_BACKOFF,
+    save_raw_data_to_csv,
+    download_and_save_sample
 )
-from config import get_dataset_name, get_streaming_enabled
+from config import (
+    get_dataset_name,
+    get_streaming_enabled,
+    get_random_seed
+)
 
-class TestRateLimitHandling:
-    """Tests for rate-limiting handling during dataset downloads."""
-    
-    @patch('data_loader.time.sleep')
-    @patch('data_logger.random.uniform', return_value=0.1)
-    def test_handle_rate_limit_backoff(self, mock_uniform, mock_sleep):
-        """Test that rate limiting implements exponential backoff."""
-        # Test first retry (backoff should be ~1.0s + jitter)
-        start = time.time()
-        wait_time = handle_rate_limit(retry_count=0)
-        elapsed = time.time() - start
-        
-        assert wait_time >= INITIAL_BACKOFF
-        assert mock_sleep.called
-        assert mock_sleep.call_args[0][0] > 0
-    
-    @patch('data_loader.time.sleep')
-    def test_handle_rate_limit_max_retries(self, mock_sleep):
-        """Test that max retries raises appropriate error."""
-        with pytest.raises(RuntimeError) as exc_info:
-            handle_rate_limit(retry_count=MAX_RETRIES)
-        
-        assert 'Max retries' in str(exc_info.value)
-    
-    @patch('data_loader.time.sleep')
-    def test_handle_rate_limit_exponential_growth(self, mock_sleep):
-        """Test that backoff grows exponentially with retries."""
-        backoffs = []
-        for i in range(3):
-            with patch('data_loader.random.uniform', return_value=0.1):
-                handle_rate_limit(retry_count=i)
-                call_arg = mock_sleep.call_args[0][0]
-                backoffs.append(call_arg)
-        
-        # Verify exponential growth (allowing for jitter)
-        assert backoffs[1] > backoffs[0]
-        assert backoffs[2] > backoffs[1]
-    
-    @patch('data_loader.load_raw_data')
-    @patch('data_loader.time.sleep')
-    def test_download_with_rate_limit_retry(self, mock_sleep, mock_load):
-        """Test that download_and_save_sample retries on rate limiting."""
-        # Mock rate limit error on first two attempts, success on third
-        mock_load.side_effect = [
-            RuntimeError("Rate limit: 429"),
-            RuntimeError("Rate limit: 429"),
-            MagicMock()  # Success on third attempt
-        ]
-        
-        # Mock the dataset object
-        mock_dataset = MagicMock()
-        mock_dataset.__getitem__ = MagicMock(return_value=iter([]))
-        mock_load.return_value = mock_dataset
-        
-        # Should not raise after retries
-        with patch('data_loader.stream_dataset', return_value=iter([])):
-            with patch('data_loader.save_raw_data_to_csv'):
-                with patch('data_loader.compute_file_checksum', return_value='abc123'):
-                    result = download_and_save_sample(
-                        num_samples=10,
-                        output_path=Path('/tmp/test.csv'),
-                        streaming=True
-                    )
-        
-        # Verify load_raw_data was called 3 times (2 failures + 1 success)
-        assert mock_load.call_count == 3
-    
-    @patch('data_loader.load_raw_data')
-    def test_download_rate_limit_exhaustion(self, mock_load):
-        """Test that download fails after max rate limit retries."""
-        # Mock rate limit errors for all retries
-        mock_load.side_effect = [
-            RuntimeError("Rate limit: 429") for _ in range(MAX_RETRIES + 1)
-        ]
-        
-        with pytest.raises(RuntimeError) as exc_info:
-            with patch('data_loader.stream_dataset', return_value=iter([])):
-                with patch('data_loader.save_raw_data_to_csv'):
-                    download_and_save_sample(num_samples=10)
-        
-        assert 'Max retries' in str(exc_info.value)
+# Test constants
+TEST_OUTPUT_DIR = Path(project_root / 'projects' / 'PROJ-261-evaluating-the-impact-of-code-duplicatio' / 'data' / 'raw')
+TEST_OUTPUT_FILE = TEST_OUTPUT_DIR / 'github-code-sample.csv'
+TEST_MAX_SAMPLES = 10
+TEST_RETRY_COUNT = 3
+TEST_BACKOFF_FACTOR = 0.5
 
-class TestNetworkInterruptionHandling:
-    """Tests for network interruption handling during downloads."""
+@pytest.fixture(autouse=True)
+def setup_test_environment(tmp_path):
+    """Setup test environment before each test."""
+    # Ensure output directory exists
+    TEST_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    yield
+    # Cleanup after test (optional - keep for debugging)
+    # if TEST_OUTPUT_FILE.exists():
+    #     TEST_OUTPUT_FILE.unlink()
+
+class TestRateLimitingHandling:
+    """Test rate-limiting (HTTP 429) handling during download."""
     
-    @patch('data_loader.time.sleep')
-    def test_handle_network_error_backoff(self, mock_sleep):
-        """Test that network errors implement exponential backoff."""
-        with patch('data_loader.random.uniform', return_value=0.1):
-            wait_time = handle_network_error(retry_count=0)
+    def test_handle_rate_limit_with_retry(self):
+        """
+        Test that handle_rate_limit correctly handles 429 responses
+        with exponential backoff and retry logic.
+        """
+        retry_count = 0
+        max_retries = 3
         
-        assert wait_time >= INITIAL_BACKOFF
-        assert mock_sleep.called
+        def mock_rate_limit_func():
+            nonlocal retry_count
+            retry_count += 1
+            if retry_count < max_retries:
+                raise Exception("Rate limit exceeded (429)")
+            return {"success": True, "data": "sample"}
+        
+        result = handle_rate_limit(mock_rate_limit_func, max_retries=max_retries, backoff_factor=0.01)
+        
+        assert result is not None
+        assert result.get("success") is True
+        assert retry_count == max_retries
     
-    @patch('data_loader.time.sleep')
-    def test_handle_network_error_max_retries(self, mock_sleep):
-        """Test that max network retries raises appropriate error."""
-        with pytest.raises(RuntimeError) as exc_info:
-            handle_network_error(retry_count=NETWORK_RETRIES)
+    def test_handle_rate_limit_exceeds_max_retries(self):
+        """
+        Test that handle_rate_limit raises exception after max retries exceeded.
+        """
+        def always_fail():
+            raise Exception("Rate limit exceeded (429)")
         
-        assert 'Network error' in str(exc_info.value)
+        with pytest.raises(Exception) as exc_info:
+            handle_rate_limit(always_fail, max_retries=2, backoff_factor=0.01)
+        
+        assert "Rate limit exceeded" in str(exc_info.value)
     
-    @patch('data_loader.load_raw_data')
-    @patch('data_loader.time.sleep')
-    def test_download_with_network_retry(self, mock_sleep, mock_load):
-        """Test that download retries on network errors."""
-        # Mock network error on first attempt, success on second
-        mock_load.side_effect = [
-            RuntimeError("Connection error"),
-            MagicMock()  # Success on second attempt
-        ]
+    @patch('datasets.load_dataset')
+    def test_stream_dataset_rate_limit_retry(self, mock_load_dataset):
+        """
+        Test that stream_dataset handles rate limits during HuggingFace dataset loading.
+        """
+        # Setup mock to fail twice then succeed
+        call_count = [0]
         
-        mock_dataset = MagicMock()
-        mock_dataset.__getitem__ = MagicMock(return_value=iter([]))
-        mock_load.return_value = mock_dataset
-        
-        with patch('data_loader.stream_dataset', return_value=iter([])):
-            with patch('data_loader.save_raw_data_to_csv'):
-                with patch('data_loader.compute_file_checksum', return_value='abc123'):
-                    download_and_save_sample(num_samples=10)
-        
-        # Verify load_raw_data was called twice (1 failure + 1 success)
-        assert mock_load.call_count == 2
-    
-    @patch('data_loader.load_raw_data')
-    def test_network_error_classification(self, mock_load):
-        """Test that network errors are properly classified and retried."""
-        # Test various network error messages
-        network_errors = [
-            "Connection refused",
-            "Connection timeout",
-            "Network error",
-            "Connection reset by peer",
-        ]
-        
-        for error_msg in network_errors:
-            mock_load.side_effect = RuntimeError(error_msg)
+        def mock_load_with_retry(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] < 3:
+                # Simulate rate limit response
+                mock_dataset = MagicMock()
+                mock_dataset.__iter__ = MagicMock(side_effect=Exception("Rate limit (429)"))
+                return mock_dataset
             
-            # Should retry on network errors
-            with pytest.raises(RuntimeError):
-                with patch('data_loader.stream_dataset', return_value=iter([])):
-                    with patch('data_loader.save_raw_data_to_csv'):
-                        download_and_save_sample(num_samples=10)
-            
-            # Verify retry occurred
-            assert mock_load.call_count > 1
-
-class TestDatasetStreamingFallback:
-    """Tests for streaming fallback when streaming is not supported."""
-    
-    @patch('data_loader.load_dataset')
-    def test_streaming_fallback_on_error(self, mock_load_dataset):
-        """Test that download falls back to non-streaming when streaming fails."""
-        # First call (streaming) fails, second call (non-streaming) succeeds
-        mock_load_dataset.side_effect = [
-            RuntimeError("Dataset scripts are no longer supported"),
-            MagicMock()  # Success on non-streaming
-        ]
+            # Success on third attempt
+            mock_dataset = MagicMock()
+            mock_dataset.__iter__ = MagicMock(return_value=[
+                {"code": "print('hello')", "path": "test.py"},
+                {"code": "def foo(): pass", "path": "test2.py"}
+            ])
+            return mock_dataset
         
-        mock_dataset = MagicMock()
-        mock_dataset.__getitem__ = MagicMock(return_value=iter([]))
-        mock_load_dataset.return_value = mock_dataset
+        mock_load_dataset.side_effect = mock_load_with_retry
         
-        # Should not raise
-        result = load_raw_data('test-dataset', streaming=True)
-        
-        # Verify load_dataset was called twice (streaming + fallback)
-        assert mock_load_dataset.call_count == 2
-        # Verify second call was non-streaming
-        assert mock_load_dataset.call_args_list[1][1].get('streaming') == False
-    
-    @patch('data_loader.load_dataset')
-    def test_streaming_enabled_config(self, mock_load_dataset):
-        """Test that streaming respects config settings."""
-        mock_dataset = MagicMock()
-        mock_dataset.__getitem__ = MagicMock(return_value=iter([]))
-        mock_load_dataset.return_value = mock_dataset
-        
-        with patch('data_loader.get_streaming_enabled', return_value=True):
-            load_raw_data('test-dataset', streaming=True)
-        
-        # Verify streaming=True was passed
-        assert mock_load_dataset.call_args[1].get('streaming') == True
-
-class TestIntegrationWithMockedHuggingFace:
-    """Integration tests with fully mocked HuggingFace API."""
-    
-    @patch('data_loader.load_dataset')
-    @patch('data_loader.save_raw_data_to_csv')
-    @patch('data_loader.compute_file_checksum', return_value='test123')
-    def test_full_download_flow(self, mock_checksum, mock_save, mock_load_dataset):
-        """Test complete download flow with mocked HuggingFace."""
-        # Mock dataset with samples
-        mock_dataset = MagicMock()
-        mock_samples = [
-            {'code': 'def foo(): pass', 'language': 'python'},
-            {'code': 'def bar(): pass', 'language': 'python'},
-            {'code': 'def baz(): pass', 'language': 'python'},
-        ]
-        mock_dataset.__getitem__ = MagicMock(return_value=iter(mock_samples))
-        mock_load_dataset.return_value = mock_dataset
-        
-        result_path = download_and_save_sample(
-            num_samples=3,
-            output_path=Path('/tmp/test_integration.csv')
+        # This should retry and eventually succeed
+        dataset = stream_dataset(
+            dataset_name="codeparrot/github-code",
+            split="train",
+            streaming=True,
+            max_samples=TEST_MAX_SAMPLES,
+            max_retries=3
         )
         
-        # Verify all steps completed
-        assert result_path.exists() or str(result_path) == '/tmp/test_integration.csv'
-        mock_save.assert_called_once()
-        mock_checksum.assert_called_once()
+        assert dataset is not None
+        assert call_count[0] >= 3  # Should have retried at least twice
     
-    @patch('data_loader.load_dataset')
-    @patch('data_loader.time.sleep')
-    def test_rate_limit_integration(self, mock_sleep, mock_load_dataset):
-        """Test rate limiting in full integration flow."""
-        # Mock rate limit then success
-        mock_load_dataset.side_effect = [
-            RuntimeError("Rate limit: 429"),
-            MagicMock()  # Success
+    def test_rate_limit_with_exponential_backoff(self):
+        """
+        Test that rate limit handling uses exponential backoff timing.
+        """
+        retry_timestamps = []
+        
+        def mock_func():
+            nonlocal retry_timestamps
+            retry_timestamps.append(time.time())
+            if len(retry_timestamps) < 3:
+                raise Exception("429 Rate Limit")
+            return {"data": "success"}
+        
+        result = handle_rate_limit(
+            mock_func,
+            max_retries=3,
+            backoff_factor=0.1
+        )
+        
+        assert result is not None
+        assert len(retry_timestamps) == 3
+        
+        # Check that delays between retries increase (exponential backoff)
+        if len(retry_timestamps) >= 2:
+            first_delay = retry_timestamps[1] - retry_timestamps[0]
+            second_delay = retry_timestamps[2] - retry_timestamps[1]
+            
+            # Second delay should be >= first delay (exponential backoff)
+            assert second_delay >= first_delay - 0.05  # Allow small timing variance
+
+class TestNetworkInterruptionHandling:
+    """Test network interruption handling during download."""
+    
+    def test_handle_network_error_with_retry(self):
+        """
+        Test that handle_network_error correctly handles connection errors
+        with retry logic.
+        """
+        retry_count = 0
+        max_retries = 3
+        
+        def mock_network_func():
+            nonlocal retry_count
+            retry_count += 1
+            if retry_count < max_retries:
+                raise ConnectionError("Network interrupted")
+            return {"success": True, "data": "recovered"}
+        
+        result = handle_network_error(mock_network_func, max_retries=max_retries)
+        
+        assert result is not None
+        assert result.get("success") is True
+        assert retry_count == max_retries
+    
+    def test_handle_network_error_various_exception_types(self):
+        """
+        Test that handle_network_error handles various network-related exceptions.
+        """
+        exception_types = [
+            ConnectionError("Connection lost"),
+            Timeout("Request timed out"),
+            RemoteDisconnected("Remote end closed connection"),
+            OSError("Network unreachable")
         ]
         
+        for exc_type in exception_types:
+            call_count = [0]
+            
+            def mock_func():
+                call_count[0] += 1
+                if call_count[0] < 2:
+                    raise exc_type
+                return {"recovered": True}
+            
+            result = handle_network_error(mock_func, max_retries=2)
+            assert result is not None
+            assert result.get("recovered") is True
+    
+    @patch('datasets.load_dataset')
+    def test_stream_dataset_network_interruption(self, mock_load_dataset):
+        """
+        Test that stream_dataset handles network interruptions during HuggingFace download.
+        """
+        call_count = [0]
+        
+        def mock_load_with_network_fail(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] < 2:
+                # Simulate network interruption
+                raise ConnectionError("Network interrupted during download")
+            
+            # Success on second attempt
+            mock_dataset = MagicMock()
+            mock_dataset.__iter__ = MagicMock(return_value=[
+                {"code": "x = 1", "path": "a.py"},
+                {"code": "y = 2", "path": "b.py"}
+            ])
+            return mock_dataset
+        
+        mock_load_dataset.side_effect = mock_load_with_network_fail
+        
+        dataset = stream_dataset(
+            dataset_name="codeparrot/github-code",
+            split="train",
+            streaming=True,
+            max_samples=TEST_MAX_SAMPLES,
+            max_retries=2
+        )
+        
+        assert dataset is not None
+        assert call_count[0] >= 2  # Should have retried
+    
+    def test_network_error_with_connection_reset(self):
+        """
+        Test handling of ConnectionResetError during download.
+        """
+        call_count = [0]
+        
+        def mock_func():
+            call_count[0] += 1
+            if call_count[0] < 2:
+                raise ConnectionResetError("Connection reset by peer")
+            return {"success": True}
+        
+        result = handle_network_error(mock_func, max_retries=2)
+        assert result is not None
+        assert result.get("success") is True
+
+class TestDownloadIntegration:
+    """Integration tests for the complete download workflow."""
+    
+    @patch('datasets.load_dataset')
+    @patch('pathlib.Path.exists')
+    @patch('pathlib.Path.mkdir')
+    def test_download_and_save_sample_with_rate_limit_retry(self, mock_mkdir, mock_exists, mock_load_dataset):
+        """
+        Integration test: download_and_save_sample handles rate limits
+        and produces the expected output file.
+        """
+        mock_exists.return_value = False  # Directory doesn't exist initially
+        
+        # Setup mock to simulate rate limit then success
+        call_count = [0]
+        
+        def mock_load_with_retry(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] < 2:
+                raise Exception("Rate limit (429)")
+            
+            mock_dataset = MagicMock()
+            mock_dataset.__iter__ = MagicMock(return_value=[
+                {"code": "def hello():\n    print('world')", "path": "hello.py"},
+                {"code": "class Foo:\n    pass", "path": "foo.py"}
+            ])
+            return mock_dataset
+        
+        mock_load_dataset.side_effect = mock_load_with_retry
+        
+        output_path = TEST_OUTPUT_DIR / 'test_sample.csv'
+        
+        result = download_and_save_sample(
+            output_path=output_path,
+            max_samples=2,
+            dataset_name="codeparrot/github-code",
+            max_retries=2
+        )
+        
+        assert result is True
+        assert call_count[0] >= 2  # Should have retried
+    
+    @patch('datasets.load_dataset')
+    def test_stream_dataset_produces_correct_data_format(self, mock_load_dataset):
+        """
+        Test that stream_dataset produces data in the expected format.
+        """
         mock_dataset = MagicMock()
-        mock_dataset.__getitem__ = MagicMock(return_value=iter([]))
+        mock_dataset.__iter__ = MagicMock(return_value=[
+            {"code": "print('test')", "path": "test.py", "language": "python"},
+            {"code": "def foo(): pass", "path": "foo.py", "language": "python"}
+        ])
         mock_load_dataset.return_value = mock_dataset
         
-        # Should complete after retry
-        with patch('data_loader.stream_dataset', return_value=iter([])):
-            with patch('data_loader.save_raw_data_to_csv'):
-                with patch('data_loader.compute_file_checksum', return_value='abc'):
-                    download_and_save_sample(num_samples=10)
+        dataset = stream_dataset(
+            dataset_name="codeparrot/github-code",
+            split="train",
+            streaming=True,
+            max_samples=TEST_MAX_SAMPLES
+        )
         
-        # Verify retry occurred
-        assert mock_load_dataset.call_count == 2
-        assert mock_sleep.called
-
-class TestEdgeCases:
-    """Tests for edge cases in rate-limiting and network handling."""
-    
-    def test_zero_samples(self):
-        """Test handling of zero samples requested."""
-        with patch('data_loader.load_raw_data') as mock_load:
-            with patch('data_loader.save_raw_data_to_csv') as mock_save:
-                download_and_save_sample(num_samples=0)
-                
-                # Should not call save with empty list
-                mock_save.assert_called_once()
-    
-    def test_large_backoff_cap(self):
-        """Test that backoff is capped at MAX_BACKOFF."""
-        with patch('data_loader.time.sleep') as mock_sleep:
-            with patch('data_loader.random.uniform', return_value=0.1):
-                # Large retry count should still cap backoff
-                handle_rate_limit(retry_count=20)
-                
-                call_arg = mock_sleep.call_args[0][0]
-                assert call_arg <= MAX_BACKOFF + 0.3  # + jitter allowance
-    
-    @patch('data_loader.time.sleep')
-    def test_network_timeout_classification(self, mock_sleep):
-        """Test that timeout errors are classified as network errors."""
-        with patch('data_loader.random.uniform', return_value=0.1):
-            handle_network_error(retry_count=0)
+        assert dataset is not None
         
-        assert mock_sleep.called
+        # Verify we can iterate and get expected fields
+        items = list(dataset)
+        assert len(items) == 2
+        assert all("code" in item for item in items)
+        assert all("path" in item for item in items)
     
-    def test_invalid_retry_count(self):
-        """Test handling of invalid retry counts."""
-        # Negative retry count should still work (treated as 0)
-        with patch('data_loader.time.sleep'):
-            with patch('data_loader.random.uniform', return_value=0.1):
-                handle_rate_limit(retry_count=-1)
-        
-        with patch('data_loader.time.sleep'):
-            with patch('data_loader.random.uniform', return_value=0.1):
-                handle_network_error(retry_count=-1)
-
-class TestChecksumVerification:
-    """Tests for checksum computation during download."""
-    
-    @patch('data_loader.load_raw_data')
-    @patch('data_loader.compute_file_checksum')
-    def test_checksum_computed_after_download(self, mock_checksum, mock_load):
-        """Test that checksum is computed after successful download."""
+    @patch('datasets.load_dataset')
+    def test_download_handles_empty_dataset(self, mock_load_dataset):
+        """
+        Test that download handles empty dataset gracefully.
+        """
         mock_dataset = MagicMock()
-        mock_dataset.__getitem__ = MagicMock(return_value=iter([]))
-        mock_load.return_value = mock_dataset
+        mock_dataset.__iter__ = MagicMock(return_value=[])
+        mock_load_dataset.return_value = mock_dataset
         
-        with patch('data_loader.stream_dataset', return_value=iter([])):
-            with patch('data_loader.save_raw_data_to_csv'):
-                download_and_save_sample(num_samples=10)
+        dataset = stream_dataset(
+            dataset_name="codeparrot/github-code",
+            split="train",
+            streaming=True,
+            max_samples=TEST_MAX_SAMPLES
+        )
         
-        # Verify checksum was computed
-        mock_checksum.assert_called_once()
-    
-    @patch('data_loader.load_raw_data')
-    def test_checksum_on_error(self, mock_load):
-        """Test that checksum is NOT computed on download error."""
-        mock_load.side_effect = RuntimeError("Download failed")
-        
-        with pytest.raises(RuntimeError):
-            with patch('data_loader.stream_dataset', return_value=iter([])):
-                with patch('data_loader.save_raw_data_to_csv'):
-                    download_and_save_sample(num_samples=10)
-        
-        # Verify checksum was NOT called on error
-        # (We can't directly verify this without more complex mocking)
+        assert dataset is not None
+        items = list(dataset)
+        assert len(items) == 0
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+class TestErrorRecoveryScenarios:
+    """Test various error recovery scenarios during download."""
+    
+    def test_multiple_consecutive_rate_limits(self):
+        """
+        Test recovery from multiple consecutive rate limit errors.
+        """
+        call_count = [0]
+        
+        def mock_func():
+            call_count[0] += 1
+            if call_count[0] < 4:
+                raise Exception("Rate limit (429)")
+            return {"data": "success after 3 retries"}
+        
+        result = handle_rate_limit(mock_func, max_retries=4, backoff_factor=0.01)
+        
+        assert result is not None
+        assert result.get("data") == "success after 3 retries"
+        assert call_count[0] == 4
+    
+    def test_network_error_then_rate_limit_then_success(self):
+        """
+        Test recovery from mixed error types (network error, then rate limit, then success).
+        """
+        call_count = [0]
+        
+        def mock_func():
+            call_count[0] += 1
+            if call_count[0] == 1:
+                raise ConnectionError("Network error")
+            elif call_count[0] == 2:
+                raise Exception("Rate limit (429)")
+            return {"recovered": True, "errors_handled": 2}
+        
+        # First try network error handler
+        result = handle_network_error(mock_func, max_retries=3)
+        assert result is not None
+        assert result.get("recovered") is True
+
+class TestLoggingAndMonitoring:
+    """Test that errors are properly logged during download."""
+    
+    def test_rate_limit_logging(self):
+        """
+        Test that rate limit errors are logged appropriately.
+        """
+        call_count = [0]
+        
+        def mock_func():
+            call_count[0] += 1
+            if call_count[0] < 2:
+                raise Exception("Rate limit (429)")
+            return {"success": True}
+        
+        # Capture logger output
+        with patch('logging.Logger.warning') as mock_warning:
+            result = handle_rate_limit(mock_func, max_retries=2)
+            
+            assert result is not None
+            assert mock_warning.called  # Should have logged retry attempts
+    
+    def test_network_error_logging(self):
+        """
+        Test that network errors are logged appropriately.
+        """
+        call_count = [0]
+        
+        def mock_func():
+            call_count[0] += 1
+            if call_count[0] < 2:
+                raise ConnectionError("Network interrupted")
+            return {"success": True}
+        
+        with patch('logging.Logger.warning') as mock_warning:
+            result = handle_network_error(mock_func, max_retries=2)
+            
+            assert result is not None
+            assert mock_warning.called
+
+class Test500MBDownloadSimulation:
+    """Test scenarios simulating 500 MB download with interruptions."""
+    
+    def test_large_download_with_interruption_recovery(self):
+        """
+        Simulate a 500 MB download that gets interrupted and recovers.
+        """
+        bytes_downloaded = [0]
+        target_bytes = 500 * 1024 * 1024  # 500 MB
+        chunk_size = 10 * 1024 * 1024  # 10 MB chunks
+        
+        def mock_download_chunk():
+            nonlocal bytes_downloaded
+            bytes_downloaded[0] += chunk_size
+            
+            if bytes_downloaded[0] < target_bytes * 0.5:
+                raise ConnectionError("Download interrupted at {} MB".format(
+                    bytes_downloaded[0] // (1024 * 1024)
+                ))
+            
+            return {"bytes": chunk_size, "status": "complete"}
+        
+        result = handle_network_error(mock_download_chunk, max_retries=3)
+        
+        assert result is not None
+        assert result.get("status") == "complete"
+    
+    def test_download_progress_tracking_with_errors(self):
+        """
+        Test that download progress is tracked correctly even with errors.
+        """
+        progress_log = []
+        
+        def mock_download_with_progress():
+            progress_log.append(time.time())
+            if len(progress_log) < 2:
+                raise ConnectionError("Progress interrupted")
+            return {"progress": 100, "complete": True}
+        
+        result = handle_network_error(mock_download_with_progress, max_retries=2)
+        
+        assert result is not None
+        assert result.get("complete") is True
+        assert len(progress_log) >= 2  # Should have retried
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

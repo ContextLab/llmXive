@@ -1,25 +1,22 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "6 command(s) failed: python code/quickstart_validation.py validate_directory_structure (rc=1); python code/main.py (rc=1); python code/data_loader.py # Stage 1: Download data (rc=1); 1 declared deliverable(s) absent: data/raw/github-code-sample.csv",
+  "reason": "4 command(s) failed: python code/quickstart_validation.py validate_directory_structure (rc=1); python code/main.py (rc=1); python code/data_loader.py # Stage 1: Download data (rc=2); 1 declared deliverable(s) absent: data/raw/github-code-sample.csv",
   "artifacts": [
     "data/analysis/artifact_checksums.json",
     "data/analysis/bug_detection_results.csv",
     "data/analysis/bug_detection_summary.json",
     "data/analysis/correlation_results.csv",
     "data/analysis/pii_findings.csv",
-    "data/processed/clone_metrics.csv",
-    "data/processed/perplexity_scores.csv"
+    "data/processed/clone_metrics.csv"
   ],
   "failures": [
-    "python code/quickstart_validation.py validate_directory_structure -> rc=1\n    9,149 - __main__ - INFO -   Documentation Validation: FAIL\n2026-06-29 06:07:19,149 - __main__ - INFO -   Output Validation: WARN\n2026-06-29 06:07:19,149 - __main__ - INFO -   Overall: FAIL\n2026-06-29 06:07:19,149 - __main__ - INFO - ------------------------------------------------------------\n2026-06-29 06:07:19,149 - __main__ - ERROR - Quickstart validation FAILED. Please review the errors above.",
-    "python code/main.py -> rc=1\n    _pipeline(raw_data_path, output_dir, logger)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/main.py\", line 133, in run_pipeline\n    setup_memory_monitoring(get_memory_limit_mb(), logger)\nTypeError: setup_memory_monitoring() takes from 0 to 1 positional arguments but 2 were given",
-    "python code/data_loader.py # Stage 1: Download data -> rc=1\n    oad_and_save_sample(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/data_loader.py\", line 252, in download_and_save_sample\n    raise RuntimeError(f\"Download failed: {str(e)}\")\nRuntimeError: Download failed: Dataset streaming failed: Dataset scripts are no longer supported, but found github-code.py",
-    "python code/bug_detection.py # Stage 4: Bug detection -> rc=1\n    icatio/code/bug_detection.py\", line 474, in main\n    record_artifact_checksums(\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/checksum_manifest.py\", line 165, in record_artifact_checksums\n    raise TypeError(f\"manifest_path must be a Path object, got {type(manifest_path)}\")\nTypeError: manifest_path must be a Path object, got <class 'str'>",
-    "python code/visualization.py # Stage 6: Visualizations -> rc=1\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/numpy/linalg/_linalg.py\", line 156, in _raise_linalgerror_lstsq\n    raise LinAlgError(\"SVD did not converge in Linear Least Squares\")\nnumpy.linalg.LinAlgError: SVD did not converge in Linear Least Squares",
-    "python code/quickstart_validation.py -> rc=1\n    0,018 - __main__ - INFO -   Documentation Validation: FAIL\n2026-06-29 06:20:20,018 - __main__ - INFO -   Output Validation: PASS\n2026-06-29 06:20:20,018 - __main__ - INFO -   Overall: FAIL\n2026-06-29 06:20:20,018 - __main__ - INFO - ------------------------------------------------------------\n2026-06-29 06:20:20,018 - __main__ - ERROR - Quickstart validation FAILED. Please review the errors above."
+    "python code/quickstart_validation.py validate_directory_structure -> rc=1\n    he-impact-of-code-duplicatio/code/quickstart_validation.py\", line 308, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/quickstart_validation.py\", line 265, in main\n    logger = setup_logging(\"quickstart_validation\")\n             ^^^^^^^^^^^^^\nNameError: name 'setup_logging' is not defined",
+    "python code/main.py -> rc=1\n    08:47:01,123 - __main__ - ERROR - Please run data_loader.py first to download the dataset\n2026-06-29 08:47:01,123 - __main__ - ERROR - Pipeline failed: Raw data not found: data/raw/github-code-sample.csv\n2026-06-29 08:47:01,123 - __main__ - ERROR - Data not found: Raw data not found: data/raw/github-code-sample.csv\n2026-06-29 08:47:01,123 - __main__ - ERROR - Please run: python code/data_loader.py",
+    "python code/data_loader.py # Stage 1: Download data -> rc=2\n    usage: data_loader.py [-h] [--output OUTPUT] [--max-samples MAX_SAMPLES]\n                      [--dataset DATASET]\ndata_loader.py: error: unrecognized arguments: # Stage 1: Download data",
+    "python code/quickstart_validation.py -> rc=1\n    he-impact-of-code-duplicatio/code/quickstart_validation.py\", line 308, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/quickstart_validation.py\", line 265, in main\n    logger = setup_logging(\"quickstart_validation\")\n             ^^^^^^^^^^^^^\nNameError: name 'setup_logging' is not defined"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "updated_at": "2026-06-29T06:20:20Z"
+  "updated_at": "2026-06-29T08:47:09Z"
 }

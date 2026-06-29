@@ -1184,22 +1184,6 @@
   updated_at: '2026-06-28T03:36:40Z'
 - artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   attempts: 1
-  canonical: HumanEval benchmark contains 50 problems
-  claim_id: c_d4dbedf7
-  context: "Implement bug_detection.py to load the 50\u2011problem HumanEval subset\
-    \ and compute pass@1 accuracy"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "load the 50\u2011problem HumanEval subset and compute pass@1 accuracy"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-28T03:58:47Z'
-- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
-  attempts: 1
   canonical: codeparrot/github-code dataset 500 MB subset
   claim_id: c_a962e0db
   context: Implement data_loader.py to stream codeparrot/github-code (500 MB subset)
@@ -1565,3 +1549,70 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T05:32:22Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 2
+  canonical: HumanEval benchmark contains 50 problems
+  claim_id: c_d4dbedf7
+  context: "Implement bug_detection.py to load the 50\u2011problem HumanEval subset\
+    \ and compute pass@1 accuracy"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "load the 50\u2011problem HumanEval subset and compute pass@1 accuracy"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:27:14Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: codeparrot/github-code 500 MB subset via HuggingFace datasets streaming
+  claim_id: c_c1441b8d
+  context: T018 [US1] Implement data_loader.py to stream codeparrot/github-code (500
+    MB subset) using HuggingFace datasets library with streaming mode enabled, outputting
+    to data/raw/github-code-sample.csv
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stream codeparrot/github-code (500 MB subset) using HuggingFace datasets
+    library with streaming mode enabled
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:37:55Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: Salesforce/codegen-350M-mono model 8-bit quantization with bitsandbytes
+  claim_id: c_c6adc7b7
+  context: T020 [US1] Implement model_metrics.py to load Salesforce/codegen-350M-mono
+    in 8-bit quantization using bitsandbytes and compute perplexity
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load Salesforce/codegen-350M-mono in 8-bit quantization using bitsandbytes
+    and compute perplexity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:42:11Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: HumanEval 50-problem subset pass@1 accuracy evaluation
+  claim_id: c_27393d3e
+  context: T031 [US2] Implement bug_detection.py to load the 50-problem HumanEval
+    subset and compute pass@1 accuracy
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load the 50-problem HumanEval subset and compute pass@1 accuracy
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:42:12Z'

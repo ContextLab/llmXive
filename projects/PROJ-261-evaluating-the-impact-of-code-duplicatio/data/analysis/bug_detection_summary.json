@@ -1,9 +1,7 @@
 {
-  "accuracy": 0.0,
   "total_problems": 50,
-  "passed_problems": 50,
-  "failed_problems": 0,
-  "timestamp": "2026-06-29T06:20:13.981332",
-  "model_name": "Salesforce/codegen-350M-mono",
-  "dataset": "openai_humaneval"
+  "passed_problems": 0,
+  "failed_problems": 50,
+  "pass1_accuracy": 0.0,
+  "timestamp": "2026-06-29T08:47:03.868136"
 }
