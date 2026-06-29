@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Grid Summary Schema
+description: Schema for the delta vs exponent summary (delta_vs_exponent.csv)
+type: object
+properties:
+  delta:
+    type: number
+    description: Disorder strength.
+    minimum: 0
+    maximum: 1
+  alpha:
+    type: number
+    description: Fitted scaling exponent.
+  ci_lower:
+    type: number
+    description: Lower bound of CI.
+  ci_upper:
+    type: number
+    description: Upper bound of CI.
+  ci_width:
+    type: number
+    description: Width of the confidence interval.
+    minimum: 0
+  p_value:
+    type: number
+    description: Two-sided p-value.
+    minimum: 0
+    maximum: 1
+required:
+  - delta
+  - alpha
+  - ci_lower
+  - ci_upper
+  - ci_width
+  - p_value
+additionalProperties: false

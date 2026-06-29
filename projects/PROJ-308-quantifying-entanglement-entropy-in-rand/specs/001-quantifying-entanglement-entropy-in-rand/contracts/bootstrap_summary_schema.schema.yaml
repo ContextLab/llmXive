@@ -1,0 +1,27 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Bootstrap Summary Schema
+description: Schema for the bootstrap resampling summary (bootstrap_summary.txt)
+type: object
+properties:
+  num_resamples:
+    type: integer
+    description: Number of bootstrap resamples performed.
+    minimum: 1000
+  standard_error:
+    type: number
+    description: Standard error of the scaling exponent.
+    minimum: 0
+  p_value:
+    type: number
+    description: Two-sided p-value from bootstrap distribution.
+    minimum: 0
+    maximum: 1
+  mean_exponent:
+    type: number
+    description: Mean of the scaling exponent across resamples.
+required:
+  - num_resamples
+  - standard_error
+  - p_value
+  - mean_exponent
+additionalProperties: false

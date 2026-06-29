@@ -1,0 +1,62 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Fit Result Schema
+description: Schema for the scaling fit results (scaling_fit.txt parsed as JSON equivalent)
+type: object
+properties:
+  disorder_strength:
+    type: number
+    description: The disorder strength delta.
+    minimum: 0
+    maximum: 1
+  scaling_exponent:
+    type: number
+    description: The fitted exponent alpha from log-log regression.
+  ci_lower:
+    type: number
+    description: Lower bound of the 95% confidence interval.
+  ci_upper:
+    type: number
+    description: Upper bound of the 95% confidence interval.
+  p_value:
+    type: number
+    description: Two-sided p-value for the scaling exponent.
+  r_squared_log:
+    type: number
+    description: R-squared value for the log-log fit.
+  r_squared_linear:
+    type: number
+    description: R-squared value for the linear fit.
+  r_squared_constant:
+    type: number
+    description: R-squared value for the constant (area law) fit. Note: R-squared for a constant model is mathematically 0 or undefined depending on baseline; AIC is the primary metric.
+  aic_log:
+    type: number
+    description: AIC value for the log-log model.
+  aic_linear:
+    type: number
+    description: AIC value for the linear model.
+  aic_constant:
+    type: number
+    description: AIC value for the constant model. Primary metric for phase classification.
+  phase_classification:
+    type: string
+    description: Classification of the phase based on lowest AIC.
+    enum:
+      - critical
+      - mbl
+      - thermal
+      - unknown
+required:
+  - disorder_strength
+  - scaling_exponent
+  - ci_lower
+  - ci_upper
+  - p_value
+  - r_squared_log
+  - r_squared_linear
+  - r_squared_constant
+  - aic_log
+  - aic_linear
+  - aic_constant
+  - phase_classification
+additionalProperties: false

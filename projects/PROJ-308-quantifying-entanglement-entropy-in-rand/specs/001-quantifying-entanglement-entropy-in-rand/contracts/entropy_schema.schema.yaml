@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Entropy Data Schema
+description: Schema for the raw entropy measurements (entropy_data.csv)
+type: object
+properties:
+  realization_id:
+    type: integer
+    description: Unique identifier for the disorder realization.
+    minimum: 0
+  subsystem_size:
+    type: integer
+    description: Size of the subsystem (l) for which entropy is calculated.
+    minimum: 1
+  entropy:
+    type: number
+    description: Von Neumann entropy S(l). Must be non-negative.
+    minimum: 0
+  edge_left:
+    type: number
+    description: Entropy at the left edge (l=1).
+    minimum: 0
+  edge_right:
+    type: number
+    description: Entropy at the right edge (l=L-1).
+    minimum: 0
+required:
+  - realization_id
+  - subsystem_size
+  - entropy
+  - edge_left
+  - edge_right
+additionalProperties: false
