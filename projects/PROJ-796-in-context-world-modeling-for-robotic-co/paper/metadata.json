@@ -2,15 +2,7 @@
   "arxiv_id": "2606.26025",
   "arxiv_url": "https://arxiv.org/abs/2606.26025",
   "title": "In-Context World Modeling for Robotic Control",
-  "authors": [
-    "Siyin Wang",
-    "Junhao Shi",
-    "Senyu Fei",
-    "Zhaoyang Fu",
-    "Li Ji",
-    "Jingjing Gong",
-    "Xipeng Qiu"
-  ],
+  "authors": [],
   "submitter": "github-actions[bot]",
   "abstract": "Modern Vision-Language-Action (VLA) models often fail to generalize to novel setups, such as altered camera viewpoints or robot morphologies, because they are typically conditioned only on current observations and language instructions. By ignoring the underlying system configuration as a variable, these models implicitly assume a fixed execution context encountered during training, necessitating data-intensive fine-tuning for any new environment. In this work, we introduce In-Context World Modeling (ICWM), a framework that treats system identification as an in-context adaptation problem. ICWM enables robot policies to autonomously infer essential system variables from a short history of self-generated, task-agnostic interactions. Unlike traditional In-Context Learning that uses demonstrations to specify what task to perform, ICWM leverages the context window to understand how the system operates. By processing these interactions before task execution, the model implicitly captures the world dynamics of the current system, enabling adaptation to novel configurations without parameter updates. Extensive experiments in simulation and on real-world robot platforms demonstrate that ICWM significantly outperforms standard VLA baselines on novel camera viewpoints.",
   "submitted_via": "llmXive dashboard, GitHub issue #380",

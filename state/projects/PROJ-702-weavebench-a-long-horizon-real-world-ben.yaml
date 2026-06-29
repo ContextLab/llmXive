@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-13T09:06:27.976950Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-702-weavebench-a-long-horizon-real-world-ben
-last_run_id: null
+last_run_id: 5e386bad-0100-4fe6-83de-d42559df73ae
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agents with
   Hybrid Interfaces'
-updated_at: '2026-06-13T09:06:28.394395Z'
+updated_at: '2026-06-29T20:22:52.901621Z'

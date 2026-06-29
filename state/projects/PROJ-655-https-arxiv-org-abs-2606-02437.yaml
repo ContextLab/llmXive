@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-03T09:39:47.870272Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-655-https-arxiv-org-abs-2606-02437
-last_run_id: dbd4a67f-bd62-4c50-b293-dd9fc75bcb48
+last_run_id: c50d7bdc-9b71-460e-b0b6-8b6f02f8ecc1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters'
-updated_at: '2026-06-29T19:48:26.082500Z'
+updated_at: '2026-06-29T20:25:10.293707Z'

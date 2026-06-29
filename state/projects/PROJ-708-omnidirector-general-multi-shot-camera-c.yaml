@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-16T09:58:15.511174Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-708-omnidirector-general-multi-shot-camera-c
-last_run_id: null
+last_run_id: caae7bd6-5318-4a69-9bc3-943bf89f934a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired Data'
-updated_at: '2026-06-16T09:58:15.931606Z'
+updated_at: '2026-06-29T20:23:05.821348Z'

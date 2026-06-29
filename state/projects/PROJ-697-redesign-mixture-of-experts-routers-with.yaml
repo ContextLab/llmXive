@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-12T09:26:36.740391Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-697-redesign-mixture-of-experts-routers-with
-last_run_id: c90f4b01-ff34-4b0f-83a9-3ff693e83fbc
+last_run_id: 77399af5-5717-4705-a3e6-641cc79efb40
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Redesign Mixture-of-Experts Routers with Manifold Power Iteration
-updated_at: '2026-06-25T01:36:41.493336Z'
+updated_at: '2026-06-29T20:20:33.465411Z'

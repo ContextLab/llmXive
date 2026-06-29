@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-26T09:08:49.344059Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-790-wan-streamer-v0-1-end-to-end-real-time-i
-last_run_id: null
+last_run_id: b4ab03ba-2d15-4e17-a9fb-b0c30ee4c927
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Wan-Streamer v0.1: End-to-end Real-time Interactive Foundation Models'
-updated_at: '2026-06-26T09:08:49.686640Z'
+updated_at: '2026-06-29T20:23:28.387749Z'

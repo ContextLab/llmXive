@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-27T08:58:06.576224Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-794-qwen-image-agent-bridging-the-context-ga
-last_run_id: null
+last_run_id: 1664b271-c19a-4b5f-a918-c264f27892c6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generation'
-updated_at: '2026-06-27T08:58:06.778245Z'
+updated_at: '2026-06-29T20:23:59.486550Z'

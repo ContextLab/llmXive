@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-10T09:16:04.584146Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-686-on-the-geometry-of-on-policy-distillatio
-last_run_id: b4a39c3b-305a-4a7b-bda8-e687b84cf42d
+last_run_id: a4e0db71-0959-416f-bc58-f0fb4daec925
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-686-on-the-geometry-of-on-policy-d
 speckit_paper_dir: null
 speckit_research_dir: null
 title: On the Geometry of On-Policy Distillation
-updated_at: '2026-06-13T01:03:19.015482Z'
+updated_at: '2026-06-29T20:24:55.936798Z'

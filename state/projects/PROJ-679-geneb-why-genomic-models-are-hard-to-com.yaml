@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-09T09:10:18.781634Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-679-geneb-why-genomic-models-are-hard-to-com
-last_run_id: 66b98771-a905-4abd-b5eb-789be10c426d
+last_run_id: bd831ab1-9a2d-4769-aecd-e10f4fb4c61d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'GENEB: Why Genomic Models Are Hard to Compare'
-updated_at: '2026-06-29T18:51:42.303392Z'
+updated_at: '2026-06-29T20:20:52.131203Z'

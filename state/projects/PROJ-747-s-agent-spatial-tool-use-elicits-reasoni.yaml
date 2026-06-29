@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-20T09:06:12.316933Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-747-s-agent-spatial-tool-use-elicits-reasoni
-last_run_id: null
+last_run_id: 0fd39ab3-31cf-4ee9-9331-1f7ee3481a99
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'S-Agent: Spatial Tool-Use Elicits Reasoning for Spatial Intelligence'
-updated_at: '2026-06-20T09:06:12.751184Z'
+updated_at: '2026-06-29T20:22:28.605313Z'

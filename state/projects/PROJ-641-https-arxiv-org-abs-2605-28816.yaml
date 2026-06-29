@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-29T09:12:20.266778Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-641-https-arxiv-org-abs-2605-28816
-last_run_id: b09a1947-9191-48e8-aa87-88eee7ab7c12
+last_run_id: 78e393ff-a78d-464b-bbfa-dc8faad7fb04
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-641-https-arxiv-org-abs-2605-28816
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players'
-updated_at: '2026-06-14T07:52:48.106532Z'
+updated_at: '2026-06-29T20:21:23.675633Z'

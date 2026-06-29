@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-18T13:11:48.720505Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-733-loopcoder-v2-only-loop-once-for-efficien
-last_run_id: cbdea063-4645-4d65-b8d5-cf4600404cec
+last_run_id: c25597d0-0dbc-4db4-8eaf-47b755cd3776
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-733-loopcoder-v2-only-loop-once-fo
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scaling'
-updated_at: '2026-06-20T21:33:31.760364Z'
+updated_at: '2026-06-29T20:24:21.371436Z'

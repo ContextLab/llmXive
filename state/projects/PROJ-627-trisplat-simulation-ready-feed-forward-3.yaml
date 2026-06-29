@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-27T09:10:29.535458Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-627-trisplat-simulation-ready-feed-forward-3
-last_run_id: c332f920-9dba-4c2f-aa48-198c82da79f7
+last_run_id: a52fa4b8-5be4-4180-bd69-a79ddaa2dc98
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-627-trisplat-simulation-ready-feed
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction'
-updated_at: '2026-06-23T18:43:24.389276Z'
+updated_at: '2026-06-29T20:25:33.528866Z'
