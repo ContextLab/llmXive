@@ -1,121 +1,174 @@
-# Data Model: Comparing Born Model Predictions with Experimental Solvation Energies of Small Ions
+# Data Model Specification
 
-**Branch**: `001-born-model-solvation-comparison` | **Date**: 2026-06-26
+**Project**: PROJ-675-comparing-born-model-predictions-with-ex
+**Spec Location**: specs/001-born-model-solvation-comparison/
+**Constitution Principle IV Compliance**: Single Source of Truth for all data entities
+
+---
+
+## Overview
+
+This document defines the canonical entity-to-file mappings for the Born Model Solvation Comparison project. Each entity has exactly one authoritative file location (Single Source of Truth), ensuring data consistency and reproducibility.
+
+---
 
 ## Entity Definitions
 
-### IonSolventPair
+### 1. IonSolventPair
 
-Represents a single experimental measurement of solvation free energy for an ion in a solvent.
+**Purpose**: Experimental solvation free energy measurements with full metadata.
 
-| Field | Type | Required | Description | Source |
-|-------|------|----------|-------------|--------|
-| ion_id | string | Yes | Unique ion identifier (e.g., "Na+", "Cl-") | Shannon radii database |
-| solvent_id | string | Yes | Unique solvent identifier (e.g., "water", "ethanol") | NIST/CRC Handbook |
-| experimental_delta_g | float | Yes | Experimental solvation free energy (kcal/mol) | NIST/CRC Handbook |
-| experimental_uncertainty | float | Yes | Uncertainty estimate for experimental value (kcal/mol) | NIST/CRC Handbook |
-| temperature_celsius | float | Yes | Measurement temperature (°C) | NIST/CRC Handbook |
-| temperature_uncertainty | float | Yes | Temperature uncertainty (°C) | NIST/CRC Handbook |
-| source_reference | string | Yes | Citation for this measurement | NIST/CRC Handbook |
-| data_quality_flag | string | Yes | "complete" or "uncertainty_missing" | Computed |
+**Authoritative File**: `data/experimental_solvation.csv`
 
-### BornPrediction
+**Schema Fields**:
+| Field | Type | Description | Precision/Constraints |
+|-------|------|-------------|----------------------|
+| ion_identifier | str | Ion chemical formula (e.g., "Na+", "Cl-") | Required |
+| solvent_identifier | str | Solvent name (e.g., "water", "ethanol") | Required |
+| experimental_deltaG | float | Experimental solvation free energy | Units: kcal/mol |
+| experimental_deltaG_uncertainty | float | Measurement uncertainty | Required per Constitution Principle VII |
+| charge | int | Ionic charge | Required |
+| radius | float | Ionic radius | Precision ≥ 0.01 Å (per reviewer feedback) |
+| radius_type | str | "crystal" or "hydrated" | Required per FR-002 |
+| dielectric_constant | float | Solvent dielectric constant | Required |
+| dielectric_constant_uncertainty | float | ε measurement uncertainty | Required per FR-008 |
+| temperature | float | Measurement temperature | Units: Kelvin, ±0.5°C precision |
+| instrument_metadata | str | Source/citation for measurement | Required per Constitution Principle II |
 
-Represents a theoretical Born model calculation for an ion-solvent pair.
+**Source Citations**:
+- NIST Chemistry WebBook: https://webbook.nist.gov/chemistry/
+- CRC Handbook of Chemistry and Physics
+- Shannon Radii Database
 
-| Field | Type | Required | Description | Source |
-|-------|------|----------|-------------|--------|
-| ion_id | string | Yes | Unique ion identifier (matches IonSolventPair) | Input |
-| solvent_id | string | Yes | Unique solvent identifier (matches IonSolventPair) | Input |
-| ionic_radius_angstrom | float | Yes | Ionic radius (Å) | Shannon radii database |
-| radius_uncertainty_angstrom | float | Yes | Radius uncertainty (Å) | Shannon radii database |
-| dielectric_constant | float | Yes | Solvent dielectric constant (dimensionless) | NIST/CRC Handbook |
-| dielectric_uncertainty | float | Yes | Dielectric constant uncertainty | NIST/CRC Handbook |
-| ion_charge | integer | Yes | Ion charge (e.g., +1, -1) | Input |
-| predicted_delta_g | float | Yes | Born model prediction (kcal/mol) | Computed |
-| predicted_delta_g_uncertainty | float | Yes | Propagated uncertainty in predicted ΔG (kcal/mol) | Computed via error propagation |
-| prediction_method | string | Yes | "born_continuum" | Hardcoded |
+**Validation**: ≥30 complete ion-solvent pairs required (T018)
 
-### ResidualAnalysis
+---
 
-Represents regression output comparing Born predictions to experimental values.
+### 2. BornPrediction
 
-| Field | Type | Required | Description | Source |
-|-------|------|----------|-------------|--------|
-| ion_id | string | Yes | Unique ion identifier | Input |
-| solvent_id | string | Yes | Unique solvent identifier | Input |
-| residual | float | Yes | Experimental - theoretical (kcal/mol) | Computed |
-| residual_relative | float | Yes | Residual / |experimental_delta_g| (dimensionless) | Computed |
-| combined_uncertainty | float | Yes | Combined experimental + predicted uncertainty (kcal/mol) | Computed |
-| within_measurement_error | boolean | Yes | True if |residual| < combined_uncertainty | Computed |
-| ion_size_class | string | Yes | Categorical size class (e.g., "small", "medium", "large") | Computed |
-| solvent_class | string | Yes | Categorical solvent class (e.g., "water", "alcohol", "aprotic") | Computed |
-| p_value | float | Yes | Statistical significance from regression | Computed |
-| multiple_comparison_corrected | boolean | Yes | Whether MFC was applied | Computed |
-| breakdown_flag | boolean | Yes | True if residual exceeds RMSE threshold | Computed |
+**Purpose**: Theoretical Born model predictions for comparison with experiment.
 
-## File Schema
+**Authoritative File**: `data/born_predictions.csv`
 
-### data/experimental_solvation.csv
+**Schema Fields**:
+| Field | Type | Description | Precision/Constraints |
+|-------|------|-------------|----------------------|
+| ion_identifier | str | Ion chemical formula | Required |
+| solvent_identifier | str | Solvent name | Required |
+| predicted_deltaG | float | Born model prediction | Units: kcal/mol |
+| ionic_radius | float | Radius used in calculation | Precision ≥ 0.01 Å |
+| dielectric_constant | float | Solvent ε value | Required |
+| radius_type | str | "crystal" or "hydrated" | Required per FR-002 |
+| coordination_correction | bool | Whether coordination correction applied | Optional |
+| calculation_timestamp | str | ISO 8601 timestamp | Required for reproducibility |
+| random_seed | int | Reproducibility seed | Required per Constitution Principle I |
 
-| Column | Type | Description |
-|--------|------|-------------|
-| ion_id | string | Ion identifier |
-| solvent_id | string | Solvent identifier |
-| experimental_delta_g | float | Experimental ΔG (kcal/mol) |
-| experimental_uncertainty | float | Uncertainty (kcal/mol) |
-| temperature_celsius | float | Temperature (°C) |
-| source_reference | string | Citation |
+**Formula**: Born equation implemented in `code/born_calculator.py`
 
-### data/born_predictions.csv
+**Validation**: ≤1% relative error vs reference cases (T026)
 
-| Column | Type | Description |
-|--------|------|-------------|
-| ion_id | string | Ion identifier |
-| solvent_id | string | Solvent identifier |
-| ionic_radius_angstrom | float | Ionic radius (Å) |
-| radius_uncertainty_angstrom | float | Radius uncertainty (Å) |
-| dielectric_constant | float | Dielectric constant |
-| dielectric_uncertainty | float | Dielectric uncertainty |
-| ion_charge | integer | Ion charge |
-| predicted_delta_g | float | Born prediction (kcal/mol) |
-| predicted_delta_g_uncertainty | float | Propagated uncertainty (kcal/mol) |
-| prediction_method | string | Method identifier |
+---
+
+### 3. ResidualAnalysis
+
+**Purpose**: Statistical analysis of model residuals and breakdown detection.
+
+**Authoritative File**: `data/residual_analysis.csv`
+
+**Schema Fields**:
+| Field | Type | Description | Precision/Constraints |
+|-------|------|-------------|----------------------|
+| ion_identifier | str | Ion chemical formula | Required |
+| solvent_identifier | str | Solvent name | Required |
+| residual | float | experimental_deltaG - predicted_deltaG | Units: kcal/mol |
+| residual_uncertainty | float | Combined uncertainty | Required per FR-008 |
+| ion_size_class | str | Size category (small/medium/large) | For stratification |
+| solvent_class | str | "water", "alcohols", or "aprotic" | For stratification |
+| statistical_significance | bool | Whether residual exceeds uncertainty | Required |
+| p_value | float | Hypothesis test p-value | Benjamini-Hochberg corrected |
+| confidence_interval_lower | float | 95% CI lower bound | Required |
+| confidence_interval_upper | float | 95% CI upper bound | Required |
+| rmse_per_class | float | Stratified RMSE | Per solvent class |
+| correlation_per_class | float | Correlation coefficient | Per solvent class |
+| review_required | bool | Flag for manual review | If RMSE > 20 kcal/mol |
+
+**Metrics**:
+- RMSE < 5 kcal/mol target (SC-003)
+- Correlation > 0.8 target (SC-003)
+- Benjamini-Hochberg correction applied (T033)
+
+---
+
+## Supporting Files
+
+### data/metadata.json
+
+**Purpose**: Data dictionary with source citations and documentation.
+
+**Contents**:
+- Source citations for every value (T019b)
+- Uncertainty coverage percentage (T019a)
+- Breakdown threshold documentation (T037b)
+- FR-002 traceability (T014, T015, T016, T017)
 
 ### data/parameters.csv
 
-| Column | Type | Description |
-|--------|------|-------------|
-| parameter_name | string | Name (e.g., "elementary_charge", "vacuum_permittivity") |
-| value | float | Numerical value |
-| unit | string | Unit of measurement |
-| source | string | Source citation |
-| temperature_celsius | float | Temperature condition |
+**Purpose**: Physical constants and parameters with citations.
 
-### code/requirements.txt
+**Contents**:
+- Elementary charge (e)
+- Vacuum permittivity (ε₀)
+- Ionic radii (Shannon)
+- Dielectric constants
+- Temperature conditions (T005c)
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| pandas | pinned | Data manipulation |
-| numpy | pinned | Numerical operations |
-| scipy | pinned | Statistical functions |
-| matplotlib | pinned | Plot generation |
-| scikit-learn | pinned | Regression analysis |
-| pyyaml | pinned | Schema validation |
+### data/plots/
 
-## Data Flow
+**Diagnostic Plots** (T035a):
+- `predicted_vs_experimental.png`
+- `residual_vs_radius.png`
+- `residual_vs_dielectric.png`
 
-1. **Raw Data Download** → data/raw/ (checksummed) - stores IonSolventPair raw records from NIST/CRC/Shannon
-2. **Compilation** → data/experimental_solvation.csv (derived) - IonSolventPair entity
-3. **Parameter Extraction** → data/parameters.csv (derived) - physical constants with citations
-4. **Born Calculation** → code/born_calculator.py → data/born_predictions.csv - BornPrediction entity with uncertainty propagation
-5. **Residual Analysis** → code/regression_analysis.py → data/residual_analysis.csv - ResidualAnalysis entity
-6. **Diagnostic Plots** → code/diagnostics.py → figures/ - visualization artifacts
+---
 
-## Assumptions
+## Data Flow Dependencies
 
-- All experimental values measured at controlled temperature (±0.5°C) or temperature specifications available for dielectric constant correction
-- Ionic radii from Shannon database are consistent across all ions; crystal radii may differ from effective solvated radii (documented)
-- All required variables (experimental ΔG, solvent ε, ionic radius r, ion charge z) exist in compiled dataset; missing pairs excluded per Assumptions
-- Single-ion absolute solvation energies NOT experimentally measurable; all measurements normalized using extra-thermodynamic assumption (documented)
-- Extra-thermodynamic assumption (TPA⁺/TPB⁻ convention) carries systematic uncertainty of ±3-5 kcal/mol affecting all single-ion values
+```
+data/experimental_solvation.csv (T018 validated)
+ ↓
+data/born_predictions.csv (T027 computed)
+ ↓
+data/residual_analysis.csv (T031 computed)
+```
+
+**Critical Path**: T018 must complete before T027, which must complete before T031.
+
+---
+
+## Constitution Principle Compliance
+
+| Principle | Compliance Action |
+|-----------|-------------------|
+| I (Reproducibility) | Random seeds pinned in all computation scripts |
+| II (Verified Accuracy) | All citations validated via reference_validator.py |
+| IV (Single Source of Truth) | Each entity maps to exactly one file |
+| V (Versioning Discipline) | Checksums in state/projects/PROJ-675.yaml |
+| VI (Thermodynamic Consistency) | Temperature conditions documented in parameters.csv |
+| VII (Statistical Significance) | Benjamini-Hochberg correction applied |
+
+---
+
+## Precision Requirements (Per Reviewer Feedback)
+
+1. **Ionic Radii**: ≥0.01 Å precision (Rosaleind-Franklin reviewer)
+2. **Solvation Energy Uncertainty**: Must be stated for all values (Marie-Curie reviewer)
+3. **Instrument Metadata**: Source and precision documented (Marie-Curie reviewer)
+4. **Temperature Control**: ±0.5°C precision recorded
+
+---
+
+## Version History
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0 | 2026-06-28 | llmXive | Initial data model specification |

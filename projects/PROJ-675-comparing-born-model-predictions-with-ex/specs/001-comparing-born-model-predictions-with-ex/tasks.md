@@ -27,9 +27,9 @@
 - [X] T001a Create code/ directory with __init__.py
 - [X] T001b Create data/ directory with raw/ subdirectory and __init__.py
 - [X] T001c Create tests/ directory with unit/ and contract/ subdirectories and __init__.py
-- [ ] T001d Create state/ directory with projects/ subdirectory and __init__.py
-- [ ] T051 [P] Create data-model.md in specs/001-born-model-solvation-comparison/ defining entity-to-file mapping for IonSolventPair, BornPrediction, ResidualAnalysis per Constitution Principle IV
-- [ ] T052 [P] Create quickstart.md in specs/001-born-model-solvation-comparison/ with minimal run instructions for code/born_calculator.py, code/data_compiler.py, pytest tests/
+- [X] T001d Create state/ directory with projects/ subdirectory and __init__.py
+- [X] T051 [P] Create data-model.md in specs/001-born-model-solvation-comparison/ defining entity-to-file mapping for IonSolventPair, BornPrediction, ResidualAnalysis per Constitution Principle IV
+- [X] T052 [P] Create quickstart.md in specs/001-born-model-solvation-comparison/ with minimal run instructions for code/born_calculator.py, code/data_compiler.py, pytest tests/
 - [ ] T003 [P] Configure linting (flake8) and formatting (black) tools: create.flake8 config file at repo root and pyproject.toml with [tool.black] section; verify via `flake8 --version` and `black --version`
 
 ---
@@ -71,9 +71,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012a [P] [US1] Implement NIST data fetcher in code/data_compiler.py (URL: https://webbook.nist.gov/chemistry/) [UNRESOLVED-CLAIM: c_ad502bff — status=not_enough_info] with retry logic and timestamp logging
-- [ ] T012b [P] [US1] Implement CRC Handbook data fetcher in code/data_compiler.py [UNRESOLVED-CLAIM: c_f4705a0f — status=not_enough_info] (URL:) with retry logic and timestamp logging; verify fetch completes
-- [ ] T013 [US1] Implement Shannon radii extractor in code/data_compiler.py (source: Shannon database) with crystal radius values to ≥0.01 Å precision
+- [ ] T012a [P] [US1] Implement NIST data fetcher in code/data_compiler.py with retry logic and timestamp logging
+- [ ] T012b [P] [US1] Implement {{claim:c_77fff846}} (Wikidata Q11927173, https://www.wikidata.org/wiki/Q11927173) data fetcher in code/data_compiler.py (URL:) with retry logic and timestamp logging; verify fetch completes
+- [ ] T013 [US1] Implement Shannon radii extractor in code/data_compiler.py (source: {{claim:c_baa24643}} (Wikidata Q2277031, https://www.wikidata.org/wiki/Q2277031)) with crystal radius values to ≥0.01 Å precision
 - [ ] T014 [US1] [FR-002] Add radius_type field (crystal/hydrated) to dataset schema AND extraction logic; create radius_type documentation in data/metadata.json with FR-002 traceability; verify documentation exists
 - [ ] T015 [US1] [FR-008] Implement uncertainty column population (ΔG_uncertainty, ε_uncertainty) in data/experimental_solvation.csv AND document uncertainty sources in data/metadata.json; verify columns populated
 - [ ] T016 [US1] [FR-002] Enforce high precision for ionic radii in code/data_compiler.py with validation (≥0.01 Å precision); verify precision enforced
@@ -111,7 +111,7 @@
 - [ ] T027 [US2] Compute Born predictions for all dataset pairs and save to data/born_predictions.csv; verify file created
 - [ ] T028a [US2] [P] CPU-only execution verification test: create tests/unit/test_cpu_only.py that verifies no CUDA imports and completes timing benchmark on CPU cores; verify no GPU dependencies
 - [ ] T028b [US2] Performance benchmark: create code/benchmark.py that measures total computation time and asserts <10 minutes on 2 CPU cores without GPU dependencies; verify benchmark passes
-- [ ] T028c [US2] [FR-002] Document continuum dielectric limitation (ε=78.5 bulk vs saturated near-ion) [UNRESOLVED-CLAIM: c_3682fe89 — status=not_enough_info] in code/README.md with explicit acknowledgment; verify documentation created
+- [ ] T028c [US2] [FR-002] Document continuum dielectric limitation (ε=78.5 bulk [UNRESOLVED-CLAIM: c_61db7278 — status=not_enough_info] vs saturated near-ion) in code/README.md with explicit acknowledgment; verify documentation created
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -214,7 +214,7 @@ Task: "Unit test for data compiler precision in tests/unit/test_data_compiler.py
 
 # Launch all data tasks for User Story 1 together:
 Task: "Implement NIST data fetcher in code/data_compiler.py"
-Task: "Implement CRC Handbook data fetcher in code/data_compiler.py [UNRESOLVED-CLAIM: c_f4705a0f — status=not_enough_info]"
+Task: "Implement {{claim:c_77fff846}} data fetcher in code/data_compiler.py "
 ```
 
 ---

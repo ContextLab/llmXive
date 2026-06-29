@@ -69,3 +69,87 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T05:05:25Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: dielectric constant of bulk water equals 78.5
+  claim_id: c_61db7278
+  context: "Document continuum dielectric limitation (\u03B5=78.5 bulk vs saturated\
+    \ near-ion) in code/README.md with explicit acknowledgment"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u03B5=78.5 bulk"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:36:14Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: NIST Chemistry WebBook URL
+  claim_id: c_53fc083e
+  context: 'Implement NIST data fetcher in code/data_compiler.py (URL: https://webbook.nist.gov/chemistry/)
+    with retry logic and timestamp logging'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_Chemistry_WebBook_URL
+  kind: entity_fact
+  raw_text: https://webbook.nist.gov/chemistry/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:47:39Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Shannon database for ionic radii
+  claim_id: c_baa24643
+  context: "Implement Shannon radii extractor in code/data_compiler.py (source: Shannon\
+    \ database) with crystal radius values to \u22650.01 \xC5 precision"
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q7488820
+        url: https://www.wikidata.org/wiki/Q7488820
+        value: Q24433
+      quote: Shannon
+      source_id: Q2277031
+      url: https://www.wikidata.org/wiki/Q2277031
+      value: Shannon
+    filled: true
+  kind: entity_fact
+  raw_text: Shannon database
+  resolved_value: Shannon
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T14:03:51Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: CRC Handbook as data source
+  claim_id: c_77fff846
+  context: Implement CRC Handbook data fetcher in code/data_compiler.py (URL:) with
+    retry logic and timestamp logging
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: CRC Handbook of Chemistry and Physics (92nd edition)
+      source_id: Q11927173
+      url: https://www.wikidata.org/wiki/Q11927173
+      value: CRC Handbook of Chemistry and Physics
+    filled: true
+  kind: entity_fact
+  raw_text: CRC Handbook
+  resolved_value: CRC Handbook of Chemistry and Physics
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T14:19:05Z'

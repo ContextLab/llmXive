@@ -1,5 +1,5 @@
-- artifact_hash: 7a1e6bfabb37509a143e83a00614986d8196a7f9cc2d06a6945409d5054cc783
-  artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+- artifact_hash: c337b1a41f9be9139022de5a3bd8de00c93c633ec443beb8376102eba2e74ea2
+  artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/data-model.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
@@ -8,4 +8,26 @@
   value: https://webbook.nist.gov/chemistry/
   verification_status: verified
   verified_against_url: https://webbook.nist.gov/chemistry/
-  verified_at: '2026-06-29T05:05:25.093898Z'
+  verified_at: '2026-06-29T13:30:32.569651Z'
+- artifact_hash: 23f32198456f3312d2d2348c9fd11c503e7b4c7cdec07ddacc6c924a2ccb5507
+  artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: CRC Handbook of Chemistry and Physics (92nd edition) - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q11927173
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q11927173
+  verified_at: '2026-06-29T14:19:05.205186Z'
+- artifact_hash: 23f32198456f3312d2d2348c9fd11c503e7b4c7cdec07ddacc6c924a2ccb5507
+  artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Shannon - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q2277031
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q2277031
+  verified_at: '2026-06-29T14:19:05.205186Z'
