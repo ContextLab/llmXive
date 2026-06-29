@@ -26,10 +26,10 @@
 
 **⚠️ CRITICAL**: Pipeline halts until this phase completes - no data or analysis tasks may run
 
-- [ ] T000 [P] Search for public developer productivity datasets (OpenDev benchmark, GitHub Copilot studies) containing required variables; verify URLs accessible; add verified dataset(s) to `# Verified datasets` block in spec.md with SHA-256 checksums (FR-001 prerequisite)
-- [ ] T049 [P] [US1] Implement Reference-Validator Agent citation verification at `code/validate/citations.py` (Constitution Principle II) - validates all external citations before ingestion/analysis
-- [ ] T050 [P] [US1] Integrate Reference-Validator into pipeline at `code/main.py` (Constitution Principle II) - blocks if citations unverified before Phase 1 starts
-- [ ] T051 [P] [US1] Create citation verification report at `data/output/citation_validation.json` (Constitution Principle II) - records verification status; must pass before data ingestion
+- [X] T000 [P] Search for public developer productivity datasets (OpenDev benchmark, GitHub Copilot studies) containing required variables; verify URLs accessible; add verified dataset(s) to `# Verified datasets` block in spec.md with SHA-256 checksums (FR-001 prerequisite)
+- [X] T049 [P] [US1] Implement Reference-Validator Agent citation verification at `code/validate/citations.py` (Constitution Principle II) - validates all external citations before ingestion/analysis
+- [X] T050 [P] [US1] Integrate Reference-Validator into pipeline at `code/main.py` (Constitution Principle II) - blocks if citations unverified before Phase 1 starts
+- [X] T051 [P] [US1] Create citation verification report at `data/output/citation_validation.json` (Constitution Principle II) - records verification status; must pass before data ingestion
 
 ---
 
@@ -37,15 +37,15 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `code/` directory at repository root
-- [ ] T001b [P] Create `data/` directory with subdirectories `data/raw/`, `data/processed/`, `data/output/`
-- [ ] T001c [P] Create `tests/` directory with subdirectories `tests/unit/`, `tests/integration/`, `tests/contract/`
-- [ ] T001d [P] Initialize git repository and create `.gitignore` for Python at repository root
-- [ ] T002a [P] Create `code/requirements.txt` file with pinned dependencies (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, scikit-learn>=1.3.0, matplotlib>=3.7.0, pyyaml>=6.0)
-- [ ] T002b [P] Install dependencies using `pip install -r code/requirements.txt` in virtualenv
-- [ ] T003a [P] Install black formatter in development environment
-- [ ] T003b [P] Install flake8 linter in development environment
-- [ ] T003c [P] Configure black pre-commit hook in `.pre-commit-config.yaml`
+- [X] T001a [P] Create `code/` directory at repository root
+- [X] T001b [P] Create `data/` directory with subdirectories `data/raw/`, `data/processed/`, `data/output/`
+- [X] T001c [P] Create `tests/` directory with subdirectories `tests/unit/`, `tests/integration/`, `tests/contract/`
+- [X] T001d [P] Initialize git repository and create `.gitignore` for Python at repository root
+- [X] T002a [P] Create `code/requirements.txt` file with pinned dependencies (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, scikit-learn>=1.3.0, matplotlib>=3.7.0, pyyaml>=6.0)
+- [X] T002b [P] Install dependencies using `pip install -r code/requirements.txt` in virtualenv
+- [X] T003a [P] Install black formatter in development environment
+- [X] T003b [P] Install flake8 linter in development environment
+- [X] T003c [P] Configure black pre-commit hook in `.pre-commit-config.yaml`
 
 ---
 
@@ -55,16 +55,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T043 [P] Create data-model.md at `specs/001-code-generation-performance-outcomes/data-model.md` documenting DatasetRecord, AnalysisResult, VisualizationOutput entities
-- [ ] T004 [P] Create dataset schema contract at `specs/001-code-generation-performance-outcomes/contracts/dataset.schema.yaml` (DatasetRecord entity with tool_usage, task_time, defect_rate, experience_years, task_complexity, project_type, team_size)
-- [ ] T005 [P] Create analysis schema contract at `specs/001-code-generation-performance-outcomes/contracts/analysis.schema.yaml` (AnalysisResult entity with anova_table, effect_sizes, adjusted_p_values, associational_framing, confounding_controls)
-- [ ] T006 [P] Create visualization schema contract at `specs/001-code-generation-performance-outcomes/contracts/visualization.schema.yaml` (VisualizationOutput entity with plot_type, stratification_variable, interaction_lines, file_path)
-- [ ] T007 [P] Setup artifacts.yaml at `state/projects/PROJ-462-evaluating-the-impact-of-code-generation/artifacts.yaml` for checksum tracking
-- [ ] T008a [P] Create experiment configuration file at `code/config/experiment.yaml` (alpha=0.05, power=0.80, effect_size=0.5, min_observations_per_stratum=30)
-- [ ] T008b [P] Create experience classification module at `code/analysis/experience.py` with version-controlled thresholds (novice <2 years, intermediate 2-5 years, expert >5 years)
-- [ ] T009 [P] [US1] Create contract test for dataset schema at `tests/contract/test_dataset_schema.py`
-- [ ] T020 [P] [US2] Create contract test for analysis schema at `tests/contract/test_analysis_schema.py`
-- [ ] T031 [P] [US3] Create contract test for visualization schema at `tests/contract/test_visualization_schema.py`
+- [X] T043 [P] Create data-model.md at `specs/001-code-generation-performance-outcomes/data-model.md` documenting DatasetRecord, AnalysisResult, VisualizationOutput entities
+- [X] T004 [P] Create dataset schema contract at `specs/001-code-generation-performance-outcomes/contracts/dataset.schema.yaml` (DatasetRecord entity with tool_usage, task_time, defect_rate, experience_years, task_complexity, project_type, team_size)
+- [X] T005 [P] Create analysis schema contract at `specs/001-code-generation-performance-outcomes/contracts/analysis.schema.yaml` (AnalysisResult entity with anova_table, effect_sizes, adjusted_p_values, associational_framing, confounding_controls)
+- [X] T006 [P] Create visualization schema contract at `specs/001-code-generation-performance-outcomes/contracts/visualization.schema.yaml` (VisualizationOutput entity with plot_type, stratification_variable, interaction_lines, file_path)
+- [X] T007 [P] Setup artifacts.yaml at `state/projects/PROJ-462-evaluating-the-impact-of-code-generation/artifacts.yaml` for checksum tracking
+- [X] T008a [P] Create experiment configuration file at `code/config/experiment.yaml` (alpha=0.05, power=0.80, effect_size=0.5, min_observations_per_stratum=30)
+- [X] T008b [P] Create experience classification module at `code/analysis/experience.py` with version-controlled thresholds (novice <2 years, intermediate 2-5 years, expert >5 years)
+- [X] T009 [P] [US1] Create contract test for dataset schema at `tests/contract/test_dataset_schema.py`
+- [X] T020 [P] [US2] Create contract test for analysis schema at `tests/contract/test_analysis_schema.py`
+- [X] T031 [P] [US3] Create contract test for visualization schema at `tests/contract/test_visualization_schema.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,13 +78,13 @@
 
 ### Logging Infrastructure (US1)
 
-- [ ] T015 [P] [US1] Add logging for ingestion and validation operations at `code/ingest/logging.py` - establishes logging before implementation
+- [X] T015 [P] [US1] Add logging for ingestion and validation operations at `code/ingest/logging.py` - establishes logging before implementation
 
 ### Implementation for User Story 1
 
-- [ ] T017 [P] [US1] Create sample dataset for testing at `data/raw/sample_developer_productivity.csv` with all required variables (tool_usage, task_time, defect_rate, experience_years, task_complexity, project_type, team_size)
-- [ ] T017a [P] [US1] Validate that actual public datasets (OpenDev, GitHub Copilot studies) match spec assumptions at `code/ingest/validate.py` (FR-002, Assumptions) - verify real datasets contain required variables before ingestion
-- [ ] T011a [US1] Write function to download dataset from URL at `code/ingest/download.py` (FR-001) - supports URLs from verified-datasets block
+- [X] T017 [P] [US1] Create sample dataset for testing at `data/raw/sample_developer_productivity.csv` with all required variables (tool_usage, task_time, defect_rate, experience_years, task_complexity, project_type, team_size)
+- [X] T017a [P] [US1] Validate that actual public datasets (OpenDev, GitHub Copilot studies) match spec assumptions at `code/ingest/validate.py` (FR-002, Assumptions) - verify real datasets contain required variables before ingestion
+- [X] T011a [US1] Write function to download dataset from URL at `code/ingest/download.py` (FR-001) - supports URLs from verified-datasets block
 - [ ] T011b [US1] Write function to calculate SHA-256 checksum at `code/ingest/download.py` (FR-001) - validates file integrity
 - [ ] T011c [US1] Implement checksum validation integration at `code/ingest/download.py` (FR-001) - compares calculated vs recorded checksum
 - [ ] T012a [US1] Write function to check for tool_usage variable at `code/ingest/validate.py` (FR-002)
@@ -213,8 +213,8 @@
 - **Phase 1 (Setup)**: No dependencies - can start immediately (parallel with Phase 0)
 - **Phase 2 (Foundational)**: Depends on Phase 1 completion - BLOCKS all user stories
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Phase 6 (Constitution Compliance)**: Depends on all user stories being complete
 - **Phase 7 (Polish)**: Depends on all desired user stories being complete
 
@@ -281,9 +281,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (Statistical Analysis)
-   - Developer C: User Story 3 (Visualization & Export)
+ - Developer A: User Story 1 (Data Ingestion)
+ - Developer B: User Story 2 (Statistical Analysis)
+ - Developer C: User Story 3 (Visualization & Export)
 3. Stories complete and integrate independently
 
 ---

@@ -1,0 +1,48 @@
+# Experiment Configuration for Code Generation Impact Study
+# PROJ-462-evaluating-the-impact-of-code-generation
+# This file defines statistical power and significance parameters
+# for ANOVA/ANCOVA analysis of developer productivity outcomes.
+
+# Statistical Significance Threshold
+# FR-003: Two-way ANOVA significance level
+alpha: 0.05
+
+# Statistical Power Target
+# SC-006: Minimum power for detecting medium effect sizes
+power: 0.80
+
+# Expected Effect Size (Cohen's f for ANOVA)
+# Medium effect size per Cohen's conventions
+# Used for sample size calculation and power analysis
+effect_size: 0.5
+
+# Minimum Observations Per Stratum
+# SC-006: Minimum sample size per experience stratum for valid ANOVA
+# Ensures adequate power for pairwise comparisons within strata
+min_observations_per_stratum: 30
+
+# Additional Configuration
+analysis:
+  # ANOVA type: 'anova' for standard, 'ancova' when covariates available
+  # FR-011: ANCOVA fallback when task_complexity, project_type, team_size available
+  primary_method: anova
+  fallback_method: ancova
+
+  # Multiple comparison correction
+  # FR-005, SC-003: Family-wise error rate control
+  correction_method: bonferroni
+
+  # Association framing enforcement
+  # FR-006: No causal language in output headers/summaries
+  associational_framing: true
+
+  # Collinearity diagnostics
+  # VIF threshold for flagging multicollinearity
+  vif_threshold: 5
+
+# Experience Classification Thresholds
+# Referenced by code/analysis/experience.py
+experience:
+  novice_max_years: 2
+  intermediate_max_years: 5
+  # Expert: >5 years (no upper bound)

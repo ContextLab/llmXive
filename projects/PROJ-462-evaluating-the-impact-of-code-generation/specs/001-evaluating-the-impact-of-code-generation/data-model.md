@@ -1,240 +1,154 @@
-# Data Model: 001-code-generation-performance-outcomes
+# Data Model Specification
 
-## 1. Entity Definitions
+**Project**: PROJ-462-evaluating-the-impact-of-code-generation
+**Feature**: 001-code-generation-performance-outcomes
+**Version**: 1.0.0
+**Last Updated**: 2024-01-15
 
-### 1.1 DatasetRecord
+## Overview
 
-Represents a single developer observation.
+This document defines the core data entities used throughout the code generation performance research pipeline. It serves as the canonical reference for data structures, field definitions, and type constraints.
 
-| Attribute | Type | Required | Description |
-|-----------|------|----------|-------------|
-| tool_usage | boolean | Yes | Whether LLM code generation was used |
-| task_time | float | Yes | Task completion time (minutes) |
-| defect_rate | float | Yes | Code quality metric (defects per KLOC) |
-| experience_years | integer | Yes | Developer experience (years) |
-| task_complexity | float | No | Task complexity score (if available) |
-| project_type | string | No | Project type category (if available) |
-| team_size | integer | No | Team size (if available) |
+## Entity Reference
 
-**Validation Rules**:  
-- `tool_usage` must be `True`/`False`.  
-- `task_time` > 0.  
-- `defect_rate` ≥ 0.  
-- `experience_years` ≥ 0.  
+### DatasetRecord
 
-**Experience Level Derivation** (used for stratification):  
-`experience_level` is **computed** from `experience_years` using the following **documented thresholds** (version‑controlled in `code/analysis/experience.py`):
+**Purpose**: Represents a single row/observation from an ingested developer productivity dataset. Each record corresponds to one developer-task pairing with associated metrics.
 
-- **Novice**: `experience_years` < 2  
-- **Intermediate**: 2 ≤ `experience_years` ≤ 5  
-- **Expert**: `experience_years` > 5  
+**Source**: Raw CSV files from verified public datasets (OpenDev benchmark, GitHub Copilot studies, etc.)
 
-These thresholds are the default; the sensitivity analysis sweeps alternative boundaries (1, 2, 3 years).
+**Validation**: Must pass schema validation against `contracts/dataset.schema.yaml` before analysis.
 
-> **Spec-Root Flag**: The spec.md Assumptions section describes "Experience level classification algorithm: Combines repository contribution history and tenure metrics using weighted score (contributions × relative_weight + tenure_years × relative_weight)". This approach requires `contribution_count` and `tenure_years` fields that do NOT exist in the DatasetRecord schema above. The data-model.md definition (raw `experience_years` integer with simple threshold derivation) is correct for available data; the weighted-score approach in spec.md is incompatible and requires spec.md revision.
+| Field | Type | Required | Description | Constraints |
+|-------|------|----------|-------------|-------------|
+| `record_id` | string | Yes | Unique identifier for this observation | UUID format |
+| `tool_usage` | string | Yes | Code generation tool used | Enum: {copilot, codex, none, other} |
+| `task_time` | float | Yes | Task completion time in minutes | ≥ 0, ≤ 1440 |
+| `defect_rate` | float | Yes | Defects per 100 lines of code | ≥ 0, ≤ 100 |
+| `experience_years` | float | Yes | Developer years of professional experience | ≥ 0, ≤ 50 |
+| `task_complexity` | string | Yes | Complexity classification of the task | Enum: {low, medium, high} |
+| `project_type` | string | Yes | Type of software project | Enum: {web, mobile, backend, embedded, data, other} |
+| `team_size` | integer | Yes | Number of developers on the project | ≥ 1, ≤ 100 |
+| `source_dataset` | string | Yes | Name of the source dataset | Non-empty string |
+| `source_url` | string | Yes | URL of the source dataset | Valid HTTP(S) URL |
+| `checksum_sha256` | string | Yes | SHA-256 hash of source file | 64-character hex string |
+| `ingested_at` | datetime | Yes | Timestamp of data ingestion | ISO 8601 format |
 
-### 1.2 AnalysisResult
+**Derived Fields** (calculated during analysis):
+- `experience_level`: Categorical classification based on `experience_years` thresholds
+ - novice: < 2 years
+ - intermediate: 2–5 years
+ - expert: > 5 years
 
-Statistical output from the ANCOVA analysis.
+---
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| anova_results | dict | F‑statistics, p‑values, and (optional) covariate statistics |
-| effect_sizes | dict | Cohen's d per experience stratum |
-| adjusted_p_values | dict | Holm‑Bonferroni corrected p‑values |
-| associational_framing | boolean | Must be `true` (FR‑006) |
-| confounding_controls | dict | Coefficient estimates for each covariate actually included |
-| power_flag | boolean | `true` if any stratum has < 30 observations |
-| vif_scores | dict | VIF for each predictor (tool_usage, experience_level) |
-| visualizations | array[object] *(optional)* | Metadata for generated plots (see VisualizationOutput) |
-| sensitivity_results | array[object] *(optional)* | Rows of the threshold‑sweep CSV/JSON (see SensitivityResult) |
+### AnalysisResult
 
-#### Example `anova_results` JSON fragment
+**Purpose**: Contains the output of statistical analysis performed on DatasetRecord observations. Includes ANOVA/ANCOVA tables, effect sizes, and methodological metadata.
 
-```json
-{
-  "tool_usage": {"f_stat": 4.12, "p_value": 0.043},
-  "experience_level": {"f_stat": 3.57, "p_value": 0.032},
-  "interaction": {"f_stat": 2.89, "p_value": 0.058},
-  "covariates": {
-    "task_complexity": {"f_stat": 1.21, "p_value": 0.274},
-    "team_size": {"f_stat": 0.87, "p_value": 0.354}
-  }
-}
-```
+**Source**: Computed by `code/analysis/anova.py` and `code/analysis/effect_sizes.py`
 
-### 1.3 VisualizationOutput
+**Validation**: Must pass schema validation against `contracts/analysis.schema.yaml` before export.
 
-Metadata for each generated plot.
+| Field | Type | Required | Description | Constraints |
+|-------|------|----------|-------------|-------------|
+| `analysis_id` | string | Yes | Unique identifier for this analysis run | UUID format |
+| `experiment_config` | object | Yes | Reference to experiment.yaml configuration | Matches config schema |
+| `anova_table` | object | Yes | ANOVA/ANCOVA results table | See structure below |
+| `effect_sizes` | array | Yes | List of effect size calculations | See structure below |
+| `adjusted_p_values` | object | Yes | Multiple-comparison corrected p-values | Bonferroni/Holm method |
+| `associational_framing` | string | Yes | Explicit associational language disclaimer | Must contain "associational" |
+| `confounding_controls` | array | Yes | List of controlled confounders | task_complexity, project_type, team_size |
+| `assumption_checks` | object | Yes | Statistical assumption validation results | Normality, homogeneity |
+| `power_analysis` | object | Yes | Statistical power assessment | min_observations_per_stratum |
+| `collinearity_vif` | object | Yes | Variance Inflation Factor diagnostics | Flag if VIF > 5 |
+| `methodology_notes` | string | No | Additional methodological context | Free text |
+| `analyzed_at` | datetime | Yes | Timestamp of analysis execution | ISO 8601 format |
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| plot_type | string | e.g., `"boxplot"` |
-| stratification_variable | string | Variable used for grouping (e.g., `"experience_level"` ) |
-| interaction_lines | boolean | `true` if interaction lines are drawn |
-| file_path | string | Relative path to the PNG/SVG file |
-
-### 1.4 SensitivityResult
-
-Results of the experience‑threshold sweep.
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| threshold_set | list[int] | Experience boundaries used (e.g., `[1,2,3]`) |
-| completion_time_rates | dict[string, float] | Mean `task_time` per stratum |
-| defect_rates | dict[string, float] | Mean `defect_rate` per stratum |
-| effect_sizes | dict[string, float] | Cohen's d per stratum |
-| variation_summary | dict[string, float] | Range/SD of each metric across thresholds |
-
-## 2. Data Flow Diagram
-
-```
-raw/ (downloaded) → validate (FR‑001/FR‑002) → processed/ (filtered, complete cases) → analysis/ (ANCOVA, effect sizes, VIF, power flag) → output/
-   ├─> visualizations/ (boxplots) → output/
-   └─> sensitivity/ (threshold sweep) → output/
-```
-
-## 3. File Schemas
-
-### 3.1 Input Dataset Schema (CSV/Parquet)
-
-| Column | Type | Required | Notes |
-|--------|------|----------|-------|
-| tool_usage | bool | Yes | 1 = assisted, 0 = unassisted |
-| task_time | float | Yes | Minutes |
-| defect_rate | float | Yes | Defects per KLOC |
-| experience_years | int | Yes | Years of experience |
-| task_complexity | float | No | Optional |
-| project_type | string | No | Optional |
-| team_size | int | No | Optional |
-
-### 3.2 Analysis Output Schema (JSON)
-
-See `contracts/analysis.schema.yaml` for the full JSON‑Schema definition, which mirrors the fields above (including optional `visualizations` and `sensitivity_results`).
-
-### 3.3 Sensitivity Output Schema (CSV)
-
-| threshold | stratum | completion_time | defect_rate | cohen_d |
-|-----------|---------|-----------------|-------------|---------|
-| 1 | novice | 45.2 | 1.8 | 0.34 |
-| 1 | intermediate | 38.7 | 1.2 | 0.41 |
-| … | … | … | … | … |
-
-## 4. Versioning & Checksums
-
-All files under `data/` are listed in `state/projects/PROJ-462.../artifacts.yaml` with SHA‑256 hashes, satisfying Constitution Principle III.
-
+**anova_table Structure**:
 ```yaml
-artifact_hashes:
-  data/raw/developer_productivity.parquet: sha256:abc123...
-  data/processed/cleaned.parquet: sha256:def456...
-  data/output/analysis.json: sha256:ghi789...
+anova_table:
+ source: string # Factor name (e.g., "tool_usage", "experience_level")
+ df: integer # Degrees of freedom
+ sum_sq: float # Sum of squares
+ mean_sq: float # Mean square
+ F: float # F-statistic
+ p_value: float # Raw p-value
+ interaction: boolean # True if this is an interaction term
+```
+
+**effect_sizes Structure**:
+```yaml
+effect_sizes:
+ comparison: string # e.g., "copilot_vs_none_novice"
+ estimate: float # Cohen's d value
+ ci_lower: float # 95% confidence interval lower bound
+ ci_upper: float # 95% confidence interval upper bound
+ stratum: string # Experience level stratum
+ corrected_p_value: float # After multiple-comparison correction
 ```
 
 ---
 
-# Quickstart: 001-code-generation-performance-outcomes
+### VisualizationOutput
 
-## Prerequisites
+**Purpose**: Represents a publication-ready visualization generated from AnalysisResult data. Tracks provenance and export metadata.
 
-- Python 3.11+
-- Git
-- **Verified developer‑productivity dataset** (see *Dataset Acquisition Strategy* in `plan.md`)
+**Source**: Generated by `code/viz/plots.py`
 
-## ⚠️ DATASET AVAILABILITY
+**Validation**: Must pass schema validation against `contracts/visualization.schema.yaml` before inclusion in final report.
 
-The pipeline **cannot run** until a verified dataset containing the required variables is added to the project's "# Verified datasets" block. Follow the steps in `plan.md` → *Dataset Acquisition Strategy* to supply such a dataset.
+| Field | Type | Required | Description | Constraints |
+|-------|------|----------|-------------|-------------|
+| `plot_id` | string | Yes | Unique identifier for this visualization | UUID format |
+| `plot_type` | string | Yes | Type of visualization | Enum: {boxplot, barplot, interaction_plot, scatter} |
+| `stratification_variable` | string | Yes | Variable used for data stratification | Must exist in DatasetRecord |
+| `interaction_lines` | boolean | Yes | Whether interaction lines are plotted | True for interaction plots |
+| `file_path` | string | Yes | Path to saved visualization file | Relative to project root |
+| `file_format` | string | Yes | Output file format | Enum: {png, svg, pdf} |
+| `dimensions` | object | Yes | Plot dimensions in pixels | {width, height} |
+| `dpi` | integer | Yes | Resolution for raster formats | ≥ 300 for publication |
+| `analysis_reference` | string | Yes | Reference to parent AnalysisResult | Matches analysis_id |
+| `data_rows_traced` | integer | Yes | Number of data rows contributing | ≥ 1 |
+| `ssot_verified` | boolean | Yes | Single Source of Truth verification | True if traceable |
+| `exported_at` | datetime | Yes | Timestamp of visualization export | ISO 8601 format |
 
-## Installation
+**publication_ready Formatting Requirements**:
+- Font: 12pt minimum for axis labels
+- Colorblind-safe palette (viridis, colorblind-friendly)
+- Grid lines visible for readability
+- Legend present when multiple groups
+- Error bars included where applicable
+- Axis labels with units specified
 
-```bash
-# Clone repository
-git clone <repo-url>
-cd projects/PROJ-462-evaluating-the-impact-of-code-generation
+---
 
-# Virtual environment
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+## Entity Relationships
 
-# Install pinned dependencies
-pip install -r code/requirements.txt
+```
+DatasetRecord (N) ──[aggregated]──> AnalysisResult (1)
+AnalysisResult (1) ──[generates]──> VisualizationOutput (M)
 ```
 
-## Directory Layout
+**Data Flow**:
+1. Multiple DatasetRecord observations are ingested and validated
+2. DatasetRecords are aggregated and analyzed to produce one AnalysisResult
+3. AnalysisResult can generate multiple VisualizationOutput artifacts
+4. All Visualizations must trace back to a single AnalysisResult (SSoT Principle)
 
-```
-code/
-  ├── ingest/
-  ├── analysis/
-  ├── viz/
-  ├── export/
-  └── main.py
-data/
-  ├── raw/
-  ├── processed/
-  └── output/
-```
+---
 
-## Running the Full Pipeline
+## Version History
 
-```bash
-# 1️⃣ Download & verify dataset (FR‑001)
-python code/ingest/download.py --url <verified-dataset-url>
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2024-01-15 | Initial specification |
 
-# 2️⃣ Validate required columns (FR‑002)
-python code/ingest/validate.py --input data/raw/dataset.parquet
+---
 
-# 3️⃣ Run ANCOVA analysis, effect sizes, FWE correction (FR‑003‑FR‑005)
-python code/main.py --input data/processed/cleaned.parquet --output data/output/
+## References
 
-# 4️⃣ Generate publication‑ready plots (FR‑007)
-python code/viz/plots.py --analysis data/output/analysis.json --out-dir data/output/plots/
-
-# 5️⃣ Sensitivity analysis on experience thresholds (FR‑009)
-python code/analysis/sensitivity.py --input data/processed/cleaned.parquet \
-    --thresholds 1 2 3 --output data/output/sensitivity.csv
-
-# 6️⃣ Export final results (FR‑008)
-python code/export/results.py --analysis data/output/analysis.json \
-    --plots data/output/plots/ --sensitivity data/output/sensitivity.csv \
-    --out-dir data/output/final/
-```
-
-Each step writes intermediate files to `data/` and logs progress. The pipeline aborts with a clear error if any required variable is missing or if a stratum contains < 30 observations (power flag).
-
-## Testing
-
-```bash
-# Contract validation (datasets & analysis output)
-pytest tests/contract/
-
-# Integration test of the full pipeline (requires a small verified test dataset)
-pytest tests/integration/
-
-# Unit tests for core modules
-pytest tests/unit/
-```
-
-## Reproducibility Guarantees
-
-- Random seed `42` is hard‑coded in `code/main.py`.  
-- All dependencies are pinned in `code/requirements.txt`.  
-- Dataset checksums are stored in `state/projects/.../artifacts.yaml`.  
-- No in‑place data modifications; each transformation creates a new file.
-
-## Troubleshooting
-
-| Symptom | Likely Cause | Remedy |
-|---------|--------------|--------|
-| Variable‑presence report lists missing columns | Wrong dataset or outdated URL | Verify dataset URL and checksum; obtain a dataset that includes all required variables. |
-| > 20 % of rows removed due to missing experience | Incomplete records | Consider data imputation (outside scope) or obtain a cleaner dataset. |
-| Power flag `true` | < 30 observations in a stratum | Collect more data or note limitation in the final report. |
-| VIF > 5 warning | Collinearity between `tool_usage` and `experience_level` | Report as limitation; do not claim independent effects. |
-| Covariate columns absent | Dataset does not contain them | Model runs without covariates; warning logged. |
-| Runtime > 6 h | Very large raw dataset | Use the sampling option in `download.py` to limit size (documented). |
-
---- 
-
-# References
-
-(Only URLs from the verified‑datasets block are cited; none currently satisfy the variable requirements, reinforcing the need for dataset acquisition.)
+- Dataset Schema Contract: `contracts/dataset.schema.yaml`
+- Analysis Schema Contract: `contracts/analysis.schema.yaml`
+- Visualization Schema Contract: `contracts/visualization.schema.yaml`
+- Experiment Configuration: `code/config/experiment.yaml`

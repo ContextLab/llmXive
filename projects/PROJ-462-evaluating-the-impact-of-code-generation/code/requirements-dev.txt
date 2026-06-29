@@ -1,0 +1,5 @@
+# Development dependencies for PROJ-462-evaluating-the-impact-of-code-generation
+# These tools are used for code quality, formatting, and testing
+
+# Code formatter
+black>=23.0.0

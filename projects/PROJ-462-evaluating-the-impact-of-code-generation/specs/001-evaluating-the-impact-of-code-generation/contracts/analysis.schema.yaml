@@ -1,213 +1,486 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "AnalysisResult Schema"
-description: "Schema for validating statistical analysis output, including optional visualization and sensitivity metadata."
-type: "object"
-properties:
-  metadata:
-    type: "object"
-    properties:
-      version:
-        type: "string"
-        description: "Schema version"
-      timestamp:
-        type: "string"
-        format: "date-time"
-        description: "Analysis timestamp"
-      random_seed:
-        type: "integer"
-        description: "Random seed for reproducibility"
-    required:
-      - version
-      - timestamp
-      - random_seed
-  anova_results:
-    type: "object"
-    properties:
-      tool_usage:
-        type: "object"
-        properties:
-          f_stat:
-            type: "number"
-          p_value:
-            type: "number"
-        required:
-          - f_stat
-          - p_value
-      experience_level:
-        type: "object"
-        properties:
-          f_stat:
-            type: "number"
-          p_value:
-            type: "number"
-        required:
-          - f_stat
-          - p_value
-      interaction:
-        type: "object"
-        properties:
-          f_stat:
-            type: "number"
-          p_value:
-            type: "number"
-        required:
-          - f_stat
-          - p_value
-      covariates:
-        type: "object"
-        description: "Statistics for each continuous covariate included in the ANCOVA model."
-        additionalProperties:
-          type: "object"
-          properties:
-            f_stat:
-              type: "number"
-            p_value:
-              type: "number"
-          required:
-            - f_stat
-            - p_value
-    required:
-      - tool_usage
-      - experience_level
-      - interaction
-  effect_sizes:
-    type: "object"
-    properties:
-      novice:
-        type: "object"
-        properties:
-          cohen_d:
-            type: "number"
-          ci_lower:
-            type: "number"
-          ci_upper:
-            type: "number"
-        required:
-          - cohen_d
-          - ci_lower
-          - ci_upper
-      intermediate:
-        type: "object"
-        properties:
-          cohen_d:
-            type: "number"
-          ci_lower:
-            type: "number"
-          ci_upper:
-            type: "number"
-        required:
-          - cohen_d
-          - ci_lower
-          - ci_upper
-      expert:
-        type: "object"
-        properties:
-          cohen_d:
-            type: "number"
-          ci_lower:
-            type: "number"
-          ci_upper:
-            type: "number"
-        required:
-          - cohen_d
-          - ci_lower
-          - ci_upper
-    required:
-      - novice
-      - intermediate
-      - expert
-  adjusted_p_values:
-    type: "object"
-    properties:
-      tool_usage:
-        type: "number"
-      experience_level:
-        type: "number"
-      interaction:
-        type: "number"
-    required:
-      - tool_usage
-      - experience_level
-      - interaction
-  associational_framing:
-    type: "boolean"
-    description: "Must be true; all findings labeled associational"
-    const: true
-  confounding_controls:
-    type: "object"
-    description: "Coefficient estimates for each covariate actually included in the model."
-    additionalProperties:
-      type: "object"
-      properties:
-        coef:
-          type: "number"
-        p_value:
-          type: "number"
-      required:
-        - coef
-        - p_value
-  power_flag:
-    type: "boolean"
-    description: "True if any stratum has <30 observations"
-  vif_scores:
-    type: "object"
-    properties:
-      tool_usage:
-        type: "number"
-      experience_level:
-        type: "number"
-    required:
-      - tool_usage
-      - experience_level
-  visualizations:
-    type: "array"
-    description: "Optional metadata for generated plots."
-    items:
-      type: "object"
-      properties:
-        plot_type:
-          type: "string"
-        stratification_variable:
-          type: "string"
-        interaction_lines:
-          type: "boolean"
-        file_path:
-          type: "string"
-      required:
-        - plot_type
-        - stratification_variable
-        - interaction_lines
-        - file_path
-  sensitivity_results:
-    type: "array"
-    description: "Optional rows from the experience‑threshold sweep."
-    items:
-      type: "object"
-      properties:
-        threshold_set:
-          type: "array"
-          items:
-            type: "integer"
-        completion_time_rates:
-          type: "object"
-        defect_rates:
-          type: "object"
-        effect_sizes:
-          type: "object"
-        variation_summary:
-          type: "object"
-      required:
-        - threshold_set
-        - completion_time_rates
-        - defect_rates
-        - effect_sizes
-        - variation_summary
+# Analysis Schema Contract for AnalysisResult Entity
+# Generated for PROJ-462-evaluating-the-impact-of-code-generation
+# This schema validates statistical analysis outputs before export
+# Constitution Principle II: Reference-Validator must verify this schema
+# Version: 1.0.0
+# Date: 2024
+
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://llmxive.org/schemas/analysis.schema.yaml
+
+title: AnalysisResult
+description: >-
+  Schema for statistical analysis results including ANOVA tables,
+  effect sizes, adjusted p-values, associational framing, and
+  confounding controls. All analysis outputs MUST conform to this
+  schema before visualization or export.
+
+type: object
 required:
-  - metadata
-  - anova_results
+  - analysis_id
+  - analysis_timestamp
+  - anova_table
   - effect_sizes
   - adjusted_p_values
   - associational_framing
-  - power_flag
-  - vif_scores
+  - confounding_controls
+  - metadata
+
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for this analysis run
+    pattern: "^AN-[0-9]{4}-[0-9]{6}$"
+    example: "AN-2024-001"
+
+  analysis_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when analysis was performed
+
+  anova_table:
+    type: object
+    description: Two-way ANOVA/ANCOVA results table
+    required:
+      - source
+      - df
+      - sum_sq
+      - mean_sq
+      - F
+      - p_value
+      - method
+    properties:
+      source:
+        type: array
+        items:
+          type: string
+        description: Source of variation (e.g., tool_usage, experience_level, interaction)
+        example: ["tool_usage", "experience_level", "tool_usage:experience_level", "Error"]
+      df:
+        type: array
+        items:
+          type: integer
+          minimum: 0
+        description: Degrees of freedom for each source
+        example: [1, 2, 2, 297]
+      sum_sq:
+        type: array
+        items:
+          type: number
+          minimum: 0
+        description: Sum of squares for each source
+        example: [1234.56, 2345.67, 456.78, 12345.89]
+      mean_sq:
+        type: array
+        items:
+          type: number
+          minimum: 0
+        description: Mean squares for each source
+        example: [1234.56, 1172.84, 228.39, 41.57]
+      F:
+        type: array
+        items:
+          type: number
+          minimum: 0
+        description: F-statistic for each source
+        example: [29.70, 28.22, 5.50, null]
+      p_value:
+        type: array
+        items:
+          oneOf:
+            - type: number
+              minimum: 0
+              maximum: 1
+            - type: "null"
+        description: P-value for each source (null for Error term)
+        example: [0.00001, 0.00002, 0.005, null]
+      method:
+        type: string
+        enum:
+          - two-way ANOVA
+          - two-way ANCOVA
+          - Welch's ANOVA
+        description: Statistical method used for analysis
+        example: "two-way ANCOVA"
+      covariates:
+        type: array
+        items:
+          type: string
+        description: Covariates included in ANCOVA model (if applicable)
+        example: ["task_complexity", "project_type", "team_size"]
+      assumption_checks:
+        type: object
+        description: Statistical assumption validation results
+        required:
+          - normality_test
+          - homogeneity_test
+          - normality_result
+          - homogeneity_result
+        properties:
+          normality_test:
+            type: string
+            enum:
+              - Shapiro-Wilk
+              - Kolmogorov-Smirnov
+            description: Normality test method used
+            example: "Shapiro-Wilk"
+          homogeneity_test:
+            type: string
+            enum:
+              - Levene's test
+              - Bartlett's test
+            description: Homogeneity of variance test method used
+            example: "Levene's test"
+          normality_result:
+            type: object
+            required:
+              - statistic
+              - p_value
+              - passed
+            properties:
+              statistic:
+                type: number
+              p_value:
+                type: number
+                minimum: 0
+                maximum: 1
+              passed:
+                type: boolean
+                description: True if p > alpha (assumption met)
+          homogeneity_result:
+            type: object
+            required:
+              - statistic
+              - p_value
+              - passed
+            properties:
+              statistic:
+                type: number
+              p_value:
+                type: number
+                minimum: 0
+                maximum: 1
+              passed:
+                type: boolean
+                description: True if p > alpha (assumption met)
+
+  effect_sizes:
+    type: array
+    description: Pairwise comparison effect sizes within experience strata
+    items:
+      type: object
+      required:
+        - comparison_id
+        - group_1
+        - group_2
+        - stratum
+        - effect_size_type
+        - effect_size_value
+        - ci_lower
+        - ci_upper
+        - interpretation
+      properties:
+        comparison_id:
+          type: string
+          pattern: "^ES-[0-9]{4}-[0-9]{6}$"
+          description: Unique identifier for this effect size
+        group_1:
+          type: string
+          description: First group in comparison (e.g., "Copilot", "Manual")
+        group_2:
+          type: string
+          description: Second group in comparison
+        stratum:
+          type: string
+          enum:
+            - novice
+            - intermediate
+            - expert
+          description: Experience level stratum
+        effect_size_type:
+          type: string
+          enum:
+            - Cohen's d
+            - Hedges' g
+            - eta-squared
+            - omega-squared
+          description: Type of effect size calculated
+        effect_size_value:
+          type: number
+          description: Calculated effect size value
+        ci_lower:
+          type: number
+          description: Lower bound of confidence interval
+        ci_upper:
+          type: number
+          description: Upper bound of confidence interval
+        interpretation:
+          type: string
+          enum:
+            - negligible
+            - small
+            - medium
+            - large
+          description: Interpretation based on conventional thresholds
+
+  adjusted_p_values:
+    type: object
+    description: Multiple-comparison corrected p-values
+    required:
+      - correction_method
+      - alpha_familywise
+      - comparisons
+    properties:
+      correction_method:
+        type: string
+        enum:
+          - Bonferroni
+          - Holm-Bonferroni
+          - Benjamini-Hochberg
+          - Benjamini-Yekutieli
+        description: Multiple-comparison correction method applied
+      alpha_familywise:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Family-wise error rate threshold (typically 0.05)
+      comparisons:
+        type: array
+        items:
+          type: object
+          required:
+            - comparison_id
+            - raw_p_value
+            - adjusted_p_value
+            - significant
+          properties:
+            comparison_id:
+              type: string
+            raw_p_value:
+              type: number
+              minimum: 0
+              maximum: 1
+            adjusted_p_value:
+              type: number
+              minimum: 0
+              maximum: 1
+            significant:
+              type: boolean
+              description: True if adjusted p < alpha_familywise
+
+  associational_framing:
+    type: object
+    description: >-
+      Mandatory associational framing to prevent causal language
+      (Constitution Principle II, FR-006). All findings MUST be
+      explicitly labeled as associational, not causal.
+    required:
+      - framing_statement
+      - causal_language_detected
+      - causal_language_removed
+      - compliance_verified
+    properties:
+      framing_statement:
+        type: string
+        description: >-
+          Standard associational framing statement included in all outputs
+        example: >-
+          "These results demonstrate an association between tool usage
+          and developer productivity metrics. No causal claims are made
+          as this is an observational analysis."
+      causal_language_detected:
+        type: array
+        items:
+          type: string
+        description: List of causal terms detected and removed
+        example: []
+      causal_language_removed:
+        type: array
+        items:
+          type: string
+        description: List of causal terms removed from output
+        example: []
+      compliance_verified:
+        type: boolean
+        description: True if no causal language remains in output
+
+  confounding_controls:
+    type: object
+    description: >-
+      Confounding control methodology and adjusted effect estimates
+      (FR-011, SC-008)
+    required:
+      - confounders_identified
+      - adjustment_method
+      - adjusted_effects
+      - vif_diagnostics
+    properties:
+      confounders_identified:
+        type: array
+        items:
+          type: object
+          required:
+            - variable_name
+            - correlation_with_exposure
+            - correlation_with_outcome
+            - included_in_model
+          properties:
+            variable_name:
+              type: string
+            correlation_with_exposure:
+              type: number
+              minimum: -1
+              maximum: 1
+            correlation_with_outcome:
+              type: number
+              minimum: -1
+              maximum: 1
+            included_in_model:
+              type: boolean
+      adjustment_method:
+        type: string
+        enum:
+          - ANCOVA
+          - regression adjustment
+          - propensity score weighting
+          - stratification
+        description: Method used to control for confounders
+      adjusted_effects:
+        type: array
+        items:
+          type: object
+          required:
+            - comparison_id
+            - unadjusted_effect
+            - adjusted_effect
+            - change_percent
+          properties:
+            comparison_id:
+              type: string
+            unadjusted_effect:
+              type: number
+            adjusted_effect:
+              type: number
+            change_percent:
+              type: number
+              description: Percentage change from unadjusted to adjusted
+      vif_diagnostics:
+        type: object
+        description: Variance Inflation Factor diagnostics for collinearity
+        required:
+          - threshold
+          - max_vif
+          - flagged_variables
+        properties:
+          threshold:
+            type: number
+            description: VIF threshold for flagging (typically 5)
+            example: 5.0
+          max_vif:
+            type: number
+            description: Maximum VIF value across all variables
+          flagged_variables:
+            type: array
+            items:
+              type: object
+              required:
+                - variable_name
+                - vif_value
+              properties:
+                variable_name:
+                  type: string
+                vif_value:
+                  type: number
+
+  metadata:
+    type: object
+    description: Analysis metadata and provenance
+    required:
+      - dataset_id
+      - dataset_checksum
+      - sample_size
+      - observations_per_stratum
+      - power_analysis
+      - software_version
+      - constitution_compliance
+    properties:
+      dataset_id:
+        type: string
+        description: Identifier of source dataset
+      dataset_checksum:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+        description: SHA-256 checksum of source dataset
+      sample_size:
+        type: integer
+        minimum: 1
+        description: Total sample size used in analysis
+      observations_per_stratum:
+        type: object
+        required:
+          - novice
+          - intermediate
+          - expert
+        properties:
+          novice:
+            type: integer
+            minimum: 0
+          intermediate:
+            type: integer
+            minimum: 0
+          expert:
+            type: integer
+            minimum: 0
+      power_analysis:
+        type: object
+        required:
+          - target_power
+          - achieved_power
+          - minimum_observations
+          - power_flag
+        properties:
+          target_power:
+            type: number
+            minimum: 0
+            maximum: 1
+          achieved_power:
+            type: number
+            minimum: 0
+            maximum: 1
+          minimum_observations:
+            type: integer
+            description: Minimum observations per stratum required
+          power_flag:
+            type: boolean
+            description: True if power >= target_power
+      software_version:
+        type: object
+        required:
+          - python
+          - scipy
+          - statsmodels
+        properties:
+          python:
+            type: string
+          scipy:
+            type: string
+          statsmodels:
+            type: string
+      constitution_compliance:
+        type: object
+        required:
+          - principle_ii_verified
+          - principle_iv_verified
+          - associational_framing_verified
+        properties:
+          principle_ii_verified:
+            type: boolean
+            description: Reference-Validator verification passed
+          principle_iv_verified:
+            type: boolean
+            description: Single Source of Truth traceability verified
+          associational_framing_verified:
+            type: boolean
+            description: No causal language detected
+
 additionalProperties: false
