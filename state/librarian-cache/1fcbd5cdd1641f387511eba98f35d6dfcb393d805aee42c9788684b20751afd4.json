@@ -1,0 +1,603 @@
+{
+  "fetched_at": "2026-06-29T18:48:11Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Impact of Code Style on LLM Code Generation Diversity",
+      "target_n": 5
+    },
+    "duration_seconds": 54.871,
+    "ended_at": "2026-06-29T18:48:11Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "LLM code generation stylistic variations"
+        ],
+        [
+          2,
+          "impact of coding conventions on model output diversity"
+        ],
+        [
+          3,
+          "stylistic prompting for code generation"
+        ],
+        [
+          4,
+          "code formatting influence on LLM performance"
+        ],
+        [
+          5,
+          "semantic equivalence in generated code styles"
+        ],
+        [
+          6,
+          "LLM code synthesis diversity metrics"
+        ],
+        [
+          7,
+          "effect of coding style on model exploration"
+        ],
+        [
+          8,
+          "style-guided code generation with large language models"
+        ],
+        [
+          9,
+          "diversity of LLM-generated code under style constraints"
+        ],
+        [
+          10,
+          "stylistic bias in code generation models"
+        ],
+        [
+          11,
+          "impact of indentation and naming on code diversity"
+        ],
+        [
+          12,
+          "controlling output variability in code LLMs"
+        ],
+        [
+          13,
+          "code style transfer in generative models"
+        ],
+        [
+          14,
+          "stylistic robustness of code generation systems"
+        ],
+        [
+          15,
+          "variation in LLM code outputs across style prompts"
+        ],
+        [
+          16,
+          "relationship between code aesthetics and generation diversity"
+        ],
+        [
+          17,
+          "style-agnostic code generation evaluation"
+        ],
+        [
+          18,
+          "stylistic generalization in neural code generation"
+        ],
+        [
+          19,
+          "measuring stylistic diversity in AI-generated software"
+        ],
+        [
+          20,
+          "coding standard adherence vs generation diversity in LLMs"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Evaluating the Impact of Code Style on LLM Code Generation Diversity computer science": 0,
+        "LLM code generation stylistic variations": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "code formatting normalization stylistic variation",
+      "PEP8 Google style guide code generation",
+      "stylistic homogeneity code clone detection deduplication",
+      "token entropy sampling temperature code diversity",
+      "training data preprocessing style transfer contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2303.12869"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Impact of Code Style on LLM Code Generation Diversity computer science": 3,
+      "PEP8 Google style guide code generation": 2,
+      "code formatting normalization stylistic variation": 3,
+      "stylistic homogeneity code clone detection deduplication": 3,
+      "token entropy sampling temperature code diversity": 2,
+      "training data preprocessing style transfer contamination": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2505.21514",
+          "rationale": "The paper focuses on evaluating LLM performance in \"copilot-style\" completion and infill tasks (accuracy, logical consistency, contextual understanding) but does not measure or analyze \"code style\" as an independent variable nor \"generation diversity\" as a dependent variable. It fails to satisfy criteria (a) or (b) because it lacks the specific mechanism (style impact) and outcome (diversity metrics) required by the user's question, and it is not a foundational methodology paper (d) for style-di",
+          "title": "SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation"
+        },
+        {
+          "primary_pointer": "0809.5096",
+          "rationale": "The paper addresses \"diversity\" in the context of wireless communication signal processing (specifically bit-interleaved coded multiple beamforming), which is a distinct physical construct from \"code generation diversity\" in Large Language Models. This is a case of distinct constructs sharing only homonym keywords (\"diversity\" and \"code\"), failing to meet any inclusion criteria for the user's computer science research question.",
+          "title": "Diversity Analysis of Bit-Interleaved Coded Multiple Beamforming"
+        },
+        {
+          "primary_pointer": "2511.10555",
+          "rationale": "The paper focuses on \"code-to-style image generation\" where \"code\" refers to numerical style embeddings for artistic image synthesis, which is a distinct construct from the user's question about \"code style\" (programming syntax and formatting) affecting LLM code generation. This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"code\" in the context of programming vs. \"code\" as a numerical identifier for visual style).",
+          "title": "A Style is Worth One Code: Unlocking Code-to-Style Image Generation with Discrete Style Space"
+        },
+        {
+          "primary_pointer": "2303.12869",
+          "rationale": "The paper focuses on improving the accuracy of code generation from natural language using a Java-specific model, but it does not measure, analyze, or discuss the impact of \"code style\" on \"generation diversity,\" nor does it establish a baseline for these specific variables. It fails to satisfy any inclusion criteria (a-f) as it addresses a different research goal (state-of-the-art performance on a translation task) rather than the mechanism or variables of the user's question.",
+          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation"
+        },
+        {
+          "primary_pointer": "2508.08322",
+          "rationale": "The paper focuses on improving code generation accuracy and reliability through multi-agent context engineering, which is a distinct construct from the user's specific question about the impact of \"code style\" on \"generation diversity.\" While both involve LLM code generation, the paper does not measure code style as an independent variable nor generation diversity as a dependent variable, failing to satisfy the criteria for same-mechanism evidence or shared variables.",
+          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code"
+        },
+        {
+          "primary_pointer": "2402.12317",
+          "rationale": "The paper focuses on retrieval-augmented generation (RAG) pipelines and knowledge base evolution to improve execution accuracy, which is a distinct mechanism from the user's question about the impact of \"code style\" on \"generation diversity.\" While both involve code generation, the paper does not measure code style as an independent variable nor generation diversity as a dependent variable, failing to satisfy the criteria for same-mechanism evidence, variable overlap, or foundational methodology",
+          "title": "EVOR: Evolving Retrieval for Code Generation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-29T18:47:16Z",
+    "term_input": {
+      "normalized": "evaluating the impact of code style on llm code generation diversity computer science",
+      "raw": "Evaluating the Impact of Code Style on LLM Code Generation Diversity computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-06-29T18:47:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Social media features substantial stylistic variation, raising new challenges for syntactic analysis of online writing. However, this variation is often aligned with author attributes such as age, gender, and geography, as well as more readily-available social network metadata. In this paper, we report new evidence on the link between language and social networks in the task of part-of-speech tagging. We find that tagger error rates are correlated with network structure, with high accuracy in some parts of the network, and lower accuracy elsewhere. As a result, tagger accuracy depends on training from a balanced sample of the network, rather than training on texts from a narrow subcommunity. We also describe our attempts to add robustness to stylistic variation, by building a mixture-of-experts model in which each expert is associated with a region of the social network. While prior work found that similar approaches yield performance improvements in sentiment analysis and entity linking, we were unable to obtain performance improvements in part-of-speech tagging, despite strong evidence for the link between part-of-speech error rates and social network structure.",
+          "claimed_authors": [
+            "Murali Raghu Babu Balusu",
+            "Taha Merghani",
+            "Jacob Eisenstein"
+          ],
+          "claimed_title": "Stylistic Variation in Social Media Part-of-Speech Tagging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.07331"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Stylistic Variation in Social Media Part-of-Speech Tagging')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many of the creative and figurative elements that make language exciting are lost in translation in current natural language generation engines. In this paper, we explore a method to harvest templates from positive and negative reviews in the restaurant domain, with the goal of vastly expanding the types of stylistic variation available to the natural language generator. We learn hyperbolic adjective patterns that are representative of the strongly-valenced expressive language commonly used in either positive or negative reviews. We then identify and delexicalize entities, and use heuristics to extract generation templates from review sentences. We evaluate the learned templates against more traditional review templates, using subjective measures of \"convincingness\", \"interestingness\", and \"naturalness\". Our results show that the learned templates score highly on these measures. Finally, we analyze the linguistic categories that characterize the learned positive and negative templates. We plan to use the learned templates to improve the conversational style of dialogue systems in the restaurant domain.",
+          "claimed_authors": [
+            "Shereen Oraby",
+            "Sheideh Homayon",
+            "Marilyn Walker"
+          ],
+          "claimed_title": "Harvesting Creative Templates for Generating Stylistically Varied Restaurant Reviews",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.05308"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Harvesting Creative Templates for Generating Stylistically Varied Restaurant Reviews')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Texts exhibit considerable stylistic variation. This paper reports an experiment where a corpus of documents (N= 75 000) is analyzed using various simple stylistic metrics. A subset (n = 1000) of the corpus has been previously assessed to be relevant for answering given information retrieval queries. The experiment shows that this subset differs significantly from the rest of the corpus in terms of the stylistic metrics studied.",
+          "claimed_authors": [
+            "Jussi Karlgren"
+          ],
+          "claimed_title": "Stylistic Variation in an Information Retrieval Experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "cmp-lg/9608003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Stylistic Variation in an Information Retrieval Experiment')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently the retrieval-augmented generation (RAG) has been successfully applied in code generation. However, existing pipelines for retrieval-augmented code generation (RACG) employ static knowledge bases with a single source, limiting the adaptation capabilities of Large Language Models (LLMs) to domains they have insufficient knowledge of. In this work, we develop a novel pipeline, EVOR, that employs the synchronous evolution of both queries and diverse knowledge bases. On two realistic settings where the external knowledge is required to solve code generation tasks, we compile four new datasets associated with frequently updated libraries and long-tail programming languages, named EVOR-BENCH. Extensive experiments demonstrate that EVOR achieves two to four times of execution accuracy compared to other methods such as Reflexion (Shinn et al., 2024), DocPrompting (Zhou et al., 2023), etc. We demonstrate that EVOR is flexible and can be easily combined with them to achieve further improvement. Further analysis reveals that EVOR benefits from the synchronous evolution of queries and documents and the diverse information sources in the knowledge base. We hope that our studies will inspire more insights into the design of advanced RACG pipelines in future research. Our model, code, and data are available at https://arks-codegen.github.io.",
+          "claimed_authors": [
+            "Hongjin Su",
+            "Shuyang Jiang",
+            "Yuhang Lai",
+            "Haoyuan Wu",
+            "Boao Shi",
+            "Che Liu",
+            "Qian Liu",
+            "Tao Yu"
+          ],
+          "claimed_title": "EVOR: Evolving Retrieval for Code Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.12317"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='EVOR: Evolving Retrieval for Code Generation')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated production systems (aPS) are highly customized systems that consist of hardware and software. Such aPS are controlled by a programmable logic controller (PLC), often in accordance with the IEC 61131-3 standard that divides system implementation into so-called program organization units (POUs) as the smallest software unit and is comprised of multiple textual and graphical programming languages that can be arbitrarily nested. A common practice during the development of such systems is reusing implementation artifacts by copying, pasting, and then modifying code. This approach is referred to as code cloning. It is used on a fine-granular level where a POU is cloned within a system variant. It is also applied on the coarse-granular system level, where the entire system is cloned and adapted to create a system variant, for example for another customer. This ad hoc practice for the development of variants is commonly referred to as clone-and-own. It allows the fast development of variants to meet varying customer requirements or altered regulatory guidelines. However, clone-and-own is a non-sustainable approach and does not scale with an increasing number of variants. It has a detrimental effect on the overall quality of a software system, such as the propagation of bugs to other variants, which harms maintenance. In order to support the effective development and maintenance of such systems, a detailed code clone analysis is required. On the one hand, an analysis of code clones within a variant (i.e., clone detection in the classical sense) supports experts in refactoring respective code into library components. On the other hand, an analysis of commonalities and differences between cloned variants (i.e., variability analysis) supports the maintenance and further reuse and facilitates the migration of variants into a software product line (SPL).",
+          "claimed_authors": [
+            "Kamil Rosiak",
+            "Alexander Schlie",
+            "Lukas Linsbauer",
+            "Birgit Vogel-Heuser",
+            "Ina Schaefer"
+          ],
+          "claimed_title": "Custom-Tailored Clone Detection for IEC 61131-3 Programming Languages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.09753"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Custom-Tailored Clone Detection for IEC 61131-3 Programming Languages')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There are a great many clone detection tools proposed in the literature. In this paper, we investigate the state of clone detection tool evaluation. We begin by surveying the clone detection benchmarks, and performing a multi-faceted evaluation and comparison of their features and capabilities. We then survey the existing clone detection tool and technique publications, and evaluate how the authors of these works evaluate their own tools/techniques. We rank the individual works by how well they measure recall, precision, execution time and scalability. We select the works the best evaluate all four metrics as exemplars that should be considered by future researchers publishing clone detection tools/techniques when designing the empirical evaluation of their tool/technique. We measure statistics on tool evaluation by the authors, and find that evaluation is poor amongst the authors. We finish our investigation into clone detection evaluation by surveying the existing tool comparison studies, including both the qualitative and quantitative studies.",
+          "claimed_authors": [
+            "Jeffrey Svajlenko",
+            "Chanchal K. Roy"
+          ],
+          "claimed_title": "A Survey on the Evaluation of Clone Detection Performance and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.15682"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='A Survey on the Evaluation of Clone Detection Performance and Benchmarking')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Code cloning negatively affects industrial software and threatens intellectual property. This paper presents a novel approach to detecting cloned software by using a bijective matching technique. The proposed approach focuses on increasing the range of similarity measures and thus enhancing the precision of the detection. This is achieved by extending a well-known stable-marriage problem (SMP) and demonstrating how matches between code fragments of different files can be expressed. A prototype of the proposed approach is provided using a proper scenario, which shows a noticeable improvement in several features of clone detection such as scalability and accuracy.",
+          "claimed_authors": [
+            "Hosam AlHakami",
+            "Feng Chen",
+            "Helge Janicke"
+          ],
+          "claimed_title": "An Extended Stable Marriage Problem Algorithm for Clone Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1408.2969"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='An Extended Stable Marriage Problem Algorithm for Clone Detection')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Information theory provides a spectrum of nonlinear methods capable of grasping an internal structure of a signal together with an insight into its complex nature. In this work, we discuss the usefulness of the selected entropy techniques for a description of the information carried by the surface electromyography signals during colorectal cancer treatment. The electrical activity of the external anal sphincter can serve as a potential source of knowledge of the actual state of the patient who underwent a common surgery for rectal cancer in the form of anterior or lower anterior resection. The calculation of Sample entropy parameters has been extended to multiple time scales in terms of the Multiscale Sample Entropy. The specific values of the entropy measures and their dependence on the time scales were analyzed with regard to the time elapsed since the operation, the type of surgical treatment and also the different depths of the rectum canal. The Mann Whithney U test and Anova Friedman statistics indicate the statistically significant differences among all of stages of treatment and for all consecutive depths of rectum area for the estimated Sample Entropy. The further analysis at the multiple time scales signify the substantial differences among compared stages of treatment in the group of patients who underwent the lower anterior resection.",
+          "claimed_authors": [
+            "Paulina Trybek",
+            "Michal Nowakowski",
+            "Jerzy Salowka",
+            "Jakub Spiechowicz",
+            "Lukasz Machura"
+          ],
+          "claimed_title": "Sample entropy of sEMG signals at different stages of rectal cancer treatment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.02956"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Sample entropy of sEMG signals at different stages of rectal cancer treatment')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the time evolution of the temperature and entropy of gravitationally collapsing domain walls as seen by an asymptotic observer. In particular, we seek to understand how topology and the addition of a cosmological constant affect the gravitational collapse. Previous work has shown that the entropy of a spherically symmetric collapsing domain approaches a constant. In this paper, we reproduce these results, using both a fully quantum and a semi-classical approach, then we repeat the process for a de Sitter Schwarzschild domain wall (spherical with cosmological constant) and a (3+1) BTZ domain wall (cylindrical). We do this by coupling a scalar field to the background of the domain wall and analyzing the spectrum of radiation as a function of time. We find that the spectrum is quasi-thermal, with the degree of thermality increasing as the domain wall approaches the horizon. The thermal distribution allows for the determination of the temperature as a function of time, and we find that the late time temperature is very close to the Hawking temperature and that it also exhibits the proper scaling with the mass. From the temperature we find the entropy. Since the collapsing domain wall is what forms a black hole, we can compare the results to those of the standard entropy-area relation. We find that the entropy does in fact approach a constant that is close to the Hawking entropy. However, both the de Sitter Schwarzschild domain wall and the (3+1) BTZ domain wall show periods of decreasing entropy, which suggests that spontaneous collapse may be prevented.",
+          "claimed_authors": [
+            "Evan Halstead"
+          ],
+          "claimed_title": "Time Evolution of Temperature and Entropy of Various Collapsing Domain Walls",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.2279"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Time Evolution of Temperature and Entropy of Various Collapsing Domain Walls')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The idea of style transfer has largely only been explored in image-based tasks, which we attribute in part to the specific nature of loss functions used for style transfer. We propose a general formulation of style transfer as an extension of generative adversarial networks, by using a discriminator to regularize a generator with an otherwise separate loss function. We apply our approach to the task of learning to play chess in the style of a specific player, and present empirical evidence for the viability of our approach.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yanjun Qi"
+          ],
+          "claimed_title": "Style Transfer Generative Adversarial Networks: Learning to Play Chess Differently",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1702.06762"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Style Transfer Generative Adversarial Networks: Learning to Play Chess Differently')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motion style transfer is a common method for enriching character animation. Motion style transfer algorithms are often designed for offline settings where motions are processed in segments. However, for online animation applications, such as realtime avatar animation from motion capture, motions need to be processed as a stream with minimal latency. In this work, we realize a flexible, high-quality motion style transfer method for this setting. We propose a novel style transfer model, Style-ERD, to stylize motions in an online manner with an Encoder-Recurrent-Decoder structure, along with a novel discriminator that combines feature attention and temporal attention. Our method stylizes motions into multiple target styles with a unified model. Although our method targets online settings, it outperforms previous offline methods in motion realism and style expressiveness and provides significant gains in runtime efficiency",
+          "claimed_authors": [
+            "Tianxin Tao",
+            "Xiaohang Zhan",
+            "Zhongquan Chen",
+            "Michiel van de Panne"
+          ],
+          "claimed_title": "Style-ERD: Responsive and Coherent Online Motion Style Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.02574"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Style-ERD: Responsive and Coherent Online Motion Style Transfer')",
+        "failed_at": "2026-06-29T18:47:46Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mingchao Jiang",
+            "Abhinav Jain",
+            "Sophia Zorek",
+            "Chris Jermaine"
+          ],
+          "title": "SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.21514",
+        "summary": "We introduce SIMCOPILOT, a benchmark that simulates the role of large language models (LLMs) as interactive, \"copilot\"-style coding assistants. Targeting both completion (finishing incomplete methods or code blocks) and infill tasks (filling missing segments within existing code), SIMCOPILOT provides a comprehensive framework for evaluating LLM coding capabilities. The benchmark comprises dedicated sub-benchmarks for Java (SIMCOPILOTJ) and Python (SIMCOPILOTP), covering diverse codebases varying in size and complexity. Our key contributions include: (a) establishing a realistic, detailed evaluation environment to assess LLM utility in practical coding scenarios, and (b) providing fine-grained analyses that address critical factors frequently overlooked by existing benchmarks, such as task-specific performance nuances, contextual understanding across code segments, and sensitivity to variable scope. Evaluations conducted across domains-including algorithms, databases, computer vision, and neural networks-offer insights into model strengths and highlight persistent challenges in maintaining logical consistency within complex dependency structures. Beyond benchmarking, our study sheds light on the current limitations of LLM-driven code generation and underscores the ongoing transition of LLMs from merely syntax-aware generators toward reliable, intelligent software development partners.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.21514",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T18:47:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hong Ju Park",
+            "Ender Ayanoglu"
+          ],
+          "title": "Diversity Analysis of Bit-Interleaved Coded Multiple Beamforming",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2008
+        },
+        "primary_pointer": "0809.5096",
+        "summary": "In this paper, diversity analysis of bit-interleaved coded multiple beamforming (BICMB) is extended to the case of general spatial interleavers, removing a condition on their previously known design criteria and quantifying the resulting diversity order. The diversity order is determined by a parameter Qmax which is inherited from the convolutional code and the spatial de-multiplexer used in BICMB. We introduce a method to find this parameter by employing a transfer function approach as in finding the weight spectrum of a convolutional code. By using this method, several Qmax values are shown and verified to be identical with the results from a computer search. The diversity analysis and the method to find the parameter are supported by simulation results. By using the Singleton bound, we also show that Qmax is lower bounded by the product of the number of streams and the code rate of an encoder. The design rule of the spatial de-multiplexer for a given convolutional code is proposed to meet the condition on the maximum achievable diversity order.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0809.5096",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T18:47:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Huijie Liu",
+            "Shuhao Cui",
+            "Haoxiang Cao",
+            "Shuai Ma",
+            "Kai Wu",
+            "Guoliang Kang"
+          ],
+          "title": "A Style is Worth One Code: Unlocking Code-to-Style Image Generation with Discrete Style Space",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.10555",
+        "summary": "Innovative visual stylization is a cornerstone of artistic creation, yet generating novel and consistent visual styles remains a significant challenge. Existing generative approaches typically rely on lengthy textual prompts, reference images, or parameter-efficient fine-tuning to guide style-aware image generation, but often struggle with style consistency, limited creativity, and complex style representations. In this paper, we affirm that a style is worth one numerical code by introducing the novel task, code-to-style image generation, which produces images with novel, consistent visual styles conditioned solely on a numerical style code. To date, this field has only been primarily explored by the industry (e.g., Midjourney), with no open-source research from the academic community. To fill this gap, we propose CoTyle, the first open-source method for this task. Specifically, we first train a discrete style codebook from a collection of images to extract style embeddings. These embeddings serve as conditions for a text-to-image diffusion model (T2I-DM) to generate stylistic images. Subsequently, we train an autoregressive style generator on the discrete style embeddings to model their distribution, allowing the synthesis of novel style embeddings. During inference, a numerical style code is mapped to a unique style embedding by the style generator, and this embedding guides the T2I-DM to generate images in the corresponding style. Unlike existing methods, our method offers unparalleled simplicity and diversity, unlocking a vast space of reproducible styles from minimal input. Extensive experiments validate that CoTyle effectively turns a numerical code into a style controller, demonstrating a style is worth one code.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.10555",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T18:47:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.12869",
+        "summary": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.12869",
+          "http_status": 200,
+          "pdf_sample_score": 0.25,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T18:47:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Muhammad Haseeb"
+          ],
+          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.08322",
+        "summary": "Large Language Models (LLMs) have shown promise in automating code generation and software engineering tasks, yet they often struggle with complex, multi-file projects due to context limitations and knowledge gaps. We propose a novel context engineering workflow that combines multiple AI components: an Intent Translator (GPT-5) for clarifying user requirements, an Elicit-powered semantic literature retrieval for injecting domain knowledge, NotebookLM-based document synthesis for contextual understanding, and a Claude Code multi-agent system for code generation and validation. Our integrated approach leverages intent clarification, retrieval-augmented generation, and specialized sub-agents orchestrated via Claude's agent framework. We demonstrate that this method significantly improves the accuracy and reliability of code assistants in real-world repositories, yielding higher single-shot success rates and better adherence to project context than baseline single-agent approaches. Qualitative results on a large Next.js codebase show the multi-agent system effectively plans, edits, and tests complex features with minimal human intervention. We compare our system with recent frameworks like CodePlan, MASAI, and HyperAgent, highlighting how targeted context injection and agent role decomposition lead to state-of-the-art performance. Finally, we discuss the implications for deploying LLM-based coding assistants in production, along with lessons learned on context management and future research directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.08322",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T18:47:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hongjin Su",
+            "Shuyang Jiang",
+            "Yuhang Lai",
+            "Haoyuan Wu",
+            "Boao Shi",
+            "Che Liu",
+            "Qian Liu",
+            "Tao Yu"
+          ],
+          "title": "EVOR: Evolving Retrieval for Code Generation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.12317",
+        "summary": "Recently the retrieval-augmented generation (RAG) has been successfully applied in code generation. However, existing pipelines for retrieval-augmented code generation (RACG) employ static knowledge bases with a single source, limiting the adaptation capabilities of Large Language Models (LLMs) to domains they have insufficient knowledge of. In this work, we develop a novel pipeline, EVOR, that employs the synchronous evolution of both queries and diverse knowledge bases. On two realistic settings where the external knowledge is required to solve code generation tasks, we compile four new datasets associated with frequently updated libraries and long-tail programming languages, named EVOR-BENCH. Extensive experiments demonstrate that EVOR achieves two to four times of execution accuracy compared to other methods such as Reflexion (Shinn et al., 2024), DocPrompting (Zhou et al., 2023), etc. We demonstrate that EVOR is flexible and can be easily combined with them to achieve further improvement. Further analysis reveals that EVOR benefits from the synchronous evolution of queries and documents and the diverse information sources in the knowledge base. We hope that our studies will inspire more insights into the design of advanced RACG pipelines in future research. Our model, code, and data are available at https://arks-codegen.github.io.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.12317",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T18:47:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the impact of code style on llm code generation diversity computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

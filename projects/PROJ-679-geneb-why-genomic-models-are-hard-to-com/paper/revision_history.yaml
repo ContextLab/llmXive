@@ -1,0 +1,298 @@
+schema_version: '1'
+project_id: PROJ-679-geneb-why-genomic-models-are-hard-to-com
+rounds:
+- round_number: 1
+  ran_at: '2026-06-29T18:51:42.303392Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-29)
+  tasks_done: 13
+  tasks_failed: 0
+  tasks_skipped: 35
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-679-geneb-why-genomic-models-are-hard-to-com/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: done
+    text: 'Address action item **[fe0a240b8f3f]** (severity: writing): Add a Code
+      and Data Availability section with a link to the GENEB evaluation repository
+      to enable reproducibility.'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[57325591d8c0]** (severity: writing): The manuscript
+      does not specify a license for the GENEB benchmark data or code (Section: Limitations/Appendix).
+      Please add a license stateme'
+  - id: '003'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[2c9a323da90f]** (severity: writing): The arXiv ID
+      `2606.04525` in the metadata corresponds to a future date (June 2026). Please
+      verify and correct the submission ID for provenan'
+  - id: '004'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[8229a08b0268]** (severity: writing): Task sources
+      (NT, GUE, GB) are cited by name but lack specific versioned URLs or DOIs in
+      `tab:task_groups`. Please provide persistent links '
+  - id: '005'
+    severity: writing
+    status: done
+    text: "Address action item **[5acec32c2436]** (severity: writing): Figure\u202F\
+      1 (chaotic_models.png) lacks a legend explaining what node colors or edge styles\
+      \ represent; add a concise legend and ensure the capti"
+  - id: '006'
+    severity: writing
+    status: done
+    text: "Address action item **[cb5a9c99ab80]** (severity: writing): Several heatmaps\
+      \ (e.g., Fig\u202F3 main_hitmap.png, Fig\u202F4 category_summary.png, Fig\u202F\
+      6 high\u2011variance tasks) use a red\u2011to\u2011green color map without a"
+  - id: '007'
+    severity: writing
+    status: done
+    text: "Address action item **[cedd1dc62fa4]** (severity: writing): Axis labels\
+      \ and units are missing or ambiguous on many plots (e.g., Fig\u202F2 image_per_size_v2.png\
+      \ lacks a label for the x\u2011axis \u2018Parameter coun"
+  - id: 008
+    severity: writing
+    status: done
+    text: "Address action item **[54db47fd86bb]** (severity: writing): Font sizes\
+      \ in heatmaps and line plots are too small to be legible when printed (e.g.,\
+      \ model names and task labels in Fig\u202F3 and Fig\u202F5 are cra"
+  - id: 009
+    severity: writing
+    status: skipped
+    text: "Address action item **[400597a47fb8]** (severity: writing): Captions for\
+      \ multi\u2011panel figures (e.g., Fig\u202F6 high\u2011variance tasks) do not\
+      \ describe each panel (A) and (B) in sufficient detail; expand capti"
+  - id: '010'
+    severity: writing
+    status: done
+    text: "Address action item **[03068ba1bc21]** (severity: writing): Figure\u202F\
+      5 (few\u2011shot performance degradation) plots MCC values for 40 models but\
+      \ does not include a legend indicating which line corresponds t"
+  - id: '011'
+    severity: writing
+    status: done
+    text: "Address action item **[8d95ab84a1cb]** (severity: writing): Some figures\
+      \ are stored as compressed PNGs with noticeable artifacts (e.g., heatmap images\
+      \ in the zip archive); provide high\u2011resolution vect"
+  - id: '012'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[6e582c460272]** (severity: writing): Define all
+      acronyms (MCC, SSM, BPE, k-mer, TF, lncRNA, MoE, T2T) at first use in Abstract
+      or Introduction.'
+  - id: '013'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0b1dd7d161df]** (severity: writing): Replace technical
+      shorthand (T-dec, T-enc, SN) with full terms in Appendix tables or define in
+      caption.'
+  - id: '014'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[1dfa52f6ae6b]** (severity: writing): Clarify ''shot''
+      regimes (1-shot, 10-shot) as ''examples per class'' for non-ML readers.'
+  - id: '015'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[d532821b6e19]** (severity: writing): Expand benchmark
+      acronyms (GUE, GB, NT, iDHS) in Appendix Task Taxonomy.'
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: "Address action item **[667b043a0d80]** (severity: writing): The manuscript\
+      \ claims that GENEB provides a comprehensive evaluation of genomic foundation\
+      \ models, yet it explicitly excludes long\u2011range reg"
+  - id: '017'
+    severity: writing
+    status: skipped
+    text: "Address action item **[120c542716be]** (severity: writing): The impact\
+      \ statement asserts that GENEB \u201Creduces risk of selecting models based\
+      \ on aggregate leaderboards masking heterogeneity.\u201D While the "
+  - id: 018
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0b276211193a]** (severity: writing): Provide a statement
+      on data privacy and security measures taken to protect any personally identifiable
+      genetic information that may be prese'
+  - id: 019
+    severity: writing
+    status: done
+    text: 'Address action item **[b434423c2fc5]** (severity: writing): Disclose any
+      potential conflicts of interest related to funding sources (e.g., Ministry of
+      Economic Development of the Russian Federation) t'
+  - id: '020'
+    severity: writing
+    status: done
+    text: "Address action item **[85661a2021de]** (severity: writing): Duplicate LaTeX\
+      \ labels cause cross\u2011reference collisions (e.g., \\label{tab:stability_tasks}\
+      \ appears twice, and \\label{fig:high-var} is define"
+  - id: '021'
+    severity: writing
+    status: skipped
+    text: "Address action item **[1167b83c8385]** (severity: writing): Several tables\
+      \ lack a \\label command after the \\caption (e.g., the table introduced in\
+      \ Section\u202F2.1 after the \"Representative task subset use"
+  - id: '022'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[df3060fe3d4c]** (severity: writing): The document
+      uses \cite and \citep inconsistently; choose a single citation command style
+      (preferably \citep for parenthetical citations) an'
+  - id: '023'
+    severity: writing
+    status: done
+    text: 'Address action item **[ff92b1fe38ce]** (severity: writing): The manuscript
+      relies on the booktabs commands (\toprule, \midrule, \bottomrule) but does not
+      include \usepackage{booktabs} in the preamble.'
+  - id: '024'
+    severity: writing
+    status: done
+    text: "Address action item **[7b09aae214fd]** (severity: writing): Long lines\
+      \ in the source (e.g., the abstract and several table rows) exceed typical 80\u2011\
+      character limits, making the .tex file hard to read. "
+  - id: '025'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[e68a7e1c239a]** (severity: writing): Some tables
+      use \small without a surrounding \centering or \begin{center} environment, which
+      can lead to misaligned tables. Ensure each tabl'
+  - id: '026'
+    severity: writing
+    status: skipped
+    text: "Address action item **[fdd5c68a1404]** (severity: writing): The hierarchy\
+      \ of headings is mostly correct, but the \"Related Work\" section appears both\
+      \ as a top\u2011level \\section and later as a \\section* in"
+  - id: '027'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[589691a86ca2]** (severity: writing): In the "Methodology"
+      section, the description of the probing protocol is a paragraph without a subheading,
+      while later subsections (e.g., "S'
+  - id: 028
+    severity: writing
+    status: skipped
+    text: "Address action item **[b111e41f5bd3]** (severity: writing): Abstract is\
+      \ dense; break the long sentence into two and clarify the meaning of \u201C\
+      full\u2011shot, 10\u2011shot, 1\u2011shot\u201D."
+  - id: 029
+    severity: writing
+    status: skipped
+    text: "Address action item **[8812fd382658]** (severity: writing): In the Introduction,\
+      \ the phrase \u201Cmodels are benchmarked disjointly, hindering direct comparison\u201D\
+      \ is vague \u2013 replace with a more precise desc"
+  - id: '030'
+    severity: writing
+    status: skipped
+    text: "Address action item **[f46446251ed5]** (severity: writing): Figure captions\
+      \ (e.g., Fig.\u202F1, Fig.\u202F2) start with bold text but lack a period after\
+      \ the closing brace; add a period for consistency."
+  - id: '031'
+    severity: writing
+    status: skipped
+    text: "Address action item **[420470c1c1a7]** (severity: writing): Section\u202F\
+      3 (Methodology) contains a run\u2011on sentence: \u201CGENEB probes frozen embeddings\
+      \ with logistic regression (max_iter=1000) in 1\u2011shot, 10\u2011s"
+  - id: '032'
+    severity: writing
+    status: skipped
+    text: "Address action item **[a2f01abcec7c]** (severity: writing): Throughout\
+      \ the manuscript, commas are sometimes missing after introductory clauses (e.g.,\
+      \ \u201CAfter removing the prokaryotic outlier \u2026 raises \u03C1"
+  - id: '033'
+    severity: writing
+    status: skipped
+    text: "Address action item **[3f6085f587fe]** (severity: writing): The use of\
+      \ \u201C\u2265\u201D and \u201C\u2264\u201D symbols in the text (e.g., \u201C\
+      31/36 models show a \u22655\xD7 smaller model outperforming\u2026\u201D) should\
+      \ be spelled out or placed in"
+  - id: '034'
+    severity: writing
+    status: skipped
+    text: "Address action item **[5b075f6532e7]** (severity: writing): In Table\u202F\
+      1 and Table\u202F2 captions, the term \u201Cmacro\u2011MCC\u201D is introduced\
+      \ without definition; add a brief explanation of the metric on first use."
+  - id: '035'
+    severity: writing
+    status: skipped
+    text: "Address action item **[8e677709b656]** (severity: writing): The \u201C\
+      Practitioner Recommendations\u201D bullet list mixes model names with performance\
+      \ numbers without clear separators; reformat as \u201CModel (size"
+  - id: '036'
+    severity: writing
+    status: skipped
+    text: "Address action item **[3d51a7d3ed53]** (severity: writing): Section\u202F\
+      4.2 (Architecture Effects) uses the phrase \u201CTransformer\u2011decoder $+$0.149\
+      \ macro\u2011MCC vs. Mamba\u201D \u2013 clarify that this is a performance g"
+  - id: '037'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[2d6ee980a7a4]** (severity: writing): The conclusion
+      repeats several points from the abstract verbatim; condense to avoid redundancy.'
+  - id: 038
+    severity: writing
+    status: skipped
+    text: "Address action item **[155719efc5f5]** (severity: writing): Several abbreviations\
+      \ (e.g., \u201CMCC\u201D, \u201CSSM\u201D, \u201CBPE\u201D) are not defined\
+      \ at first appearance; add definitions."
+  - id: 039
+    severity: writing
+    status: skipped
+    text: "Address action item **[449ef15bc9af]** (severity: writing): In the Limitations\
+      \ section, the bullet points lack parallel structure; rewrite so each starts\
+      \ with a gerund (e.g., \u201CExcluding long\u2011range tas"
+  - id: '040'
+    severity: writing
+    status: skipped
+    text: "Address action item **[b07940929c21]** (severity: writing): The bibliography\
+      \ entries have inconsistent formatting (some use \u2018arXiv\u2019, others \u2018\
+      bioRxiv\u2019); standardize according to the journal\u2019s style."
+  - id: '041'
+    severity: science
+    status: done
+    text: 'Address action item **[04522704c0ba]** (severity: science): Include a requirements.txt
+      or environment.yml file in the repository to ensure dependency hygiene.'
+  - id: '042'
+    severity: science
+    status: skipped
+    text: 'Address action item **[83f402c6fb80]** (severity: science): Appendix `app:excluded_models`
+      notes 25% of models excluded due to ''Private weights'' or ''Broken code''.
+      Please discuss how this selection bia'
+  - id: '043'
+    severity: science
+    status: skipped
+    text: 'Address action item **[300e52be2ab7]** (severity: science): Rank stability
+      analyses (probe vs. MLP, regularization sweeps) are performed on a small subset
+      of 11 models and 13 tasks. The paper extrapol'
+  - id: '044'
+    severity: science
+    status: skipped
+    text: "Address action item **[b8b5d5bdac1e]** (severity: science): Add a dedicated\
+      \ discussion of dual\u2011use risks associated with large genomic foundation\
+      \ models, including potential misuse for pathogenic geno"
+  - id: '045'
+    severity: science
+    status: done
+    text: 'Address action item **[af51528904c7]** (severity: science): Include recommendations
+      for downstream users on responsible application of the benchmark results, emphasizing
+      the need for ethical review be'
+  - id: '046'
+    severity: science
+    status: skipped
+    text: 'Address action item **[f3485f5bb1bc]** (severity: science): Report confidence
+      intervals or standard errors for MCC scores across the 5 seeds (Methodology)
+      to quantify uncertainty in main results.'
+  - id: '047'
+    severity: science
+    status: skipped
+    text: 'Address action item **[a377b89dc37c]** (severity: science): Address multiple-comparisons
+      issue for the 13 category-level scaling correlations (Table 1) using FDR or
+      Bonferroni correction.'
+  - id: 048
+    severity: science
+    status: skipped
+    text: 'Address action item **[ffa73680eadd]** (severity: science): Provide statistical
+      significance tests (e.g., paired t-tests or bootstrap CIs) for the 30 controlled-pair
+      differences (Appendix) rather than'

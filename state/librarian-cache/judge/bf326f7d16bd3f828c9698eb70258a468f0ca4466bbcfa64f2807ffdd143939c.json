@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2103.03478",
+  "judged_at": "2026-06-29T18:46:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
+  "rationale": "This paper satisfies criteria (a) and (b) because it directly investigates the impact of \"parcellation\" (the choice of ROIs) on the statistical properties and predictive power of brain connectomes, which is the core mechanism of \"parcellation sensitivity\" the user is asking about. Although the paper focuses on trait prediction rather than \"hub resilience\" specifically, it establishes the empirical baseline for how parcellation choices alter connectome representations, a necessary prior work for ",
+  "relevant": true
+}

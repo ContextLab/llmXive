@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.10357",
+  "judged_at": "2026-06-29T18:46:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
+  "rationale": "This paper satisfies criterion (a) and (b) as it investigates the topological properties and structural stability of \"hub nodes\" within the human connectome, which are the core variables of the user's question regarding hub resilience. Although it uses \"higher-order complexes\" and \"simplicial topology\" rather than \"parcellation sensitivity\" explicitly, it provides canonical evidence on how hub structure depends on network definition and weighting thresholds, directly informing the mechanism of h",
+  "relevant": true
+}

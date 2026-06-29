@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1406.7690",
+  "judged_at": "2026-06-29T18:46:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
+  "rationale": "The paper is rejected because it belongs to a completely different domain (high-energy particle physics and detector hardware) and shares no measurable connection to the user's variables (brain parcellation, hub resilience, or connectomes) or mechanism, despite the superficial keyword overlap of \"neural network\" and \"clustering.\"",
+  "relevant": false
+}

@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-679-geneb-why-genomic-models-are-hard-to-com/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'GENEB: Why Genomic Models Are Hard to Compare'
-updated_at: '2026-06-29T02:55:26.704255Z'
+updated_at: '2026-06-29T18:51:42.303392Z'

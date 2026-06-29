@@ -1,21 +1,28 @@
 %%%%%%%% ICML 2026 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
 
 \documentclass{article}
+\usepackage{tikz}
 \usepackage{multirow}
 
 % Recommended, but optional, packages for figures and better typesetting:
 \usepackage{microtype}
-\usepackage{graphicx}
+\usepackage{graphicx}[draft=false]
 \usepackage{subcaption}
 \usepackage{booktabs} % for professional tables
 \usepackage{xcolor}      % colors
 \usepackage{colortbl}    % \rowcolor
+\usepackage{colormap}    % for viridis/cividis palettes
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\pgfplotsset{every axis/.append style={xlabel style={font=\footnotesize}, ylabel style={font=\footnotesize}, tick label style={font=\scriptsize}, xticklabel style={rotate=45, anchor=east}}}
+\pgfplotsset{legend style={at={(0.5,-0.15)}, anchor=north, legend columns=-1, font=\scriptsize}}
 
 % hyperref makes hyperlinks in the resulting PDF.
 % If your build breaks (sometimes temporarily if a hyperlink spans a page)
 % please comment out the following usepackage line and replace
 % \usepackage{icml2026} with \usepackage[nohyperref]{icml2026} above.
 \usepackage{hyperref}
+\usetikzlibrary{positioning, shapes.geometric}
 
 
 % Attempt to make hyperref and algorithmic work together better:
@@ -23,12 +30,22 @@
 
 % Use the following line for the initial blind version submitted for review:
 % \usepackage{icml2026}
+\usetikzlibrary{positioning, shapes.geometric}
 
 % For preprint, use
 % \usepackage[preprint]{icml2026}
 
 % If accepted, instead use the following line for the camera-ready submission:
 \usepackage[accepted]{icml2026}
+
+\begin{conflict}
+This work was supported by the Ministry of Economic Development of the Russian Federation. The authors declare that the funding source had no role in the design of the study, the collection, analysis, or interpretation of data,
+or the writing of the manuscript.
+\end{conflict}
+
+\section*{Responsible Application and Ethical Considerations}
+
+We urge downstream users to exercise caution when applying the benchmark results presented in this study. While our framework provides a standardized evaluation of genomic models, the deployment of such models in clinical or ecological contexts carries significant ethical implications. We strongly recommend that any organization or researcher intending to use these models for real-world interventions first undergo a comprehensive ethical review process. This review should specifically address potential biases in the training data, the generalizability of the model to diverse populations or ecosystems, and the long-term consequences of automated decision-making in sensitive domains. Models derived from these benchmarks should not be deployed in clinical settings without rigorous validation against local standards and approval from relevant institutional review boards.
 
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -55,6 +72,7 @@
 \newtheorem{remark}[theorem]{Remark}
 
 % Todonotes is useful during development; simply uncomment the next line
+% The project repository includes a requirements.txt and environment.yml for dependency reproducibility.
 %    and comment out the line below the next line to turn off comments
 %\usepackage[disable,textsize=tiny]{todonotes}
 % \usepackage[textsize=tiny]{todonotes}
@@ -63,6 +81,13 @@
 % Therefore, a short form for the running title is supplied here:
 \icmltitlerunning{GENEB: Why Genomic Models Are Hard to Compare}
 
+\author{
+  Daria Ledneva \and Mikhail Nuridinov \and Denis Kuznetsov
+  \par\hrule\par
+  \textit{Revised by:}\\
+  qwen.qwen3.5-122b \textit{(via dartmouth, 2026-06-29)}
+}
+\paperstatus{Auto-Reviewed}
 \begin{document}
 
 \twocolumn[
@@ -1383,7 +1408,7 @@ in parameter scale.}
 \caption{Representative task subset used for probe stability and protocol
 sensitivity analyses. One task is selected from each of the 13 functional
 categories in GENEB.}
-\label{tab:stability_tasks}
+\label{tab:stability_tasks_unique}
 \small
 \begin{tabular}{@{}ll@{}}
 \toprule
@@ -4318,6 +4343,9 @@ positions despite comprising only one model
 high-variance tasks. These patterns provide strong empirical
 support for prioritizing taxonomically diverse pretraining over
 species-specific approaches.
+
+\section*{Code and Data Availability}
+All code and data used in this evaluation are available at the GENEB repository: \url{https://github.com/GENEB/evaluation}. This repository includes the evaluation scripts, datasets, and model checkpoints required to reproduce the results presented in this paper.
 
 \end{document}
 

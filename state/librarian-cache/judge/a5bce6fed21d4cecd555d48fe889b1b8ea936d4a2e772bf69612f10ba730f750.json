@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.10555",
+  "judged_at": "2026-06-29T18:48:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of code style on llm code generation diversity computer science",
+  "rationale": "The paper focuses on \"code-to-style image generation\" where \"code\" refers to numerical style embeddings for artistic image synthesis, which is a distinct construct from the user's question about \"code style\" (programming syntax and formatting) affecting LLM code generation. This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"code\" in the context of programming vs. \"code\" as a numerical identifier for visual style).",
+  "relevant": false
+}

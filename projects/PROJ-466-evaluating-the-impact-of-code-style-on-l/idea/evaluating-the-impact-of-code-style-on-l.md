@@ -15,45 +15,73 @@ To what extent do explicit code style constraints in prompts modulate the struct
 
 Understanding how stylistic conditioning influences LLM output variability is critical for deploying code assistants that balance readability with solution exploration. If strict style guidelines inadvertently collapse the search space of viable solutions, models may fail to discover alternative, potentially more efficient implementations. This project addresses the gap in evaluating LLM robustness to stylistic variation beyond standard functional correctness metrics.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-
-Queries targeted "LLM code generation style," "code style constraints LLM," and "diversity of generated code" across Semantic Scholar and arXiv using the provided literature block. The search yielded four results, none of which directly isolate code style as an independent variable affecting generation diversity.
-
-### What is known
-
-- [SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation (2025)](http://arxiv.org/abs/2505.21514v1) — Establishes benchmarks for interactive coding assistants but does not vary style constraints as a parameter.
-- [Evaluating Code Generation of LLMs in Advanced Computer Science Problems (2025)](http://arxiv.org/abs/2504.14964v1) — Focuses on educational utility and functional correctness in student contexts without analyzing stylistic conditioning effects.
-
-### What is NOT known
-
-No published work has quantified how specific formatting rules (indentation, naming conventions, bracing) impact the entropy or structural variance of generated code. Existing evaluations prioritize pass rates over the diversity of acceptable solutions under stylistic constraints.
-
-### Why this gap matters
-
-Developers rely on LLMs to propose multiple alternatives; if style constraints reduce diversity, users lose access to novel implementation strategies. Filling this gap informs prompt engineering guidelines for maintaining creative flexibility while adhering to team style guides.
-
-### How this project addresses the gap
-
-The methodology explicitly manipulates style constraints in prompts and measures output diversity using AST-based metrics, directly isolating the causal link between style conditioning and solution variance.
+- [SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation (2025)](https://arxiv.org/abs/2505.21514) — Establishes benchmarks for interactive coding assistants but does not vary style constraints as a parameter to measure diversity effects.
+- [JaCoText: A Pretrained Model for Java Code-Text Generation (2023)](https://arxiv.org/abs/2303.12869) — Demonstrates transformer capabilities in code generation but focuses on language modeling performance rather than the impact of stylistic prompting on output variance.
+- [EVOR: Evolving Retrieval for Code Generation (2024)](https://arxiv.org/abs/2402.12317) — Investigates retrieval-augmented generation pipelines for code but does not isolate style constraints as an independent variable affecting solution diversity.
+- [Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code (2025)](https://arxiv.org/abs/2508.08322) — Discusses context limitations in multi-file projects but does not quantify how specific formatting rules alter the structural entropy of generated code.
 
 ## Expected results
 
-We expect strict style constraints (e.g., minified or rigid PEP8) to reduce structural diversity compared to neutral prompts, measurable via lower n-gram entropy and reduced AST edit distances. Confirming this would imply that style prompting acts as a regularization mechanism, potentially limiting exploration of alternative algorithms.
+We expect strict style constraints (e.g., rigid PEP8 or aggressive minification) to significantly reduce structural diversity compared to neutral prompts, measurable via lower n-gram entropy and reduced AST edit distances. Confirming this would imply that style prompting acts as a regularization mechanism, potentially limiting exploration of alternative algorithms, while a null result would suggest models can maintain diverse solution spaces despite strict formatting.
 
 ## Methodology sketch
 
-- **Data acquisition**: Download the HumanEval benchmark subset (publicly available on HuggingFace) containing 164 programming tasks.
-- **Model selection**: Load a small open-weight model (e.g., Salesforce/CodeGen-350M-mono) via `transformers` on CPU to ensure compliance with 7GB RAM limits.
-- **Prompt engineering**: Create three style variants for each task: (1) Neutral, (2) Strict PEP8, (3) Aggressive Minification.
-- **Generation**: For each task and style, generate 5 code samples using temperature sampling (T=0.7) to capture variability.
-- **Metric computation**: Calculate token n-gram overlap and Abstract Syntax Tree (AST) edit distance between generated samples within each style group.
-- **Statistical analysis**: Apply a Kruskal-Wallis H-test to compare diversity score distributions across the three style groups.
-- **Validation**: Ensure all generated code compiles (where possible) to filter non-functional noise before diversity analysis.
+- **Data acquisition**: Download the HumanEval benchmark subset (publicly available on HuggingFace `openai/human-eval`) containing 164 programming tasks.
+- **Model selection**: Load a small open-weight model (e.g., `Salesforce/codegen-350M-mono`) via `transformers` on CPU, ensuring memory usage stays under 7GB by processing in batches.
+- **Prompt engineering**: Create three style variants for each task: (1) Neutral (no style instructions), (2) Strict PEP8 (explicit indentation/naming rules), (3) Aggressive Minification (remove whitespace/comments).
+- **Generation**: For each task and style variant, generate 5 code samples using temperature sampling (T=0.7) to capture intrinsic model variability.
+- **Functional filtering**: Execute generated code against the HumanEval unit tests; discard samples that fail to run to ensure diversity metrics reflect valid solutions only.
+- **Metric computation**: Calculate token-level n-gram entropy and pairwise Abstract Syntax Tree (AST) edit distance between the 5 valid samples within each style group to derive a "diversity score."
+- **Statistical analysis**: Apply the Kruskal-Wallis H-test to determine if diversity score distributions differ significantly across the three groups; if significant, follow up with **Dunn's post-hoc test** with Bonferroni correction to specifically test the directional hypothesis that Strict PEP8 has lower diversity than Neutral.
+- **Validation**: Verify that the statistical pipeline runs end-to-end within the 6-hour GitHub Actions limit by processing a subset (e.g., 50 tasks) if the full 164 exceeds time constraints, ensuring the method is scalable.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in input context.
 - Closest match: None identified.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-29T18:48:11Z
+**Outcome**: success_after_expansion
+**Original term**: Evaluating the Impact of Code Style on LLM Code Generation Diversity computer science
+**Verified citation count**: 6
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Evaluating the Impact of Code Style on LLM Code Generation Diversity computer science | 0 |
+| 1 | LLM code generation stylistic variations | 3 |
+| 2 | impact of coding conventions on model output diversity | 0 |
+| 3 | stylistic prompting for code generation | 0 |
+| 4 | code formatting influence on LLM performance | 0 |
+| 5 | semantic equivalence in generated code styles | 0 |
+| 6 | LLM code synthesis diversity metrics | 0 |
+| 7 | effect of coding style on model exploration | 0 |
+| 8 | style-guided code generation with large language models | 0 |
+| 9 | diversity of LLM-generated code under style constraints | 0 |
+| 10 | stylistic bias in code generation models | 0 |
+| 11 | impact of indentation and naming on code diversity | 0 |
+| 12 | controlling output variability in code LLMs | 0 |
+| 13 | code style transfer in generative models | 0 |
+| 14 | stylistic robustness of code generation systems | 0 |
+| 15 | variation in LLM code outputs across style prompts | 0 |
+| 16 | relationship between code aesthetics and generation diversity | 0 |
+| 17 | style-agnostic code generation evaluation | 0 |
+| 18 | stylistic generalization in neural code generation | 0 |
+| 19 | measuring stylistic diversity in AI-generated software | 0 |
+| 20 | coding standard adherence vs generation diversity in LLMs | 0 |
+
+### Verified citations
+
+1. **SIMCOPILOT: Evaluating Large Language Models for Copilot-Style Code Generation** (2025). Mingchao Jiang, Abhinav Jain, Sophia Zorek, Chris Jermaine. arXiv. [2505.21514](https://arxiv.org/abs/2505.21514). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+2. **Diversity Analysis of Bit-Interleaved Coded Multiple Beamforming** (2008). Hong Ju Park, Ender Ayanoglu. arXiv. [0809.5096](https://arxiv.org/abs/0809.5096). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+3. **A Style is Worth One Code: Unlocking Code-to-Style Image Generation with Discrete Style Space** (2025). Huijie Liu, Shuhao Cui, Haoxiang Cao, Shuai Ma, Kai Wu, et al.. arXiv. [2511.10555](https://arxiv.org/abs/2511.10555). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+4. **JaCoText: A Pretrained Model for Java Code-Text Generation** (2023). Jessica López Espejel, Mahaman Sanoussi Yahaya Alassan, Walid Dahhane, El Hassane Ettifouri. arXiv. [2303.12869](https://arxiv.org/abs/2303.12869). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+5. **Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code** (2025). Muhammad Haseeb. arXiv. [2508.08322](https://arxiv.org/abs/2508.08322). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+6. **EVOR: Evolving Retrieval for Code Generation** (2024). Hongjin Su, Shuyang Jiang, Yuhang Lai, Haoyuan Wu, Boao Shi, et al.. arXiv. [2402.12317](https://arxiv.org/abs/2402.12317). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*

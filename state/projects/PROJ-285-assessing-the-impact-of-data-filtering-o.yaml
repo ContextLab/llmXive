@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T01:43:46.819493Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-285-assessing-the-impact-of-data-filtering-o
-last_run_id: 289c81a2-3c5e-4c83-ba25-88c246730a2d
+last_run_id: 62046711-c910-47ce-a425-e3f783436c4a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates
-updated_at: '2026-06-27T06:06:39.066539Z'
+updated_at: '2026-06-29T18:47:15.450585Z'

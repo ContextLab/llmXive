@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1802.06772",
+  "judged_at": "2026-06-29T18:46:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
+  "rationale": "This paper satisfies criteria (a) and (b) because it directly investigates the impact of different parcellation methods on network analysis in human connectomes, which is the core mechanism and domain of the user's question regarding \"parcellation sensitivity.\" Although it does not explicitly measure \"hub resilience\" as a specific metric, it establishes the necessary empirical baseline for how parcellation choices alter network properties, a prerequisite for any study on hub resilience sensitivi",
+  "relevant": true
+}

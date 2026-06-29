@@ -251,6 +251,10 @@
     "classified_at": "2026-06-16T08:23:13Z",
     "verdict": false
   },
+  "PROJ-466-evaluating-the-impact-of-code-style-on-l::1.6.0": {
+    "classified_at": "2026-06-29T18:47:45Z",
+    "verdict": false
+  },
   "PROJ-469-the-impact-of-repeated-exposure-to-neutr::1.6.0": {
     "classified_at": "2026-06-21T09:54:29Z",
     "verdict": false
@@ -701,6 +705,10 @@
   },
   "PROJ-787-assessing-orbital-period-dependence-of-t::1.6.0": {
     "classified_at": "2026-06-27T06:04:37Z",
+    "verdict": false
+  },
+  "PROJ-800-assessing-parcellation-sensitivity-of-hu::1.6.0": {
+    "classified_at": "2026-06-29T18:45:51Z",
     "verdict": false
   }
 }
