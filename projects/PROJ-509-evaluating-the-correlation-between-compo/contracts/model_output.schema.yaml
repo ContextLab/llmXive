@@ -1,0 +1,61 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for the evaluation results and trained model metadata.
+type: object
+required:
+  - model_type
+  - metrics
+  - split_info
+properties:
+  model_type:
+    type: string
+    description: Name of the model algorithm (e.g., RandomForest, GradientBoosting)
+  metrics:
+    type: object
+    required:
+      - r2
+      - mae
+      - rmse
+    properties:
+      r2:
+        type: number
+        description: Coefficient of determination
+      mae:
+        type: number
+        description: Mean Absolute Error
+      rmse:
+        type: number
+        description: Root Mean Squared Error
+      overfitting_ratio:
+        type: number
+        description: Ratio of train R2 to validation R2
+  split_info:
+    type: object
+    required:
+      - train_size
+      - val_size
+      - stratify_by
+    properties:
+      train_size:
+        type: integer
+        description: Number of training samples
+      val_size:
+        type: integer
+        description: Number of validation samples
+      stratify_by:
+        type: string
+        description: Column name used for stratification (e.g., crystal_system)
+  feature_importance:
+    type: array
+    description: List of feature importance scores if available
+    items:
+      type: object
+      required:
+        - feature
+        - score
+      properties:
+        feature:
+          type: string
+        score:
+          type: number
+additionalProperties: true

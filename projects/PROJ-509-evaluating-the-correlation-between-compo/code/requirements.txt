@@ -1,0 +1,6 @@
+pymatgen==2024.2.20
+scikit-learn==1.4.1.post1
+pandas==2.2.1
+numpy==1.26.4
+matplotlib==3.8.3
+pyyaml==6.0.1

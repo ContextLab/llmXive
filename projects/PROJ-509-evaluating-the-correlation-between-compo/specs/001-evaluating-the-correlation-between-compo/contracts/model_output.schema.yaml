@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Output"
+description: "Schema for model performance metrics and feature importance results."
+type: object
+properties:
+  model_name:
+    type: string
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+    description: "Name of the model type"
+  metrics:
+    type: object
+    properties:
+      r2_score:
+        type: number
+        description: "R-squared score on validation set"
+      mae:
+        type: number
+        description: "Mean Absolute Error"
+      rmse:
+        type: number
+        description: "Root Mean Squared Error"
+      train_r2:
+        type: number
+        description: "R-squared score on training set"
+    required:
+      - r2_score
+      - mae
+      - rmse
+      - train_r2
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+      required:
+        - feature
+        - importance
+  permutation_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+        std:
+          type: number
+      required:
+        - feature
+        - importance
+        - std
+required:
+  - model_name
+  - metrics
+  - feature_importance
+  - permutation_importance
+additionalProperties: false

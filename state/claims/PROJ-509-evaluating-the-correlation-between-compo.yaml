@@ -1,0 +1,449 @@
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Inorganic dataset output contains more than 10000 rows
+  claim_id: c_88762a0b
+  context: Run code/ingest.py and code/descriptors.py against the Zenodo mirror; verify
+    output CSV has >10k rows, no nulls in descriptor columns, and matches contracts/dataset.schema.yaml.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1051: 12500'
+      source_id: Q47604
+      url: https://www.wikidata.org/wiki/Q47604
+      value: '12500'
+    filled: true
+  kind: magnitude
+  raw_text: Verify output CSV has >10k rows
+  resolved_value: '12500'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T21:21:46Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Total Variation Distance threshold for crystal system split is 0.05
+  claim_id: c_e4c23b50
+  context: Implement code/evaluate.py to calculate Total Variation Distance (TVD)
+    between training and validation crystal system distributions; flag if TVD > 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if TVD > 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:21:46Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Model training time is under 3 hours on 2-core CPU
+  claim_id: c_89348512
+  context: "Run code/train.py and code/evaluate.py; verify models complete within\
+    \ 3h on 2-core CPU, R\xB2 > 0.0, and crystal system distribution TVD \u2264 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify models complete within 3h on 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:22:01Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Random Forest model configured with 200 estimators and max depth 20
+  claim_id: c_a134cb95
+  context: Implement code/train.py to train Random Forest Regressor (n_estimators=200,
+    max_depth=20) on the training split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest Regressor with n_estimators=200 and max_depth=20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:22:18Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Gradient Boosting model configured with 100 estimators
+  claim_id: c_16a53ecd
+  context: Implement code/train.py to train Gradient Boosting Regressor (n_estimators=100)
+    on the training split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Gradient Boosting Regressor with n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:22:41Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for multi-collinearity is 10
+  claim_id: c_41c5dcf8
+  context: 'Implement a Multi-Collinearity Check (VIF) in code/importance.py to diagnose
+    descriptor stability. Threshold: Flag if VIF > 10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if VIF > 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:22:41Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Chunked processing triggered when RAM usage exceeds 3 gigabytes
+  claim_id: c_42e7fb6f
+  context: Add memory monitoring logic in code/descriptors.py to trigger chunked processing
+    if RAM usage > 3GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger chunked processing if RAM usage > 3GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:22:41Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: MP-2020.12.1 dataset available on Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_9c56da27
+  context: 'Implement code/ingest.py to download MP-2020.12.1 from Zenodo (DOI: 10.5281/zenodo.4053859),
+    filter for inorganic compounds with complete formation energy/composition, and
+    log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'The MP-2020.12.1 dataset is available on Zenodo with DOI: 10.5281/zenodo.4053859.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:23:09Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 0
+  canonical: Verify output CSV has greater than 10000 rows
+  claim_id: c_fd8a5953
+  context: Run code/ingest.py and code/descriptors.py against the Zenodo mirror; verify
+    output CSV has >10k rows, no nulls in descriptor columns, and matches contracts/dataset.schema.yaml.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1051: 12500'
+      source_id: Q47604
+      url: https://www.wikidata.org/wiki/Q47604
+      value: '12500'
+    filled: true
+  kind: magnitude
+  raw_text: Verify output CSV has >10k rows
+  resolved_value: '12500'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T21:25:15Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 2
+  canonical: Download MP-2020.12.1 dataset from Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_3d3ea456
+  context: 'Implement code/ingest.py to download MP-2020.12.1 from Zenodo (DOI: 10.5281/zenodo.4053859),
+    filter for inorganic compounds with complete formation energy/composition, and
+    log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:25:17Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Verify models complete within 3 hours on 2-core CPU
+  claim_id: c_02d60d2c
+  context: "Run code/train.py and code/evaluate.py; verify models complete within\
+    \ 3h on 2-core CPU, R\xB2 > 0.0, and crystal system distribution TVD \u2264 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify models complete within 3h on 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:25:17Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Verify crystal system distribution Total Variation Distance less than
+    or equal to 0.05
+  claim_id: c_b837da1e
+  context: "Run code/train.py and code/evaluate.py; verify models complete within\
+    \ 3h on 2-core CPU, R\xB2 > 0.0, and crystal system distribution TVD \u2264 0.05."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_crystal_system_distribution_Total_Variation_Distance
+  kind: magnitude
+  raw_text: "Verify crystal system distribution TVD \u2264 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:25:52Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Train Random Forest Regressor with n_estimators 200 and max_depth 20
+  claim_id: c_711bd992
+  context: Implement code/train.py to train Random Forest Regressor (n_estimators=200,
+    max_depth=20) on the training split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest Regressor with n_estimators=200 and max_depth=20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:25:52Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Train Gradient Boosting Regressor with n_estimators 100
+  claim_id: c_850f0001
+  context: Implement code/train.py to train Gradient Boosting Regressor (n_estimators=100)
+    on the training split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Gradient Boosting Regressor with n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:25:53Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Flag if Variance Inflation Factor greater than 10
+  claim_id: c_59865699
+  context: 'Implement a Multi-Collinearity Check (VIF) in code/importance.py to diagnose
+    descriptor stability. Threshold: Flag if VIF > 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_if_Variance_Inflation_Factor_greater_than_10
+  kind: magnitude
+  raw_text: Flag if VIF > 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:26:16Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: MP-2020.12.1 dataset available at DOI 10.5281/zenodo.4053859
+  claim_id: c_ba347415
+  context: 'Implement code/ingest.py to download MP-2020.12.1 from Zenodo (DOI: 10.5281/zenodo.4053859),
+    filter for inorganic compounds with complete formation energy/composition, and
+    log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:33:00Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 0
+  canonical: output CSV has greater than 10000 rows
+  claim_id: c_331c9c49
+  context: Run `code/ingest.py` and `code/descriptors.py` against the Zenodo mirror;
+    verify output CSV has >10k rows, no nulls in descriptor columns, and matches `contracts/dataset.schema.yaml`.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1051: 12500'
+      source_id: Q47604
+      url: https://www.wikidata.org/wiki/Q47604
+      value: '12500'
+    filled: true
+  kind: magnitude
+  raw_text: verify output CSV has >10k rows
+  resolved_value: '12500'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T21:38:32Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: MP-2020.12.1 dataset available at Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_c2aa5a84
+  context: 'Implement `code/ingest.py` to download MP-2020.12.1 from Zenodo (DOI:
+    10.5281/zenodo.4053859), filter for inorganic compounds with complete formation
+    energy/composition, and log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:38:35Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: models complete within 3 hours on 2-core CPU
+  claim_id: c_a9e3a1a5
+  context: "Run `code/train.py` and `code/evaluate.py`; verify models complete within\
+    \ 3h on 2-core CPU, R\xB2 > 0.0, and crystal system distribution TVD \u2264 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify models complete within 3h on 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:38:35Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: crystal system distribution Total Variation Distance less than or equal
+    to 0.05
+  claim_id: c_4f34d26f
+  context: "Run `code/train.py` and `code/evaluate.py`; verify models complete within\
+    \ 3h on 2-core CPU, R\xB2 > 0.0, and crystal system distribution TVD \u2264 0.05."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crystal_system_distribution_Total_Variation_Distance_less_th
+  kind: magnitude
+  raw_text: "verify crystal system distribution TVD \u2264 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:38:37Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Random Forest Regressor n_estimators 200 max_depth 20
+  claim_id: c_ac53d299
+  context: Implement `code/train.py` to train Random Forest Regressor (`n_estimators=200`,
+    `max_depth=20`) on the training split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train Random Forest Regressor with n_estimators=200, max_depth=20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:38:37Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Gradient Boosting Regressor n_estimators 100
+  claim_id: c_97e8dd7d
+  context: Implement `code/train.py` to train Gradient Boosting Regressor (`n_estimators=100`)
+    on the training split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train Gradient Boosting Regressor with n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:38:37Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor greater than 10 flag
+  claim_id: c_3391ce0b
+  context: 'Implement a Multi-Collinearity Check (VIF) in `code/importance.py` to
+    diagnose descriptor stability. **Threshold**: Flag if VIF > 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Inflation_Factor_greater_than_10_flag
+  kind: magnitude
+  raw_text: Flag if VIF > 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:38:39Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 5
+  canonical: MP-2020.12.1 dataset available at Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_618ef823
+  context: 'Implement code/ingest.py to download MP-2020.12.1 from Zenodo (DOI: 10.5281/zenodo.4053859),
+    filter for inorganic compounds with complete formation energy/composition, and
+    log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:39:45Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Wikidata identifier Q47604
+  claim_id: c_b104c086
+  context: Run code/ingest.py and code/descriptors.py against the Zenodo mirror; {{claim:c_331c9c49}}
+    (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604), no nulls in descriptor
+    columns, and matches contracts/dataset.schema.yaml.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_identifier_Q47604
+  kind: entity_fact
+  raw_text: Wikidata Q47604
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:39:59Z'

@@ -1,0 +1,504 @@
+resolved_at: '2026-06-29T20:58:14.169201+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/Delta_State_College_of_Nursing_Sapele_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_i/32827103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Delta_State_College_of_Nursing_Eku_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_invi/32827100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Agbor_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/Investigation_of_Flame_Behavior_in_a_Dual-Fuel_Aviation_Gas_Turbine_Combustor/32810507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Delta_State_College_of_Nursing_Warri_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827094
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20854874
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21046673
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21046673
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21045760
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21045760
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MP-2020
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/conference_contribution/Delta_State_College_of_Nursing_Sapele_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_i/32827103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Delta_State_College_of_Nursing_Eku_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_invi/32827100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Agbor_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/Investigation_of_Flame_Behavior_in_a_Dual-Fuel_Aviation_Gas_Turbine_Combustor/32810507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Delta_State_College_of_Nursing_Warri_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827094
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20374121
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13433077
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18509308
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13502182
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://validate.perfdrive.com/fb803c746e9148689b3984a31fccd902/?ssa=a16566d7-af91-4a6e-a491-e35119125c50&ssb=71924279674&ssc=https%3A%2F%2Fiopscience.iop.org%2Farticle%2F10.1088%2F1361-6528%2Faba57a&ssi=e01d3d18-cnvj-413f-b9dd-44bb2bf251b6&ssk=botmanager_support@radware.com&ssm=44381367230633446102247539587156&ssn=2aa0a03745c776e21e2b6dd2ddc9ca732262104b3c79-3b15-467f-b89b1c&sso=6a5e6f2b-6b75373cb85fb8514e6948cbb36f5c97521ddd9e43a08e3d&ssp=64825309991782726889178272021078862&ssq=96849986655551823055566555620009678894757&ssr=NjQuMjM2LjE3Ni4xNDU=&sst=llmxive-librarian/1.0%20(https://github.com/ContextLab/llmXive)&ssu=&ssv=&ssw=&ssx=eyJfX3V6bWYiOiI3ZjkwMDAxMDRiM2M3OS0zYjE1LTQ2N2YtYmYyYi02Yjc1MzczY2I4NWYxLTE3ODI3NjY1NTUyODQwLTAwNGI1ZGUwOTgzYWM1ZGM2YTAxMCIsInJkIjoiaW9wLm9yZyIsInV6bXgiOiI3ZjkwMDA2ZDA0N2I0Yi1kNDNkLTRkYzYtYjg4My05ZmY0NGU0ZmI1OTMxLTE3ODI3NjY1NTUyODQwLTM2NzJjZDU3M2RiNGE1MGExMCJ9
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21045912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21045912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/burnout-sem-07
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20938947
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20938947
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/optimum-benchmark/cpu/resolve/main/cpu_inference_diffusers_stable-diffusion_CompVis/stable-diffusion-v1-4/benchmark.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Asaba_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827106
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Delta_State_College_of_Nursing_Sapele_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_i/32827103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Delta_State_College_of_Nursing_Eku_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_invi/32827100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Agbor_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/Investigation_of_Flame_Behavior_in_a_Dual-Fuel_Aviation_Gas_Turbine_Combustor/32810507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21043615
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Asaba_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827106
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Delta_State_College_of_Nursing_Sapele_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_i/32827103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Delta_State_College_of_Nursing_Eku_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_invi/32827100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Agbor_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/Investigation_of_Flame_Behavior_in_a_Dual-Fuel_Aviation_Gas_Turbine_Combustor/32810507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Akwa_Ibom_State_College_of_Nursing_Anua_Uyo_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications/32827109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Asaba_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827106
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Delta_State_College_of_Nursing_Sapele_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_i/32827103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Delta_State_College_of_Nursing_Eku_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_invi/32827100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Agbor_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21045291
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21045291
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/occurrence/download/0005739-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://search.vivli.org/doiLanding/dataRequests/PR00011885
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RAM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 130991
+      parsed: true
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 91560
+      parsed: true
+  - url: https://huggingface.co/datasets/ramybaly/conll2012/resolve/main/test.txt
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&Expires=1782770268&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzcwMjY4fX19XX0_&Signature=MEUCIQDQHkaDM~XrhlNP0R09ElENkmSrExtN3v1uoF7Tbd07KgIgaCBVPDfjuHYOg2cF2XQ5GkHcSUp5P84TyXfnmnVJxm0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ramybaly/conll2012/resolve/main/test.txt
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://figshare.com/articles/dataset/Akwa_Ibom_State_College_of_Nursing_Anua_Uyo_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications/32827109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Asaba_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827106
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Delta_State_College_of_Nursing_Sapele_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_i/32827103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Delta_State_College_of_Nursing_Eku_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_invi/32827100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Delta_State_College_of_Nursing_Agbor_2026_2027_Session_Registration_form_Is_Open_call_0_9165949470_MRS_MERCY_09165949470_The_Nursing_has_officially_commenced_the_sale_of_admission_forms_for_the_2026_2027_academic_session_Applications_are_in/32827097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10272639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20065754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10353767
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7951034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5150655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21043144
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21043144
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21043231
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

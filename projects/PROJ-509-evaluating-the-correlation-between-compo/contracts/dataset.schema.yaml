@@ -1,0 +1,69 @@
+# Dataset Schema Definition for Computed Descriptors
+# Used by T010 to validate the output of T016/T017
+
+required_columns:
+  - formula
+  - formation_energy
+  - mean_electronegativity
+  - var_electronegativity
+  - mean_atomic_radius
+  - var_atomic_radius
+  - mean_valence
+  - var_valence
+  - mean_melting_point
+  - var_melting_point
+  - mean_ionization_energy
+  - var_ionization_energy
+  - crystal_system
+  - chemical_family
+
+column_types:
+  formula: string
+  formation_energy: numeric
+  mean_electronegativity: numeric
+  var_electronegativity: numeric
+  mean_atomic_radius: numeric
+  var_atomic_radius: numeric
+  mean_valence: numeric
+  var_valence: numeric
+  mean_melting_point: numeric
+  var_melting_point: numeric
+  mean_ionization_energy: numeric
+  var_ionization_energy: numeric
+  crystal_system: string
+  chemical_family: string
+
+range_constraints:
+  formation_energy:
+    min: -20.0
+    max: 20.0
+  mean_electronegativity:
+    min: 0.0
+    max: 4.5
+  var_electronegativity:
+    min: 0.0
+    max: 2.0
+  mean_atomic_radius:
+    min: 0.0
+    max: 3.0
+  var_atomic_radius:
+    min: 0.0
+    max: 1.0
+  mean_valence:
+    min: 0.0
+    max: 10.0
+  var_valence:
+    min: 0.0
+    max: 5.0
+  mean_melting_point:
+    min: 0.0
+    max: 6000.0
+  var_melting_point:
+    min: 0.0
+    max: 2000.0
+  mean_ionization_energy:
+    min: 0.0
+    max: 25.0
+  var_ionization_energy:
+    min: 0.0
+    max: 15.0

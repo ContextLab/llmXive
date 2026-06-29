@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Compound Descriptors Dataset"
+description: "Schema for the processed dataset containing compositional features and formation energy."
+type: object
+properties:
+  material_id:
+    type: string
+    description: "Unique identifier for the material (e.g., mp-1234)"
+  composition:
+    type: string
+    description: "Chemical formula (e.g., SiO2)"
+  formation_energy_per_atom:
+    type: number
+    description: "Formation energy in eV/atom"
+  crystal_system:
+    type: string
+    description: "Crystal system class (e.g., cubic, tetragonal)"
+  mean_electronegativity:
+    type: number
+    description: "Mean electronegativity of constituent elements"
+  var_electronegativity:
+    type: number
+    description: "Variance of electronegativity"
+  mean_atomic_radius:
+    type: number
+    description: "Mean atomic radius"
+  var_atomic_radius:
+    type: number
+    description: "Variance of atomic radius"
+  mean_valence_electrons:
+    type: number
+    description: "Mean valence electron count"
+  var_valence_electrons:
+    type: number
+    description: "Variance of valence electron count"
+  mean_melting_point:
+    type: number
+    description: "Mean melting point in Kelvin"
+  var_melting_point:
+    type: number
+    description: "Variance of melting point"
+  mean_ionization_energy:
+    type: number
+    description: "Mean first ionization energy in eV"
+  var_ionization_energy:
+    type: number
+    description: "Variance of first ionization energy"
+required:
+  - material_id
+  - composition
+  - formation_energy_per_atom
+  - crystal_system
+  - mean_electronegativity
+  - var_electronegativity
+  - mean_atomic_radius
+  - var_atomic_radius
+  - mean_valence_electrons
+  - var_valence_electrons
+  - mean_melting_point
+  - var_melting_point
+  - mean_ionization_energy
+  - var_ionization_energy
+additionalProperties: false
