@@ -1,0 +1,4 @@
+# Configuration for ruff in the code directory
+# Inherits settings from pyproject.toml if available, but this file ensures
+# explicit configuration for the code/ directory if needed.
+extend = "pyproject.toml"

@@ -17,7 +17,7 @@ This feature implements a reproducible statistical pipeline to investigate facto
 **Project Type**: data-analysis-pipeline  
 **Performance Goals**: < 6 hours runtime, < 7 GB RAM usage  
 **Constraints**: CPU-only, no GPU, reproducible seeds, no external API reliance for CI (synthetic fallback)  
-**Scale/Scope**: ~10k synthetic records for CI; real data ingestion manual step  
+**Scale/Scope**: A large set of synthetic records for CI; real data ingestion manual step  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

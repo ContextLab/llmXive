@@ -1,1 +1,24 @@
-[]
+- artifact_hash: 0ff57998869c81468c83739f1de14c8c383a6e742c638f5e2cc0f14add39b32d
+  artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/README_LINTING.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - psf/black: The uncompromising Python code formatter \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/psf/black
+  verification_status: verified
+  verified_against_url: https://github.com/psf/black
+  verified_at: '2026-06-29T22:26:51.828148Z'
+- artifact_hash: 0ff57998869c81468c83739f1de14c8c383a6e742c638f5e2cc0f14add39b32d
+  artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/README_LINTING.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - astral-sh/ruff-pre-commit: A pre-commit hook for Ruff.\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/astral-sh/ruff-pre-commit
+  verification_status: verified
+  verified_against_url: https://github.com/astral-sh/ruff-pre-commit
+  verified_at: '2026-06-29T22:26:51.828148Z'

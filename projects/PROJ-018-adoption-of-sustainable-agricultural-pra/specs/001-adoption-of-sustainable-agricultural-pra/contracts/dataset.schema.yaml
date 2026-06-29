@@ -1,52 +1,135 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "SurveyRecord Schema"
-description: "Schema for agricultural survey input data conforming to FR-002"
-type: "object"
-properties:
-  id:
-    type: "string"
-    description: "Unique record identifier"
-  country_code:
-    type: "string"
-    description: "ISO 3166-1 alpha-3 country code"
-  age:
-    type: "integer"
-    description: "Farmer age in years"
-  education_level:
-    type: "string"
-    description: "Education level category"
-  farm_size_ha:
-    type: "number"
+%YAML 1.2
+---
+# Dataset Schema Contract for PROJ-018
+# Defines the expected structure for raw, cleaned, and engineered datasets
+# Used for validation in code/01_download_data.py, code/02_clean_data.py, and code/03_engineer_features.py
+
+version: "1.0.0"
+description: "Schema for sustainable agricultural practices survey data"
+
+fields:
+  # Demographic & Socio-economic Variables
+  - name: country_code
+    type: string
+    format: ISO-3166-1-alpha-2
+    required: true
+    description: "ISO country code"
+    example: "KE"
+
+  - name: region
+    type: string
+    required: true
+    description: "Geographic region within the country"
+    example: "Nairobi County"
+
+  - name: age
+    type: integer
+    required: true
+    min: 18
+    max: 99
+    description: "Age of the respondent"
+
+  - name: education_years
+    type: integer
+    required: true
+    min: 0
+    max: 25
+    description: "Years of formal education"
+
+  - name: farm_size_ha
+    type: float
+    required: true
+    min: 0.0
     description: "Farm size in hectares"
-  credit_access:
-    type: "integer"
-    description: "Binary credit access (0 or 1)"
-  practice_adoption_flags:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of adopted sustainable practices"
-  engagement_item_1:
-    type: "number"
-    description: "Membership in farmer group (0-100)"
-  engagement_item_2:
-    type: "number"
-    description: "Participation in extension (0-100)"
-  engagement_item_3:
-    type: "number"
-    description: "Collective action participation (0-100)"
-  engagement_item_4:
-    type: "number"
-    description: "Frequency of knowledge exchange (0-100)"
-required:
-  - "id"
-  - "age"
-  - "education_level"
-  - "farm_size_ha"
-  - "credit_access"
-  - "practice_adoption_flags"
-  - "engagement_item_1"
-  - "engagement_item_2"
-  - "engagement_item_3"
-  - "engagement_item_4"
-additionalProperties: false
+
+  - name: household_income
+    type: float
+    required: false
+    min: 0.0
+    description: "Annual household income (local currency)"
+
+  - name: credit_access
+    type: integer
+    required: true
+    enum: [0, 1]
+    description: "Access to credit (0=No, 1=Yes)"
+
+  # Community Engagement Proxies (Raw)
+  - name: extension_contact_freq
+    type: integer
+    required: true
+    enum: [0, 1, 2, 3]
+    description: "Frequency of extension contact (0=Never, 1=Rarely, 2=Sometimes, 3=Often)"
+
+  - name: membership_count
+    type: integer
+    required: true
+    min: 0
+    description: "Number of farmer groups/organizations joined"
+
+  - name: collective_action_participation
+    type: integer
+    required: true
+    enum: [0, 1]
+    description: "Participation in collective action (0=No, 1=Yes)"
+
+  - name: knowledge_exchange
+    type: integer
+    required: true
+    enum: [0, 1, 2]
+    description: "Level of knowledge exchange (0=None, 1=Low, 2=High)"
+
+  # Sustainable Practice Adoption (Raw)
+  - name: practice_conservation_tillage
+    type: integer
+    required: true
+    enum: [0, 1]
+    description: "Adoption of conservation tillage (0=No, 1=Yes)"
+
+  - name: practice_agroforestry
+    type: integer
+    required: true
+    enum: [0, 1]
+    description: "Adoption of agroforestry (0=No, 1=Yes)"
+
+  - name: practice_crop_rotation
+    type: integer
+    required: true
+    enum: [0, 1]
+    description: "Adoption of crop rotation (0=No, 1=Yes)"
+
+  - name: practice_integrated_pest
+    type: integer
+    required: true
+    enum: [0, 1]
+    description: "Adoption of integrated pest management (0=No, 1=Yes)"
+
+  # Derived/Engineered Variables (Added by pipeline)
+  - name: adoption_binary
+    type: integer
+    required: false # Only present in engineered data
+    enum: [0, 1]
+    description: "Binary indicator if ANY sustainable practice is adopted (1=Yes, 0=No)"
+
+  - name: engagement_score
+    type: float
+    required: false # Only present in engineered data
+    min: 0.0
+    max: 1.0
+    description: "Composite score of community engagement intensity (normalized 0-1)"
+
+  - name: data_source
+    type: string
+    required: false
+    description: "Source of the data (e.g., 'synthetic', 'worldbank', 'fao')"
+
+constraints:
+  - description: "Must have at least one record"
+    condition: "count(rows) >= 1"
+  - description: "No missing values allowed in cleaned data for required fields"
+    condition: "data_type == 'cleaned' implies null_count(required_fields) == 0"
+
+file_naming_convention:
+  raw: "data/raw/survey_data_{source}.csv"
+  cleaned: "data/processed/cleaned_data.csv"
+  engineered: "data/processed/engineered_data.csv"

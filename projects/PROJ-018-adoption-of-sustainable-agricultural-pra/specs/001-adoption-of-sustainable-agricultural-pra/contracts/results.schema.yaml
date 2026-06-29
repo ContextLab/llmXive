@@ -1,49 +1,187 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Results Schema"
-description: "Schema for logistic regression and mediation output conforming to FR-006 to FR-012"
-type: "object"
-properties:
-  model_type:
-    type: "string"
-    description: "Model type used (e.g., 'LogisticRegression')"
-  auc:
-    type: "number"
-    description: "Area Under Curve value"
-  coefficients:
-    type: "object"
-    description: "Map of predictor names to coefficients"
-  vif_scores:
-    type: "object"
-    description: "Map of predictor names to VIF values"
-  correlation_matrix:
-    type: "object"
-    description: "Pairwise correlation matrix for all predictors (collinearity assessment)"
-  fdr_adjusted_p:
-    type: "object"
-    description: "Map of predictor names to FDR-adjusted p-values"
-  mediation_results:
-    type: "object"
-    description: "Mediation analysis output (direct, indirect, total effects)"
-  mediation_sensitivity:
-    type: "object"
-    description: "Sensitivity analysis results (E-values, Rosenbaum bounds) for mediation robustness"
+%YAML 1.2
+---
+# Results Schema Contract for PROJ-018
+# Defines the structure for statistical outputs, model metrics, and reports
+# Used for validation in code/04_model_analysis.py and code/05_generate_report.py
+
+version: "1.0.0"
+description: "Schema for analysis results and model outputs"
+
+sections:
+  # 1. Validity Metrics (from code/03_engineer_features.py)
   validity_metrics:
-    type: "object"
-    description: "Construct validity metrics (Cronbach's alpha, EFA loadings, convergent validity)"
-  limitations:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of documented study limitations"
-required:
-  - "model_type"
-  - "auc"
-  - "coefficients"
-  - "vif_scores"
-  - "correlation_matrix"
-  - "fdr_adjusted_p"
-  - "mediation_results"
-  - "mediation_sensitivity"
-  - "validity_metrics"
-  - "limitations"
-additionalProperties: false
+    type: object
+    required: true
+    properties:
+      cronbach_alpha:
+        type: number
+        description: "Cronbach's Alpha for engagement scale reliability"
+        min: 0.0
+        max: 1.0
+      factor_analysis:
+        type: object
+        description: "EFA results using Principal Axis Factoring"
+        properties:
+          extraction_method:
+            type: string
+            const: "Principal Axis Factoring"
+          rotation_method:
+            type: string
+            const: "Varimax"
+          factors_retained:
+            type: integer
+            min: 1
+            description: "Number of factors retained by Kaiser's rule (eigenvalues > 1)"
+          factor_loadings:
+            type: array
+            description: "Matrix of factor loadings"
+            items:
+              type: object
+              properties:
+                variable: string
+                factor: integer
+                loading: number
+      convergent_validity:
+        type: object
+        description: "Correlation with related constructs"
+        properties:
+          correlation_matrix:
+            type: object
+            additionalProperties: number
+          status:
+            type: string
+            enum: ["passed", "failed", "exploratory"]
+
+  # 2. Model Performance (from code/04_model_analysis.py)
+  model_performance:
+    type: object
+    required: true
+    properties:
+      auc_roc:
+        type: number
+        description: "Area Under the ROC Curve"
+        min: 0.0
+        max: 1.0
+      confusion_matrix:
+        type: object
+        properties:
+          true_positive: integer
+          true_negative: integer
+          false_positive: integer
+          false_negative: integer
+      vif_diagnostics:
+        type: array
+        description: "Variance Inflation Factor for each predictor"
+        items:
+          type: object
+          properties:
+            variable: string
+            vif: number
+            warning: boolean # true if VIF >= 5
+
+  # 3. Regression Results (from code/04_model_analysis.py)
+  regression_summary:
+    type: object
+    required: true
+    properties:
+      model_type:
+        type: string
+        const: "Logistic Regression"
+      formula:
+        type: string
+        description: "Model formula string"
+      coefficients:
+        type: array
+        items:
+          type: object
+          properties:
+            variable: string
+            coef: number
+            std_err: number
+            z_score: number
+            p_value: number
+            p_value_fdr: number # Benjamini-Hochberg adjusted
+            conf_int_lower: number
+            conf_int_upper: number
+
+  # 4. Mediation Analysis (from code/04_model_analysis.py)
+  mediation_analysis:
+    type: object
+    required: true
+    properties:
+      method:
+        type: string
+        const: "Baron & Kenny with Bootstrap"
+      bootstrap_samples:
+        type: integer
+        min: 1000
+      indirect_effect:
+        type: number
+      ci_lower:
+        type: number
+      ci_upper:
+        type: number
+      sensitivity_analysis:
+        type: object
+        properties:
+          e_value:
+            type: number
+            description: "E-value for the observed association"
+          rosenbaum_bounds:
+            type: object
+            properties:
+              gamma_values:
+                type: array
+                items: number
+              p_values:
+                type: array
+                items: number
+          interpretation:
+            type: string
+            description: "Qualitative interpretation (e.g., 'exploratory')"
+
+  # 5. Power Analysis (from code/02_clean_data.py)
+  power_analysis:
+    type: object
+    required: false
+    properties:
+      effective_n_events:
+        type: integer
+      num_predictors:
+        type: integer
+      ratio:
+        type: number
+      shortfall:
+        type: boolean
+        description: "True if ratio < 10"
+      status:
+        type: string
+        enum: ["adequate", "shortfall", "not_calculated"]
+
+  # 6. Metadata & Provenance
+  metadata:
+    type: object
+    required: true
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      seed_used:
+        type: integer
+      software_versions:
+        type: object
+        properties:
+          python: string
+          pandas: string
+          statsmodels: string
+      data_provenance:
+        type: string
+        description: "Source of the data used"
+
+file_outputs:
+  - path: "results/validity_metrics.yaml"
+    schema_section: validity_metrics
+  - path: "results/model_results.yaml"
+    schema_section: [model_performance, regression_summary, mediation_analysis, power_analysis]
+  - path: "results/report_metadata.yaml"
+    schema_section: metadata

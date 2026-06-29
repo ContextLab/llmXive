@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-018"
+version = "0.1.0"
+description = "Adoption of Sustainable Agricultural Practices in Low-Income Areas"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "statsmodels",
+    "scikit-learn",
+    "matplotlib",
+    "pyyaml",
+    "factor_analyzer",
+    "evalues",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.0.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
