@@ -1,14 +1,3 @@
-"""
-Social Memory Networks - Experiment Runner
-
-This module provides the main experiment orchestration for running
-multi-agent social memory experiments with different context conditions.
-
-Supports:
-- Full context condition (baseline)
-- Limited context condition (truncation impact)
-- Various agent counts for scaling analysis
-"""
 import argparse
 import sys
 from pathlib import Path
@@ -16,405 +5,339 @@ import numpy as np
 import pandas as pd
 from typing import List, Dict, Any, Optional, Tuple
 import json
-import time
+from datetime import datetime
+import os
 
-# Import from project modules
+# Add code directory to path for imports
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
+
 from agent.base_agent import AgentConfig, BaseAgent
-from data.loaders import get_dataset, save_experiment_results, get_dataset_spec
+from memory.buffer import get_shared_memory_buffer, reset_shared_memory_buffer, MemoryBuffer
+from metrics.specialization import compute_specialization_index, compute_game_level_specialization
+from metrics.retrieval import compute_retrieval_efficiency, compute_game_level_retrieval
+from data.loaders import get_dataset, DatasetLoader
 from data.synthetic import generate_synthetic_games, SyntheticGameConfig
-from memory.buffer import (
-    MemoryAction, MemoryEntry, MemoryActionRequest, MemoryActionResult,
-    MemoryBuffer, get_shared_memory_buffer, reset_shared_memory_buffer,
-    parse_memory_action, execute_memory_action, handle_agent_output
-)
-from metrics.specialization import (
-    SpecializationMetrics, compute_specialization_index,
-    compute_game_level_specialization, validate_specialization_index
-)
-from metrics.retrieval import (
-    RetrievalMetrics, compute_retrieval_rate, compute_retrieval_efficiency,
-    validate_retrieval_efficiency, compute_game_level_retrieval
-)
-from metrics.validator import (
-    ValidationResult, GameMetricRecord, validate_single_game_metrics,
-    validate_experiment_metrics, validate_and_filter_records, compute_metric_statistics
-)
-from utils.config import Config, ConfigManager, get_config_manager, get_config, load_config
-from utils.logging import setup_logger, get_logger, log_experiment_start, log_experiment_end, info, warning, error, debug
+from utils.config import get_config_manager, get_config
+from utils.logging import get_logger, log_experiment_start, log_experiment_end
 
-# Constants
-DEFAULT_GAME_COUNT = 1000
-DEFAULT_AGENT_COUNT = 3
-DEFAULT_CONTEXT_WINDOW = 2048  # Full context
-LIMITED_CONTEXT_WINDOW = 512   # Limited context for US-2
-DEFAULT_SEED = 42
-OUTPUT_DIR = Path("projects/PROJ-586-social-memory-networks-modeling-collecti/results")
+logger = get_logger(__name__)
 
-
-def parse_args() -> argparse.Namespace:
-    """Parse command-line arguments for experiment configuration."""
-    parser = argparse.ArgumentParser(
-        description="Run social memory network experiments"
-    )
-    
-    # Context condition
-    parser.add_argument(
-        "--context",
-        type=str,
-        choices=["full", "limited"],
-        default="full",
-        help="Context condition: 'full' for baseline, 'limited' for truncation"
-    )
-    
-    # Agent configuration
-    parser.add_argument(
-        "--agents",
-        type=int,
-        default=DEFAULT_AGENT_COUNT,
-        help=f"Number of agents (default: {DEFAULT_AGENT_COUNT})"
-    )
-    
-    # Dataset configuration
-    parser.add_argument(
-        "--dataset",
-        type=str,
-        default="synthetic",
-        choices=["synthetic", "hanabi", "coqa"],
-        help="Dataset to use (synthetic fallback only)"
-    )
-    
-    # Game count
-    parser.add_argument(
-        "--games",
-        type=int,
-        default=DEFAULT_GAME_COUNT,
-        help=f"Number of games to simulate (default: {DEFAULT_GAME_COUNT})"
-    )
-    
-    # Random seed
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=DEFAULT_SEED,
-        help=f"Random seed for reproducibility (default: {DEFAULT_SEED})"
-    )
-    
-    # Output path
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Output CSV path (default: auto-generated based on context)"
-    )
-    
-    # Verbosity
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
-    )
-    
+def parse_args():
+    """Parse command line arguments for experiment configuration."""
+    parser = argparse.ArgumentParser(description='Social Memory Networks Experiment')
+    parser.add_argument('--context', type=str, default='full',
+                      choices=['full', 'limited'],
+                      help='Context window condition (full or limited)')
+    parser.add_argument('--agents', type=int, nargs='+', default=[2],
+                      help='Number of agents to simulate')
+    parser.add_argument('--games', type=int, default=1000,
+                      help='Number of games per configuration')
+    parser.add_argument('--dataset', type=str, default='synthetic',
+                      help='Dataset type (synthetic or real)')
+    parser.add_argument('--output-dir', type=str, default='data',
+                      help='Output directory for results')
+    parser.add_argument('--seed', type=int, default=42,
+                      help='Random seed for reproducibility')
+    parser.add_argument('--scaling', action='store_true',
+                      help='Run scaling analysis with multiple agent counts')
+    parser.add_argument('--agent-counts', type=int, nargs='+', default=[3, 5, 7],
+                      help='Agent counts for scaling analysis (default: 3, 5, 7)')
+    parser.add_argument('--games-per-config', type=int, default=800,
+                      help='Number of games per agent configuration for scaling')
     return parser.parse_args()
 
+def get_context_window(context_type: str) -> int:
+    """Get context window size based on context type."""
+    if context_type == 'full':
+        return 2048
+    elif context_type == 'limited':
+        return 256
+    else:
+        return 2048
 
-def get_context_window(context_condition: str) -> int:
-    """Get the context window size based on condition."""
-    if context_condition == "limited":
-        return LIMITED_CONTEXT_WINDOW
-    return DEFAULT_CONTEXT_WINDOW
-
-
-def create_agents(
-    num_agents: int,
-    config: Config,
-    seed: int
-) -> List[BaseAgent]:
-    """Create a list of agents with unique IDs."""
+def create_agents(num_agents: int, context_window: int, seed: int) -> List[BaseAgent]:
+    """Create a list of agents with the specified configuration."""
     agents = []
     for i in range(num_agents):
-        agent_config = AgentConfig(
+        config = AgentConfig(
             agent_id=f"agent_{i}",
             model_name="opt-125m",
-            device="cpu",
-            precision="float32",
-            seed=seed + i
+            context_window=context_window,
+            seed=seed + i,
+            device="cpu"
         )
-        agent = BaseAgent(agent_config)
+        agent = BaseAgent(config)
         agents.append(agent)
     return agents
 
-
 def run_single_game(
-    game_id: int,
     agents: List[BaseAgent],
-    context_window: int,
-    dataset: str,
-    seed: int,
-    logger: Any
-) -> Optional[Dict[str, Any]]:
+    game_id: int,
+    memory_buffer: MemoryBuffer,
+    dataset: Dict[str, Any],
+    context_window: int
+) -> Dict[str, Any]:
     """
     Run a single game simulation with the given agents.
     
-    Returns a dictionary with game results including metrics,
-    or None if the game fails validation.
+    Returns a dictionary with game results and metrics.
     """
-    try:
-        # Reset shared memory buffer for each game
-        reset_shared_memory_buffer()
-        memory_buffer = get_shared_memory_buffer()
-        
-        # Generate synthetic game data
-        game_config = SyntheticGameConfig(
-            num_agents=len(agents),
-            context_window=context_window,
-            seed=seed + game_id,
-            dataset_type=dataset
+    # Reset memory buffer for each game
+    reset_shared_memory_buffer()
+    
+    # Generate synthetic game data if not provided
+    if not dataset:
+        config = SyntheticGameConfig(
+            num_items=10,
+            num_rounds=5,
+            seed=game_id
         )
+        dataset = generate_synthetic_games(config)[0]
+    
+    game_results = {
+        'game_id': game_id,
+        'agent_count': len(agents),
+        'context_condition': 'full' if context_window >= 2048 else 'limited',
+        'context_window': context_window,
+        'agent_results': [],
+        'memory_actions': [],
+        'specialization_index': None,
+        'retrieval_efficiency': None
+    }
+    
+    # Simulate game rounds
+    for round_num in range(dataset.get('num_rounds', 5)):
+        round_data = dataset.get('rounds', [{}])[round_num] if 'rounds' in dataset else {}
         
-        game_data = generate_synthetic_games([game_config])[0]
-        
-        # Initialize game state
-        game_state = {
-            "game_id": game_id,
-            "agents": agents,
-            "memory_buffer": memory_buffer,
-            "context_window": context_window,
-            "turn": 0,
-            "max_turns": 10,
-            "completed_clues": [],
-            "agent_contributions": {f"agent_{i}": [] for i in range(len(agents))}
-        }
-        
-        # Run game simulation
-        for turn in range(game_state["max_turns"]):
-            game_state["turn"] = turn
+        # Each agent processes the round
+        for agent_idx, agent in enumerate(agents):
+            # Agent generates response based on context
+            agent_input = f"Round {round_num}: {round_data.get('prompt', 'game continuation')}"
             
-            # Each agent takes a turn
-            for agent in agents:
-                # Prepare context with truncation if limited
-                full_context = game_data["context"]
-                if context_window < len(full_context):
-                    truncated_context = full_context[:context_window]
-                else:
-                    truncated_context = full_context
-                
-                # Agent processes context and decides on action
-                agent_output = agent.process_context(truncated_context, game_state)
-                
-                # Handle memory action if present
-                if hasattr(agent_output, 'memory_action') and agent_output.memory_action:
-                    action_result = handle_agent_output(
-                        agent_output,
-                        memory_buffer,
-                        game_state
-                    )
-                    
-                    # Record agent contribution
-                    agent_id = agent.config.agent_id
-                    game_state["agent_contributions"][agent_id].append({
-                        "turn": turn,
-                        "action": action_result.action if action_result else None,
-                        "success": action_result.success if action_result else False
-                    })
-                
-                # Check for game completion
-                if agent_output.completed:
-                    game_state["completed_clues"].append(agent_output.clue)
-                    break
-        
-        # Compute metrics for this game
-        specialization_metrics = compute_game_level_specialization(
-            game_state["agent_contributions"],
-            len(agents)
-        )
-        
-        retrieval_metrics = compute_game_level_retrieval(
-            game_state["agent_contributions"],
-            len(agents)
-        )
-        
-        # Validate metrics
-        spec_validation = validate_specialization_index(specialization_metrics)
-        retrieval_validation = validate_retrieval_efficiency(retrieval_metrics)
-        
-        if not spec_validation.is_valid or not retrieval_validation.is_valid:
-            logger.warning(f"Game {game_id}: Metrics validation failed")
-            return None
-        
-        # Compile game result
-        result = {
-            "game_id": game_id,
-            "specialization_index": specialization_metrics.specialization_index,
-            "retrieval_efficiency": retrieval_metrics.efficiency,
-            "context_condition": "limited" if context_window == LIMITED_CONTEXT_WINDOW else "full",
-            "agent_count": len(agents),
-            "context_window": context_window,
-            "completed_clues": len(game_state["completed_clues"]),
-            "total_turns": game_state["turn"] + 1,
-            "agent_contributions_count": {
-                aid: len(contribs)
-                for aid, contribs in game_state["agent_contributions"].items()
-            }
-        }
-        
-        return result
-        
-    except Exception as e:
-        logger.error(f"Game {game_id} failed with error: {str(e)}")
-        import traceback
-        logger.debug(traceback.format_exc())
-        return None
-
+            # Agent may store memory
+            memory_action = agent.generate_memory_action(agent_input, round_num)
+            if memory_action:
+                result = memory_buffer.store(memory_action)
+                game_results['memory_actions'].append({
+                    'agent_id': agent.config.agent_id,
+                    'action': memory_action,
+                    'round': round_num
+                })
+            
+            # Agent retrieves from memory
+            retrieved = memory_buffer.retrieve(agent_input, context_window)
+            
+            game_results['agent_results'].append({
+                'agent_id': agent.config.agent_id,
+                'round': round_num,
+                'response_length': len(agent.generate_response(agent_input, retrieved)),
+                'memory_stored': memory_action is not None,
+                'memory_retrieved': len(retrieved) > 0
+            })
+    
+    # Compute metrics for this game
+    specialization = compute_game_level_specialization(game_results['agent_results'])
+    retrieval = compute_game_level_retrieval(game_results['agent_results'])
+    
+    game_results['specialization_index'] = specialization
+    game_results['retrieval_efficiency'] = retrieval
+    
+    return game_results
 
 def run_experiment(
-    context_condition: str,
     num_agents: int,
     num_games: int,
-    dataset: str,
+    context_window: int,
+    dataset_type: str,
     seed: int,
-    output_path: Optional[Path] = None,
-    verbose: bool = False
-) -> pd.DataFrame:
+    output_path: Path
+) -> List[Dict[str, Any]]:
     """
     Run the full experiment with specified configuration.
     
     Args:
-        context_condition: 'full' or 'limited'
-        num_agents: Number of agents to simulate
-        num_games: Number of games to run
-        dataset: Dataset type to use
+        num_agents: Number of agents in the simulation
+        num_games: Number of games to simulate
+        context_window: Context window size
+        dataset_type: Type of dataset to use
         seed: Random seed
-        output_path: Optional output path for results
-        verbose: Enable verbose logging
-        
+        output_path: Path to save results
+    
     Returns:
-        DataFrame with experiment results
+        List of game result dictionaries
     """
-    # Setup logger
-    log_level = "DEBUG" if verbose else "INFO"
-    logger = setup_logger("experiment", log_level=log_level)
-    
-    # Get context window
-    context_window = get_context_window(context_condition)
-    
-    # Determine output path
-    if output_path is None:
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        if context_condition == "limited":
-            output_path = OUTPUT_DIR / "results_limited.csv"
-        else:
-            output_path = OUTPUT_DIR / "results_full.csv"
-    
-    # Log experiment start
-    log_experiment_start(logger, {
-        "context_condition": context_condition,
-        "num_agents": num_agents,
-        "num_games": num_games,
-        "context_window": context_window,
-        "dataset": dataset,
-        "seed": seed,
-        "output_path": str(output_path)
+    logger.info(f"Starting experiment: {num_agents} agents, {num_games} games")
+    log_experiment_start({
+        'num_agents': num_agents,
+        'num_games': num_games,
+        'context_window': context_window,
+        'dataset_type': dataset_type,
+        'seed': seed
     })
     
-    info(logger, f"Starting experiment: {context_condition} context, {num_agents} agents, {num_games} games")
-    info(logger, f"Context window: {context_window} tokens")
+    # Set random seeds
+    np.random.seed(seed)
     
     # Create agents
-    config = get_config()
-    agents = create_agents(num_agents, config, seed)
-    info(logger, f"Created {len(agents)} agents")
+    agents = create_agents(num_agents, context_window, seed)
+    logger.info(f"Created {len(agents)} agents")
+    
+    # Get or generate dataset
+    if dataset_type == 'synthetic':
+        config = SyntheticGameConfig(
+            num_items=10,
+            num_rounds=5,
+            seed=seed
+        )
+        dataset = generate_synthetic_games(config)[0]
+    else:
+        dataset = get_dataset(dataset_type)
+    
+    # Initialize memory buffer
+    memory_buffer = get_shared_memory_buffer()
     
     # Run games
     results = []
-    start_time = time.time()
-    
     for game_id in range(num_games):
         game_result = run_single_game(
-            game_id=game_id,
             agents=agents,
-            context_window=context_window,
+            game_id=game_id,
+            memory_buffer=memory_buffer,
             dataset=dataset,
+            context_window=context_window
+        )
+        results.append(game_result)
+        
+        # Log progress every 100 games
+        if (game_id + 1) % 100 == 0:
+            logger.info(f"Completed {game_id + 1}/{num_games} games")
+    
+    # Save results to CSV
+    results_df = pd.DataFrame([{
+        'game_id': r['game_id'],
+        'specialization_index': r['specialization_index'],
+        'retrieval_efficiency': r['retrieval_efficiency'],
+        'context_condition': r['context_condition'],
+        'agent_count': r['agent_count'],
+        'context_window': r['context_window']
+    } for r in results])
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Results saved to {output_path}")
+    
+    log_experiment_end({
+        'total_games': num_games,
+        'output_file': str(output_path)
+    })
+    
+    return results
+
+def run_scaling_experiment(
+    agent_counts: List[int],
+    games_per_config: int,
+    context_window: int,
+    seed: int,
+    output_dir: Path
+) -> pd.DataFrame:
+    """
+    Run scaling analysis across multiple agent counts.
+    
+    Args:
+        agent_counts: List of agent counts to test (e.g., [3, 5, 7])
+        games_per_config: Number of games per agent configuration
+        context_window: Context window size
+        seed: Random seed
+        output_dir: Directory to save results
+    
+    Returns:
+        DataFrame with all results
+    """
+    all_results = []
+    
+    for agent_count in agent_counts:
+        logger.info(f"Running scaling experiment: {agent_count} agents")
+        
+        output_path = output_dir / f"results_scaling_agent{agent_count}.csv"
+        results = run_experiment(
+            num_agents=agent_count,
+            num_games=games_per_config,
+            context_window=context_window,
+            dataset_type='synthetic',
             seed=seed,
-            logger=logger
+            output_path=output_path
         )
         
-        if game_result is not None:
-            results.append(game_result)
-            
-            # Log progress every 100 games
-            if (game_id + 1) % 100 == 0:
-                elapsed = time.time() - start_time
-                rate = (game_id + 1) / elapsed
-                info(logger, f"Progress: {game_id + 1}/{num_games} games ({rate:.2f} games/sec)")
+        all_results.extend(results)
+        logger.info(f"Completed {agent_count} agent configuration")
     
-    elapsed = time.time() - start_time
-    info(logger, f"Experiment completed in {elapsed:.2f} seconds")
-    info(logger, f"Successful games: {len(results)}/{num_games}")
+    # Combine all results
+    results_df = pd.DataFrame([{
+        'game_id': r['game_id'],
+        'specialization_index': r['specialization_index'],
+        'retrieval_efficiency': r['retrieval_efficiency'],
+        'context_condition': r['context_condition'],
+        'agent_count': r['agent_count'],
+        'context_window': r['context_window']
+    } for r in all_results])
     
-    # Convert to DataFrame
-    if len(results) > 0:
-        df = pd.DataFrame(results)
-        
-        # Validate experiment metrics
-        validation = validate_experiment_metrics(df)
-        if not validation.is_valid:
-            warning(logger, f"Experiment validation warnings: {validation.messages}")
-        
-        # Compute statistics
-        stats = compute_metric_statistics(df)
-        info(logger, f"Specialization index mean: {stats['specialization']['mean']:.4f}")
-        info(logger, f"Retrieval efficiency mean: {stats['retrieval']['mean']:.4f}")
-        
-        # Save results
-        save_experiment_results(df, output_path)
-        info(logger, f"Results saved to {output_path}")
-        
-        # Log experiment end
-        log_experiment_end(logger, {
-            "games_completed": len(results),
-            "games_failed": num_games - len(results),
-            "elapsed_seconds": elapsed,
-            "output_path": str(output_path),
-            "validation": validation.to_dict()
-        })
-        
-        return df
-    else:
-        error(logger, "No valid game results produced")
-        log_experiment_end(logger, {
-            "games_completed": 0,
-            "games_failed": num_games,
-            "error": "No valid results"
-        })
-        return pd.DataFrame()
-
+    # Save combined results
+    combined_path = output_dir / "results_scaling.csv"
+    results_df.to_csv(combined_path, index=False)
+    logger.info(f"Combined scaling results saved to {combined_path}")
+    
+    return results_df
 
 def main():
-    """Main entry point for the experiment runner."""
+    """Main entry point for experiment runner."""
     args = parse_args()
     
-    # Set random seed for reproducibility
-    np.random.seed(args.seed)
+    # Ensure output directory exists
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Run experiment
-    df = run_experiment(
-        context_condition=args.context,
-        num_agents=args.agents,
-        num_games=args.games,
-        dataset=args.dataset,
-        seed=args.seed,
-        output_path=Path(args.output) if args.output else None,
-        verbose=args.verbose
-    )
+    logger.info(f"Starting Social Memory Networks Experiment")
+    logger.info(f"Configuration: context={args.context}, agents={args.agents}")
     
-    # Exit with appropriate code
-    if len(df) > 0:
-        print(f"Experiment completed successfully: {len(df)} games")
-        sys.exit(0)
+    if args.scaling:
+        # Run scaling analysis with multiple agent counts
+        context_window = get_context_window(args.context)
+        results_df = run_scaling_experiment(
+            agent_counts=args.agent_counts,
+            games_per_config=args.games_per_config,
+            context_window=context_window,
+            seed=args.seed,
+            output_dir=output_dir
+        )
+        
+        # Print summary statistics
+        logger.info("Scaling Experiment Summary:")
+        for agent_count in args.agent_counts:
+            subset = results_df[results_df['agent_count'] == agent_count]
+            logger.info(f"  Agent count {agent_count}:")
+            logger.info(f"    Games: {len(subset)}")
+            logger.info(f"    Mean Specialization: {subset['specialization_index'].mean():.4f}")
+            logger.info(f"    Mean Retrieval Efficiency: {subset['retrieval_efficiency'].mean():.4f}")
     else:
-        print("Experiment failed: no valid results")
-        sys.exit(1)
+        # Run standard experiment with specified agent count(s)
+        context_window = get_context_window(args.context)
+        
+        for num_agents in args.agents:
+            output_path = output_dir / f"results_agents{num_agents}.csv"
+            results = run_experiment(
+                num_agents=num_agents,
+                num_games=args.games,
+                context_window=context_window,
+                dataset_type=args.dataset,
+                seed=args.seed,
+                output_path=output_path
+            )
+            
+            logger.info(f"Completed experiment with {num_agents} agents")
+    
+    logger.info("Experiment completed successfully")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -6,14 +6,14 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-652-https-arxiv-org-abs-2606-00408
-last_run_id: null
+last_run_id: f3534535-7f27-4994-b293-2ad0cdc52bfe
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-652-https-arxiv-org-abs-2606-00408/round-2
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Masking Stale Observations Helps Search Agents -- Until It Doesn''t: A Regime
   Map and Its Mechanism'
-updated_at: '2026-06-12T13:44:00.270145Z'
+updated_at: '2026-06-29T01:13:02.921240Z'
