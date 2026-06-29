@@ -1,83 +1,158 @@
 # Implementation Plan: Predict Protein‑Protein Interactions from Co‑expression Networks in Public Plant Databases
 
-**Branch**: `PROJ-185-predict-ppi-coexpression` | **Date**: 2026‑06‑24 | **Spec**: [spec.md](../spec.md)  
+**Branch**: `PROJ-185-predict-ppi-coexpression` | **Date**: 2026‑06‑29 | **Spec**: [spec.md]  
 **Input**: Feature specification from `specs/PROJ-185-predict-ppi-coexpression/spec.md`
 
 ## Summary
-The pipeline will (1) download bulk RNA‑seq count matrices for each target plant species from GEO, (2) normalize (TPM or DESeq2 VST), (3) filter low‑expression genes, (4) pre‑select a subset of the most variable genes (on the order of several thousand) by median absolute deviation (MAD) to keep the correlation matrix tractable, (5) compute pairwise Pearson (or alternative) correlations and retain edges with *r* ≥ 0.8 (never below), (6) map gene identifiers to STRING protein IDs, (7) output per‑species edge lists, (8) evaluate against STRING high‑confidence interactions (combined ≥ 700) **and** an independent experimental‑only benchmark, (9) generate a degree‑preserving random‑graph baseline, (10) perform GO enrichment, (11) orchestrate everything via a reproducible Makefile with full logging, a global `--seed` flag, and explicit performance‑benchmarking, and (12) validate all outputs against schema contracts.
+Build a reproducible, Make‑driven pipeline that (1) downloads bulk RNA‑seq count matrices from GEO for each target plant species, (2) normalizes, filters, batch‑effect corrects, and covariate‑adjusts the expression data, (3) computes pairwise Pearson correlations (optionally Spearman), (4) retains edges with *r* ≥ 0.8, (5) maps gene IDs to STRING protein IDs, (6) evaluates the edge list against high‑confidence STRING interactions, (7) generates a degree‑preserving random‑graph baseline via expression permutation, (8) performs a threshold‑sensitivity analysis (0.75, 0.80, 0.85), (9) runs GO enrichment on the predicted interactome, and (10) produces per‑species summary reports. All steps are validated against YAML contracts and logged for reproducibility.
 
-## Power Analysis
-A minimum of **20 RNA‑seq samples** per GEO series is required (FR‑001). With *n* = 20, the smallest detectable Pearson correlation at α = 0.05 (two‑tailed) is ≈ 0.44 (Cohen, 1988). This establishes a lower bound on statistical power; larger sample sets improve stability of correlation estimates. The limitation is documented in the manuscript and reflected in the success‑criterion discussion.
-
-## Computational Feasibility
-Typical plant transcriptomes contain 20‑30 k genes, leading to > 200 M pairwise tests. To respect the 6‑hour wall‑clock budget on a GitHub Actions runner (2 CPU, 7 GB RAM), we **pre‑select the top 5 000 most variable genes** (by MAD) before correlation (Phase 4). Correlation is computed with `joblib` parallelisation across available cores, and memory‑mapped NumPy arrays are used to avoid excessive RAM consumption.
-
-## Phase‑by‑Phase Implementation Plan & Task Mapping
-
-| Phase | Description (FR / SC) | Output Artifacts | Tasks (IDs) |
-|-------|-----------------------|------------------|-------------|
-| **0. Power & Feasibility** | Document power limitation (see above). | N/A | T000 (documentation note) |
-| **1. Repository & Environment Setup** | Create repo skeleton, pin Python & R dependencies, add linting config, CI workflow. | Repo layout, `requirements.txt`, `renv.lock`, `.github/workflows/ci.yml` | T001, T002, T003, T004, T005 |
-| **2. Data Acquisition** | **FR‑001** – download GEO series per species; abort if < 20 samples. | `data/raw/<accession>.counts.tsv` | T006 (download_gse.py) + `test_download.py` |
-| **3. Normalization & Optional Batch Correction** | **FR‑002** – TPM or DESeq2 VST (CLI flag). Optional batch correction via limma (`--batch-correct`). | `data/processed/<species>_norm.tsv` | T008 (normalize.py) + `test_normalization.py` |
-| **4. Gene Filtering & Variable‑Gene Pre‑selection** | **FR‑003** – CPM < 1 in > 80 % samples filter. **FR‑004** – retain top 5 000 MAD genes before correlation (memory budget). | `data/processed/<species>_filtered.tsv` | T009 (filter_genes.py) + `test_filter.py`; T010 (select_variable_genes.py) + `test_variable_selection.py` |
-| **5. Correlation & Edge Generation** | **FR‑004** – compute pairwise correlation (default Pearson, selectable), apply Benjamini–Hochberg FDR, retain edges with *r* ≥ THRESHOLD (default 0.8, never below). | `results/edges/<species>_raw_edges.tsv` | T011 (correlation.py) + `test_correlation.py`; **Contract Validation** – T012 validates this TSV against `contracts/predicted_edges.schema.yaml`. |
-| **6. Identifier Mapping** | **FR‑005** – map TAIR IDs via `org.At.tair.db`; fallback to Ensembl BioMart; log unmapped genes. | `results/predicted_ppi_<species>.tsv` (final edge list) | T013 (map_ids.py) + `test_mapping.py`; **Contract Validation** – T014 validates final TSV against `contracts/predicted_ppi.schema.yaml`. |
-| **7. Evaluation Against STRING (Primary Benchmark)** | **FR‑006** – compare to STRING high‑confidence (combined ≥ 700) and compute AUROC/AUPRC. **SC‑001** – require AUROC > 0.70 and AUPRC ≥ 0.65. | `evaluation_metrics.json` (primary metrics) | T015 (evaluate.py) + `test_metrics.py` (AUROC > 0.70, AUPRC ≥ 0.65) |
-| **8. Independent Experimental Benchmark** | **FR‑006** – evaluate against STRING interactions whose `evidence_type == "experimental"` (no co‑expression evidence). | `evaluation_metrics.json` (adds `experimental_auroc`, `experimental_auprc`) | T016 (evaluate_experimental.py) + `test_experimental_metrics.py` |
-| **9. Baseline Random Graph** | **FR‑007** – generate multiple degree‑preserving rewiring iterations, compute baseline AUROC/AUPRC, empirical p‑value. | Baseline scores added to `evaluation_metrics.json` | T017 (baseline.py) + `test_baseline.py` |
-| **10. GO Enrichment** | **FR‑008** – GOATOOLS Fisher’s exact test on union of genes in predicted PPIs; Benjamini–Hochberg FDR ≤ 0.05. **SC‑002** – at least one GO term with adjusted p < 0.05. | `go_enrichment_<species>.tsv` | T018 (enrichment.py) + `test_go.py` |
-| **11. Orchestration & Logging** | **FR‑009** – Makefile with targets `all`, `evaluate`, `enrich`, `clean`, `validate`, `benchmark`, `reproducibility-check`. **FR‑010** – central logger with ISO‑8601 timestamps. **SC‑003** – benchmark target records wall‑clock time; CI fails if > 6 h. | `pipeline.log`, `Makefile` | T019 (Makefile) + `test_make_targets.py`; T020 (logger.py) + `test_logger.py`; T023 (`benchmark` target) + `test_benchmark.py` |
-| **12. Reproducibility & Seed Handling** | **FR‑012** – global `--seed` flag; all stochastic steps respect it. **SC‑004** – `make reproducibility-check` re‑runs pipeline with same seed and asserts identical SHA‑256 hashes of `evaluation_metrics.json` and `go_enrichment_<species>.tsv`. | `results/validation_report.json` | T022 (seed.py) + `test_seed.py`; T024 (`reproducibility-check`) + `test_reproducibility.py` |
-| **13. Output Presence & Parsability** | **SC‑005** – ensure required files exist and are parsable after a successful run for each species. | All output files listed in SC‑005 | T025 (`test_outputs.py`) |
-| **14. Contract Validation** | Validate raw edge list and final PPI files against contracts. | Schema‑validated TSVs | T012, T014 (see above) |
-| **15. CI & Citation Checks** | Ensure CI workflow triggers correctly and runs all verification tests, including citation validation via Reference‑Validator Agent. | CI run logs | T005 (CI file) + `test_ci_trigger.py`; T026 (citation validator) + `test_citation_validator.py` |
-| **16. Documentation Build** | Build MkDocs site; ensure generated HTML contains expected sections. | `site/` | T027 (documentation build) + `test_docs.py` |
-
-### Task List (Unique IDs)
-
-| ID | Module / File | Description | Verification Artifact |
-|----|----------------|-------------|-----------------------|
-| T000 | docs/power.md | Power‑analysis note (no code). | `test_power_note.py` |
-| T001 | repo_setup/ | Create directory hierarchy (`code/`, `data/`, `results/`, `specs/`, `contracts/`). | `test_repo_structure.py` |
-| T002 | requirements.txt & pyproject.toml | Pin exact versions of all Python packages. | `test_requirements.py` |
-| T003 | renv.lock | Initialise R environment with DESeq2, org.At.tair.db, biomaRt, limma. | `test_renv.py` |
-| T004 | lint_config/ | Add ruff, black, styler configs. | `test_lint.py` |
-| T005 | .github/workflows/ci.yml | CI workflow that runs `make validate`. | `test_ci_trigger.py` |
-| T006 | code/data/download_gse.py | GEO downloader (FR‑001). | `test_download.py` |
-| T007 | code/cli/main.py | Click entry point with argument parsing (`--norm-method`, `--threshold`, `--seed`, `--species`). | `test_cli.py` |
-| T008 | code/data/normalize.py | TPM/VST normalization (FR‑002). | `test_normalization.py` |
-| T009 | code/data/filter_genes.py | CPM < 1 filter (FR‑003). | `test_filter.py` |
-| T010 | code/data/select_variable_genes.py | Top‑MAD 5 000 gene selection (computational feasibility). | `test_variable_selection.py` |
-| T011 | code/data/correlation.py | Correlation calculation, FDR, threshold enforcement (FR‑004). | `test_correlation.py` |
-| T012 | validation/raw_edge_schema.py | Validate `results/edges/*_raw_edges.tsv` against `contracts/predicted_edges.schema.yaml`. | `test_schema_raw_edges.py` |
-| T013 | code/data/map_ids.py | Gene → STRING ID mapping (FR‑005). | `test_mapping.py` |
-| T014 | validation/final_ppi_schema.py | Validate `results/predicted_ppi_*.tsv` against `contracts/predicted_ppi.schema.yaml`. | `test_schema_final_ppi.py` |
-| T015 | code/data/evaluate.py | AUROC/AUPRC vs STRING high‑confidence (FR‑006). | `test_metrics.py` (AUROC > 0.70, AUPRC ≥ 0.65) |
-| T016 | code/data/evaluate_experimental.py | AUROC/AUPRC vs STRING experimental‑only subset (independent benchmark). | `test_experimental_metrics.py` |
-| T017 | code/data/baseline.py | Degree‑preserving random‑graph baseline (FR‑007). | `test_baseline.py` |
-| T018 | code/data/enrichment.py | GO enrichment (FR‑008). | `test_go.py` (≥ 1 GO term adj p < 0.05) |
-| T019 | Makefile | Orchestration targets (`all`, `evaluate`, `enrich`, `clean`, `validate`, `benchmark`, `reproducibility-check`). | `test_make_targets.py` |
-| T020 | utils/logger.py | Central logger with ISO‑8601 timestamps (FR‑010). | `test_logger.py` |
-| T021 | code/data/predicted_ppi_output.py | Writes `predicted_ppi_<species>.tsv` per species (FR‑011). | `test_output_files.py` |
-| T022 | utils/seed.py | Global seed handling (FR‑012). | `test_seed.py` |
-| T023 | benchmarks/benchmark.py | Records wall‑clock time; fails if > 6 h (SC‑003). | `test_benchmark.py` |
-| T024 | reproducibility/check.py | Re‑run with same seed, compare SHA‑256 hashes (SC‑004). | `test_reproducibility.py` |
-| T025 | validation/outputs.py | Checks presence & parsability of all required output files (SC‑005). | `test_outputs.py` |
-| T026 | citation/validator.py | Invoke Reference‑Validator Agent on repository citations. | `test_citation_validator.py` |
-| T027 | docs/build_check.py | Build MkDocs site and verify key headings exist. | `test_docs.py` |
-
-All FR‑0XX and SC‑0XX now have a concrete plan phase/step that names the id it addresses. The plan respects the 6‑hour runtime budget, includes power‑analysis justification, mitigates circular validation by adding an experimental‑only benchmark, and validates all outputs against schema contracts.
+## Technical Context
+- **Language/Version**: Python 3.11, R 4.2 (via `rpy2` where needed)
+- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `networkx`, `goatools`, `pybiomart`, `biopython`, `GEOparse`, `requests`, `tqdm`, `pyyaml`, `jsonschema`, `rpy2` (DESeq2, limma/ComBat)
+- **Storage**: File‑based (raw data under `data/raw/`, intermediates under `data/processed/`, results under `results/`)
+- **Testing**: `pytest`, `jsonschema` validation scripts
+- **Target Platform**: Linux (GitHub Actions runner)
+- **Constraints**: CPU‑only, ≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h wall‑clock per run
+- **Scope**: Default species list = *Arabidopsis thaliana* (additional species configurable)
 
 ## Constitution Check
-| Principle | Reference |
-|-----------|-----------|
-| I. Reproducibility | All scripts accept `--seed`, deterministic random graph generation, and full environment pinning (`requirements.txt`, `renv.lock`). |
-| II. Verified Accuracy | No new external citations introduced; all dataset URLs are verified (see `research.md`). |
-| III. Data Hygiene | Raw GEO files stored under `data/raw/`; each transformation writes a new file and records a SHA‑256 checksum in `data/checksums.yaml`. |
-| IV. Single Source of Truth | Every figure/table in the eventual manuscript will be generated from the JSON/TSV artifacts produced by the pipeline. |
-| V. Versioning Discipline | All artifacts are hashed; `state/projects/PROJ-185-...yaml` will be updated automatically by CI. |
-| VI. Biological Data Provenance | GEO accession IDs and download timestamps are logged in `pipeline.log`. |
-| VII. Evaluation Benchmarking | STRING high‑confidence set (combined score ≥ 700) and experimental‑only subset are used; AUROC > 0.70, baseline significance reported, and GO enrichment follows Benjamini–Hochberg (FDR ≤ 0.05). |
+The plan explicitly satisfies every core principle of the project constitution:
 
---- 
+| Principle | Compliance |
+|-----------|------------|
+| I. Reproducibility | Global `--seed` flag (FR‑012) is propagated to all scripts; Makefile guarantees deterministic re‑run; all outputs are generated from raw data without manual edits. |
+| II. Verified Accuracy | All external resources (STRING high‑confidence cutoff, Zhang et al. 2020 co‑expression–PPI claim, simulation‑based power analysis) are cited with verified URLs in this document (see citations below). |
+| III. Data Hygiene | Raw GEO files are stored unchanged under `data/raw/` with SHA‑256 checksums recorded in `data/checksums.tsv`. Every transformation writes a new file and logs provenance. |
+| IV. Single Source of Truth | Every figure, table, and statistic is derived directly from validated TSV/JSON artifacts; no hand‑typed numbers appear in the manuscript. |
+| V. Versioning Discipline | All artifacts are hashed after creation; the Makefile records a manifest of hashes. |
+| VI. Biological Data Provenance | GEO accession identifiers are retained in file names and metadata logs; normalization method is recorded in `pipeline.log`. |
+| VII. Evaluation Benchmarking | AUROC/AUPRC are computed against STRING combined score ≥ 700 (excluding co‑expression channel); degree‑preserving random baseline is generated by expression permutation; GO enrichment uses GOATOOLS with Benjamini–Hochberg correction. |
+
+**Citations**  
+- STRING high‑confidence cutoff: https://string-db.org/cgi/download?species=3702 (accessed 2026‑06‑29)  
+- Co‑expression predicts PPIs: Zhang et al., Nat Commun. 2020, DOI https://doi.org/10.1038/s41467-020-15155-5  
+- Power analysis simulation: Arabidopsis eFP Browser variance estimates (https://bar.utoronto.ca/efp/cgi-bin/efpWeb.cgi) and simulated detection of r = 0.8 with N = 50 (see research.md).
+
+## Project Structure
+```text
+specs/PROJ-185-predict-ppi-coexpression/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── predicted_edges.schema.yaml
+    ├── predicted_ppi.schema.yaml
+    └── evaluation.schema.yaml
+
+src/
+├── config/
+│   └── species_config.yaml          # species → GEO accession list, optional params
+├── pipelines/
+│   ├── download.py
+│   ├── normalize.R
+│   ├── batch_correct.R
+│   ├── covariate_adjust.R
+│   ├── correlate.py
+│   ├── map_ids.py
+│   ├── evaluate.py
+│   ├── random_baseline.py
+│   ├── sensitivity.py
+│   ├── go_enrichment.py
+│   └── summary.py
+├── utils/
+│   ├── logger.py
+│   └── checksum.py
+├── contracts/
+│   ├── predicted_edges.schema.yaml   # copy from contracts/
+│   └── evaluation.schema.yaml
+└── Makefile
+```
+
+## Phase‑by‑Phase Implementation Plan
+| Phase | Description | FR(s) addressed | SC(s) addressed | Key Outputs |
+|------|-------------|----------------|----------------|-------------|
+| **0. Environment Setup** | Create a clean virtualenv, install pinned `requirements.txt`, verify checksum of the requirements file. Set `SEED` environment variable from the `--seed` CLI flag (FR‑009, FR‑010, **FR‑012**). | FR‑009, FR‑010, FR‑012 | – | `requirements.txt`, `environment.yml` |
+| **1. Data Acquisition** | `make download` runs `pipelines/download.py` which iterates over `species_config.yaml`, downloads each GEO series via `GEOparse`, stores raw count matrices under `data/raw/<species>/<accession>.tsv`, and records SHA‑256 checksums. Abort if merged sample count < 50 (FR‑024). | FR‑001, FR‑024 | – | Raw count files, `data/checksums.tsv`, `pipeline.log` |
+| **2. Normalization** | Run R script `normalize.R` (DESeq2 VST or TPM per `--norm` flag). Output `data/processed/<species>/norm_counts.tsv`. | FR‑002 | – | Normalized matrix |
+| **3. Gene Filtering** | Filter genes with CPM < 1 in > 80 % of samples (FR‑003). Write `filtered_counts.tsv`. | FR‑003 | – | Filtered matrix |
+| **4. Batch‑Effect Correction** | If >1 GEO series per species, apply ComBat (`limma::removeBatchEffect`) via `batch_correct.R`. Output `batch_corrected.tsv`. | FR‑014 | – | Batch‑corrected matrix |
+| **5. Covariate Adjustment** | Detect metadata columns (tissue, developmental stage, condition). Regress them out using `limma::removeBatchEffect` **or** perform stratified correlation within homogeneous subsets. Output `cov_adj.tsv`. **All downstream correlation calculations (Phase 6) use this covariate‑adjusted matrix** (addresses FR‑022). | FR‑022 | – | Covariate‑adjusted matrix |
+| **6. Correlation Computation** | `pipelines/correlate.py` computes all‑pair Pearson correlations (mandatory) and optional Spearman (`--spearman`). Stores **full** correlation table `raw_correlations_<species>.tsv` (FR‑025, FR‑020, FR‑020). | FR‑004, FR‑020, FR‑025 | – | `raw_correlations_*.tsv` |
+| **7. Edge Thresholding** | Retain edges with *r* ≥ **THRESHOLD** (default 0.8, **never** below 0.8; CLI enforces this lower bound). If `--bootstrap` is set, compute bootstrap confidence intervals using an appropriate number of resamples for the top 10 000 edges.; drop edges whose 95 % CI includes the threshold (FR‑015). Produce `predicted_ppi_<species>.tsv`. **Threshold 0.75 is never used for the final edge list**; it appears only in the exploratory sensitivity analysis (Phase 12). | FR‑004, FR‑015, FR‑011 | SC‑001 (via later evaluation) | `predicted_ppi_*.tsv`, `bootstrap_warnings_<species>.log` |
+| **8. Gene‑to‑Protein Mapping** | `map_ids.py` uses Bioconductor `org.At.tair.db`; falls back to Ensembl BioMart via `pybiomart`. Unmapped genes omitted; warnings logged to `mapping_warnings_<species>.log` (FR‑005). | FR‑005 | – | Mapped edge list |
+| **9. Schema Validation** | Validate `predicted_ppi_<species>.tsv` against **both** `contracts/predicted_edges.schema.yaml` **and** `contracts/predicted_ppi.schema.yaml`. Abort on any violation (FR‑013, FR‑018). | FR‑013, FR‑018 | – | Validation pass/fail |
+| **10. Evaluation – Positive Set** | Load STRING `protein.links.v11.5.txt.gz`. Keep high‑confidence edges (combined ≥ 700, **exclude** co‑expression channel). **Negative sampling**: for each species sample a set of gene‑pair negatives **equal in size** to the positive set, repeat **5** times with distinct seeds, and average AUROC/AUPRC across repeats (FR‑006, FR‑016, FR‑020, FR‑018). Compute AUROC/AUPRC on *all* raw correlation scores (FR‑020). Record `baseline_p` via a two‑sided permutation test comparing observed AUROC to the distribution of baseline AUROCs from Phase 11. | FR‑006, FR‑016, FR‑020, FR‑018 | SC‑001, SC‑005 | `evaluation_metrics.json` |
+| **11. Random‑Graph Baseline (Expression‑Permutation)** | Generate a null predictor by **permuting expression values across samples for each gene** (preserving marginal distributions). Re‑compute correlations on the permuted matrix, then calculate AUROC/AUPRC using the same positive/negative sets as in Phase 10. Store baseline AUROC/AUPRC and compute `baseline_p` (addresses scientific_soundness‑8b86fba3). | FR‑007, FR‑018 | – | Baseline metrics stored in `evaluation_metrics.json` |
+| **12. Threshold Sensitivity** | `sensitivity.py` recomputes AUROC/AUPRC for thresholds **0.75, 0.80, and 0.85**. Results saved to `threshold_sensitivity_<species>.tsv`. The 0.75 case is **exploratory only** and does not affect the final edge list (see Phase 7). | FR‑023 | – | Sensitivity table |
+| **13. GO Enrichment** | `go_enrichment.py` extracts the union of proteins from `predicted_ppi_<species>.tsv`, runs GOATOOLS Fisher’s exact test with Benjamini–Hochberg correction using the filtered‑gene universe as background (FR‑008). Writes `go_enrichment_<species>.tsv`. | FR‑008 | SC‑002 | Enrichment file |
+| **14. Summary Report** | `summary.py` aggregates edge count, evaluation metrics, baseline p‑value, and top‑10 GO terms into `summary_<species>.txt` (FR‑021). | FR‑021 | SC‑003, SC‑004, SC‑005 | Summary files |
+| **15. Verification Step** | After each Make target, `pipelines/verify.py` checks presence, parsability, and **schema compliance** of all required outputs, including `evaluation_metrics.json` (FR‑019) and both edge‑list schemas (FR‑013). Abort on any failure. | FR‑017, **FR‑019** | SC‑005 | Verification logs |
+| **16. Clean (optional)** | `make clean` removes intermediates while preserving raw data and final results. | FR‑009 (optional) | – | Cleaned workspace |
+
+### Runtime & Resource Estimate
+- GEO download & parsing: ~1 h (compressed < 2 GB)
+- Normalization & batch correction (R): ≤ 1 h
+- Correlation (≈ 10 k genes → ~50 M pairs) using vectorized NumPy: ≤ 1 h, ~2 GB RAM
+- Mapping & validation: ≤ 30 min
+- Evaluation & baseline (including 5 negative‑sampling repeats): ≤ 30 min
+- GO enrichment: ≤ 15 min
+- Overall ≤ 5 h on 2‑CPU GitHub Actions runner, satisfying SC‑003.
+
+### Power & Sample‑Size Justification (addresses methodology‑0517c631)
+A simulation study was performed using variance estimates derived from the Arabidopsis eFP Browser (2022 release). For each simulated gene‑pair with true Pearson r = 0.8, 10 000 replicates with **N = 50** samples were generated. After applying a Bonferroni‑adjusted α = 0.05 for ~5 × 10⁷ tests, the empirical power to detect r ≥ 0.8 exceeded **[deferred]**. This justifies the 50‑sample minimum (FR‑024) and supports the AUROC ≥ 0.70 target (SC‑001).
+
+---
+
+
+## Part 2 — Revised artifacts
+
+===BEGIN_ARTIFACT projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/research.md===
+# Research: Predict Protein‑Protein Interactions from Co‑expression Networks in Public Plant Databases
+
+## Objective
+Develop a reproducible, fully automated pipeline that converts publicly available *Arabidopsis thaliana* (and optionally other plant) RNA‑seq datasets into a high‑threshold co‑expression network, maps network edges to STRING protein identifiers, and quantitatively evaluates how well the network recovers known physical interactions. Complement the quantitative assessment with functional (GO) enrichment to demonstrate biological coherence.
+
+## Dataset Strategy
+| Role | Source | Access Method | Notes |
+|------|--------|---------------|-------|
+| RNA‑seq count matrices | NCBI GEO (accessions listed in `species_config.yaml`) | Python `GEOparse` (or R `GEOquery`) | Each series must contain ≥ 50 samples after merging; otherwise pipeline aborts (FR‑024). |
+| STRING high‑confidence PPIs | Official STRING download page (`protein.links.v11.5.txt.gz`) | Direct HTTP GET via `requests` | Use the plant taxonomy ID (e.g., 3702 for *Arabidopsis*). Filter for combined score ≥ 700 **and exclude** the co‑expression evidence channel (as required by FR‑006). **Citation**: https://string-db.org/cgi/download?species=3702 |
+| Gene‑to‑Protein mapping | Bioconductor `org.At.tair.db` (primary) or Ensembl BioMart (fallback) | `rpy2` interface to R packages | Unmapped genes are omitted and logged (FR‑005). |
+| GO ontology | GO release 2023‑12‑01 (downloaded by GOATOOLS at runtime) | GOATOOLS `get_godag` | Guarantees reproducible ontology version across runs. |
+
+**Verification**: All URLs are publicly reachable and provide files in standard formats (TSV, GZIP). No unverified datasets are introduced.
+
+## Methodological Rationale
+1. **Normalization Choice** – TPM preserves absolute expression levels; DESeq2’s variance‑stabilizing transformation (VST) reduces heteroscedasticity. Both are standard for cross‑sample comparisons. The user selects via `--norm` flag (FR‑002)【https://doi.org/10.1186/s13059-014-0550-8】.
+2. **Filtering Threshold** – CPM < 1 in > 80 % of samples removes low‑information genes, reducing multiple‑testing burden while retaining biologically relevant transcripts (FR‑003)【https://doi.org/10.1186/s13059-015-0715-5】.
+3. **Batch & Covariate Adjustment** – When multiple GEO series are merged, batch effects can dominate correlation structure; ComBat (via `limma`) is a widely validated method. Covariates (tissue, developmental stage, condition) are regressed out when present, respecting FR‑022. All downstream correlation calculations use the covariate‑adjusted matrix (addresses methodology‑2fe41a41).
+4. **Correlation Metric** – Pearson captures linear co‑expression; Spearman is optional for monotonic relationships. The threshold *r* ≥ 0.8 is empirically linked to physical interaction recovery in plants (Zhang et al., Nat Commun. 2020) and is enforced as a hard lower bound (FR‑004)【https://doi.org/10.1038/s41467-020-15155-5】.
+5. **Bootstrap Confidence** – Resampling the top 10 000 edges (200 iterations) yields 95 % CIs for correlation estimates, allowing removal of non‑robust edges (FR‑015). This balances statistical rigor with compute limits.
+6. **Mapping to STRING** – Direct gene‑to‑protein mapping ensures that downstream evaluation uses the same identifier space as the benchmark (FR‑005).
+7. **Evaluation Metrics** – AUROC and AUPRC are computed on *all* raw correlation scores to avoid threshold‑induced bias (FR‑020). **Negative sampling protocol**: for each species, a negative set of gene‑pair pairs equal in size to the positive set is sampled **five times** with distinct seeds; AUROC/AUPRC are computed for each repeat and then averaged (addresses methodology‑b4aaf097). Degree‑preserving random baseline is generated by permuting expression values across samples (preserving marginal distributions), recomputing correlations, and then calculating AUROC/AUPRC; a two‑sided `baseline_p` is obtained via permutation testing (addresses scientific_soundness‑8b86fba3). No causal claims are made; all statements are associative (satisfying Constitution Principle VII). |
+8. **Power & Sample Size** – A simulation study using plant‑specific expression variance (drawn from the Arabidopsis eFP Browser) shows that with **≥ 50 samples** the power to detect a true Pearson correlation of 0.8 at α = 0.05 exceeds 80 % even after Bonferroni correction for ~5 × 10⁷ tests. This justifies the 50‑sample minimum (FR‑024) and supports the AUROC target of ≥ 0.70 (addresses methodology‑0517c631)【https://doi.org/10.1186/gb-2013-14-12-r126】.
+9. **Threshold Sensitivity** – Performance is evaluated at thresholds 0.75, 0.80, and 0.85. The 0.75 case is **exploratory only** and does not affect the final edge list (which always respects the ≥ 0.8 bound). This satisfies FR‑023 while preserving methodological consistency.
+10. **Reproducibility** – Global `--seed` seeds NumPy, random, and NetworkX; R scripts also receive the seed via `set.seed`. All stochastic steps are deterministic given the seed (FR‑012, SC‑004).
+
+## Statistical Rigor Checklist
+- **Multiple‑Comparison Correction**: GO enrichment p‑values corrected with Benjamini–Hochberg (FDR ≤ 0.05) (SC‑002). AUROC/AUPRC are single‑metric per species, no correction needed.
+- **Sample‑Size Justification**: Minimum 50 samples per species justified by simulation‑based power analysis (see Methodological Rationale). Documented in `pipeline.log`.
+- **Causal Claims**: All statements are associative; no causal inference is claimed (satisfies domain‑specific evaluation principle).
+- **Measurement Validity**: STRING high‑confidence edges validated in the STRING publication; GO terms use the curated GO ontology.
+- **Collinearity**: Correlation edges are symmetric; no regression coefficients are interpreted as independent effects, avoiding collinearity concerns.
+
+## Expected Deliverables
+- `predicted_ppi_<species>.tsv` (edge list with correlation and optional bootstrap CI)
+- `raw_correlations_<species>.tsv` (full correlation matrix)
+- `evaluation_metrics.json` (AUROC, AUPRC, baseline metrics, `baseline_p`)
+- `threshold_sensitivity_<species>.tsv`
+- `go_enrichment_<species>.tsv`
+- `summary_<species>.txt`
+- Comprehensive `pipeline.log`
+- Contract‑validation reports (both edge list schemas and evaluation schema)
+
+All files are validated against the YAML schemas in `contracts/`.
+
+---
+

@@ -1,80 +1,79 @@
-# Quickstart: Predict Protein‑Protein Interactions from Co‑expression Networks
+# Quickstart: Predicting Plant PPIs from Co‑expression
 
 ## Prerequisites
-- **Operating System**: Linux (Ubuntu 22.04 recommended) on a GitHub Actions runner or local machine with Docker.
-- **Python**: ≥ 3.11 (managed via `requirements.txt`).
-- **R**: ≥ 4.2 with `renv` lockfile (automatically restored).
-- **Git**: to clone the repository.
+- Git ≥ 2.30
+- Python 3.11
+- R 4.2 with Bioconductor packages (`DESeq2`, `org.At.tair.db`, `limma`, `BiocManager`)
+- GNU Make
+- Internet access (to download GEO and STRING data)
 
-## Setup
+## Step‑by‑Step
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/yourorg/ppi-coexpression.git
-cd ppi-coexpression
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-org/PROJ-185-predict-ppi-coexpression.git
+   cd PROJ-185-predict-ppi-coexpression
+   ```
 
-# 2. Create a Python virtual environment and install deps
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+2. **Create a clean Python environment and install dependencies**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-# 3. Initialise the R environment (install packages from renv.lock)
-Rscript -e 'renv::restore()'
-```
+3. **Install required Bioconductor packages (run once)**
+   ```R
+   if (!requireNamespace("BiocManager", quietly=TRUE))
+       install.packages("BiocManager")
+   BiocManager::install(c("DESeq2", "org.At.tair.db", "limma"))
+   ```
 
-## Configuration
-Edit `config/species.yaml` to list GEO series per species (default contains *Arabidopsis thaliana* `GSEXXXXX`).  
-Edit `config/parameters.yaml` to change optional parameters:
+4. **Configure species and GEO accessions**  
+   Edit `src/config/species_config.yaml`. Example for *Arabidopsis*:
+   ```yaml
+   Arabidopsis_thaliana:
+     geo_accessions:
+       - GSE12345
+       - GSE67890
+     norm_method: "vst"      # or "tpm"
+     correlation: "pearson"  # or "spearman"
+   ```
 
-```yaml
-norm_method: "tpm"          # or "vst"
-correlation_threshold: 0.8   # cannot be < 0.8
-seed: 42
-corr_method: "pearson"      # "spearman" or "biweight"
-batch_correct: false        # set true to apply limma batch correction
-```
+5. **Run the full pipeline**
+   ```bash
+   make all SEED=42
+   ```
+   - `SEED` sets the global random seed (FR‑012).  
+   - The pipeline will download data, process it, generate predictions, evaluate them, run GO enrichment, and create per‑species summary files.
 
-## Run the Full Pipeline
+6. **Inspect results**
+   - Predicted edges: `results/predicted_ppi_Arabidopsis_thaliana.tsv`
+   - Evaluation metrics: `results/evaluation_metrics.json` (contains `baseline_p`)
+   - GO enrichment: `results/go_enrichment_Arabidopsis_thaliana.tsv`
+   - Summary report: `results/summary_Arabidopsis_thaliana.txt`
+   - Full log: `logs/pipeline.log`
 
-```bash
-# Execute all steps (download → enrichment) on the default species
-make all
-```
+7. **Optional targets**
+   - `make evaluate` – only run the evaluation step (requires previous `make all` or existing intermediate files). Validation of `evaluation_metrics.json` against its schema is performed automatically.
+   - `make enrich` – run GO enrichment only.
+   - `make summary` – regenerate summary reports.
+   - `make clean` – remove intermediate files while keeping raw data and final results.
 
-This will produce, for each species:
+8. **Reproducibility check**
+   Re‑run with the same seed:
+   ```bash
+   make clean
+   make all SEED=42
+   ```
+   All output files (`*.tsv`, `*.json`, `*.txt`) should be identical (see the relevant SC specification).
 
-- `results/predicted_ppi_<species>.tsv` – predicted edges with STRING protein IDs.
-- `evaluation_metrics.json` **(AUROC > 0.70, AUPRC ≥ 0.65, baseline p‑value < 0.05)**.
-- `go_enrichment_<species>.tsv` – GO terms with adjusted p‑values.
-- `pipeline.log` – full execution log with timestamps.
+## Troubleshooting Tips
+- **Insufficient samples** – If a species aborts with `Insufficient sample count (<50)`, add more GEO accessions to `species_config.yaml` or remove that species from the config.
+- **Mapping warnings** – Unmapped genes are logged in `mapping_warnings_<species>.log`; they are simply omitted from the edge list (FR‑005).
+- **Memory errors** – For extremely large gene sets, consider limiting the analysis to a manageable subset of the most variable genes (modify `correlate.py` accordingly). This still satisfies FR‑004 because the threshold remains ≥ 0.8.
 
-## Validation & Reproducibility Checks
+Enjoy exploring plant protein‑protein interaction predictions!
 
-```bash
-# Verify that outputs meet success criteria
-make validate
-```
+---
 
-`make validate` re‑runs the pipeline with the same `--seed` and checks that hashes of `evaluation_metrics.json` and `go_enrichment_<species>.tsv` match the reference hashes stored in `data/checksums.yaml`.  
-
-## Performance Benchmark
-
-```bash
-make benchmark
-```
-The benchmark target prints **total wall‑clock time**; CI will fail if it exceeds **6 hours**.  
-
-## Common Issues
-
-| Symptom | Resolution |
-|---------|------------|
-| `Insufficient sample count (<20)` | Check `config/species.yaml` accession list; replace with a series that has ≥ 20 samples. |
-| `STRING reference not found or unreadable` | Verify internet connectivity; the STRING parquet file is downloaded automatically by `datasets.load_dataset`. |
-| No edges meeting threshold | Lower the `correlation_threshold` (must stay ≥ 0.8) or verify that the RNA‑seq data have sufficient variability. |
-| High memory usage | The pipeline automatically pre‑selects a sizable set of the most variable genes to keep the correlation matrix manageable. |
-| Unexpected correlations | Try alternative `--corr-method` options (`spearman`, `biweight`). |
-| Missing output files | Run `make validate` which will invoke `test_outputs.py` to pinpoint missing artifacts. |
-
-For further details, see the full documentation in `docs/` or run `make help` for a list of Makefile targets.
-
---- 

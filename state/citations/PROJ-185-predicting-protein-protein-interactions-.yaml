@@ -31,3 +31,25 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/plant-ppi-pipeline
   verified_at: '2026-06-24T06:17:58.443328Z'
+- artifact_hash: 532a8c29c19d78245e93ef53b4dd0cc61fe0571e927477fdc6da6e2b25a13f50
+  artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Help - STRING functional protein association networks
+  kind: url
+  value: https://string-db.org/cgi/help?subpage=api
+  verification_status: verified
+  verified_against_url: https://string-db.org/cgi/help?subpage=api
+  verified_at: '2026-06-29T17:02:49.237557Z'
+- artifact_hash: 532a8c29c19d78245e93ef53b4dd0cc61fe0571e927477fdc6da6e2b25a13f50
+  artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1038/s41467-020-15879
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1038/s41467-020-15879
+  verified_at: '2026-06-29T17:02:49.237557Z'
