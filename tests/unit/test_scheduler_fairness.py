@@ -200,20 +200,25 @@ def test_full_pipeline_uniform_target_drains_a_lumpy_pile() -> None:
         return out
 
     # Lumpy: one 200-deep pile, one mid stage over target, two tiny stages.
-    # Stages chosen so Project validation needs no speckit dirs. total = 243,
-    # full-pipeline target = 243 / max(4, 20) = 243/20 = 12.15 (the
-    # OCCUPIED-only target would be 243/4 = 60.75 and the 40-deep stage would
-    # NOT count as over-target — the bug this fix corrects).
+    # Stages chosen so Project validation needs no speckit dirs. total = 243.
+    # full-pipeline target = total / max(occupied, len(STAGE_PROGRESSION)); the
+    # OCCUPIED-only target would be 243/4 = 60.75 and the 40-deep stage would NOT
+    # count as over-target (the bug this fix corrects). Derived from the LIVE
+    # progression length so adding a pipeline column can't silently break it.
     counts = {
         Stage.PROJECT_INITIALIZED: 200,   # the giant pile
-        Stage.FLESH_OUT_IN_PROGRESS: 40,  # over the full-pipeline target (12.15)
+        Stage.FLESH_OUT_IN_PROGRESS: 40,  # over the full-pipeline target
         Stage.VALIDATED: 1,               # well below target -> floor only
         Stage.FLESH_OUT_COMPLETE: 2,      # well below target -> floor only
     }
     by_stage = {s: projs(s, n) for s, n in counts.items()}
     total = sum(counts.values())
     target = total / max(len(by_stage), len(STAGE_PROGRESSION))
-    assert target == pytest.approx(12.15)  # full-pipeline share, not 243/4=60.75
+    # Few columns occupied -> the denominator is the FULL pipeline width, so the
+    # target is the full-pipeline share (well below the occupied-only 243/4).
+    assert len(by_stage) < len(STAGE_PROGRESSION)
+    assert target == pytest.approx(total / len(STAGE_PROGRESSION))
+    assert target < total / len(by_stage)
 
     over = {s: max(0.0, counts[s] - _stage_target(s, target)) for s in by_stage}
     floor = MIN_STAGE_SHARE * sum(over.values())

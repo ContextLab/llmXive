@@ -50,6 +50,9 @@ properties:
       - research_accepted
       - research_full_revision
       - research_rejected
+      # External-paper intake triage (spec 024): submitted/HF-ingested papers
+      # land here for code-vs-no-code reprocessing, not at paper_review.
+      - paper_ingested
       # Paper drafting Spec Kit pipeline
       - paper_drafting_init
       - paper_specified

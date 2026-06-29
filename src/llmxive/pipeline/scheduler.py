@@ -57,6 +57,11 @@ from llmxive.types import Project, Stage
 # their own dedicated reviewer cron and are handled outside the standard
 # scheduler.
 STAGE_PROGRESSION: list[Stage] = [
+    # External-paper intake triage (spec 024): ingested papers land here and are
+    # reprocessed into the pipeline (code -> in_progress; no-code -> brainstormed).
+    # First slot = lowest stage-depth weight; the deep ingest queue is drained by
+    # its overflow weight, not an inflated late-stage preference.
+    Stage.PAPER_INGESTED,
     Stage.BRAINSTORMED,
     Stage.FLESH_OUT_COMPLETE,
     Stage.PROJECT_INITIALIZED,

@@ -1039,12 +1039,14 @@ def _handle_new_paper(issue: dict[str, Any], number: int, body: str, author: str
                                        issue_number=number, paper_authors=paper_authors)
 
     # ── arXiv flow: fetch the .tex source, parse for code/data, stage under
-    #    paper/source/, then transition the project to paper_review so the 12
-    #    paper-stage specialist reviewers run on the next pipeline tick. The
-    #    user's rule for submitted papers: they skip the research + drafting
-    #    stages (the work is already done) and go straight to review. The
-    #    `speckit_paper_dir` validator only kicks in at paper_specified..
-    #    paper_complete, so a project at paper_review can have it unset.
+    #    paper/source/, then transition the project to PAPER_INGESTED (spec 024)
+    #    so the reprocessor triages it on the next pipeline tick — NOT to
+    #    paper_review (reserved for an llmXive-authored paper under review; an
+    #    external paper there spins the authored-revise loop forever with nothing
+    #    to revise). The reprocessor classifies code-vs-no-code and routes the
+    #    project into the real pipeline (code -> back-fill + execution gate;
+    #    no-code -> a brainstormed follow-up idea). PAPER_INGESTED is bare (no
+    #    speckit dirs) — deliberately excluded from the dir validators.
     arxiv_id = None
     if url:
         am = re.search(r"arxiv\.org/(?:abs|pdf|html|e-print)/([0-9]{4}\.[0-9]{4,6})", url)
@@ -1079,10 +1081,11 @@ def _handle_new_paper(issue: dict[str, Any], number: int, body: str, author: str
             if ext["data"]:
                 ext_lines += ["", "## Data"] + [f"- {u}" for u in ext["data"]]
             (paper_dir / "external_resources.md").write_text("\n".join(ext_lines) + "\n", encoding="utf-8")
-            # Transition the project to paper_review so the reviewers pick it up.
+            # Transition the project to PAPER_INGESTED so the reprocessor triages
+            # it (code-vs-no-code) on the next tick (spec 024).
             try:
                 p = project_store.load(pid, repo_root=repo)
-                p = p.model_copy(update={"current_stage": Stage.PAPER_REVIEW,
+                p = p.model_copy(update={"current_stage": Stage.PAPER_INGESTED,
                                           "updated_at": datetime.now(UTC)})
                 project_store.save(p, repo_root=repo)
                 arxiv_status = "staged"
@@ -1099,7 +1102,7 @@ def _handle_new_paper(issue: dict[str, Any], number: int, body: str, author: str
         ok = _move_staged_pdf(gh, staged_path=staged, dest_path=dest)
         moved = dest if ok else None
 
-    stage_word = "paper_review (source fetched + staged)" if arxiv_status == "staged" else "brainstormed"
+    stage_word = "paper_ingested (source fetched + staged for triage)" if arxiv_status == "staged" else "brainstormed"
     bits = [f"created **{pid}** ({stage_word})"]
     if url:
         bits.append(f"recorded the source URL ({url})")

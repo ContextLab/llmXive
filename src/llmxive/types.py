@@ -121,6 +121,14 @@ class Stage(StrEnum):
     # up. See ``llmxive.convergence.revision_adapter`` for the bridge.
     RESEARCH_FULL_REVISION = "research_full_revision"
     RESEARCH_REJECTED = "research_rejected"
+    # External-paper intake triage (spec 024). A submitted/HF-ingested paper
+    # lands HERE — NOT at paper_review, which is reserved for an llmXive-authored
+    # paper under review. The reprocessor triages each project: a code-included
+    # paper back-fills spec/plan/tasks from the existing code (added as a
+    # submodule) + routes into the execution gate; a no-code paper becomes a
+    # brainstormed follow-up idea. The project is BARE here (no speckit dirs) —
+    # deliberately excluded from the _stage_invariants dir validators below.
+    PAPER_INGESTED = "paper_ingested"
     # Paper drafting Spec Kit pipeline
     PAPER_DRAFTING_INIT = "paper_drafting_init"
     PAPER_SPECIFIED = "paper_specified"

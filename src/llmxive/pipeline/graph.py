@@ -382,6 +382,29 @@ def run_one_step(
         )
         return recovered
 
+    # External-paper intake triage (spec 024). A submitted / HF-ingested paper
+    # enters at PAPER_INGESTED — NOT paper_review (which is reserved for an
+    # llmXive-authored paper under review; an external paper there spins the
+    # authored-revise loop forever with nothing to revise). Reprocess it into the
+    # pipeline via the SINGLE shared transformation (Constitution I — never a
+    # per-project edit): a code-included paper back-fills spec/plan/tasks from the
+    # existing code (added as a submodule) and routes to the execution gate; a
+    # no-code paper becomes a brainstormed follow-up idea. The reprocessor writes
+    # all artifacts + returns the project at a normal pipeline stage; the next
+    # tick advances it normally.
+    if project.current_stage == Stage.PAPER_INGESTED:
+        from llmxive.paper_reprocess import reprocess_ingested_paper
+
+        reprocessed = reprocess_ingested_paper(project, repo_root=repo).model_copy(
+            update={"last_run_id": run_id}
+        )
+        project_store.save(reprocessed, repo_root=repo)
+        logger.info(
+            "reprocessed ingested paper %s -> %s",
+            project.id, reprocessed.current_stage.value,
+        )
+        return reprocessed
+
     # Dedicated execution phase (spec 023 defect #25): once EVERY task is
     # written, RUN the analysis end-to-end (quickstart run-book, in the
     # per-project venv) and gate research_complete on real artifacts —

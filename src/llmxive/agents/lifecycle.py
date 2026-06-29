@@ -243,6 +243,12 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.BRAINSTORMED,
     },
     Stage.POSTED: set(),  # terminal
+    # External-paper intake triage (spec 024): the reprocessor transforms an
+    # ingested paper in place (run_one_step early-return) into a code-included
+    # project (-> in_progress; the execution gate runs the existing code) or a
+    # no-code follow-up idea (-> brainstormed). Both targets registered so the
+    # transition is valid for any caller / completeness check.
+    Stage.PAPER_INGESTED: {Stage.BRAINSTORMED, Stage.IN_PROGRESS},
     # RETIRED state: auto-recovered into the pipeline (run_one_step re-plans a
     # straggler here -> PLANNED / PAPER_PLANNED). No human action is required.
     Stage.HUMAN_INPUT_NEEDED: {Stage.PLANNED, Stage.PAPER_PLANNED},
