@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-14T04:20:00.022186Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: biology
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Identifying stimulus-driven neural activity patterns in multi-patient intracranial
   recordings
-updated_at: '2026-06-26T14:42:33.202702Z'
+updated_at: '2026-06-29T19:12:57.443582Z'

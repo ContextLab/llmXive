@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-15T15:14:08.852973Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Leveraging Verifier-Based Reinforcement Learning in Image Editing
-updated_at: '2026-06-20T00:40:05.382639Z'
+updated_at: '2026-06-29T19:12:57.445015Z'
