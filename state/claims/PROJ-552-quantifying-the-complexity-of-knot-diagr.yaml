@@ -23978,3 +23978,152 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-18T06:42:00Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 2
+  canonical: 9988 prime knots with crossing number less than or equal to 13
+  claim_id: c_719d60b7
+  context: "Goal: Download knot data from Knot Atlas including crossing numbers, braid\
+    \ indices, hyperbolic volume, and alternating/non\u2011alternating classification\
+    \ for all prime knots with crossing number \u2264 13 (\u2248 9988 knots, OEIS\
+    \ A002863)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/9988_prime_knots_with_crossing_number_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "The dataset includes approximately 9988 prime knots with crossing number\
+    \ \u2264 13."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T19:42:32Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: 9988 prime knots with crossing number less than or equal to 13
+  claim_id: c_97f51407
+  context: "Generate dataset size report in docs/reproducibility/dataset_counts.md\
+    \ stating the total number of prime knots with crossing number \u2264 13 (\u2248\
+    \ 9988, OEIS A002863) and per\u2011crossing\u2011number counts."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: magnitude
+  raw_text: "Generate dataset size report in docs/reproducibility/dataset_counts.md\
+    \ stating the total number of prime knots with crossing number \u2264 13 (\u2248\
+    \ 9988, OEIS A002863) and per\u2011crossing\u2011number counts."
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T19:42:49Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: 9988 prime knots with crossing number less than or equal to 13
+  claim_id: c_76ea7f9a
+  context: "Verify dataset size against OEIS A002863 (9988 prime knots \u2264 13 crossings).\
+    \ Document method and result in docs/reproducibility/validation_scope.md (per\
+    \ SC\u2011001)."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: magnitude
+  raw_text: "Verify dataset size against OEIS A002863 (9988 prime knots \u2264 13\
+    \ crossings)."
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T19:43:02Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: 90 percent coverage for tabulation accuracy of core invariants against
+    KnotInfo
+  claim_id: c_6c458338
+  context: "Validate tabulation accuracy for core invariants (crossing number, braid\
+    \ index) against KnotInfo reference values; require \u2265 90% coverage (per FR\u2011\
+    003/SC\u2011008)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate tabulation accuracy for core invariants (crossing number, braid\
+    \ index) against KnotInfo reference values; require \u2265 90% coverage."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T19:43:07Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: 90 percent record-wise match for hyperbolic volume against KnotInfo with
+    tolerance 1e-6
+  claim_id: c_f683bdd4
+  context: "Validate hyperbolic volume against KnotInfo reference values using code/analysis/hyperbolic_volume_validation.py\
+    \ (T040b); require \u2265 90% record\u2011wise match within tolerance 1e\u2011\
+    6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate hyperbolic volume against KnotInfo reference values using code/analysis/hyperbolic_volume_validation.py;\
+    \ require \u2265 90% record\u2011wise match within tolerance 1e\u20116."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T19:43:11Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Invariant verification for arc index, Seifert circle count, and bridge
+    number against literature by Birman and Menasco and Ohyama 1993
+  claim_id: c_3252a966
+  context: Document Constitution Principle VI invariant verification procedure for
+    additional invariants (arc index, Seifert circle count, bridge number) against
+    primary literature (e.g., Birman & Menasco, Ohyama 1993) in docs/reproducibility/invariant_definitions.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Document Constitution Principle VI invariant verification procedure for
+    additional invariants (arc index, Seifert circle count, bridge number) against
+    primary literature (e.g., Birman & Menasco, Ohyama 1993).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T19:43:39Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Title-token overlap greater than or equal to 0.7 for citations
+  claim_id: c_d3a4f572
+  context: "Implement code/reproducibility/citation_validator.py to run the Reference\u2011\
+    Validator Agent logic, enforcing title\u2011token overlap \u2265 0.7 for all citations\
+    \ (per Constitution Principle II)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Title-token_overlap_greater_than_or_equal_to_0.7_for_citatio
+  kind: magnitude
+  raw_text: "Enforce title\u2011token overlap \u2265 0.7 for all citations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T19:44:12Z'

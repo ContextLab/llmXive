@@ -1,8 +1,10 @@
-'|hyperbolic knot non volume':
-  quote: More generally, the hyperbolic volume may be defined for any hyperbolic 3-manifold.
-    The Weeks manifold has the smallest possible volume of any closed manifold (a
-    manifold that, unlike link complements, has no cusps); its volume is approximately
-    0.9427.
-  source_id: Hyperbolic volume
-  url: https://en.wikipedia.org/wiki/Hyperbolic_volume
-  value: '0'
+'|a002863 against dataset oei size verify':
+  quote: 13 9988
+  source_id: A002863
+  url: https://oeis.org/A002863
+  value: '9988'
+'|count crossing dataset doc generate knot md prime report reproducibility size stating':
+  quote: 13 9988
+  source_id: A002863
+  url: https://oeis.org/A002863
+  value: '9988'
