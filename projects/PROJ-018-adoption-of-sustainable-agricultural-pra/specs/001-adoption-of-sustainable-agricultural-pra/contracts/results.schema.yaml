@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for logistic regression and mediation output conforming to FR-006 to FR-012"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Model type used (e.g., 'LogisticRegression')"
+  auc:
+    type: "number"
+    description: "Area Under Curve value"
+  coefficients:
+    type: "object"
+    description: "Map of predictor names to coefficients"
+  vif_scores:
+    type: "object"
+    description: "Map of predictor names to VIF values"
+  correlation_matrix:
+    type: "object"
+    description: "Pairwise correlation matrix for all predictors (collinearity assessment)"
+  fdr_adjusted_p:
+    type: "object"
+    description: "Map of predictor names to FDR-adjusted p-values"
+  mediation_results:
+    type: "object"
+    description: "Mediation analysis output (direct, indirect, total effects)"
+  mediation_sensitivity:
+    type: "object"
+    description: "Sensitivity analysis results (E-values, Rosenbaum bounds) for mediation robustness"
+  validity_metrics:
+    type: "object"
+    description: "Construct validity metrics (Cronbach's alpha, EFA loadings, convergent validity)"
+  limitations:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of documented study limitations"
+required:
+  - "model_type"
+  - "auc"
+  - "coefficients"
+  - "vif_scores"
+  - "correlation_matrix"
+  - "fdr_adjusted_p"
+  - "mediation_results"
+  - "mediation_sensitivity"
+  - "validity_metrics"
+  - "limitations"
+additionalProperties: false

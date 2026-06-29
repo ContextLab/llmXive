@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: specified
+current_stage: planned
 failed_stage: null
 field: agriculture
 human_escalation_reason: null
 id: PROJ-018-adoption-of-sustainable-agricultural-pra
-last_run_id: e5438b09-d60b-45a6-8679-c7f23ad7fd22
+last_run_id: afddbbed-6ac4-42ce-9dc4-a1393dc6d0aa
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra
 title: Adoption of Sustainable Agricultural Practices in Low-Income Areas through
   Community Engagement
-updated_at: '2026-06-24T18:38:30.959767Z'
+updated_at: '2026-06-29T14:07:17.403950Z'

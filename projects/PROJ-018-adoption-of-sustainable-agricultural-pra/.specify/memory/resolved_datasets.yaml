@@ -1,0 +1,533 @@
+resolved_at: '2026-06-29T13:36:52.751746+00:00'
+datasets:
+- intent: LSMS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Training_Data_and_Source_Code/29858039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.wesleyan.edu/articles/journal_contribution/Minimal-group_membership_influences_children_s_responses_to_novel_experience_with_group_members/32825237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Adaptation_of_DIVA-5_examples/32825210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/thesis/Zebrafish_bipolar_cells_exploiting_ancestral_cone-type_diversity_to_build_complex_spatiochromatic_encoding/32788692
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15774761
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14668125
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12596218
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4568484
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4558109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/f6u5v/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/yda6k/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17615/w406-pr45
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/1n79hm78h (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f5158e9cbd0>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+  - url: https://infoscience.epfl.ch/entities/publication/6c8165b4-726c-48c9-9219-cca888c05698
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20829280
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FAO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/faori/lrs3_landmark/resolve/main/LRS3_landmarks.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/faori/muavic/resolve/main/muavic_ar.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/faori/lrs3_landmark/resolve/main/LRS3_landmarks.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/673fe5d280c7c8e332992a33/77992370f2d89a3494eafbe7f24745ccb374c1c0ff9f8b9af521f54a904d981c?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27combined_arabic_data.txt%3B+filename%3D%22combined_arabic_data.txt%22%3B&response-content-type=text%2Fplain&user_id=public&Expires=1782743539&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjczZmU1ZDI4MGM3YzhlMzMyOTkyYTMzLzc3OTkyMzcwZjJkODlhMzQ5NGVhZmJlN2YyNDc0NWNjYjM3NGMxYzBmZjlmOGI5YWY1MjFmNTRhOTA0ZDk4MWNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Y29tYmluZWRfYXJhYmljX2RhdGEudHh0JTNCK2ZpbGVuYW1lJTNEJTIyY29tYmluZWRfYXJhYmljX2RhdGEudHh0JTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGcGxhaW4mdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjc0MzUzOX19fV19&Signature=MEQCICBh3AX82hDFX1Pm8-I7erFs-JP0fhfluhDp9QfZJ2asAiBs6G9wTQQIVRcdVlfe7dfgjANQXY7Ee8hQsgv0oGeo1w__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/ibennd/sentences_eng-lang_cont-fao/28c49bc228296c65ff50fecdcd13524cfebd190c/sentences_lang-eng_cont-fao.csv?%2Fdatasets%2Fibennd%2Fsentences_eng-lang_cont-fao%2Fresolve%2Fmain%2Fsentences_lang-eng_cont-fao.csv=&etag=%22d9400acef0a05702a500edb5de62e5fc278781db%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/faori/muavic/resolve/main/muavic_ar.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/Training_Data_and_Source_Code/29858039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.wesleyan.edu/articles/journal_contribution/Minimal-group_membership_influences_children_s_responses_to_novel_experience_with_group_members/32825237
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/Adaptation_of_DIVA-5_examples/32825210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/thesis/Zebrafish_bipolar_cells_exploiting_ancestral_cone-type_diversity_to_build_complex_spatiochromatic_encoding/32788692
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4497542
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1204881
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4497247
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1204901
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1204910
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/25563
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/25564
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/363319
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/25461
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/25462
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: STAT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/msjahid/New-York-State-Math-Test-Results-2006-2012/resolve/main/NY_Math_Test_Results_2006-2012.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Fraser/python-state-changes/resolve/main/data.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fractalego/QA_to_statements/resolve/main/dataset_infos.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 820
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/msjahid/New-York-State-Math-Test-Results-2006-2012/resolve/main/NY_Math_Test_Results_2006-2012.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Fraser/python-state-changes/resolve/main/data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/fractalego/QA_to_statements/resolve/main/dataset_infos.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/Training_Data_and_Source_Code/29858039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/Adaptation_of_DIVA-5_examples/32825210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/thesis/Zebrafish_bipolar_cells_exploiting_ancestral_cone-type_diversity_to_build_complex_spatiochromatic_encoding/32788692
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/thesis/From_an_ant_s_perspective_towards_photorealistic_embodied_simulations_of_insect_navigation/32706159
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.x95x69phc
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14799108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17776790
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10849827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3989164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250656/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250656/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://air.unimi.it/handle/2434/217168
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/382357
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://collections.durham.ac.uk/files/1c18df763
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: API
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6810479d5d6920a73b0b2261/4ca6b913c555026585074899460ca61e46de595f74948c069dd8d58ca1232f31?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27apigen-mt_5k.json%3B+filename%3D%22apigen-mt_5k.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&Expires=1782743614&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxMDQ3OWQ1ZDY5MjBhNzNiMGIyMjYxLzRjYTZiOTEzYzU1NTAyNjU4NTA3NDg5OTQ2MGNhNjFlNDZkZTU5NWY3NDk0OGMwNjlkZDhkNThjYTEyMzJmMzFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YXBpZ2VuLW10XzVrLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJhcGlnZW4tbXRfNWsuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3NDM2MTR9fX1dfQ__&Signature=MEYCIQDKIcSxF5uhXHEcv9XxjSHOPQnEusS4ti6UHK5UkPNusAIhAPVkuTBUZKcIMp0Kl5SzWNDJcX5u~09Y-ovYAY00Gkr-&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://aura.american.edu/articles/thesis/ASSOCIATIONS_OF_DAILY_CORTISOL_LEVELS_AND_PSYCHOLOGICAL_STRESS_WITH_HOT_FLASHES_AMONG_WOMEN_OF_MENOPAUSAL_AGE/32825219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Training_Data_and_Source_Code/29858039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/Adaptation_of_DIVA-5_examples/32825210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/thesis/Zebrafish_bipolar_cells_exploiting_ancestral_cone-type_diversity_to_build_complex_spatiochromatic_encoding/32788692
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6998062
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7324045
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4746168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13283241
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15253810
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21035181
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21034448
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21034448
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21034412
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21034412
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/TROPOMI_CO_and_NO_sub_2_sub_as_Observational_Constraints_on_the_Sources_of_Air_Pollution_Inequalities_in_US_Cities/32825255
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aura.american.edu/articles/thesis/ASSOCIATIONS_OF_DAILY_CORTISOL_LEVELS_AND_PSYCHOLOGICAL_STRESS_WITH_HOT_FLASHES_AMONG_WOMEN_OF_MENOPAUSAL_AGE/32825219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Training_Data_and_Source_Code/29858039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Modification_of_RECIST_1_1_criteria_for_assessing_response_in_breast_tumours_treated_with_radiation_therapy_using_multiparametric_breast_MRI_radiology_and_oncology_perspective/32790114
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/Adaptation_of_DIVA-5_examples/32825210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10358914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5603470
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://doi.org/10.5281/zenodo.20469943
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Chromosome-scale_genome_of_Handeliodendron_bodinieri/32825177
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Simulated_Biosorption_of_Cr_sup_6_sup_Using_Peels_of_Litchi_chinensis_sonn_by_Aspen_Adsorption_V8_4/26885395
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/TROPOMI_CO_and_NO_sub_2_sub_as_Observational_Constraints_on_the_Sources_of_Air_Pollution_Inequalities_in_US_Cities/32825255
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aura.american.edu/articles/thesis/ASSOCIATIONS_OF_DAILY_CORTISOL_LEVELS_AND_PSYCHOLOGICAL_STRESS_WITH_HOT_FLASHES_AMONG_WOMEN_OF_MENOPAUSAL_AGE/32825219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Training_Data_and_Source_Code/29858039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21035297
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21034783
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SHALL
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FIES
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CSV
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-011
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-2
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []

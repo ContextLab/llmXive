@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SurveyRecord Schema"
+description: "Schema for agricultural survey input data conforming to FR-002"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique record identifier"
+  country_code:
+    type: "string"
+    description: "ISO 3166-1 alpha-3 country code"
+  age:
+    type: "integer"
+    description: "Farmer age in years"
+  education_level:
+    type: "string"
+    description: "Education level category"
+  farm_size_ha:
+    type: "number"
+    description: "Farm size in hectares"
+  credit_access:
+    type: "integer"
+    description: "Binary credit access (0 or 1)"
+  practice_adoption_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of adopted sustainable practices"
+  engagement_item_1:
+    type: "number"
+    description: "Membership in farmer group (0-100)"
+  engagement_item_2:
+    type: "number"
+    description: "Participation in extension (0-100)"
+  engagement_item_3:
+    type: "number"
+    description: "Collective action participation (0-100)"
+  engagement_item_4:
+    type: "number"
+    description: "Frequency of knowledge exchange (0-100)"
+required:
+  - "id"
+  - "age"
+  - "education_level"
+  - "farm_size_ha"
+  - "credit_access"
+  - "practice_adoption_flags"
+  - "engagement_item_1"
+  - "engagement_item_2"
+  - "engagement_item_3"
+  - "engagement_item_4"
+additionalProperties: false
