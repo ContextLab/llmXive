@@ -6,14 +6,14 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-668-https-arxiv-org-abs-2606-05622
-last_run_id: null
+last_run_id: 8294ff4f-8c9a-45e0-86da-0b0fda78335f
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-668-https-arxiv-org-abs-2606-05622/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Agents
   under World and User Constraints'
-updated_at: '2026-06-06T10:40:18.978795Z'
+updated_at: '2026-06-29T08:45:17.699664Z'
