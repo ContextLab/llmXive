@@ -1,0 +1,73 @@
+schema_version: '1'
+project_id: PROJ-640-https-arxiv-org-abs-2605-28293
+rounds:
+- round_number: 1
+  ran_at: '2026-06-29T14:46:55.028333Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-29)
+  tasks_done: 1
+  tasks_failed: 0
+  tasks_skipped: 9
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-640-https-arxiv-org-abs-2605-28293/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00000]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b2", "class": "source_fixable", "rec'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00001]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b2", "class": "source_fixable", "rec'
+  - id: '003'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00002]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b3", "class": "source_fixable", "rec'
+  - id: '004'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00003]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b3", "class": "source_fixable", "rec'
+  - id: '005'
+    severity: writing
+    status: done
+    text: 'Address action item **[auditdef00004]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b3", "class": "source_fixable", "rec'
+  - id: '006'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00005]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b3", "class": "source_fixable", "rec'
+  - id: '007'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00006]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b3", "class": "source_fixable", "rec'
+  - id: 008
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00007]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b3", "class": "source_fixable", "rec'
+  - id: 009
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00008]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b2", "class": "source_fixable", "rec'
+  - id: '010'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00009]** (severity: writing): Rendering-audit
+      defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite", "evidence":
+      "\u00b3", "class": "source_fixable", "rec'

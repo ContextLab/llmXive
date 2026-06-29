@@ -3,14 +3,48 @@
   "arxiv_url": "https://arxiv.org/abs/2605.28293",
   "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation",
   "authors": [
-    "Hongru Hou",
-    "Tiehua Mei",
-    "Denghui Geng",
-    "Jinhui Huang",
-    "Ao Xu",
-    "Hengrui Chen",
-    "Jiaqing Liang",
-    "Deqing Yang"
+    {
+      "name": "Hongru Hou",
+      "kind": "human"
+    },
+    {
+      "name": "Tiehua Mei",
+      "kind": "human"
+    },
+    {
+      "name": "Denghui Geng",
+      "kind": "human"
+    },
+    {
+      "name": "Jinhui Huang",
+      "kind": "human"
+    },
+    {
+      "name": "Ao Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Hengrui Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Jiaqing Liang",
+      "kind": "human"
+    },
+    {
+      "name": "Deqing Yang",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-29T14:46:55.028333Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "abstract": "Proactive Recommender Systems (PRSs) aim to guide user preference shift toward target items by generating paths of intermediate recommendations. Reinforcement learning (RL) provides a principled framework for optimizing such sequential decision tasks, as path rewards can naturally capture both short-term acceptance and long-term guidance effectiveness. However, naively applying policy gradients to PRS results in deficient gradient estimation. We identify two deficiencies: (1) path-level rewards decompose into step-level rewards with positive mean, creating a length-dependent bias that causes gradients to favor path extension over meaningful exploration; (2) weighting each step by the entire path-level reward ignores the decomposition structure, leading to high gradient variance. To rectify these two deficiencies, we propose an effective RL framework ProRL with two novel mechanisms for proactive recommendation. First, Stepwise Reward Centering subtracts expected rewards to neutralize length-dependent bias, ensuring that path extension yields zero expected gradient signal. Second, Position-Specific Advantage Estimation leverages the reward decomposition structure to compute step-dependent baselines, reducing gradient variance. Together, these mechanisms yield policy gradients that precisely target path quality. Our experiments on three real-world datasets demonstrate that ProRL significantly outperforms state-of-the-art PRSs. Our code is available at https://github.com/hongruhou89/ProRL.",
