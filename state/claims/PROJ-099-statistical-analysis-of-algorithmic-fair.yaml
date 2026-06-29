@@ -1,0 +1,111 @@
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: bank-additional dataset from UCI Machine Learning Repository
+  claim_id: c_e6cf5f96
+  context: Create code/utils/dataset_loaders.py with URL-based fetchers for multiple
+    datasets including Bank Marketing
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bank-additional_dataset_from_UCI_Machine_Learning_Repository
+  kind: entity_fact
+  raw_text: The study will utilize the bank-additional dataset from the UCI Machine
+    Learning Repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T18:31:07Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: bank-additional dataset from UCI Machine Learning Repository
+  claim_id: c_dfcd3ef3
+  context: "T007 [P] Create `code/utils/dataset_loaders.py` with URL\u2011based fetchers\
+    \ for: Bank Marketing (`The study will utilize the bank-additional dataset from\
+    \ the UCI Machine Learning Repository.`)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bank-additional_dataset_from_UCI_Machine_Learning_Repository
+  kind: entity_fact
+  raw_text: The study will utilize the bank-additional dataset from the UCI Machine
+    Learning Repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T18:35:14Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: UCI Adult dataset
+  claim_id: c_aa0d3a20
+  context: "T007 [P] Create `code/utils/dataset_loaders.py` with URL\u2011based fetchers\
+    \ for: UCI Adult"
+  evidence:
+    entailment_evidence: UCI Adult dataset - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/UCI_Adult_dataset
+  kind: entity_fact
+  raw_text: UCI Adult dataset
+  resolved_value: UCI Adult dataset
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T18:35:27Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: COMPAS dataset
+  claim_id: c_1cca7201
+  context: "T007 [P] Create `code/utils/dataset_loaders.py` with URL\u2011based fetchers\
+    \ for: COMPAS"
+  evidence:
+    entailment_evidence: COMPAS dataset - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/COMPAS_dataset
+  kind: entity_fact
+  raw_text: COMPAS dataset
+  resolved_value: COMPAS dataset
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T18:37:05Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: German Credit dataset
+  claim_id: c_6ea7fcdc
+  context: "T007 [P] Create `code/utils/dataset_loaders.py` with URL\u2011based fetchers\
+    \ for: German Credit"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/German_Credit_dataset
+  kind: entity_fact
+  raw_text: German Credit dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T18:45:55Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: Law School Admission dataset
+  claim_id: c_d0959025
+  context: "T007 [P] Create `code/utils/dataset_loaders.py` with URL\u2011based fetchers\
+    \ for: Law School Admission"
+  evidence:
+    entailment_evidence: Law School Admission dataset - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Law_School_Admission_dataset
+  kind: entity_fact
+  raw_text: Law School Admission dataset
+  resolved_value: Law School Admission dataset
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T18:47:03Z'

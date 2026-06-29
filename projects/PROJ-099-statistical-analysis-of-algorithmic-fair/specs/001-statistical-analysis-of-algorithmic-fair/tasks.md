@@ -17,11 +17,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory skeleton with explicit paths and placeholder README files:
+- [X] T001 Create project directory skeleton with explicit paths and placeholder README files:
  - `code/`, `data/raw/`, `data/processed/`, `data/analysis/`, `logs/`, `tests/`, `state/`
  - Add empty `README.md` in each top‑level folder.
-- [ ] T002 Initialize a Python virtual environment and create `requirements.txt` pinning: scikit‑learn, statsmodels, pandas, numpy, scipy, requests, hashlib, joblib, pytest, black, flake8, isort.
-- [ ] T003 [P] Configure linting and formatting tools by adding `.black`, `.flake8`, and `.isort.cfg` configuration files at repository root.
+- [X] T002 Initialize a Python virtual environment and create `requirements.txt` pinning: scikit‑learn, statsmodels, pandas, numpy, scipy, requests, hashlib, joblib, pytest, black, flake8, isort.
+- [X] T003 [P] Configure linting and formatting tools by adding `.black`, `.flake8`, and `.isort.cfg` configuration files at repository root.
 
 ---
 
@@ -31,16 +31,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/data-model.py` defining `Dataset`, `Model`, `FairnessMetric`, and `DatasetCharacteristic` classes with type hints and docstrings.
-- [ ] T005 [P] Setup logging infrastructure: create `logs/exclusion.log` with CSV header `timestamp,dataset_id,missing_variable_name,reason`.
-- [ ] T006 [P] Create `code/utils/metrics.py` implementing fairness metric formulas (docstrings include LaTeX notation and citations to Appendix A).
-- [ ] T007 [P] Create `code/utils/dataset_loaders.py` with URL‑based fetchers for:
+- [X] T004 Create `code/data-model.py` defining `Dataset`, `Model`, `FairnessMetric`, and `DatasetCharacteristic` classes with type hints and docstrings.
+- [X] T005 [P] Setup logging infrastructure: create `logs/exclusion.log` with CSV header `timestamp,dataset_id,missing_variable_name,reason`.
+- [X] T006 [P] Create `code/utils/metrics.py` implementing fairness metric formulas (docstrings include LaTeX notation and citations to Appendix A).
+- [X] T007 [P] Create `code/utils/dataset_loaders.py` with URL‑based fetchers for:
  - UCI Adult (`)
  - COMPAS (`)
- - Bank Marketing (`The study will utilize the bank-additional dataset from the UCI Machine Learning Repository.`)
+ - Bank Marketing (`The study will utilize the bank-additional dataset from the UCI Machine Learning Repository. [UNRESOLVED-CLAIM: c_dfcd3ef3 — status=not_enough_info] `)
  - German Credit (`)
  - Law School Admission (`)
-- [ ] T008 [P] Create `code/utils/validators.py` providing:
+- [X] T008 [P] Create `code/utils/validators.py` providing:
  - SHA‑256 checksum verification function.
  - Variable presence validation function that checks for protected attribute, outcome, and predictions columns.
 - [ ] T009 Create `state/projects/PROJ-099-statistical-analysis-of-algorithmic-fair.yaml` with project metadata and an empty `artifact_hashes` map.

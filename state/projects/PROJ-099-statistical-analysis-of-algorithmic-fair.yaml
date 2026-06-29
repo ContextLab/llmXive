@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T18:34:03.552787Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-099-statistical-analysis-of-algorithmic-fair
-last_run_id: 7fcd13fe-a1b4-46db-9410-092b06e188b5
+last_run_id: ab9ca3e8-90d8-44ad-a47f-ea753b32450a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair
 title: Statistical Analysis of Algorithmic Fairness Metrics
-updated_at: '2026-06-29T15:58:59.829398Z'
+updated_at: '2026-06-29T18:17:11.703715Z'
