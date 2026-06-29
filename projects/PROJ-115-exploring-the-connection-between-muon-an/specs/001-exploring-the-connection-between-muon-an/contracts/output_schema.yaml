@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Viable_Parameter_Points
+description: Schema for the output CSV file containing viable parameter points
+type: object
+properties:
+  viable_points:
+    type: array
+    description: List of parameter points that satisfy all constraints
+    items:
+      type: object
+      properties:
+        m_chi:
+          type: number
+          description: Dark Matter mass in MeV
+        m_V:
+          type: number
+          description: Mediator mass in MeV
+        g:
+          type: number
+          description: Coupling constant (g_chi = g_mu)
+        delta_a_mu:
+          type: number
+          description: Calculated contribution to muon g-2
+        omega_chi_h2:
+          type: number
+          description: Relic density
+        sigma_SI:
+          type: number
+          description: Spin-independent scattering cross-section (cm^2)
+        pass_g2:
+          type: boolean
+          description: Passes g-2 constraint
+        pass_relic:
+          type: boolean
+          description: Passes relic density constraint
+        pass_xenon:
+          type: boolean
+          description: Passes Xenon1T constraint
+        pass_lep:
+          type: boolean
+          description: Passes LEP constraint
+        is_viable:
+          type: boolean
+          description: True if all constraints pass
+      required:
+        - m_chi
+        - m_V
+        - g
+        - delta_a_mu
+        - omega_chi_h2
+        - sigma_SI
+        - pass_g2
+        - pass_relic
+        - pass_xenon
+        - pass_lep
+        - is_viable
+    minItems: 0
+required:
+  - viable_points
+additionalProperties: false

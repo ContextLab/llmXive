@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T23:24:29.113850Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-115-exploring-the-connection-between-muon-an
-last_run_id: 7d52d306-0370-4b1a-8783-14e7459c1344
+last_run_id: eb3fbf9a-074d-4747-bee1-1b917641dd3b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-115-exploring-the-connection-between-muon-an/specs/001-exploring-the-connection-between-muon-an
 title: Exploring the Connection Between Muon Anomalous Magnetic Dipole Moment and
   Dark Matter Interactions
-updated_at: '2026-06-24T23:38:25.337949Z'
+updated_at: '2026-06-29T20:37:15.087797Z'

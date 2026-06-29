@@ -1,0 +1,167 @@
+resolved_at: '2026-06-29T19:51:12.431616+00:00'
+datasets:
+- intent: Xenon1T
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/conference_contribution/HUDUDIY_SANOAT_SIYOSATINI_TAKOMILLASHTIRISHDA_INVESTITSIYALARNING_O_RNI/32826905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/HUDUDIY_SANOAT_SIYOSATINI_TAKOMILLASHTIRISHDA_INVESTITSIYALARNING_O_RNI/32826902
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_The_vanWienen_Korzybski_Generativity_Gradient_v5_Architecture_b_b_A_Closed_Operator_Driven_Calculus_for_Universal_Generative_Transformation_b_/32826794
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Single-cell_transcriptomics_and_multi-omics_integration_identify_necroptosis-driven_core_targets_and_tubular-immune_crosstalk_in_chronic_kidney_disease_b_/32826635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/7259230_/32826848
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/165486
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4075018
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4771143
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7255651
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1195785
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/mfxmk-qm578
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/mfxmk-qm578
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/7v6kr-veh55
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/7v6kr-veh55
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/qrg95-bdv36
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LEP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Carson1125/lepaute_ycbv_test/resolve/main/lepaute_data.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 171819
+      parsed: true
+  - url: https://huggingface.co/datasets/huggingartists/grigory-leps/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 38354
+      parsed: true
+  - url: https://huggingface.co/datasets/lephuong17/csc_dataset/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Carson1125/lepaute_ycbv_test/resolve/main/lepaute_data.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/huggingartists/grigory-leps/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/lephuong17/csc_dataset/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/Leptok/nanoshakespeare/cb56f362fc9098bd91e843aaa4bccc6598fa8a51/newinput.txt?%2Fdatasets%2FLeptok%2Fnanoshakespeare%2Fresolve%2Fmain%2Fnewinput.txt=&etag=%228c14cb854dcae074f9f2310a837614aa97ce8449%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/HUDUDIY_SANOAT_SIYOSATINI_TAKOMILLASHTIRISHDA_INVESTITSIYALARNING_O_RNI/32826905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/HUDUDIY_SANOAT_SIYOSATINI_TAKOMILLASHTIRISHDA_INVESTITSIYALARNING_O_RNI/32826902
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_The_vanWienen_Korzybski_Generativity_Gradient_v5_Architecture_b_b_A_Closed_Operator_Driven_Calculus_for_Universal_Generative_Transformation_b_/32826794
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Single-cell_transcriptomics_and_multi-omics_integration_identify_necroptosis-driven_core_targets_and_tubular-immune_crosstalk_in_chronic_kidney_disease_b_/32826635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/7259230_/32826848
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7949934
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17875165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1068939
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15146945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15138917
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20560732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20560732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1133350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21035438
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21012651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

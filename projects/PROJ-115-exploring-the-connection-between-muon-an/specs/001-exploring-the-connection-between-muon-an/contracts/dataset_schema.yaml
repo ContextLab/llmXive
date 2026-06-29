@@ -1,0 +1,26 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: LEP_Exclusion_Data
+description: Schema for the LEP mono-photon exclusion dataset (lepaute_data.json)
+type: object
+properties:
+  lepaute_data:
+    type: array
+    description: List of exclusion points for light mediators
+    items:
+      type: object
+      properties:
+        m_V:
+          type: number
+          description: Mediator mass in MeV
+          minimum: 0
+        g_limit:
+          type: number
+          description: Upper limit on coupling g at this mass
+          minimum: 0
+      required:
+        - m_V
+        - g_limit
+    minItems: 1
+required:
+  - lepaute_data
+additionalProperties: false
