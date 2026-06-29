@@ -1,21 +1,18 @@
-# Core data processing
-pandas>=2.0.0
-numpy>=1.24.0
-scipy>=1.10.0
-
-# HuggingFace datasets and models
+# Core dependencies
 datasets>=2.14.0
-transformers>=4.31.0
-bitsandbytes>=0.40.0
-
-# Visualization
-matplotlib>=3.7.0
-
-# Testing
+transformers>=4.35.0
+bitsandbytes>=0.41.0
+scipy>=1.11.0
+matplotlib>=3.8.0
 pytest>=7.4.0
+pandas>=2.1.0
+numpy>=1.24.0
+torch>=2.0.0
 
 # Linting and formatting
 black>=23.0.0
-flake8>=6.0.0
+flake8>=6.1.0
 isort>=5.12.0
-pre-commit>=3.3.0
+
+# Pre-commit hooks
+pre-commit>=3.5.0

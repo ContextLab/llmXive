@@ -1399,3 +1399,52 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T02:40:00Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: codeparrot/github-code 500 MB subset
+  claim_id: c_1b6d520b
+  context: T018 [US1] Implement data_loader.py to stream codeparrot/github-code (500
+    MB subset) using HuggingFace datasets library with streaming mode enabled
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stream codeparrot/github-code (500 MB subset) using HuggingFace datasets
+    library
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T02:58:26Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: Salesforce/codegen-350M-mono model 8-bit quantization
+  claim_id: c_c32b1f74
+  context: T020 [US1] Implement model_metrics.py to load Salesforce/codegen-350M-mono
+    in 8-bit quantization using bitsandbytes and compute perplexity
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load Salesforce/codegen-350M-mono in 8-bit quantization using bitsandbytes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T03:01:48Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: HumanEval 50-problem subset
+  claim_id: c_d15d970e
+  context: T031 [US2] Implement bug_detection.py to load the 50-problem HumanEval
+    subset and compute pass@1 accuracy
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load the 50-problem HumanEval subset and compute pass@1 accuracy
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T03:12:39Z'
