@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TextureDescriptor Output Schema"
+description: "Schema for predicted texture coefficients (FR-005)"
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample"
+  alloy_family:
+    type: string
+    description: "Alloy family classification"
+  odf_100:
+    type: number
+    description: "Predicted ODF intensity for {100} plane (MRD)"
+  odf_110:
+    type: number
+    description: "Predicted ODF intensity for {110} plane (MRD)"
+  odf_111:
+    type: number
+    description: "Predicted ODF intensity for {111} plane (MRD)"
+  prediction_timestamp:
+    type: string
+    description: "ISO timestamp of prediction"
+    format: date-time
+  model_id:
+    type: string
+    description: "ID of model used for prediction"
+  out_of_range_warning:
+    type: boolean
+    description: "True if any input was outside training range"
+required:
+  - sample_id
+  - alloy_family
+  - odf_100
+  - odf_110
+  - odf_111
+  - prediction_timestamp
+  - model_id
+  - out_of_range_warning
+additionalProperties: false

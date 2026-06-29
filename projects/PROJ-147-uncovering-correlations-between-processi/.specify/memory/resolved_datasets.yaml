@@ -1,0 +1,644 @@
+resolved_at: '2026-06-29T02:54:34.143070+00:00'
+datasets:
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&user_id=public&Expires=1782704973&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzA0OTczfX19XX0_&Signature=MEUCIQDqIPM10utp9Nj1qHRKb6CBdnTT7z4SycfvDJ-67YpKhAIgEssbsK1psa9aEXchOoEoBaevYYQSMIPrgCv3FuBa-44_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/_b_Software_Performance_Analysis_on_Linux_Systems_Hands-On_Lab_Materials_FSE_2026_Tutorial_b_/32817905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Durable_Self-Healing_Superhydrophobic_and_Superoleophobic_Surfaces_from_Fluorinated-Decyl_Polyhedral_Oligomeric_Silsesquioxane_and_Hydrolyzed_Fluorinated_Alkyl_Silane/32817944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Urban_suburban_landscape_connectivity_influences_the_distribution_of_potential_zoonotic_pathogens_in_woodlands/32817935
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Regulatory_Guidance_for_the_Return_of_Raw_Genomic_Data_to_Research_Participants_A_Qualitative_Interview_Study/32692689
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Titanium_isotopic_evidence_for_a_highly_evolved_magma_origin_for_the_Chang_e-5_young_basalts_b_/32817929
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6557219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20725391
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20725391
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017516
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017516
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20920725
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_Software_Performance_Analysis_on_Linux_Systems_Hands-On_Lab_Materials_FSE_2026_Tutorial_b_/32817905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Durable_Self-Healing_Superhydrophobic_and_Superoleophobic_Surfaces_from_Fluorinated-Decyl_Polyhedral_Oligomeric_Silsesquioxane_and_Hydrolyzed_Fluorinated_Alkyl_Silane/32817944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Urban_suburban_landscape_connectivity_influences_the_distribution_of_potential_zoonotic_pathogens_in_woodlands/32817935
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Regulatory_Guidance_for_the_Return_of_Raw_Genomic_Data_to_Research_Participants_A_Qualitative_Interview_Study/32692689
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Titanium_isotopic_evidence_for_a_highly_evolved_magma_origin_for_the_Chang_e-5_young_basalts_b_/32817929
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10364827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3841160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13843104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13213336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10384626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20857147
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Barriers_and_Facilitators_to_Providing_Women_Postpartum_Care_by_Health_Care_Providers_in_the_First_12_Months_After_Childbirth_A_Systematic_Qualitative_Meta-Aggregation_Review_/32720487
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Software_Performance_Analysis_on_Linux_Systems_Hands-On_Lab_Materials_FSE_2026_Tutorial_b_/32817905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Durable_Self-Healing_Superhydrophobic_and_Superoleophobic_Surfaces_from_Fluorinated-Decyl_Polyhedral_Oligomeric_Silsesquioxane_and_Hydrolyzed_Fluorinated_Alkyl_Silane/32817944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Urban_suburban_landscape_connectivity_influences_the_distribution_of_potential_zoonotic_pathogens_in_woodlands/32817935
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Regulatory_Guidance_for_the_Return_of_Raw_Genomic_Data_to_Research_Participants_A_Qualitative_Interview_Study/32692689
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017776
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017776
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18064194
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18064194
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21016891
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ODF
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/m-zhafran/datasaur-MmRmNmMwYzE-ODFhMDk2ZTI/580c46a2d0cfa1187e4388910755a7c6aa384fd4/data.csv?%2Fdatasets%2Fm-zhafran%2Fdatasaur-MmRmNmMwYzE-ODFhMDk2ZTI%2Fresolve%2Fmain%2Fdata.csv=&etag=%226aee0434e80561d032fbe6e3d6e758baafb551cf%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Between-Hospital_Variation_in_Patient-Perceived_Service_Quality_and_Satisfaction_Across_Ghana_s_Tertiary_Teaching_Hospitals_A_Cross-Sectional_Study_b_/32817938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Robustness_and_uncertainty_in_drought_trend_projections_across_dryland_and_non-dryland_regions_under_greenhouse_warming/32725554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Barriers_and_Facilitators_to_Providing_Women_Postpartum_Care_by_Health_Care_Providers_in_the_First_12_Months_After_Childbirth_A_Systematic_Qualitative_Meta-Aggregation_Review_/32720487
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Software_Performance_Analysis_on_Linux_Systems_Hands-On_Lab_Materials_FSE_2026_Tutorial_b_/32817905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Durable_Self-Healing_Superhydrophobic_and_Superoleophobic_Surfaces_from_Fluorinated-Decyl_Polyhedral_Oligomeric_Silsesquioxane_and_Hydrolyzed_Fluorinated_Alkyl_Silane/32817944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6639824
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18981498
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3471059
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ejfa.pensoft.net/article/152376/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17098033
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20976013
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20976013
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20975074
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20975074
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20974738
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MRD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11945
+      parsed: true
+  - url: https://huggingface.co/datasets/maxbsoft/mrdragonfox-elise/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mrdbourke/food_vision_199_classes/resolve/main/annotations.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/maxbsoft/mrdragonfox-elise/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mrdbourke/food_vision_199_classes/resolve/main/annotations.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/MrDre/autotrain-data-feetfoot/resolve/main/processed/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Patterns_of_care_study_of_adult_medulloblastoma_/32817962
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Between-Hospital_Variation_in_Patient-Perceived_Service_Quality_and_Satisfaction_Across_Ghana_s_Tertiary_Teaching_Hospitals_A_Cross-Sectional_Study_b_/32817938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Robustness_and_uncertainty_in_drought_trend_projections_across_dryland_and_non-dryland_regions_under_greenhouse_warming/32725554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Barriers_and_Facilitators_to_Providing_Women_Postpartum_Care_by_Health_Care_Providers_in_the_First_12_Months_After_Childbirth_A_Systematic_Qualitative_Meta-Aggregation_Review_/32720487
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Software_Performance_Analysis_on_Linux_Systems_Hands-On_Lab_Materials_FSE_2026_Tutorial_b_/32817905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4139892
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18023325
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/36851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14392906
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15655442
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18400178
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18400178
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19043057
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19043057
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/f311f69d-ecd2-4505-9882-e59d9b56852d
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+- intent: OMDB
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/colabfit/JARVIS_OMDB/resolve/main/co/co_0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/zabir-nabil/OMD-Bench/resolve/main/data/real-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 120471
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/colabfit/JARVIS_OMDB/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zabir-nabil/OMD-Bench/resolve/main/data/real-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Unsolicited_nudis_ongoing_spread_of_two_non-native_nudibranchs_along_Australia_s_east_coast/32774967
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Patterns_of_care_study_of_adult_medulloblastoma_/32817962
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Between-Hospital_Variation_in_Patient-Perceived_Service_Quality_and_Satisfaction_Across_Ghana_s_Tertiary_Teaching_Hospitals_A_Cross-Sectional_Study_b_/32817938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Robustness_and_uncertainty_in_drought_trend_projections_across_dryland_and_non-dryland_regions_under_greenhouse_warming/32725554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Barriers_and_Facilitators_to_Providing_Women_Postpartum_Care_by_Health_Care_Providers_in_the_First_12_Months_After_Childbirth_A_Systematic_Qualitative_Meta-Aggregation_Review_/32720487
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14203180
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2604969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1239886
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20598918
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/v9wsxn3rx8/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/v9wsxn3rx8
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20764389
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20764389
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20764834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Unsolicited_nudis_ongoing_spread_of_two_non-native_nudibranchs_along_Australia_s_east_coast/32774967
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Patterns_of_care_study_of_adult_medulloblastoma_/32817962
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Between-Hospital_Variation_in_Patient-Perceived_Service_Quality_and_Satisfaction_Across_Ghana_s_Tertiary_Teaching_Hospitals_A_Cross-Sectional_Study_b_/32817938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Robustness_and_uncertainty_in_drought_trend_projections_across_dryland_and_non-dryland_regions_under_greenhouse_warming/32725554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Barriers_and_Facilitators_to_Providing_Women_Postpartum_Care_by_Health_Care_Providers_in_the_First_12_Months_After_Childbirth_A_Systematic_Qualitative_Meta-Aggregation_Review_/32720487
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6626065
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20652902
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20652902
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20804635
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20804635
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2602.23754
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-008
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/An_Integrated_Global-To-Regional_Scale_Workflow_for_Simulating_Climate_Change_Impacts_on_Marine_Ecosystems/32766789
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Unsolicited_nudis_ongoing_spread_of_two_non-native_nudibranchs_along_Australia_s_east_coast/32774967
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Patterns_of_care_study_of_adult_medulloblastoma_/32817962
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Between-Hospital_Variation_in_Patient-Perceived_Service_Quality_and_Satisfaction_Across_Ghana_s_Tertiary_Teaching_Hospitals_A_Cross-Sectional_Study_b_/32817938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Robustness_and_uncertainty_in_drought_trend_projections_across_dryland_and_non-dryland_regions_under_greenhouse_warming/32725554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10355702
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3595521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3596136
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3595492
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3596476
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

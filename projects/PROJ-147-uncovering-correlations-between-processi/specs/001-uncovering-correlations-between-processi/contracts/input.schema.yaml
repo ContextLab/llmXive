@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProcessingRecord Input Schema"
+description: "Schema for ingested rolling process data (FR-001, FR-002)"
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample"
+  alloy_id:
+    type: string
+    description: "Alloy identifier"
+  alloy_family:
+    type: string
+    description: "Classification (e.g., FCC_Al, FCC_Cu, BCC_steel)"
+    pattern: "^[A-Z]{3}_[a-zA-Z]+$"
+  rolling_speed:
+    type: number
+    description: "Rolling speed in m s⁻¹"
+    minimum: 0
+  temperature:
+    type: number
+    description: "Rolling temperature in °C"
+  reduction_ratio:
+    type: number
+    description: "Thickness reduction in percent"
+    minimum: 0
+    maximum: 100
+  composition:
+    type: array
+    description: "Optional composition vector"
+    items:
+      type: number
+  source:
+    type: string
+    description: "Dataset source"
+    enum:
+      - "OMDB"
+      - "NIST"
+      - "Materials_Project"
+      - "synthetic"
+  checksum:
+    type: string
+    description: "SHA256 of raw data row"
+    pattern: "^[a-f0-9]{64}$"
+required:
+  - sample_id
+  - alloy_id
+  - alloy_family
+  - rolling_speed
+  - temperature
+  - reduction_ratio
+  - source
+  - checksum
+additionalProperties: false
