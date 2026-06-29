@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  material_id:
+    type: string
+    description: "Unique identifier from Materials Project (e.g., mp-12345)"
+  thermal_conductivity:
+    type: number
+    description: "Thermal conductivity in W/m·K"
+  descriptor_name:
+    type: string
+    description: "Name of the structural descriptor"
+  pearson_r:
+    type: number
+    description: "Pearson correlation coefficient"
+  spearman_r:
+    type: number
+    description: "Spearman correlation coefficient"
+  p_value:
+    type: number
+    description: "Raw p-value"
+  p_value_fdr:
+    type: number
+    description: "Benjamini-Hochberg corrected p-value"
+  significant:
+    type: boolean
+    description: "True if corrected p-value is less than 0.05"
+  regression_coefficient:
+    type: number
+    description: "Coefficient from OLS model"
+  vif_score:
+    type: number
+    description: "Variance Inflation Factor for this predictor"
+  vif_flag:
+    type: string
+    description: "Status of collinearity check (e.g., 'OK', 'DESCRIPTIVE_ONLY')"
+required:
+  - material_id
+  - thermal_conductivity
+  - descriptor_name
+  - pearson_r
+  - p_value
+  - vif_score
+additionalProperties: false
