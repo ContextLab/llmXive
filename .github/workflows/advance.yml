@@ -32,15 +32,16 @@ permissions:
   contents: write
   issues: write
 
-concurrency:
-  # Per-worker group: the 6 never cancel each other, AND a slow worker queues
-  # (cancel-in-progress: false) rather than piling up parallel duplicates.
-  group: advance-${{ matrix.worker }}
-  cancel-in-progress: false
-
 jobs:
   advance:
     runs-on: ubuntu-latest
+    # Per-worker concurrency — JOB-level so `matrix.worker` is in scope (it is
+    # NOT available in a workflow-level concurrency block, which is invalid YAML
+    # and blocks the whole workflow from running). The 6 workers never cancel
+    # each other; a slow worker queues rather than piling up duplicates.
+    concurrency:
+      group: advance-${{ matrix.worker }}
+      cancel-in-progress: false
     # Fits the worst single convergence step (a live tasked/review panel
     # convergence was observed at ~77 min); the wall budget breaks the
     # multi-tick loop early so the final step + commit always land.
