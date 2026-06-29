@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DatasetRecord Schema"
+description: "Schema for validating developer productivity dataset records"
+type: "object"
+properties:
+  tool_usage:
+    type: "boolean"
+    description: "Whether LLM code generation was used (True/False)"
+  task_time:
+    type: "number"
+    description: "Task completion time in minutes (must be > 0)"
+    minimum: 0.0
+  defect_rate:
+    type: "number"
+    description: "Code quality metric: defects per KLOC (must be >= 0)"
+    minimum: 0.0
+  experience_years:
+    type: "integer"
+    description: "Developer experience in years (must be >= 0)"
+    minimum: 0
+  task_complexity:
+    type: "number"
+    description: "Task complexity score (optional covariate)"
+    minimum: 0.0
+  project_type:
+    type: "string"
+    description: "Project type category (optional)"
+  team_size:
+    type: "integer"
+    description: "Team size (optional)"
+    minimum: 1
+required:
+  - tool_usage
+  - task_time
+  - defect_rate
+  - experience_years
+additionalProperties: true

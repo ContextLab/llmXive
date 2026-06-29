@@ -1,0 +1,717 @@
+resolved_at: '2026-06-29T02:28:33.834218+00:00'
+datasets:
+- intent: URL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/report/The_promise_of_direct_access_to_climate_finance_evidence_and_lessons_from_LDCs_and_SIDS/32695698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/event/Healing_Art_and_Institutional_Care/32747742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/journal_contribution/Forensic_characterisation_of_3D_printing_polymers_used_for_the_manufacture_of_privately_made_firearms_using_ATR-FTIR_spectroscopy_and_chemometrics/32653638
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://dro.deakin.edu.au/articles/book/COLONIALITY_AND_STRUCTURAL_OTHERING_IN_EUROPEAN_THOUGHT_A_Racialized_Canon/32817872
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20015164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15016031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7502186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/199064
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27499
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27381
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015450
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015450
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/5209415f-d109-4c9f-94b1-46e4842294a7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ANOVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16586
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://research-repository.rmit.edu.au/articles/report/The_promise_of_direct_access_to_climate_finance_evidence_and_lessons_from_LDCs_and_SIDS/32695698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/event/Healing_Art_and_Institutional_Care/32747742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/journal_contribution/Forensic_characterisation_of_3D_printing_polymers_used_for_the_manufacture_of_privately_made_firearms_using_ATR-FTIR_spectroscopy_and_chemometrics/32653638
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://dro.deakin.edu.au/articles/book/COLONIALITY_AND_STRUCTURAL_OTHERING_IN_EUROPEAN_THOUGHT_A_Racialized_Canon/32817872
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.nida.ac.th/handle/662723737/7801
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21015365
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015365
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014866
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014866
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/JoeLeelyf/ViF-CoT-4K/resolve/main/parsed_frames.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/JoeLeelyf/ViF-CoT-4K/resolve/main/parsed_frames.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dongguanting/VIF-RAG-QA-20K/resolve/main/VIF-RAG_sampled
+      (20K).json
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&Expires=1782703458&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUzQitmaWxlbmFtZSUzRCUyMmdwdDRfc2luZ2xlX211bHRpX2F1dG9pZl9zaGFyZWdwdF9yYWdfbWl4Lmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzAzNDU4fX19XX0_&Signature=MEUCIGwpUP9LkspWLeGR9rAGtoigQWQRb-hXwR8apFcIehQ8AiEAleVkNouyKprHxp~jPp46Gae-TRbkgHj00uvW5VZqZXc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/report/The_promise_of_direct_access_to_climate_finance_evidence_and_lessons_from_LDCs_and_SIDS/32695698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/event/Healing_Art_and_Institutional_Care/32747742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/journal_contribution/Forensic_characterisation_of_3D_printing_polymers_used_for_the_manufacture_of_privately_made_firearms_using_ATR-FTIR_spectroscopy_and_chemometrics/32653638
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://dro.deakin.edu.au/articles/book/COLONIALITY_AND_STRUCTURAL_OTHERING_IN_EUROPEAN_THOUGHT_A_Racialized_Canon/32817872
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20926278
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19154354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20191456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14837515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19827885
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015230
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015230
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014110
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014110
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21013661
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://research-repository.rmit.edu.au/articles/report/The_promise_of_direct_access_to_climate_finance_evidence_and_lessons_from_LDCs_and_SIDS/32695698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/event/Healing_Art_and_Institutional_Care/32747742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/journal_contribution/Forensic_characterisation_of_3D_printing_polymers_used_for_the_manufacture_of_privately_made_firearms_using_ATR-FTIR_spectroscopy_and_chemometrics/32653638
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://dro.deakin.edu.au/articles/book/COLONIALITY_AND_STRUCTURAL_OTHERING_IN_EUROPEAN_THOUGHT_A_Racialized_Canon/32817872
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6373741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://research-repository.rmit.edu.au/articles/report/The_promise_of_direct_access_to_climate_finance_evidence_and_lessons_from_LDCs_and_SIDS/32695698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/event/Healing_Art_and_Institutional_Care/32747742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/journal_contribution/Forensic_characterisation_of_3D_printing_polymers_used_for_the_manufacture_of_privately_made_firearms_using_ATR-FTIR_spectroscopy_and_chemometrics/32653638
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://dro.deakin.edu.au/articles/book/COLONIALITY_AND_STRUCTURAL_OTHERING_IN_EUROPEAN_THOUGHT_A_Racialized_Canon/32817872
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017487
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017487
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21016059
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21016059
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017494
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://research-repository.rmit.edu.au/articles/report/The_promise_of_direct_access_to_climate_finance_evidence_and_lessons_from_LDCs_and_SIDS/32695698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/event/Healing_Art_and_Institutional_Care/32747742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/journal_contribution/Forensic_characterisation_of_3D_printing_polymers_used_for_the_manufacture_of_privately_made_firearms_using_ATR-FTIR_spectroscopy_and_chemometrics/32653638
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Contingency_and_space_as_structural_concerns_in_a_folio_of_interactive_electroacoustic_compositions/32817866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://dro.deakin.edu.au/articles/book/COLONIALITY_AND_STRUCTURAL_OTHERING_IN_EUROPEAN_THOUGHT_A_Racialized_Canon/32817872
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20725391
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20725391
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015450
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015450
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21010851
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Contesting_Communities_The_problem_of_journalism_and_social_order/32817887
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Extreme_weather_effects_on_marine_predator_breeding_outcomes_in_a_global_climate_change_hotspot_/32775174
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/report/The_promise_of_direct_access_to_climate_finance_evidence_and_lessons_from_LDCs_and_SIDS/32695698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/event/Healing_Art_and_Institutional_Care/32747742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/journal_contribution/Forensic_characterisation_of_3D_printing_polymers_used_for_the_manufacture_of_privately_made_firearms_using_ATR-FTIR_spectroscopy_and_chemometrics/32653638
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017349
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017349
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.26927
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.01905
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/d1d7845f-7ff9-4777-8c15-f0f5ec1120b7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-011
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Contesting_Communities_The_problem_of_journalism_and_social_order/32817887
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Extreme_weather_effects_on_marine_predator_breeding_outcomes_in_a_global_climate_change_hotspot_/32775174
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/report/The_promise_of_direct_access_to_climate_finance_evidence_and_lessons_from_LDCs_and_SIDS/32695698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/event/Healing_Art_and_Institutional_Care/32747742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/journal_contribution/Forensic_characterisation_of_3D_printing_polymers_used_for_the_manufacture_of_privately_made_firearms_using_ATR-FTIR_spectroscopy_and_chemometrics/32653638
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10323271
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962265
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963614
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/843489
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118403
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+- intent: US-2
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-006
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: NOT
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: NASA-TLX
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []

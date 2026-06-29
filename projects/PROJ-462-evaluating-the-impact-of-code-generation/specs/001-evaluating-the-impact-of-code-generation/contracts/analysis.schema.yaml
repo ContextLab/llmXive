@@ -1,0 +1,213 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult Schema"
+description: "Schema for validating statistical analysis output, including optional visualization and sensitivity metadata."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      version:
+        type: "string"
+        description: "Schema version"
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "Analysis timestamp"
+      random_seed:
+        type: "integer"
+        description: "Random seed for reproducibility"
+    required:
+      - version
+      - timestamp
+      - random_seed
+  anova_results:
+    type: "object"
+    properties:
+      tool_usage:
+        type: "object"
+        properties:
+          f_stat:
+            type: "number"
+          p_value:
+            type: "number"
+        required:
+          - f_stat
+          - p_value
+      experience_level:
+        type: "object"
+        properties:
+          f_stat:
+            type: "number"
+          p_value:
+            type: "number"
+        required:
+          - f_stat
+          - p_value
+      interaction:
+        type: "object"
+        properties:
+          f_stat:
+            type: "number"
+          p_value:
+            type: "number"
+        required:
+          - f_stat
+          - p_value
+      covariates:
+        type: "object"
+        description: "Statistics for each continuous covariate included in the ANCOVA model."
+        additionalProperties:
+          type: "object"
+          properties:
+            f_stat:
+              type: "number"
+            p_value:
+              type: "number"
+          required:
+            - f_stat
+            - p_value
+    required:
+      - tool_usage
+      - experience_level
+      - interaction
+  effect_sizes:
+    type: "object"
+    properties:
+      novice:
+        type: "object"
+        properties:
+          cohen_d:
+            type: "number"
+          ci_lower:
+            type: "number"
+          ci_upper:
+            type: "number"
+        required:
+          - cohen_d
+          - ci_lower
+          - ci_upper
+      intermediate:
+        type: "object"
+        properties:
+          cohen_d:
+            type: "number"
+          ci_lower:
+            type: "number"
+          ci_upper:
+            type: "number"
+        required:
+          - cohen_d
+          - ci_lower
+          - ci_upper
+      expert:
+        type: "object"
+        properties:
+          cohen_d:
+            type: "number"
+          ci_lower:
+            type: "number"
+          ci_upper:
+            type: "number"
+        required:
+          - cohen_d
+          - ci_lower
+          - ci_upper
+    required:
+      - novice
+      - intermediate
+      - expert
+  adjusted_p_values:
+    type: "object"
+    properties:
+      tool_usage:
+        type: "number"
+      experience_level:
+        type: "number"
+      interaction:
+        type: "number"
+    required:
+      - tool_usage
+      - experience_level
+      - interaction
+  associational_framing:
+    type: "boolean"
+    description: "Must be true; all findings labeled associational"
+    const: true
+  confounding_controls:
+    type: "object"
+    description: "Coefficient estimates for each covariate actually included in the model."
+    additionalProperties:
+      type: "object"
+      properties:
+        coef:
+          type: "number"
+        p_value:
+          type: "number"
+      required:
+        - coef
+        - p_value
+  power_flag:
+    type: "boolean"
+    description: "True if any stratum has <30 observations"
+  vif_scores:
+    type: "object"
+    properties:
+      tool_usage:
+        type: "number"
+      experience_level:
+        type: "number"
+    required:
+      - tool_usage
+      - experience_level
+  visualizations:
+    type: "array"
+    description: "Optional metadata for generated plots."
+    items:
+      type: "object"
+      properties:
+        plot_type:
+          type: "string"
+        stratification_variable:
+          type: "string"
+        interaction_lines:
+          type: "boolean"
+        file_path:
+          type: "string"
+      required:
+        - plot_type
+        - stratification_variable
+        - interaction_lines
+        - file_path
+  sensitivity_results:
+    type: "array"
+    description: "Optional rows from the experience‑threshold sweep."
+    items:
+      type: "object"
+      properties:
+        threshold_set:
+          type: "array"
+          items:
+            type: "integer"
+        completion_time_rates:
+          type: "object"
+        defect_rates:
+          type: "object"
+        effect_sizes:
+          type: "object"
+        variation_summary:
+          type: "object"
+      required:
+        - threshold_set
+        - completion_time_rates
+        - defect_rates
+        - effect_sizes
+        - variation_summary
+required:
+  - metadata
+  - anova_results
+  - effect_sizes
+  - adjusted_p_values
+  - associational_framing
+  - power_flag
+  - vif_scores
+additionalProperties: false
