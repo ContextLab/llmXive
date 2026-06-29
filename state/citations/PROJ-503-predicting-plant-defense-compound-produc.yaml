@@ -1,44 +1,22 @@
-- artifact_hash: 134b548f7f3cf56ff71ff62ad131d89364f54406709d156902d42417b6705c1e
+- artifact_hash: 0e7e39c501842f59a0bd1e1240355b0033c4b334ef0632de5e4135e7996b4a33
   artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Home - GEO - NCBI
+  fetched_title: test-00000-of-00001.parquet
   kind: url
-  value: https://www.ncbi.nlm.nih.gov/geo/
+  value: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
   verification_status: verified
-  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/
-  verified_at: '2026-06-29T01:42:00.695921Z'
-- artifact_hash: 134b548f7f3cf56ff71ff62ad131d89364f54406709d156902d42417b6705c1e
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67805d68b334b2e1e65fe605/ce0475d554f81cbf8f02e344b2c695050def22fb4d8c2b232804956049fd56a8?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1782704231&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc4MDVkNjhiMzM0YjJlMWU2NWZlNjA1L2NlMDQ3NWQ1NTRmODFjYmY4ZjAyZTM0NGIyYzY5NTA1MGRlZjIyZmI0ZDhjMmIyMzI4MDQ5NTYwNDlmZDU2YThcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3MDQyMzF9fX1dfQ__&Signature=MEQCIBGzdjmQQHGjgN8bCjFV0lWF%7EOyLqAdzDcXL1gXsg5fqAiAoiZPgcCuDQiWcfd7Wxp9PO136ntiDDopLGrBMmkV3IA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-06-29T02:37:11.115179Z'
+- artifact_hash: 0e7e39c501842f59a0bd1e1240355b0033c4b334ef0632de5e4135e7996b4a33
   artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: 'Metabolomics Workbench : Home'
+  fetched_title: test-00000-of-00001.parquet
   kind: url
-  value: https://www.metabolomicsworkbench.org/
+  value: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
   verification_status: verified
-  verified_against_url: https://www.metabolomicsworkbench.org/
-  verified_at: '2026-06-29T01:42:00.695921Z'
-- artifact_hash: 134b548f7f3cf56ff71ff62ad131d89364f54406709d156902d42417b6705c1e
-  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: 'KEGG: Kyoto Encyclopedia of Genes and Genomes'
-  kind: url
-  value: https://www.kegg.jp/
-  verification_status: verified
-  verified_against_url: https://www.kegg.jp/
-  verified_at: '2026-06-29T01:42:00.695921Z'
-- artifact_hash: 3faace54432c08c8a6c23fd95ea51947e1f784033b46924851f4d250373481c1
-  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: "GitHub \xB7 Change is constant. GitHub keeps you ahead. \xB7 GitHub"
-  kind: url
-  value: https://github.com/
-  verification_status: verified
-  verified_against_url: https://github.com/
-  verified_at: '2026-06-29T01:45:54.564390Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67805f089a9941c1844af93e/ea677010088659071a940118bdf4029df2097753a859b8924b8c50923173c282?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1782704231&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc4MDVmMDg5YTk5NDFjMTg0NGFmOTNlL2VhNjc3MDEwMDg4NjU5MDcxYTk0MDExOGJkZjQwMjlkZjIwOTc3NTNhODU5Yjg5MjRiOGM1MDkyMzE3M2MyODJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3MDQyMzF9fX1dfQ__&Signature=MEUCIA2HH1HCI1A8wVb2g6HoiS8LGNq%7EEWzqVQ3mfAs23NUxAiEA7zWIHqZlz7-fVSDrHJ5clDZruzBBa74ARY9IhFLFYHE_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-06-29T02:37:11.115179Z'

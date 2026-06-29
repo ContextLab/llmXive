@@ -1,4 +1,4 @@
-resolved_at: '2026-06-29T00:51:00.346051+00:00'
+resolved_at: '2026-06-29T01:43:41.653361+00:00'
 datasets:
 - intent: RMSE
   status: verified
@@ -26,27 +26,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&Expires=1782697835&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0X2xpc3QuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRfbGlzdC5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI2OTc4MzV9fX1dfQ__&Signature=MEUCIQCwLvVCm26Qm9Or8fgBFnLvopzgn~Y60~0Wj-Rl8zEAmQIgXQlHDq1FZMHWK9dhBOBLYwdJDx~hRDLLJcS73riVBDs_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&Expires=1782701002&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0X2xpc3QuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRfbGlzdC5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3MDEwMDJ9fX1dfQ__&Signature=MEUCIGwfmZbDx1aFo~mO~Zq8TjyWjHTUTEHBwW2MN2~VeRXdAiEA1ZJNWn20Bdglkdphzboo7bLYOb4kJqDz2T8UfaykW-8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Synthesis_and_Study_of_Photoactive_Heterobimetallic_Complexes_Bearing_Ditopic_Imidazophenanthroline_Ligands_Evaluation_of_Viability_as_Unimolecular_Metallaphotoredox_Catalysts_/32620689
+  - url: https://figshare.com/articles/poster/Optimized_Covariate_Estimation_in_a_Linear_Mixed_Model_Improves_GWAS_Reliability_in_Rice/32767677
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Accuracy_of_Patient_Reported_Exposure_to_New_Psychoactive_Substances_and_Other_Illicit_Drugs_in_Australian_Emergency_Departments_Findings_From_the_Emerging_Drugs_Network_of_Australia/32685555
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Risk_of_fracture_in_women_is_associated_with_their_childhood_fracture_history_independent_of_bone_mineral_density_The_Geelong_Osteoporosis_Study/32817791
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Reply_to_Pain_is_Not_a_thing_How_That_Error_Affects_Language_and_Logic_in_Pain_Medicine_/31071706
+  - url: https://curate.curtin.edu.au/articles/journal_contribution/Navigating_work_integrated_learning_WIL_pathways_for_learners_through_creative_media_production_the_Yagan_Square_digital_tower_WIL_project/31741432
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/The_effect_of_pre_exercise_hyperventilation_on_repeated_high_intensity_inclined_sprint_performance/32531319
+  - url: https://dro.deakin.edu.au/articles/chapter/Digital_Heritage_after_Platformisation_Double_Binds_at_Two_Legal_Deposit_Libraries/32796873
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Fiscal_Decentralization_and_Farmer_Empowerment_in_Indonesia-Timor_Leste_Border_A_Case_Study_of_Village_Fund/32664396
+  - url: https://figshare.com/articles/preprint/Geometric_Mirror_Model_GEMM_v1_0_Main_Paper_and_Popular_Science_Supplements__/32778645
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -70,23 +70,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27515
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27492
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27416
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27394
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://sanad.iau.ir/Journal/impcs/Article/1228514
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21002611
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21002611
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20998953
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20998953
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

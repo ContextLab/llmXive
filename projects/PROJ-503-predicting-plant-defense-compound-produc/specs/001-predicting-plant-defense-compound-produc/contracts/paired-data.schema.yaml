@@ -1,0 +1,122 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Paired Data Schema"
+description: "Schema for validated paired expression-metabolite data"
+type: "object"
+required:
+  - "samples"
+  - "expression_features"
+  - "metabolite_targets"
+properties:
+  samples:
+    type: "array"
+    description: "List of sample IDs with matched expression and metabolite data"
+    items:
+      type: "string"
+      pattern: "^[A-Z0-9_-]+$"
+  expression_features:
+    type: "array"
+    description: "Gene identifiers from defense biosynthetic pathways"
+    items:
+      type: "string"
+      pattern: "^[A-Z0-9]+$"
+  metabolite_targets:
+    type: "array"
+    description: "Defense metabolite identifiers"
+    items:
+      type: "string"
+      pattern: "^[A-Z0-9_-]+$"
+  pairing_rate:
+    type: "number"
+    description: "Percentage of samples with matched expression-metabolite pairs"
+    minimum: 0
+    maximum: 100
+  pairing_rate_threshold:
+    type: "number"
+    description: "Minimum required pairing rate (95 per FR-009)"
+    minimum: 0
+    maximum: 100
+    default: 95
+  validation_status:
+    type: "string"
+    enum:
+      - "passed"
+      - "failed"
+    description: "Pairing validation result"
+  mismatched_samples:
+    type: "array"
+    description: "List of sample IDs that could not be paired (for logging)"
+    items:
+      type: "object"
+      properties:
+        sample_id:
+          type: "string"
+        reason:
+          type: "string"
+          enum:
+            - "no_sample_level_pair"
+            - "missing_expression"
+            - "missing_metabolite"
+            - "metadata_mismatch"
+            - "sample_id_format_mismatch"
+  checksums:
+    type: "object"
+    description: "SHA-256 checksums for raw data files"
+    additionalProperties:
+      type: "string"
+      pattern: "^[a-f0-9]{64}$"
+  power_analysis:
+    type: "object"
+    description: "Power analysis results for sample size adequacy"
+    properties:
+      required_n:
+        type: "integer"
+        description: "Minimum required sample size"
+        minimum: 1
+      available_n:
+        type: "integer"
+        description: "Available sample count"
+        minimum: 0
+      achieved_power:
+        type: "number"
+        description: "Statistical power achieved"
+        minimum: 0
+        maximum: 1
+      target_correlation:
+        type: "number"
+        description: "Target Pearson r"
+        minimum: 0
+        maximum: 1
+      alpha:
+        type: "number"
+        description: "Significance level"
+        minimum: 0
+        maximum: 1
+      status:
+        type: "string"
+        enum:
+          - "passed"
+          - "failed"
+        description: "Power analysis result"
+  data_sources:
+    type: "array"
+    description: "List of data sources used for pairing"
+    items:
+      type: "object"
+      properties:
+        source_type:
+          type: "string"
+          enum:
+            - "GEO"
+            - "Metabolomics Workbench"
+            - "KEGG"
+        accession_id:
+          type: "string"
+          description: "Dataset accession or experiment ID"
+        download_date:
+          type: "string"
+          format: "date"
+          description: "Date of download"
+        checksum:
+          type: "string"
+          pattern: "^[a-f0-9]{64}$"
+          description: "SHA-256 checksum"
