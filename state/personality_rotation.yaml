@@ -1,12 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-28T23:27:18.195425+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-06-28T23:55:14.736210+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: david-krakauer
-  started_at: '2026-06-20T00:35:47.318167+00:00'
-  ended_at: '2026-06-20T01:43:14.644979+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: eric-kandel
   started_at: '2026-06-20T01:43:14.644979+00:00'
   ended_at: '2026-06-20T03:06:15.608212+00:00'
@@ -1186,5 +1181,10 @@ history:
 - slug: dan-rockmore
   started_at: '2026-06-28T22:51:41.712404+00:00'
   ended_at: '2026-06-28T23:27:18.195425+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-28T23:27:18.195425+00:00'
+  ended_at: '2026-06-28T23:55:14.736210+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
