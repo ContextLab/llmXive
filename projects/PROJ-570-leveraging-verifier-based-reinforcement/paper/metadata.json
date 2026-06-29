@@ -2,7 +2,17 @@
   "arxiv_id": "2604.27505",
   "arxiv_url": "https://arxiv.org/abs/2604.27505",
   "title": "Leveraging Verifier-Based Reinforcement Learning in Image Editing",
-  "authors": [],
+  "authors": [
+    "Hanzhong Guo",
+    "Jie Wu",
+    "Jie Liu",
+    "Yu Gao",
+    "Zilyu Ye",
+    "Linxiao Yuan",
+    "Xionghui Wang",
+    "Yizhou Yu",
+    "Weilin Huang"
+  ],
   "submitter": "github-actions[bot]",
   "submitted_via": "llmXive dashboard, GitHub issue #165",
   "license": "arXiv Non-exclusive Distribution License",

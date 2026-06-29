@@ -2,7 +2,14 @@
   "arxiv_id": "2606.16700",
   "arxiv_url": "https://arxiv.org/abs/2606.16700",
   "title": "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Models",
-  "authors": [],
+  "authors": [
+    "Yanming Zhang",
+    "Yihan Bian",
+    "Jingyuan Qi",
+    "Yuguang Yao",
+    "Lifu Huang",
+    "Tianyi Zhou"
+  ],
   "submitter": "github-actions[bot]",
   "abstract": "While reasoning on autoregressive (AR) models is often performed by chain-of-thought reasoning and reflection, their refinement of previous outputs still relies on fully sequential generation, even when only local edits are needed. In contrast, the masking mechanism in Mask Diffusion Models (MDMs) naturally supports explicit local edits on previous outputs, allowing selective refinement without discarding previous answers and generating another from scratch. While this property more closely aligns with how humans correct mistakes by iterative local refinement, existing MDMs do not support multi-turn masking and denoising. We propose Reflective Masking (RM), which elicits such an intrinsic reasoning capability in MDMs via lightweight post-training. RM provides a native test-time scaling, where an MDM iteratively revisits and revises its prior outputs based on evolving context. To exploit insights from previous turns like AR reasoning, we further introduce History Reference, a parameter-free mechanism that leverages intermediate denoising states during revision. Our approach requires no architectural changes and is easily applicable to existing MDMs. Across diverse tasks and modalities, including text generation, Sudoku, and image editing, Reflective Masking consistently outperforms standard masking-based baselines and demonstrates strong generality, positioning RM as a fundamental primitive for reasoning on MDMs.",
   "submitted_via": "llmXive dashboard, GitHub issue #354",
