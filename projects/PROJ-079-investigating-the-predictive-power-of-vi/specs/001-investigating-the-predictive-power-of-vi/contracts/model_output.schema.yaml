@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model performance metrics and validation results."
+type: "object"
+properties:
+  performance:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+        description: "R² on held-out test set"
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error"
+      min_fdr_p_value:
+        type: "number"
+        description: "Minimum FDR-adjusted p-value from Stability Selection"
+      permutation_p_value:
+        type: "number"
+        description: "Empirical p-value from permutation test"
+    required:
+      - r_squared
+      - rmse
+      - min_fdr_p_value
+      - permutation_p_value
+  validation:
+    type: "object"
+    properties:
+      cv_folds:
+        type: "integer"
+        description: "Number of CV folds used"
+      permutation_count:
+        type: "integer"
+        description: "Number of permutations"
+      vif_flags:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            feature_name:
+              type: "string"
+            vif_value:
+              type: "number"
+            flagged:
+              type: "boolean"
+          required:
+            - feature_name
+            - vif_value
+            - flagged
+    required:
+      - cv_folds
+      - permutation_count
+      - vif_flags
+  success_criteria:
+    type: "object"
+    properties:
+      hypothesis_supported:
+        type: "boolean"
+        description: "True if R² >= 0.30 and min(p) <= 0.05"
+      collinearity_ok:
+        type: "boolean"
+        description: "True if all VIF <= 5"
+    required:
+      - hypothesis_supported
+      - collinearity_ok
+required:
+  - performance
+  - validation
+  - success_criteria

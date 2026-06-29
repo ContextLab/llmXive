@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pipeline Metrics Schema"
+description: "Schema for overall pipeline execution metrics."
+type: "object"
+properties:
+  execution_time_seconds:
+    type: "number"
+    description: "Total execution time in seconds"
+  dataset_stats:
+    type: "object"
+    properties:
+      total_strains:
+        type: "integer"
+      test_strains:
+        type: "integer"
+      excluded_samples:
+        type: "integer"
+      missing_genomes:
+        type: "integer"
+    required:
+      - total_strains
+      - test_strains
+      - excluded_samples
+      - missing_genomes
+  status:
+    type: "string"
+    enum:
+      - success
+      - aborted
+      - warning
+    description: "Pipeline status"
+required:
+  - execution_time_seconds
+  - dataset_stats
+  - status

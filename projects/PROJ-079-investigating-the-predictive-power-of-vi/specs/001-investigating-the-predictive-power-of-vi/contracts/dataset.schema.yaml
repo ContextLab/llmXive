@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+description: "Schema for the merged viral features and host response dataset."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      version:
+        type: "string"
+        description: "Data version"
+      source:
+        type: "string"
+        description: "Data source (NCBI/GEO)"
+      generated_at:
+        type: "string"
+        format: "date-time"
+    required:
+      - version
+      - source
+      - generated_at
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        strain_id:
+          type: "string"
+          description: "Unique strain identifier"
+        target:
+          type: "number"
+          description: "Aggregated ISG-PC1 score"
+        features:
+          type: "object"
+          properties:
+            cai:
+              type: "number"
+              description: "Codon Adaption Index"
+            gc_content_global:
+              type: "number"
+              description: "Global GC content"
+            gc_content_region_1:
+              type: "number"
+              description: "GC content in region 1"
+            kmer_3:
+              type: "array"
+              items:
+                type: "number"
+              description: "3-mer frequencies"
+            kmer_4:
+              type: "array"
+              items:
+                type: "number"
+              description: "4-mer frequencies"
+            stability_score:
+              type: "number"
+              description: "Protein stability score (ESM-1b or proxy)"
+            repeat_density:
+              type: "number"
+              description: "Percentage of genome covered by repeats"
+          required:
+            - cai
+            - gc_content_global
+            - kmer_3
+            - stability_score
+            - repeat_density
+        metadata:
+          type: "object"
+          properties:
+            virus_family:
+              type: "string"
+            host_species:
+              type: "string"
+          required:
+            - virus_family
+            - host_species
+      required:
+        - strain_id
+        - target
+        - features
+        - metadata
+required:
+  - metadata
+  - data
