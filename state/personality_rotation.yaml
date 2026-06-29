@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-29T20:43:43.176108+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: alan-turing
+last_used_at: '2026-06-29T22:30:29.831796+00:00'
+last_outcome: committed
 history:
-- slug: albert-einstein
-  started_at: '2026-06-20T15:34:42.998853+00:00'
-  ended_at: '2026-06-20T16:31:55.430984+00:00'
-  outcome: abstained
-  action: abstain
 - slug: dan-rockmore
   started_at: '2026-06-20T16:31:55.430984+00:00'
   ended_at: '2026-06-20T17:07:44.636340+00:00'
@@ -1198,3 +1193,10 @@ history:
   ended_at: '2026-06-29T20:43:43.176108+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: alan-turing
+  started_at: '2026-06-29T20:43:43.176108+00:00'
+  ended_at: '2026-06-29T22:30:29.831796+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/reviews/research/alan-turing-simulated__2026-06-29__research.md
