@@ -24,6 +24,9 @@
   // the Published tab). Keeping the needs-attention states here means no
   // project is ever hidden — empty stages simply render no section.
   const IN_PROGRESS_STAGE_ORDER = [
+    // external-paper intake triage (spec 024): ingested papers awaiting
+    // code-vs-no-code reprocessing into the pipeline (drained each tick)
+    "paper_ingested",
     // research lane — only REAL resting milestones (transient -ing states are
     // collapsed into their milestone via STAGE_DISPLAY_PHASE below)
     "brainstormed", "flesh_out_complete",
@@ -109,6 +112,7 @@
     research_minor_revision: "Research minor revision",
     research_full_revision: "Research full revision",
     research_rejected: "Rejected",
+    paper_ingested: "Paper intake",
     paper_drafting_init: "Paper init",
     paper_specified: "Paper spec",
     paper_clarified: "Paper clarified",
