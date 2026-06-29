@@ -1,11 +1,1 @@
-- artifact_hash: 805c7644f9c92d23f33152da93a2c5ad9277ecead61dd115355f6c2ff96480e1
-  artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1234567
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
-  verified_at: '2026-06-25T11:15:38.514362Z'
+[]

@@ -51,7 +51,7 @@ The researcher performs statistical regression of residuals against independent 
 
 1. **Given** the computed Born predictions and experimental values, **When** the researcher calculates residuals (experimental - theoretical), **Then** RMSE is computed overall and stratified by solvent class (water, alcohols, aprotic)
 2. **Given** multiple hypothesis tests (regression slopes for ion size class, solvent class), **When** statistical significance is assessed, **Then** family-wise error correction (Bonferroni or Benjamini-Hochberg) is applied with p < 0.05 threshold
-3. **Given** the accuracy thresholds (RMSE < 5 kcal/mol, correlation > 0.8), **When** the researcher identifies breakdown regimes, **Then** a sensitivity analysis sweeps the RMSE threshold over {4.5, 5.0, 5.5} kcal/mol and reports how classification rates vary
+3. **Given** the accuracy thresholds (RMSE < 5 kcal/mol, correlation > 0.8), **When** the researcher identifies breakdown regimes, **Then** a sensitivity analysis sweeps the RMSE threshold over a range of representative values and reports how classification rates vary
 4. **Given** regression results, **When** diagnostic visualizations are generated, **Then** three plots are produced: (a) predicted vs. experimental scatter, (b) residual vs. ionic radius, (c) residual vs. dielectric constant
 
 ---

@@ -15,7 +15,7 @@ Assess whether automated code-simplification (dead-code removal, boolean reducti
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
 **Project Type**: CLI/research pipeline  
 **Performance Goals**: ≤6h total runtime, ≤7GB RAM, ≤14GB disk  
-**Constraints**: No GPU/CUDA; CPU-only inference; per-sample timeout 30s  
+**Constraints**: No GPU/CUDA; CPU-only inference; per-sample timeout limit  
 **Scale/Scope**: HumanEval **full set**; alternative benchmark (MBPP/APPS) would require spec amendment
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.

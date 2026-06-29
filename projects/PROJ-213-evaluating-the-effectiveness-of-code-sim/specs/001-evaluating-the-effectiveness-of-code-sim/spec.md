@@ -94,7 +94,7 @@ A researcher wants a reproducible statistical report (paired Wilcoxon signed‑r
 ## Assumptions
 
 - The HumanEval dataset includes all variables needed for pass@k computation (code prompt, reference solution, and test harness).  
-- A StarCoder model quantized to 4-bit fits within the 7 GB RAM limit on the free-tier GitHub Actions runner.  
+- A StarCoder model quantized to low-bit precision fits within the memory constraints of the free-tier GitHub Actions runner.  
 - CPU‑only inference via `llama.cpp` can process the selected subset (≤ 500 problems) within the specified job limit.  
 - The Wilcoxon signed‑rank test is appropriate for the paired, non‑normally distributed metric distributions; no alternative parametric test is required.  
 - The significance threshold is fixed at α = 0.05, and Bonferroni correction is sufficient for the two primary hypotheses (accuracy, latency).  
