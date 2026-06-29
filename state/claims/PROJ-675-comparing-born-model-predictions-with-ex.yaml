@@ -1,0 +1,71 @@
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: NIST Chemistry WebBook URL https://webbook.nist.gov/chemistry/
+  claim_id: c_ad502bff
+  context: Phase 3 User Story 1 data compilation tasks for experimental solvation
+    energy dataset
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_Chemistry_WebBook_URL_https://webbook.nist.gov/chemistr
+  kind: entity_fact
+  raw_text: 'Implement NIST data fetcher in code/data_compiler.py (URL: https://webbook.nist.gov/chemistry/)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T04:42:23Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: CRC Handbook as data source for solvation energy compilation
+  claim_id: c_f4705a0f
+  context: Phase 3 User Story 1 data compilation tasks for experimental solvation
+    energy dataset
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CRC_Handbook_as_data_source_for_solvation_energy_compilation
+  kind: entity_fact
+  raw_text: Implement CRC Handbook data fetcher in code/data_compiler.py
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T04:47:48Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Shannon database as source for crystal radius values
+  claim_id: c_fe36056f
+  context: Phase 3 User Story 1 data compilation tasks for experimental solvation
+    energy dataset
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shannon_database_as_source_for_crystal_radius_values
+  kind: entity_fact
+  raw_text: 'Implement Shannon radi extractor in code/data_compiler.py (source: Shannon
+    database)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T04:54:24Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: "Bulk water dielectric constant \u03B5=78.5"
+  claim_id: c_3682fe89
+  context: Phase 4 User Story 2 documentation of continuum dielectric limitation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Document continuum dielectric limitation (\u03B5=78.5 bulk vs saturated\
+    \ near-ion)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T05:05:25Z'

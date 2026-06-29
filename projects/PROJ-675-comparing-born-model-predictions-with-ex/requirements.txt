@@ -1,0 +1,26 @@
+# Python 3.11+ project dependencies for llmXive research pipeline
+# Project: PROJ-675-comparing-born-model-predictions-with-ex
+# Generated: 2026-06-28
+# Per Constitution Principle I (Reproducibility), pinned versions for deterministic builds
+
+# Core data science stack
+pandas>=2.0.0,<3.0.0
+numpy>=1.24.0,<2.0.0
+scipy>=1.10.0,<2.0.0
+matplotlib>=3.7.0,<4.0.0
+scikit-learn>=1.2.0,<2.0.0
+
+# Configuration and schema validation
+pyyaml>=6.0.0,<7.0.0
+jsonschema>=4.17.0,<5.0.0
+pydantic>=2.0.0,<3.0.0
+
+# Testing and quality assurance
+pytest>=7.3.0,<8.0.0
+pytest-cov>=4.0.0,<5.0.0
+flake8>=6.0.0,<7.0.0
+black>=23.0.0,<24.0.0
+pip-audit>=2.5.0,<3.0.0
+
+# Additional utilities
+requests>=2.31.0,<3.0.0

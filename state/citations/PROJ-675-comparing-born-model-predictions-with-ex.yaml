@@ -1,4 +1,4 @@
-- artifact_hash: d0d8e8e3fd2b19c40ad59f41881aaad96069cadcaa8bd4e15fabe71a7983be81
+- artifact_hash: 7a1e6bfabb37509a143e83a00614986d8196a7f9cc2d06a6945409d5054cc783
   artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,15 +8,4 @@
   value: https://webbook.nist.gov/chemistry/
   verification_status: verified
   verified_against_url: https://webbook.nist.gov/chemistry/
-  verified_at: '2026-06-29T02:16:54.644690Z'
-- artifact_hash: d0d8e8e3fd2b19c40ad59f41881aaad96069cadcaa8bd4e15fabe71a7983be81
-  artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://pubs.acs.org/page/crc/
-  verification_status: unreachable
-  verified_against_url: https://pubs.acs.org/page/crc/
-  verified_at: '2026-06-29T02:16:54.644690Z'
+  verified_at: '2026-06-29T05:05:25.093898Z'

@@ -17,7 +17,7 @@ This feature implements a Python-based computational chemistry pipeline that com
 **Project Type**: computational chemistry analysis library  
 **Performance Goals**: Complete analysis on 30+ ion-solvent pairs in <10 minutes on 2 CPU cores, no GPU  
 **Constraints**: CPU-only execution, ≤7 GB RAM, ≤14 GB disk, no CUDA/PyTorch GPU dependencies  
-**Scale/Scope**: 30+ ion-solvent pairs, Multiple diagnostic plots, regression with multiple-comparison correction
+**Scale/Scope**: Various ion-solvent pairs, Multiple diagnostic plots, regression with multiple-comparison correction
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
