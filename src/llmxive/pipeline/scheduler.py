@@ -339,6 +339,68 @@ def pick_next(
     )
 
 
+def pick_for_worker(
+    worker_index: int,
+    n_workers: int,
+    *,
+    repo_root: Path | None = None,
+    now: datetime | None = None,
+) -> Project | None:
+    """DETERMINISTIC multi-worker selection (advance.yml matrix lane).
+
+    Unlike the probabilistic :func:`pick_next` / :func:`pick_next_n`, this is a
+    pure function of the repo state: N workers fan out across the top-weighted
+    stages by round-robin, each taking a DISTINCT project, so the 6 concurrent
+    matrix jobs at the same HEAD pick 6 distinct projects (no double-work).
+
+    Algorithm:
+
+    1. Gather eligible candidates (``_eligible_candidates(repo_root, stage=None)``)
+       and group them by ``current_stage``.
+    2. Score each occupied stage with the EXISTING :func:`stage_weight` (which
+       already encodes the load-balance-the-biggest-piles + prefer-further-along
+       + staleness policy).
+    3. Rank occupied stages by weight DESC; deterministic tiebreak: pipeline
+       depth DESC (further-along first, via ``_stage_rank``), then stage value
+       (name) ASC → ``ranked_stages``.
+    4. If no stages, return None. Else
+       ``stage = ranked_stages[worker_index % len(ranked_stages)]`` and
+       ``depth = worker_index // len(ranked_stages)`` (round-robin wraps to a
+       deeper project in the same stage when there are more workers than stages).
+    5. Within that stage, order projects by staleness — oldest ``updated_at``
+       FIRST (furthest-waiting), tiebreak by ``id`` ASC. Return the ``depth``-th
+       project, or None if ``depth >= count``.
+
+    ``now`` lets tests pin the staleness reference; production passes None.
+    """
+    if n_workers <= 0:
+        return None
+    candidates = _eligible_candidates(repo_root=repo_root, stage=None)
+    if not candidates:
+        return None
+    now = now or datetime.now(UTC)
+    by_stage: dict[Stage, list[Project]] = defaultdict(list)
+    for p in candidates:
+        by_stage[p.current_stage].append(p)
+    # Rank occupied stages: weight DESC, then depth DESC, then name ASC.
+    ranked_stages = sorted(
+        by_stage,
+        key=lambda s: (
+            -stage_weight(s, by_stage[s], now=now),
+            -_stage_rank(s),
+            s.value,
+        ),
+    )
+    if not ranked_stages:
+        return None
+    stage = ranked_stages[worker_index % len(ranked_stages)]
+    depth = worker_index // len(ranked_stages)
+    in_stage = sorted(by_stage[stage], key=lambda p: (p.updated_at, p.id))
+    if depth >= len(in_stage):
+        return None
+    return in_stage[depth]
+
+
 def pick_next_n(
     n: int,
     *, repo_root: Path | None = None, stage: Stage | None = None,
@@ -391,6 +453,7 @@ __all__ = [
     "STAGE_PROGRESSION",
     "STAGE_RANK_CAP",
     "STALENESS_DIVISOR_DAYS",
+    "pick_for_worker",
     "pick_next",
     "pick_next_n",
     "priority_score",

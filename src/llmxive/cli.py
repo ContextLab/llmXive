@@ -92,6 +92,24 @@ def _cmd_run(args: argparse.Namespace) -> int:
     except ValueError:
         _wall_budget_s = 13800.0
 
+    # Deterministic multi-worker selection (advance.yml matrix lane). When
+    # --worker is given, the project is chosen ONCE (deterministically from the
+    # repo state) via scheduler.pick_for_worker so N concurrent matrix jobs at
+    # the same HEAD pick N DISTINCT projects. The selected project is then
+    # advanced through the SAME run_one_step loop below (respecting in_progress
+    # task-batching + --max-tasks ticks).
+    worker_pinned: bool = getattr(args, "worker", None) is not None
+    if worker_pinned:
+        n_workers = max(1, getattr(args, "workers", 1) or 1)
+        picked = scheduler.pick_for_worker(args.worker, n_workers)
+        if picked is None:
+            print(f"[run] worker {args.worker}/{n_workers}: no project")
+            return 0
+        print(
+            f"[run] worker {args.worker}/{n_workers}: {picked.id} "
+            f"(stage={picked.current_stage.value})"
+        )
+
     completed = 0
     for _ in range(max(1, args.max_tasks)):
         if _time.monotonic() - _run_start > _wall_budget_s:
@@ -103,7 +121,15 @@ def _cmd_run(args: argparse.Namespace) -> int:
             break
         from llmxive.types import Project as _Project
         project: _Project | None
-        if args.project:
+        if worker_pinned:
+            # Re-load the pinned project each tick so the loop sees its updated
+            # stage (in_progress task-batching advances it in place).
+            try:
+                project = project_store.load(picked.id)
+            except FileNotFoundError:
+                print(f"[run] no project state for {picked.id!r}", file=sys.stderr)
+                return 2
+        elif args.project:
             try:
                 project = project_store.load(args.project)
             except FileNotFoundError:
@@ -919,6 +945,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--max-tasks", type=int, default=5)
     p_run.add_argument("--project", default=None, help="restrict to this project id")
     p_run.add_argument("--stage", default=None, help="run only this stage")
+    # Deterministic matrix-worker selection (advance.yml). --worker i / --workers
+    # N fan N concurrent jobs across the top-weighted stages (round-robin), each
+    # taking a DISTINCT project — no double-work at the same HEAD.
+    p_run.add_argument("--worker", type=int, default=None,
+                       help="deterministic matrix-worker index (0-based); picks a "
+                            "distinct project via scheduler.pick_for_worker")
+    p_run.add_argument("--workers", type=int, default=1,
+                       help="total number of matrix workers (with --worker)")
     # Stage-independent agents (spec 008: personality) — skip the scheduler.
     p_run.add_argument("--agent", default=None,
                        help="invoke a stage-independent agent (e.g. 'personality')"

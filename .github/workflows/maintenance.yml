@@ -1,0 +1,97 @@
+name: Pipeline — Maintenance (intake + generation)
+
+# CONSOLIDATED INTAKE/GENERATION lane (hourly). Collects/processes NEW work
+# into the pipeline so the deterministic advance.yml matrix workers have a
+# steady feed:
+#   1. Idea generation/brainstorm  (tops up the brainstormed backlog)
+#   2. Human-submission intake      (triages open `human-submission` issues)
+#   3. arXiv/HF daily-paper intake  (files top upvoted HF papers as issues)
+# Each step is guarded / no-op-safe so a missing token or empty queue never
+# fails the run. Advancement of existing projects lives in advance.yml.
+#
+# Security: no untrusted github.event.* values are interpolated into run:
+# steps — the issue contents are read by the Python entry points via the
+# GitHub API, never echoed into a shell.
+
+on:
+  schedule:
+    - cron: '5 * * * *'   # hourly, at :05
+  workflow_dispatch: {}
+
+permissions:
+  actions: write             # workflow_dispatch to pages.yml
+  contents: write
+  issues: write
+
+concurrency:
+  group: maintenance
+  cancel-in-progress: false
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_RUN_WALL_BUDGET_S: "2400"
+      # Guarded paid fallback (claude-haiku) for when ALL free models flap;
+      # globally hard-capped by the daily ~$2 credit budget (backends/credits.py).
+      LLMXIVE_PAID_OPT_IN: "1"
+      LLMXIVE_PAID_BUDGET_FRACTION: "0.9"
+      # Paid escalation ladder (after the free tiers) for the execution/convergence fix-loop.
+      LLMXIVE_EXECUTION_PAID_TIERS: "anthropic.claude-haiku-4-5-20251001,anthropic.claude-sonnet-4-6,anthropic.claude-opus-4-6"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.11", cache: pip }
+      - run: pip install -e ".[dev]"
+      - run: python -m llmxive preflight
+
+      - name: Seed new ideas (LLM-driven brainstorm)
+        # Top the brainstormed backlog up to a small target. The intake
+        # throttle (FR-008) further damps automated seeding while the
+        # idea-stage backlog grows, so this is naturally self-limiting.
+        run: |
+          python -c "
+          from pathlib import Path
+          from llmxive.state import project as project_store
+          from llmxive.types import Stage
+          projects = project_store.list_all(repo_root=Path('.'))
+          backlog = [p for p in projects if p.current_stage == Stage.BRAINSTORMED]
+          deficit = max(0, 3 - len(backlog))
+          print(f'[seed] {len(backlog)} brainstormed projects; will seed {deficit} new')
+          import subprocess, sys
+          if deficit:
+              subprocess.run([sys.executable, '-m', 'llmxive', 'brainstorm', '-n', str(deficit)], check=False)
+          "
+
+      - name: Human-submission intake
+        # Triage open `human-submission` GitHub issues (website Submit dialog,
+        # HF-paper issues). Per-submission failure never fails the run; a
+        # missing token / `gh` is a precondition no-op that we tolerate here.
+        run: python -m llmxive submissions process || echo "[maintenance] submissions intake skipped/failed (non-fatal)"
+
+      - name: HF daily-papers intake
+        # File the top-N upvoted Hugging Face daily papers as `human-submission`
+        # / `new-paper` issues (the hourly submissions step above then routes
+        # them). Throttled by the same intake allowance. Non-fatal on failure.
+        run: python -m llmxive hf-papers submit-top --limit 5 || echo "[maintenance] hf-papers intake skipped/failed (non-fatal)"
+
+      - name: Regenerate web data
+        run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
+
+      - name: Commit + push
+        id: commit
+        run: |
+          bash scripts/ci/commit-and-push.sh "maintenance: intake/generation tick"
+
+      - name: Trigger Pages deploy
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run pages.yml --ref main

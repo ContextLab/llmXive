@@ -9,7 +9,7 @@ name: Pipeline — Personality (simulated public-figure personas)
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 */2 * * *'
   workflow_dispatch:
 
 permissions:
