@@ -17,6 +17,10 @@ samples:
   backlog: 159
 - at: '2026-06-29T17:59:08.581586+00:00'
   backlog: 159
+- at: '2026-06-29T18:55:24.416923+00:00'
+  backlog: 159
+- at: '2026-06-29T18:55:27.455472+00:00'
+  backlog: 159
 last_decision:
   requested: 5
   allowed: 4
@@ -25,4 +29,4 @@ last_decision:
   window_hours: 24.0
   kind: auto
   reason: backlog grew by 1 over 24h (drain < intake); allowance damped to 95%
-  decided_at: '2026-06-29T17:59:08.581586+00:00'
+  decided_at: '2026-06-29T18:55:27.455472+00:00'
