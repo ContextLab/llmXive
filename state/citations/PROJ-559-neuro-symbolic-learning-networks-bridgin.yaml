@@ -1,11 +1,33 @@
-- artifact_hash: b084218c465c1d7bf13c181f041c65446cdad91a23577a9faaea6e03bdaa470c
-  artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/spec.md
+- artifact_hash: 58c5f324998eced69674c8020ba0c4d53ca0d262db440b3f8825e759cc0ba656
+  artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: skill_builder_data_corrected.csv
   kind: url
-  value: https://github.com/psouris/BKT`
-  verification_status: mismatch
-  verified_against_url: https://github.com/psouris/BKT%60
-  verified_at: '2026-06-24T18:41:14.666274Z'
+  value: https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68be9fcd60240ce5c7da4753/5efc92c302efe8d0473e385ccf1683946dc0002ac75a7a69bc158f94705f6e86?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27skill_builder_data_corrected.csv%3B+filename%3D%22skill_builder_data_corrected.csv%22%3B&response-content-type=text%2Fcsv&user_id=public&Expires=1782753039&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhiZTlmY2Q2MDI0MGNlNWM3ZGE0NzUzLzVlZmM5MmMzMDJlZmU4ZDA0NzNlMzg1Y2NmMTY4Mzk0NmRjMDAwMmFjNzVhN2E2OWJjMTU4Zjk0NzA1ZjZlODZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c2tpbGxfYnVpbGRlcl9kYXRhX2NvcnJlY3RlZC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJza2lsbF9idWlsZGVyX2RhdGFfY29ycmVjdGVkLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzUzMDM5fX19XX0_&Signature=MEUCIQDEl4JphNt8t4ErbfCu17AJ5z5RMNkFUOZSDjLwdFV%7E-wIgc0Q6CFOT9tv334NdcM8eY4NCB4MDRBfXInPTLTnOUXg_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-06-29T16:10:39.759926Z'
+- artifact_hash: 58c5f324998eced69674c8020ba0c4d53ca0d262db440b3f8825e759cc0ba656
+  artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: item_mapping.csv
+  kind: url
+  value: https://huggingface.co/datasets/OloriBern/assistments-classic-recommender/resolve/main/item_mapping.csv
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/OloriBern/assistments-classic-recommender/7c8c5d2b459f9a6f237eec7c59d6bb2daee1a0bf/item_mapping.csv?%2Fdatasets%2FOloriBern%2Fassistments-classic-recommender%2Fresolve%2Fmain%2Fitem_mapping.csv=&etag=%22c7c3bf58b2936fe041de497eede1c22b3ce7a0df%22
+  verified_at: '2026-06-29T16:10:39.759926Z'
+- artifact_hash: 58c5f324998eced69674c8020ba0c4d53ca0d262db440b3f8825e759cc0ba656
+  artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Atomi/ASSISTments2009/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67d7eb31fce5e80885b35ec7/4cbb7485e8e4bd45d6c7bd59372868260446b10bb3a461dca09132fb4c0b084a?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1782753041&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdkN2ViMzFmY2U1ZTgwODg1YjM1ZWM3LzRjYmI3NDg1ZThlNGJkNDVkNmM3YmQ1OTM3Mjg2ODI2MDQ0NmIxMGJiM2E0NjFkY2EwOTEzMmZiNGMwYjA4NGFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjc1MzA0MX19fV19&Signature=MEUCIQCGQJASTgQ8gB2iv8ghHF812Uxx2UgThJ03%7EyM-hXMhWgIgOvMt6QHt3r9Wvn1-A9OwCde9g2i6H7nL3VB%7Es6uEQP0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-06-29T16:10:39.759926Z'

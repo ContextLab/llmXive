@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Problem Schema"
+description: "Schema for Problem entity representing a mathematics/logic exercise"
+type: "object"
+required:
+  - "problem_id"
+  - "prompt_text"
+  - "solution"
+  - "difficulty"
+  - "skill_id"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the problem"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  prompt_text:
+    type: "string"
+    description: "Full problem statement text"
+    minLength: 1
+  solution:
+    type: "string"
+    description: "Correct solution or answer key"
+    minLength: 1
+  difficulty:
+    type: "number"
+    description: "Problem difficulty score between 0 and 1"
+    minimum: 0
+    maximum: 1
+  skill_id:
+    type: "string"
+    description: "Associated skill/curriculum tag"
+    pattern: "^[a-zA-Z0-9_-]+$"
+additionalProperties: false

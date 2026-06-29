@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Explanation Schema"
+description: "Schema for Explanation entity generated for a problem under a specific condition"
+type: "object"
+required:
+  - "explanation_id"
+  - "problem_id"
+  - "condition"
+  - "content"
+  - "model_version"
+  - "generated_at"
+properties:
+  explanation_id:
+    type: "string"
+    description: "Unique identifier (hash of problem_id + condition + model_version)"
+    pattern: "^[a-f0-9]{64}$"
+  problem_id:
+    type: "string"
+    description: "Foreign key to Problem"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  condition:
+    type: "string"
+    description: "Explanation condition type"
+    enum:
+      - "neural"
+      - "symbolic"
+      - "neuro_symbolic"
+  content:
+    type: "string"
+    description: "Full explanation text"
+    minLength: 1
+  symbolic_trace:
+    type: ["string", "null"]
+    description: "Formal symbolic reasoning trace (nullable for neural-only)"
+  model_version:
+    type: "string"
+    description: "Version of the explanation generation model"
+    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+  generated_at:
+    type: "string"
+    description: "UTC timestamp of generation in ISO 8601 format"
+    format: "date-time"
+additionalProperties: false

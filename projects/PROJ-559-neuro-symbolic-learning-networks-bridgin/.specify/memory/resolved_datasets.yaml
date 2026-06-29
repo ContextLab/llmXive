@@ -1,0 +1,732 @@
+resolved_at: '2026-06-29T15:11:17.922104+00:00'
+datasets:
+- intent: ASSISTments
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/OloriBern/assistments-classic-recommender/resolve/main/item_mapping.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Atomi/ASSISTments2009/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ASSISTments/FoundationalASSIST/resolve/main/Data/Interactions.csv
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/Atomi/ASSISTments2009/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/OloriBern/assistments-classic-recommender/resolve/main/item_mapping.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual-Modality_SPECT_and_Viscosity-Responsive_AIE_Fluorescence_Probe_for_Pancreatic_Cancer_Diagnosis_and_Intraoperative_Guidance/32825768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon_Nanotube_Yarns_Tailored_Using_Dispersants_and_Surfactants_for_Flexible_and_Wearable_Thermoelectric_Generators/25734109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Solvent_Molecule-Induced_Competitive_Ion_Molecule_Nucleophilic_Substitution_Reactions_Involving_an_Nucleophilic_Reagent/32825762
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Crystal_Structure_of_a_Cobalt_MOF_Containing_Cyclotriveratrylene_and_Its_Application_for_Electrochemical_Detection_of_Dopamine_and_Epinephrine/32825756
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/ORCA_Reliability_Simulation_Framework_Python_reproducibility_package_for_total-cost-of-ownership_comparison_of_bearings_and_motors/32825741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4008048
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6945530
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17166151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4008056
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18280332
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=7882b2df1aed403888ca536d5b11f1ff
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20837377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20837377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.11004
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.23048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard/resolve/main/BFCL_v3_chatable.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 24980
+      parsed: true
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard/resolve/main/BFCL_v3_chatable.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Necent/llm-jailbreak-prompt-injection-dataset/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64e77c453e1237c874d34ffe/7c51ebbeb4c96943eccc2e20ae58d53c23958b3e2e096222ac23b46a7cd5297c?X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Bitext_Sample_Customer_Support_Training_Dataset_27K_responses-v11.csv%3B+filename%3D%22Bitext_Sample_Customer_Support_Training_Dataset_27K_responses-v11.csv%22%3B&user_id=public&Expires=1782749173&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlNzdjNDUzZTEyMzdjODc0ZDM0ZmZlLzdjNTFlYmJlYjRjOTY5NDNlY2NjMmUyMGFlNThkNTNjMjM5NThiM2UyZTA5NjIyMmFjMjNiNDZhN2NkNTI5N2NcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Qml0ZXh0X1NhbXBsZV9DdXN0b21lcl9TdXBwb3J0X1RyYWluaW5nX0RhdGFzZXRfMjdLX3Jlc3BvbnNlcy12MTEuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyQml0ZXh0X1NhbXBsZV9DdXN0b21lcl9TdXBwb3J0X1RyYWluaW5nX0RhdGFzZXRfMjdLX3Jlc3BvbnNlcy12MTEuY3N2JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3NDkxNzN9fX1dfQ__&Signature=MEUCIE9vZGsBCEf5SARapEHWv6aqtgKtdPNZb7C5eNAS8~NcAiEAigABoeZ2C0uFUdqWztDEAdlvrQC7R8Bqy7wE1En8Kk0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual-Modality_SPECT_and_Viscosity-Responsive_AIE_Fluorescence_Probe_for_Pancreatic_Cancer_Diagnosis_and_Intraoperative_Guidance/32825768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon_Nanotube_Yarns_Tailored_Using_Dispersants_and_Surfactants_for_Flexible_and_Wearable_Thermoelectric_Generators/25734109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Solvent_Molecule-Induced_Competitive_Ion_Molecule_Nucleophilic_Substitution_Reactions_Involving_an_Nucleophilic_Reagent/32825762
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Crystal_Structure_of_a_Cobalt_MOF_Containing_Cyclotriveratrylene_and_Its_Application_for_Electrochemical_Detection_of_Dopamine_and_Epinephrine/32825756
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/ORCA_Reliability_Simulation_Framework_Python_reproducibility_package_for_total-cost-of-ownership_comparison_of_bearings_and_motors/32825741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6447108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10899290
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13959137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14912851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14641979
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20667968
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://rucore.libraries.rutgers.edu/rutgers-lib/76121/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20931626
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20931626
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21037249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ERROR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bmd1905/error-correction-vi/resolve/main/vi_processed.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Chat-Error/short-stories/resolve/main/data/literotica-2021.12-processed/literotica-anal.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Cyberfish/text_error_correction/resolve/main/reuters/cats.txt
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 220821
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bmd1905/error-correction-vi/resolve/main/vi_processed.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JetBrains-Research/jupyter-errors-dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Chat-Error/short-stories/resolve/main/data/literotica-2021.12-processed/literotica-anal.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Cyberfish/text_error_correction/resolve/main/reuters/cats.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/dvilasuero/ag_news_error_analysis/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Volatile_Organic_Compound_Prediction_Bias_in_a_Regulatory_Air_Quality_Model_in_Houston_Texas/32825777
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual-Modality_SPECT_and_Viscosity-Responsive_AIE_Fluorescence_Probe_for_Pancreatic_Cancer_Diagnosis_and_Intraoperative_Guidance/32825768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon_Nanotube_Yarns_Tailored_Using_Dispersants_and_Surfactants_for_Flexible_and_Wearable_Thermoelectric_Generators/25734109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10152339
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10152717
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5101083
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13619737
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7898439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://elib.uni-stuttgart.de/items/1b55a893-45f7-40d8-aeb6-88c215adf6d4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21037940
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21037940
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21005976
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21005976
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&response-content-type=text%2Fcsv&Expires=1782749252&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzQ5MjUyfX19XX0_&Signature=MEYCIQCJbLdqZRlxD8I4QYZPkC7z6RhKfprXks12p~ibKLWROgIhALi0DT5P-v9e~0NWH1SeSbaT4NTtSAlO4OT9uXzl4lvt&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Volatile_Organic_Compound_Prediction_Bias_in_a_Regulatory_Air_Quality_Model_in_Houston_Texas/32825777
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual-Modality_SPECT_and_Viscosity-Responsive_AIE_Fluorescence_Probe_for_Pancreatic_Cancer_Diagnosis_and_Intraoperative_Guidance/32825768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon_Nanotube_Yarns_Tailored_Using_Dispersants_and_Surfactants_for_Flexible_and_Wearable_Thermoelectric_Generators/25734109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6557219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21037756
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21037756
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21037726
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21037726
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/cu6k2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Volatile_Organic_Compound_Prediction_Bias_in_a_Regulatory_Air_Quality_Model_in_Houston_Texas/32825777
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual-Modality_SPECT_and_Viscosity-Responsive_AIE_Fluorescence_Probe_for_Pancreatic_Cancer_Diagnosis_and_Intraoperative_Guidance/32825768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon_Nanotube_Yarns_Tailored_Using_Dispersants_and_Surfactants_for_Flexible_and_Wearable_Thermoelectric_Generators/25734109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6373741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Volatile_Organic_Compound_Prediction_Bias_in_a_Regulatory_Air_Quality_Model_in_Houston_Texas/32825777
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual-Modality_SPECT_and_Viscosity-Responsive_AIE_Fluorescence_Probe_for_Pancreatic_Cancer_Diagnosis_and_Intraoperative_Guidance/32825768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon_Nanotube_Yarns_Tailored_Using_Dispersants_and_Surfactants_for_Flexible_and_Wearable_Thermoelectric_Generators/25734109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20934946
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20934946
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21005634
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21005634
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.cispa.de/articles/conference_contribution/Realizing_Omega-regular_Hyperproperties/24613293/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Talbotiella_gentii_Spectral_Profile_Data/32825681
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Volatile_Organic_Compound_Prediction_Bias_in_a_Regulatory_Air_Quality_Model_in_Houston_Texas/32825777
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual-Modality_SPECT_and_Viscosity-Responsive_AIE_Fluorescence_Probe_for_Pancreatic_Cancer_Diagnosis_and_Intraoperative_Guidance/32825768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/3046789.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/3049871.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/3087765.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/2875255.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-007
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Talbotiella_gentii_Spectral_Profile_Data/32825681
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Volatile_Organic_Compound_Prediction_Bias_in_a_Regulatory_Air_Quality_Model_in_Houston_Texas/32825777
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Identification_and_Functional_Characterization_of_the_Mungbean_Yellow_Mosaic_India_Virus_Resistant_Gene_VrADH_Using_a_MAGIC_Population/32825771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual-Modality_SPECT_and_Viscosity-Responsive_AIE_Fluorescence_Probe_for_Pancreatic_Cancer_Diagnosis_and_Intraoperative_Guidance/32825768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10289138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7992821
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10363304
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10122369
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963535
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-010
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: BKT
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: BEFORE
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RMSE
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: AND
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-5
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-002
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-004
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-007
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-008
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []

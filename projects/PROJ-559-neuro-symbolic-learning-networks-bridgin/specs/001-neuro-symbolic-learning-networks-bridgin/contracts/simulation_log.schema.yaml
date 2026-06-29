@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationLog Schema"
+description: "Schema for SimulationLog entity capturing student interactions"
+type: "object"
+required:
+  - "log_id"
+  - "problem_id"
+  - "explanation_id"
+  - "condition"
+  - "student_id"
+  - "data_source"
+  - "correct"
+  - "rt_seconds"
+  - "comprehension_rating"
+  - "prior_knowledge_score"
+  - "logged_at"
+properties:
+  log_id:
+    type: "string"
+    description: "Unique identifier (hash)"
+    pattern: "^[a-f0-9]{64}$"
+  problem_id:
+    type: "string"
+    description: "Foreign key to Problem"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  explanation_id:
+    type: "string"
+    description: "Foreign key to Explanation"
+    pattern: "^[a-f0-9]{64}$"
+  condition:
+    type: "string"
+    description: "Explanation condition type"
+    enum:
+      - "neural"
+      - "symbolic"
+      - "neuro_symbolic"
+  student_id:
+    type: "string"
+    description: "Unique identifier for student (simulated or human)"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  data_source:
+    type: "string"
+    description: "Source of interaction data"
+    enum:
+      - "simulated"
+      - "human_pilot"
+      - "human_real"
+  correct:
+    type: "boolean"
+    description: "Binary correctness flag"
+  rt_seconds:
+    type: "number"
+    description: "Response time in seconds (0.1s precision)"
+    minimum: 0
+    multipleOf: 0.1
+  comprehension_rating:
+    type: "integer"
+    description: "1‑5 Likert scale rating"
+    minimum: 1
+    maximum: 5
+  prior_knowledge_score:
+    type: "number"
+    description: "Student's prior knowledge score (0‑1)"
+    minimum: 0
+    maximum: 1
+  logged_at:
+    type: "string"
+    description: "UTC timestamp of interaction in ISO 8601 format"
+    format: "date-time"
+additionalProperties: false

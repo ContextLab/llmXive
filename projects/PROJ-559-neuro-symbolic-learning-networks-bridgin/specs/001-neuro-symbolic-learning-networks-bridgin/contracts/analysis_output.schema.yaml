@@ -1,0 +1,144 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisOutput Schema"
+description: "Schema for mixed-effects regression analysis output"
+type: "object"
+required:
+  - "model_summary"
+  - "effect_sizes"
+  - "data_source_effect"
+  - "sample_sizes"
+  - "analysis_timestamp"
+  - "ci_widths"
+properties:
+  model_summary:
+    type: "object"
+    description: "Mixed-effects regression model summary"
+    required:
+      - "fixed_effects"
+      - "random_effects"
+      - "convergence"
+    properties:
+      fixed_effects:
+        type: "array"
+        description: "Fixed effect coefficients with p-values"
+        items:
+          type: "object"
+          required:
+            - "term"
+            - "estimate"
+            - "std_error"
+            - "p_value"
+          properties:
+            term:
+              type: "string"
+            estimate:
+              type: "number"
+            std_error:
+              type: "number"
+            p_value:
+              type: "number"
+      random_effects:
+        type: "array"
+        description: "Random effect variance components"
+        items:
+          type: "object"
+          required:
+            - "group"
+            - "variance"
+          properties:
+            group:
+              type: "string"
+            variance:
+              type: "number"
+      convergence:
+        type: "boolean"
+        description: "Whether model converged successfully"
+  effect_sizes:
+    type: "array"
+    description: "Cohen's d effect sizes with 95% confidence intervals for pairwise comparisons"
+    items:
+      type: "object"
+      required:
+        - "comparison"
+        - "cohens_d"
+        - "ci_lower"
+        - "ci_upper"
+        - "ci_width"
+        - "p_adjusted"
+      properties:
+        comparison:
+          type: "string"
+          description: "Pairwise comparison (e.g., 'neuro_symbolic vs neural')"
+        cohens_d:
+          type: "number"
+          description: "Cohen's d effect size"
+        ci_lower:
+          type: "number"
+          description: "95% confidence interval lower bound"
+        ci_upper:
+          type: "number"
+          description: "95% confidence interval upper bound"
+        ci_width:
+          type: "number"
+          description: "95% confidence interval width (ci_upper - ci_lower); SC-003 requires ≤0.20 for primary comparison"
+        p_adjusted:
+          type: "number"
+          description: "Family-wise error corrected p-value"
+  data_source_effect:
+    type: "object"
+    description: "Fixed effect for data_source (simulated vs real)"
+    required:
+      - "estimate"
+      - "std_error"
+      - "p_value"
+    properties:
+      estimate:
+        type: "number"
+      std_error:
+        type: "number"
+      p_value:
+        type: "number"
+  sample_sizes:
+    type: "object"
+    description: "Sample sizes for each condition and data source"
+    required:
+      - "simulated_total"
+      - "human_pilot_total"
+      - "human_real_total"
+      - "combined_total"
+    properties:
+      simulated_total:
+        type: "integer"
+        minimum: 0
+      human_pilot_total:
+        type: "integer"
+        minimum: 0
+      human_real_total:
+        type: "integer"
+        minimum: 0
+      combined_total:
+        type: "integer"
+        minimum: 0
+  ci_widths:
+    type: "object"
+    description: "CI width validation for SC-003"
+    required:
+      - "neuro_symbolic_vs_neural"
+      - "neuro_symbolic_vs_symbolic"
+      - "neural_vs_symbolic"
+    properties:
+      neuro_symbolic_vs_neural:
+        type: "number"
+        description: "CI width for primary comparison; SC-003 requires ≤0.20"
+        maximum: 0.20
+      neuro_symbolic_vs_symbolic:
+        type: "number"
+        description: "CI width for neuro-symbolic vs symbolic comparison"
+      neural_vs_symbolic:
+        type: "number"
+        description: "CI width for neural vs symbolic comparison"
+  analysis_timestamp:
+    type: "string"
+    description: "UTC timestamp of analysis in ISO 8601 format"
+    format: "date-time"
+additionalProperties: false
