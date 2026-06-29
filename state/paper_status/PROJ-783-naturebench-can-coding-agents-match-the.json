@@ -10,5 +10,5 @@
     "log_excerpt": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source"
   },
   "paper_id": "PROJ-783-naturebench-can-coding-agents-match-the",
-  "updated_at": "2026-06-29T18:20:20.125271+00:00"
+  "updated_at": "2026-06-29T19:16:54.143669+00:00"
 }
