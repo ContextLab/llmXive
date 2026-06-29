@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "2 command(s) failed: python code/main.py (rc=1); python code/data_loader.py # Stage 1: Download data (rc=2); 1 declared deliverable(s) absent: data/raw/github-code-sample.csv",
+  "reason": "3 command(s) failed: python code/main.py (rc=1); python code/data_loader.py # Stage 1: Download data (rc=2); python code/quickstart_validation.py (rc=1)",
   "artifacts": [
     "data/analysis/artifact_checksums.json",
     "data/analysis/bug_detection_results.csv",
@@ -11,10 +11,11 @@
     "data/processed/clone_metrics.csv"
   ],
   "failures": [
-    "python code/main.py -> rc=1\n    2026-06-29 10:30:16,980 - __main__ - INFO - Starting pipeline execution\n2026-06-29 10:30:16,980 - __main__ - ERROR - Raw data file not found: data/raw/github-code-sample.csv\n2026-06-29 10:30:16,980 - __main__ - ERROR - Please run: python code/data_loader.py\n2026-06-29 10:30:16,980 - __main__ - ERROR - Pipeline failed: Raw data not found: data/raw/github-code-sample.csv",
-    "python code/data_loader.py # Stage 1: Download data -> rc=2\n    usage: data_loader.py [-h] [--output OUTPUT] [--max-samples MAX_SAMPLES]\n                      [--dataset DATASET]\ndata_loader.py: error: unrecognized arguments: # Stage 1: Download data"
+    "python code/main.py -> rc=1\n    aluating-the-impact-of-code-duplicatio/code/main.py\", line 358, in run_pipeline\n    setup_memory_monitoring(logger)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/memory_monitor.py\", line 287, in setup_memory_monitoring\n    log_dir.mkdir(parents=True, exist_ok=True)\n    ^^^^^^^^^^^^^\nAttributeError: 'Logger' object has no attribute 'mkdir'",
+    "python code/data_loader.py # Stage 1: Download data -> rc=2\n    usage: data_loader.py [-h] [--output OUTPUT] [--max-samples MAX_SAMPLES]\n                      [--dataset DATASET]\ndata_loader.py: error: unrecognized arguments: # Stage 1: Download data",
+    "python code/quickstart_validation.py -> rc=1\n    Usage: python quickstart_validation.py <command>\nCommands: validate_directory_structure, validate_config_documentation,\n          validate_checksum_manifest, validate_quickstart_documentation,\n          validate_output_files, validate_quickstart_steps, main"
   ],
-  "fix_rounds": 7,
+  "fix_rounds": 10,
   "model_tier": 0,
-  "updated_at": "2026-06-29T10:30:26Z"
+  "updated_at": "2026-06-29T12:01:09Z"
 }
