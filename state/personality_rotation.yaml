@@ -1,12 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-29T03:26:09.866059+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-06-29T07:58:24.781776+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: john-von-neumann
-  started_at: '2026-06-20T06:33:14.749282+00:00'
-  ended_at: '2026-06-20T08:10:20.532100+00:00'
-  outcome: abstained
-  action: abstain
 - slug: linus-pauling
   started_at: '2026-06-20T08:10:20.532100+00:00'
   ended_at: '2026-06-20T09:40:19.178876+00:00'
@@ -1188,5 +1183,10 @@ history:
 - slug: freeman-dyson
   started_at: '2026-06-29T01:47:13.306808+00:00'
   ended_at: '2026-06-29T03:26:09.866059+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-29T03:26:09.866059+00:00'
+  ended_at: '2026-06-29T07:58:24.781776+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
