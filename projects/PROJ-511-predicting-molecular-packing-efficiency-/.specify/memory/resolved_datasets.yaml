@@ -1,0 +1,51 @@
+resolved_at: '2026-06-29T17:39:42.576664+00:00'
+datasets:
+- intent: SMILES
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''us.aws.cdn.hf.co'',
+      port=443): Max retries exceeded with url: /xet-bridge-us/642c21d86c11a741c521acc3/05f01d12e9eebd2f505bdbe0e04adf1b38d046376106167292c9c772a6fc9a2f?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00015-27ed436361d9186e.parquet%3B+filename%3D%22test-00000-of-00015-27ed436361d9186e.parquet%22%3B&Expires=1782757350&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyYzIxZDg2YzExYTc0MWM1MjFhY2MzLzA1ZjAxZDEyZTllZWJkMmY1MDViZGJlMGUwNGFkZjFiMzhkMDQ2Mzc2MTA2MTY3MjkyYzljNzcyYTZmYzlhMmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNS0yN2VkNDM2MzYxZDkxODZlLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDE1LTI3ZWQ0MzYzNjFkOTE4NmUucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzU3MzUwfX19XX0_&Signature=MEUCIE2QTQHyNw~pwhfY5m0GTFDvIxo2U62Tyzyc--QuBLACAiEA7bUdZj8CfrgmBgYlWo3Ilwo8VaGA~aW2oIroj0VIloQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''us.aws.cdn.hf.co'', port=443)
+      at 0x7ffb1554ae90>, ''Connection to us.aws.cdn.hf.co timed out. (connect timeout=20.0)''))'
+  - url: https://huggingface.co/datasets/prajwalsahu5/smiles40m/resolve/main/smiles40m.txt
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''us.aws.cdn.hf.co'',
+      port=443): Max retries exceeded with url: /xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?user_id=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&X-Xet-Cas-Uid=public&Expires=1782757451&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0MG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNDBtLnR4dCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzU3NDUxfX19XX0_&Signature=MEYCIQDWE7~GQ-BHMEeDUzsRDAWezR8dNv1ssQ8sGp2k9YsL8AIhANYyBWjyqYnghfBKWpYIAUzlnIwlhaQk6NQ33sDOYgUz&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''us.aws.cdn.hf.co'', port=443)
+      at 0x7ffb15571210>, ''Connection to us.aws.cdn.hf.co timed out. (connect timeout=20.0)''))'
+  - url: https://huggingface.co/datasets/prajwalsahu5/smiles4m/resolve/main/smiles4m.txt
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''us.aws.cdn.hf.co'',
+      port=443): Max retries exceeded with url: /xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?user_id=public&X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&Expires=1782757551&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0bS50eHQlM0IrZmlsZW5hbWUlM0QlMjJzbWlsZXM0bS50eHQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjc1NzU1MX19fV19&Signature=MEYCIQCM6y4NCQsOO5YVT3D4X7d56ol6fX~fnkHHTF5Dtt3~mQIhAMH-ojPAfWarIysR9auKNlwS0pAf0tpYdp7TTlByFXkZ&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''us.aws.cdn.hf.co'', port=443)
+      at 0x7ffb1555cb90>, ''Connection to us.aws.cdn.hf.co timed out. (connect timeout=20.0)''))'
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-010
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: MUST
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-2
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: COD
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []

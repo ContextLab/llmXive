@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trained MLP Model"
+description: "Serialized PyTorch checkpoint for the 2‑layer MLP predicting packing coefficients."
+type: "object"
+properties:
+  architecture:
+    type: "string"
+    enum: ["MLP-128-1"]
+    description: "Identifier of the model architecture (hidden size 128, single output)."
+  input_dim:
+    type: "integer"
+    const: a fixed parameter
+    description: "Dimensionality of the fingerprint input."
+  hidden_dim:
+    type: "integer"
+    const: a predefined constant value
+    description: "Size of the hidden layer (≤ 128 to keep total params ≤ 100k)."
+  state_dict:
+    type: "string"
+    format: "binary"
+    description: "Binary PyTorch state_dict saved as `model.pt`."
+  training_metadata:
+    type: "object"
+    required: [epochs_trained, train_loss, val_loss, seed]
+    properties:
+      epochs_trained:
+        type: "integer"
+        minimum: 1
+        description: "Number of epochs truly run (≤ 5)."
+      train_loss:
+        type: "number"
+        description: "Final training loss (MSE)."
+      val_loss:
+        type: "string"
+        description: "Final validation loss (MSE)."
+      seed:
+        type: "integer"
+        description: "Random seed for reproducibility."
+    required: [epochs_submitted?]
+    additionalProperties: false
+  checksum:
+    type: "string"
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: "SHA‑256 checksum "
+additionalProperties: false
