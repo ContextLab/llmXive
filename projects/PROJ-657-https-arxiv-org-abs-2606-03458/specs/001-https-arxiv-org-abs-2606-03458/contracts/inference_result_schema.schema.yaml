@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InferenceResultSchema"
+description: "Schema for a single inference result record."
+type: "object"
+properties:
+  instance_id:
+    type: "string"
+    description: "Unique identifier for the prompt instance."
+  benchmark:
+    type: "string"
+    enum: ["MATH500", "AIME24", "HumanEval", "IFEVAL"]
+    description: "Source benchmark."
+  method:
+    type: "string"
+    enum: ["uniform", "kvarn"]
+    description: "Quantization method used."
+  prompt:
+    type: "string"
+    description: "Input prompt (truncated)."
+  generated_response:
+    type: "string"
+    description: "Model output."
+  ground_truth:
+    type: "string"
+    description: "Expected answer."
+  exact_match:
+    type: "boolean"
+    description: "Whether generated_response matches ground_truth."
+  mse_per_token:
+    type: "array"
+    items:
+      type: "number"
+    description: "Per-token Mean Squared Error. Required for slope analysis."
+  cumulative_mse:
+    type: "number"
+    minimum: 0
+    description: "Average MSE over the sequence."
+  peak_memory_mb:
+    type: "number"
+    minimum: 0
+    description: "Peak RAM usage in MB."
+  generation_time_s:
+    type: "number"
+    minimum: 0
+    description: "Time taken to generate response."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp."
+  config_hash:
+    type: "string"
+    description: "Hash of the quantization configuration."
+  kv_cache_size_bytes:
+    type: "integer"
+    minimum: 0
+    description: "Size of the KV cache in bytes."
+  reduction_percent:
+    type: "number"
+    description: "Percentage size reduction compared to full-precision baseline."
+required:
+  - "instance_id"
+  - "benchmark"
+  - "method"
+  - "prompt"
+  - "generated_response"
+  - "ground_truth"
+  - "exact_match"
+  - "mse_per_token"
+  - "cumulative_mse"
+  - "peak_memory_mb"
+  - "generation_time_s"
+  - "timestamp"
+  - "config_hash"
+  - "kv_cache_size_bytes"
+  - "reduction_percent"
+additionalProperties: false
