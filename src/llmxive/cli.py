@@ -21,6 +21,35 @@ from llmxive.agents import registry as registry_loader
 from llmxive.backends import router as backend_router
 
 
+def _record_advance_error(project, exc: Exception) -> None:
+    """Persist a per-project advancement failure so it is reviewable (NOT
+    dismissed) without crashing the run/worker. One file per project -> no
+    cross-worker write conflict; a ``count`` makes a recurring failure (a
+    permanently dead reference, a project the agents cannot converge) visible."""
+    import json
+    from datetime import datetime
+    from llmxive.config import repo_root as _repo_root
+    try:
+        d = _repo_root() / "state" / "advance_errors"
+        d.mkdir(parents=True, exist_ok=True)
+        p = d / f"{project.id}.json"
+        prior: dict = {}
+        if p.exists():
+            try:
+                prior = json.loads(p.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                prior = {}
+        p.write_text(json.dumps({
+            "project_id": project.id,
+            "stage": project.current_stage.value,
+            "last_error": str(exc)[:1000],
+            "last_seen": datetime.now(UTC).isoformat(),
+            "count": int(prior.get("count", 0)) + 1,
+        }, indent=2), encoding="utf-8")
+    except Exception:
+        pass  # error-recording must never break the run
+
+
 def _cmd_preflight(_args: argparse.Namespace) -> int:
     return preflight.main()
 
@@ -150,8 +179,17 @@ def _cmd_run(args: argparse.Namespace) -> int:
         try:
             updated = graph.run_one_step(project)
         except Exception as exc:
+            # A per-project advancement failure (a dead reference, an agent
+            # error, a backend flap) must NOT crash the whole run: returning
+            # non-zero SKIPS the workflow's commit step, DISCARDS the progress
+            # already made this run, and red-X's the CI job (one bad project
+            # would fail the whole matrix worker). Log it, RECORD it for review
+            # (state/advance_errors/<id>.json — visible/counted, NOT dismissed),
+            # and STOP this project so the loop exits cleanly and the successful
+            # steps still commit. Other matrix workers are unaffected.
             print(f"[run] FAIL on {project.id}: {exc}", file=sys.stderr)
-            return 1
+            _record_advance_error(project, exc)
+            break
         print(f"[run]   -> stage={updated.current_stage.value}")
         completed += 1
         if updated.current_stage == project.current_stage:
