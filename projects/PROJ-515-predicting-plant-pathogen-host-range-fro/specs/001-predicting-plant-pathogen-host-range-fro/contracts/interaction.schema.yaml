@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Interaction Record"
+description: "Schema for host-pathogen interaction records"
+type: object
+properties:
+  pathogen_id:
+    type: string
+    description: "NCBI Accession ID (e.g., GCA_000000000.1)"
+  host_id:
+    type: string
+    description: "Host species name or taxonomic ID"
+  infects:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "Binary interaction label (1=infects, 0=does not infect)"
+  source_db:
+    type: string
+    description: "Source database (PHI-base, Interactome3D, BioSample)"
+    pattern: "^(PHI-base|Interactome3D|BioSample)$"
+  confidence:
+    type: string
+    description: "Confidence level of the interaction record"
+    enum:
+      - "high"
+      - "medium"
+      - "low"
+required:
+  - pathogen_id
+  - host_id
+  - infects
+  - source_db
+additionalProperties: false

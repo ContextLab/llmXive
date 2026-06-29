@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Genomic Feature Vector"
+description: "Schema for the extracted genomic features of a pathogen. CRITICAL: effector_count MUST be derived from EffectorP 3.0; sm_cluster_count MUST be derived from antiSMASH 7.0."
+type: object
+properties:
+  pathogen_id:
+    type: string
+    description: "NCBI Accession ID"
+  effector_count:
+    type: integer
+    minimum: 0
+    description: "Count of effector proteins detected (EffectorP 3.0). MUST be derived from EffectorP 3.0."
+  pfam_abundance:
+    type: object
+    description: "Dictionary of Pfam domain counts"
+    additionalProperties:
+      type: integer
+      minimum: 0
+  gc_content:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "GC content percentage"
+  kmer_profile:
+    type: array
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+    description: "Normalized 4-mer frequency profile"
+  sm_cluster_count:
+    type: integer
+    minimum: 0
+    description: "Count of secondary metabolism clusters (antiSMASH 7.0). MUST be derived from antiSMASH 7.0."
+required:
+  - pathogen_id
+  - effector_count
+  - pfam_abundance
+  - gc_content
+  - kmer_profile
+  - sm_cluster_count
+additionalProperties: false

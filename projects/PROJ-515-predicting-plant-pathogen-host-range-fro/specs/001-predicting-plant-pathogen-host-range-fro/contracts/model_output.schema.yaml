@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Prediction Output"
+description: "Schema for the prediction output for a novel pathogen"
+type: object
+properties:
+  pathogen_id:
+    type: string
+    description: "Input pathogen ID"
+  predictions:
+    type: array
+    description: "List of predictions for each host"
+    items:
+      type: object
+      properties:
+        host_id:
+          type: string
+        probability:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Predicted probability of infection"
+      required:
+        - host_id
+        - probability
+  host_range_breadth:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Mean predicted infection probability across all hosts"
+required:
+  - pathogen_id
+  - predictions
+  - host_range_breadth
+additionalProperties: false
