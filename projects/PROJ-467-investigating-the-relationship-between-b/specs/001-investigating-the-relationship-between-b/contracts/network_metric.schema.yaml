@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Metric Contract"
+type: object
+required:
+  - subject_id
+  - metric_type
+  - values
+  - metadata
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the participant"
+  metric_type:
+    type: string
+    enum: [static_modularity, static_segregation, dynamic_modularity, flexibility]
+    description: "Type of network metric"
+  values:
+    type: array
+    items:
+      type: number
+    description: |
+      For static metrics: single‑element array containing the scalar value.  
+      For dynamic_modularity: time‑series of modularity Q across windows.  
+      For flexibility: time‑series of node‑change counts per window (or aggregated scalar).
+  metadata:
+    type: object
+    required:
+      - computation_date
+      - software_version
+      - parameters
+    properties:
+      computation_date:
+        type: string
+        format: date-time
+        description: "ISO‑8601 timestamp of when the metric was computed"
+      software_version:
+        type: string
+        description: "Version tag of the pipeline (e.g., 'brainnet‑v0.1.0')"
+      parameters:
+        type: object
+        description: "All hyper‑parameters used (threshold, window length, step, atlas, etc.)"
+        required:
+          - threshold
+          - window_length_sec
+          - step_sec
+          - atlas
+        properties:
+          threshold:
+            type: number
+            description: "Absolute correlation threshold for graph construction"
+          window_length_sec:
+            type: number
+            description: "Sliding‑window length in seconds (only for dynamic metrics)"
+          step_sec:
+            type: number
+            description: "Sliding‑window step in seconds (only for dynamic metrics)"
+          atlas:
+            type: string
+            description: "Parcellation scheme (e.g., 'schaefer-200')"

@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw Subject Record"
+type: object
+required:
+  - subject_id
+  - fmri_path
+  - tactile_score
+  - age
+  - sex
+  - mean_fd
+  - qc_pass
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the participant."
+  fmri_path:
+    type: string
+    description: "Filesystem path to the preprocessed 4D NIfTI file."
+  tactile_score:
+    type: number
+    description: "Two‑point discrimination threshold in millimetres."
+    minimum: 0
+  age:
+    type: integer
+    description: "Age in years (HCP young adult range)."
+    minimum: 22
+    maximum: 35
+  sex:
+    type: string
+    description: "Sex of participant."
+    enum: ["M", "F"]
+  mean_fd:
+    type: number
+    description: "Mean framewise displacement (mm) – motion summary."
+    minimum: 0
+  qc_pass:
+    type: boolean
+    description: "Result of HCP quality‑control pipeline."

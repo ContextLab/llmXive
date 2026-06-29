@@ -1,0 +1,612 @@
+resolved_at: '2026-06-29T16:40:08.410876+00:00'
+datasets:
+- intent: 10.1016/j.neuropsychologia.2011.04.012
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Discrete_On-DNA_Screening_A_Frontier_for_Rapid_Hit-to-Lead_Optimization_Applied_to_p38_/32826492
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://diabetesjournals.figshare.com/articles/figure/Genetic_determinants_of_macronutrient_intake_are_associated_with_specific_food_intake_in_youth_a_cohort_study_across_childhood_and_adolescence/32663538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_fo_b_r_b_Laplace-Domain_Boundary_Element_Framework_for_Fractional_Size-Dependent_Non-Fourier_Thermoelastic_Wave_Propagation_in_Nano-Engineered_Spherical_Shells_b_p_/32653347
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/High-Performance_Salt-Resistant_Solar_Interfacial_Evaporation_System_Synergistically_Enhanced_by_Donnan_Effect_and_Directional_Water_Transport/32826489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/ITC_Runs_for_ligand_-_gold_nanoparticle_interactions/32826473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HCP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atta00/cpt-hcpcs-codes/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kavi1622/Synthetic_hcp/resolve/main/8_slot.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Discrete_On-DNA_Screening_A_Frontier_for_Rapid_Hit-to-Lead_Optimization_Applied_to_p38_/32826492
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://diabetesjournals.figshare.com/articles/figure/Genetic_determinants_of_macronutrient_intake_are_associated_with_specific_food_intake_in_youth_a_cohort_study_across_childhood_and_adolescence/32663538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_fo_b_r_b_Laplace-Domain_Boundary_Element_Framework_for_Fractional_Size-Dependent_Non-Fourier_Thermoelastic_Wave_Propagation_in_Nano-Engineered_Spherical_Shells_b_p_/32653347
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/High-Performance_Salt-Resistant_Solar_Interfacial_Evaporation_System_Synergistically_Enhanced_by_Donnan_Effect_and_Directional_Water_Transport/32826489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/ITC_Runs_for_ligand_-_gold_nanoparticle_interactions/32826473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5607652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15581959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7736031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/205782
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/use-outcome-measures-healthcare-professionals-young-people-adolescent
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/do-initial-impressions-trust-predict-recovery-people-presenting-musculoskeletal
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/facilitators-and-barriers-enhancing-physical-activity-older-patients-during
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/implementation-risk-stratified-guideline-based-pathway-care-improve-health
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.esrf.fr/10.15151/ESRF-ES-2417063068
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HALTS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Environmental_Fate_and_Ecological_Risk_Assessment_Revealing_the_Abiotic_Degradation_of_HPPD-Inhibiting_Herbicide_Fenpyrazone_in_Aquatic_Environments/32826495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Discrete_On-DNA_Screening_A_Frontier_for_Rapid_Hit-to-Lead_Optimization_Applied_to_p38_/32826492
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://diabetesjournals.figshare.com/articles/figure/Genetic_determinants_of_macronutrient_intake_are_associated_with_specific_food_intake_in_youth_a_cohort_study_across_childhood_and_adolescence/32663538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_fo_b_r_b_Laplace-Domain_Boundary_Element_Framework_for_Fractional_Size-Dependent_Non-Fourier_Thermoelastic_Wave_Propagation_in_Nano-Engineered_Spherical_Shells_b_p_/32653347
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/High-Performance_Salt-Resistant_Solar_Interfacial_Evaporation_System_Synergistically_Enhanced_by_Donnan_Effect_and_Directional_Water_Transport/32826489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16078096
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18821765
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14635917
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18829925
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mt2tk
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20457089
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20457089
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21029596
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21029596
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021335
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11945
+      parsed: true
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nothingiisreal/Reddit-Dirty-And-WritingPrompts/resolve/main/reddit_dirty_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://acs.figshare.com/articles/journal_contribution/Solubility_Determination_Correlation_and_Thermodynamic_Analysis_of_3_5-Dimethylbenzoic_Acid_in_11_Pure_Solvents_and_a_Binary_Solvent_Ethanol_Ethyl_Acetate_from_293_15_to_333_15_K/32826498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Environmental_Fate_and_Ecological_Risk_Assessment_Revealing_the_Abiotic_Degradation_of_HPPD-Inhibiting_Herbicide_Fenpyrazone_in_Aquatic_Environments/32826495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Discrete_On-DNA_Screening_A_Frontier_for_Rapid_Hit-to-Lead_Optimization_Applied_to_p38_/32826492
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://diabetesjournals.figshare.com/articles/figure/Genetic_determinants_of_macronutrient_intake_are_associated_with_specific_food_intake_in_youth_a_cohort_study_across_childhood_and_adolescence/32663538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_fo_b_r_b_Laplace-Domain_Boundary_Element_Framework_for_Fractional_Size-Dependent_Non-Fourier_Thermoelastic_Wave_Propagation_in_Nano-Engineered_Spherical_Shells_b_p_/32653347
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16039952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4277137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ABCD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/g4849d/abcde/resolve/main/fdjis.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Abcdefghijklmnopqrstuvwxyz12/Byun0Baekhyun2023/resolve/main/BTS_TaehyungV2_v2_e1110.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/g4849d/abcde/resolve/main/fdjis.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/Abcdefghijklmnopqrstuvwxyz12/Byun0Baekhyun2023/resolve/main/BTS_TaehyungV2_v2_e1110.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://acs.figshare.com/articles/journal_contribution/Proteomic_Impact_of_Peripheral_Expression_of_Mutant_Huntingtin_in_C_elegans/32826501
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Solubility_Determination_Correlation_and_Thermodynamic_Analysis_of_3_5-Dimethylbenzoic_Acid_in_11_Pure_Solvents_and_a_Binary_Solvent_Ethanol_Ethyl_Acetate_from_293_15_to_333_15_K/32826498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Environmental_Fate_and_Ecological_Risk_Assessment_Revealing_the_Abiotic_Degradation_of_HPPD-Inhibiting_Herbicide_Fenpyrazone_in_Aquatic_Environments/32826495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Discrete_On-DNA_Screening_A_Frontier_for_Rapid_Hit-to-Lead_Optimization_Applied_to_p38_/32826492
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://diabetesjournals.figshare.com/articles/figure/Genetic_determinants_of_macronutrient_intake_are_associated_with_specific_food_intake_in_youth_a_cohort_study_across_childhood_and_adolescence/32663538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10674772
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12696480
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20669967
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://biss.pensoft.net/article/93811/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10862878
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032941
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032941
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21029706
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21022041
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bre5t/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Impact_of_Plasticizer_Polarity_on_the_Permeability_of_Hydroxypropyl_Methylcellulose_Phthalate_Films/32826504
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Proteomic_Impact_of_Peripheral_Expression_of_Mutant_Huntingtin_in_C_elegans/32826501
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Solubility_Determination_Correlation_and_Thermodynamic_Analysis_of_3_5-Dimethylbenzoic_Acid_in_11_Pure_Solvents_and_a_Binary_Solvent_Ethanol_Ethyl_Acetate_from_293_15_to_333_15_K/32826498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Environmental_Fate_and_Ecological_Risk_Assessment_Revealing_the_Abiotic_Degradation_of_HPPD-Inhibiting_Herbicide_Fenpyrazone_in_Aquatic_Environments/32826495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Discrete_On-DNA_Screening_A_Frontier_for_Rapid_Hit-to-Lead_Optimization_Applied_to_p38_/32826492
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Engineering_Cofacial_Trizinc_II_porphyrin_Trimers_Linking_Molecular_Architecture_with_Excited-State_Dynamics/32826507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Impact_of_Plasticizer_Polarity_on_the_Permeability_of_Hydroxypropyl_Methylcellulose_Phthalate_Films/32826504
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Proteomic_Impact_of_Peripheral_Expression_of_Mutant_Huntingtin_in_C_elegans/32826501
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Solubility_Determination_Correlation_and_Thermodynamic_Analysis_of_3_5-Dimethylbenzoic_Acid_in_11_Pure_Solvents_and_a_Binary_Solvent_Ethanol_Ethyl_Acetate_from_293_15_to_333_15_K/32826498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Environmental_Fate_and_Ecological_Risk_Assessment_Revealing_the_Abiotic_Degradation_of_HPPD-Inhibiting_Herbicide_Fenpyrazone_in_Aquatic_Environments/32826495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/6f2e05ea-d729-453a-8fa9-aeb5a9405011
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://cpp.numerev.com/articles/revue-14/1051-gestion-de-crise-ou-crise-de-la-gestion1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21040565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21040565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17078796
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-009
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Dataset_Mapping_the_Digital_Literacy_Landscape/32826485
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Sodium_Lignosulfonate-Based_Biodegradable_Superabsorbent_Hydrogel_Fabrication_Characterization_and_Application_Potential/32826513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Engineering_Cofacial_Trizinc_II_porphyrin_Trimers_Linking_Molecular_Architecture_with_Excited-State_Dynamics/32826507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Impact_of_Plasticizer_Polarity_on_the_Permeability_of_Hydroxypropyl_Methylcellulose_Phthalate_Films/32826504
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Proteomic_Impact_of_Peripheral_Expression_of_Mutant_Huntingtin_in_C_elegans/32826501
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10281827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963576
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118469
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962193
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10241872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20651588
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20651588
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-013
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Mapping_of_TEMPO_PROXYL_and_Phosphoryl-Functionalized_Spin_Probes_into_Biointerface_Fatty_Acid_Recognition_Sites_of_BSA/32826519
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_of_Skyrmion_Bags_with_Tunable_Topology_in_Symmetry-Broken_2D_Lattices/32826516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_Mapping_the_Digital_Literacy_Landscape/32826485
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Sodium_Lignosulfonate-Based_Biodegradable_Superabsorbent_Hydrogel_Fabrication_Characterization_and_Application_Potential/32826513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Engineering_Cofacial_Trizinc_II_porphyrin_Trimers_Linking_Molecular_Architecture_with_Excited-State_Dynamics/32826507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118243
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10338631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
