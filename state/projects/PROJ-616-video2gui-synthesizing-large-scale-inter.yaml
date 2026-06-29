@@ -6,14 +6,14 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-616-video2gui-synthesizing-large-scale-inter
-last_run_id: null
+last_run_id: b6ee6101-2c62-424a-8bb9-8eafb1cc0800
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-616-video2gui-synthesizing-large-scale-inter/round-2
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized
   GUI Agent Pretraining'
-updated_at: '2026-06-29T19:12:57.451879Z'
+updated_at: '2026-06-29T19:21:31.323174Z'
