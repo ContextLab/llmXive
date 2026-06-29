@@ -108,4 +108,4 @@ A researcher wants an automated report that flags high collinearity among predic
 - The public datasets (PolitiFact fact‑checking network, Stanford SNAP Twitter cascades) contain the necessary variables: node identifiers, timestamps, and enough historical activity to compute user‑susceptibility scores.  
 - The Bayesian hierarchical model is observational; therefore, all findings are interpreted as associative, not causal.  
 - The researcher has access to a Linux environment with Python 3.10, NumPyro/PyStan, NetworkX, and standard scientific‑Python stack installed.  
-- Memory usage estimates assume that cascade trees larger than 10 000 nodes are excluded; this threshold is sufficient to keep RAM under 7 GB for the benchmark dataset.  
+- Memory usage estimates assume that cascade trees larger than a predefined threshold are excluded; this threshold is sufficient to keep RAM within acceptable limits for the benchmark dataset.  
