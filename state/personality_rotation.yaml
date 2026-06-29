@@ -1,12 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-29T15:19:42.302494+00:00'
-last_outcome: committed
+last_used: rosalind-franklin
+last_used_at: '2026-06-29T17:08:50.118770+00:00'
+last_outcome: abstained
 history:
-- slug: stephen-wolfram
-  started_at: '2026-06-20T12:35:46.100653+00:00'
-  ended_at: '2026-06-20T13:35:02.759485+00:00'
-  outcome: abstained
-  action: abstain
 - slug: ada-lovelace
   started_at: '2026-06-20T13:35:02.759485+00:00'
   ended_at: '2026-06-20T14:47:04.212712+00:00'
@@ -1196,3 +1191,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-675-comparing-born-model-predictions-with-ex/reviews/research/richard-feynman-simulated__2026-06-29__research.md
+- slug: rosalind-franklin
+  started_at: '2026-06-29T15:19:42.302494+00:00'
+  ended_at: '2026-06-29T17:08:50.118770+00:00'
+  outcome: abstained
+  action: abstain
