@@ -1,0 +1,11 @@
+# Metadata for external resources used in the project.
+#
+# This file records SHA‑256 checksums for files stored under `data/`.
+# It is updated manually when new external resources are added.
+#
+# Example entry:
+#   consent_document.pdf: <sha256>
+#   agency_scale.txt: <sha256>
+
+consent_document.pdf: "<replace-with-consent-sha256>"
+agency_scale.txt: "7c6a180b36896a0a8c02787eeafb0e4cd90c2c1e6c6b9c8bc00c8e5f1c8e9f1f"

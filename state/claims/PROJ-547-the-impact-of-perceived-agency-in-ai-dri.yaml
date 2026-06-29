@@ -1,0 +1,1052 @@
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: benchmark dataset of at least 100 sessions
+  claim_id: c_b9746a83
+  context: "T056 [P] Acquire benchmark dataset of \u2265\u202F100 sessions (e.g.,\
+    \ a public AI\u2011CBT corpus). Verification: After download, count of sessions\
+    \ \u2265\u202F100."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_of_at_least_100_sessions
+  kind: magnitude
+  raw_text: "Acquire benchmark dataset of \u2265\u202F100 sessions (e.g., a public\
+    \ AI\u2011CBT corpus)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:34:46Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: ground-truth subset of at least 50 users
+  claim_id: c_79cdae6b
+  context: "T057 [P] Construct hand\u2011crafted ground\u2011truth subset of \u2265\
+    \u202F50 users for adherence metric validation; store as `data/processed/ground_truth_adherence.csv`.\
+    \ Verification: File contains \u2265\u202F50 distinct `user_id`s."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ground-truth_subset_of_at_least_50_users
+  kind: magnitude
+  raw_text: "Construct hand\u2011crafted ground\u2011truth subset of \u2265\u202F\
+    50 users for adherence metric validation; store as `data/processed/ground_truth_adherence.csv`."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:35:53Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: benchmark dataset of at least 100 sessions
+  claim_id: c_d360894e
+  context: "T056 [P] Acquire benchmark dataset of \u2265\u202F100 sessions (e.g.,\
+    \ a public AI\u2011CBT corpus). Download, verify checksum, store under `data/raw/benchmark/`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_of_at_least_100_sessions
+  kind: magnitude
+  raw_text: "Acquire benchmark dataset of \u2265\u202F100 sessions (e.g., a public\
+    \ AI\u2011CBT corpus)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:37:01Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: hand-crafted ground-truth subset of at least 50 users
+  claim_id: c_40b06798
+  context: "T057 [P] Acquire hand\u2011crafted ground\u2011truth subset of \u2265\u202F\
+    50 users for adherence metric validation; store as `data/processed/ground_truth_adherence.csv`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hand-crafted_ground-truth_subset_of_at_least_50_users
+  kind: magnitude
+  raw_text: "hand\u2011crafted ground\u2011truth subset of \u2265\u202F50 users for\
+    \ adherence metric validation; store as `data/processed/ground_truth_adherence.csv`."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:37:38Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: split-half reliability at least 0.80
+  claim_id: c_94c21df1
+  context: "T037 [P] Compute split\u2011half reliability using Spearman\u2011Brown\
+    \ on marker items. Verification: Reliability \u2265\u202F0.80; otherwise warning\
+    \ logged."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Split-half_reliability_at_least_0.80
+  kind: magnitude
+  raw_text: "Reliability \u2265\u202F0.80; otherwise warning logged."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:38:43Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: log completeness metric at least 95 percent
+  claim_id: c_f61eb661
+  context: "T044 Implement log\u2011completeness metric that parses logs, compares\
+    \ against a predefined step list, and writes `logs/completeness_metric.json`.\
+    \ Verification: JSON file reports \u2265\u202F95\u202F% completeness."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_completeness_metric_at_least_95_percent
+  kind: magnitude
+  raw_text: "JSON file reports \u2265\u202F95\u202F% completeness."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:40:27Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: benchmark dataset of at least 100 sessions
+  claim_id: c_3a294fe2
+  context: Phase 8 task T056 specifies acquiring a benchmark dataset with a minimum
+    of 100 sessions.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_of_at_least_100_sessions
+  kind: magnitude
+  raw_text: "Acquire benchmark dataset of \u2265\u202F100 sessions (e.g., a public\
+    \ AI\u2011CBT corpus)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:41:26Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: ground truth subset of at least 50 users
+  claim_id: c_3dd8427c
+  context: "Phase 8 task T057 requires a hand\u2011crafted ground\u2011truth subset\
+    \ containing at least 50 distinct user IDs."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P9198: 2514'
+      source_id: Q1641446
+      url: https://www.wikidata.org/wiki/Q1641446
+      value: '2514'
+    filled: true
+  kind: magnitude
+  raw_text: "Construct hand\u2011crafted ground\u2011truth subset of \u2265\u202F\
+    50 users for adherence metric validation."
+  resolved_value: '2514'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:41:40Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: log completeness metric at least 95 percent
+  claim_id: c_33cb7b93
+  context: "Phase 7 task T044 defines a log\u2011completeness metric that must report\
+    \ 95\u202F% or higher completeness."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_completeness_metric_at_least_95_percent
+  kind: magnitude
+  raw_text: "Log completeness metric reports \u2265\u202F95\u202F% completeness."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:42:23Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: five metrics computed per user
+  claim_id: c_7cfe8bfa
+  context: Phase 4 describes extracting five adherence metrics from usage metadata
+    for each user.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Five_metrics_computed_per_user
+  kind: entity_fact
+  raw_text: The five metrics are computed per user.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:42:56Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: benchmark dataset contains at least 100 sessions
+  claim_id: c_08009153
+  context: Phase 8 task T056 specifies acquiring a benchmark dataset with a minimum
+    size.
+  evidence:
+    entailment_evidence: Benchmark dataset contains at least 100 sessions
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_contains_at_least_100_sessions
+  kind: magnitude
+  raw_text: "Acquire benchmark dataset of \u2265\u202F100 sessions (e.g., a public\
+    \ AI\u2011CBT corpus)."
+  resolved_value: benchmark dataset contains at least 100 sessions
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:48:05Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: ground truth subset includes at least 50 distinct users
+  claim_id: c_2b450cd0
+  context: "Phase 8 task T057 defines a hand\u2011crafted subset for validation."
+  evidence:
+    entailment_evidence: Ground truth subset includes at least 50 distinct users
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_subset_includes_at_least_50_distinct_users
+  kind: magnitude
+  raw_text: "Construct hand\u2011crafted ground\u2011truth subset of \u2265\u202F\
+    50 users for adherence metric validation; store as `data/processed/ground_truth_adherence.csv`."
+  resolved_value: ground truth subset includes at least 50 distinct users
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:48:09Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: split-half reliability is at least 0.80
+  claim_id: c_ff125004
+  context: Phase 6 task T037 sets a reliability threshold for the validation metric.
+  evidence:
+    entailment_evidence: Split-half reliability is at least 0.80
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Split-half_reliability_is_at_least_0.80
+  kind: magnitude
+  raw_text: "Compute split\u2011half reliability using Spearman\u2011Brown (`code/validation/compute_reliability.py`)\
+    \ on marker items. Verification: Reliability \u2265\u202F0.80; otherwise warning\
+    \ logged."
+  resolved_value: split-half reliability is at least 0.80
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:48:11Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: log completeness metric is at least 95 percent
+  claim_id: c_a49fd122
+  context: "Phase 7 task T044 checks that logging coverage meets a 95\u202F% threshold."
+  evidence:
+    entailment_evidence: Log completeness metric is at least 95 percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Log_completeness_metric_is_at_least_95_percent
+  kind: magnitude
+  raw_text: "Implement log\u2011completeness metric (`code/logging/verify_logging.py`)\
+    \ that parses `logs/run_*.log`, compares against a predefined step list, and writes\
+    \ `logs/completeness_metric.json`. Verification: JSON file reports \u2265\u202F\
+    95\u202F% completeness."
+  resolved_value: log completeness metric is at least 95 percent
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:48:15Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: processing success rate on benchmark dataset is at least 95 percent
+  claim_id: c_2b997d2f
+  context: Phase 8 task T057A outlines overall success criteria for the pipeline.
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Verify success criteria thresholds: validate SC\u2011001 (\u226595% processing\
+    \ success on benchmark) and SC\u2011002 (\xB10.01 metric accuracy on ground\u2011\
+    truth). Verification: Run pipeline on benchmark; report shows \u226595% sessions\
+    \ processed; accuracy test shows \xB10.01 tolerance met."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:48:15Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: "metric accuracy on ground truth is within \xB10.01 tolerance"
+  claim_id: c_c245970d
+  context: "Phase 8 task T057A also specifies an accuracy tolerance for ground\u2011\
+    truth metrics."
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Verify success criteria thresholds: validate SC\u2011001 (\u226595% processing\
+    \ success on benchmark) and SC\u2011002 (\xB10.01 metric accuracy on ground\u2011\
+    truth). Verification: Run pipeline on benchmark; report shows \u226595% sessions\
+    \ processed; accuracy test shows \xB10.01 tolerance met."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:48:15Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: benchmark dataset contains at least 100 sessions
+  claim_id: c_bd9c37ce
+  context: "Verification: After download, count of sessions \u2265\u202F100."
+  evidence:
+    entailment_evidence: Benchmark dataset contains at least 100 sessions
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_contains_at_least_100_sessions
+  kind: magnitude
+  raw_text: "After download, count of sessions \u2265\u202F100."
+  resolved_value: benchmark dataset contains at least 100 sessions
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:50:01Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: file contains at least 50 distinct user IDs
+  claim_id: c_1d964150
+  context: "Verification: File contains \u2265\u202F50 distinct `user_id`s."
+  evidence:
+    entailment_evidence: File contains at least 50 distinct user IDs - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/File_contains_at_least_50_distinct_user_IDs
+  kind: magnitude
+  raw_text: "File contains \u2265\u202F50 distinct user_id`s."
+  resolved_value: file contains at least 50 distinct user IDs
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:50:05Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: benchmark processing success rate at least 95 percent
+  claim_id: c_9272fb14
+  context: "Verification: report shows \u226595% sessions processed."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_processing_success_rate_at_least_95_percent
+  kind: magnitude
+  raw_text: "Processing success on benchmark is \u2265\u202F95\u202F%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:50:45Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: metric accuracy within plus or minus 0.01 of ground truth
+  claim_id: c_81975d2c
+  context: "Verification: accuracy test shows \xB10.01 tolerance met."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Metric accuracy on ground\u2011truth is within \xB10.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:51:39Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: log completeness at least 95 percent
+  claim_id: c_3cf6f415
+  context: "Verification: JSON file reports \u2265\u202F95\u202F% completeness."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_completeness_at_least_95_percent
+  kind: magnitude
+  raw_text: "Log completeness metric reports \u2265\u202F95\u202F% completeness."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:51:41Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 0
+  canonical: file contains at least 50 distinct user_ids
+  claim_id: c_f54a79c9
+  context: "File contains \u2265\u202F50 distinct `user_id`s."
+  evidence:
+    entailment_evidence: File contains at least 50 distinct user IDs - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/File_contains_at_least_50_distinct_user_IDs
+  kind: magnitude
+  raw_text: "File contains \u2265\u202F50 distinct `user_id`s."
+  resolved_value: file contains at least 50 distinct user IDs
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:52:10Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: benchmark dataset contains at least 100 sessions
+  claim_id: c_92c75830
+  context: "Run quickstart validation script (`scripts/quickstart.sh`) to ensure the\
+    \ whole pipeline executes without errors on the provided sample data (including\
+    \ benchmark dataset of \u2265100 sessions)."
+  evidence:
+    entailment_evidence: Benchmark dataset contains at least 100 sessions
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_contains_at_least_100_sessions
+  kind: magnitude
+  raw_text: "Run quickstart validation script (`scripts/quickstart.sh`) to ensure\
+    \ the whole pipeline executes without errors on the provided sample data (including\
+    \ benchmark dataset of \u2265100 sessions)."
+  resolved_value: benchmark dataset contains at least 100 sessions
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:52:13Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: log completeness metric reports at least 95 percent completeness
+  claim_id: c_6e00b5f8
+  context: "Implement log\u2011completeness metric (`code/logging/verify_logging.py`)\
+    \ that parses `logs/run_*.log`, compares against a predefined step list, and writes\
+    \ `logs/completeness_metric.json`. Verification: JSON file reports \u2265\u202F\
+    95\u202F% completeness."
+  evidence:
+    entailment_evidence: Log completeness metric reports at least 95 percent complete
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Log_completeness_metric_reports_at_least_95_percent_complete
+  kind: magnitude
+  raw_text: "Verification: JSON file reports \u2265\u202F95\u202F% completeness."
+  resolved_value: log completeness metric reports at least 95 percent completeness
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:52:15Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: five metrics are computed per user by adherence extraction script
+  claim_id: c_d80d817b
+  context: "In User Story 2, the independent test states that the script should compute\
+    \ five metrics per user when given a mock usage\u2011log JSON file."
+  evidence:
+    entailment_evidence: Five metrics are computed per user by adherence extraction
+      s
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Five_metrics_are_computed_per_user_by_adherence_extraction_s
+  kind: entity_fact
+  raw_text: "feed a mock usage\u2011log JSON file to the adherence\u2011extraction\
+    \ script and confirm that the five metrics are computed per user."
+  resolved_value: five metrics are computed per user by adherence extraction script
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:54:04Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: script exits with exit code 0
+  claim_id: c_5b52d39b
+  context: "Task T054 verification states the script exits with code\u202F0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Script exits with code 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:56:05Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: pip install succeeds in fresh venv
+  claim_id: c_88f3362d
+  context: Task T055 verification ensures pip install succeeds in a fresh venv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pip_install_succeeds_in_fresh_venv
+  kind: entity_fact
+  raw_text: pip install succeeds in a fresh virtual environment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:56:27Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: mypy passes with no errors
+  claim_id: c_bfc55e80
+  context: Task T050 verification requires MyPy to pass with no errors.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mypy_passes_with_no_errors
+  kind: entity_fact
+  raw_text: MyPy passes with no errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:56:56Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: report shows >=95 percent sessions processed
+  claim_id: c_9e844c66
+  context: "Task T057A verification reports \u226595% sessions processed on benchmark."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/report_shows_%3E=95_percent_sessions_processed
+  kind: magnitude
+  raw_text: Report shows at least 95% sessions processed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:57:37Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: accuracy test tolerance within 0.01
+  claim_id: c_5ef443db
+  context: Task T057A verification reports accuracy test meets +/-0.01 tolerance.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Tolerances for the profile symbols are equal bilateral unless otherwise\
+        \ specified, and for the position symbol tolerances are always equal bilateral.\
+        \ For example, the position of a hole has a tolerance of .020 inches. This\
+        \ means the hole can move \xB1.010 inches, which is an equal bilateral tolerance.\
+        \ It does not mean the hole can move +.015/\u2212.005 inches, which is an\
+        \ unequal bilateral tolerance. Unequal bilateral and unilateral tolerances\
+        \ for profile are specified by adding further information to clearly show\
+        \ this is what is required."
+      source_id: Geometric dimensioning and tolerancing
+      url: https://en.wikipedia.org/wiki/Geometric_dimensioning_and_tolerancing
+      value: .010 inches
+    filled: true
+  kind: numeric
+  raw_text: Accuracy test shows tolerance within +/-0.01.
+  resolved_value: .010 inches
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:57:52Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: script exits with exit code 0
+  claim_id: c_25ed73bb
+  context: "T054 {{claim:c_92c75830}} **Verification**: Script exits with code\u202F\
+    0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Script exits with code\u202F0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:58:20Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: log completeness metric reports at least 95 percent completeness
+  claim_id: c_0b174b75
+  context: "T044 Implement log\u2011completeness metric (`code/logging/verify_logging.py`)\
+    \ that parses `logs/run_*.log`, compares against a predefined step list, and writes\
+    \ `logs/completeness_metric.json`. **Verification**: JSON file reports \u2265\u202F\
+    95\u202F% completeness."
+  evidence:
+    entailment_evidence: Log completeness metric reports at least 95 percent complete
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Log_completeness_metric_reports_at_least_95_percent_complete
+  kind: magnitude
+  raw_text: "JSON file reports \u2265\u202F95\u202F% completeness."
+  resolved_value: log completeness metric reports at least 95 percent completeness
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T16:58:22Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: "benchmark processing success at least 95 percent and metric accuracy\
+    \ within \xB10.01 tolerance"
+  claim_id: c_dc7525cc
+  context: "T057A Verify success criteria thresholds: validate SC\u2011001 (\u2265\
+    95% processing success on benchmark) and SC\u2011002 (\xB10.01 metric accuracy\
+    \ on ground\u2011truth). **Verification**: Run pipeline on benchmark; report shows\
+    \ \u226595% sessions processed; accuracy test shows \xB10.01 tolerance met."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_processing_success_at_least_95_percent_and_metric
+  kind: magnitude
+  raw_text: "Report shows \u226595% sessions processed; accuracy test shows \xB10.01\
+    \ tolerance met."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T16:59:01Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: "peak RAM \u2264 6 GB"
+  claim_id: c_380dd8fb
+  context: "Performance optimization: profile memory usage in run_regression.py and\
+    \ ensure peak RAM \u2264\u202F6\u202FGB. Verification checks that memory profiling\
+    \ reports \u2264\u202F6\u202FGB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Memory profiling reports \u2264\u202F6\u202FGB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:02:15Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: "log completeness \u2265 0.95"
+  claim_id: c_038f6753
+  context: "Unit test for log completeness checker (tests/unit/test_verify_logging.py).\
+    \ Verification requires pytest to pass and assert completeness \u2265\u202F0.95."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "pytest passes and asserts completeness \u2265\u202F0.95."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:02:36Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: "sessions processed \u2265 95%"
+  claim_id: c_e796cb75
+  context: "Benchmark validation: run the pipeline on the benchmark dataset and verify\
+    \ that the report shows \u226595% sessions processed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "report shows \u226595% sessions processed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:02:36Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: "accuracy tolerance \xB1 0.01"
+  claim_id: c_794065c5
+  context: "Benchmark validation: the accuracy test must meet a tolerance of \xB1\
+    0.01 as indicated in the verification criteria."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "accuracy test shows \xB10.01 tolerance met."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:03:09Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: "regression pipeline completes within time limit and produces power report\
+    \ and FDR\u2011corrected p-values"
+  claim_id: c_14fe96f6
+  context: "Run regression (code/analysis/run_regression.py) using the selector, apply\
+    \ Benjamini\u2011Hochberg FDR correction, enforce runtime guard (\u2264\u202F\
+    30\u202Fmin), compute post\u2011hoc power, and log warnings if power\u202F<\u202F\
+    0.80. Verification checks execution time, power report, and FDR\u2011corrected\
+    \ p\u2011values."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_pipeline_completes_within_time_limit_and_produces
+  kind: entity_fact
+  raw_text: "Execution completes within time limit; power report generated; FDR\u2011\
+    corrected p\u2011values present in output."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:04:04Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: "output files are non\u2011empty and provenance links each statistic\
+    \ to source row and script line"
+  claim_id: c_7c084088
+  context: "Generate human\u2011readable results (output/regression_summary.csv) and\
+    \ PNG plots (output/plots/). Include provenance metadata (output/provenance.yaml)\
+    \ linking each statistic to source row and script line. Verification ensures files\
+    \ exist, are non\u2011empty, and provenance links are correct."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q37287968
+        url: https://www.wikidata.org/wiki/Q37287968
+        value: FILES
+      quote: 'P31: Q341'
+      source_id: Q118869796
+      url: https://www.wikidata.org/wiki/Q118869796
+      value: Q341
+    filled: true
+  kind: entity_fact
+  raw_text: "Files exist, non\u2011empty, and provenance links each statistic to source\
+    \ row and script line."
+  resolved_value: Q341
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:04:27Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: pipeline_logger imported in all scripts and runtime log contains entries
+    from each script
+  claim_id: c_53b2a03b
+  context: "Ensure pipeline_logger (from Phase\u202F2) is imported and used by all\
+    \ scripts (FR\u2011008). Verification uses static analysis via grep to confirm\
+    \ import in all scripts and checks that the runtime log contains entries from\
+    \ each script."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_logger_imported_in_all_scripts_and_runtime_log_cont
+  kind: entity_fact
+  raw_text: Static analysis confirms import of pipeline_logger in all scripts and
+    runtime log contains entries from each script.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:04:59Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: claim c_7c084088
+  claim_id: c_ac7a90fb
+  context: 'Verification: {{claim:c_7c084088}} (Wikidata Q118869796, https://www.wikidata.org/wiki/Q118869796)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Claim_c_7c084088
+  kind: entity_fact
+  raw_text: '{{claim:c_7c084088}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:08:54Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: claim c_0b174b75
+  claim_id: c_5ffbfc97
+  context: 'Verification: {{claim:c_0b174b75}}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Claim_c_0b174b75
+  kind: entity_fact
+  raw_text: '{{claim:c_0b174b75}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:09:33Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: claim c_92c75830
+  claim_id: c_512787e4
+  context: 'Verification: {{claim:c_92c75830}}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Claim_c_92c75830
+  kind: entity_fact
+  raw_text: '{{claim:c_92c75830}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:10:11Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: claim c_08009153
+  claim_id: c_d98f771d
+  context: 'Verification: {{claim:c_08009153}}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Claim_c_08009153
+  kind: entity_fact
+  raw_text: '{{claim:c_08009153}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:10:50Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: claim c_bd9c37ce
+  claim_id: c_832bdbbd
+  context: 'Verification: {{claim:c_bd9c37ce}}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Claim_c_bd9c37ce
+  kind: entity_fact
+  raw_text: '{{claim:c_bd9c37ce}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:11:32Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: claim c_2b450cd0
+  claim_id: c_e7fd1aa8
+  context: 'Verification: {{claim:c_2b450cd0}}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Claim_c_2b450cd0
+  kind: entity_fact
+  raw_text: '{{claim:c_2b450cd0}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:12:19Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: claim c_f54a79c9
+  claim_id: c_1f749eac
+  context: 'Verification: {{claim:c_f54a79c9}}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Claim_c_f54a79c9
+  kind: entity_fact
+  raw_text: '{{claim:c_f54a79c9}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:13:00Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: five metrics are computed per user
+  claim_id: c_eedac387
+  context: "Goal: Derive objective adherence indicators and self\u2011reported engagement\
+    \ scores from usage logs. Independent Test: Feed a mock usage\u2011log JSON file\
+    \ to the adherence\u2011extraction script and confirm that the five metrics are\
+    \ computed per user."
+  evidence:
+    entailment_evidence: Five metrics are computed per user - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Five_metrics_are_computed_per_user
+  kind: entity_fact
+  raw_text: the five metrics are computed per user
+  resolved_value: five metrics are computed per user
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:13:52Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/docs/logging.md
+  attempts: 1
+  canonical: "log files are JSON\u2011Line with each line a valid JSON object"
+  claim_id: c_e6d5de04
+  context: "The logger writes JSON\u2011Line (.log) files to the logs/ directory.\
+    \ Each line is a valid JSON object representing a single log entry."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: JSON Lines
+      source_id: Q111841144
+      url: https://www.wikidata.org/wiki/Q111841144
+      value: JSON Lines
+    filled: true
+  kind: entity_fact
+  raw_text: "The logging system writes JSON\u2011Line (.log) files where each line\
+    \ is a valid JSON object."
+  resolved_value: JSON Lines
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:14:40Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/docs/logging.md
+  attempts: 1
+  canonical: log entry fields include timestamp, level, module, function, message,
+    optional extra
+  claim_id: c_b85b3bed
+  context: 'Each log entry is a JSON object with the following fields: timestamp,
+    level, module, function, message, extra (optional).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_entry_fields_include_timestamp,_level,_module,_function,
+  kind: entity_fact
+  raw_text: Each log entry includes the fields timestamp, level, module, function,
+    message, and an optional extra object.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:15:31Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/docs/logging.md
+  attempts: 1
+  canonical: log_format_version field set to 1.0
+  claim_id: c_4b18f337
+  context: "The logging format is version\u2011controlled via the log_format_version\
+    \ field added to each entry (currently set to \"1.0\")."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A log_format_version field is added to each entry, currently set to "1.0".
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:16:01Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/docs/logging.md
+  attempts: 1
+  canonical: cleanup routine runs at start of each pipeline run
+  claim_id: c_58b0e421
+  context: The cleanup routine is invoked at the start of each pipeline run, as shown
+    in the illustrative code snippet.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cleanup_routine_runs_at_start_of_each_pipeline_run
+  kind: entity_fact
+  raw_text: The cleanup routine is invoked at the start of each pipeline run.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:16:27Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/docs/logging.md
+  attempts: 1
+  canonical: cleanup routine implemented in code/logging/verify_logging.py
+  claim_id: c_ea46ed87
+  context: The actual implementation resides in code/logging/verify_logging.py and
+    is executed automatically by the pipeline entry points.
+  evidence:
+    entailment_evidence: Cleanup routine implemented in code/logging/verify logging.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Cleanup_routine_implemented_in_code/logging/verify_logging.p
+  kind: entity_fact
+  raw_text: The cleanup routine is implemented in code/logging/verify_logging.py and
+    executed automatically by the pipeline entry points.
+  resolved_value: cleanup routine implemented in code/logging/verify_logging.py
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T17:16:30Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/docs/logging.md
+  attempts: 1
+  canonical: critical logs backed up to location defined by LOG_BACKUP_PATH, skipped
+    if unset
+  claim_id: c_16d2ed14
+  context: 'Backup: Critical logs (e.g., those containing ERROR or CRITICAL levels)
+    are copied to a backup location defined by the environment variable LOG_BACKUP_PATH.
+    If the variable is unset, backups are skipped.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Critical_logs_backed_up_to_location_defined_by_LOG_BACKUP_PA
+  kind: entity_fact
+  raw_text: Critical logs (ERROR or CRITICAL) are copied to a backup location defined
+    by the environment variable LOG_BACKUP_PATH; if the variable is unset, backups
+    are skipped.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:17:02Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/docs/logging.md
+  attempts: 1
+  canonical: log files may be compressed to .log.gz before deletion
+  claim_id: c_a7c1c287
+  context: Compression is performed by the utility script code/logging/verify_logging.py
+    during the cleanup step.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_files_may_be_compressed_to_.log.gz_before_deletion
+  kind: entity_fact
+  raw_text: Before deletion, log files may be compressed to .log.gz to reduce storage
+    usage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T17:17:38Z'

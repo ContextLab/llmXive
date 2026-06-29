@@ -1,0 +1,8 @@
+# Default weights for linguistic markers used in agency score computation.
+# These weights are applied during the weighted aggregation step to
+# calculate a session's overall agency score. Adjust as needed for
+# domain-specific tuning.
+modal_verbs: 1.0               # e.g., can, could, should, would
+choice_constructions: 1.0      # e.g., "would you like to", "choose between"
+collaborative_phrasing: 1.0    # e.g., "let's", "we can", "together"
+open_ended_questions: 1.0      # e.g., "how do you feel", "what would you like to try"

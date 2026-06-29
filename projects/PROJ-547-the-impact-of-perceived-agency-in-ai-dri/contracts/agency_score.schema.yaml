@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AgencyScore
+type: object
+required:
+  - session_id
+  - agency_score
+properties:
+  session_id:
+    type: string
+    description: Unique identifier for the therapy session.
+  agency_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Computed agency score for the session, normalized between 0 and 1.
+additionalProperties: false
