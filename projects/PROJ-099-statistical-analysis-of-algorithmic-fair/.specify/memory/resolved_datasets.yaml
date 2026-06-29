@@ -1,0 +1,777 @@
+resolved_at: '2026-06-29T02:12:28.768904+00:00'
+datasets:
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acquire.cqu.edu.au/articles/conference_contribution/A_Semi-automatic_Data_Extraction_System_for_Heterogeneous_Data_Sources_a_Case_Study_from_Cotton_Industry/32817818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_paternal_age_and_offspring_bone_health_in_adulthood_Do_associations_reported_in_childhood_persist_/32817815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Compute_Earth_s_Effective_Temperature/32817806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Total_body_protein_as_a_measure_of_functional_muscle_mass_Data_from_the_Geelong_Osteoporosis_Study/32817812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Trabecular_bone_score_is_associated_with_prospective_fracture_and_refracture_in_adults/32817809
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3748994
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21001851
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21001851
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20995956
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20995956
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19813475
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: COMPAS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/imodels/compas-recidivism/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 104281
+      parsed: true
+  - url: https://huggingface.co/datasets/mstz/compas/resolve/main/priors-prediction-no-race/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 178285
+      parsed: true
+  - url: https://huggingface.co/datasets/birgermoell/synthetic_compassion/resolve/main/data/train-00000-of-00001-4a3c2c42d74eb42b.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/choucsan/Gaokao-Compass-11M/c3414dae9dd2177ae55882b556d58d2dad2918bc/data%2F2017%2Fanhui%2Fenrollment-plan.csv?%2Fdatasets%2Fchoucsan%2FGaokao-Compass-11M%2Fresolve%2Fmain%2Fdata%2F2017%2Fanhui%2Fenrollment-plan.csv=&etag=%22c1add1c2fc6d66f75c9ade4496ed61989b125325%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/imodels/compas-recidivism/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/birgermoell/synthetic_compassion/resolve/main/data/train-00000-of-00001-4a3c2c42d74eb42b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/birgermoell/synthetic_compassion_wav/resolve/main/data/train-00000-of-00001-04ad56c6d6d8ca89.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mstz/compas/resolve/main/priors-prediction-no-race/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acquire.cqu.edu.au/articles/conference_contribution/A_Semi-automatic_Data_Extraction_System_for_Heterogeneous_Data_Sources_a_Case_Study_from_Cotton_Industry/32817818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_paternal_age_and_offspring_bone_health_in_adulthood_Do_associations_reported_in_childhood_persist_/32817815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Compute_Earth_s_Effective_Temperature/32817806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Total_body_protein_as_a_measure_of_functional_muscle_mass_Data_from_the_Geelong_Osteoporosis_Study/32817812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Trabecular_bone_score_is_associated_with_prospective_fracture_and_refracture_in_adults/32817809
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6346444
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16272773
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11498641
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/344817
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19115881
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21005884
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21005884
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/18002466/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/1020020/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/16011500/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acquire.cqu.edu.au/articles/conference_contribution/A_Semi-automatic_Data_Extraction_System_for_Heterogeneous_Data_Sources_a_Case_Study_from_Cotton_Industry/32817818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_paternal_age_and_offspring_bone_health_in_adulthood_Do_associations_reported_in_childhood_persist_/32817815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Compute_Earth_s_Effective_Temperature/32817806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Total_body_protein_as_a_measure_of_functional_muscle_mass_Data_from_the_Geelong_Osteoporosis_Study/32817812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Trabecular_bone_score_is_associated_with_prospective_fracture_and_refracture_in_adults/32817809
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27069
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.26964
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.26582
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.23533
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.18610
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RAM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 130991
+      parsed: true
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 91560
+      parsed: true
+  - url: https://huggingface.co/datasets/ramybaly/conll2012/resolve/main/test.txt
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?response-content-type=application%2Fjson&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&X-Xet-Cas-Uid=public&Expires=1782702379&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzAyMzc5fX19XX0_&Signature=MEUCIQCFWKg0gaDNTmeTlnDlDe1B7qiV~sSi2EomC2X7KFJM3wIgR3lyukQl5d1ScZpxZ3E3G7J97rxUxtsybKBD0szoQho_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ramybaly/conll2012/resolve/main/test.txt
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Incidence_of_vertebral_fracture_in_a_cohort_of_Australian_women_Data_from_the_Geelong_Osteoporosis_Study/32817830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/conference_contribution/A_Semi-automatic_Data_Extraction_System_for_Heterogeneous_Data_Sources_a_Case_Study_from_Cotton_Industry/32817818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_paternal_age_and_offspring_bone_health_in_adulthood_Do_associations_reported_in_childhood_persist_/32817815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Compute_Earth_s_Effective_Temperature/32817806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Total_body_protein_as_a_measure_of_functional_muscle_mass_Data_from_the_Geelong_Osteoporosis_Study/32817812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10272639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20065754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10353767
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7951034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5150655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27727
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27556
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27497
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015862
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015862
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Incidence_of_vertebral_fracture_in_a_cohort_of_Australian_women_Data_from_the_Geelong_Osteoporosis_Study/32817830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/conference_contribution/A_Semi-automatic_Data_Extraction_System_for_Heterogeneous_Data_Sources_a_Case_Study_from_Cotton_Industry/32817818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_paternal_age_and_offspring_bone_health_in_adulthood_Do_associations_reported_in_childhood_persist_/32817815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Compute_Earth_s_Effective_Temperature/32817806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Total_body_protein_as_a_measure_of_functional_muscle_mass_Data_from_the_Geelong_Osteoporosis_Study/32817812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Improving_the_biological_realism_of_predator-prey_size_relationships_in_food_web_models_alters_ecosystem_dynamics/32787567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Incidence_of_vertebral_fracture_in_a_cohort_of_Australian_women_Data_from_the_Geelong_Osteoporosis_Study/32817830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/conference_contribution/A_Semi-automatic_Data_Extraction_System_for_Heterogeneous_Data_Sources_a_Case_Study_from_Cotton_Industry/32817818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_paternal_age_and_offspring_bone_health_in_adulthood_Do_associations_reported_in_childhood_persist_/32817815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Compute_Earth_s_Effective_Temperature/32817806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.26927
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.01905
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/d1d7845f-7ff9-4777-8c15-f0f5ec1120b7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2505.01193
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Improving_the_biological_realism_of_predator-prey_size_relationships_in_food_web_models_alters_ecosystem_dynamics/32787567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Incidence_of_vertebral_fracture_in_a_cohort_of_Australian_women_Data_from_the_Geelong_Osteoporosis_Study/32817830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/conference_contribution/A_Semi-automatic_Data_Extraction_System_for_Heterogeneous_Data_Sources_a_Case_Study_from_Cotton_Industry/32817818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_paternal_age_and_offspring_bone_health_in_adulthood_Do_associations_reported_in_childhood_persist_/32817815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Compute_Earth_s_Effective_Temperature/32817806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10358914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5603470
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20469943
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Error_Propagation_in_the_ASTM_C1609_C1609M_Beam_Test_for_Fiber-Reinforced_Concrete/32775489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Associations_between_modifiable_lifestyle_factors_and_incident_fracture_over_ten_years_of_follow-up_Data_from_the_Geelong_Osteoporosis_Study/32817836
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Improving_the_biological_realism_of_predator-prey_size_relationships_in_food_web_models_alters_ecosystem_dynamics/32787567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Incidence_of_vertebral_fracture_in_a_cohort_of_Australian_women_Data_from_the_Geelong_Osteoporosis_Study/32817830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/conference_contribution/A_Semi-automatic_Data_Extraction_System_for_Heterogeneous_Data_Sources_a_Case_Study_from_Cotton_Industry/32817818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10364827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3841160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13843104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13213336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10384626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20857147
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: US-2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 103062
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11221
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_smolvla/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Intrinsic_capacity_and_sarcopenia_data_from_the_Geelong_Osteoporosis_Study/32817842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Error_Propagation_in_the_ASTM_C1609_C1609M_Beam_Test_for_Fiber-Reinforced_Concrete/32775489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Associations_between_modifiable_lifestyle_factors_and_incident_fracture_over_ten_years_of_follow-up_Data_from_the_Geelong_Osteoporosis_Study/32817836
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-005
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-006
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-3
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-007
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-4
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-009
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-003
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-007
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: HTTP
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: HTTPS
+  status: unresolved
+  candidates: []
+  candidates_tried: []

@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fairness Metrics Output"
+description: "Schema for fairness metric calculation results stored in data/analysis/metrics.csv"
+type: "object"
+properties:
+  metric_id:
+    type: "string"
+    description: "Unique identifier for the metric record"
+  dataset_id:
+    type: "string"
+    description: "Identifier for the source dataset"
+  model_id:
+    type: "string"
+    description: "Identifier for the trained model"
+  metric_name:
+    type: "string"
+    description: "Name of the fairness metric (e.g., demographic_parity_difference)"
+  value:
+    type: "number"
+    description: "Computed value for the metric (or null if calculation failed)"
+    minimum: -1.0
+    maximum: 1.0
+    nullable: true
+  failure_reason:
+    type: ["string", "null"]
+    description: "Reason for calculation failure if value is null (e.g., 'zero_predictions_class_1')"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of calculation"
+required:
+  - metric_id
+  - dataset_id
+  - model_id
+  - metric_name
+  - timestamp
+additionalProperties: false
+examples:
+  - metric_id: "metric_001"
+    dataset_id: "compas_recidivism"
+    model_id: "logreg_001"
+    metric_name: "demographic_parity_difference"
+    value: 0.05
+    failure_reason: null
+    timestamp: "2025-01-15T10:00:00Z"
+  - metric_id: "metric_002"
+    dataset_id: "compas_recidivism"
+    model_id: "logreg_002"
+    metric_name: "equalized_odds_difference"
+    value: null
+    failure_reason: "zero_predictions_class_1"
+    timestamp: "2025-01-15T10:05:00Z"
