@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-624-lens-rethinking-training-efficiency-for
-last_run_id: null
+last_run_id: b51756e9-b567-4f57-8747-55adda9943d4
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-624-lens-rethinking-training-efficiency-for/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models'
-updated_at: '2026-05-26T09:11:49.328521Z'
+updated_at: '2026-06-29T04:53:55.764593Z'

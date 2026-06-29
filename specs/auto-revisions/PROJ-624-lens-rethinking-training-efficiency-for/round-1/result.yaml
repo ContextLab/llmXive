@@ -1,0 +1,290 @@
+project_id: PROJ-624-lens-rethinking-training-efficiency-for
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 52537f4cf7b2
+  text: Add missing bibliography entries for SigLIP2 (tschannen2025siglip), EVA model
+    (freepik2025nsfw), LoRA (hu2022lora), and distillation methods (dmd2, decoupleddmd,
+    senseflow).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: ea20160c52b5
+  text: 'Fix citation key mismatch: text uses ''dmd2'' but bibliography key is ''yin2024improved''.
+    Ensure all text citations match bib keys.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 59c039d953ca
+  text: 'Add missing citations for benchmarks/models: Kolors 2.0 (kolors2), Seedream
+    4.0 (seedream2025seedream4), RMSNorm (zhang2019root), RoPE (su2024roformer).'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 464ebf7bf282
+  text: Provide citations or remove specific version numbers for GPT-4.1 and GPT-5.5,
+    which are currently uncited in the bibliography.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 9822a1c84f8f
+  text: Include a code snapshot or ensure the linked repository contains complete
+    training scripts, configs, and dependencies for reproducibility.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 2a78fa169438
+  text: Provide dependency management files (requirements.txt or environment.yml)
+    to ensure environment reproducibility.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: bc709e5ee986
+  text: Add unit tests for critical components (e.g., data preprocessing, loss functions)
+    to verify code reliability.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: c58f73ff0372
+  text: Add explicit license information for the Lens-800M dataset and source images
+    to ensure legal compliance for redistribution.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 9781b85ea63a
+  text: Provide a data card or datasheet detailing the cleaning pipeline parameters,
+    model versions, and source dataset names for reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 044e0d96b10c
+  text: Clarify the license for the generated captions (GPT-4.1) and the Lens-RL-8K
+    prompt set to define usage rights.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: a7718e89c994
+  text: Clarify whether baseline models in Table 1 were evaluated with a reasoner
+    module to ensure fair comparison of model performance versus system performance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: d7e917c3b338
+  text: Qualify the training compute efficiency claim (19.3%) to explicitly acknowledge
+    dependence on Model FLOPS Utilization (MFU) rather than peak TFLOPS alone.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: b839a1cea763
+  text: Clarify data provenance and consent mechanisms for the 'private data' and
+    web-scraped sources mentioned in Section 3.1. Explicitly state how privacy rights
+    and copyright were handled for the 800M image dataset.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: d6a9791c36db
+  text: Expand the 'Broader Impacts' section (Appendix) to include empirical results
+    on safety robustness. Specifically, report on adversarial testing of the 'reasoner'
+    module against jailbreak attempts and harmful prompt injection.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 4c7332e36bd4
+  text: Address potential bias in the RL-8K dataset taxonomy (Section 3.4), which
+    includes 'Race', 'Occupation', and 'Gender'. Describe any fairness audits or mitigation
+    strategies employed to prevent stereotyping in generated images.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 0bb6b7bc2dc5
+  text: Clarify compute normalization (MFU vs Peak TFLOPS) to substantiate the 19.3%
+    efficiency claim.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 1255069c432b
+  text: Explicitly state reasoner usage in Table 2 and ensure competitors are evaluated
+    with comparable modules.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 02dcc0fd01e5
+  text: Justify Toy Model ablation scaling or run key ablations on the full 3.8B model.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: cc0f433521f3
+  text: Add error bars or statistical significance testing to benchmark scores.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: b3b2d67bfc33
+  text: Report standard deviations or confidence intervals for all benchmark scores
+    (Table 1, Appendix Tables) to establish statistical significance of improvements
+    over baselines.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 4981b898ff70
+  text: Include error bars or variance metrics for ablation studies (Figures 2-5,
+    Table 2) to distinguish signal from training noise.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 63c1e2d4154e
+  text: Specify training random seeds and clarify Model FLOPS Utilization (MFU) assumptions
+    for the compute efficiency claim to ensure reproducibility.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: ac4e03ae00b8
+  text: "The manuscript is generally well\u2011structured, but several text\u2011\
+    formatting issues hinder readability and could cause compilation warnings. The\
+    \ most immediate problem is the duplicated \\usepackage{hyperref} (lines 30\u2011\
+    31), which may lead to package re\u2011initialisation errors. Heading hierarchy\
+    \ is mostly correct, yet the numbering jumps from Introduction (section 1) to\
+    \ Method (section 3) without a section 2; renumbering or inserting a missing section\
+    \ would improve logical flow. Figure and table environ"
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 55b7409e7237
+  text: "Several sentences are overly long and contain multiple clauses without proper\
+    \ punctuation, which hampers readability (e.g., the first paragraph of the Introduction,\
+    \ lines 9\u201115)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 4fc6b8b5b28b
+  text: Inconsistent use of italics and quotation marks for model names (e.g., \textit{Lens}
+    vs. plain Lens) creates visual noise; standardize formatting throughout the manuscript.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 20f0795e5d29
+  text: "Frequent repetition of phrases such as \u201Ctraining efficiency\u201D and\
+    \ \u201Cdata information density\u201D leads to redundancy; consolidate these\
+    \ concepts to improve conciseness."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 413ddc32469d
+  text: "Some technical terms are introduced without definition or proper context\
+    \ (e.g., \u201Cflow\u2011matching MSE objective\u201D in Section\u202F4.1), which\
+    \ can confuse readers unfamiliar with the jargon."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 886e5cfe364c
+  text: The transition between sections is sometimes abrupt, especially from the Method
+    to the Experiments; add brief bridging sentences to guide the reader.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 170cb1257ae5
+  text: "Minor grammatical errors appear, such as missing articles (\u201Ca 3.8B\u2011\
+    parameter\u201D should be \u201Ca 3.8\u2011billion\u2011parameter\u201D) and subject\u2011\
+    verb agreement issues (\u201Cthe model enables faster inference\u201D \u2192 \u201C\
+    the model enables faster inferences\u201D)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: f772432898b7
+  text: "Figure captions occasionally repeat information already in the main text\
+    \ (e.g., Fig\u202F1 caption repeats the same description as the paragraph above).\
+    \ Streamline captions to be self\u2011contained but concise."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+- id: 65c631ee9184
+  text: The abstract contains a very long sentence that mixes several ideas; split
+    it into two sentences for better clarity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 31 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-29T04:53:55.719879+00:00'

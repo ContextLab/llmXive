@@ -240,3 +240,6 @@ ready:
 - project_id: PROJ-597-https-arxiv-org-abs-2605-11739
   revision_spec_path: specs/auto-revisions/PROJ-597-https-arxiv-org-abs-2605-11739/round-1
   queued_at: '2026-06-29T03:38:28.857295+00:00'
+- project_id: PROJ-624-lens-rethinking-training-efficiency-for
+  revision_spec_path: specs/auto-revisions/PROJ-624-lens-rethinking-training-efficiency-for/round-1
+  queued_at: '2026-06-29T04:53:55.731831+00:00'
