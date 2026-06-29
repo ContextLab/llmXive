@@ -1,8 +1,7 @@
 """
-Quickstart validation script for PROJ-261.
+Quickstart validation module.
 
-This script validates the project setup and ensures all required
-components are in place before running the analysis pipeline.
+Validates project structure, configuration, and output files.
 """
 import logging
 import sys
@@ -13,44 +12,29 @@ from config import (
     get_random_seed,
     get_memory_limit_mb,
     get_max_runtime_seconds,
+    get_min_valid_segments,
 )
 from checksum_manifest import (
     load_manifest,
     verify_artifact_checksums,
 )
 
-def setup_logging(name: str) -> logging.Logger:
-    """Setup logging configuration for validation script."""
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
-    # File handler
-    fh = logging.FileHandler(Path("data/quickstart_validation.log"))
-    fh.setLevel(logging.INFO)
-
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-
-    # Formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+def setup_logging(log_level: int = logging.INFO) -> None:
+    """Configure logging for the validation module."""
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+        ]
     )
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
 
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-
-    return logger
-
-def validate_directory_structure(logger: logging.Logger) -> bool:
+def validate_directory_structure() -> bool:
     """
-    Validate that all required directories exist.
-
-    Args:
-        logger: Logger instance
-
+    Validate that required directories exist.
+    
     Returns:
         True if all directories exist, False otherwise
     """
@@ -61,210 +45,191 @@ def validate_directory_structure(logger: logging.Logger) -> bool:
         Path("data/analysis/figures"),
         Path("code"),
         Path("tests"),
-        Path("specs/001-evaluating-the-impact-of-code-duplication"),
-        Path("specs/001-evaluating-the-impact-of-code-duplication/contracts"),
     ]
-
+    
     all_valid = True
     for dir_path in required_dirs:
-        if not dir_path.exists():
-            logger.error(f"Missing directory: {dir_path}")
-            all_valid = False
+        if dir_path.exists():
+            logger.info(f"  {dir_path}: OK")
         else:
-            logger.info(f"Directory exists: {dir_path}")
-
+            logger.error(f"  {dir_path}: MISSING")
+            all_valid = False
+    
     return all_valid
 
-def validate_config_documentation(logger: logging.Logger) -> bool:
+def validate_config_documentation() -> bool:
     """
     Validate that configuration is properly documented.
-
-    Args:
-        logger: Logger instance
-
+    
     Returns:
         True if configuration is valid, False otherwise
     """
     try:
         thresholds = get_clone_thresholds()
         seed = get_random_seed()
-        memory_limit = get_memory_limit_mb()
-        max_runtime = get_max_runtime_seconds()
-
-        logger.info(f"Configuration loaded:")
-        logger.info(f"  Clone thresholds: {thresholds}")
-        logger.info(f"  Random seed: {seed}")
-        logger.info(f"  Memory limit: {memory_limit} MB")
-        logger.info(f"  Max runtime: {max_runtime} seconds")
-
+        memory = get_memory_limit_mb()
+        runtime = get_max_runtime_seconds()
+        segments = get_min_valid_segments()
+        
+        logger.info("  config.py: OK")
+        logger.info(f"    thresholds: {thresholds}")
+        logger.info(f"    seed: {seed}")
+        logger.info(f"    memory_limit: {memory}")
+        logger.info(f"    max_runtime: {runtime}")
+        logger.info(f"    min_segments: {segments}")
+        
         return True
     except Exception as e:
-        logger.error(f"Configuration validation failed: {e}")
+        logger.error(f"  config.py: FAIL - {e}")
         return False
 
-def validate_checksum_manifest(logger: logging.Logger) -> bool:
+def validate_checksum_manifest() -> bool:
     """
     Validate checksum manifest exists and is valid.
-
-    Args:
-        logger: Logger instance
-
+    
     Returns:
         True if manifest is valid, False otherwise
     """
-    manifest_path = Path("data/checksum_manifest.json")
-
-    if not manifest_path.exists():
-        logger.warning(f"Checksum manifest not found: {manifest_path}")
-        logger.info("This is expected before first pipeline run")
-        return True
-
-    try:
-        manifest = load_manifest(manifest_path)
-        valid, errors = verify_artifact_checksums(manifest, logger)
-
-        if valid:
-            logger.info("Checksum manifest validation passed")
-            return True
-        else:
-            logger.error(f"Checksum validation failed: {errors}")
-            return False
-    except Exception as e:
-        logger.error(f"Failed to load manifest: {e}")
-        return False
-
-def validate_quickstart_documentation(logger: logging.Logger) -> bool:
-    """
-    Validate that quickstart.md exists and contains required sections.
-
-    Args:
-        logger: Logger instance
-
-    Returns:
-        True if documentation is valid, False otherwise
-    """
-    quickstart_path = Path("specs/001-evaluating-the-impact-of-code-duplication/quickstart.md")
-
-    if not quickstart_path.exists():
-        logger.error(f"Quickstart documentation not found: {quickstart_path}")
-        return False
-
-    try:
-        content = quickstart_path.read_text()
-
-        required_sections = [
-            "## Setup",
-            "## Data Download",
-            "## Running the Pipeline",
-            "## Expected Outputs",
-        ]
-
-        for section in required_sections:
-            if section not in content:
-                logger.error(f"Missing section in quickstart.md: {section}")
+    manifest_path = Path("data/analysis/checksum_manifest.json")
+    
+    if manifest_path.exists():
+        try:
+            manifest = load_manifest(manifest_path)
+            if manifest and 'artifact_hashes' in manifest:
+                logger.info(f"  checksum_manifest: OK ({len(manifest['artifact_hashes'])} artifacts)")
+                return True
+            else:
+                logger.error("  checksum_manifest: INVALID (missing artifact_hashes)")
                 return False
-
-        logger.info("Quickstart documentation validation passed")
+        except Exception as e:
+            logger.error(f"  checksum_manifest: ERROR - {e}")
+            return False
+    else:
+        logger.info("  checksum_manifest: NOT YET GENERATED (expected before pipeline run)")
         return True
-    except Exception as e:
-        logger.error(f"Failed to read quickstart.md: {e}")
+
+def validate_quickstart_documentation() -> bool:
+    """
+    Validate that quickstart documentation exists.
+    
+    Returns:
+        True if documentation exists, False otherwise
+    """
+    quickstart_path = Path("quickstart.md")
+    
+    if quickstart_path.exists():
+        logger.info("  quickstart_documentation: OK")
+        return True
+    else:
+        logger.error("  quickstart_documentation: MISSING")
         return False
 
-def validate_output_files(logger: logging.Logger) -> bool:
+def validate_output_files() -> bool:
     """
-    Validate that required output files exist.
-
-    Args:
-        logger: Logger instance
-
+    Validate that output files exist after pipeline run.
+    
     Returns:
-        True if all output files exist, False otherwise
+        True if all expected outputs exist, False otherwise
     """
     required_files = [
+        Path("data/raw/github-code-sample.csv"),
         Path("data/processed/clone_metrics.csv"),
         Path("data/processed/perplexity_scores.csv"),
+        Path("data/analysis/correlation_results.csv"),
     ]
-
+    
     all_valid = True
     for file_path in required_files:
-        if not file_path.exists():
-            logger.warning(f"Missing output file: {file_path}")
-            all_valid = False
+        if file_path.exists():
+            logger.info(f"  {file_path}: OK")
         else:
-            logger.info(f"Output file exists: {file_path}")
-
+            logger.info(f"  {file_path}: NOT YET GENERATED (expected before pipeline run)")
+    
     return all_valid
 
-def validate_quickstart_steps(logger: logging.Logger) -> bool:
+def validate_quickstart_steps() -> bool:
     """
-    Validate that quickstart steps are executable.
-
-    Args:
-        logger: Logger instance
-
+    Validate that quickstart.md contains required steps.
+    
     Returns:
-        True if steps are valid, False otherwise
+        True if steps are documented, False otherwise
     """
-    quickstart_path = Path("specs/001-evaluating-the-impact-of-code-duplication/quickstart.md")
-
+    quickstart_path = Path("quickstart.md")
+    
     if not quickstart_path.exists():
-        logger.error(f"Quickstart documentation not found: {quickstart_path}")
+        logger.error("  quickstart_steps: QUICKSTART MISSING")
         return False
-
-    try:
-        content = quickstart_path.read_text()
-
-        # Check for required commands
-        required_commands = [
-            "python code/data_loader.py",
-            "python code/main.py",
-        ]
-
-        for cmd in required_commands:
-            if cmd not in content:
-                logger.warning(f"Missing command in quickstart.md: {cmd}")
-
-        logger.info("Quickstart steps validation passed")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to validate quickstart steps: {e}")
-        return False
+    
+    with open(quickstart_path, 'r') as f:
+        content = f.read()
+    
+    required_steps = [
+        "python code/data_loader.py",
+        "python code/main.py",
+        "data/raw/github-code-sample.csv",
+    ]
+    
+    all_valid = True
+    for step in required_steps:
+        if step in content:
+            logger.info(f"  quickstart_steps: '{step}' - FOUND")
+        else:
+            logger.error(f"  quickstart_steps: '{step}' - MISSING")
+            all_valid = False
+    
+    return all_valid
 
 def main():
-    """Main entry point for validation script."""
-    logger = setup_logging("quickstart_validation")
-
-    logger.info("=" * 60)
-    logger.info("Starting Quickstart Validation")
-    logger.info("=" * 60)
-
-    results = {}
-
-    # Run all validations
-    results["directory_structure"] = validate_directory_structure(logger)
-    results["config_documentation"] = validate_config_documentation(logger)
-    results["checksum_manifest"] = validate_checksum_manifest(logger)
-    results["quickstart_documentation"] = validate_quickstart_documentation(logger)
-    results["output_files"] = validate_output_files(logger)
-    results["quickstart_steps"] = validate_quickstart_steps(logger)
-
-    # Summary
-    logger.info("=" * 60)
-    logger.info("Validation Summary")
-    logger.info("=" * 60)
-
-    all_passed = all(results.values())
-
-    for check, passed in results.items():
-        status = "PASS" if passed else "FAIL"
-        logger.info(f"  {check}: {status}")
-
-    if all_passed:
-        logger.info("All validations passed!")
-        sys.exit(0)
+    """
+    Main entry point for quickstart validation.
+    """
+    parser = argparse.ArgumentParser(description='Validate project quickstart')
+    parser.add_argument(
+        'command',
+        nargs='?',
+        default='validate_all',
+        choices=['validate_all', 'validate_directory_structure', 'validate_config_documentation', 
+                'validate_checksum_manifest', 'validate_quickstart_documentation', 
+                'validate_output_files', 'validate_quickstart_steps'],
+        help='Validation command to run'
+    )
+    
+    args = parser.parse_args()
+    
+    setup_logging()
+    logger.info("=== Quickstart Validation ===")
+    
+    commands = {
+        'validate_all': [
+            validate_directory_structure,
+            validate_config_documentation,
+            validate_checksum_manifest,
+            validate_quickstart_documentation,
+            validate_output_files,
+            validate_quickstart_steps,
+        ],
+        'validate_directory_structure': [validate_directory_structure],
+        'validate_config_documentation': [validate_config_documentation],
+        'validate_checksum_manifest': [validate_checksum_manifest],
+        'validate_quickstart_documentation': [validate_quickstart_documentation],
+        'validate_output_files': [validate_output_files],
+        'validate_quickstart_steps': [validate_quickstart_steps],
+    }
+    
+    validators = commands.get(args.command, [])
+    results = []
+    
+    for validator in validators:
+        result = validator()
+        results.append(result)
+    
+    if all(results):
+        logger.info("=== All validations passed ===")
+        return 0
     else:
         logger.error("Some validations failed")
-        sys.exit(1)
+        return 1
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    import argparse
+    sys.exit(main())

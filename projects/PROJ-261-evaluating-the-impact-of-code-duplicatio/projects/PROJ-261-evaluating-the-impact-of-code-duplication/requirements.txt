@@ -1,6 +1,6 @@
-# Core dependencies
+# Core ML/DL libraries
 datasets>=2.14.0
-transformers>=4.35.0
+transformers>=4.33.0
 bitsandbytes>=0.41.0
 scipy>=1.11.0
 matplotlib>=3.8.0
@@ -10,10 +10,12 @@ numpy>=1.24.0
 # Testing
 pytest>=7.4.0
 
-# Linting and formatting
-black>=23.0.0
+# Code quality
+black>=23.9.0
 flake8>=6.1.0
 isort>=5.12.0
-
-# Pre-commit hooks
 pre-commit>=3.5.0
+
+# Additional utilities
+psutil>=5.9.0
+pyyaml>=6.0.0

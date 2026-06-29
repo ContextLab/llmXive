@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "4 command(s) failed: python code/quickstart_validation.py validate_directory_structure (rc=1); python code/main.py (rc=1); python code/data_loader.py # Stage 1: Download data (rc=2); 1 declared deliverable(s) absent: data/raw/github-code-sample.csv",
+  "reason": "2 command(s) failed: python code/main.py (rc=1); python code/data_loader.py # Stage 1: Download data (rc=2); 1 declared deliverable(s) absent: data/raw/github-code-sample.csv",
   "artifacts": [
     "data/analysis/artifact_checksums.json",
     "data/analysis/bug_detection_results.csv",
@@ -11,12 +11,10 @@
     "data/processed/clone_metrics.csv"
   ],
   "failures": [
-    "python code/quickstart_validation.py validate_directory_structure -> rc=1\n    he-impact-of-code-duplicatio/code/quickstart_validation.py\", line 308, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/quickstart_validation.py\", line 265, in main\n    logger = setup_logging(\"quickstart_validation\")\n             ^^^^^^^^^^^^^\nNameError: name 'setup_logging' is not defined",
-    "python code/main.py -> rc=1\n    08:47:01,123 - __main__ - ERROR - Please run data_loader.py first to download the dataset\n2026-06-29 08:47:01,123 - __main__ - ERROR - Pipeline failed: Raw data not found: data/raw/github-code-sample.csv\n2026-06-29 08:47:01,123 - __main__ - ERROR - Data not found: Raw data not found: data/raw/github-code-sample.csv\n2026-06-29 08:47:01,123 - __main__ - ERROR - Please run: python code/data_loader.py",
-    "python code/data_loader.py # Stage 1: Download data -> rc=2\n    usage: data_loader.py [-h] [--output OUTPUT] [--max-samples MAX_SAMPLES]\n                      [--dataset DATASET]\ndata_loader.py: error: unrecognized arguments: # Stage 1: Download data",
-    "python code/quickstart_validation.py -> rc=1\n    he-impact-of-code-duplicatio/code/quickstart_validation.py\", line 308, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/quickstart_validation.py\", line 265, in main\n    logger = setup_logging(\"quickstart_validation\")\n             ^^^^^^^^^^^^^\nNameError: name 'setup_logging' is not defined"
+    "python code/main.py -> rc=1\n    2026-06-29 10:30:16,980 - __main__ - INFO - Starting pipeline execution\n2026-06-29 10:30:16,980 - __main__ - ERROR - Raw data file not found: data/raw/github-code-sample.csv\n2026-06-29 10:30:16,980 - __main__ - ERROR - Please run: python code/data_loader.py\n2026-06-29 10:30:16,980 - __main__ - ERROR - Pipeline failed: Raw data not found: data/raw/github-code-sample.csv",
+    "python code/data_loader.py # Stage 1: Download data -> rc=2\n    usage: data_loader.py [-h] [--output OUTPUT] [--max-samples MAX_SAMPLES]\n                      [--dataset DATASET]\ndata_loader.py: error: unrecognized arguments: # Stage 1: Download data"
   ],
-  "fix_rounds": 5,
+  "fix_rounds": 7,
   "model_tier": 0,
-  "updated_at": "2026-06-29T08:47:09Z"
+  "updated_at": "2026-06-29T10:30:26Z"
 }
