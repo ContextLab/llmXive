@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Result Schema"
+description: "Schema for the output of the graph-traversal validation."
+type: "object"
+properties:
+  request_id:
+    type: "string"
+    format: "uuid"
+  generated_text:
+    type: "string"
+  parsed_stations:
+    type: "array"
+    items:
+      type: "string"
+  is_valid:
+    type: "boolean"
+  exact_match:
+    type: "boolean"
+  error_message:
+    type: "string"
+    nullable: true
+required:
+  - request_id
+  - generated_text
+  - parsed_stations
+  - is_valid
+  - exact_match

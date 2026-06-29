@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2207.09969",
+  "judged_at": "2026-06-29T22:51:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "transitlm: a large-scale dataset and benchmark for map-free transit route generation linguistics",
+  "rationale": "This paper satisfies criterion (b) as it measures the dependent variable of public transport route generation and evaluation on the same domain (real-world railway networks), providing the canonical operational framework and empirical baseline for transit routing that a literature review on \"Map-Free Transit Route Generation\" would need to cite for context and comparison.",
+  "relevant": true
+}

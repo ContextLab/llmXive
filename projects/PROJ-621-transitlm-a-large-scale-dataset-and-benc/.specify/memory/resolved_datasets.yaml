@@ -1,0 +1,351 @@
+resolved_at: '2026-06-29T22:57:09.664219+00:00'
+datasets:
+- intent: GTFS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://plos.figshare.com/articles/dataset/_p_Frequency_and_proportion_of_neuropathological_lesions_p_/32829664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_QQ_Plots_and_lambdas_of_individual_cohort_analyses_p_/32829661
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Cell-specific_heritability_enrichment_results_ImmGen_p_/32829658
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Cell-specific_heritability_enrichment_results_multi-tissue_GTEx_p_/32829655
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Regional_association_plot_for_the_i_TMEM106B_i_locus_for_TDP-43_proteinopathy_and_hippocampal_sclerosis_and_the_i_GRN_i_locus_for_hippocampal_sclerosis_p_/32829652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17432853
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3894549
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20539849
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20789347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19889312
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20382204
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://livewire.energy.gov/ds/integrating-microtransit/ride-pingo-to-transit
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20789347
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20789347
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.4tu.nl/datasets/fc909e93-4959-4fb4-aebf-9227a31e048d/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard/resolve/main/BFCL_v3_chatable.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 24980
+      parsed: true
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard/resolve/main/BFCL_v3_chatable.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Necent/llm-jailbreak-prompt-injection-dataset/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64e77c453e1237c874d34ffe/7c51ebbeb4c96943eccc2e20ae58d53c23958b3e2e096222ac23b46a7cd5297c?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Bitext_Sample_Customer_Support_Training_Dataset_27K_responses-v11.csv%3B+filename%3D%22Bitext_Sample_Customer_Support_Training_Dataset_27K_responses-v11.csv%22%3B&response-content-type=text%2Fcsv&Expires=1782777326&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlNzdjNDUzZTEyMzdjODc0ZDM0ZmZlLzdjNTFlYmJlYjRjOTY5NDNlY2NjMmUyMGFlNThkNTNjMjM5NThiM2UyZTA5NjIyMmFjMjNiNDZhN2NkNTI5N2NcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Qml0ZXh0X1NhbXBsZV9DdXN0b21lcl9TdXBwb3J0X1RyYWluaW5nX0RhdGFzZXRfMjdLX3Jlc3BvbnNlcy12MTEuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyQml0ZXh0X1NhbXBsZV9DdXN0b21lcl9TdXBwb3J0X1RyYWluaW5nX0RhdGFzZXRfMjdLX3Jlc3BvbnNlcy12MTEuY3N2JTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGY3N2IiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3NzczMjZ9fX1dfQ__&Signature=MEUCIQDbJm8JtQc6eBnRVGVaqcr8v6fKrii4S7ir0pSpGoXsMQIgBA6lpSafSc3-Y8FW5Df5hlDfcCH~hclOJGgDaxUQkX0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_MAGMA_tissue-specific_associations_p_/32829709
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_MAGMA_pathway_analysis_results_p_/32829706
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Cell_Tissue-specific_heritability_enrichment_coefficients_and_p-values_ImmGen_p_/32829703
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Cell_Tissue-specific_heritability_enrichment_p-values_ImmGen_p_/32829700
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Cell_Tissue-specific_heritability_enrichment_coefficients_and_p-values_GTEx_multi_tissue_p_/32829697
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6447108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10899290
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13959137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14912851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18981672
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048276
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048276
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048815
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048815
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21044163
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SFT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lordx64/agentic-distill-fable-5-sft/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-thoughts/OpenThoughts-Agent-SFT-100K/resolve/main/data/train-00000-of-00010.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kelexine/fable-5-sft-traces/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lordx64/agentic-distill-fable-5-sft/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-thoughts/OpenThoughts-Agent-SFT-100K/resolve/main/data/train-00000-of-00010.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kelexine/fable-5-sft-traces/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/openbmb/UltraData-SFT-2605/resolve/main/data/no_think/Chinese-general/Chinese-general_no_think_part-01-of-50.jsonl
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-Agentic-v2/resolve/main/data/interactive_agent.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://plos.figshare.com/articles/dataset/_p_SNP_heritability_analyses_p_/32829754
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Summary_statistics_from_Bellenguez_i_et_al_i_sup_a_sup_clinical_AD_candidate-variant_analysis_for_AD_pathologic_phenotypes_p_/32829751
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Genome-wide_significant_loci_for_AD_and_ADRD_neuropathologies_p_/32829748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Description_of_contributing_data_sets_p_/32829745
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Overview_of_Primary_Analyses_p_/32829742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15564647
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15564670
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/427558
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/399242
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/376178
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21043009
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21043009
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21040992
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21040992
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21002377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Beyond_the_2D_Plane_Interfacing_Microwave_Resonators_with_Bioreceptor-Functionalized_Hydrogel_Micropillars_for_Label-Free_Enhanced_Sensitivity_Biosensing/32829799
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Two-Photon_Polarization_Ratio_Explains_Unusual_Shape_of_the_Two-Photon_Absorption_Spectra_of_Dyes_and_Detects_Weak_Excitonic_Coupling_in_Fluorescent_Protein_Dimers/32829796
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Fabricated_Three-Dimensional_Composite_Electrode_of_Mo_Ni_sub_3_sub_S_sub_2_sub_Nickel_Foam_for_Enhanced_Electrocatalytic_Hydrogen_Evolution/32829793
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Genetic_diversity_of_i_P_vivax_i_populations_in_the_GMS_p_/32829790
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Complexity_of_infection_in_different_i_P_vivax_i_populations_in_the_GMS_p_/32829787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/Enhancing_the_Accessibility_and_Utilization_of_Data-Parallel_Hardware_for_General-Purpose_Applications/32810036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/Enhancing_the_Accessibility_and_Utilization_of_Data-Parallel_Hardware_for_General-Purpose_Applications/32810036/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20740396
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

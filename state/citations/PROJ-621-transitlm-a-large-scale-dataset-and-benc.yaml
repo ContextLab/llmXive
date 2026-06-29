@@ -1,0 +1,11 @@
+- artifact_hash: 8d7772f5cfb3c46961e282812ad377bbafaef53416b68694136ae1383fb7f7b5
+  artifact_path: projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/specs/001-transitlm-a-large-scale-dataset-and-benc/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: MTA Developer Resources
+  kind: url
+  value: https://api.mta.info/#/gtfs`
+  verification_status: verified
+  verified_against_url: https://api.mta.info/#/gtfs%60
+  verified_at: '2026-06-29T23:03:41.421570Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.10780",
+  "judged_at": "2026-06-29T22:51:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "transitlm: a large-scale dataset and benchmark for map-free transit route generation linguistics",
+  "rationale": "The paper focuses on clinical natural language processing (NLP) for electronic health records (EHR) and COVID-19 data, which is an entirely different domain from the user's question regarding map-free transit route generation and transportation datasets. It fails to address the specific mechanism, variables, or empirical population (transit systems) required for the user's research, satisfying the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

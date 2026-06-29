@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.12618",
+  "judged_at": "2026-06-29T22:51:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "transitlm: a large-scale dataset and benchmark for map-free transit route generation linguistics",
+  "rationale": "The paper focuses on analyzing public transportation occupancy and undercrowding using APC data, which is an operational efficiency study, whereas the user's question concerns \"map-free transit route generation\" using Large Language Models (LLMs) and linguistics. There is no overlap in the core mechanism (route generation algorithms vs. occupancy analysis), the dependent variable (generated routes vs. usage rates), or the domain (AI/LLM benchmarking vs. transport operations), failing all inclusi",
+  "relevant": false
+}
