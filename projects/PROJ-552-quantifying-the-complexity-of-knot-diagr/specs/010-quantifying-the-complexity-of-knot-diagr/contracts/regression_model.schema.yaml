@@ -1,74 +1,75 @@
+# Regression Model Schema (Canonical)
+#
+# This schema defines the structure of a regression model artifact produced by the
+# analysis pipeline. It captures the model type, fitted parameters, and goodness‑of‑fit
+# metrics required for reproducibility and downstream comparison.
+#
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "RegressionModel"
-description: "Represents fitted model with attributes including model type, coefficients, goodness-of-fit metrics"
-type: "object"
-properties:
-  model_id:
-    type: "string"
-    description: "Unique identifier"
-  model_type:
-    type: "string"
-    description: "Model type: linear, polynomial, or logarithmic"
-    enum:
-      - "linear"
-      - "polynomial"
-      - "logarithmic"
-  predictors:
-    type: "array"
-    description: "Predictor variables (e.g., [\"crossing_number\", \"braid_index\"])"
-    items:
-      type: "string"
-  target:
-    type: "string"
-    description: "Target variable (e.g., \"hyperbolic_volume\")"
-  coefficients:
-    type: "object"
-    description: "Model coefficients"
-    additionalProperties:
-      type: "number"
-  r_squared:
-    type: "number"
-    description: "R² goodness-of-fit metric"
-    minimum: 0
-    maximum: 1
-  aic:
-    type: "number"
-    description: "Akaike Information Criterion"
-  bic:
-    type: "number"
-    description: "Bayesian Information Criterion"
-  mae:
-    type: "number"
-    description: "Mean Absolute Error"
-    minimum: 0
-  vif_scores:
-    type: "object"
-    description: "Variance Inflation Factor for each predictor"
-    additionalProperties:
-      type: "number"
-  residual_outliers:
-    type: "array"
-    description: "Knot IDs with residuals ≥ 2 standard deviations"
-    items:
-      type: "string"
-  alternating_control:
-    type: "boolean"
-    description: "Whether alternating/non-alternating classification is included as control variable"
-  braid_index_uncertainty:
-    type: "boolean"
-    description: "Whether braid index uncertainty is propagated in model results (Phase 0/1 exploratory)"
+description: |
+  A record describing a regression model fitted to knot invariants. Each record
+  corresponds to one model configuration (e.g., linear, polynomial degree 2,
+  logarithmic) and stores the fitted coefficients as well as evaluation metrics.
+type: object
 required:
   - model_id
+  - model_name
   - model_type
-  - predictors
-  - target
-  - coefficients
-  - r_squared
-  - aic
-  - bic
-  - mae
-  - vif_scores
-  - residual_outliers
-  - alternating_control
-  - braid_index_uncertainty
-additionalProperties: false
+  - parameters
+  - metrics
+  - created_at
+properties:
+  model_id:
+    type: string
+    description: |
+      Unique identifier for the model record (e.g., UUID or deterministic hash).
+  model_name:
+    type: string
+    description: |
+      Human‑readable name for the model (e.g., "Linear model: volume ~ crossing").
+  model_type:
+    type: string
+    enum: [linear, polynomial, logarithmic, other]
+    description: |
+      Classification of the regression model. Use "polynomial" for any degree >1.
+  degree:
+    type: integer
+    minimum: 1
+    description: |
+      Polynomial degree; required only when `model_type` is "polynomial".
+  parameters:
+    type: object
+    description: |
+      Mapping of parameter names to their fitted numeric values.
+    additionalProperties:
+      type: number
+  metrics:
+    type: object
+    description: |
+      Goodness‑of‑fit and error metrics for the fitted model.
+    required:
+      - r_squared
+      - aic
+      - bic
+      - mae
+    properties:
+      r_squared:
+        type: number
+        description: Coefficient of determination (R²).
+      aic:
+        type: number
+        description: Akaike Information Criterion.
+      bic:
+        type: number
+        description: Bayesian Information Criterion.
+      mae:
+        type: number
+        description: Mean Absolute Error.
+  created_at:
+    type: string
+    format: date-time
+    description: ISO‑8601 timestamp when the model was trained.
+  notes:
+    type: string
+    description: |
+      Optional free‑form notes (e.g., data subset used, hyperparameters, observations).

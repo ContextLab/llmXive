@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionOutput"
+description: "Output schema for regression model fitting and evaluation"
+type: "object"
+required:
+  - model_type
+  - coefficients
+  - r_squared
+  - aic
+  - bic
+  - mae
+  - vif
+  - residuals
+  - outlier_families
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "linear"
+      - "polynomial"
+      - "logarithmic"
+    description: "Type of regression model"
+  coefficients:
+    type: "object"
+    description: "Model coefficients"
+    additionalProperties:
+      type: "number"
+  r_squared:
+    type: "number"
+    description: "Goodness-of-fit R²"
+  aic:
+    type: "number"
+    description: "Akaike Information Criterion"
+  bic:
+    type: "number"
+    description: "Bayesian Information Criterion"
+  mae:
+    type: "number"
+    description: "Mean Absolute Error"
+  vif:
+    type: "object"
+    description: "Variance Inflation Factor per predictor"
+    additionalProperties:
+      type: "number"
+  residuals:
+    type: "array"
+    description: "Residual values"
+    items:
+      type: "number"
+  outlier_families:
+    type: "array"
+    description: "Families with residuals ≥ 2 standard deviations from trend"
+    items:
+      type: "object"
+      required:
+        - family_name
+        - knot_ids
+        - residual_count
+      properties:
+        family_name:
+          type: "string"
+          description: "Name of the knot family (e.g., pretzel, hyperbolic non-alternating)"
+        knot_ids:
+          type: "array"
+          description: "List of knot identifiers in this family"
+          items:
+            type: "string"
+        residual_count:
+          type: "integer"
+          description: "Number of knots in this family with residuals ≥ 2 SD"
+additionalProperties: false

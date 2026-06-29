@@ -1,5 +1,5 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: KnotRecord
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "KnotRecord"
 description: >
   Schema for a single knot record containing core invariants and derived properties.
   Primary source: Knot Atlas (https://katlas.org)
@@ -30,23 +30,24 @@ properties:
   crossing_number:
     type: integer
     description: "The crossing number of the knot – minimum number of crossings in any regular diagram."
-    minimum: 3
-    maximum: 13
+    minimum: 0
   braid_index:
     type: integer
     description: "The braid index of the knot – minimum number of strands in any braid representation."
-    minimum: 2
+    minimum: 0
   hyperbolic_volume:
     type: number
-    description: "Hyperbolic volume (V) of the knot complement; not applicable for non‑hyperbolic knots."
-    minimum: 0.0
-    multipleOf: 0.000001
+    description: "Hyperbolic volume of the knot complement (non-positive for torus/satellite knots). 
+The research question is: What is the relationship between knot complexity and the hyperbolic volume of its complement?
+The method is: We will compute the hyperbolic volume of knot complements using the SnapPy software package and analyze the resulting data to identify correlations with knot invariants.
+References: (cite relevant papers here - not provided in the prompt, so omitted here)."
+    minimum: 0
   alternating:
     type: boolean
-    description: "True if alternating, true ? ? "
+    description: "True if the knot is alternating."
   source:
     type: object
-    description: "Attribution metadata for the ... "
+    description: "Attribution metadata for the record."
     required:
       - database
       - version
@@ -55,29 +56,29 @@ properties:
     properties:
       database:
         type: string
-        enum: ["KnotAtlas", "KnotInfo"]
+        description: "Database name (e.g., KnotAtlas, KnotInfo)."
       version:
         type: string
-        description: "Version or access date "
+        description: "Version or access date."
       url:
-        type: type
+        type: string
         format: uri
-        description: "Canonical URL "
+        description: "Canonical URL for the record."
       accessed_at:
         type: string
         format: date-time
-        description: ** ** 
+        description: "Timestamp when data was accessed."
   source_timestamp:
     type: string
     format: date-time
-    description: "Timestamp when the ... "
+    description: "Timestamp of the source record."
   checksum_sha256:
     type: string
-    pattern: "^[a-fA-F0-9]{64}$"
-    description: "SHA‑256 "
+    pattern: "^[a-fA-F-9]{64}$"
+    description: "SHA‑256 checksum of the raw source record."
   data_quality_flags:
     type: array
-    description: "List of ... "
+    description: "List of data‑quality flags."
     items:
       type: object
       required:
@@ -92,7 +93,7 @@ properties:
           type: string
   missing_invariant_flags:
     type: array
-    description: "Flags for ..."
+    description: "Flags for invariants not computable from available diagram representations."
     items:
       type: object
       required:
@@ -110,9 +111,4 @@ properties:
           type: string
         severity:
           type: string
-  classification_flag:
-    type: string
-    description: "Set to "unclassifiable "
-    enum:
-      - unclassifiable
 additionalProperties: false

@@ -1,119 +1,106 @@
-# Quickstart: Running the Knot‑Complexity Analysis
+# Quickstart: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-These instructions assume you have a recent version of Git and Python 3.11 installed.
+## Prerequisites
 
-## 1. Clone the repository
+- Python 3.11+
+- Stable internet connectivity (for downloading data from Knot Atlas)
+- GitHub Actions free‑tier runner or equivalent (2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU)
+
+## Installation
+
 ```bash
-git clone https://github.com/your-org/quantifying-knot-complexity.git
-cd quantifying-knot-complexity
+# Clone repository
+git clone <repository-url>
+cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r code/requirements.txt
 ```
 
-## 2. Set up the Python environment
+## Data Download
+
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+# Download knot data from Knot Atlas with retry logic (initial = 1 s, multiplier = 2, max = 32 s)
+python code/download/knot_atlas_loader.py
+
+# Output: data/raw/knot_atlas_raw.json
 ```
 
-## 3. Download the raw Knot Atlas data
-```bash
-python -m code.download.knot_atlas_loader \
-    --output data/raw/knot_atlas_raw.json \
-    --max-retries 5 \
-    --initial-delay 1 \
-    --max-delay 32
-```
-The script implements exponential‑backoff (FR) and caches partial results after a few consecutive failures.
+**Retry Logic**: Exponential back‑off (initial delay = 1 s, multiplier = 2, max delay = 32 s). Partial results are cached after three consecutive failures.
 
-## 4. Parse and clean the dataset
-```bash
-python -m code.data.parser \
-    --input data/raw/knot_atlas_raw.json \
-    --output data/processed/knots_cleaned.csv
-python -m code.data.validator \
-    --input data/processed/knots_cleaned.csv \
-    --output data/processed/knots_validated.csv
-```
-The validator adds `data_quality_flags` and `missing_invariant_flags` (FR‑002, FR‑009) and writes a checksum manifest.
+## Data Processing
 
-## 5. Verify core‑invariant precision (SC‑008)
 ```bash
-python -m code.analysis.precision \
-    --dataset data/processed/knots_validated.csv \
-    --reference https://knotinfo.org/api/lookup
-```
-The step aborts if the braid‑index match rate falls below an acceptable core‑invariant coverage threshold.
+# Parse and clean dataset
+python code/data/parser.py
 
-## 6. Generate data‑quality reports (SC‑013)
-```bash
-python -m code.analysis.generate_quality_reports \
-    --input data/processed/knots_validated.csv \
-    --output docs/reproducibility/
-```
-Creates `data_quality_report.md` and `invariant_coverage.md`.
+# Validate dataset
+python code/data/validator.py
 
-## 7. Document tie‑breaking rules (SC‑007)
-```bash
-python -m code.data.tie_breaker \
-    --output docs/reproducibility/tie_breaking_rules.md
+# Output: data/processed/knots_cleaned.csv, data/processed/knots_validated.csv
 ```
 
-## 8. Filter to hyperbolic knots (FR‑012)
-```bash
-python -m code.analysis.filter_hyperbolic \
-    --input data/processed/knots_validated.csv \
-    --output data/processed/hyperbolic_knots.csv
-```
-Excludes records with `hyperbolic_volume = 0` and writes `hyperbolic_exclusions.md`.
+## Analysis
 
-## 9. Cross‑check hyperbolic volume (FR‑013, SC‑014)
 ```bash
-python -m code.analysis.validation_phase2 \
-    --dataset data/processed/hyperbolic_knots.csv \
-    --reference https://knotinfo.org/api/volume \
-    --output docs/reproducibility/validation_scope.md
-```
+# Exploratory data analysis (scatter plots, stratified by alternating/non‑alternating)
+python code/analysis/exploratory.py
 
-## 10. Compute correlations and effect sizes (FR‑006, SC‑009)
-```bash
-python -m code.analysis.correlations \
-    --dataset data/processed/hyperbolic_knots.csv \
-    --output docs/correlations/
-```
-Outputs include Spearman ρ, Pearson r, Cohen’s d, mean differences and variance ratios.
+# Output: data/plots/crossing_vs_braid_index.png (minimum resolution 1200×900 px)
 
-## 11. Fit regression models (including alternating as covariate) and assess multicollinearity (FR‑005, SC‑005, SC‑002)
-```bash
-python -m code.analysis.regression_with_alternating \
-    --dataset data/processed/hyperbolic_knots.csv \
-    --output-dir docs/models
-```
-Outputs:
-- `model_summary.csv`
-- VIF report (`multicollinearity_assessment.md`).
+# Fit regression models
+python code/analysis/regression.py
 
-## 12. Residual family analysis (FR‑011, SC‑012)
-```bash
-python -m code.analysis.residuals \
-    --model docs/models/best_model.pkl \
-    --dataset data/processed/hyperbolic_knots.csv \
-    --output docs/reproducibility/residual_analysis.md
+# Output: regression results with R², AIC/BIC, MAE metrics
+
+# Residual analysis
+python code/analysis/residual_analysis.py
+
+# Output: docs/reproducibility/residual_analysis.md
 ```
 
-## 13. Additional invariants (Phase 9, SC‑010)
+## Reproducibility
+
 ```bash
-python -m code.analysis.additional_invariants \
-    --input data/processed/hyperbolic_knots.csv \
-    --output docs/additional_invariants/
+# Generate checksums for all data files
+python code/reproducibility/checksum_generator.py
+
+# Validate tie‑breaking rules
+python docs/reproducibility/tie_breaking_validator.py
+
+# Expected exit code: 0 on success (SC‑007)
 ```
-Computes arc index, Seifert circle count, bridge number and validates against KnotInfo (≥ 90 % match).
 
-## 14. Review reproducibility artefacts
-- Checksums: `docs/reproducibility/checksums.sha256`  
-- Random seeds: `docs/reproducibility/random_seeds.md`  
-- Full log: `docs/reproducibility/run.log`
+## Expected Artifacts
 
-All artefacts are version‑controlled; re‑running the pipeline from step 3 on a fresh runner reproduces identical results.
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| Raw data | data/raw/knot_atlas_raw.json | Downloaded from Knot Atlas |
+| Cleaned data | data/processed/knots_cleaned.csv | Parsed and cleaned dataset |
+| Validated data | data/processed/knots_validated.csv | Validated dataset with quality flags |
+| Hyperbolic data | data/processed/knots_hyperbolic.csv | Filtered to volume > 0 |
+| Scatter plots | data/plots/*.png | Crossing number vs braid index plots |
+| Data quality report | docs/reproducibility/data_quality_report.md | Null percentages, format validation, duplicates |
+| Invariant coverage | docs/reproducibility/invariant_coverage.md | Coverage per invariant |
+| Validation scope | docs/reproducibility/validation_scope.md | Completeness benchmark (≤ 10 vs ≤ 13) |
+| Excluded knots | docs/reproducibility/excluded_knots.md | Torus/satellite knots filtered |
+| Hyperbolic volume validation | docs/reproducibility/hyperbolic_volume_validation.md | Consistency check against KnotInfo |
+| Core precision consistency | docs/reproducibility/core_precision_consistency.md | Core invariant agreement with KnotInfo |
+| Multicollinearity assessment | docs/reproducibility/multicolinarity_assessment.md | VIF values |
+| Residual analysis | docs/reproducibility/residual_analysis.md | Families deviating ≥ 2 SD |
+| Tie‑breaking rules | docs/reproducibility/tie_breaking_rules.md | Documented rules |
+| Tie‑breaking validator | docs/reproducibility/tie_breaking_validator.py | Validation script (SC‑007) |
+| Missing invariants | docs/reproducibility/missing_invariants.md | Documentation of records excluded due to missing invariants |
+| Random seeds | docs/reproducibility/random_seeds.md | Seed values |
+| Logs | docs/reproducibility/logs/*.log | Timestamped operation logs |
+| Checksums | data/checksums.sha256 | SHA‑256 checksums for all data files |
+| Validation scope document | docs/reproducibility/validation_scope.md | Detailed completeness benchmark (≤ 10 vs ≤ 13) |
+| Random seeds document | docs/reproducibility/random_seeds.md | List of all random seeds used |
+| Derivation notes | docs/reproducibility/derivation_notes.md | Step‑by‑step transformation documentation |
+| Logs directory | docs/reproducibility/logs/ | Detailed operation logs for each pipeline stage |
 
-## Verified Datasets
-- **Knot Atlas** – Primary source of knot invariants. URL: https://katlas.org (verified dataset).  
+All artifacts are generated automatically by the pipeline; no manual intervention is required.

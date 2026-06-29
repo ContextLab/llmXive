@@ -1,26 +1,26 @@
-resolved_at: '2026-06-24T17:12:56.573224+00:00'
+resolved_at: '2026-06-29T10:29:39.895452+00:00'
 datasets:
 - intent: FR-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/media/A_Color_Preference_Recognition_System_for_Children_with_Autism_Spectrum_Disorder_Based_on_Fully_Flexible_Triboelectric_Sensors_and_Artificial_Intelligence_Technology/32783202
+  - url: https://figshare.com/articles/dataset/Replication_Dataset_for_Beyond_Statistical_Thresholds_An_Empirical_Audit/32824238
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Color_Preference_Recognition_System_for_Children_with_Autism_Spectrum_Disorder_Based_on_Fully_Flexible_Triboelectric_Sensors_and_Artificial_Intelligence_Technology/32783199
+  - url: https://tandf.figshare.com/articles/dataset/Classification_of_autism_related_molecular_signatures_by_simple_machine_learning_models_applied_to_ATR-FTIR_spectra_of_pediatric_sera/32824321
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Room-Temperature_Synthesis_of_Ce_Fe-Based_Metal_Organic_Framework_for_Efficient_Fenton-Like_Photocatalytic_Degradation_of_Tetracycline_in_Water/32783196
+  - url: https://figshare.com/articles/journal_contribution/Clash-Free_3D_MEPF_BIM_Model_for_a_6-Storey_Healthcare_Facility_Scan_to_BIM_Case_Study/32824262
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/The_Human_Premium_Leadership_Behaviours_That_Sustain_Trust_and_Legitimacy_in_AI-Augmented_Organisational_Decision-Making/32783169
+  - url: https://aubh.figshare.com/articles/media/_b_The_Last_Song_We_Know_b_/32824316
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Discovery_of_novel_spiroquinoxaline_derivatives_as_potent_antifungal_agents_for_the_treatment_of_cryptococcal_meningitis/32783178
+  - url: https://figshare.com/articles/dataset/Data_for_-_Negotiating_Gender_Barriers_and_Entrepreneurial_Outcomes_in_Women_Led_Startups_in_India_/32824304
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -40,7 +40,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10501050
+  - url: https://zenodo.org/records/10173526
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,23 +90,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dynamics_Study_of_Water_Properties_under_Cylindrical_Superhydrophilic_Confinement_Using_the_mW_Model/32783211
+  - url: https://figshare.com/articles/dataset/Replication_Dataset_for_Beyond_Statistical_Thresholds_An_Empirical_Audit/32824238
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplemental_Table_S1/32783193
+  - url: https://tandf.figshare.com/articles/dataset/Classification_of_autism_related_molecular_signatures_by_simple_machine_learning_models_applied_to_ATR-FTIR_spectra_of_pediatric_sera/32824321
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Uncovering_Electron-Transfer_Mechanisms_of_Sulfur_Anion_Photosensitizers_with_Intramolecular_Charge_Transfer/32783205
+  - url: https://figshare.com/articles/journal_contribution/Clash-Free_3D_MEPF_BIM_Model_for_a_6-Storey_Healthcare_Facility_Scan_to_BIM_Case_Study/32824262
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/A_Color_Preference_Recognition_System_for_Children_with_Autism_Spectrum_Disorder_Based_on_Fully_Flexible_Triboelectric_Sensors_and_Artificial_Intelligence_Technology/32783202
+  - url: https://aubh.figshare.com/articles/media/_b_The_Last_Song_We_Know_b_/32824316
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Color_Preference_Recognition_System_for_Children_with_Autism_Spectrum_Disorder_Based_on_Fully_Flexible_Triboelectric_Sensors_and_Artificial_Intelligence_Technology/32783199
+  - url: https://figshare.com/articles/dataset/Data_for_-_Negotiating_Gender_Barriers_and_Entrepreneurial_Outcomes_in_Women_Led_Startups_in_India_/32824304
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -118,101 +118,88 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18961168
+  - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://digitalcommons.usu.edu/hwi/vol18/iss3/11/
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000742664
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/21028919
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20834604
+  - url: https://zenodo.org/records/21028919
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20834701
+  - url: https://zenodo.org/records/21028846
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20834701
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://toubkal.imist.ma/handle/123456789/33522
+  - url: https://zenodo.org/records/21028846
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: JSON
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/winglian/visual-novels-json/resolve/main/visual-novels.jsonl
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
     source: huggingface
-    format: jsonl
+    format: json
     relevance: 1.0
     sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/paraloq/json_data_extraction/resolve/main/data.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/Lingalingeswaran/asr-sinhala-dataset_json_v1_labeled/resolve/main/data/train-00000-of-00004.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
+      downloaded_bytes: 2769
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/winglian/visual-novels-json/resolve/main/visual-novels.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/paraloq/json_data_extraction/resolve/main/data.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67109a6b07325c4b0ae03fc7/74c38f03d64fdd1b8116283c3b061c9a44f47759cb058c2a932978d37887b257?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27industrial_design.json%3B+filename%3D%22industrial_design.json%22%3B&user_id=public&Expires=1782324451&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcxMDlhNmIwNzMyNWM0YjBhZTAzZmM3Lzc0YzM4ZjAzZDY0ZmRkMWI4MTE2MjgzYzNiMDYxYzlhNDRmNDc3NTljYjA1OGMyYTkzMjk3OGQzNzg4N2IyNTdcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdpbmR1c3RyaWFsX2Rlc2lnbi5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyaW5kdXN0cmlhbF9kZXNpZ24uanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyMzI0NDUxfX19XX0_&Signature=MEQCIGeLeP-fenIy5nqH9Fnhmgg5R9ulH5iovPXYrS6pDj2fAiB0OkJ3LA2HzaKyADHxus8cK38uZHoGlQpccHFuFNkQfA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/Lingalingeswaran/asr-sinhala-dataset_json_v1_labeled/resolve/main/data/train-00000-of-00004.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
       (1).json
     source: huggingface
     status: verified
     format: json
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dynamics_Study_of_Water_Properties_under_Cylindrical_Superhydrophilic_Confinement_Using_the_mW_Model/32783211
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67109a6b07325c4b0ae03fc7/74c38f03d64fdd1b8116283c3b061c9a44f47759cb058c2a932978d37887b257?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27industrial_design.json%3B+filename%3D%22industrial_design.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1782732296&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcxMDlhNmIwNzMyNWM0YjBhZTAzZmM3Lzc0YzM4ZjAzZDY0ZmRkMWI4MTE2MjgzYzNiMDYxYzlhNDRmNDc3NTljYjA1OGMyYTkzMjk3OGQzNzg4N2IyNTdcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3aW5kdXN0cmlhbF9kZXNpZ24uanNvbiUzQitmaWxlbmFtZSUzRCUyMmluZHVzdHJpYWxfZGVzaWduLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzMyMjk2fX19XX0_&Signature=MEQCIEwoIFOwawANUAx3JaNZVZdHFupRHNiDPaLZkigGdnaQAiB~Vg5~TbFDbVKd-w8QxzTHq5KzSGmlOO85BnWqmARoIA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/cagliostrolab/1.2m-ordered-tags-json/resolve/main/data/data.json
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682/3162f569ba2d639018f912b3f7692823d3b1148a/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101/3b0d72d19fba40c0727b4c079aa3bda0fec7df73/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Replication_Dataset_for_Beyond_Statistical_Thresholds_An_Empirical_Audit/32824238
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplemental_Table_S1/32783193
+  - url: https://tandf.figshare.com/articles/dataset/Classification_of_autism_related_molecular_signatures_by_simple_machine_learning_models_applied_to_ATR-FTIR_spectra_of_pediatric_sera/32824321
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Uncovering_Electron-Transfer_Mechanisms_of_Sulfur_Anion_Photosensitizers_with_Intramolecular_Charge_Transfer/32783205
+  - url: https://figshare.com/articles/journal_contribution/Clash-Free_3D_MEPF_BIM_Model_for_a_6-Storey_Healthcare_Facility_Scan_to_BIM_Case_Study/32824262
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/A_Color_Preference_Recognition_System_for_Children_with_Autism_Spectrum_Disorder_Based_on_Fully_Flexible_Triboelectric_Sensors_and_Artificial_Intelligence_Technology/32783202
+  - url: https://aubh.figshare.com/articles/media/_b_The_Last_Song_We_Know_b_/32824316
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Color_Preference_Recognition_System_for_Children_with_Autism_Spectrum_Disorder_Based_on_Fully_Flexible_Triboelectric_Sensors_and_Artificial_Intelligence_Technology/32783199
+  - url: https://figshare.com/articles/dataset/Data_for_-_Negotiating_Gender_Barriers_and_Entrepreneurial_Outcomes_in_Women_Led_Startups_in_India_/32824304
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -236,36 +223,29 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20833948
+  - url: https://zenodo.org/records/20682016
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20821386
+  - url: https://zenodo.org/records/20682016
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20821386
+  - url: https://zenodo.org/records/21028174
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://radar.kit.edu/radar/en/dataset/bx5337kcykte438h
+  - url: https://zenodo.org/records/21028174
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20834477
+  - url: https://aisberg.unibg.it//handle/10446/128134
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: CSV
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/HuggingFaceBio/midtraining-csv-evals/resolve/main/Qwen3-4B-Base_results.csv
-    source: huggingface
-    format: csv
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 739
-      parsed: true
   - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
     source: huggingface
     format: csv
@@ -274,11 +254,7 @@ datasets:
       downloaded_bytes: 31
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/HuggingFaceBio/midtraining-csv-evals/resolve/main/Qwen3-4B-Base_results.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&user_id=public&response-content-type=text%2Fcsv&Expires=1782324495&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyMzI0NDk1fX19XX0_&Signature=MEYCIQCaHXeSv2vBHTGKKozRgcGYSTaUV72ZUaMux4ZEsNF0UwIhAJlNk0O3oOj2aB0MGAEs~Im6s2IMl0I5pnxrr1LL4da-&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&user_id=public&Expires=1782732321&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzMyMzIxfX19XX0_&Signature=MEYCIQCZqOttLrLf-TuuIn1INjbah4Y2wErtD719zxSR2HCtpgIhAJuykCMd68ItXD7SI~DW5fJb4tvxc6iSCciWK1QbrmNg&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -286,27 +262,35 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://acs.figshare.com/articles/journal_contribution/Photoredox-Catalyzed_Lysine_C_sp_sup_3_sup_H_Functionalization_for_Peptide_Editing/32783223
+  - url: https://figshare.com/articles/presentation/Sony-1000X-Series_Complete_Guide_to_Features_Sound_Quality_Noise_Cancelling_Headphones/32824349
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dynamics_Study_of_Water_Properties_under_Cylindrical_Superhydrophilic_Confinement_Using_the_mW_Model/32783211
+  - url: https://figshare.com/articles/dataset/Replication_Dataset_for_Beyond_Statistical_Thresholds_An_Empirical_Audit/32824238
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplemental_Table_S1/32783193
+  - url: https://tandf.figshare.com/articles/dataset/Classification_of_autism_related_molecular_signatures_by_simple_machine_learning_models_applied_to_ATR-FTIR_spectra_of_pediatric_sera/32824321
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Uncovering_Electron-Transfer_Mechanisms_of_Sulfur_Anion_Photosensitizers_with_Intramolecular_Charge_Transfer/32783205
+  - url: https://figshare.com/articles/journal_contribution/Clash-Free_3D_MEPF_BIM_Model_for_a_6-Storey_Healthcare_Facility_Scan_to_BIM_Case_Study/32824262
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/A_Color_Preference_Recognition_System_for_Children_with_Autism_Spectrum_Disorder_Based_on_Fully_Flexible_Triboelectric_Sensors_and_Artificial_Intelligence_Technology/32783202
+  - url: https://aubh.figshare.com/articles/media/_b_The_Last_Song_We_Know_b_/32824316
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -318,31 +302,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8021374
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16712241
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20833948
+  - url: https://zenodo.org/records/20346661
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20833948
+  - url: https://zenodo.org/records/21028360
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20834551
+  - url: https://zenodo.org/records/21028360
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20834551
+  - url: https://zenodo.org/records/21029219
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20834429
+  - url: https://zenodo.org/records/21029219
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -350,23 +326,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/Photoredox-Catalyzed_Lysine_C_sp_sup_3_sup_H_Functionalization_for_Peptide_Editing/32783223
+  - url: https://figshare.com/articles/presentation/Sony-1000X-Series_Complete_Guide_to_Features_Sound_Quality_Noise_Cancelling_Headphones/32824349
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dynamics_Study_of_Water_Properties_under_Cylindrical_Superhydrophilic_Confinement_Using_the_mW_Model/32783211
+  - url: https://figshare.com/articles/dataset/Replication_Dataset_for_Beyond_Statistical_Thresholds_An_Empirical_Audit/32824238
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplemental_Table_S1/32783193
+  - url: https://tandf.figshare.com/articles/dataset/Classification_of_autism_related_molecular_signatures_by_simple_machine_learning_models_applied_to_ATR-FTIR_spectra_of_pediatric_sera/32824321
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Uncovering_Electron-Transfer_Mechanisms_of_Sulfur_Anion_Photosensitizers_with_Intramolecular_Charge_Transfer/32783205
+  - url: https://figshare.com/articles/journal_contribution/Clash-Free_3D_MEPF_BIM_Model_for_a_6-Storey_Healthcare_Facility_Scan_to_BIM_Case_Study/32824262
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/A_Color_Preference_Recognition_System_for_Children_with_Autism_Spectrum_Disorder_Based_on_Fully_Flexible_Triboelectric_Sensors_and_Artificial_Intelligence_Technology/32783202
+  - url: https://aubh.figshare.com/articles/media/_b_The_Last_Song_We_Know_b_/32824316
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -407,32 +383,32 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
+  - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
 - intent: SC-013
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/poster/Call_08108301937_College_of_Nursing_Sciences_Amachara_Abia_State_2026_2027_Admission_Form_is_Out_Call_08108301937_Dr_ROSE_The_School_Admin_for_admission_process_into_the_school_08108301937_The_School_Management_also_wishes_to_inform_the_Gen/32783232
+  - url: https://figshare.com/articles/poster/Samuel_Adegboyega_University_Ogwa_Post_Utme_2026_2027_Application_form_Is_open_now_call_0_9167660199_MRS_ANITA_09167660199_Jupeb_Transfer_Pre_Degree_Admission_Form_opportunities_are_available_across_various_faculties_and_departments_For_enq/32824370
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photoredox-Catalyzed_Lysine_C_sp_sup_3_sup_H_Functionalization_for_Peptide_Editing/32783223
+  - url: https://figshare.com/articles/presentation/Sony-1000X-Series_Complete_Guide_to_Features_Sound_Quality_Noise_Cancelling_Headphones/32824349
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dynamics_Study_of_Water_Properties_under_Cylindrical_Superhydrophilic_Confinement_Using_the_mW_Model/32783211
+  - url: https://figshare.com/articles/dataset/Replication_Dataset_for_Beyond_Statistical_Thresholds_An_Empirical_Audit/32824238
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplemental_Table_S1/32783193
+  - url: https://tandf.figshare.com/articles/dataset/Classification_of_autism_related_molecular_signatures_by_simple_machine_learning_models_applied_to_ATR-FTIR_spectra_of_pediatric_sera/32824321
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Uncovering_Electron-Transfer_Mechanisms_of_Sulfur_Anion_Photosensitizers_with_Intramolecular_Charge_Transfer/32783205
+  - url: https://figshare.com/articles/journal_contribution/Clash-Free_3D_MEPF_BIM_Model_for_a_6-Storey_Healthcare_Facility_Scan_to_BIM_Case_Study/32824262
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -440,7 +416,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10382148
+  - url: https://zenodo.org/records/10336705
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -448,27 +424,138 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10336705
+  - url: https://zenodo.org/records/10382340
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10290773
+  - url: https://zenodo.org/records/10382148
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20845322
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20845322
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20845320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20845320
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20512108
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
+- intent: FR-012
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/Southwestern_University_Oku_Owa_Post_Utme_2026_2027_Application_form_Is_open_now_call_0_9167660199_MRS_ANITA_09167660199_Jupeb_Transfer_Pre_Degree_Admission_Form_opportunities_are_available_across_various_faculties_and_departments_For_enqui/32824400
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Samuel_Adegboyega_University_Ogwa_Post_Utme_2026_2027_Application_form_Is_open_now_call_0_9167660199_MRS_ANITA_09167660199_Jupeb_Transfer_Pre_Degree_Admission_Form_opportunities_are_available_across_various_faculties_and_departments_For_enq/32824370
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Sony-1000X-Series_Complete_Guide_to_Features_Sound_Quality_Noise_Cancelling_Headphones/32824349
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Replication_Dataset_for_Beyond_Statistical_Thresholds_An_Empirical_Audit/32824238
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Classification_of_autism_related_molecular_signatures_by_simple_machine_learning_models_applied_to_ATR-FTIR_spectra_of_pediatric_sera/32824321
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10283722
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118353
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962290
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963628
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10318984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
     source: datacite
     status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18829784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18829784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189885
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189885
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: FR-002
   status: unresolved
   candidates: []
-  candidates_tried: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Geometric_Mirror_Model_GEMM_v1_0_Main_Paper_and_Popular_Science_Supplements__/32778645
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Southwestern_University_Oku_Owa_Post_Utme_2026_2027_Application_form_Is_open_now_call_0_9167660199_MRS_ANITA_09167660199_Jupeb_Transfer_Pre_Degree_Admission_Form_opportunities_are_available_across_various_faculties_and_departments_For_enqui/32824400
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Samuel_Adegboyega_University_Ogwa_Post_Utme_2026_2027_Application_form_Is_open_now_call_0_9167660199_MRS_ANITA_09167660199_Jupeb_Transfer_Pre_Degree_Admission_Form_opportunities_are_available_across_various_faculties_and_departments_For_enq/32824370
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Sony-1000X-Series_Complete_Guide_to_Features_Sound_Quality_Noise_Cancelling_Headphones/32824349
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Replication_Dataset_for_Beyond_Statistical_Thresholds_An_Empirical_Audit/32824238
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10358914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: III
   status: unresolved
   candidates: []
@@ -537,18 +624,6 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried: []
-- intent: ONLY
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: FR-007
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: FR-012
-  status: unresolved
-  candidates: []
-  candidates_tried: []
 - intent: SC-002
   status: unresolved
   candidates: []
@@ -558,10 +633,6 @@ datasets:
   candidates: []
   candidates_tried: []
 - intent: SC-007
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: SC-010
   status: unresolved
   candidates: []
   candidates_tried: []
