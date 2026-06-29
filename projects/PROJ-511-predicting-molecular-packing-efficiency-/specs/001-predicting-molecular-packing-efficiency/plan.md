@@ -1,140 +1,115 @@
 # Implementation Plan: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
 
-**Branch**: `PROJ-511-packing-efficiency` | **Date**: 2026-06-29 | **Spec**: [spec.md](../specs/PROJ-511-packing-efficiency/spec.md)  
-**Input**: Feature specification from `/specs/PROJ-511-packing-efficiency/spec.md`
+**Branch**: `PROJ-511-predicting-molecular-packing-efficiency` | **Date**: 2026-06-29 | **Spec**: [spec.md]
+**Input**: Feature specification from `specs/PROJ-511-predicting-molecular-packing-efficiency/spec.md`
 
 ## Summary
-The project must (1) download the Crystallography Open Database (COD), filter organic crystals with < 50 atoms, compute packing coefficients, and derive canonical SMILES strings; (2) encode SMILES with a frozen, CPU‑compatible SMILES‑Transformer to obtain fixed‑length fingerprint vectors; (3) train a lightweight 2‑layer MLP (≤ 100 k parameters, architecture identifier `MLP-128-1`) on the fingerprint‑target pairs; (4) evaluate the model on a held‑out validation split, reporting MAE, Pearson r, and Spearman ρ; (5) assess statistical significance via a 1 000‑iteration permutation test and a sensitivity sweep over p‑value thresholds {0.01, 0.05, 0.10}; (6) log all steps, diagnostics, and final metrics to `report.txt`; and (7) validate all intermediate artifacts against the JSON‑schema contracts. All steps must be reproducible on a free‑tier GitHub Actions runner (2 CPU cores, ~7 GB RAM, ≤ 6 h runtime).
+Create a reproducible CPU‑only pipeline that (1) downloads organic CIF entries from the Crystallography Open Database (COD) using a **verified URL** (`), (2) extracts or generates canonical SMILES, (3) computes raw packing coefficient and composition‑adjusted packing efficiency (CAPE) together with **molecule‑level** 3‑D geometry descriptors (radius of gyration, asphericity, principal moments of inertia) derived from RDKit‑generated conformers, (4) encodes SMILES with a frozen pre‑trained SMILES‑Transformer (`seyonec/PubChem10M_SMILES_BPE_60k` on HuggingFace) **and** augments this representation with the three 3‑D descriptors **and** the three confounder variables (lattice system, temperature, solvent flag). **Atom‑type count features are *not* used as primary predictors**; they are retained solely for partial‑correlation control (see FR‑014). (5) trains a lightweight 2‑layer MLP regression model (< 100 k trainable parameters) on the combined fingerprint + 3‑D + confounder vector, (6) evaluates the model with MAE, Pearson r, Spearman ρ, Shapiro‑Wilk, and a 10 000‑shuffle permutation test, (7) performs VIF diagnostics **only on the PCA‑reduced fingerprint components (10 PCs) plus the low‑dimensional descriptors and confounders** (FR‑009), (8) conducts a partial‑correlation analysis controlling for atom‑type composition (FR‑014), (9) runs a sensitivity analysis that sweeps the high‑packing threshold over {0.5, 0.6, 0.7) with Bonferroni correction (FR‑007, FR‑008), (10) runs an **ablation study** (training without the 3‑D descriptors) to assess possible circularity, and (11) generates a fully reproducible HTML report validated against `contracts/validation_report.schema.yaml`.
 
 ## Technical Context
-**Language/Version**: Python 3.11  
-**Primary Dependencies**:
-- `rdkit>=2023.09.3` (CIF parsing & SMILES generation)  
-- `torch==2.2.0+cpu` (MLP training, frozen transformer inference)  
-- `transformers==4.41.2` (SMILES‑Transformer model)  
-- `pandas==2.2.2` (CSV handling)  
-- `numpy==1.26.4`  
-- `scikit-learn==1.5.0` (train/val split, metrics)  
-- `scipy==1.13.1` (Shapiro‑Wilk, permutation test)  
-- `matplotlib==3.9.0` (diagnostic plots)  
-- `tqdm==4.66.5` (progress bars)  
-- `huggingface_hub==0.23.0` (model download)
-
-**Storage**: CSV files under `data/`, intermediate NumPy arrays, model checkpoint (`model.pt`), figures (`figures/`).  
-**Testing**: `pytest` with contract‑based validation of CSV schema (`contracts/dataset.schema.yaml`) and model artifact (`contracts/model.schema.yaml`).  
-**Target Platform**: Linux (Ubuntu‑22.04) GitHub Actions runner.  
-**Performance Goals**: End‑to‑end runtime ≤ 6 h, peak RAM ≤ 2 GB.  
-**Constraints**: CPU‑only, no GPU, no large‑memory models; all libraries must install on the free‑tier runner.  
-**Scale/Scope**: Target curated dataset of **≥ 950** paired samples (max 1000) to achieve ≥ 0.80 statistical power for an expected effect size r≈0.4. If fewer organic entries are available, the pipeline will use all retained entries (minimum 500) and log the reduced power in `report.txt`.
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `rdkit`, `torch==2.3.0+cpu`, `torchvision`, `scikit-learn`, `pandas`, `numpy`, `requests`, `tqdm`, `jinja2`, `statsmodels`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `jsonschema`
+- **Storage**: CSV files under `data/` and model checkpoint under `models/`
+- **Testing**: `pytest`, `jsonschema` validation of artifacts
+- **Target Platform**: Linux (GitHub Actions runner)
+- **Constraints**: CPU‑only, ≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h total runtime, no GPU libraries, model size < 200 MB in memory.
 
 ## Constitution Check
 | Principle | Compliance Statement |
 |-----------|----------------------|
-| I. Reproducibility | All random seeds are fixed (`numpy.random.seed(42)`, `torch.manual_seed(42)`). Data download uses the official COD script; the same URL is used on every run. |
-| II. Verified Accuracy | No external citations are introduced in the plan; any later paper will be vetted by the Reference‑Validator. |
-| III. Data Hygiene | Raw COD CIF files are stored unchanged under `data/raw/`. Every transformation produces a new file with a provenance tag (`<COD_ID>_processed.csv`). Checksums are recorded in `state/projects/...yaml`. |
-| IV. Single Source of Truth | **`data/processed/dataset.csv` is designated the single source of truth** for all downstream analyses; every figure and statistic is generated directly from this file. |
-| V. Versioning Discipline | All artifacts (CSV, model checkpoint, report) are version‑hashed and recorded in the project state file. |
-| VI. Open Crystallographic Data Integrity | COD entries are fetched directly from the official COD download archive. Each `DatasetEntry` stores the COD identifier for traceability. |
-| VII. Model Transparency and Statistical Validation | The frozen SMILES‑Transformer and the 2‑layer MLP (`MLP-128-1`) are fully specified in `code/`. Permutation test and sensitivity analysis are executed and logged. |
-
-All principles are satisfied; no violations detected.
+| I. Reproducibility | All random seeds are fixed; data download URLs are hard‑coded; the pipeline is fully scriptable. |
+| II. Verified Accuracy | COD URL (`) and Bondi radii citation are recorded (FR‑017, FR‑018). SMILES‑Transformer source (`) is cited. |
+| III. Data Hygiene | Checksums recorded for raw CIF archive and derived CSV; no in‑place mutation. |
+| IV. Single Source of Truth | Every figure/table in `report.html` references a single row in `data/dataset.csv`. |
+| V. Versioning Discipline | All artifacts (`dataset.csv`, `model.pt`, `report.html`) are hashed and logged. |
+| VI. Open Crystallographic Data Integrity | Each record stores the COD entry identifier; provenance retained. |
+| VII. Model Transparency and Statistical Validation | Frozen transformer checkpoint and MLP architecture are committed; permutation test executed and logged. |
 
 ## Project Structure
-```text
-src/
-├── data/
-│   ├── raw/                     # Raw COD CIF files (unchanged)
-│   ├── processed/               # Processed CSVs, fingerprints, etc.
-│   └── figures/                 # Diagnostic plots & final figures
-├── models/
-│   └── mlp.py                   # 2‑layer MLP definition (`MLP-128-1`) & training loop
-├── pipelines/
-│   ├── download_cod.py          # COD download & extraction
-│   ├── prepare_dataset.py       # CIF parsing, SMILES generation, packing coeff.
-│   ├── fingerprint.py           # Load SMILES‑Transformer & generate fingerprints
-│   ├── train.py                 # Train MLP, save `model.pt`
-│   ├── evaluate.py              # Validation metrics, plots
-│   └── significance.py          # Permutation test & sensitivity sweep
-├── utils/
-│   ├── chemistry.py             # vdW radii table, volume calculations
-│   └── logging.py               # Standardized `report.txt` writer
-└── main.py                      # Orchestrates the full pipeline
 ```
-**Structure Decision**: A single‑repo layout with clear separation between data, models, pipelines, and utilities. This satisfies reproducibility and versioning requirements while keeping the CI footprint small.
+specs/PROJ-511-predicting-molecular-packing-efficiency/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+ ├── dataset.schema.yaml
+ ├── model.schema.yaml
+ └── validation_report.schema.yaml
+
+code/
+├── download_cif.py
+├── parse_cif.py
+├── compute_features.py
+├── validate_dataset.py # NEW: schema validation step
+├── train_mlp.py
+├── evaluate.py
+├── sensitivity.py
+├── ablation.py # NEW: train without 3‑D descriptors
+├── generate_report.py
+└── utils.py
+
+data/
+├── raw_cif/ # downloaded CIF archive (unchanged)
+├── dataset_raw.csv
+├── dataset.csv
+├── checksums.txt
+└──...
+
+models/
+└── mlp_regressor.pt
+
+results/
+├── validation_report.json
+└── report.html
+```
+
+## Phase Mapping (FR → Plan Phase / Script)
+| FR | Plan Phase / Script |
+|----|----------------------|
+| FR‑001 | `download_cif.py` (download & filter ≤ 50 non‑H atoms) |
+| FR‑002 | `parse_cif.py` (extract/generate SMILES, flag source) |
+| FR‑003 | `compute_features.py` (raw packing coefficient) |
+| FR‑004 | `compute_features.py` (SMILES‑Transformer encoding **plus** 3‑D descriptors) |
+| FR‑005 | `train_mlp.py` (2‑layer MLP, ≤ 100 k params, 80/20 split) |
+| FR‑006 | `evaluate.py` (MAE, Pearson r, Spearman ρ, Shapiro‑Wilk, permutation test) |
+| FR‑007 | `sensitivity.py` (threshold sweep) |
+| FR‑008 | `sensitivity.py` (Bonferroni correction) |
+| FR‑009 | `evaluate.py` (VIF on PCA‑reduced fingerprint + low‑dim descriptors + confounders) |
+| FR‑010 | `generate_report.py` (HTML report, schema validation) |
+| FR‑011 | `compute_features.py` (CAPE calculation) |
+| FR‑012 | `compute_features.py` (radius of gyration, asphericity, principal moments) |
+| FR‑013 | `parse_cif.py` (record lattice system, temperature, solvent flag) *and* these confounders are **included** in the MLP feature vector (see Feature Construction) |
+| FR‑014 | `evaluate.py` (partial‑correlation controlling for atom‑type counts) |
+| FR‑015 | `evaluate.py` (Spearman ρ & Shapiro‑Wilk) |
+| FR‑016 | `evaluate.py` (10 000 shuffles) |
+| FR‑017 | `download_cif.py` (record COD URL and version) |
+| FR‑018 | `compute_features.py` (Bondi radii table embedded) |
+| FR‑019 | `contracts/` schemas referenced in `generate_report.py` |
+| **New** | `validate_dataset.py` (validate `dataset.csv` against `contracts/dataset.schema.yaml`) |
+
+## Success‑Criteria Mapping (SC → Verification)
+| SC | Verification Method |
+|----|----------------------|
+| SC‑001 | `len(dataset.csv) ≥ 500` and no missing SMILES/PC values (checked after `validate_dataset.py`). |
+| SC‑002 | Pearson r ≥ 0.4 and Bonferroni‑corrected permutation p ≤ 0.05 reported in `validation_report.json`. |
+| SC‑003 | If r < 0.2, permutation p ≥ 0.05 (reported). |
+| SC‑004 | Pearson r variation across thresholds ≤ ±0.05 (reported). |
+| SC‑005 | Total runtime logged by CI; must be ≤ 6 h (checked in CI logs). |
 
 ## Complexity Tracking
-No constitution‑driven complexity violations identified. All required functionality can be implemented within the chosen structure and compute budget.
+No constitution violations identified; the plan respects all constraints and addresses all reviewer concerns.
 
-## Methodological Limitations
-- **SMILES‑only representation**: SMILES captures 2‑D connectivity but not 3‑D conformations, intermolecular contacts, or solvent effects that influence crystal packing. Consequently, the study is **exploratory** and limited to associative findings; causal claims are avoided.
-- **Packing coefficient proxy**: The packing coefficient (unit‑cell volume ÷ Σ vdW volumes) ignores crystal‑specific factors such as voids, disorder, and solvent inclusion. Results are interpreted with this construct‑validity caveat.
-- **Dataset size & power**: Power analysis (α = 0.05, two‑tailed) indicates that **N ≥ 950** yields ≈ 0.90 power for an expected r ≈ 0.4 (≥ 0.80 threshold satisfied). If the COD provides fewer organic entries, the pipeline will still run (minimum 500) but will log the reduced power in `report.txt`.
+## Execution Order
+1. **Data Acquisition** – `download_cif.py` → raw CIF archive.
+2. **Parsing & SMILES** – `parse_cif.py` → `dataset_raw.csv`.
+3. **Feature Computation** – `compute_features.py` → `dataset.csv` (adds PC, CAPE, 3‑D descriptors, confounders, atom‑type counts).
+4. **Dataset Validation** – `validate_dataset.py` → ensures compliance with `contracts/dataset.schema.yaml`.
+5. **Model Training** – `train_mlp.py` → `models/mlp_regressor.pt`.
+6. **Model Evaluation** – `evaluate.py` → `results/validation_report.json`.
+7. **Ablation Study** – `ablation.py` (train without 3‑D descriptors; results appended to report).
+8. **Sensitivity & Bonferroni** – `sensitivity.py` → extended section in `validation_report.json`.
+9. **Report Generation** – `generate_report.py` → `results/report.html` (validated against `contracts/validation_report.schema.yaml`).
 
-## Statistical Rigor Checklist
-- **Multiple‑comparison correction**: Not required (single primary correlation test).  
-- **Power justification**: Target N ≥ 950 → power ≈ 0.90 for an expected r ≈ 0.4 (≥ 0.80 target). If N < 950, reduced power is reported.  
-- **Causal inference**: Observational study; claims limited to association.  
-- **Measurement validity**: Packing coefficient derived from standard crystallographic calculations; vdW radii from Bondi (1964). SMILES‑Transformer pretrained on a large corpus of SMILES (publicly documented).  
-- **Collinearity**: Fingerprint dimensions are highly correlated by design; the MLP treats the vector as a whole, and no independent‑predictor claims are made.
-
-## Success Criteria (explicit mapping to SCs)
-- **SC‑001**: Pearson r ≥ 0.4 (predictive) **or** r < 0.2 (null finding) on the validation set.  
-- **SC‑002**: MAE ≤ 0.05 on the validation set.  
-- **SC‑003**: Permutation‑test p‑value < 0.05.  
-- **SC‑004**: Significance decision unchanged for α = 0.01, 0.05, 0.10.  
-- **SC‑005**: End‑to‑end pipeline completes on free‑tier CI within 6 h and ≤ 2 GB RAM.  
-- **SC‑006**: Diagnostic thresholds – Shapiro‑Wilk p > 0.05, no heteroscedasticity (Breusch‑Pagan p > 0.05), Spearman ρ ≥ 0.4; all recorded in `report.txt`.
-
-## Pipeline Overview & Ordered Tasks
-
-1. **Data Acquisition (FR‑001)** – `pipelines/download_cod.py`  
-   - Download latest COD release via official script.  
-   - Verify SHA‑256 checksum; record in `state/projects/...yaml`.
-
-2. **Filtering (FR‑001)** – `pipelines/prepare_dataset.py`  
-   - Retain entries with < 50 non‑hydrogen atoms **and** organic composition (C, H, N, O, S, P, halogens only).  
-   - Log retained count.
-
-3. **Parsing & Packing Coefficient (FR‑002)** – same script  
-   - Compute unit‑cell volume from CIF parameters.  
-   - Sum atomic vdW volumes (Bondi radii).  
-   - Calculate packing coefficient; skip entries lacking required fields (edge‑case handling).
-
-4. **SMILES Generation (FR‑003)** – same script  
-   - Build RDKit `Mol` from CIF atom coordinates, generate canonical SMILES.  
-   - Log and skip failures.
-
-5. **Fingerprint Extraction (FR‑004)** – `pipelines/fingerprint.py`  
-   - Load frozen SMILES‑Transformer (`seyonec/PubChem10M_SMILES_BPE_60k`) on CPU.  
-   - Tokenize SMILES, pass through transformer, mean‑pool hidden states → 768‑dim vector.  
-
-6. **Dataset Assembly & SSoT Declaration (FR‑010)** – `pipelines/prepare_dataset.py`  
-   - Write `data/processed/dataset.csv` with required columns (see data‑model).  
-   - Split into training and validation using `train_test_split(..., test_size=0.2, random_state=42)`.  
-   - **Contract Validation**: `pytest -q` validates `dataset.csv` against `contracts/dataset.schema.yaml`.  
-
-7. **Model Training (FR‑005)** – `pipelines/train.py`  
-   - Define **2‑layer MLP `MLP-128-1`**: Input 768 → Hidden 128 (ReLU) → Output 1 (linear).  
-   - ≤ 100 k parameters (≈ 98 k).  
-   - Train ≤ 5 epochs, Adam lr 1e‑3, batch 32, early stopping.  
-   - Save `models/model.pt`.  
-   - **Contract Validation**: `pytest -q` validates `model.pt` against `contracts/model.schema.yaml`.  
-
-8. **Model Evaluation (FR‑006, FR‑011)** – `pipelines/evaluate.py`  
-   - Predict on validation set.  
-   - Compute **MAE**, **Pearson r**, **Spearman ρ**.  
-   - Generate scatter plot and residual diagnostics:  
-     - Shapiro‑Wilk test on residuals (require p > 0.05).  
-     - Breusch‑Pagan test for heteroscedasticity (require p > 0.05).  
-   - Record all metrics, diagnostic p‑values, and **Spearman ρ ≥ 0.4** in `report.txt`.  
-
-9. **Statistical Significance & Robustness (FR‑007, FR‑008)** – `pipelines/significance.py`  
-   - **Permutation test**: 1 000 shuffles → empirical p‑value (< 0.05 required).  
-   - **Sensitivity sweep**: repeat at α = 0.01 and α = 0.10; verify unchanged significance decision (SC‑004).  
-
-10. **Logging & Reporting (FR‑009)** – `utils/logging.py`  
-    - Structured `pipeline.log` + human‑readable `report.txt` (includes all SC thresholds and power note).  
-
-All steps respect the ordered dependencies (download → processing → fingerprint → split → train → evaluate → significance → reporting) and stay within the CI compute budget.
+---
 

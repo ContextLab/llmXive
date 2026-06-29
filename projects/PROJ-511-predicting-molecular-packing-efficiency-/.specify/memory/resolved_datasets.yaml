@@ -1,39 +1,875 @@
-resolved_at: '2026-06-29T17:39:42.576664+00:00'
+resolved_at: '2026-06-29T17:55:12.856721+00:00'
 datasets:
-- intent: SMILES
+- intent: 10.1021/j100785a001
   status: unresolved
   candidates: []
   candidates_tried:
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Dementia_service_readiness_in_Pakistan_a_provincial_health_systems_assessment_using_a_novel_WHO-AIMS_aligned_framework_docx/32826575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SMILES
+  status: verified
+  candidates:
   - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
     source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?response-content-type=text%2Fplain&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&Expires=1782758992&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0MG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNDBtLnR4dCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzU4OTkyfX19XX0_&Signature=MEUCIQDcK7YxLrbQabvkHSKyIdGmHJ3poSDgMPjP5nDAFrGtfQIgXnbuyulkIhx8DWaindnNLKcKYmYJasF99RehVtxeQOY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&response-content-type=text%2Fplain&user_id=public&Expires=1782758993&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNG0udHh0JTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGcGxhaW4mdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjc1ODk5M319fV19&Signature=MEYCIQCG2kp1~6s1H3APxmwZDz~Amt3XGF04C6I9ISHVa1zjmAIhAL5g2t0PRlCra~O52UaVvWGvEfU1DOPMO86sz0mRxApl&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Dementia_service_readiness_in_Pakistan_a_provincial_health_systems_assessment_using_a_novel_WHO-AIMS_aligned_framework_docx/32826575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/en/content/articlelanding/1905/ct/ct9058700450
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1039/ct9007701174
+    source: zenodo
     status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''us.aws.cdn.hf.co'',
-      port=443): Max retries exceeded with url: /xet-bridge-us/642c21d86c11a741c521acc3/05f01d12e9eebd2f505bdbe0e04adf1b38d046376106167292c9c772a6fc9a2f?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00015-27ed436361d9186e.parquet%3B+filename%3D%22test-00000-of-00015-27ed436361d9186e.parquet%22%3B&Expires=1782757350&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyYzIxZDg2YzExYTc0MWM1MjFhY2MzLzA1ZjAxZDEyZTllZWJkMmY1MDViZGJlMGUwNGFkZjFiMzhkMDQ2Mzc2MTA2MTY3MjkyYzljNzcyYTZmYzlhMmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNS0yN2VkNDM2MzYxZDkxODZlLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDE1LTI3ZWQ0MzYzNjFkOTE4NmUucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzU3MzUwfX19XX0_&Signature=MEUCIE2QTQHyNw~pwhfY5m0GTFDvIxo2U62Tyzyc--QuBLACAiEA7bUdZj8CfrgmBgYlWo3Ilwo8VaGA~aW2oIroj0VIloQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''us.aws.cdn.hf.co'', port=443)
-      at 0x7ffb1554ae90>, ''Connection to us.aws.cdn.hf.co timed out. (connect timeout=20.0)''))'
-  - url: https://huggingface.co/datasets/prajwalsahu5/smiles40m/resolve/main/smiles40m.txt
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''pubs.rsc.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://www.tandfonline.com/doi/full/10.1080/03071841409421857
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.19140470182
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21038002
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21038002
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20257689
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19665374
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19665374
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: COD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/armand0e/claude-fable-5-claude-code/resolve/main/004c0d63-c96f-431d-8cf8-f78ca9367eb5.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/CodeDevX/Vibe-Coding-Instruct/resolve/main/dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/PawanKrd/claude-fable-5-code/resolve/main/code.fable-5.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/armand0e/claude-fable-5-claude-code/resolve/main/004c0d63-c96f-431d-8cf8-f78ca9367eb5.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/CodeDevX/Vibe-Coding-Instruct/resolve/main/dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/PawanKrd/claude-fable-5-code/resolve/main/code.fable-5.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ajibawa-2023/Shell-Code-Large/resolve/main/shell_only_0000.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/codeparrot/github-code/resolve/main/data/train-00000-of-01126.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Preliminary_Study_on_a_Time-Efficient_Pool-Based_Protocol_for_Assessing_Aerobic_Capacity_in_Competitive_Swimmers_b_/32056185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.m3913
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.td8nb
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2pb08
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.cd000qs
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5583129
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/42e992f7-67b1-44dd-90de-f5990269b00e
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/21031676
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21031676
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sanad.iau.ir/Journal/jnree/Article/1229324
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19024199
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Preliminary_Study_on_a_Time-Efficient_Pool-Based_Protocol_for_Assessing_Aerobic_Capacity_in_Competitive_Swimmers_b_/32056185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20015164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15016031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7502186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/199064
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250712/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250712/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250711/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250711/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250704/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&user_id=public&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&Expires=1782759118&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzU5MTE4fX19XX0_&Signature=MEQCIFTABOu5keTLz9VWUNBg2VAMmeM4yBhu7HRAGodLKvGqAiBEqgciyk7QvwEYzNo8oI~KLG-oabtJjOZyr2VzC5-n8A__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/_b_Preliminary_Study_on_a_Time-Efficient_Pool-Based_Protocol_for_Assessing_Aerobic_Capacity_in_Competitive_Swimmers_b_/32056185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6557219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250717/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250717/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250715/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250715/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250701/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: CIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/uoft-cs/cifar10/resolve/main/plain_text/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/uoft-cs/cifar100/resolve/main/cifar100/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/rafay/upside_down_detection_cifar100/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/uoft-cs/cifar10/resolve/main/plain_text/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/uoft-cs/cifar100/resolve/main/cifar100/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rafay/upside_down_detection_cifar100/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Preliminary_Study_on_a_Time-Efficient_Pool-Based_Protocol_for_Assessing_Aerobic_Capacity_in_Competitive_Swimmers_b_/32056185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5759499
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2564072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4153196
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3557302
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20759234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20870159
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20870159
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21026532
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21026532
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/implementation-post-covid-conditions-management-utilizing-interprofessional
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MLP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-board-yuki-archive-html-text/resolve/main/mlp-2.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-show-scripts/resolve/main/archive.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mikezhu888/ml_papers_abstracts/resolve/main/data/train-00000-of-00001-d9a274137f7fc7c8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mikezhu888/ml_papers_abstracts/resolve/main/data/train-00000-of-00001-d9a274137f7fc7c8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-board-yuki-archive-html-text/resolve/main/mlp-2.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-show-scripts/resolve/main/archive.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/_b_Preliminary_Study_on_a_Time-Efficient_Pool-Based_Protocol_for_Assessing_Aerobic_Capacity_in_Competitive_Swimmers_b_/32056185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19568101
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1050921
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5514903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13996740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3755136
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21040074
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21040074
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20407992
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
     source: huggingface
     status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''us.aws.cdn.hf.co'',
-      port=443): Max retries exceeded with url: /xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?user_id=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&X-Xet-Cas-Uid=public&Expires=1782757451&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0MG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNDBtLnR4dCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzU3NDUxfX19XX0_&Signature=MEYCIQDWE7~GQ-BHMEeDUzsRDAWezR8dNv1ssQ8sGp2k9YsL8AIhANYyBWjyqYnghfBKWpYIAUzlnIwlhaQk6NQ33sDOYgUz&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''us.aws.cdn.hf.co'', port=443)
-      at 0x7ffb15571210>, ''Connection to us.aws.cdn.hf.co timed out. (connect timeout=20.0)''))'
-  - url: https://huggingface.co/datasets/prajwalsahu5/smiles4m/resolve/main/smiles4m.txt
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Preliminary_Study_on_a_Time-Efficient_Pool-Based_Protocol_for_Assessing_Aerobic_Capacity_in_Competitive_Swimmers_b_/32056185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15795891
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039913
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039913
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20407992
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20407992
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/369485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CAPE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/soarescmsa/capes/resolve/main/en-pt/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/caperaven/color_swatch/resolve/main/swatches.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 88452
+      parsed: true
+  - url: https://huggingface.co/datasets/TheMatheusDev/capela-extreme/resolve/main/capela-extreme.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/soarescmsa/capes/resolve/main/en-pt/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/caperaven/color_swatch/resolve/main/swatches.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Marros/capes-geral-21/resolve/main/filtered_br-capes-geral22.csv
     source: huggingface
     status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''us.aws.cdn.hf.co'',
-      port=443): Max retries exceeded with url: /xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?user_id=public&X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&Expires=1782757551&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0bS50eHQlM0IrZmlsZW5hbWUlM0QlMjJzbWlsZXM0bS50eHQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjc1NzU1MX19fV19&Signature=MEYCIQCM6y4NCQsOO5YVT3D4X7d56ol6fX~fnkHHTF5Dtt3~mQIhAMH-ojPAfWarIysR9auKNlwS0pAf0tpYdp7TTlByFXkZ&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''us.aws.cdn.hf.co'', port=443)
-      at 0x7ffb1555cb90>, ''Connection to us.aws.cdn.hf.co timed out. (connect timeout=20.0)''))'
-- intent: US-1
-  status: unresolved
-  candidates: []
-  candidates_tried: []
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/TheMatheusDev/capela-extreme/resolve/main/capela-extreme.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/_b_Preliminary_Study_on_a_Time-Efficient_Pool-Based_Protocol_for_Assessing_Aerobic_Capacity_in_Competitive_Swimmers_b_/32056185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18755967
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.m6383tr
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17649438
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19144777
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14801224
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/ecd04881-fd86-45e2-99e1-f0ec61324329
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/21041087
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21041087
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/ada39609-ddec-4cbe-85c2-4fdd6bd774d7
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/21039355
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: FR-010
   status: unresolved
   candidates: []
-  candidates_tried: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_Preliminary_Study_on_a_Time-Efficient_Pool-Based_Protocol_for_Assessing_Aerobic_Capacity_in_Competitive_Swimmers_b_/32056185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Patient_Understanding_of_Multiple_Myeloma_and_Communication_Experiences_PUMMaCE_Dataset_Part_1/30306229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Appendix_Genetic_and_Clinical_Factors_Associated_With_Metformin_Plasma_Concentrations_Following_an_Acute_Metformin_Challenge_/32826251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Heyder_et_al_Supplementary_File_4/32826563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_role_of_stock_exchanges_in_promoting_the_banking_sector_in_adopting_green_finance_a_global_analysis_with_insights_from_emerging_markets_b_/31861627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10365870
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962245
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118421
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963594
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10239591
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
 - intent: MUST
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: HTML
   status: unresolved
   candidates: []
   candidates_tried: []
@@ -41,11 +877,15 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried: []
-- intent: COD
+- intent: FR-017
   status: unresolved
   candidates: []
   candidates_tried: []
-- intent: CPU
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-001
   status: unresolved
   candidates: []
   candidates_tried: []

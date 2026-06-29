@@ -1,0 +1,101 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Report Schema"
+type: object
+required:
+  - metrics
+  - permutation_test
+  - partial_correlation
+  - vif
+  - sensitivity
+  - runtime_seconds
+  - git_commit
+  - artifact_hashes
+properties:
+  metrics:
+    type: object
+    required: [MAE, Pearson_r, Spearman_rho, Shapiro_W, Shapiro_p]
+    properties:
+      MAE:
+        type: number
+        description: "Mean Absolute Error of CAPE predictions."
+      Pearson_r:
+        type: number
+        description: "Pearson correlation coefficient between predicted and observed CAPE."
+      Spearman_rho:
+        type: number
+        description: "Spearman rank correlation coefficient."
+      Shapiro_W:
+        type: number
+        description: "Shapiro‑Wilk test statistic for residual normality."
+      Shapiro_p:
+        type: number
+        description: "Two‑sided p‑value for the Shapiro‑Wilk test."
+  permutation_test:
+    type: object
+    required: [p_value, num_shuffles]
+    properties:
+      p_value:
+        type: number
+        description: "Two‑sided permutation test p‑value."
+      num_shuffles:
+        type: integer
+        description: "Number of label shuffles performed (must be sufficiently large to ensure stable permutation test results)."
+        enum: [10000]
+  partial_correlation:
+    type: object
+    required: [adjusted_r, controlled_features]
+    properties:
+      adjusted_r:
+        type: number
+        description: "Partial correlation coefficient controlling for composition."
+      controlled_features:
+        type: array
+        items:
+          type: string
+        description: "Names of features controlled for (e.g., atom_type_counts)."
+  vif:
+    type: object
+    description: "Variance Inflation Factor values for each predictor."
+    patternProperties:
+      ".*":
+        type: number
+  sensitivity:
+    type: array
+    description: "Results of threshold‑sweep analysis."
+    items:
+      type: object
+      required: [threshold, Pearson_r, Spearman_rho, MAE, p_value, bonferroni_corrected_p]
+      properties:
+        threshold:
+          type: number
+          description: "High‑packing threshold value."
+        Pearson_r:
+          type: number
+        Spearman_rho:
+          type: number
+        MAE:
+          type: number
+        p_value:
+          type: number
+        bonferroni_corrected_p:
+          type: number
+  runtime_seconds:
+    type: number
+    description: "Total wall‑clock time of the pipeline in seconds."
+  git_commit:
+    type: string
+    description: "Git commit hash of the code used for the run."
+  artifact_hashes:
+    type: object
+    description: "SHA‑256 checksums of key output artifacts."
+    required: [dataset_csv, model_pt, report_html]
+    properties:
+      dataset_csv:
+        type: string
+      model_pt:
+        type: string
+      report_html:
+        type: string
+  notes:
+    type: string
+    description: "Optional free‑form notes; may contain colons and must be quoted."
