@@ -1,0 +1,86 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Explanation
+description: >
+  Schema for a generated explanation (neural, symbolic, or neuro-symbolic)
+  for a given problem.
+type: object
+required:
+  - explanation_id
+  - problem_id
+  - explanation_type
+  - content
+  - generated_at
+properties:
+  explanation_id:
+    type: string
+    description: Unique identifier for this explanation instance.
+    minLength: 1
+  problem_id:
+    type: string
+    description: Reference to the problem this explains.
+    minLength: 1
+  explanation_type:
+    type: string
+    description: Type of explanation generated.
+    enum:
+      - neural
+      - symbolic
+      - neuro_symbolic
+  content:
+    type: string
+    description: The human-readable explanation text.
+    minLength: 1
+  trace:
+    type: array
+    description: >
+      Optional structured trace of reasoning steps.
+      Present and non-empty for symbolic and neuro-symbolic explanations.
+      Empty or null for pure neural explanations.
+    items:
+      type: object
+      required:
+        - step_id
+        - rule_or_operation
+        - description
+      properties:
+        step_id:
+          type: integer
+          description: Sequential step number.
+        rule_or_operation:
+          type: string
+          description: Name of the rule, theorem, or operation applied.
+        description:
+          type: string
+          description: Natural language description of the step.
+        input_state:
+          type: string
+          description: State before the step (for symbolic traces).
+        output_state:
+          type: string
+          description: State after the step (for symbolic traces).
+    minItems: 0
+  model_info:
+    type: object
+    description: Metadata about the model used to generate the explanation.
+    properties:
+      model_name:
+        type: string
+      model_version:
+        type: string
+      inference_time_seconds:
+        type: number
+        minimum: 0
+    additionalProperties: true
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of generation.
+  validation_status:
+    type: string
+    description: Status of schema/content validation.
+    enum:
+      - pending
+      - valid
+      - invalid
+    default: pending
+additionalProperties: false

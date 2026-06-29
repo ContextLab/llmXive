@@ -34,7 +34,9 @@ Implement a lightweight neuro‑symbolic explanation framework that generates th
 | III. Data Hygiene | **COMPLIANT** | Checksum all `data/` files; no in‑place modification; PII scan on commits |
 | IV. Single Source of Truth | **COMPLIANT** | All figures/statistics trace to `data/` rows and `code/` blocks; derived numbers auto‑generated |
 | V. Versioning Discipline | **COMPLIANT** | Content hashes for all artifacts; `updated_at` timestamp updated on artifact change |
-| VI. Educational Evaluation Rigor | **PARTIAL** | Mixed‑effects regression with fixed effects for condition, prior knowledge, problem difficulty; random intercepts for problem_id, student_id; report effect sizes with 95% CI; human data collection prerequisite |
+| VI. Educational Evaluation Rigor | **PARTIAL** | Mixed‑effects regression with fixed effects for condition, prior knowledge, problem difficulty; random intercepts for problem_id, student_id; report effect sizes with confidence intervals
+
+The research question, method, and references remain as stated in the planning document.; human data collection prerequisite |
 | VII. Explanation Traceability | **COMPLIANT** | Persist neuro‑symbolic traces under `data/` with metadata linking to problem instance, model version, and condition |
 
 ## Project Structure

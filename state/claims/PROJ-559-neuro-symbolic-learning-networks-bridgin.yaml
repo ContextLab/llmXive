@@ -1,0 +1,207 @@
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: compare BKT predictions against human pilot data with at least 50 participants
+  claim_id: c_ad1fcbde
+  context: "T031 [P] [BLOCKER] [US5] Implement code/simulate/calibration.py to compare\
+    \ BKT predictions against human pilot data (\u226550 participants) or synthetic\
+    \ fallback."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compare_BKT_predictions_against_human_pilot_data_with_at_lea
+  kind: magnitude
+  raw_text: "Implement code/simulate/calibration.py to compare BKT predictions against\
+    \ human pilot data (\u226550 participants) or synthetic fallback."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T23:12:22Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: RMSE difference less than or equal to 0.02 and absolute RMSE less than
+    or equal to 0.15
+  claim_id: c_2862507b
+  context: "T032 [BLOCKER] [US5] Add validation logic to code/simulate/calibration.py\
+    \ to ensure RMSE difference \u2264 0.02 and absolute RMSE \u2264 0.15."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_difference_less_than_or_equal_to_0.02_and_absolute_RMSE
+  kind: magnitude
+  raw_text: "Add validation logic to code/simulate/calibration.py to ensure RMSE difference\
+    \ \u2264 0.02 and absolute RMSE \u2264 0.15."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T23:12:55Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: use TinyLlama-1.1B or similar distilled CPU-tractable LLM
+  claim_id: c_ff9fc266
+  context: T014 [US1] Implement code/generate/neural_explanation.py using a distilled
+    CPU-tractable LLM (e.g., TinyLlama-1.1B or similar) in default precision (Addressing
+    CPU constraints).
+  evidence:
+    asserted: '-1.1'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Implement code/generate/neural_explanation.py using a distilled CPU-tractable
+    LLM (e.g., TinyLlama-1.1B or similar) in default precision.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T23:12:55Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: compute Cohen's d with 95% confidence interval and validate CI width
+    less than or equal to 0.20
+  claim_id: c_ff6e88ab
+  context: "T027 [US3] Implement code/analyze/effect_sizes.py to compute Cohen's d\
+    \ with 95% CI for pairwise comparisons and validate CI width \u22640.20 (FR-006,\
+    \ SC-003)."
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 27.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Compute_Cohen%27s_d_with_95%25_confidence_interval_and_validate
+  kind: magnitude
+  raw_text: "Implement code/analyze/effect_sizes.py to compute Cohen's d with 95%\
+    \ CI for pairwise comparisons and validate CI width \u22640.20."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-29T23:16:11Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: ingest at least 200 real student records
+  claim_id: c_3a24e6bb
+  context: "T034 [US7] Implement code/analyze/merge_real_data.py to ingest \u2265\
+    200 real student records and validate data_source effects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingest_at_least_200_real_student_records
+  kind: magnitude
+  raw_text: "Implement code/analyze/merge_real_data.py to ingest \u2265200 real student\
+    \ records and validate data_source effects."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T23:16:56Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: ensure RAM usage less than or equal to 7 GB
+  claim_id: c_37709c8a
+  context: "T043 Performance optimization across all stories to ensure \u22647GB RAM\
+    \ usage"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_RAM_usage_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: "Performance optimization across all stories to ensure \u22647GB RAM usage."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T23:17:49Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: calibration compares BKT predictions against human pilot data with at
+    least 50 participants
+  claim_id: c_a4dcae82
+  context: "T031 [P] [BLOCKER] [US5] Implement code/simulate/calibration.py to compare\
+    \ BKT predictions against human pilot data (\u226550 participants) or synthetic\
+    \ fallback."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_compares_BKT_predictions_against_human_pilot_dat
+  kind: magnitude
+  raw_text: "Implement code/simulate/calibration.py to compare BKT predictions against\
+    \ human pilot data (\u226550 participants) or synthetic fallback."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T23:25:29Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: calibration validation ensures RMSE difference less than or equal to
+    0.02 and absolute RMSE less than or equal to 0.15
+  claim_id: c_692a5707
+  context: "T032 [BLOCKER] [US5] Add validation logic to code/simulate/calibration.py\
+    \ to ensure RMSE difference \u2264 0.02 and absolute RMSE \u2264 0.15."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_validation_ensures_RMSE_difference_less_than_or
+  kind: magnitude
+  raw_text: "Add validation logic to code/simulate/calibration.py to ensure RMSE difference\
+    \ \u2264 0.02 and absolute RMSE \u2264 0.15."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T23:25:31Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 2
+  canonical: merge simulated and real student data with at least 200 records
+  claim_id: c_db742e6d
+  context: "T028 [US3] Implement logic to merge simulated and real student data (\u2265\
+    200 records) and validate data_source effects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merge_simulated_and_real_student_data_with_at_least_200_reco
+  kind: magnitude
+  raw_text: "Implement logic to merge simulated and real student data (\u2265200 records)\
+    \ and validate data_source effects."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T23:25:34Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: ingest at least 200 real student records for data_source effects validation
+  claim_id: c_2b77c402
+  context: "T034 [US7] Implement code/analyze/merge_real_data.py to ingest \u2265\
+    200 real student records and validate data_source effects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingest_at_least_200_real_student_records_for_data_source_eff
+  kind: magnitude
+  raw_text: "Implement code/analyze/merge_real_data.py to ingest \u2265200 real student\
+    \ records and validate data_source effects."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T23:25:37Z'
