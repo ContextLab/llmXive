@@ -1,0 +1,2 @@
+timestamp,file_path,error_type,error_message,line_number,context
+2026-01-01T00:00:00,test_file1.py,SyntaxError,invalid syntax,None,

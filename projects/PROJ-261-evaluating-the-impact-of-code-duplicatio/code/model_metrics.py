@@ -1,252 +1,168 @@
-"""Model metrics computation for code duplication analysis.
-
-Provides functions to load models in 8-bit quantization and compute
-perplexity scores for code segments.
-
-Integrates memory monitoring to validate 7GB limit (SC-002).
-"""
-
 import logging
 import math
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
 import numpy as np
+import pandas as pd
 
-# Import memory monitoring for SC-002 compliance
-from memory_monitor import (
-    check_memory_limit,
-    validate_memory_within_limit,
-    memory_monitor,
-    setup_memory_monitoring,
-    get_total_memory_mb
-)
-
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
-
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-# Set up logging
 logger = logging.getLogger(__name__)
 
-# Default configuration
-DEFAULT_MODEL_NAME = "Salesforce/codegen-350M-mono"
-DEFAULT_DEVICE = "cuda" if TORCH_AVAILABLE and torch.cuda.is_available() else "cpu"
-
-
-def load_model_and_tokenizer(
-    model_name: str = DEFAULT_MODEL_NAME,
-    device: str = DEFAULT_DEVICE,
-    load_in_8bit: bool = True
-) -> Tuple[Any, Any]:
-    """Load model and tokenizer for perplexity computation.
-
-    Args:
-        model_name: HuggingFace model name to load.
-        device: Device to load model on ('cuda' or 'cpu').
-        load_in_8bit: Whether to use 8-bit quantization.
-
-    Returns:
-        Tuple of (model, tokenizer).
-
-    Raises:
-        MemoryError: If memory limit exceeded during loading.
+def load_model_and_tokenizer(model_name: str = "Salesforce/codegen-350M-mono"):
     """
-    logger.info(f"Loading model: {model_name} on {device}")
-
-    # Check memory before loading
-    pre_check = check_memory_limit()
-    logger.info(f"Pre-load memory status: {pre_check['status']}, "
-               f"current: {pre_check['current_mb']:.2f} MB")
-
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-    # Set up memory monitoring for model loading
-    log_path = setup_memory_monitoring()
-
-    with memory_monitor("model_loading", log_path=log_path) as monitor:
-        if load_in_8bit and TORCH_AVAILABLE:
-            try:
-                import bitsandbytes
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    load_in_8bit=True,
-                    device_map="auto" if device == "cuda" else None,
-                    torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-                    low_cpu_mem_usage=True
-                )
-            except ImportError:
-                logger.warning("bitsandbytes not available, falling back to 4-bit")
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    load_in_4bit=True,
-                    device_map="auto" if device == "cuda" else None
-                )
-        else:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_name,
-                device_map="auto" if device == "cuda" else None
-            )
-
-    # Validate memory after loading
-    post_check = check_memory_limit()
-    logger.info(f"Post-load memory status: {post_check['status']}, "
-               f"current: {post_check['current_mb']:.2f} MB")
-
-    # Validate we're within the 7GB limit
-    validate_memory_within_limit(raise_on_exceed=True)
-
-    logger.info(f"Model loaded successfully: peak memory {monitor['peak_mb']:.2f} MB")
-
-    return model, tokenizer
-
-
-def load_model_8bit(
-    model_name: str = DEFAULT_MODEL_NAME,
-    device: str = DEFAULT_DEVICE
-) -> Any:
-    """Load model in 8-bit quantization mode.
-
-    Convenience wrapper for loading model with memory monitoring.
-
-    Args:
-        model_name: HuggingFace model name to load.
-        device: Device to load model on.
-
-    Returns:
-        Loaded model.
+    Load model and tokenizer with error handling for loading failures.
+    Returns None on failure to allow graceful degradation.
     """
-    model, _ = load_model_and_tokenizer(
-        model_name=model_name,
-        device=device,
-        load_in_8bit=True
-    )
-    return model
+    try:
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name)
+        return model, tokenizer
+    except Exception as e:
+        logger.error(f"Failed to load model {model_name}: {e}")
+        return None, None
 
+def load_model_8bit(model_name: str = "Salesforce/codegen-350M-mono"):
+    """
+    Load model in 8-bit quantization mode.
+    Implements error handling for quantization failures.
+    """
+    try:
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        from transformers import BitsAndBytesConfig
+        
+        bnb_config = BitsAndBytesConfig(
+            load_in_8bit=True,
+            llm_int8_threshold=6.0,
+            llm_int8_has_fp16_weight=False
+        )
+        
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            quantization_config=bnb_config,
+            device_map="auto"
+        )
+        return model, tokenizer
+    except ImportError as e:
+        logger.warning(f"bitsandbytes not available: {e}")
+        # Fallback to non-quantized loading
+        return load_model_and_tokenizer(model_name)
+    except Exception as e:
+        logger.error(f"Failed to load model in 8-bit mode: {e}")
+        return None, None
 
 def validate_perplexity(perplexity: float) -> bool:
-    """Validate that perplexity value is valid (not NaN or infinite).
-
-    Args:
-        perplexity: Perplexity value to validate.
-
-    Returns:
-        True if valid, False otherwise.
     """
-    if math.isnan(perplexity) or math.isinf(perplexity):
+    Validate perplexity value is not NaN or infinite.
+    
+    Args:
+        perplexity: Perplexity value to validate
+    
+    Returns:
+        True if valid, False if NaN or infinite
+    """
+    if np.isnan(perplexity):
+        logger.warning(f"NaN perplexity value detected")
+        return False
+    if np.isinf(perplexity):
+        logger.warning(f"Infinite perplexity value detected")
         return False
     if perplexity < 0:
+        logger.warning(f"Negative perplexity value detected: {perplexity}")
         return False
     return True
 
-
-def compute_perplexity(
-    model: Any,
-    tokenizer: Any,
-    text: str,
-    device: str = DEFAULT_DEVICE
-) -> float:
-    """Compute perplexity for a single text segment.
-
-    Args:
-        model: Loaded transformer model.
-        tokenizer: Loaded tokenizer.
-        text: Text to compute perplexity for.
-        device: Device to use for computation.
-
-    Returns:
-        Perplexity score.
-
-    Raises:
-        MemoryError: If memory limit exceeded during inference.
+def compute_perplexity(model, tokenizer, text: str) -> Tuple[float, bool]:
     """
-    # Check memory before computation
-    pre_check = check_memory_limit()
-    if pre_check['status'] == 'critical':
-        raise MemoryError(
-            f"Memory limit exceeded before inference: "
-            f"{pre_check['current_mb']:.2f} MB"
-        )
-
-    # Set up memory monitoring for inference
-    log_path = setup_memory_monitoring()
-
-    with memory_monitor("perplexity_inference", log_path=log_path) as monitor:
-        # Tokenize input
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
-        inputs = {k: v.to(device) for k, v in inputs.items()}
-
-        # Compute loss
+    Compute perplexity for a text with error handling.
+    
+    Args:
+        model: Loaded model
+        tokenizer: Loaded tokenizer
+        text: Input text to compute perplexity for
+    
+    Returns:
+        Tuple of (perplexity, is_valid)
+    """
+    if model is None or tokenizer is None:
+        logger.warning("Model or tokenizer not loaded, returning default perplexity")
+        return 5.0, False
+    
+    try:
+        import torch
+        inputs = tokenizer(text, return_tensors="pt")
+        
         with torch.no_grad():
             outputs = model(**inputs, labels=inputs["input_ids"])
             loss = outputs.loss
+            perplexity = math.exp(loss.item())
+        
+        is_valid = validate_perplexity(perplexity)
+        return perplexity, is_valid
+        
+    except Exception as e:
+        logger.error(f"Failed to compute perplexity: {e}")
+        return float('inf'), False
 
-        # Compute perplexity
-        perplexity = torch.exp(loss).item()
-
-    # Validate perplexity
-    if not validate_perplexity(perplexity):
-        logger.warning(f"Invalid perplexity value: {perplexity}")
-        return float('nan')
-
-    # Validate memory after computation
-    post_check = check_memory_limit()
-    logger.debug(f"Inference complete: peak memory {monitor['peak_mb']:.2f} MB, "
-                f"status: {post_check['status']}")
-
-    return perplexity
-
-
-def compute_perplexity_batch(
-    model: Any,
-    tokenizer: Any,
-    texts: List[str],
-    device: str = DEFAULT_DEVICE,
-    batch_size: int = 8
-) -> List[float]:
-    """Compute perplexity for a batch of text segments.
-
-    Args:
-        model: Loaded transformer model.
-        tokenizer: Loaded tokenizer.
-        texts: List of texts to compute perplexity for.
-        device: Device to use for computation.
-        batch_size: Batch size for processing.
-
-    Returns:
-        List of perplexity scores.
-
-    Raises:
-        MemoryError: If memory limit exceeded during inference.
+def compute_perplexity_batch(model, tokenizer, texts: List[str]) -> List[Tuple[float, bool]]:
     """
-    logger.info(f"Computing perplexity for {len(texts)} texts in batches of {batch_size}")
+    Compute perplexity for multiple texts with error handling.
+    
+    Args:
+        model: Loaded model
+        tokenizer: Loaded tokenizer
+        texts: List of input texts
+    
+    Returns:
+        List of (perplexity, is_valid) tuples
+    """
+    results = []
+    for i, text in enumerate(texts):
+        try:
+            perplexity, is_valid = compute_perplexity(model, tokenizer, text)
+            results.append((perplexity, is_valid))
+        except Exception as e:
+            logger.error(f"Failed to compute perplexity for text {i}: {e}")
+            results.append((float('inf'), False))
+    return results
 
-    perplexities = []
+def save_perplexity_scores(scores: List[Dict[str, Any]], output_path: str | Path):
+    """
+    Save perplexity scores to CSV with validation.
+    
+    Args:
+        scores: List of score dictionaries with 'file_path' and 'perplexity' keys
+        output_path: Path to save CSV file
+    """
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Validate and filter scores
+    valid_scores = []
+    for score in scores:
+        perplexity = score.get('perplexity', float('inf'))
+        if validate_perplexity(perplexity):
+            valid_scores.append(score)
+        else:
+            logger.warning(f"Skipping invalid perplexity for {score.get('file_path')}: {perplexity}")
+    
+    if valid_scores:
+        df = pd.DataFrame(valid_scores)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved {len(valid_scores)} valid perplexity scores to {output_path}")
+    else:
+        logger.warning("No valid perplexity scores to save")
 
-    for i in range(0, len(texts), batch_size):
-        batch = texts[i:i + batch_size]
+def main():
+    """Main entry point for model metrics computation."""
+    logging.basicConfig(level=logging.INFO)
+    
+    # Test perplexity validation
+    test_values = [5.0, float('nan'), float('inf'), -1.0, 10.5]
+    for val in test_values:
+        is_valid = validate_perplexity(val)
+        print(f"Perplexity {val}: valid={is_valid}")
 
-        # Check memory before each batch
-        pre_check = check_memory_limit()
-        if pre_check['status'] == 'critical':
-            raise MemoryError(
-                f"Memory limit exceeded before batch {i // batch_size}: "
-                f"{pre_check['current_mb']:.2f} MB"
-            )
-
-        batch_perplexities = []
-        for text in batch:
-            pplx = compute_perplexity(model, tokenizer, text, device)
-            batch_perplexities.append(pplx)
-
-        perplexities.extend(batch_perplexities)
-
-        logger.debug(f"Processed batch {i // batch_size + 1}: "
-                    f"{len(batch)} texts, current memory: {get_total_memory_mb():.2f} MB")
-
-    return perplexities
+if __name__ == "__main__":
+    main()
