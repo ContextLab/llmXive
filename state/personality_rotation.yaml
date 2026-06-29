@@ -1,12 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-29T01:47:13.306808+00:00'
-last_outcome: committed
+last_used: freeman-dyson
+last_used_at: '2026-06-29T03:26:09.866059+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-20T04:58:14.138565+00:00'
-  ended_at: '2026-06-20T06:33:14.749282+00:00'
-  outcome: abstained
-  action: abstain
 - slug: john-von-neumann
   started_at: '2026-06-20T06:33:14.749282+00:00'
   ended_at: '2026-06-20T08:10:20.532100+00:00'
@@ -1190,3 +1185,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/reviews/research/eric-kandel-simulated__2026-06-29__research.md
+- slug: freeman-dyson
+  started_at: '2026-06-29T01:47:13.306808+00:00'
+  ended_at: '2026-06-29T03:26:09.866059+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
