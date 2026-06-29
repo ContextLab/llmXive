@@ -348,3 +348,42 @@ def test_see_us_story_backrefs_are_not_template_placeholders(tmp_path):
     p.write_text(spec, encoding="utf-8")
     classification, rules = classify(p, templates_dir=Path(".specify/templates"))
     assert classification == "real", [r.rule_id for r in rules]
+
+
+def test_generic_type_annotations_classify_real(tmp_path):
+    """Regression (PROJ-018, red-X'd the speckit audit): a data-model.md whose
+    fields use generic type annotations — List[String], Map[String, Float], nested
+    Map[String, Map[String, Float]] — classifies REAL. The unfilled-bracket
+    density rule previously false-positived on these type-parameter brackets."""
+    from llmxive.audit.template_vs_real import classify
+
+    dm = (
+        "# Data Model: Adoption Study\n\n## Entities\n\n### SurveyRecord\n"
+        "- `practice_adoption_flags`: List[String] (adopted practices)\n"
+        "- `vif_scores`: Map[String, Float] (Variance Inflation Factors)\n"
+        "- `correlation_matrix`: Map[String, Map[String, Float]] (pairwise)\n"
+        "- `efa_loadings`: Map[String, Map[String, Float]] (factor loadings)\n"
+        "- `model_coef`: Map[String, Float] (regression coefficients)\n\n"
+        "Each record is keyed by respondent id and validated against the schema.\n"
+    )
+    p = tmp_path / "data-model.md"
+    p.write_text(dm, encoding="utf-8")
+    classification, rules = classify(p, templates_dir=Path(".specify/templates"))
+    assert classification == "real", [r.rule_id for r in rules]
+
+
+def test_genuine_unfilled_placeholders_still_template(tmp_path):
+    """The fix is PRECISE: standalone [Placeholder] tokens (space-separated, not
+    glued to a preceding identifier) MUST still trip the bracket-density rule."""
+    from llmxive.audit.template_vs_real import classify
+
+    dm = (
+        "# Data Model: [Entity Name Here]\n\n## Entities\n\n### [Entity One]\n"
+        "- Field One: [Brief Description Here]\n- Field Two: [Another Description]\n"
+        "- Field Three: [Yet Another Thing]\n- Field Four: [Describe This Field]\n"
+        "- Field Five: [Some Placeholder Value]\n\n[Add More Entities Here].\n"
+    )
+    p = tmp_path / "data-model.md"
+    p.write_text(dm, encoding="utf-8")
+    classification, rules = classify(p, templates_dir=Path(".specify/templates"))
+    assert classification == "template", [r.rule_id for r in rules]

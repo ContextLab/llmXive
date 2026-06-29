@@ -93,6 +93,19 @@ def _placeholder_scan_text(text: str) -> str:
     t = re.sub(r"<!--.*?-->", "", t, flags=re.S)
     t = re.sub(r"!?\[[^\]]*\]\([^)]*\)", "", t)   # [text](url) / ![alt](url)
     t = re.sub(r"!?\[[^\]]*\]\[[^\]]*\]", "", t)  # [text][ref]
+    # Generic type annotations / subscripts — ``Map[String, Float]``,
+    # ``List[String]``, ``dict[str, int]``, ``arr[0]`` — are a bracket IMMEDIATELY
+    # preceded by an identifier (a type parameter or index), NOT a standalone
+    # ``[PLACEHOLDER]`` token (a real placeholder like ``[FEATURE NAME]`` is
+    # space-separated, never glued to a preceding word). A real data-model
+    # legitimately uses these (PROJ-018: ``vif_scores: Map[String, Float]``).
+    # Collapse innermost-first so nested generics (``Map[String, Map[String,
+    # Float]]``) fully reduce, keeping the type-name word and dropping the bracket.
+    while True:
+        t2 = re.sub(r"(\w)\[[^\[\]]*\]", r"\1", t)
+        if t2 == t:
+            break
+        t = t2
     return t
 
 
