@@ -1,0 +1,20 @@
+- artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/docs/project_glossary.md
+  attempts: 1
+  canonical: Schaefer Atlas parcellation of cerebral cortex into 400 regions based
+    on functional connectivity
+  claim_id: c_85148c91
+  context: 'Schaefer Atlas: A high-resolution parcellation of the cerebral cortex
+    into 400 regions (nodes) based on functional connectivity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schaefer_Atlas_parcellation_of_cerebral_cortex_into_400_regi
+  kind: entity_fact
+  raw_text: The Schaefer Atlas is a high-resolution parcellation of the cerebral cortex
+    into 400 regions (nodes) based on functional connectivity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T21:09:52Z'

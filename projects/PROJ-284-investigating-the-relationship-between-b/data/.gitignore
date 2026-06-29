@@ -1,0 +1,9 @@
+# Ignore all data files in the data directory
+# This is intentional; data should be generated or downloaded during execution
+# and not committed to the repository.
+*
+# Exception: Keep this .gitignore file itself
+!.gitignore
+# Exception: Keep README or documentation if present (optional, uncomment if needed)
+# !*.md
+# !README.md

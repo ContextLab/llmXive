@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (Large files - do not commit raw or processed data)
+data/raw/**/*.nii*
+data/raw/**/*.gz
+data/processed/**/*.nii*
+data/processed/**/*.gz
+data/analysis/**/*.csv
+data/analysis/**/*.parquet
+data/analysis/**/*.h5
+data/analysis/**/*.pkl
+
+# Logs
+logs/*.log
+logs/*.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
