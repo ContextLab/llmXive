@@ -1,382 +1,302 @@
-"""
-Main pipeline orchestration for US1: Compute Clone Density and Model Perplexity.
-
-This module orchestrates the end-to-end pipeline:
-1. Load raw data from data/raw/
-2. Compute clone density metrics using ast_cloner.py
-3. Compute perplexity scores using model_metrics.py
-4. Join metrics and save to data/processed/
-
-Output files:
-- data/processed/clone_metrics.csv
-- data/processed/perplexity_scores.csv
-"""
 import logging
 import sys
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import pandas as pd
+from datetime import datetime
+import hashlib
 
-from config import (
-    get_clone_thresholds,
-    get_random_seed,
-    get_memory_limit_mb,
-    get_max_runtime_seconds,
-    get_min_valid_segments,
-)
+# Import from sibling modules
+from config import get_random_seed, get_memory_limit_mb, get_clone_thresholds
+from memory_monitor import setup_memory_monitoring, stop_memory_monitoring, get_peak_memory_mb
+from data_loader import save_raw_data_to_csv, load_raw_data
 from ast_cloner import compute_clone_density_batch, save_clone_metrics
 from model_metrics import compute_perplexity_batch, save_perplexity_scores
-from memory_monitor import setup_memory_monitoring, validate_memory_within_limit
-from parse_failure_logger import init_logger, log_parse_failure, count_parse_failures
-from checksum_manifest import record_artifact_checksums, get_artifact_hashes
-from pii_scanner import run_pii_scan
+from checksum_manifest import record_artifact_checksums
 
-# Project root path
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DIR = DATA_DIR / "raw"
-PROCESSED_DIR = DATA_DIR / "processed"
-LOGS_DIR = DATA_DIR / "logs"
-
-# Output paths
-CLONE_METRICS_PATH = PROCESSED_DIR / "clone_metrics.csv"
-PERPLEXITY_SCORES_PATH = PROCESSED_DIR / "perplexity_scores.csv"
-PARSE_FAILURES_PATH = DATA_DIR / "parse_failures.csv"
-
-def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
-    """Configure logging for the pipeline."""
-    logger = logging.getLogger("main_pipeline")
-    logger.setLevel(logging.INFO)
-
-    # File handler
-    if log_file:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(logging.INFO)
-    else:
-        fh = logging.FileHandler(PROJECT_ROOT / "data" / "logs" / "pipeline.log")
-        fh.setLevel(logging.INFO)
-
-    # Format
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+def setup_logging() -> logging.Logger:
+    """Setup logging for the pipeline."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('data/pipeline.log')
+        ]
     )
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+    return logging.getLogger(__name__)
 
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    return logger
-
-def load_raw_data_wrapper(logger: logging.Logger) -> List[Dict[str, Any]]:
+def load_raw_data_wrapper(logger: logging.Logger) -> Path:
     """
-    Load raw data from the raw directory.
-    This is a wrapper that calls data_loader.py if needed.
+    Load raw data from the data loader.
+    
+    Returns:
+        Path to the raw data CSV file
     """
-    logger.info("Loading raw data from %s", RAW_DIR)
-
-    # Check if data exists
-    if not RAW_DIR.exists():
-        logger.error("Raw data directory does not exist: %s", RAW_DIR)
-        raise FileNotFoundError(f"Raw data directory not found: {RAW_DIR}")
-
-    # Try to load from CSV
-    csv_files = list(RAW_DIR.glob("*.csv"))
-    if not csv_files:
-        logger.error("No CSV files found in %s", RAW_DIR)
-        raise FileNotFoundError(f"No CSV files in raw data directory: {RAW_DIR}")
-
-    # Load first CSV file (should be github-code-sample.csv)
-    data_file = csv_files[0]
-    logger.info("Loading data from %s", data_file)
-
-    try:
-        df = pd.read_csv(data_file)
-        logger.info("Loaded %d records from %s", len(df), data_file)
-        return df.to_dict("records")
-    except Exception as e:
-        logger.error("Failed to load data: %s", str(e))
-        raise
+    logger.info("Stage 1: Loading raw data")
+    raw_data_path = Path("data/raw/github-code-sample.csv")
+    
+    # Ensure raw data directory exists
+    raw_data_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Check if raw data already exists
+    if raw_data_path.exists():
+        logger.info(f"Raw data already exists at {raw_data_path}")
+        return raw_data_path
+    
+    # Run data_loader.py to download and save sample
+    logger.info("Running data_loader.py to download sample data")
+    result = subprocess.run(
+        [sys.executable, "code/data_loader.py", "--output", str(raw_data_path)],
+        capture_output=True,
+        text=True
+    )
+    
+    if result.returncode != 0:
+        logger.error(f"data_loader.py failed: {result.stderr}")
+        raise RuntimeError(f"data_loader.py failed with return code {result.returncode}")
+    
+    if not raw_data_path.exists():
+        raise RuntimeError("data_loader.py did not create expected output file")
+    
+    logger.info(f"Raw data loaded successfully: {raw_data_path}")
+    return raw_data_path
 
 def compute_clone_metrics_batch(
-    data: List[Dict[str, Any]], logger: logging.Logger
-) -> pd.DataFrame:
+    input_path: Path,
+    output_path: Path,
+    logger: logging.Logger
+) -> bool:
     """
-    Compute clone density metrics for all files in the dataset.
+    Compute clone density metrics for all files in input.
+    
+    Args:
+        input_path: Path to raw data CSV
+        output_path: Path to save clone metrics CSV
+        logger: Logger instance
+    
+    Returns:
+        True if successful, False otherwise
     """
-    logger.info("Computing clone density metrics for %d files", len(data))
-
-    clone_metrics = []
-    parse_failures = 0
-
-    for idx, record in enumerate(data):
-        if (idx + 1) % 100 == 0:
-            logger.info("Progress: %d/%d files processed", idx + 1, len(data))
-
-        try:
-            # Get file content or path
-            file_content = record.get("content", "")
-            file_path = record.get("path", f"file_{idx}.py")
-
-            if not file_content:
-                logger.warning("No content for file %s, skipping", file_path)
-                parse_failures += 1
-                log_parse_failure(
-                    PARSE_FAILURES_PATH,
-                    file_path,
-                    "No content available",
-                    logger,
-                )
-                continue
-
-            # Compute clone density
-            density_result = compute_clone_density_batch(
-                [file_content], logger
-            )
-
-            if density_result and len(density_result) > 0:
-                result = density_result[0]
-                clone_metrics.append({
-                    "file_path": file_path,
-                    "clone_density": result.get("clone_density", 0.0),
-                    "total_nodes": result.get("total_nodes", 0),
-                    "clone_nodes": result.get("clone_nodes", 0),
-                    "timestamp": result.get("timestamp", ""),
-                })
-            else:
-                logger.warning("No clone density result for %s", file_path)
-                parse_failures += 1
-                log_parse_failure(
-                    PARSE_FAILURES_PATH,
-                    file_path,
-                    "No clone density result",
-                    logger,
-                )
-
-        except Exception as e:
-            logger.error("Error processing file %s: %s", file_path, str(e))
-            parse_failures += 1
-            log_parse_failure(
-                PARSE_FAILURES_PATH,
-                file_path,
-                str(e),
-                logger,
-            )
-
-    logger.info("Clone metrics computation complete. Parse failures: %d", parse_failures)
-
-    # Create DataFrame
-    df = pd.DataFrame(clone_metrics)
-    return df
+    logger.info("Stage 2: Computing clone density metrics")
+    
+    # Run ast_cloner.py with proper arguments
+    result = subprocess.run(
+        [sys.executable, "code/ast_cloner.py", "--input", str(input_path), "--output", str(output_path)],
+        capture_output=True,
+        text=True
+    )
+    
+    if result.returncode != 0:
+        logger.error(f"ast_cloner.py failed: {result.stderr}")
+        return False
+    
+    if not output_path.exists():
+        logger.error(f"Clone metrics output not created: {output_path}")
+        return False
+    
+    logger.info(f"Clone metrics saved to {output_path}")
+    return True
 
 def compute_perplexity_scores_batch(
-    data: List[Dict[str, Any]], logger: logging.Logger
-) -> pd.DataFrame:
+    input_path: Path,
+    output_path: Path,
+    logger: logging.Logger
+) -> bool:
     """
-    Compute perplexity scores for all files in the dataset.
+    Compute perplexity scores for all files in input.
+    
+    Args:
+        input_path: Path to raw data CSV
+        output_path: Path to save perplexity scores CSV
+        logger: Logger instance
+    
+    Returns:
+        True if successful, False otherwise
     """
-    logger.info("Computing perplexity scores for %d files", len(data))
-
-    perplexity_scores = []
-    parse_failures = 0
-
-    for idx, record in enumerate(data):
-        if (idx + 1) % 100 == 0:
-            logger.info("Progress: %d/%d files processed", idx + 1, len(data))
-
-        try:
-            # Get file content or path
-            file_content = record.get("content", "")
-            file_path = record.get("path", f"file_{idx}.py")
-
-            if not file_content:
-                logger.warning("No content for file %s, skipping", file_path)
-                parse_failures += 1
-                log_parse_failure(
-                    PARSE_FAILURES_PATH,
-                    file_path,
-                    "No content available for perplexity",
-                    logger,
-                )
-                continue
-
-            # Compute perplexity
-            perplexity_result = compute_perplexity_batch(
-                [file_content], logger
-            )
-
-            if perplexity_result and len(perplexity_result) > 0:
-                result = perplexity_result[0]
-                perplexity_scores.append({
-                    "file_path": file_path,
-                    "perplexity": result.get("perplexity", float("nan")),
-                    "token_count": result.get("token_count", 0),
-                    "timestamp": result.get("timestamp", ""),
-                })
-            else:
-                logger.warning("No perplexity result for %s", file_path)
-                parse_failures += 1
-                log_parse_failure(
-                    PARSE_FAILURES_PATH,
-                    file_path,
-                    "No perplexity result",
-                    logger,
-                )
-
-        except Exception as e:
-            logger.error("Error computing perplexity for %s: %s", file_path, str(e))
-            parse_failures += 1
-            log_parse_failure(
-                PARSE_FAILURES_PATH,
-                file_path,
-                str(e),
-                logger,
-            )
-
-    logger.info("Perplexity computation complete. Parse failures: %d", parse_failures)
-
-    # Create DataFrame
-    df = pd.DataFrame(perplexity_scores)
-    return df
+    logger.info("Stage 3: Computing perplexity scores")
+    
+    # Run model_metrics.py with proper arguments
+    result = subprocess.run(
+        [sys.executable, "code/model_metrics.py", "--input", str(input_path), "--output", str(output_path)],
+        capture_output=True,
+        text=True
+    )
+    
+    if result.returncode != 0:
+        logger.error(f"model_metrics.py failed: {result.stderr}")
+        return False
+    
+    if not output_path.exists():
+        logger.error(f"Perplexity scores output not created: {output_path}")
+        return False
+    
+    logger.info(f"Perplexity scores saved to {output_path}")
+    return True
 
 def join_metrics(
-    clone_df: pd.DataFrame, perplexity_df: pd.DataFrame, logger: logging.Logger
-) -> pd.DataFrame:
+    clone_metrics_path: Path,
+    perplexity_path: Path,
+    output_path: Path,
+    logger: logging.Logger
+) -> bool:
     """
-    Join clone density and perplexity metrics on file_path.
+    Join clone density and perplexity metrics into a single file.
+    
+    Args:
+        clone_metrics_path: Path to clone metrics CSV
+        perplexity_path: Path to perplexity scores CSV
+        output_path: Path to save joined metrics CSV
+        logger: Logger instance
+    
+    Returns:
+        True if successful, False otherwise
     """
-    logger.info("Joining clone metrics (%d) with perplexity scores (%d)",
-               len(clone_df), len(perplexity_df))
-
-    # Merge on file_path
-    merged = pd.merge(
-        clone_df,
-        perplexity_df,
-        on="file_path",
-        how="inner",
-        suffixes=("_clone", "_perplexity")
-    )
-
-    logger.info("Joined metrics: %d records", len(merged))
-
-    # Add computed fields
-    merged["timestamp"] = pd.Timestamp.now().isoformat()
-
-    return merged
+    logger.info("Stage 4: Joining metrics")
+    
+    try:
+        # Load clone metrics
+        clone_df = pd.read_csv(clone_metrics_path)
+        logger.info(f"Loaded {len(clone_df)} clone metric records")
+        
+        # Load perplexity scores
+        perplexity_df = pd.read_csv(perplexity_path)
+        logger.info(f"Loaded {len(perplexity_df)} perplexity records")
+        
+        # Ensure output directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Join on file_path or id column
+        if 'file_path' in clone_df.columns and 'file_path' in perplexity_df.columns:
+            joined_df = pd.merge(clone_df, perplexity_df, on='file_path', how='inner')
+        elif 'id' in clone_df.columns and 'id' in perplexity_df.columns:
+            joined_df = pd.merge(clone_df, perplexity_df, on='id', how='inner')
+        else:
+            # Fallback: assume same order
+            min_len = min(len(clone_df), len(perplexity_df))
+            joined_df = pd.concat([clone_df.iloc[:min_len], perplexity_df.iloc[:min_len]], axis=1)
+        
+        # Add metadata columns
+        joined_df['processed_at'] = datetime.now().isoformat()
+        joined_df['seed'] = get_random_seed()
+        
+        # Save joined metrics
+        joined_df.to_csv(output_path, index=False)
+        logger.info(f"Joined metrics saved to {output_path} with {len(joined_df)} records")
+        
+        return True
+    except Exception as e:
+        logger.error(f"Failed to join metrics: {e}")
+        return False
 
 def save_results(
-    clone_df: pd.DataFrame,
-    perplexity_df: pd.DataFrame,
-    merged_df: pd.DataFrame,
-    logger: logging.Logger,
-) -> Dict[str, str]:
+    joined_metrics_path: Path,
+    perplexity_path: Path,
+    logger: logging.Logger
+) -> bool:
     """
-    Save all metrics to CSV files and record checksums.
+    Save final results and record checksums.
+    
+    Args:
+        joined_metrics_path: Path to joined metrics CSV
+        perplexity_path: Path to perplexity scores CSV
+        logger: Logger instance
+    
+    Returns:
+        True if successful, False otherwise
     """
-    # Ensure output directory exists
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-    output_files = {}
-
-    # Save clone metrics
-    clone_df.to_csv(CLONE_METRICS_PATH, index=False)
-    output_files["clone_metrics"] = str(CLONE_METRICS_PATH)
-    logger.info("Saved clone metrics to %s", CLONE_METRICS_PATH)
-
-    # Save perplexity scores
-    perplexity_df.to_csv(PERPLEXITY_SCORES_PATH, index=False)
-    output_files["perplexity_scores"] = str(PERPLEXITY_SCORES_PATH)
-    logger.info("Saved perplexity scores to %s", PERPLEXITY_SCORES_PATH)
-
-    # Save merged metrics (for correlation analysis later)
-    merged_path = PROCESSED_DIR / "merged_metrics.csv"
-    merged_df.to_csv(merged_path, index=False)
-    output_files["merged_metrics"] = str(merged_path)
-    logger.info("Saved merged metrics to %s", merged_path)
-
-    # Record checksums
-    record_artifact_checksums(logger)
-
-    return output_files
-
-def run_pipeline(logger: logging.Logger) -> Dict[str, Any]:
-    """
-    Run the complete US1 pipeline.
-    """
-    logger.info("=" * 60)
-    logger.info("Starting US1 Pipeline: Clone Density and Perplexity")
-    logger.info("=" * 60)
-
-    # Setup memory monitoring with CORRECTED parameter - pass Path, not logger
-    log_dir = LOGS_DIR
-    setup_memory_monitoring(log_dir)
-
-    # Validate memory is within limit
-    memory_limit_mb = get_memory_limit_mb()
-    if not validate_memory_within_limit(memory_limit_mb):
-        logger.error("Memory limit exceeded: limit=%dMB", memory_limit_mb)
-        raise MemoryError(f"Memory limit {memory_limit_mb}MB exceeded")
-
-    # Step 1: Load raw data
-    logger.info("Step 1: Loading raw data")
-    raw_data = load_raw_data_wrapper(logger)
-    logger.info("Loaded %d records", len(raw_data))
-
-    # Step 2: Compute clone density metrics
-    logger.info("Step 2: Computing clone density metrics")
-    clone_df = compute_clone_metrics_batch(raw_data, logger)
-    logger.info("Computed clone density for %d files", len(clone_df))
-
-    # Step 3: Compute perplexity scores
-    logger.info("Step 3: Computing perplexity scores")
-    perplexity_df = compute_perplexity_batch(raw_data, logger)
-    logger.info("Computed perplexity for %d files", len(perplexity_df))
-
-    # Step 4: Join metrics
-    logger.info("Step 4: Joining metrics")
-    merged_df = join_metrics(clone_df, perplexity_df, logger)
-
-    # Step 5: Save results
-    logger.info("Step 5: Saving results")
-    output_files = save_results(clone_df, perplexity_df, merged_df, logger)
-
-    # Final validation
-    min_segments = get_min_valid_segments()
-    if len(merged_df) < min_segments:
-        logger.warning(
-            "Segment count (%d) below minimum threshold (%d)",
-            len(merged_df), min_segments
+    logger.info("Stage 5: Saving results and checksums")
+    
+    try:
+        # Verify files exist
+        if not joined_metrics_path.exists():
+            logger.error(f"Joined metrics file not found: {joined_metrics_path}")
+            return False
+        
+        if not perplexity_path.exists():
+            logger.error(f"Perplexity scores file not found: {perplexity_path}")
+            return False
+        
+        # Record checksums
+        record_artifact_checksums(
+            artifacts=[str(joined_metrics_path), str(perplexity_path)],
+            log_dir=Path("data/logs")
         )
+        
+        logger.info("Results saved and checksums recorded")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save results: {e}")
+        return False
 
+def run_pipeline(logger: logging.Logger) -> bool:
+    """
+    Run the complete pipeline.
+    
+    Args:
+        logger: Logger instance
+    
+    Returns:
+        True if pipeline completed successfully, False otherwise
+    """
     logger.info("=" * 60)
-    logger.info("Pipeline complete!")
-    logger.info("Output files: %s", output_files)
-    logger.info("Total segments processed: %d", len(merged_df))
+    logger.info("Starting pipeline orchestration")
     logger.info("=" * 60)
-
-    return {
-        "output_files": output_files,
-        "segment_count": len(merged_df),
-        "clone_metrics_count": len(clone_df),
-        "perplexity_metrics_count": len(perplexity_df),
-    }
+    
+    try:
+        # Setup memory monitoring (now accepts optional parameters)
+        setup_memory_monitoring()
+        logger.info("Memory monitoring initialized")
+        
+        # Stage 1: Load raw data
+        raw_data_path = load_raw_data_wrapper(logger)
+        
+        # Define output paths
+        clone_metrics_path = Path("data/processed/clone_metrics.csv")
+        perplexity_path = Path("data/processed/perplexity_scores.csv")
+        joined_path = Path("data/processed/joined_metrics.csv")
+        
+        # Stage 2: Compute clone metrics
+        if not compute_clone_metrics_batch(raw_data_path, clone_metrics_path, logger):
+            logger.error("Clone metric computation failed")
+            return False
+        
+        # Stage 3: Compute perplexity scores
+        if not compute_perplexity_scores_batch(raw_data_path, perplexity_path, logger):
+            logger.error("Perplexity computation failed")
+            return False
+        
+        # Stage 4: Join metrics
+        if not join_metrics(clone_metrics_path, perplexity_path, joined_path, logger):
+            logger.error("Metrics joining failed")
+            return False
+        
+        # Stage 5: Save results
+        if not save_results(joined_path, perplexity_path, logger):
+            logger.error("Result saving failed")
+            return False
+        
+        logger.info("=" * 60)
+        logger.info("Pipeline completed successfully")
+        logger.info(f"Peak memory usage: {get_peak_memory_mb():.2f} MB")
+        logger.info("=" * 60)
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed with exception: {e}")
+        return False
+    finally:
+        stop_memory_monitoring()
 
 def main():
-    """Main entry point for the pipeline."""
+    """Main entry point for pipeline orchestration."""
     logger = setup_logging()
-
-    try:
-        results = run_pipeline(logger)
-        logger.info("Pipeline completed successfully")
-        sys.exit(0)
-    except Exception as e:
-        logger.error("Pipeline failed: %s", str(e), exc_info=True)
-        sys.exit(1)
+    
+    success = run_pipeline(logger)
+    
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

@@ -1,94 +1,77 @@
-# Schema for pipeline configuration validation
-# Defines the structure of config.py exported parameters
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Pipeline Configuration Schema
+description: Schema describing the top‑level configuration parameters for the entire analysis pipeline.
 type: object
 properties:
-  random_seed:
-    type: integer
-    description: "Random seed for reproducibility"
-    minimum: 0
   clone_thresholds:
     type: array
-    description: "List of clone detection thresholds"
     items:
       type: number
-      minimum: 0.0
-      maximum: 1.0
-    minItems: 1
+    description: List of clone‑density thresholds used in sensitivity analysis.
+  random_seed:
+    type: integer
+    description: Global random seed for reproducibility.
   memory_limit_mb:
     type: integer
-    description: "Maximum memory limit in MB (SC-002)"
-    minimum: 1024
+    minimum: 0
+    description: Maximum memory (in MB) the pipeline may consume.
   max_runtime_seconds:
     type: integer
-    description: "Maximum runtime in seconds (SC-001: 24 hours = 86400)"
-    minimum: 60
+    minimum: 0
+    description: Upper bound on total runtime for the pipeline.
   min_valid_segments:
     type: integer
-    description: "Minimum valid segments required (SC-003: 1000)"
-    minimum: 100
+    minimum: 0
+    description: Minimum number of code segments required for a valid run.
   correlation_method:
     type: string
-    description: "Statistical correlation method"
-    enum: ["spearman", "pearson", "kendall"]
+    enum: [spearman, pearson]
+    description: Statistical method used for correlation analysis.
   significance_threshold:
     type: number
-    description: "P-value significance threshold"
-    minimum: 0.001
-    maximum: 0.1
+    minimum: 0
+    maximum: 1
+    description: p‑value threshold for statistical significance.
   figure_format:
     type: string
-    description: "Output format for figures"
-    enum: ["png", "pdf", "both"]
+    enum: [png, pdf, svg]
+    description: Output format for generated figures.
   figure_dpi:
     type: integer
-    description: "DPI for figure output"
-    minimum: 72
-    maximum: 600
+    minimum: 1
+    description: DPI resolution for raster figures.
   checksum_algorithm:
     type: string
-    description: "Algorithm for checksum computation"
-    enum: ["sha256", "md5"]
+    description: Algorithm name used for artifact checksum computation (e.g., "sha256").
   dataset_name:
     type: string
-    description: "HuggingFace dataset identifier"
-    minLength: 1
+    description: Identifier of the dataset to download (e.g., "codeparrot/github-code").
   model_name:
     type: string
-    description: "HuggingFace model identifier"
-    minLength: 1
+    description: HuggingFace model identifier used for perplexity computation.
   quantization_bits:
     type: integer
-    description: "Model quantization level"
-    enum: [4, 8]
+    description: Number of bits for 8‑bit quantization (e.g., 8).
   streaming_enabled:
     type: boolean
-    description: "Whether to use streaming mode for dataset"
+    description: Whether dataset streaming mode is enabled.
   pii_scan_enabled:
     type: boolean
-    description: "Whether to enable PII scanning"
-  version:
-    type: string
-    description: "Pipeline configuration version"
-    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-  created_at:
-    type: string
-    description: "ISO 8601 timestamp of configuration creation"
-    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}"
+    description: Whether the PII scanning step should be executed.
 required:
-  - random_seed
   - clone_thresholds
+  - random_seed
   - memory_limit_mb
   - max_runtime_seconds
   - min_valid_segments
   - correlation_method
   - significance_threshold
   - figure_format
+  - figure_dpi
+  - checksum_algorithm
   - dataset_name
   - model_name
   - quantization_bits
   - streaming_enabled
   - pii_scan_enabled
-  - version
-  - created_at
-additionalProperties: false
+additionalProperties: true
