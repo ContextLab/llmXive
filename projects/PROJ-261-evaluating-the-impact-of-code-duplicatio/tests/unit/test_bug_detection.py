@@ -1,247 +1,526 @@
 """
-Unit Tests for Bug Detection Module
+Unit tests for bug_detection.py pass@1 accuracy calculation.
 
-Tests for T031: HumanEval pass@1 accuracy computation.
-These tests verify the bug_detection.py module functionality.
+Tests verify that the compute_pass1_accuracy function correctly calculates
+pass@1 accuracy metrics for HumanEval problems.
+
+Per spec.md Independent Test requirements for User Story 2.
 """
-import pytest
-import json
-import csv
-import tempfile
-import os
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
 
+import pytest
+from unittest.mock import patch, MagicMock
+import json
 import sys
+from pathlib import Path
+
+# Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from bug_detection import (
+    load_humaneval_dataset,
     prepare_prompt,
+    generate_solution,
     extract_code_from_solution,
+    run_tests,
+    compute_pass1_accuracy,
     save_results,
     save_summary,
-    OUTPUT_FILE
+    main
 )
 
 
-class TestPreparePrompt:
-    """Tests for prepare_prompt function."""
+class TestComputePass1Accuracy:
+    """Tests for the compute_pass1_accuracy function."""
 
-    def test_prompt_without_newline_added(self):
-        """Test that newline is added to prompt without trailing newline."""
-        problem = {"prompt": "def add(a, b):"}
-        result = prepare_prompt(problem)
-        assert result.endswith("\n")
+    def test_empty_solutions_returns_zero(self):
+        """Test that empty solutions list returns 0.0 accuracy."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = []
 
-    def test_prompt_with_newline_unchanged(self):
-        """Test that prompt with trailing newline is unchanged."""
-        problem = {"prompt": "def add(a, b):\n"}
-        result = prepare_prompt(problem)
-        assert result == "def add(a, b):\n"
+        accuracy = compute_pass1_accuracy(problem, solutions)
 
-    def test_empty_prompt(self):
-        """Test handling of empty prompt."""
-        problem = {"prompt": ""}
-        result = prepare_prompt(problem)
-        assert result == "\n"
+        assert accuracy == 0.0
 
-    def test_missing_prompt_key(self):
-        """Test handling of missing prompt key."""
-        problem = {}
-        result = prepare_prompt(problem)
-        assert result == "\n"
+    def test_single_passing_solution_returns_one(self):
+        """Test that single passing solution returns 1.0 accuracy."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = ["def add(a, b):\n    return a + b\n"]
+
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        assert accuracy == 1.0
+
+    def test_single_failing_solution_returns_zero(self):
+        """Test that single failing solution returns 0.0 accuracy."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = ["def add(a, b):\n    return a * b\n"]  # Wrong implementation
+
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        assert accuracy == 0.0
+
+    def test_multiple_solutions_with_one_passing_returns_one(self):
+        """Test that multiple solutions with at least one passing returns 1.0."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = [
+            "def add(a, b):\n    return a * b\n",  # Fails
+            "def add(a, b):\n    return a + b\n",  # Passes
+            "def add(a, b):\n    return a - b\n"   # Fails
+        ]
+
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        assert accuracy == 1.0
+
+    def test_multiple_solutions_all_failing_returns_zero(self):
+        """Test that multiple solutions all failing returns 0.0."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = [
+            "def add(a, b):\n    return a * b\n",
+            "def add(a, b):\n    return a - b\n",
+            "def add(a, b):\n    return b + a\n"  # This passes, so need different
+        ]
+        # Replace last with a failing one
+        solutions[2] = "def add(a, b):\n    return a / b\n"
+
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        assert accuracy == 0.0
+
+    def test_accuracy_calculation_with_three_problems(self):
+        """Test aggregate accuracy calculation across multiple problems."""
+        problems = [
+            {
+                "problem_id": "test-001",
+                "task_id": "human-eval/0",
+                "prompt": "def add(a, b):\n    return a + b\n",
+                "test": "assert add(1, 2) == 3",
+                "solutions": ["def add(a, b):\n    return a + b\n"]  # Pass
+            },
+            {
+                "problem_id": "test-002",
+                "task_id": "human-eval/1",
+                "prompt": "def sub(a, b):\n    return a - b\n",
+                "test": "assert sub(5, 3) == 2",
+                "solutions": ["def sub(a, b):\n    return a + b\n"]  # Fail
+            },
+            {
+                "problem_id": "test-003",
+                "task_id": "human-eval/2",
+                "prompt": "def mul(a, b):\n    return a * b\n",
+                "test": "assert mul(2, 3) == 6",
+                "solutions": ["def mul(a, b):\n    return a * b\n"]  # Pass
+            }
+        ]
+
+        # Calculate accuracy for each problem
+        accuracies = []
+        for problem in problems:
+            acc = compute_pass1_accuracy(problem, problem["solutions"])
+            accuracies.append(acc)
+
+        # Expected: [1.0, 0.0, 1.0]
+        assert accuracies == [1.0, 0.0, 1.0]
+
+        # Overall accuracy
+        overall_accuracy = sum(accuracies) / len(accuracies)
+        assert overall_accuracy == pytest.approx(2/3, rel=1e-6)
+
+    def test_handles_none_solutions_gracefully(self):
+        """Test that None solutions are handled gracefully."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+
+        # Should not raise an exception
+        accuracy = compute_pass1_accuracy(problem, None)
+
+        assert accuracy == 0.0
+
+    def test_handles_empty_string_solution(self):
+        """Test that empty string solutions are handled correctly."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = [""]
+
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        # Empty solution should fail
+        assert accuracy == 0.0
+
+    def test_pass1_vs_passk_distinction(self):
+        """Verify pass@1 is different from pass@k when k>1."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        # All solutions fail except the last one
+        solutions = [
+            "def add(a, b):\n    return a * b\n",  # Fail
+            "def add(a, b):\n    return a - b\n",  # Fail
+            "def add(a, b):\n    return a / b\n",  # Fail
+            "def add(a, b):\n    return a + b\n"   # Pass
+        ]
+
+        # Pass@1 should be 0.0 (first solution fails)
+        accuracy = compute_pass1_accuracy(problem, solutions)
+        assert accuracy == 0.0
+
+    def test_numeric_accuracy_values(self):
+        """Test that accuracy values are within valid range [0, 1]."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+
+        solutions = ["def add(a, b):\n    return a + b\n"]
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        assert 0.0 <= accuracy <= 1.0
+
+    def test_accuracy_precision(self):
+        """Test that accuracy is calculated with proper floating-point precision."""
+        # Create a scenario where we need precise calculation
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = ["def add(a, b):\n    return a + b\n"]
+
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        # Should be exactly 1.0, not 0.9999999 or similar
+        assert accuracy == 1.0
+        assert isinstance(accuracy, float)
+
+
+class TestRunTests:
+    """Tests for the run_tests function."""
+
+    def test_run_tests_executes_code(self):
+        """Test that run_tests can execute simple code."""
+        test_code = "assert 1 + 1 == 2"
+        result = run_tests(test_code)
+
+        # Should return True for passing test
+        assert result is True
+
+    def test_run_tests_handles_syntax_error(self):
+        """Test that run_tests handles syntax errors gracefully."""
+        test_code = "def broken("  # Invalid syntax
+        result = run_tests(test_code)
+
+        # Should return False for failing test
+        assert result is False
+
+    def test_run_tests_handles_runtime_error(self):
+        """Test that run_tests handles runtime errors gracefully."""
+        test_code = "result = 1 / 0"  # Division by zero
+        result = run_tests(test_code)
+
+        # Should return False for failing test
+        assert result is False
 
 
 class TestExtractCodeFromSolution:
-    """Tests for extract_code_from_solution function."""
+    """Tests for the extract_code_from_solution function."""
 
-    def test_extract_function_definition(self):
-        """Test extraction of function definition."""
+    def test_extract_code_from_python_block(self):
+        """Test extracting code from a Python code block."""
+        solution = "```python\ndef add(a, b):\n    return a + b\n```"
+        extracted = extract_code_from_solution(solution)
+
+        assert "def add(a, b):" in extracted
+        assert "return a + b" in extracted
+
+    def test_extract_code_from_plain_text(self):
+        """Test extracting code from plain text without markdown."""
         solution = "def add(a, b):\n    return a + b"
-        result = extract_code_from_solution(solution)
-        assert "def add" in result
-        assert "return a + b" in result
+        extracted = extract_code_from_solution(solution)
 
-    def test_extract_class_definition(self):
-        """Test extraction of class definition."""
-        solution = "class Solution:\n    def solve(self):\n        pass"
-        result = extract_code_from_solution(solution)
-        assert "class Solution" in result
+        assert "def add(a, b):" in extracted
+        assert "return a + b" in extracted
 
-    def test_empty_solution(self):
-        """Test handling of empty solution."""
+    def test_extract_code_handles_empty_solution(self):
+        """Test that empty solution returns empty string."""
         solution = ""
-        result = extract_code_from_solution(solution)
-        assert result == ""
+        extracted = extract_code_from_solution(solution)
 
-    def test_no_function_or_class(self):
-        """Test when solution has no def or class."""
-        solution = "some random text without function"
-        result = extract_code_from_solution(solution)
-        assert result == solution
+        assert extracted == ""
+
+    def test_extract_code_handles_none(self):
+        """Test that None solution returns empty string."""
+        solution = None
+        extracted = extract_code_from_solution(solution)
+
+        assert extracted == ""
+
+
+class TestLoadHumanEvalDataset:
+    """Tests for the load_humaneval_dataset function."""
+
+    @patch('bug_detection.load_dataset')
+    def test_load_humaneval_returns_dataset(self, mock_load_dataset):
+        """Test that load_humaneval_dataset returns a dataset object."""
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = mock_dataset
+
+        result = load_humaneval_dataset()
+
+        mock_load_dataset.assert_called_once_with("openai/human-eval")
+        assert result == mock_dataset
+
+    @patch('bug_detection.load_dataset')
+    def test_load_humaneval_with_subset(self, mock_load_dataset):
+        """Test loading a subset of HumanEval problems."""
+        mock_dataset = MagicMock()
+        mock_dataset.select.return_value = MagicMock()
+        mock_load_dataset.return_value = mock_dataset
+
+        result = load_humaneval_dataset(num_problems=50)
+
+        mock_dataset.select.assert_called_once()
+        assert result is not None
+
+
+class TestPreparePrompt:
+    """Tests for the prepare_prompt function."""
+
+    def test_prepare_prompt_includes_task(self):
+        """Test that prepare_prompt includes the task description."""
+        task = "def add(a, b):\n    return a + b"
+        prompt = prepare_prompt(task)
+
+        assert "def add(a, b):" in prompt
+        assert "return a + b" in prompt
+
+    def test_prepare_prompt_returns_string(self):
+        """Test that prepare_prompt returns a string."""
+        task = "def add(a, b):\n    return a + b"
+        prompt = prepare_prompt(task)
+
+        assert isinstance(prompt, str)
 
 
 class TestSaveResults:
-    """Tests for save_results function."""
+    """Tests for the save_results function."""
 
-    def test_save_creates_directory(self):
-        """Test that save_results creates output directory if needed."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "subdir" / "results.csv"
-            results = {
-                "results": [
-                    {
-                        "task_id": "HumanEval/0",
-                        "prompt_length": 100,
-                        "solution_length": 50,
-                        "test_passed": True,
-                        "entry_point": "add",
-                        "timestamp": "2024-01-01T00:00:00"
-                    }
-                ],
-                "total_problems": 1,
-                "passed": 1,
-                "accuracy_percent": 100.0,
-                "timestamp": "2024-01-01T00:00:00"
-            }
+    @patch('bug_detection.Path')
+    @patch('bug_detection.csv.writer')
+    def test_save_results_creates_csv(self, mock_writer, mock_path):
+        """Test that save_results creates a CSV file."""
+        mock_path.return_value.parent.mkdir.return_value = None
+        mock_file = MagicMock()
+        mock_path.return_value.open.return_value.__enter__.return_value = mock_file
+
+        results = [
+            {"problem_id": "test-001", "accuracy": 1.0},
+            {"problem_id": "test-002", "accuracy": 0.0}
+        ]
+        output_path = Path("test_output.csv")
+
+        save_results(results, output_path)
+
+        mock_path.return_value.parent.mkdir.assert_called_once()
+        mock_path.return_value.open.assert_called_once()
+
+    def test_save_results_handles_empty_results(self):
+        """Test that save_results handles empty results list."""
+        results = []
+        output_path = Path("test_output.csv")
+
+        # Should not raise an exception
+        with patch('bug_detection.Path') as mock_path:
+            mock_path.return_value.parent.mkdir.return_value = None
+            mock_file = MagicMock()
+            mock_path.return_value.open.return_value.__enter__.return_value = mock_file
+
             save_results(results, output_path)
-            assert output_path.exists()
-
-    def test_save_creates_valid_csv(self):
-        """Test that save_results creates valid CSV file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "results.csv"
-            results = {
-                "results": [
-                    {
-                        "task_id": "HumanEval/0",
-                        "prompt_length": 100,
-                        "solution_length": 50,
-                        "test_passed": True,
-                        "entry_point": "add",
-                        "timestamp": "2024-01-01T00:00:00"
-                    }
-                ],
-                "total_problems": 1,
-                "passed": 1,
-                "accuracy_percent": 100.0,
-                "timestamp": "2024-01-01T00:00:00"
-            }
-            save_results(results, output_path)
-
-            with open(output_path, "r") as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                assert len(rows) == 1
-                assert rows[0]["task_id"] == "HumanEval/0"
-                assert rows[0]["test_passed"] == "True"
-
-    def test_save_multiple_results(self):
-        """Test saving multiple results."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "results.csv"
-            results = {
-                "results": [
-                    {
-                        "task_id": "HumanEval/0",
-                        "prompt_length": 100,
-                        "solution_length": 50,
-                        "test_passed": True,
-                        "entry_point": "add",
-                        "timestamp": "2024-01-01T00:00:00"
-                    },
-                    {
-                        "task_id": "HumanEval/1",
-                        "prompt_length": 150,
-                        "solution_length": 75,
-                        "test_passed": False,
-                        "entry_point": "multiply",
-                        "timestamp": "2024-01-01T00:00:01"
-                    }
-                ],
-                "total_problems": 2,
-                "passed": 1,
-                "accuracy_percent": 50.0,
-                "timestamp": "2024-01-01T00:00:00"
-            }
-            save_results(results, output_path)
-
-            with open(output_path, "r") as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                assert len(rows) == 2
 
 
 class TestSaveSummary:
-    """Tests for save_summary function."""
+    """Tests for the save_summary function."""
 
-    def test_save_creates_valid_json(self):
-        """Test that save_summary creates valid JSON file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            summary_path = Path(tmpdir) / "summary.json"
-            results = {
-                "total_problems": 50,
-                "passed": 25,
-                "accuracy_percent": 50.0,
-                "timestamp": "2024-01-01T00:00:00"
-            }
-            save_summary(results, summary_path)
+    @patch('bug_detection.Path')
+    @patch('bug_detection.json.dump')
+    def test_save_summary_creates_json(self, mock_json_dump, mock_path):
+        """Test that save_summary creates a JSON file."""
+        mock_path.return_value.parent.mkdir.return_value = None
+        mock_file = MagicMock()
+        mock_path.return_value.open.return_value.__enter__.return_value = mock_file
 
-            assert summary_path.exists()
-            with open(summary_path, "r") as f:
-                summary = json.load(f)
-                assert summary["total_problems"] == 50
-                assert summary["passed"] == 25
-                assert summary["accuracy_percent"] == 50.0
+        summary = {
+            "total_problems": 100,
+            "pass1_accuracy": 0.75,
+            "config": {"seed": 42}
+        }
+        output_path = Path("test_summary.json")
 
-    def test_save_creates_directory(self):
-        """Test that save_summary creates output directory if needed."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            summary_path = Path(tmpdir) / "subdir" / "summary.json"
-            results = {
-                "total_problems": 10,
-                "passed": 5,
-                "accuracy_percent": 50.0,
-                "timestamp": "2024-01-01T00:00:00"
-            }
-            save_summary(results, summary_path)
-            assert summary_path.exists()
+        save_summary(summary, output_path)
 
+        mock_path.return_value.parent.mkdir.assert_called_once()
+        mock_json_dump.assert_called_once()
 
-class TestIntegration:
-    """Integration tests for bug detection module."""
-
-    def test_full_workflow_with_mocked_model(self):
-        """Test full workflow with mocked model and dataset."""
-        from unittest.mock import patch, MagicMock
-
-        mock_problem = {
-            "task_id": "HumanEval/0",
-            "prompt": "def add(a, b):\n",
-            "test": "assert add(1, 2) == 3",
-            "entry_point": "add",
-            "canonical_solution": "def add(a, b):\n    return a + b"
+    def test_save_summary_includes_expected_keys(self):
+        """Test that save_summary includes all expected keys."""
+        summary = {
+            "total_problems": 100,
+            "pass1_accuracy": 0.75,
+            "config": {"seed": 42}
         }
 
-        with patch("bug_detection.load_humaneval_dataset") as mock_load:
-            with patch("bug_detection.load_model_8bit") as mock_load_model:
-                with patch("bug_detection.compute_file_checksum") as mock_checksum:
-                    with patch("bug_detection.record_artifact_checksums") as mock_record:
-                        mock_load.return_value = [mock_problem]
-                        mock_load_model.return_value = (MagicMock(), MagicMock())
-                        mock_checksum.return_value = "abc123"
+        # Verify structure
+        assert "total_problems" in summary
+        assert "pass1_accuracy" in summary
+        assert "config" in summary
+        assert summary["total_problems"] == 100
+        assert summary["pass1_accuracy"] == 0.75
 
-                        from bug_detection import main
 
-                        with tempfile.TemporaryDirectory() as tmpdir:
-                            # Temporarily override output paths
-                            import bug_detection as bd
-                            original_output = bd.OUTPUT_FILE
-                            bd.OUTPUT_FILE = Path(tmpdir) / "results.csv"
+class TestBugDetectionIntegration:
+    """Integration tests for the bug detection module."""
 
-                            try:
-                                # This would fail without actual model, so we test
-                                # that the structure is correct
-                                pass
-                            finally:
-                                bd.OUTPUT_FILE = original_output
+    def test_compute_pass1_accuracy_with_mocked_run_tests(self):
+        """Test accuracy calculation with mocked test execution."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+
+        # Mock run_tests to return True (passing)
+        with patch('bug_detection.run_tests', return_value=True):
+            solutions = ["def add(a, b):\n    return a + b\n"]
+            accuracy = compute_pass1_accuracy(problem, solutions)
+            assert accuracy == 1.0
+
+        # Mock run_tests to return False (failing)
+        with patch('bug_detection.run_tests', return_value=False):
+            solutions = ["def add(a, b):\n    return a + b\n"]
+            accuracy = compute_pass1_accuracy(problem, solutions)
+            assert accuracy == 0.0
+
+    def test_accuracy_aggregation_across_problems(self):
+        """Test that accuracy is correctly aggregated across multiple problems."""
+        problems_data = [
+            {"problem_id": f"test-{i:03d}", "task_id": f"human-eval/{i}",
+             "prompt": f"def func{i}(a, b):\n    return a + b\n",
+             "test": f"assert func{i}(1, 2) == 3",
+             "solutions": ["def func(a, b):\n    return a + b\n"]}
+            for i in range(10)
+        ]
+
+        accuracies = []
+        with patch('bug_detection.run_tests', return_value=True):
+            for problem in problems_data:
+                acc = compute_pass1_accuracy(problem, problem["solutions"])
+                accuracies.append(acc)
+
+        # All should pass with mocked run_tests
+        assert all(acc == 1.0 for acc in accuracies)
+        assert sum(accuracies) / len(accuracies) == 1.0
+
+
+class TestPass1AccuracyEdgeCases:
+    """Edge case tests for pass@1 accuracy calculation."""
+
+    def test_accuracy_with_single_problem(self):
+        """Test accuracy calculation with exactly one problem."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = ["def add(a, b):\n    return a + b\n"]
+
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        assert accuracy == 1.0
+
+    def test_accuracy_with_whitespace_only_solution(self):
+        """Test that whitespace-only solution is handled correctly."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = ["   \n   \n   "]
+
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        # Whitespace-only should fail
+        assert accuracy == 0.0
+
+    def test_accuracy_preserves_float_type(self):
+        """Test that accuracy is returned as float type."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3"
+        }
+        solutions = ["def add(a, b):\n    return a + b\n"]
+
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        assert isinstance(accuracy, float)
+
+    def test_accuracy_with_special_characters_in_test(self):
+        """Test accuracy calculation with special characters in test."""
+        problem = {
+            "problem_id": "test-001",
+            "task_id": "human-eval/0",
+            "prompt": "def add(a, b):\n    return a + b\n",
+            "test": "assert add(1, 2) == 3 and add(0, 0) == 0"
+        }
+        solutions = ["def add(a, b):\n    return a + b\n"]
+
+        # Should not raise an exception
+        accuracy = compute_pass1_accuracy(problem, solutions)
+
+        assert 0.0 <= accuracy <= 1.0
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

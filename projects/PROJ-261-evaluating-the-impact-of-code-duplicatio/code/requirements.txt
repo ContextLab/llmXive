@@ -10,3 +10,4 @@ scipy  # auto-added: imported by run-book but missing from venv
 torch  # auto-added: imported by run-book but missing from venv
 tqdm  # auto-added: imported by run-book but missing from venv
 transformers  # auto-added: imported by run-book but missing from venv
+zstandard  # auto-added: imported by run-book but missing from venv
