@@ -1,0 +1,128 @@
+# Merged Perovskite Dataset Schema
+# Created by T005 - Contract test schema definition
+# Used for CSV validation in tests/contract/test_schema.py (T009)
+
+title: Merged Perovskite Dataset Schema
+description: |
+  Schema for validating merged perovskite crystal structure and thermal
+  conductivity data. This schema ensures data quality and consistency
+  across the pipeline (US1 - Data Ingestion & Cleaning).
+
+version: "1.0"
+source: PROJ-035-exploring-the-correlation-between-crysta
+created_by: T005
+
+# Schema type
+type: object
+
+# Column definitions
+properties:
+  structure_id:
+    type: string
+    description: Unique Materials Project identifier (e.g., mp-12345)
+    pattern: "^mp-\\d+$"
+    example: "mp-12345"
+
+  formula:
+    type: string
+    description: Chemical formula in ABX3 format
+    pattern: "^[A-Z][a-z]?[A-Z][a-z]?[A-Z][a-z]?\\d*$"
+    example: "CaTiO3"
+
+  thermal_conductivity:
+    type: float
+    description: Thermal conductivity in W/(m·K)
+    minimum: 0.0
+    maximum: 1000.0
+    unit: "W/(m·K)"
+
+  temperature:
+    type: float
+    description: Measurement temperature in Kelvin
+    minimum: 0.0
+    maximum: 2000.0
+    unit: "K"
+
+  source_reference:
+    type: string
+    description: Peer-reviewed literature or NIST citation
+    example: "Smith et al. 2021, DOI:10.xxxx/xxxxx"
+
+  stoichiometry:
+    type: string
+    description: Stoichiometry ratio verification
+    example: "ABX3"
+
+  octahedral_tilting_angle:
+    type: float
+    description: Octahedral tilting angle in degrees (computed descriptor)
+    unit: "degrees"
+
+  bond_length_variance:
+    type: float
+    description: Bond length variance (computed descriptor)
+    unit: "Å²"
+
+  tolerance_factor:
+    type: float
+    description: Goldschmidt tolerance factor (computed descriptor)
+    unit: "dimensionless"
+
+# Required columns for valid dataset
+required_columns:
+  - structure_id
+  - formula
+  - thermal_conductivity
+  - temperature
+  - source_reference
+
+# Columns that must not contain null values
+no_null_columns:
+  - structure_id
+  - thermal_conductivity
+  - source_reference
+
+# Minimum dataset size requirement (SC-001)
+min_rows: 50
+
+# Validation rules
+validation_rules:
+  - name: abx3_stoichiometry
+    description: Formula must match ABX3 pattern
+    type: regex
+    pattern: "^[A-Z][a-z]?[A-Z][a-z]?[A-Z][a-z]?\\d*$"
+
+  - name: thermal_conductivity_positive
+    description: Thermal conductivity must be positive
+    type: constraint
+    column: thermal_conductivity
+    operator: ">"
+    value: 0
+
+  - name: temperature_reasonable
+    description: Temperature must be in reasonable range
+    type: constraint
+    column: temperature
+    operator: ">="
+    value: 0
+    operator_max: "<="
+    value_max: 2000
+
+# Foreign key references
+foreign_keys:
+  - column: structure_id
+    reference: materials_project
+    description: Materials Project crystal structure database
+
+# Metadata
+metadata:
+  pipeline_version: "1.0"
+  schema_author: T005
+  related_tasks:
+    - T005  # Schema creation
+    - T009  # Contract tests
+    - T013  # Data cleaning and merging
+  constitution_compliance:
+    - Constitution_II  # Citation validation
+    - Constitution_III  # Data provenance
+    - Constitution_V  # Artifact hashing

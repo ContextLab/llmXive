@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure with exact directory tree: src/, tests/, data/raw/, data/cleaned/, data/results/, figures/, contracts/
-- [ ] T002 Initialize Python 3.9 project with requirements.txt at repository root (pymatgen==2023.9.1, pandas==2.2.2, numpy==1.26.4, scikit-learn==1.5.0, statsmodels==0.14.2, matplotlib==3.9.0, seaborn==0.13.2, requests==2.32.3, tqdm==4.66.5, pytest)
-- [ ] T003 [P] Configure linting and formatting: create .flake8 (max-line-length=88, extend-ignore=E203) and pyproject.toml (black settings)
+- [X] T001 Create project structure with exact directory tree: src/, tests/, data/raw/, data/cleaned/, data/results/, figures/, contracts/
+- [X] T002 Initialize Python 3.9 project with requirements.txt at repository root (pymatgen==2023.9.1, pandas==2.2.2, numpy==1.26.4, scikit-learn==1.5.0, statsmodels==0.14.2, matplotlib==3.9.0, seaborn==0.13.2, requests==2.32.3, tqdm==4.66.5, pytest)
+- [X] T003 [P] Configure linting and formatting: create.flake8 (max-line-length=88, extend-ignore=E203) and pyproject.toml (black settings)
 
 ---
 
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup environment configuration management for API keys (Materials Project API) at src/config/env.py with environment variable loading and error handling
-- [ ] T005 [P] Create contracts/merged_perovskite.schema.yaml for CSV schema validation
-- [ ] T006 Implement deterministic seed handling (--seed argument) in exact modules: src/ingest/, src/cleaning/, src/descriptors/, src/analysis/, src/utils/
-- [ ] T007 Setup SHA-256 checksum tracking for raw data files to state/projects/PROJ-035-exploring-the-correlation-between-crysta.yaml artifact_hashes (Constitution III)
-- [ ] T008 Create base validation utilities at src/utils/validation.py with function signatures: calculate_vif(df, predictors), handle_error(message, level), setup_logger(name, level)
-- [ ] T039 [P] Execute Reference-Validator Agent as blocking gate for all citations (Slack 1979, Smith et al. 2021) per Constitution II; output verification report to data/results/reference_validation.json
+- [X] T004 Setup environment configuration management for API keys (Materials Project API) at src/config/env.py with environment variable loading and error handling
+- [X] T005 [P] Create contracts/merged_perovskite.schema.yaml for CSV schema validation
+- [X] T006 Implement deterministic seed handling (--seed argument) in exact modules: src/ingest/, src/cleaning/, src/descriptors/, src/analysis/, src/utils/
+- [X] T007 Setup SHA-256 checksum tracking for raw data files to state/projects/PROJ-035-exploring-the-correlation-between-crysta.yaml artifact_hashes (Constitution III)
+- [X] T008 Create base validation utilities at src/utils/validation.py with function signatures: calculate_vif(df, predictors), handle_error(message, level), setup_logger(name, level)
+- [X] T039 [P] Execute Reference-Validator Agent as blocking gate for all citations (Slack 1979, Smith et al. 2021) per Constitution II; output verification report to data/results/reference_validation.json
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,16 +81,16 @@
 
 ### Tests for User Story 1
 
-- [ ] T009 [US1] Contract test for merged_perovskite.schema.yaml in tests/contract/test_schema.py
-- [ ] T010 [US1] Integration test for full data ingestion pipeline in tests/integration/test_full_pipeline.py
+- [X] T009 [US1] Contract test for merged_perovskite.schema.yaml in tests/contract/test_schema.py
+- [X] T010 [US1] Integration test for full data ingestion pipeline in tests/integration/test_full_pipeline.py
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement src/ingest/fetch_structures.py for Materials Project API download with ABX₃ filtering, exponential backoff (max 3 retries), and error handling (FR-001)
-- [ ] T012 [P] [US1] Implement src/ingest/fetch_thermal.py for loading literature/NIST thermal conductivity CSVs ONLY (explicitly exclude Materials Project thermal properties endpoint per FR-010) (FR-010)
-- [ ] T013 [US1] Implement src/cleaning/clean_merge.py to merge structures with thermal data, remove nulls, validate geometry, enforce minimum 50 compositions, and add error handling for insufficient samples with message 'Insufficient samples: N < 50' (FR-002, FR-010, SC-001)
+- [X] T011 [P] [US1] Implement src/ingest/fetch_structures.py for Materials Project API download with ABX₃ filtering, exponential backoff (max 3 retries), and error handling (FR-001)
+- [X] T012 [P] [US1] Implement src/ingest/fetch_thermal.py for loading literature/NIST thermal conductivity CSVs ONLY (explicitly exclude Materials Project thermal properties endpoint per FR-010) (FR-010)
+- [X] T013 [US1] Implement src/cleaning/clean_merge.py to merge structures with thermal data, remove nulls, validate geometry, enforce minimum 50 compositions, and add error handling for insufficient samples with message 'Insufficient samples: N < 50' (FR-002, FR-010, SC-001)
 - [ ] T014 [US1] Implement src/cleaning/provenance_validator.py to verify peer-reviewed/NIST source_reference for each entry (FR-010)
-- [ ] T015 [US1] Implement src/cleaning/temperature_normalize.py using Slack (1979) formula for 300K ± 10K window with error handling for unknown temperature (FR-013)
+- [ ] T015 [US1] Implement src/cleaning/temperature_normalize.py using Slack (1979) formula for 300K ± 10K window [UNRESOLVED-CLAIM: c_ac1d4eda — status=not_enough_info] with error handling for unknown temperature (FR-013)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -173,9 +173,9 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-  - **User Story 2 (P2)**: Depends on US1 cleaned data for descriptor computation
-  - **User Story 3 (P3)**: Depends on US2 computed descriptors for regression modeling
+ - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+ - **User Story 2 (P2)**: Depends on US1 cleaned data for descriptor computation
+ - **User Story 3 (P3)**: Depends on US2 computed descriptors for regression modeling
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -276,14 +276,14 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (data ingestion)
-   - Developer B: Tests for User Story 1
+ - Developer A: User Story 1 (data ingestion)
+ - Developer B: Tests for User Story 1
 3. After US1 complete:
-   - Developer A: User Story 2 (descriptors + correlation)
-   - Developer B: Tests for User Story 2
+ - Developer A: User Story 2 (descriptors + correlation)
+ - Developer B: Tests for User Story 2
 4. After US2 complete:
-   - Developer A: User Story 3 (regression + validation)
-   - Developer B: Tests for User Story 3
+ - Developer A: User Story 3 (regression + validation)
+ - Developer B: Tests for User Story 3
 5. Stories complete and integrate sequentially due to data-flow dependencies
 
 ---

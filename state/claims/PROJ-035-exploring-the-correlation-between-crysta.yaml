@@ -1,0 +1,51 @@
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Slack 1979 formula for thermal conductivity temperature normalization
+  claim_id: c_ac1d4eda
+  context: Phase 3 User Story 1 implementation tasks for temperature normalization
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement src/cleaning/temperature_normalize.py using Slack (1979) formula\
+    \ for 300K \xB1 10K window"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:40:08Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: "Perovskite formula ABX\u2083 stoichiometry filtering"
+  claim_id: c_7f5ee7be
+  context: Phase 3 User Story 1 goal for data ingestion and cleaning pipeline
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perovskite_formula_ABX%E2%82%83_stoichiometry_filtering
+  kind: entity_fact
+  raw_text: "Filter for valid ABX\u2083 stoichiometry and removing entries with missing\
+    \ data"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:48:29Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Perovskite chemistry classes: oxide, halide, nitride'
+  claim_id: c_7372153a
+  context: Phase 4 User Story 2 implementation tasks for structural descriptor calculation
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perovskite_chemistry_classes:_oxide,_halide,_nitride
+  kind: entity_fact
+  raw_text: Stratification by perovskite chemistry class (oxide, halide, nitride)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:58:32Z'

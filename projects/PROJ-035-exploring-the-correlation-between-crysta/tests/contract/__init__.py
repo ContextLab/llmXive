@@ -1,0 +1,1 @@
+"""Contract test package for schema validation."""
