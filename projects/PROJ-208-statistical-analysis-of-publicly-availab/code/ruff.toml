@@ -1,0 +1,40 @@
+# Ruff configuration for llmXive research pipeline
+# Target Python 3.11 (per T002 requirements)
+target-version = "py311"
+
+# Line length for code formatting
+line-length = 100
+
+# Enable specific linting rules
+select = [
+  "E",      # pycodestyle errors
+  "W",      # pycodestyle warnings
+  "F",      # Pyflakes
+  "I",      # isort
+  "B",      # flake8-bugbear
+  "C4",     # flake8-comprehensions
+  "UP",     # pyupgrade
+  "RUF",    # Ruff-specific rules
+]
+
+# Ignore specific rules that may be too strict for research code
+ignore = [
+  "E501",   # line-too-long (handled by formatter)
+  "B008",   # do not perform function calls in argument defaults (often OK for research)
+]
+
+# Per-file ignores for specific directories
+[per-file-ignores]
+"code/setup/*" = ["E402"]  # Allow imports after other code in setup scripts
+
+# Formatting configuration
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# Isort configuration
+[isort]
+known-first-party = ["setup", "utils", "collect", "analysis", "diagnostics"]
+known-third-party = ["requests", "pandas", "numpy", "scipy", "statsmodels", "pymer4", "matplotlib", "seaborn", "pyyaml"]

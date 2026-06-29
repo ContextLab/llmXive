@@ -20,30 +20,30 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure with exact directory tree: src/, tests/, data/, docs/ directories each containing __init__.py files
+- [X] T001 Create project structure with exact directory tree: src/, tests/, data/, docs/ directories each containing __init__.py files
 
 ---
 
@@ -53,10 +53,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create data directory structure (data/raw/, data/processed/, data/results/)
-- [ ] T004 [P] Setup Docker configuration for fMRIPrep container at docker/fmriprep.Dockerfile with CPU-limited settings defining thread and memory constraints.
-- [ ] T006 [P] Setup logging infrastructure at src/utils/logging.py with JSON format logging and QC report template (HTML with motion summary, SNR, temporal SNR metrics)
-- [ ] T007 [P] Create base configuration management at src/config/settings.py with required config items: dataset_paths (dict with raw/processed/result keys as strings), preprocessing_params (dict with motion_correction=bool, slice_timing=bool, normalization=bool, smoothing_mm=int, bandpass_range=tuple[float, float]), atlas_choice (str: 'AAL' per Constitution Principle VI), motion_thresholds (dict with translation_mm=float, rotation_deg=float), statistical_thresholds (dict with nbs_t=float, nbs_alpha=float, power_target=float), all with Python type hints and JSON-serializable format
+- [X] T005 [P] Create data directory structure (data/raw/, data/processed/, data/results/)
+- [X] T004 [P] Setup Docker configuration for fMRIPrep container at docker/fmriprep.Dockerfile with CPU-limited settings defining thread and memory constraints.
+- [X] T006 [P] Setup logging infrastructure at src/utils/logging.py with JSON format logging and QC report template (HTML with motion summary, SNR, temporal SNR metrics)
+- [X] T007 [P] Create base configuration management at src/config/settings.py with required config items: dataset_paths (dict with raw/processed/result keys as strings), preprocessing_params (dict with motion_correction=bool, slice_timing=bool, normalization=bool, smoothing_mm=int, bandpass_range=tuple[float, float]), atlas_choice (str: 'AAL' per Constitution Principle VI), motion_thresholds (dict with translation_mm=float, rotation_deg=float), statistical_thresholds (dict with nbs_t=float, nbs_alpha=float, power_target=float), all with Python type hints and JSON-serializable format
 - [ ] T008 [P] Implement random seed pinning for reproducibility at src/utils/seeding.py with seed value 42 for numpy, random, torch modules; verification criteria: deterministic output on re-run
 - [ ] T009 [P] Setup environment variable management for dataset API keys at src/config/env.py with env vars (OPENNEURO_API_KEY, DATA_DIR) and validation rules (required, non-empty)
 - [ ] T019 [P] Implement post-hoc power analysis script using statsmodels.stats.power.TTestPower at src/analysis/power_analysis.py with sample-size requirements documentation (power ≥80% target) for methods output
@@ -151,7 +151,7 @@
 - [ ] T040 [P] Documentation updates at docs/methods.md with specific content sections (power analysis methodology, motion exclusion rates, dataset counts, preprocessing params)
 - [ ] T041 [P] Code cleanup and refactoring across src/analysis/*.py files to remove duplicate imports and add type hints (function signatures, return types)
 - [ ] T042 Performance optimization for NBS permutation testing on 2 cores with success criteria: runtime <2h on 2 cores for 10 subjects
-- [ ] T045 Security hardening for API key handling at src/config/env.py with .env file validation and key rotation
+- [ ] T045 Security hardening for API key handling at src/config/env.py with.env file validation and key rotation
 - [ ] T047 Create final report template with associational framing and dataset gap documentation at docs/final_report.md
 - [ ] T046 Run quickstart.md validation to ensure all FRs are addressed and generate docs/fr_traceability.md mapping each FR to implementation location
 - [ ] T048 Implement reproducibility checklist verification (random seeds, Docker hashes, data checksums) at src/utils/reproducibility_check.py
@@ -171,8 +171,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -235,9 +235,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Acquisition/Preprocessing)
-   - Developer B: User Story 2 (Connectivity Analysis)
-   - Developer C: User Story 3 (Meta-Analysis)
+ - Developer A: User Story 1 (Data Acquisition/Preprocessing)
+ - Developer B: User Story 2 (Connectivity Analysis)
+ - Developer C: User Story 3 (Meta-Analysis)
 3. Stories complete and integrate independently
 
 ---

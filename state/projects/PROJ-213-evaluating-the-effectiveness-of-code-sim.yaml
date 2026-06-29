@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T18:27:45.931785Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-213-evaluating-the-effectiveness-of-code-sim
-last_run_id: 0620f952-bbd1-4907-9db6-f167ef712574
+last_run_id: 0951469e-5b04-44dd-b1b9-fef968341709
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim
 title: Evaluating the Effectiveness of Code Simplification on LLM Performance
-updated_at: '2026-06-28T21:03:16.036030Z'
+updated_at: '2026-06-28T23:42:41.215484Z'

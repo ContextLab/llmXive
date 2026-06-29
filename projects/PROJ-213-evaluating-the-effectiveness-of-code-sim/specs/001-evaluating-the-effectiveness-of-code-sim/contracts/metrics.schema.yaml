@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InferenceResult Schema"
+description: "Schema for inference metrics CSV (raw or simplified)"
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique problem identifier"
+  input_type:
+    type: "string"
+    description: "Either raw or simplified"
+    enum:
+      - raw
+      - simplified
+  pass_1:
+    type: "boolean"
+    description: "Pass@1 result (true if code passes tests)"
+  token_count:
+    type: "integer"
+    description: "Total tokens in input prompt"
+    minimum: 0
+  inference_time_ms:
+    type: "number"
+    description: "Wall-clock inference time in milliseconds"
+    minimum: 0
+  status:
+    type: "string"
+    description: "Inference status"
+    enum:
+      - success
+      - timeout
+      - error
+  error_message:
+    type: "string"
+    description: "Error details if status != success (optional)"
+    nullable: true
+required:
+  - problem_id
+  - input_type
+  - pass_1
+  - token_count
+  - inference_time_ms
+  - status

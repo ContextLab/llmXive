@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QC Report - Mindfulness-DMN Pipeline</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        h1 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        h2 { color: #555; margin-top: 30px; }
+        .metric-card { background: #f8f9fa; border-left: 4px solid #007bff; padding: 15px; margin: 10px 0; }
+        .metric-value { font-size: 24px; font-weight: bold; color: #007bff; }
+        .metric-label { color: #666; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .pass { color: #28a745; font-weight: bold; }
+        .fail { color: #dc3545; font-weight: bold; }
+        .warning { color: #ffc107; font-weight: bold; }
+        .timestamp { color: #888; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>Quality Control Report</h1>
+    <p class="timestamp">Generated: {{ timestamp }}</p>
+
+    <h2>Dataset Information</h2>
+    <div class="metric-card">
+        <div class="metric-label">Dataset ID</div>
+        <div class="metric-value">{{ dataset_id }}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Subjects Processed</div>
+        <div class="metric-value">{{ subjects_count }}</div>
+    </div>
+
+    <h2>Motion Summary</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Subject ID</th>
+                <th>Mean Translation (mm)</th>
+                <th>Max Translation (mm)</th>
+                <th>Mean Rotation (deg)</th>
+                <th>Max Rotation (deg)</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ motion_rows }}
+        </tbody>
+    </table>
+
+    <h2>Signal-to-Noise Ratio (SNR)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Subject ID</th>
+                <th>Global SNR</th>
+                <th>GM SNR</th>
+                <th>WM SNR</th>
+                <th>CSF SNR</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ snr_rows }}
+        </tbody>
+    </table>
+
+    <h2>Temporal SNR (tSNR)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Subject ID</th>
+                <th>Global tSNR</th>
+                <th>DMN tSNR</th>
+                <th>Frontal tSNR</th>
+                <th>Parietal tSNR</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ tsnr_rows }}
+        </tbody>
+    </table>
+
+    <h2>Summary Statistics</h2>
+    <div class="metric-card">
+        <div class="metric-label">Subjects Passed Motion Threshold</div>
+        <div class="metric-value">{{ motion_pass_count }} / {{ subjects_count }}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Mean Global SNR</div>
+        <div class="metric-value">{{ mean_global_snr }}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Mean Global tSNR</div>
+        <div class="metric-value">{{ mean_global_tsnr }}</div>
+    </div>
+</body>
+</html>

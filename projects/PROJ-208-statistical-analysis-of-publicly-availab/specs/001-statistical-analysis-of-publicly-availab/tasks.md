@@ -24,35 +24,35 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create code/ directory at repository root
-- [ ] T001b [P] Create data/ directory at repository root with subdirectories: raw/, processed/, figures/
-- [ ] T001c [P] Create tests/ directory at repository root with subdirectories: contract/, integration/, unit/
-- [ ] T001d [P] Create state/ directory at repository root
-- [ ] T002 Initialize Python 3.11 project with pinned CPU-tractable dependencies in requirements.txt at projects/PROJ-208-statistical-analysis-of-publicly-availab/code/ (requests, pandas, numpy, scipy, statsmodels, pymer4, matplotlib, seaborn, pyyaml)
-- [ ] T003 [P] Configure linting and formatting tools: create ruff.toml and pyproject.toml config files
+- [X] T001a [P] Create code/ directory at repository root
+- [X] T001b [P] Create data/ directory at repository root with subdirectories: raw/, processed/, figures/
+- [X] T001c [P] Create tests/ directory at repository root with subdirectories: contract/, integration/, unit/
+- [X] T001d [P] Create state/ directory at repository root
+- [X] T002 Initialize Python 3.11 project with pinned CPU-tractable dependencies in requirements.txt at projects/PROJ-208-statistical-analysis-of-publicly-availab/code/ (requests, pandas, numpy, scipy, statsmodels, pymer4, matplotlib, seaborn, pyyaml)
+- [X] T003 [P] Configure linting and formatting tools: create ruff.toml and pyproject.toml config files
 
 ---
 
@@ -62,9 +62,9 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create configuration manager in code/utils/config.py (random seeds, paths, thresholds)
-- [ ] T005 [P] Implement GitHub API client with rate limit handling and exponential backoff in code/utils/api_client.py (FR-001)
-- [ ] T006 [P] Setup schema validators against contracts/ in code/utils/validators.py (SC-001)
+- [X] T004 Create configuration manager in code/utils/config.py (random seeds, paths, thresholds)
+- [X] T005 [P] Implement GitHub API client with rate limit handling and exponential backoff in code/utils/api_client.py (FR-001)
+- [X] T006 [P] Setup schema validators against contracts/ in code/utils/validators.py (SC-001)
 - [ ] T027 [P] Create documentation: data-model.md (entity definitions), contracts/ (schema YAML files) per plan.md Phase 1 outputs
 - [ ] T039 [P] Implement Reference-Validator Agent with checkpoint execution verification at artifact write, Advancement-Evaluator, and research_review→research_accepted transition (Constitution Principle II)
 
@@ -172,12 +172,12 @@ description: "Task list template for feature implementation"
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - T027 (data-model.md, contracts/) MUST precede T009-T026 (schema validation and entity definitions)
-  - T039 (Reference-Validator Agent) MUST be in Phase 2 to enable checkpoint validation throughout research
+ - T027 (data-model.md, contracts/) MUST precede T009-T026 (schema validation and entity definitions)
+ - T039 (Reference-Validator Agent) MUST be in Phase 2 to enable checkpoint validation throughout research
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **US1 (Phase 3)**: Must complete before US2 and US3 (data dependency)
-  - **US2 (Phase 4)**: Requires cleaned dataset from US1 (Phase 3)
-  - **US3 (Phase 5)**: Requires cleaned dataset from US1 (Phase 3)
+ - **US1 (Phase 3)**: Must complete before US2 and US3 (data dependency)
+ - **US2 (Phase 4)**: Requires cleaned dataset from US1 (Phase 3)
+ - **US3 (Phase 5)**: Requires cleaned dataset from US1 (Phase 3)
 - **Documentation & Validation (Phase 6)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -250,9 +250,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Pipeline)
-   - Developer B: User Story 2 (Distribution Analysis) [Waits for US1 data from Phase 3]
-   - Developer C: User Story 3 (Modeling) [Waits for US1 data from Phase 3]
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Distribution Analysis) [Waits for US1 data from Phase 3]
+ - Developer C: User Story 3 (Modeling) [Waits for US1 data from Phase 3]
 3. Stories complete and integrate independently
 
 ---

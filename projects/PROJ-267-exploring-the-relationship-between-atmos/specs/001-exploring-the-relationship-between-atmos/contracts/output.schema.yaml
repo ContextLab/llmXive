@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for data/processed/correlation_results.csv - statistical analysis output"
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for correlation result"
+    pattern: "^CORR-LAG\\d$"
+  lag_months:
+    type: "integer"
+    description: "Lag window in months"
+    enum: [0, 1, 2, 3]
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson correlation coefficient"
+    minimum: -1
+    maximum: 1
+  raw_p_value:
+    type: "number"
+    description: "Uncorrected p-value"
+    minimum: 0
+    maximum: 1
+  corrected_p_value:
+    type: "number"
+    description: "Bonferroni/FDR corrected p-value"
+    minimum: 0
+    maximum: 1
+  ci_lower:
+    type: "number"
+    description: "Bootstrap 95% CI lower bound"
+    minimum: -1
+    maximum: 1
+  ci_upper:
+    type: "number"
+    description: "Bootstrap 95% CI upper bound"
+    minimum: -1
+    maximum: 1
+  significant:
+    type: "boolean"
+    description: "Significance flag (p < 0.05 corrected)"
+  region_type:
+    type: "string"
+    description: "Target or control region"
+    enum: ["target", "control"]
+required:
+  - result_id
+  - lag_months
+  - correlation_coefficient
+  - raw_p_value
+  - corrected_p_value
+  - ci_lower
+  - ci_upper
+  - significant
+  - region_type
+additionalProperties: false

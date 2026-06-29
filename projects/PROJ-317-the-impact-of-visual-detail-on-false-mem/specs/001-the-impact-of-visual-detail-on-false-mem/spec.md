@@ -13,7 +13,7 @@ Researcher uploads baseline images from Visual Genome and receives two manipulat
 
 **Why this priority**: This is the foundation of the entire experiment—without stimulus manipulation, no false memory test can occur. The pipeline must work reliably before any participant testing.
 
-**Independent Test**: Can be fully tested by running the image manipulation script on 5 sample images and verifying output files exist with correct detail modifications, without requiring participants or statistical analysis.
+**Independent Test**: Can be fully tested by running the image manipulation script on multiple sample images and verifying output files exist with correct detail modifications, without requiring participants or statistical analysis.
 
 **Acceptance Scenarios**:
 
@@ -25,7 +25,7 @@ Researcher uploads baseline images from Visual Genome and receives two manipulat
 
 ### User Story 2 - Participant Testing Interface (Priority: P2)
 
-Participant views an image for 10 seconds, completes a 2-minute arithmetic distractor task, then answers 20 questions about scene details (10 false, 10 true).
+Participant views a BASELINE image for 10 seconds, completes a 2-minute arithmetic distractor task, then answers 20 recognition-style questions about scene details (10 true details from baseline, 10 false/lure details that never appeared in the baseline image).
 
 **Why this priority**: This is the core data collection mechanism. Without valid participant responses, no statistical analysis can occur. However, the interface can be tested independently of the manipulation pipeline.
 
@@ -33,9 +33,11 @@ Participant views an image for 10 seconds, completes a 2-minute arithmetic distr
 
 **Acceptance Scenarios**:
 
-1. **Given** an image is loaded, **When** participant views it, **Then** display duration is [deferred] (±0.5 seconds)
-2. **Given** the distractor task begins, **When** participant completes arithmetic questions, **Then** task duration is [deferred] (±10 seconds)
-3. **Given** the 20-question test begins, **When** participant answers all questions, **Then** all 20 responses are recorded with timestamps and participant ID
+1. **Given** a baseline image is loaded, **When** participant views it, **Then** display duration is 10 seconds (±0.5 seconds)
+2. **Given** the distractor task begins, **When** participant completes arithmetic questions, **Then** task duration is 2 minutes (±10 seconds)
+3. **Given** the 20-question recognition test begins, **When** participant answers all questions, **Then** all 20 responses are recorded with timestamps and participant ID, where 10 questions reference true details (from baseline) and 10 reference false/lure details (never appeared in baseline)
+
+**Scope Clarification**: Recognition-only testing is sufficient for the research question; recall testing is out of scope for v1.
 
 ---
 
@@ -59,44 +61,47 @@ System executes repeated-measures ANOVA comparing false memory rates across deta
 
 - What happens when Visual Genome image metadata is missing or incomplete? System MUST skip that image and log the error rather than crashing
 - How does system handle participant dropout mid-session? System MUST record partial responses and flag incomplete sessions in the dataset
-- What happens when image manipulation fails for a specific image? System MUST skip that image, log the failure, and continue with remaining images (minimum 30 images required for analysis)
+- What happens when image manipulation fails for a specific image? System MUST skip that image, log the failure, and continue with remaining images (minimum 30 baseline images required for production analysis; A sufficient number of images for validation testing)
 - How does system handle network timeout during participant testing? System MUST cache responses locally and retry submission with exponential backoff (max 3 attempts, 30-second intervals)
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download a representative sample of images from Visual Genome dataset with varied baseline complexity scores (See US-1)
-- **FR-002**: System MUST create two manipulated versions per image: (a) enhanced detail adding multiple minor objects via compositing, (b) reduced detail blurring/removing minor elements (See US-1)
-- **FR-003**: System MUST display each image for [deferred] (±0.5 seconds) before advancing to distractor task (See US-2)
-- **FR-004**: System MUST administer a set of questions per session: an equal number of false details (present only in enhanced/reduced versions) and true details (present in baseline) (See US-2)
+- **FR-001**: System MUST download a representative sample of images from Visual Genome dataset with varied baseline complexity scores spanning ≥3 quantile bins (Q1-Q3 range ≥0.3) (See US-1)
+- **FR-002**: System MUST create two manipulated versions per baseline image: (a) enhanced detail adding 3-5 minor objects via compositing, (b) reduced detail blurring/removing minor elements (See US-1)
+- **FR-003**: System MUST display each baseline image for 10 seconds (±0.5 seconds) before advancing to distractor task (See US-2)
+- **FR-004**: System MUST administer a set of recognition questions per session: 10 true details (items that appeared in baseline image) and 10 false/lure details (items that never appeared in baseline image) (See US-2)
 - **FR-005**: System MUST execute repeated-measures ANOVA comparing false memory rates across detail conditions using scipy.stats (See US-3)
 - **FR-006**: System MUST apply multiple-comparison correction when >1 hypothesis test is performed (See US-3)
 - **FR-007**: System MUST generate visualization showing mean false memory rates with 95% confidence intervals for each condition (See US-3)
+- **FR-008**: System MUST generate and store stimulus metadata file per baseline image recording manipulation parameters (detail level, object list, texture settings, timestamps) per Constitution VII (See US-1)
 
 ### Key Entities
 
-- **Image**: Visual stimulus with attributes: baseline_complexity_score, enhanced_version_path, reduced_version_path, manipulation_timestamp
-- **Participant**: Human subject with attributes: participant_id, completion_timestamp, condition_assigned, total_false_memory_rate
+- **Image**: Visual stimulus with attributes: baseline_complexity_score, enhanced_version_path, reduced_version_path, manipulation_timestamp, metadata_file_path
+- **Participant**: Human subject with attributes: participant_id, completion_timestamp, condition_assigned, total_false_memory_rate, consent_verified
 - **Response**: Single answer with attributes: question_id, is_false_detail, participant_id, response_value, response_timestamp
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: False memory rate is measured against the baseline image condition to determine effect size of visual detail manipulation (See US-2, US-3)
-- **SC-002**: Statistical power is measured against the planned sample size of 60-80 participants with ≥50 per condition to ensure p < 0.05 significance threshold is testable (See US-3)
-- **SC-003**: Analysis runtime is measured against the 6-hour GitHub Actions free-tier job limit to ensure CPU-only feasibility (See US-3)
+- **SC-002**: Statistical power is calculated before data collection with planned sample size of ≥50 complete sessions to detect effects of interest at α = 0.05 significance level (See US-3)
+- **SC-003**: Analysis runtime is measured against the GitHub Actions free-tier job time limit to ensure CPU-only feasibility (See US-3)
 - **SC-004**: Dataset-variable fit is measured against Visual Genome metadata to confirm all required predictors (complexity scores) and outcomes (false memory rates) are available (See US-1)
 - **SC-005**: Multiple-comparison correction is measured against the number of hypothesis tests performed to control family-wise error rate (See US-3)
 
 ## Assumptions
 
 - Participants have stable internet connectivity during the testing session (minimum 5 Mbps download, 1 Mbps upload)
-- Visual Genome dataset contains sufficient scene images with measurable baseline complexity scores for 30-40 image selection
-- False memory measurement uses validated question format from existing literature (DRM paradigm adaptations for visual stimuli)
+- Visual Genome dataset contains sufficient scene images with measurable baseline complexity scores for a representative image selection
+- False memory measurement uses validated recognition paradigm from misinformation effect literature (Loftus et al.) for visual stimuli, not DRM paradigm (which is for verbal false memory)
 - All statistical analysis runs on CPU-only hardware (no GPU/CUDA dependencies in scipy, matplotlib, or PIL/Pillow)
 - Total dataset size (images + participant responses) fits within 7 GB RAM and 14 GB disk constraints
 - Participant recruitment via crowdsourcing platform yields a sufficient number of complete sessions within the allocated budget
@@ -104,3 +109,4 @@ System executes repeated-measures ANOVA comparing false memory rates across deta
 - Observational design frames findings as associational, not causal (no random assignment to detail conditions at individual level)
 - Sensitivity analysis for any decision cutoffs (e.g., complexity thresholds) will sweep values over {0.01, 0.05, 0.1} and report false-positive/false-negative rate variation
 - Predictor collinearity is diagnosed when multiple visual detail metrics are used (e.g., object count, texture resolution, complexity score) and joint relationships are framed descriptively
+- Ethics compliance: IRB approval documentation MUST be obtained before participant recruitment begins; informed consent form with ≥5-minute reading time MUST be displayed and acknowledged before session starts; PII handling follows GDPR-compliant anonymization workflow

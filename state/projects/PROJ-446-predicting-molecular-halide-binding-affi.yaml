@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T15:40:53.450524Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-446-predicting-molecular-halide-binding-affi
-last_run_id: 771cb004-5332-410e-826d-84b1e24a6d7d
+last_run_id: 6ce98a97-7633-473b-b1c2-5600849c2e8c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Molecular Halide Binding Affinities with Machine Learning
-updated_at: '2026-06-15T07:35:01.950326Z'
+updated_at: '2026-06-28T23:09:15.336896Z'

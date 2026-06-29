@@ -1,6 +1,6 @@
 # Tasks: 001-code-review-quality
 
-**Input**: Design documents from `/specs/001-code-review-quality/`  
+**Input**: Design documents from `/specs/001-code-review-quality/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/metrics/`, `results/`, `state/`, placeholder `README.md`, and empty `specs/` folder.
-- [ ] T002 Initialize Python 3.11 package: add `code/__init__.py` and create `code/requirements.txt` pinned to specific versions of `datasets`, `radon`, `pylint`, `scipy`, `matplotlib`, `pandas`, `numpy`, `pyyaml`.
-- [ ] T003 Configure linting and formatting: add `pyproject.toml` with Black, isort, Flake8 settings; create `.flake8` config file.
+- [X] T001 Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/metrics/`, `results/`, `state/`, placeholder `README.md`, and empty `specs/` folder.
+- [X] T002 Initialize Python 3.11 package: add `code/__init__.py` and create `code/requirements.txt` pinned to specific versions of `datasets`, `radon`, `pylint`, `scipy`, `matplotlib`, `pandas`, `numpy`, `pyyaml`.
+- [X] T003 Configure linting and formatting: add `pyproject.toml` with Black, isort, Flake8 settings; create `.flake8` config file.
 
 ---
 
@@ -34,15 +34,15 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **⚠️ CRITICAL**: Research is BLOCKED until Constitutional Amendment tasks (T008-T010) are approved or resolved.
 
-- [ ] T004 Implement seed management module in `code/seeds.py` with documented seed value **42** for `numpy`, `random`, and (optional) `torch`.
-- [ ] T005 Implement checksum utilities in `code/checksum.py` to compute SHA‑256 for downloaded datasets and write `data/checksums.json`.
-- [ ] T006 Implement state‑tracking utilities in `code/state_tracker.py` to compute artifact hashes and update `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` with `updated_at` timestamps.
+- [X] T004 Implement seed management module in `code/seeds.py` with documented seed value **42** for `numpy`, `random`, and (optional) `torch`.
+- [X] T005 Implement checksum utilities in `code/checksum.py` to compute SHA‑256 for downloaded datasets and write `data/checksums.json`.
+- [X] T006 Implement state‑tracking utilities in `code/state_tracker.py` to compute artifact hashes and update `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` with `updated_at` timestamps.
 - [ ] T007 Setup logging infrastructure in `code/logging_config.py` with snippet‑ID aware logger (INFO level, console + file).
 - [ ] T008 Create data model definitions in `code/data_model.py`:
-  - `CodeSnippet` (id, source, code, length, language)
-  - `MetricScore` (snippet_id, metric_type, score, timestamp)
-  - `DatasetGroup` (label, snippets, aggregates)
-  - `MetricResult` schema for CSV output.
+ - `CodeSnippet` (id, source, code, length, language)
+ - `MetricScore` (snippet_id, metric_type, score, timestamp)
+ - `DatasetGroup` (label, snippets, aggregates)
+ - `MetricResult` schema for CSV output.
 - [ ] T009 Draft amendment PR to **Principle VI** permitting use of **CodeParrot/CodeGen** as the LLM‑generated code source; include justification and impact analysis in `docs/amendment-vi.md`. **Proposed text**: "Allow LLM-generated code from verified training corpora (e.g., CodeParrot/CodeGen) when HumanEval/MBPP lack sufficient sample size (n≥1000) for statistical power." **BLOCKS Phase 3-5**.
 - [ ] T010 Draft amendment PR to **Principle VII** permitting use of **radon** and **pylint** for metric extraction; include CPU‑feasibility argument in `docs/amendment-vii.md`. **Proposed text**: "Allow CPU-tractable static analysis tools (radon, pylint) with documented justification when lightweight LLM inference exceeds runtime constraints (≤6h on 2-core CPU)." **BLOCKS Phase 3-5**.
 - [ ] T011 Submit both PRs, record their URLs in `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` amendment_status map, and update the amendment‑status section after review. **BLOCKS Phase 3-5**.
@@ -53,8 +53,8 @@
 
 **Goal**: Download and preprocess human‑written (CodeSearchNet) and LLM‑generated (CodeParrot/CodeGen) code datasets, filter to Python functions with comparable sizes.
 
-- [ ] T012 [US1] Implement HuggingFace download for **CodeSearchNet** in `code/data_ingestion.py` using `datasets.load_dataset('code_search_net', ...)`, with exponential backoff (≥3 retries, 60 s intervals) and robust error handling.
-- [ ] T013 [US1] Implement HuggingFace download for **CodeParrot/CodeGen** in the same module using `datasets.load_dataset('codeparrot/codegen', ...)`, recording SHA‑256 checksums to `data/checksums.json`.
+- [ ] T012 [US1] Implement HuggingFace download for **CodeSearchNet** in `code/data_ingestion.py` using `datasets.load_dataset('code_search_net',...)`, with exponential backoff (≥3 retries, 60 s intervals) and robust error handling.
+- [ ] T013 [US1] Implement HuggingFace download for **CodeParrot/CodeGen** in the same module using `datasets.load_dataset('codeparrot/codegen',...)`, recording SHA‑256 checksums to `data/checksums.json`.
 - [ ] T014 [US1] Implement dataset verification workflow: confirm that both datasets are listed in `data/verified_sources.json`; abort with **error 101** if a dataset is not verified.
 - [ ] T015 [US1] Implement streaming and sampling to ensure total snippets ≤ 10,000 to comply with 14 GB disk limit; use `datasets.load_dataset(..., streaming=True)` with [deferred] sample fraction.
 - [ ] T016 [US1] Implement Python‑only filtering: keep snippets where `language == "python"` and extract top‑level functions using `ast`.

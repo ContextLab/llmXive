@@ -1,0 +1,125 @@
+# Docker Compose Configuration for fMRIPrep
+# PROJ-103: Assessing the Impact of Mindfulness Training on Default Mode Network Activity
+#
+# This configuration defines CPU-limited settings for fMRIPrep execution
+# suitable for GitHub Actions free tier and local development with limited resources.
+#
+# Resource Constraints:
+#   - CPUs: 2.0 (matches GitHub Actions free tier limits)
+#   - Memory: 4GB (prevents OOM on constrained environments)
+#   - Shared Memory: 2GB (required for multiprocessing)
+#
+# Usage:
+#   docker-compose -f docker/docker-compose.yml up fmriprep
+#
+# Or with specific dataset:
+#   docker-compose -f docker/docker-compose.yml run \
+#     -v /path/to/bids_dataset:/data:ro \
+#     -v /path/to/output:/output \
+#     fmriprep /data /output participant --participant-label sub-01
+
+version: '3.8'
+
+services:
+  fmriprep:
+    build:
+      context: .
+      dockerfile: fmriprep.Dockerfile
+    image: fmriprep-mindfulness:latest
+    container_name: fmriprep-mindfulness-runner
+
+    # =============================================================================
+    # CPU CONSTRAINTS (Critical for GitHub Actions compatibility)
+    # =============================================================================
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+    # =============================================================================
+    # Runtime CPU/Memory Constraints
+    # =============================================================================
+    cpus: 2.0
+    memory: 4g
+    memswap_limit: 4g
+    shm_size: 2g
+
+    # =============================================================================
+    # Environment Variables for Resource Management
+    # =============================================================================
+    environment:
+      - OMP_NUM_THREADS=1
+      - OPENBLAS_NUM_THREADS=1
+      - MKL_NUM_THREADS=1
+      - NUMEXPR_NUM_THREADS=1
+      - VECLIB_MAXIMUM_THREADS=1
+      - NUMBA_NUM_THREADS=1
+      - FMRIPREP_MEMORY_LIMIT=4096
+      - FMRIPREP_THREAD_COUNT=2
+      - FMRIPREP_LOG_LEVEL=INFO
+
+    # =============================================================================
+    # fMRIPrep Runtime Arguments (passed as command)
+    # =============================================================================
+    command: >
+      --help
+
+    # =============================================================================
+    # Volume Mounts (override at runtime)
+    # =============================================================================
+    volumes:
+      - ../data/raw:/data:ro
+      - ../data/processed:/output
+      - ../data/work:/work
+      - ./config:/config
+
+    # =============================================================================
+    # Health Check
+    # =============================================================================
+    healthcheck:
+      test: ["CMD", "python", "-c", "import nilearn; print('OK')"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 10s
+
+    # =============================================================================
+    # Resource Logging (for monitoring and debugging)
+    # =============================================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # =============================================================================
+    # Restart Policy
+    # =============================================================================
+    restart: "no"
+
+# =============================================================================
+# VOLUME DEFINITIONS
+# =============================================================================
+volumes:
+  bids-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/raw
+  processed-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/processed
+  work-dir:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/work

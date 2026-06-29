@@ -1,0 +1,6 @@
+{
+  "algorithm": "sha256",
+  "checksums": {},
+  "description": "Dataset checksums for integrity verification",
+  "seed_value": 42
+}

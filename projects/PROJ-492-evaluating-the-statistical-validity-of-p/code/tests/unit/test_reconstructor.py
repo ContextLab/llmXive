@@ -1,437 +1,563 @@
-"""
-Unit tests for statistical reconstruction module.
+"""Unit tests for the statistical reconstructor module.
 
-Tests cover binary (z-test, Fisher's exact) and continuous (Welch's t-test)
-reconstruction with known fixtures and expected outputs.
+Tests verify that reconstructed p-values, effect sizes, and test statistics
+match expected values for known inputs (binary and continuous outcomes).
 """
 import pytest
 import numpy as np
 from datetime import datetime
-
 from code.src.audit.reconstructor import (
-    reconstruct_p_value,
+    compute_two_proportion_z_test,
+    compute_fisher_exact_test,
+    compute_welch_t_test,
     reconstruct_from_binary_summary,
     reconstruct_from_continuous_summary,
+    reconstruct_p_value,
     validate_reconstruction,
-    ReconstructionResult,
-    _compute_two_proportion_z_test,
-    _compute_fisher_exact_test,
-    _compute_welch_t_test,
 )
 from code.src.models.data_models import ABTestSummary
 
+# ============================================================================
+# Test Constants - Known expected values for verification
+# ============================================================================
+
+# For two-proportion z-test: n1=1000, x1=100, n2=1000, x2=120
+# Expected p-value ≈ 0.136 (two-tailed)
+BINARY_TEST_1 = {
+    "n1": 1000,
+    "successes1": 100,
+    "n2": 1000,
+    "successes2": 120,
+    "expected_p_value": 0.136,
+    "expected_z_stat": -1.49,
+}
+
+# For two-proportion z-test: n1=500, x1=50, n2=500, x2=75
+# Expected p-value ≈ 0.034 (two-tailed)
+BINARY_TEST_2 = {
+    "n1": 500,
+    "successes1": 50,
+    "n2": 500,
+    "successes2": 75,
+    "expected_p_value": 0.034,
+    "expected_z_stat": -2.12,
+}
+
+# For Fisher's exact test: small sample, imbalanced
+FISHER_TEST_1 = {
+    "n1": 30,
+    "successes1": 5,
+    "n2": 30,
+    "successes2": 15,
+    "expected_p_value": 0.032,  # Approximate
+}
+
+# For Welch's t-test: known effect
+CONTINUOUS_TEST_1 = {
+    "n1": 100,
+    "mean1": 50.0,
+    "std1": 10.0,
+    "n2": 100,
+    "mean2": 55.0,
+    "std2": 10.0,
+    "expected_p_value": 0.0003,
+    "expected_t_stat": -3.54,
+}
+
+# For Welch's t-test: no effect
+CONTINUOUS_TEST_2 = {
+    "n1": 100,
+    "mean1": 50.0,
+    "std1": 10.0,
+    "n2": 100,
+    "mean2": 50.0,
+    "std2": 10.0,
+    "expected_p_value": 1.0,
+    "expected_t_stat": 0.0,
+}
+
+# ============================================================================
+# Test Classes
+# ============================================================================
 
 class TestComputeTwoProportionZTest:
-    """Tests for two-proportion z-test computation."""
+    """Tests for the two-proportion z-test computation."""
 
-    def test_basic_binary_case(self):
-        """Test basic binary outcome with known values."""
-        # Control: 100 samples, 20 successes (20%)
-        # Treatment: 100 samples, 30 successes (30%)
-        p_value, effect_size = _compute_two_proportion_z_test(
-            n_control=100,
-            n_treatment=100,
-            success_control=20,
-            success_treatment=30,
+    def test_binary_test_1(self):
+        """Verify z-test calculation for known binary data."""
+        result = compute_two_proportion_z_test(
+            n1=BINARY_TEST_1["n1"],
+            successes1=BINARY_TEST_1["successes1"],
+            n2=BINARY_TEST_1["n2"],
+            successes2=BINARY_TEST_1["successes2"],
         )
-        assert not np.isnan(p_value)
-        assert not np.isnan(effect_size)
-        assert effect_size == pytest.approx(0.10, rel=0.01)
-        # P-value should be reasonable (not 0 or 1 for this effect size)
-        assert 0 < p_value < 1
+        assert result["p_value"] is not None
+        assert result["z_statistic"] is not None
+        # Allow 5% tolerance for expected values
+        assert abs(result["p_value"] - BINARY_TEST_1["expected_p_value"]) < 0.01
+        assert abs(result["z_statistic"] - BINARY_TEST_1["expected_z_stat"]) < 0.1
+
+    def test_binary_test_2(self):
+        """Verify z-test calculation for significant binary data."""
+        result = compute_two_proportion_z_test(
+            n1=BINARY_TEST_2["n1"],
+            successes1=BINARY_TEST_2["successes1"],
+            n2=BINARY_TEST_2["n2"],
+            successes2=BINARY_TEST_2["successes2"],
+        )
+        assert result["p_value"] < 0.05  # Should be significant
+        assert result["z_statistic"] is not None
 
     def test_equal_proportions(self):
-        """Test when proportions are equal (p-value should be ~1)."""
-        p_value, effect_size = _compute_two_proportion_z_test(
-            n_control=100,
-            n_treatment=100,
-            success_control=25,
-            success_treatment=25,
+        """Verify z-test returns p=1.0 when proportions are equal."""
+        result = compute_two_proportion_z_test(
+            n1=1000, successes1=100, n2=1000, successes2=100
         )
-        assert not np.isnan(p_value)
-        assert effect_size == pytest.approx(0.0, abs=0.01)
-        assert p_value > 0.9  # Should be close to 1
+        assert result["p_value"] == 1.0
+        assert result["z_statistic"] == 0.0
 
-    def test_invalid_sample_sizes(self):
-        """Test with invalid sample sizes returns NaN."""
-        p_value, effect_size = _compute_two_proportion_z_test(
-            n_control=0,
-            n_treatment=100,
-            success_control=0,
-            success_treatment=10,
+    def test_small_sample_sizes(self):
+        """Verify z-test handles small sample sizes."""
+        result = compute_two_proportion_z_test(
+            n1=50, successes1=10, n2=50, successes2=20
         )
-        assert np.isnan(p_value)
-        assert np.isnan(effect_size)
+        assert result["p_value"] is not None
+        assert 0 <= result["p_value"] <= 1
+
+    def test_invalid_input_zero_successes(self):
+        """Verify z-test handles zero successes gracefully."""
+        result = compute_two_proportion_z_test(
+            n1=100, successes1=0, n2=100, successes2=10
+        )
+        assert result["p_value"] is not None
+        assert 0 <= result["p_value"] <= 1
+
+    def test_invalid_input_all_successes(self):
+        """Verify z-test handles 100% success rates gracefully."""
+        result = compute_two_proportion_z_test(
+            n1=100, successes1=100, n2=100, successes2=90
+        )
+        assert result["p_value"] is not None
+        assert 0 <= result["p_value"] <= 1
 
 
 class TestComputeFisherExactTest:
     """Tests for Fisher's exact test computation."""
 
-    def test_small_sample_binary(self):
-        """Test Fisher's exact test with small samples."""
-        # Small samples where Fisher's is preferred
-        p_value, effect_size = _compute_fisher_exact_test(
-            success_control=5,
-            success_treatment=12,
-            n_control=20,
-            n_treatment=20,
+    def test_fisher_test_1(self):
+        """Verify Fisher's test calculation for known small-sample data."""
+        result = compute_fisher_exact_test(
+            n1=FISHER_TEST_1["n1"],
+            successes1=FISHER_TEST_1["successes1"],
+            n2=FISHER_TEST_1["n2"],
+            successes2=FISHER_TEST_1["successes2"],
         )
-        assert not np.isnan(p_value)
-        assert not np.isnan(effect_size)
-        assert 0 <= p_value <= 1
+        assert result["p_value"] is not None
+        assert 0 <= result["p_value"] <= 1
 
-    def test_all_successes_control(self):
-        """Test edge case where all control succeed."""
-        p_value, effect_size = _compute_fisher_exact_test(
-            success_control=20,
-            success_treatment=10,
-            n_control=20,
-            n_treatment=20,
+    def test_fisher_equal_proportions(self):
+        """Verify Fisher's test returns p=1.0 when proportions are equal."""
+        result = compute_fisher_exact_test(
+            n1=30, successes1=10, n2=30, successes2=10
         )
-        assert not np.isnan(p_value)
-        assert 0 <= p_value <= 1
+        assert result["p_value"] == 1.0
 
-    def test_invalid_sample_sizes(self):
-        """Test with invalid sample sizes."""
-        p_value, effect_size = _compute_fisher_exact_test(
-            success_control=5,
-            success_treatment=10,
-            n_control=0,
-            n_treatment=20,
+    def test_fisher_extreme_imbalance(self):
+        """Verify Fisher's test handles extreme class imbalance."""
+        result = compute_fisher_exact_test(
+            n1=50, successes1=0, n2=50, successes2=50
         )
-        assert np.isnan(p_value)
-        assert np.isnan(effect_size)
+        assert result["p_value"] is not None
+        assert result["p_value"] < 0.001
+
+    def test_fisher_very_small_sample(self):
+        """Verify Fisher's test handles very small samples."""
+        result = compute_fisher_exact_test(
+            n1=5, successes1=1, n2=5, successes2=4
+        )
+        assert result["p_value"] is not None
+        assert 0 <= result["p_value"] <= 1
 
 
 class TestComputeWelchTTest:
     """Tests for Welch's t-test computation."""
 
-    def test_basic_continuous_case(self):
-        """Test basic continuous outcome."""
-        p_value, effect_size = _compute_welch_t_test(
-            mean_control=50.0,
-            mean_treatment=55.0,
-            std_control=10.0,
-            std_treatment=10.0,
-            n_control=100,
-            n_treatment=100,
+    def test_continuous_test_1(self):
+        """Verify t-test calculation for known continuous data."""
+        result = compute_welch_t_test(
+            n1=CONTINUOUS_TEST_1["n1"],
+            mean1=CONTINUOUS_TEST_1["mean1"],
+            std1=CONTINUOUS_TEST_1["std1"],
+            n2=CONTINUOUS_TEST_1["n2"],
+            mean2=CONTINUOUS_TEST_1["mean2"],
+            std2=CONTINUOUS_TEST_1["std2"],
         )
-        assert not np.isnan(p_value)
-        assert not np.isnan(effect_size)
-        assert 0 <= p_value <= 1
+        assert result["p_value"] is not None
+        assert result["t_statistic"] is not None
+        # Allow 10% tolerance for expected values
+        assert abs(result["p_value"] - CONTINUOUS_TEST_1["expected_p_value"]) < 0.0001
+        assert abs(result["t_statistic"] - CONTINUOUS_TEST_1["expected_t_stat"]) < 0.1
 
-    def test_equal_means(self):
-        """Test when means are equal (p-value should be ~1)."""
-        p_value, effect_size = _compute_welch_t_test(
-            mean_control=50.0,
-            mean_treatment=50.0,
-            std_control=10.0,
-            std_treatment=10.0,
-            n_control=100,
-            n_treatment=100,
+    def test_continuous_test_2_no_effect(self):
+        """Verify t-test returns p=1.0 when means are equal."""
+        result = compute_welch_t_test(
+            n1=CONTINUOUS_TEST_2["n1"],
+            mean1=CONTINUOUS_TEST_2["mean1"],
+            std1=CONTINUOUS_TEST_2["std1"],
+            n2=CONTINUOUS_TEST_2["n2"],
+            mean2=CONTINUOUS_TEST_2["mean2"],
+            std2=CONTINUOUS_TEST_2["std2"],
         )
-        assert not np.isnan(p_value)
-        assert effect_size == pytest.approx(0.0, abs=0.01)
-        assert p_value > 0.9
+        assert result["p_value"] == 1.0
+        assert result["t_statistic"] == 0.0
 
-    def test_invalid_sample_sizes(self):
-        """Test with invalid sample sizes."""
-        p_value, effect_size = _compute_welch_t_test(
-            mean_control=50.0,
-            mean_treatment=55.0,
-            std_control=10.0,
-            std_treatment=10.0,
-            n_control=0,
-            n_treatment=100,
+    def test_welch_unequal_variances(self):
+        """Verify Welch's test handles unequal variances correctly."""
+        result = compute_welch_t_test(
+            n1=100, mean1=50.0, std1=5.0, n2=100, mean2=55.0, std2=15.0
         )
-        assert np.isnan(p_value)
-        assert np.isnan(effect_size)
+        assert result["p_value"] is not None
+        assert 0 <= result["p_value"] <= 1
+
+    def test_very_small_sample_sizes(self):
+        """Verify Welch's test handles small samples."""
+        result = compute_welch_t_test(
+            n1=10, mean1=50.0, std1=10.0, n2=10, mean2=60.0, std2=10.0
+        )
+        assert result["p_value"] is not None
+        assert 0 <= result["p_value"] <= 1
 
 
 class TestReconstructFromBinarySummary:
-    """Tests for binary summary reconstruction."""
+    """Tests for binary outcome reconstruction from ABTestSummary."""
 
-    def test_binary_summary_reconstruction(self):
-        """Test reconstruction from ABTestSummary with binary outcome."""
+    def test_reconstruct_binary_valid(self):
+        """Verify reconstruction from valid binary summary."""
         summary = ABTestSummary(
-            source_url='https://example.com/test1',
-            domain='tech',
+            url="https://example.com/test1",
+            domain="example.com",
             publication_year=2023,
-            sample_size_control=1000,
-            sample_size_treatment=1000,
-            successes_control=200,
-            successes_treatment=250,
-            baseline_conversion_rate=0.20,
-            reported_p_value=0.008,
-            reported_effect_size=0.05,
-            test_timestamp=datetime(2023, 6, 15),
+            outcome_type="binary",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            baseline_sample_size=1000,
+            treatment_sample_size=1000,
+            reported_p_value=0.136,
         )
-
         result = reconstruct_from_binary_summary(summary)
 
-        assert result.success
-        assert result.test_type in ['binary_z_test', 'binary_fisher']
-        assert not np.isnan(result.reconstructed_p_value)
-        assert not np.isnan(result.reconstructed_effect_size)
-        assert result.absolute_p_difference < 1.0  # Should be reasonable
+        assert result["reconstructed_p_value"] is not None
+        assert result["reconstructed_z_statistic"] is not None
+        assert result["effect_size"] is not None
+        assert result["test_type"] == "z-test"
+        assert result["data_quality_warning"] is None
 
-    def test_binary_summary_with_fallback(self):
-        """Test reconstruction when baseline is missing (FR-012 fallback)."""
+    def test_reconstruct_binary_sample_mismatch(self):
+        """Verify warning is generated for sample size mismatch."""
         summary = ABTestSummary(
-            source_url='https://example.com/test2',
-            domain='tech',
+            url="https://example.com/test2",
+            domain="example.com",
             publication_year=2023,
-            sample_size_control=500,
-            sample_size_treatment=500,
-            successes_control=100,
-            successes_treatment=125,
-            baseline_conversion_rate=None,  # Missing
-            reported_p_value=0.03,
-            reported_effect_size=0.05,
-            test_timestamp=datetime(2023, 6, 15),
+            outcome_type="binary",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            baseline_sample_size=1000,
+            treatment_sample_size=500,  # Mismatch
+            reported_p_value=0.136,
         )
-
         result = reconstruct_from_binary_summary(summary)
 
-        # Should still succeed with fallback
-        assert result.success or len(result.warning_messages) > 0
-        assert 'FR-012' in ' '.join(result.warning_messages) or result.success
+        assert result["data_quality_warning"] is not None
+        assert "sample_size" in result["data_quality_warning"].lower()
 
-    def test_binary_summary_invalid_samples(self):
-        """Test reconstruction with invalid sample sizes."""
+    def test_reconstruct_binary_missing_fields(self):
+        """Verify graceful handling of missing fields."""
         summary = ABTestSummary(
-            source_url='https://example.com/test3',
-            domain='tech',
+            url="https://example.com/test3",
+            domain="example.com",
             publication_year=2023,
-            sample_size_control=0,
-            sample_size_treatment=0,
-            successes_control=0,
-            successes_treatment=0,
-            baseline_conversion_rate=0.20,
-            reported_p_value=0.05,
-            reported_effect_size=0.0,
-            test_timestamp=datetime(2023, 6, 15),
+            outcome_type="binary",
+            baseline_conversion_rate=None,
+            treatment_conversion_rate=0.12,
+            baseline_sample_size=1000,
+            treatment_sample_size=1000,
+            reported_p_value=0.136,
         )
-
         result = reconstruct_from_binary_summary(summary)
 
-        assert not result.success
-        assert np.isnan(result.reconstructed_p_value)
+        assert result["reconstructed_p_value"] is None
+        assert result["data_quality_warning"] is not None
 
 
 class TestReconstructFromContinuousSummary:
-    """Tests for continuous summary reconstruction."""
+    """Tests for continuous outcome reconstruction from ABTestSummary."""
 
-    def test_continuous_summary_reconstruction(self):
-        """Test reconstruction from ABTestSummary with continuous outcome."""
+    def test_reconstruct_continuous_valid(self):
+        """Verify reconstruction from valid continuous summary."""
         summary = ABTestSummary(
-            source_url='https://example.com/test4',
-            domain='ecommerce',
+            url="https://example.com/test4",
+            domain="example.com",
             publication_year=2023,
-            sample_size_control=200,
-            sample_size_treatment=200,
-            mean_control=100.0,
-            mean_treatment=105.0,
-            std_control=15.0,
-            std_treatment=15.0,
-            reported_p_value=0.002,
-            reported_effect_size=0.33,
-            test_timestamp=datetime(2023, 6, 15),
+            outcome_type="continuous",
+            baseline_mean=50.0,
+            treatment_mean=55.0,
+            baseline_std=10.0,
+            treatment_std=10.0,
+            baseline_sample_size=100,
+            treatment_sample_size=100,
+            reported_p_value=0.0003,
         )
-
         result = reconstruct_from_continuous_summary(summary)
 
-        assert result.success
-        assert result.test_type == 'continuous_welch'
-        assert not np.isnan(result.reconstructed_p_value)
-        assert not np.isnan(result.reconstructed_effect_size)
+        assert result["reconstructed_p_value"] is not None
+        assert result["reconstructed_t_statistic"] is not None
+        assert result["effect_size"] is not None
+        assert result["test_type"] == "Welch's t-test"
+        assert result["data_quality_warning"] is None
 
-    def test_continuous_summary_missing_means(self):
-        """Test reconstruction when means are missing."""
+    def test_reconstruct_continuous_sample_mismatch(self):
+        """Verify warning is generated for sample size mismatch."""
         summary = ABTestSummary(
-            source_url='https://example.com/test5',
-            domain='ecommerce',
+            url="https://example.com/test5",
+            domain="example.com",
             publication_year=2023,
-            sample_size_control=200,
-            sample_size_treatment=200,
-            mean_control=None,
-            mean_treatment=None,
-            std_control=15.0,
-            std_treatment=15.0,
-            reported_p_value=0.05,
-            reported_effect_size=0.0,
-            test_timestamp=datetime(2023, 6, 15),
+            outcome_type="continuous",
+            baseline_mean=50.0,
+            treatment_mean=55.0,
+            baseline_std=10.0,
+            treatment_std=10.0,
+            baseline_sample_size=100,
+            treatment_sample_size=50,  # Mismatch
+            reported_p_value=0.0003,
         )
-
         result = reconstruct_from_continuous_summary(summary)
 
-        assert not result.success
-        assert len(result.warning_messages) > 0
+        assert result["data_quality_warning"] is not None
+        assert "sample_size" in result["data_quality_warning"].lower()
+
+    def test_reconstruct_continuous_missing_std(self):
+        """Verify graceful handling of missing standard deviation."""
+        summary = ABTestSummary(
+            url="https://example.com/test6",
+            domain="example.com",
+            publication_year=2023,
+            outcome_type="continuous",
+            baseline_mean=50.0,
+            treatment_mean=55.0,
+            baseline_std=None,
+            treatment_std=10.0,
+            baseline_sample_size=100,
+            treatment_sample_size=100,
+            reported_p_value=0.0003,
+        )
+        result = reconstruct_from_continuous_summary(summary)
+
+        assert result["reconstructed_p_value"] is None
+        assert result["data_quality_warning"] is not None
 
 
 class TestReconstructPValue:
-    """Tests for main reconstruction dispatcher."""
+    """Tests for the generic p-value reconstruction dispatcher."""
 
-    def test_binary_outcome_detection(self):
-        """Test that binary outcomes are detected and processed correctly."""
+    def test_reconstruct_binary_p_value(self):
+        """Verify p-value reconstruction for binary outcomes."""
         summary = ABTestSummary(
-            source_url='https://example.com/test6',
-            domain='tech',
+            url="https://example.com/test7",
+            domain="example.com",
             publication_year=2023,
-            sample_size_control=1000,
-            sample_size_treatment=1000,
-            successes_control=200,
-            successes_treatment=250,
-            baseline_conversion_rate=0.20,
-            reported_p_value=0.008,
-            reported_effect_size=0.05,
-            test_timestamp=datetime(2023, 6, 15),
+            outcome_type="binary",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            baseline_sample_size=1000,
+            treatment_sample_size=1000,
+            reported_p_value=0.136,
         )
-
         result = reconstruct_p_value(summary)
 
-        assert result.test_type in ['binary_z_test', 'binary_fisher']
-        assert result.success
+        assert result["reconstructed_p_value"] is not None
+        assert result["test_type"] == "z-test"
 
-    def test_continuous_outcome_detection(self):
-        """Test that continuous outcomes are detected and processed correctly."""
+    def test_reconstruct_continuous_p_value(self):
+        """Verify p-value reconstruction for continuous outcomes."""
         summary = ABTestSummary(
-            source_url='https://example.com/test7',
-            domain='ecommerce',
+            url="https://example.com/test8",
+            domain="example.com",
             publication_year=2023,
-            sample_size_control=200,
-            sample_size_treatment=200,
-            mean_control=100.0,
-            mean_treatment=105.0,
-            std_control=15.0,
-            std_treatment=15.0,
-            reported_p_value=0.002,
-            reported_effect_size=0.33,
-            test_timestamp=datetime(2023, 6, 15),
+            outcome_type="continuous",
+            baseline_mean=50.0,
+            treatment_mean=55.0,
+            baseline_std=10.0,
+            treatment_std=10.0,
+            baseline_sample_size=100,
+            treatment_sample_size=100,
+            reported_p_value=0.0003,
         )
-
         result = reconstruct_p_value(summary)
 
-        assert result.test_type == 'continuous_welch'
-        assert result.success
+        assert result["reconstructed_p_value"] is not None
+        assert result["test_type"] == "Welch's t-test"
+
+    def test_reconstruct_unknown_outcome_type(self):
+        """Verify graceful handling of unknown outcome type."""
+        summary = ABTestSummary(
+            url="https://example.com/test9",
+            domain="example.com",
+            publication_year=2023,
+            outcome_type="unknown",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            baseline_sample_size=1000,
+            treatment_sample_size=1000,
+            reported_p_value=0.136,
+        )
+        result = reconstruct_p_value(summary)
+
+        assert result["reconstructed_p_value"] is None
+        assert result["test_type"] == "fallback"
+
+    def test_reconstruct_missing_required_fields(self):
+        """Verify graceful handling of missing required fields."""
+        summary = ABTestSummary(
+            url="https://example.com/test10",
+            domain="example.com",
+            publication_year=2023,
+            outcome_type="binary",
+            baseline_conversion_rate=None,
+            treatment_conversion_rate=None,
+            baseline_sample_size=1000,
+            treatment_sample_size=1000,
+            reported_p_value=0.136,
+        )
+        result = reconstruct_p_value(summary)
+
+        assert result["reconstructed_p_value"] is None
 
 
 class TestValidateReconstruction:
-    """Tests for reconstruction validation."""
+    """Tests for reconstruction validation logic."""
 
-    def test_valid_reconstruction(self):
-        """Test validation passes for valid reconstruction."""
-        result = ReconstructionResult(
-            test_type='binary_z_test',
-            reconstructed_p_value=0.045,
-            reconstructed_effect_size=0.05,
-            reported_p_value=0.048,
-            reported_effect_size=0.052,
-            absolute_p_difference=0.003,
-            relative_effect_size_difference=0.04,
-            success=True,
-            warning_messages=[],
-        )
+    def test_validate_within_threshold(self):
+        """Verify validation passes when p-values are close."""
+        reported = 0.136
+        reconstructed = 0.140
+        result = validate_reconstruction(reported, reconstructed)
 
-        assert validate_reconstruction(result, p_threshold=0.05, effect_threshold=0.05)
+        assert result["is_consistent"] is True
+        assert result["absolute_difference"] < 0.05
 
-    def test_invalid_p_difference(self):
-        """Test validation fails when p-difference exceeds threshold."""
-        result = ReconstructionResult(
-            test_type='binary_z_test',
-            reconstructed_p_value=0.10,
-            reconstructed_effect_size=0.05,
-            reported_p_value=0.03,
-            reported_effect_size=0.05,
-            absolute_p_difference=0.07,  # Exceeds 0.05
-            relative_effect_size_difference=0.0,
-            success=True,
-            warning_messages=[],
-        )
+    def test_validate_exceeds_threshold(self):
+        """Verify validation fails when p-values differ significantly."""
+        reported = 0.01
+        reconstructed = 0.10
+        result = validate_reconstruction(reported, reconstructed)
 
-        assert not validate_reconstruction(result, p_threshold=0.05, effect_threshold=0.05)
+        assert result["is_consistent"] is False
+        assert result["absolute_difference"] > 0.05
 
-    def test_invalid_effect_difference(self):
-        """Test validation fails when effect-size difference exceeds threshold."""
-        result = ReconstructionResult(
-            test_type='binary_z_test',
-            reconstructed_p_value=0.04,
-            reconstructed_effect_size=0.10,
-            reported_p_value=0.04,
-            reported_effect_size=0.04,
-            absolute_p_difference=0.0,
-            relative_effect_size_difference=0.15,  # Exceeds 0.05
-            success=True,
-            warning_messages=[],
-        )
+    def test_validate_equal_p_values(self):
+        """Verify validation passes when p-values are identical."""
+        reported = 0.05
+        reconstructed = 0.05
+        result = validate_reconstruction(reported, reconstructed)
 
-        assert not validate_reconstruction(result, p_threshold=0.05, effect_threshold=0.05)
+        assert result["is_consistent"] is True
+        assert result["absolute_difference"] == 0.0
 
-    def test_failed_reconstruction(self):
-        """Test validation fails when reconstruction itself failed."""
-        result = ReconstructionResult(
-            test_type='binary_z_test',
-            reconstructed_p_value=float('nan'),
-            reconstructed_effect_size=float('nan'),
-            reported_p_value=0.05,
-            reported_effect_size=0.05,
-            absolute_p_difference=float('nan'),
-            relative_effect_size_difference=float('nan'),
-            success=False,
-            warning_messages=['Invalid sample sizes'],
-        )
+    def test_validate_missing_reconstructed(self):
+        """Verify validation handles missing reconstructed value."""
+        reported = 0.05
+        reconstructed = None
+        result = validate_reconstruction(reported, reconstructed)
 
-        assert not validate_reconstruction(result)
+        assert result["is_consistent"] is False
+        assert result["validation_error"] is not None
+
+    def test_validate_missing_reported(self):
+        """Verify validation handles missing reported value."""
+        reported = None
+        reconstructed = 0.05
+        result = validate_reconstruction(reported, reconstructed)
+
+        assert result["is_consistent"] is False
+        assert result["validation_error"] is not None
 
 
 class TestReconstructorIntegration:
     """Integration tests for the reconstructor module."""
 
-    def test_fixture_known_values(self):
-        """Test against known fixture values for verification."""
-        # Fixture: Control 1000 samples, 200 successes; Treatment 1000 samples, 250 successes
+    def test_full_binary_reconstruction_pipeline(self):
+        """Test complete binary outcome reconstruction pipeline."""
         summary = ABTestSummary(
-            source_url='https://example.com/fixture1',
-            domain='tech',
+            url="https://example.com/integration1",
+            domain="example.com",
             publication_year=2023,
-            sample_size_control=1000,
-            sample_size_treatment=1000,
-            successes_control=200,
-            successes_treatment=250,
-            baseline_conversion_rate=0.20,
-            reported_p_value=0.008,
-            reported_effect_size=0.05,
-            test_timestamp=datetime(2023, 6, 15),
+            outcome_type="binary",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            baseline_sample_size=1000,
+            treatment_sample_size=1000,
+            reported_p_value=0.136,
         )
 
-        result = reconstruct_p_value(summary)
+        # Step 1: Reconstruct p-value
+        reconstruction = reconstruct_from_binary_summary(summary)
 
-        # Verify reconstruction matches expected fixture values
-        assert result.success
-        assert result.reconstructed_effect_size == pytest.approx(0.05, rel=0.01)
-        # P-value should be in reasonable range for this effect size
-        assert 0 < result.reconstructed_p_value < 0.10
-
-    def test_fixture_continuous_values(self):
-        """Test continuous reconstruction against known fixture values."""
-        summary = ABTestSummary(
-            source_url='https://example.com/fixture2',
-            domain='ecommerce',
-            publication_year=2023,
-            sample_size_control=200,
-            sample_size_treatment=200,
-            mean_control=100.0,
-            mean_treatment=105.0,
-            std_control=15.0,
-            std_treatment=15.0,
-            reported_p_value=0.002,
-            reported_effect_size=0.33,
-            test_timestamp=datetime(2023, 6, 15),
+        # Step 2: Validate reconstruction
+        validation = validate_reconstruction(
+            summary.reported_p_value, reconstruction["reconstructed_p_value"]
         )
 
-        result = reconstruct_p_value(summary)
+        assert reconstruction["reconstructed_p_value"] is not None
+        assert validation["absolute_difference"] < 0.05
 
-        assert result.success
-        assert result.test_type == 'continuous_welch'
-        assert not np.isnan(result.reconstructed_p_value)
-        assert not np.isnan(result.reconstructed_effect_size)
+    def test_full_continuous_reconstruction_pipeline(self):
+        """Test complete continuous outcome reconstruction pipeline."""
+        summary = ABTestSummary(
+            url="https://example.com/integration2",
+            domain="example.com",
+            publication_year=2023,
+            outcome_type="continuous",
+            baseline_mean=50.0,
+            treatment_mean=55.0,
+            baseline_std=10.0,
+            treatment_std=10.0,
+            baseline_sample_size=100,
+            treatment_sample_size=100,
+            reported_p_value=0.0003,
+        )
+
+        # Step 1: Reconstruct p-value
+        reconstruction = reconstruct_from_continuous_summary(summary)
+
+        # Step 2: Validate reconstruction
+        validation = validate_reconstruction(
+            summary.reported_p_value, reconstruction["reconstructed_p_value"]
+        )
+
+        assert reconstruction["reconstructed_p_value"] is not None
+        assert validation["absolute_difference"] < 0.001
+
+    def test_inconsistency_detection(self):
+        """Test that inconsistency is properly detected."""
+        summary = ABTestSummary(
+            url="https://example.com/integration3",
+            domain="example.com",
+            publication_year=2023,
+            outcome_type="binary",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.20,  # Large effect
+            baseline_sample_size=1000,
+            treatment_sample_size=1000,
+            reported_p_value=0.50,  # But claims non-significant (inconsistent)
+        )
+
+        reconstruction = reconstruct_from_binary_summary(summary)
+        validation = validate_reconstruction(
+            summary.reported_p_value, reconstruction["reconstructed_p_value"]
+        )
+
+        # The reconstruction should show significant p-value
+        assert reconstruction["reconstructed_p_value"] < 0.05
+        # But reported was 0.50, so validation should fail
+        assert validation["is_consistent"] is False
+        assert validation["absolute_difference"] > 0.05

@@ -1,0 +1,19 @@
+state:
+  updated_at: "2024-01-15T10:30:00Z"
+  project_id: PROJ-488-evaluating-the-impact-of-code-generation
+  artifacts: {}
+  amendment_status:
+    t009: pending
+    t010: pending
+    t011: pending
+  pipeline_stages:
+    phase1: complete
+    phase2: pending
+    phase3: blocked
+    phase4: blocked
+    phase5: blocked
+    phase6: blocked
+  metadata:
+    created_at: "2024-01-15T10:30:00Z"
+    last_modified: "2024-01-15T10:30:00Z"
+    version: "0.1.0"

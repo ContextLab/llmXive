@@ -1,0 +1,105 @@
+# SC-001: Raw GitHub Issue Schema Definition
+# Validates raw API responses from GitHub before preprocessing
+# Task T006: Schema validators setup
+
+schema_version: "1.0"
+schema_name: "raw_issue"
+description: "Raw GitHub issue/PR data from API response"
+
+required:
+  - id
+  - number
+  - title
+  - state
+  - created_at
+  - repository_url
+  - user
+
+properties:
+  id:
+    type: integer
+    description: "GitHub issue/PR ID"
+    min: 1
+  
+  number:
+    type: integer
+    description: "Issue/PR number within repository"
+    min: 1
+  
+  title:
+    type: string
+    description: "Issue/PR title"
+    min_length: 1
+  
+  state:
+    type: string
+    enum:
+      - open
+      - closed
+    description: "Current state of issue/PR"
+  
+  state_reason:
+    type: string
+    enum:
+      - completed
+      - not_planned
+      - null
+    description: "Reason for state change (if closed)"
+    required: false
+  
+  created_at:
+    type: string
+    description: "ISO 8601 timestamp of creation"
+    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+  
+  closed_at:
+    type: string
+    description: "ISO 8601 timestamp of closure (if closed)"
+    required: false
+  
+  repository_url:
+    type: string
+    description: "GitHub API URL for repository"
+    pattern: "^https://api\\.github\\.com/repos/"
+  
+  user:
+    type: object
+    description: "Issue/PR author information"
+    properties:
+      login:
+        type: string
+        min_length: 1
+      id:
+        type: integer
+        min: 1
+  
+  labels:
+    type: array
+    description: "Labels attached to issue/PR"
+    required: false
+  
+  pull_request:
+    type: object
+    description: "PR-specific data if this is a pull request"
+    required: false
+  
+  body:
+    type: string
+    description: "Issue/PR body text"
+    required: false
+  
+  comments:
+    type: integer
+    description: "Number of comments"
+    min: 0
+    required: false
+  
+  updated_at:
+    type: string
+    description: "ISO 8601 timestamp of last update"
+    required: false
+  
+  closed_by:
+    type: object
+    description: "User who closed the issue/PR"
+    required: false

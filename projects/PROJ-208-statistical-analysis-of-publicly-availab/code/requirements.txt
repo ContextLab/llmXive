@@ -1,0 +1,39 @@
+# Python 3.11 Project Dependencies
+# CPU-tractable versions for statistical analysis pipeline
+# All versions pinned for reproducibility (Constitution Principle I)
+
+# HTTP client for GitHub API interactions
+requests==2.31.0
+
+# Data manipulation and analysis
+pandas==2.1.4
+numpy==1.26.2
+
+# Statistical computing and distributions
+scipy==1.11.4
+
+# Statistical modeling (ANOVA, regression, etc.)
+statsmodels==0.14.1
+
+# Linear mixed-effects models (R-style formula interface)
+pymer4==0.8.1
+
+# Visualization
+matplotlib==3.8.2
+seaborn==0.13.1
+
+# YAML configuration parsing
+pyyaml==6.0.1
+
+# Testing (for unit/integration tests)
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Code quality (linting/formatting)
+ruff==0.1.6
+
+# Data validation
+jsonschema==4.20.0
+
+# Checksum generation for reproducibility validation
+hashlib  # Standard library, listed for documentation only

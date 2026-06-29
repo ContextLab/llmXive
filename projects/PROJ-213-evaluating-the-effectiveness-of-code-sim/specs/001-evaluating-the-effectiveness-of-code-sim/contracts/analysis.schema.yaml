@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisReport Schema"
+description: "Schema for statistical analysis report output"
+type: "object"
+properties:
+  accuracy_test:
+    type: "object"
+    description: "McNemar's test on pass@1 (binary paired)"
+    properties:
+      test_statistic:
+        type: "number"
+        description: "McNemar's test statistic"
+      p_value:
+        type: "number"
+        description: "Bonferroni-corrected p-value (α=0.0167)"
+      odds_ratio:
+        type: "number"
+        description: "Odds ratio with 95% confidence interval"
+      significant:
+        type: "boolean"
+        description: "True if p < 0.0167 (Bonferroni-corrected)"
+  latency_test:
+    type: "object"
+    description: "Paired Wilcoxon test on inference time"
+    properties:
+      test_statistic:
+        type: "number"
+        description: "Wilcoxon test statistic"
+      p_value:
+        type: "number"
+        description: "Bonferroni-corrected p-value (α=0.0167)"
+      effect_size_rank_biserial:
+        type: "number"
+        description: "Rank-biserial correlation (non-parametric)"
+      significant:
+        type: "boolean"
+        description: "True if p < 0.0167 (Bonferroni-corrected)"
+  token_reduction:
+    type: "object"
+    description: "Token count analysis (exploratory, descriptive)"
+    properties:
+      median_ratio:
+        type: "number"
+        description: "Median simplified/raw token ratio"
+      proportion_below_threshold:
+        type: "number"
+        description: "Proportion of problems meeting reduction threshold"
+  drop_rate:
+    type: "number"
+    description: "Percentage of problems dropped (parse failures + semantic changes)"
+    minimum: 0
+    maximum: 100
+required:
+  - accuracy_test
+  - latency_test
+  - token_reduction
+  - drop_rate

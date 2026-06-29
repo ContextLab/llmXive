@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HumanEvalProblem Schema"
+description: "Schema for HumanEval benchmark problem entries"
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique problem identifier (e.g., HumanEval/0)"
+  prompt_code:
+    type: "string"
+    description: "Original code snippet prompt"
+  reference_solution:
+    type: "string"
+    description: "Reference solution code"
+  test_harness:
+    type: "string"
+    description: "Unit test code for validation"
+required:
+  - problem_id
+  - prompt_code
+  - reference_solution
+  - test_harness

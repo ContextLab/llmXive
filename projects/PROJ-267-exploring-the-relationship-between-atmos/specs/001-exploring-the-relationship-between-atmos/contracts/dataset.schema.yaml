@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Monthly Dataset Schema"
+description: "Schema for data/processed/merged_monthly.csv - aligned AR and gravity time series"
+type: "object"
+properties:
+  month:
+    type: "string"
+    description: "Month in YYYY-MM format"
+    pattern: "^\\d{4}-\\d{2}$"
+  grace_anomaly_m:
+    type: "number"
+    description: "Mean gravity anomaly over region (meters)"
+  grace_uncertainty_m:
+    type: "number"
+    description: "Mean uncertainty over region (meters)"
+    minimum: 0
+  ar_intensity_iwv:
+    type: "number"
+    description: "Total IWV transport from AR events (kg/m/s)"
+  ar_event_count:
+    type: "integer"
+    description: "Number of AR events in month"
+    minimum: 0
+  completeness:
+    type: "number"
+    description: "Data completeness ratio"
+    minimum: 0
+    maximum: 1
+required:
+  - month
+  - grace_anomaly_m
+  - grace_uncertainty_m
+  - ar_intensity_iwv
+  - ar_event_count
+  - completeness
+additionalProperties: false

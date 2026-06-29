@@ -1,0 +1,147 @@
+# fMRIPrep Configuration File
+# PROJ-103: Assessing the Impact of Mindfulness Training on Default Mode Network Activity
+#
+# This configuration file defines project-specific settings for fMRIPrep execution.
+# See: https://fmriprep.org/en/stable/configuration.html
+#
+# Constitution Principle VI: AAL atlas is used (Yeo atlas flagged for kickback)
+
+[execution]
+# Output directories
+output-dir = "/output"
+work-dir = "/work"
+
+# Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+log-level = "INFO"
+
+# Skip BIDS validation (set to true only if data is known to be valid)
+skip-bids-validation = false
+
+# Participant processing
+# Use "all" for all participants, or specific labels
+participant-label = null
+
+# =============================================================================
+# PREPROCESSING OPTIONS
+# =============================================================================
+
+[preprocessing]
+# Enable/disable preprocessing steps
+# All enabled by default for full pipeline
+ignore = []
+
+# Force single-session mode (useful for debugging)
+force-singlesession = false
+
+# =============================================================================
+# FIELDS (Fieldmap correction)
+# =============================================================================
+
+[fieldmap]
+# Enable fieldmap estimation
+# Set to true if phase-encoding direction varies
+estimate-fmap = true
+
+# =============================================================================
+# ANAT (Anatomical preprocessing)
+# =============================================================================
+
+[anat]
+# Skull-stripping strategy
+# Options: 'ants', 'fsl', 'rois'
+skull-strip-template = "OASIS30ANTs"
+skull-strip-fixed-seed = true
+skull-strip-t1w = "auto"
+
+# =============================================================================
+# FUNCTIONAL PREPROCESSING
+# =============================================================================
+
+[functional]
+# Bandpass filtering (in Hz)
+# Typical range: 0.008 - 0.09 Hz for resting-state
+bandpass-filter = true
+bandpass-filter-low = 0.008
+bandpass-filter-high = 0.09
+
+# Motion correction
+motion-correction = true
+
+# Slice timing correction
+slice-timing = true
+
+# Spatial normalization to MNI152
+# Per Constitution Principle VI: Use AAL atlas
+normalization = true
+normalization-template = "MNI152NLin2009cAsym"
+
+# Spatial smoothing (in mm FWHM)
+smoothing = true
+smoothing-fwhm = 6
+
+# =============================================================================
+# OUTPUT OPTIONS
+# =============================================================================
+
+[outputs]
+# Output spaces
+spaces = "MNI152NLin2009cAsym"
+
+# Generate reports
+generate-reports = true
+
+# Report level (summary, preproc, full)
+report-level = "preproc"
+
+# =============================================================================
+# RESOURCE MANAGEMENT
+# =============================================================================
+
+[resources]
+# Number of processes (matches CPU constraint)
+nprocs = 2
+
+# OpenMP threads per process
+omp-nthreads = 1
+
+# Memory in MB (matches docker memory constraint)
+mem-mb = 4096
+
+# Low memory mode (reduces parallelization)
+low-mem = true
+
+# =============================================================================
+# QC METRICS
+# =============================================================================
+
+[qc]
+# Generate QC metrics
+generate-qc = true
+
+# Include motion parameters in QC report
+include-motion = true
+
+# Include SNR metrics
+include-snr = true
+
+# Include temporal SNR metrics
+include-tsnr = true
+
+# =============================================================================
+# COMPTABILITY OPTIONS
+# =============================================================================
+
+[compatibility]
+# Use legacy output structure
+legacy-output = false
+
+# =============================================================================
+# DEBUG OPTIONS (for development only)
+# =============================================================================
+
+[debug]
+# Debug mode (slower, more verbose)
+debug = false
+
+# Keep intermediate files
+keep-intermediates = false

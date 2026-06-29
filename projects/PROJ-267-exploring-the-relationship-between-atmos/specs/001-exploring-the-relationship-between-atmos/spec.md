@@ -18,7 +18,7 @@ The system MUST retrieve GRACE-FO processed mascon data and NOAA CPC Atmospheric
 **Acceptance Scenarios**:
 
 1. **Given** the NOAA and GRACE-FO public APIs are accessible, **When** the pipeline runs, **Then** it downloads the latest available mascon solutions and AR catalog entries.
-2. **Given** raw GRACE-FO data contains degree-1 and C20 coefficients, **When** preprocessing runs, **Then** the output data reflects degree-1 correction, C20 replacement, and 300 km Gaussian smoothing.
+2. **Given** raw GRACE-FO data contains degree-1 and C20 coefficients, **When** preprocessing runs, **Then** the output data reflects low-degree correction, C20 replacement, and 300 km Gaussian smoothing.
 
 ---
 
@@ -34,7 +34,7 @@ The system MUST compute Pearson correlation coefficients between AR intensity me
 
 1. **Given** aligned time-series data exists, **When** the analysis runs, **Then** it calculates correlation for lags 0, 1, 2, and 3 months.
 2. **Given** multiple lag tests are performed, **When** significance is reported, **Then** p-values are corrected using Bonferroni or FDR methods.
-3. **Given** correlation coefficients are computed, **When** bootstrap runs, **Then** 1000 resampled iterations produce 95% confidence intervals on each coefficient.
+3. **Given** correlation coefficients are computed, **When** bootstrap runs, **Then** Multiple resampled iterations produce 95% confidence intervals on each coefficient.
 4. **Given** control regions are defined, **When** validation runs, **Then** correlation in control regions is compared to target region to distinguish signal from noise.
 
 ---
@@ -66,10 +66,10 @@ The system MUST generate time-series overlays, scatter plots with regression lin
 
 - **FR-001**: System MUST ingest GRACE-FO Level-2 mascon solutions covering the West Coast North America region (35°N-50°N, 120°W-125°W) with ≥ 90% data completeness (See US-1).
 - **FR-002**: System MUST ingest NOAA CPC Atmospheric River Catalog data and aggregate Integrated Water Vapor Transport to monthly resolution (See US-1).
-- **FR-003**: System MUST apply standard GRACE-FO preprocessing: degree-1 coefficient correction, degree-2 C20 replacement, and 300 km Gaussian smoothing (See US-1).
-- **FR-004**: System MUST compute Pearson correlation coefficients between AR intensity and gravity anomalies across lags of 0, 1, 2, and 3 months, apply bootstrap resampling (1000 iterations, seed=42) to estimate 95% confidence intervals, and report signal magnitude relative to GRACE-FO measurement noise floor (≥ 3σ threshold) (See US-2).
+- **FR-003**: System MUST apply standard GRACE-FO preprocessing: low-degree coefficient correction, degree-2 C20 replacement, and appropriate spatial Gaussian smoothing (See US-1).
+- **FR-004**: System MUST compute Pearson correlation coefficients between AR intensity and gravity anomalies across multiple time lags, apply bootstrap resampling (1000 iterations, seed=42) to estimate 95% confidence intervals, and report signal magnitude relative to GRACE-FO measurement noise floor (≥ 3σ threshold) (See US-2).
 - **FR-005**: System MUST apply multiple-comparison correction (e.g., Bonferroni or FDR) to all lag-test p-values to control family-wise error rate (See US-2).
-- **FR-006**: System MUST perform sensitivity analysis sweeping correlation thresholds ∈ {0.4, 0.5, 0.6} and report correlation coefficient stability and confidence interval overlap variations (See US-3).
+- **FR-006**: System MUST perform sensitivity analysis sweeping correlation thresholds across a range of values and report correlation coefficient stability and confidence interval overlap variations (See US-3).
 - **FR-007**: System MUST frame all statistical findings as associational, explicitly avoiding causal language in output reports. Output reports must not contain the following keywords: causes, effect, impact, driven by, leads to, triggers (See US-2).
 - **FR-008**: System MUST validate signal against control regions (geographic areas without significant AR activity) and report the difference in correlation coefficients between target and control regions (See US-2).
 - **FR-009**: System MUST document temporal aggregation bias assessment and provide justification for monthly resolution choice versus sub-monthly alternatives (See US-2).
