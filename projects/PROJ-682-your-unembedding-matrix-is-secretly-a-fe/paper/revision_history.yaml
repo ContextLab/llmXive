@@ -1,0 +1,229 @@
+schema_version: '1'
+project_id: PROJ-682-your-unembedding-matrix-is-secretly-a-fe
+rounds:
+- round_number: 1
+  ran_at: '2026-06-29T22:20:08.481035Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-29)
+  tasks_done: 13
+  tasks_failed: 0
+  tasks_skipped: 24
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-682-your-unembedding-matrix-is-secretly-a-fe/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[3b151a9a66b3]** (severity: writing): The proof in
+      Appendix Section 8 incorrectly states that the projection matrix V_tau V_tau^T
+      is identity. This is mathematically false when d'
+  - id: '002'
+    severity: writing
+    status: done
+    text: 'Address action item **[94b7f0d9f5cc]** (severity: writing): The claim citing
+      lv2024fact states it describes the ''average token'' as a ''frequency-weighted
+      average embedding over the training corpus''. Ve'
+  - id: '003'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[4c3b8fa91e3e]** (severity: writing): The term ''Logit
+      Spectroscopy'' is attributed to spectral. The cited paper title is ''Spectral
+      Filters...''. Clarify if this is a direct quote o'
+  - id: '004'
+    severity: writing
+    status: done
+    text: 'Address action item **[0a9fcbe17559]** (severity: writing): Algorithm pseudocode
+      and PyTorch implementation in the appendix are commented out (# comments). Include
+      working code snippets or at minimum '
+  - id: '005'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[5af66173d9e3]** (severity: writing): Update conference
+      metadata in lines 48-52 to reflect the 2026 submission context instead of the
+      2018 template placeholders.'
+  - id: '006'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[8fcd1d94ef3e]** (severity: writing): Include a software
+      license (e.g., MIT, Apache 2.0) and a specific git commit hash or tag for the
+      code repository linked in the abstract (Lin'
+  - id: '007'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[cff7f0b76812]** (severity: writing): Replace word
+      clouds in Figure 1 with quantitative bar charts showing top-k token probabilities
+      to support mechanistic claims.'
+  - id: 008
+    severity: writing
+    status: skipped
+    text: 'Address action item **[de07c4d238bb]** (severity: writing): Ensure all
+      plots (Fig 2, Fig 4) include explicit axis labels (e.g., Dimension Index, Delta
+      Pi) visible at print scale.'
+  - id: 009
+    severity: writing
+    status: done
+    text: 'Address action item **[c838703cacc6]** (severity: writing): Verify color
+      choices in Tables and Figures (e.g., MediumPurple, DodgerBlue) are colorblind-safe
+      and legible in grayscale.'
+  - id: '010'
+    severity: writing
+    status: done
+    text: 'Address action item **[5886174897b8]** (severity: writing): Add alt text
+      descriptions to all figure captions for accessibility compliance.'
+  - id: '011'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0b15f864de76]** (severity: writing): Define the
+      acronym MTEB at its first occurrence in the Abstract or Introduction, rather
+      than waiting until Section 5.'
+  - id: '012'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ff1385d5585e]** (severity: writing): Provide a brief
+      gloss of ''Logit Spectroscopy'' in Section 1 when first invoked, instead of
+      deferring the definition to Section 2.'
+  - id: '013'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[7017e6668bf8]** (severity: writing): Replace or
+      parenthetically explain ''anisotropic'' and ''representation collapse'' in Section
+      1 to aid non-specialist readers.'
+  - id: '014'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[b24b79ae4b0b]** (severity: writing): Clarify the
+      "distance-preserving" claim in Section 4.2. The transformation preserves distances
+      within the subspace, not the original Euclide'
+  - id: '015'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0da91ea9b31f]** (severity: writing): Soften claims
+      of "universal pattern" in Abstract and Introduction to reflect limited model
+      scope.'
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[e4989ccf4acf]** (severity: writing): Rephrase "actively
+      writing" in Abstract to avoid implying unproven causal mechanisms.'
+  - id: '017'
+    severity: writing
+    status: done
+    text: 'Address action item **[c752e4e42c2c]** (severity: writing): The input source
+      contains two complete LaTeX document structures. If concatenated as a single
+      file, this will cause compilation errors. Ensu'
+  - id: 018
+    severity: writing
+    status: skipped
+    text: 'Address action item **[1902b7e9be8e]** (severity: writing): Subsection
+      headings exhibit inconsistent capitalization and punctuation. For example, Text
+      embedding with EmbedFilter uses lowercase e, whil'
+  - id: 019
+    severity: writing
+    status: skipped
+    text: 'Address action item **[413dda606ebe]** (severity: writing): Equation formatting
+      is inconsistent. The manuscript mixes display math environments and equation
+      environments, often with size modifiers. St'
+  - id: '020'
+    severity: writing
+    status: done
+    text: 'Address action item **[7d983d4990a6]** (severity: writing): Citation commands
+      are used inconsistently with different natbib variants. Select one command style
+      for uniformity.'
+  - id: '021'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[e626da1a3d01]** (severity: writing): There is an
+      extra space in the subsection title Comparison between EmbedFilter and Embedding
+      Calibration Baselines. Remove the double space '
+  - id: '022'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[b09d292400be]** (severity: writing): Correct subject-verb
+      agreement errors (e.g., '''
+  - id: '023'
+    severity: writing
+    status: done
+    text: 'Address action item **[d4804c59236e]** (severity: writing): Fix article
+      usage and typos (e.g., ''an mechanism'' -> ''a mechanism'', ''from training
+      corpus'' -> ''from the training corpus'', ''acorss'' -> ''acros'
+  - id: '024'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[98ff5cf4cfe9]** (severity: writing): Ensure proper
+      punctuation, including adding a period after ''identification'' in the Introduction
+      and capitalizing ''This completes'' in the App'
+  - id: '025'
+    severity: science
+    status: done
+    text: 'Address action item **[accae5eed9ca]** (severity: science): Code repository
+      is referenced externally (github.com/CentreChen/EmbFilter) but not included
+      in submission. For code quality review, actual i'
+  - id: '026'
+    severity: science
+    status: done
+    text: 'Address action item **[e858b91931c4]** (severity: science): No dependency
+      specification (requirements.txt, environment.yml, or similar) is included in
+      the paper artifacts. Add explicit dependency list'
+  - id: '027'
+    severity: science
+    status: skipped
+    text: 'Address action item **[86fb96875fa6]** (severity: science): Specify exact
+      version numbers for MTEB benchmark and RedPajama dataset used in experiments
+      (e.g., MTEB v1.0) in Section 3.2.1 and Section 5.'
+  - id: 028
+    severity: science
+    status: skipped
+    text: 'Address action item **[9d7916207499]** (severity: science): The mathematical
+      proof in Appendix sec:proof incorrectly claims V_tau * V_tau^T is the identity
+      matrix. For dimensionality reduction (k < d)'
+  - id: 029
+    severity: science
+    status: skipped
+    text: 'Address action item **[7714047b00d5]** (severity: science): Table 5 shows
+      filtering the Dominant subspace (Config 3) degrades performance (47.53 vs 50.07
+      baseline), contradicting the claim that both e'
+  - id: '030'
+    severity: science
+    status: done
+    text: 'Address action item **[2b443c738d5a]** (severity: science): Correct the
+      mathematical proof in the Appendix claiming the projection matrix is identity.'
+  - id: '031'
+    severity: science
+    status: skipped
+    text: 'Address action item **[7e3d595f5472]** (severity: science): Report standard
+      deviations and confidence intervals across multiple random seeds. All MTEB results
+      in Tables 1-4 appear to be single-run ave'
+  - id: '032'
+    severity: science
+    status: skipped
+    text: 'Address action item **[671015828049]** (severity: science): Add statistical
+      significance testing (e.g., paired t-tests or bootstrap confidence intervals)
+      between EmbFilter and baseline methods. Claims'
+  - id: '033'
+    severity: science
+    status: done
+    text: "Address action item **[f4375e6a98e5]** (severity: science): Clarify whether\
+      \ the optimal \u03C4=2 configuration was pre-specified or selected post-hoc\
+      \ from \u03C4={2,4,8} trials. Multiple \u03C4 testing without corre"
+  - id: '034'
+    severity: science
+    status: done
+    text: 'Address action item **[447dab7e93a9]** (severity: science): Provide causal
+      evidence for the edge spectrum mechanism. Currently relies on correlational
+      Logit Lens analysis; consider ablation studies th'
+  - id: '035'
+    severity: science
+    status: skipped
+    text: 'Address action item **[def8465e8ccc]** (severity: science): Report standard
+      deviations or confidence intervals over multiple random seeds for all MTEB results.'
+  - id: '036'
+    severity: science
+    status: skipped
+    text: 'Address action item **[7e507b72e55e]** (severity: science): Correct the
+      data inconsistency in Table 4 where PromptEOL and ECHO baselines are identical.'
+  - id: '037'
+    severity: science
+    status: done
+    text: 'Address action item **[c0747ea3683c]** (severity: science): Include statistical
+      significance testing (e.g., paired t-tests) to validate reported performance
+      gains.'
