@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sample Schema"
+description: "Schema for soil microbiome sample records with metadata"
+type: object
+required:
+  - sample_id
+  - gps_coordinates
+  - plant_species
+  - soil_type
+  - sequencing_depth
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample"
+    pattern: "^[A-Za-z0-9_-]+$"
+  gps_coordinates:
+    type: string
+    description: "GPS coordinates in format 'lat,lon'"
+    pattern: "^-?[0-9]{1,2}\\.[0-9]+,-?[0-9]{1,3}\\.[0-9]+$"
+  plant_species:
+    type: string
+    description: "Plant species name"
+    minLength: 1
+  soil_type:
+    type: string
+    description: "Soil classification"
+    minLength: 1
+  sequencing_depth:
+    type: integer
+    description: "Total reads per sample before rarefaction"
+    minimum: 1
+  alpha_diversity_shannon:
+    type: number
+    description: "Shannon diversity index (computed)"
+    minimum: 0
+  alpha_diversity_simpson:
+    type: number
+    description: "Simpson diversity index (computed)"
+    minimum: 0
+  alpha_diversity_faith_pd:
+    type: number
+    description: "Faith's phylogenetic diversity (computed)"
+    minimum: 0
+  rarefaction_depth:
+    type: integer
+    description: "Sequencing depth after rarefaction"
+    minimum: 1
+    default: 10000
+additionalProperties: false

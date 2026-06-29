@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Disease Incidence Schema"
+description: "Schema for plant disease incidence records"
+type: object
+required:
+  - sample_id
+  - disease_type
+  - incidence_rate
+  - measurement_date
+properties:
+  sample_id:
+    type: string
+    description: "Foreign key to Sample.sample_id"
+    pattern: "^[A-Za-z0-9_-]+$"
+  disease_type:
+    type: string
+    description: "Type of plant disease"
+    minLength: 1
+  incidence_rate:
+    type: number
+    description: "Disease incidence rate (0-100%)"
+    minimum: 0
+    maximum: 100
+  measurement_date:
+    type: string
+    description: "Date of disease measurement in ISO 8601 format"
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+additionalProperties: false

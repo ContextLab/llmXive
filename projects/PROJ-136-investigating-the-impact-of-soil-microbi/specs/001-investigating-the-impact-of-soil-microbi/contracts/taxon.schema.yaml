@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Taxon Schema"
+description: "Schema for microbial taxonomic units from OTU/ASV tables"
+type: object
+required:
+  - taxon_id
+  - taxonomic_lineage
+  - relative_abundance
+  - sample_id
+properties:
+  taxon_id:
+    type: string
+    description: "Unique identifier for the taxon"
+    pattern: "^[A-Za-z0-9_-]+$"
+  taxonomic_lineage:
+    type: string
+    description: "Full taxonomic classification"
+    minLength: 1
+  relative_abundance:
+    type: number
+    description: "Relative abundance in sample"
+    minimum: 0
+    maximum: 1
+  sample_id:
+    type: string
+    description: "Foreign key to Sample.sample_id"
+    pattern: "^[A-Za-z0-9_-]+$"
+  differential_abundance_q:
+    type: number
+    description: "ANCOM q-value for differential abundance (computed)"
+    minimum: 0
+    maximum: 1
+    nullable: true
+additionalProperties: false

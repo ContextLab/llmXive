@@ -1,0 +1,703 @@
+resolved_at: '2026-06-29T05:23:41.183274+00:00'
+datasets:
+- intent: GPS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Nazarko/2D_GPS_Accelerometer/resolve/main/GPS_Accelerometer_data_100000_entries.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/GPS-Lab/ClimateIQA/resolve/main/QA.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Nazarko/2D_GPS_Accelerometer/resolve/main/GPS_Accelerometer_data_100000_entries.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/GPS-Lab/ClimateIQA/resolve/main/QA.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66a8829326d3a3a8fc69b777/a8450e19f172590882268cc45773c7b577265a49bd0e5ad7fd647f2c2590004f?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dpogen_test.json%3B+filename%3D%22dpogen_test.json%22%3B&user_id=public&response-content-type=application%2Fjson&Expires=1782713924&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZhODgyOTMyNmQzYTNhOGZjNjliNzc3L2E4NDUwZTE5ZjE3MjU5MDg4MjI2OGNjNDU3NzNjN2I1NzcyNjVhNDliZDBlNWFkN2ZkNjQ3ZjJjMjU5MDAwNGZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZHBvZ2VuX3Rlc3QuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRwb2dlbl90ZXN0Lmpzb24lMjIlM0ImdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzEzOTI0fX19XX0_&Signature=MEYCIQDVG8gU278WR90H5pqasr73n400yLNGrCIUHDp-0tQ~iwIhAKwkXpRMQsEz49kNo0FWHKyjW-Z6FfVPbhR8P~zZ~4Mj&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66a8829e6419b5b8fcfd5f93/b49c1d74ec3588c805a058bdb772878d0892a29221b80508ed162f1ef9a331fa?response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dpogen_test.json%3B+filename%3D%22dpogen_test.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1782713924&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZhODgyOWU2NDE5YjViOGZjZmQ1ZjkzL2I0OWMxZDc0ZWMzNTg4YzgwNWEwNThiZGI3NzI4NzhkMDg5MmEyOTIyMWI4MDUwOGVkMTYyZjFlZjlhMzMxZmFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkcG9nZW5fdGVzdC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZHBvZ2VuX3Rlc3QuanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzEzOTI0fX19XX0_&Signature=MEUCIQDqR26xXgbUEWkxdsSEdE7cNAW8YylJY300qNMHzOGLwgIgKjEr4aU3C~jwrzniHYUvwjkv6sM1SJEktkxz9U6QHJc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_correlates_of_diagnostic_instability_in_eating_disorders_the_role_of_psychopathology_environmental_risk_factors_personality_and_genes/32819123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/thesis/Novice_Secondary_School_English_as_a_Foreign_Language_EFL_Teachers_Pedagogical_Content_Knowledge_Development_in_China/32788788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_study_using_walk-along_interviews_to_explore_the_environmental_factors_related_to_older_adults_walking_for_transportation/32819105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanistic_Insights_into_MoS_sub_2_sub_Functionalization_via_Thiol_Groups_of_4_Aminothiophenol/32819114
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/DNA_Structure-Dependent_Enrichment_of_Oxidative_Lesions/32819112
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nucet.pensoft.net/article/116661/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8347274
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7316065
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20579570
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20579570
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20996476
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20996476
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20987363
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EMP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/empero-ai/MiniMax-M3-150k-Mixed/resolve/main/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/LuangMV97/Empathetic_counseling_Dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/emperor-mew/global-censorship-index/resolve/main/censorship-incidents.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/empero-ai/MiniMax-M3-150k-Mixed/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/LuangMV97/Empathetic_counseling_Dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/emperor-mew/global-censorship-index/resolve/main/censorship-incidents.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/empero-ai/tasklist-gemma4b-10000x-unfiltered/resolve/main/output.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/empero-ai/tasklist-haiku4.5-6000x-unfiltered/resolve/main/output.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_correlates_of_diagnostic_instability_in_eating_disorders_the_role_of_psychopathology_environmental_risk_factors_personality_and_genes/32819123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/thesis/Novice_Secondary_School_English_as_a_Foreign_Language_EFL_Teachers_Pedagogical_Content_Knowledge_Development_in_China/32788788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_study_using_walk-along_interviews_to_explore_the_environmental_factors_related_to_older_adults_walking_for_transportation/32819105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanistic_Insights_into_MoS_sub_2_sub_Functionalization_via_Thiol_Groups_of_4_Aminothiophenol/32819114
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/DNA_Structure-Dependent_Enrichment_of_Oxidative_Lesions/32819112
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14584875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7596547
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10172384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10266260
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7951124
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20977720
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/1a1bfa03-1028-473e-adbd-b37f4a564044
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20938811
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20938811
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20935667
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MG-RAST
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Supplementary_figure_S1/32527128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_correlates_of_diagnostic_instability_in_eating_disorders_the_role_of_psychopathology_environmental_risk_factors_personality_and_genes/32819123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/thesis/Novice_Secondary_School_English_as_a_Foreign_Language_EFL_Teachers_Pedagogical_Content_Knowledge_Development_in_China/32788788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_study_using_walk-along_interviews_to_explore_the_environmental_factors_related_to_older_adults_walking_for_transportation/32819105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanistic_Insights_into_MoS_sub_2_sub_Functionalization_via_Thiol_Groups_of_4_Aminothiophenol/32819114
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11451604
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.1g5kb
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/cber.19220550429
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/437213
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3532090
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/jn671-qzq51
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/jn671-qzq51
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/v2dxc-zny75
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/v2dxc-zny75
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/00715-tdz77
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-008
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Do_emotions_mediate_the_relationship_between_eating_pathology_and_autistic_traits_/32819129
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_figure_S1/32527128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_correlates_of_diagnostic_instability_in_eating_disorders_the_role_of_psychopathology_environmental_risk_factors_personality_and_genes/32819123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/thesis/Novice_Secondary_School_English_as_a_Foreign_Language_EFL_Teachers_Pedagogical_Content_Knowledge_Development_in_China/32788788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_study_using_walk-along_interviews_to_explore_the_environmental_factors_related_to_older_adults_walking_for_transportation/32819105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10355702
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3595521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3596476
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3595492
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3596136
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Do_emotions_mediate_the_relationship_between_eating_pathology_and_autistic_traits_/32819129
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_figure_S1/32527128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_correlates_of_diagnostic_instability_in_eating_disorders_the_role_of_psychopathology_environmental_risk_factors_personality_and_genes/32819123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/thesis/Novice_Secondary_School_English_as_a_Foreign_Language_EFL_Teachers_Pedagogical_Content_Knowledge_Development_in_China/32788788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_study_using_walk-along_interviews_to_explore_the_environmental_factors_related_to_older_adults_walking_for_transportation/32819105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26180/4534445.v1
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/How_theories_of_expressive_movement_and_non-verbal_communication_can_enhance_expressive_conducting_at_all_levels_of_entering_behaviour/4534445/1
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://doi.org/10.26180/4534445
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/How_theories_of_expressive_movement_and_non-verbal_communication_can_enhance_expressive_conducting_at_all_levels_of_entering_behaviour/4534445
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://osnadocs.ub.uni-osnabrueck.de/handle/ds-2026062815194
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21020113
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21020113
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OTU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/otuzucbit/turkishloyd/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 74938
+      parsed: true
+  - url: https://huggingface.co/datasets/kali-ai/otus/resolve/main/otus.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 197
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/Dezzpil/otus-fw/f184d53c26b94c3c654ab5cbac112e005b18172b/test.csv?%2Fdatasets%2FDezzpil%2Fotus-fw%2Fresolve%2Fmain%2Ftest.csv=&etag=%22493cc70293da1aa31c5e74870cf12c4060f50ac6%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/otuzucbit/turkishloyd/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kali-ai/otus/resolve/main/otus.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Do_emotions_mediate_the_relationship_between_eating_pathology_and_autistic_traits_/32819129
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_figure_S1/32527128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_correlates_of_diagnostic_instability_in_eating_disorders_the_role_of_psychopathology_environmental_risk_factors_personality_and_genes/32819123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/thesis/Novice_Secondary_School_English_as_a_Foreign_Language_EFL_Teachers_Pedagogical_Content_Knowledge_Development_in_China/32788788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_study_using_walk-along_interviews_to_explore_the_environmental_factors_related_to_older_adults_walking_for_transportation/32819105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7969269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/200704
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11240028
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/200705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3866305
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/168877
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Supplementary_files_for_Erik_Johan_M_ller_s_PhD_thesis/32780721
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Supplementary_files_for_Erik_Johan_M_ller_s_PhD_thesis/32780721/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/59f81d41-a789-4c5c-8ab8-36baa7ac2c55
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://doi.org/10.5285/296ded8e-2c80-4a01-98cc-e71e3fa3fa1b
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+- intent: ASV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/LanceaKing/asvspoof2019/resolve/main/dataset_infos.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 4754
+      parsed: true
+  - url: https://huggingface.co/datasets/DynamicSuperbPrivate/SpoofDetection_ASVspoof2015/resolve/main/data/train-00000-of-00004-713032a62a910599.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/DynamicSuperbPrivate/SpoofDetection_Asvspoof2017/resolve/main/data/train-00000-of-00001-c01e49de1f2bcf80.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/LanceaKing/asvspoof2019/resolve/main/dataset_infos.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/DynamicSuperbPrivate/SpoofDetection_ASVspoof2015/resolve/main/data/train-00000-of-00004-713032a62a910599.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DynamicSuperbPrivate/SpoofDetection_Asvspoof2017/resolve/main/data/train-00000-of-00001-c01e49de1f2bcf80.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DynamicSuperb/SpoofDetection_ASVspoof2017/resolve/main/data/test-00000-of-00001-e7ed034c56ededdd.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Do_emotions_mediate_the_relationship_between_eating_pathology_and_autistic_traits_/32819129
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_figure_S1/32527128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_correlates_of_diagnostic_instability_in_eating_disorders_the_role_of_psychopathology_environmental_risk_factors_personality_and_genes/32819123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/thesis/Novice_Secondary_School_English_as_a_Foreign_Language_EFL_Teachers_Pedagogical_Content_Knowledge_Development_in_China/32788788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_study_using_walk-along_interviews_to_explore_the_environmental_factors_related_to_older_adults_walking_for_transportation/32819105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5170597
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://library.imarest.org/record/7552
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17249462
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8388203
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/article/2686/element/2/11/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250542/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250542/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://doi.org/10.5285/01ced3c2-17c6-4512-b73b-e065afed7bad
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://www.seanoe.org/data/00979/109069/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://auckland.figshare.com/articles/dataset/Datasets_and_scripts_associated_with_the_article_Evolutionary_teamwork_cooperation_among_a_parasite_and_its_microbiota_linked_to_host_manipulation_/32755710/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Do_emotions_mediate_the_relationship_between_eating_pathology_and_autistic_traits_/32819129
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_figure_S1/32527128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_correlates_of_diagnostic_instability_in_eating_disorders_the_role_of_psychopathology_environmental_risk_factors_personality_and_genes/32819123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/thesis/Novice_Secondary_School_English_as_a_Foreign_Language_EFL_Teachers_Pedagogical_Content_Knowledge_Development_in_China/32788788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_study_using_walk-along_interviews_to_explore_the_environmental_factors_related_to_older_adults_walking_for_transportation/32819105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/ynzeb-76b25
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/eaay8-6mg74
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/n4t3w-9v384
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/pq3f2-79f46
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-006
+  status: unresolved
+  candidates: []
+  candidates_tried: []
