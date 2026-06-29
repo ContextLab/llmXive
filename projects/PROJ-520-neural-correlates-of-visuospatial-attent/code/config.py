@@ -1,71 +1,95 @@
 """
-Configuration management for the neural correlates study.
-Handles random seeds, logging paths, and tool configurations.
+Configuration management for the pipeline.
+Handles loading YAML configs, merging defaults, and retrieving seeds/paths.
+Updated to include CI environment limits integration.
 """
 import os
 import yaml
-import random
-import numpy as np
 from pathlib import Path
+from typing import Any, Dict, Optional
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).parent.parent
+# Import CI limits module to integrate environment constraints
+from ci_limits import get_environment_report
 
-# Random Seed Configuration
-RANDOM_SEED = 42
+CONFIG_PATH = Path("code/config.yaml")
 
-# Logging Configuration
-LOG_DIR = PROJECT_ROOT / "logs"
-LOG_PREPROCESSING = LOG_DIR / "preprocessing.log"
-LOG_ANALYSIS = LOG_DIR / "analysis.log"
-
-# Ensure log directory exists
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-def get_config():
-    """
-    Load and return project configuration.
-    Returns a dictionary with random seed, log paths, and directory paths.
-    """
-    return {
-        "random_seed": RANDOM_SEED,
-        "log_paths": {
-            "preprocessing": str(LOG_PREPROCESSING),
-            "analysis": str(LOG_ANALYSIS)
-        },
-        "paths": {
-            "data_raw": str(PROJECT_ROOT / "data" / "raw"),
-            "data_processed": str(PROJECT_ROOT / "data" / "processed"),
-            "code": str(PROJECT_ROOT / "code")
-        }
+DEFAULTS = {
+    "random_seed": 42,
+    "paths": {
+        "data_raw": "data/raw",
+        "data_processed": "data/processed",
+        "logs": "logs",
+        "figures": "figures"
+    },
+    "processing": {
+        "cpu_limit": None,  # Will be overridden by CI detection
+        "ram_limit_gb": None
     }
+}
 
-def set_random_seed(seed=None):
+def deep_merge(base: Dict, override: Dict) -> Dict:
     """
-    Set the random seed for reproducibility across the entire pipeline.
-    If seed is None, uses the default RANDOM_SEED (42).
-    Applies seed to:
-      - Python's random module
-      - NumPy random generator
-      - The module's internal RANDOM_SEED constant
-    
-    Args:
-        seed (int, optional): The seed value. Defaults to 42.
-    
-    Returns:
-        int: The seed value that was set.
+    Recursively merge override dict into base dict.
     """
-    global RANDOM_SEED
-    if seed is None:
-        seed = RANDOM_SEED
+    result = base.copy()
+    for key, value in override.items():
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            result[key] = deep_merge(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Load configuration from YAML file and merge with defaults.
+    Integrates CI environment limits if not explicitly set in config.
+    """
+    path = config_path or CONFIG_PATH
+    config = DEFAULTS.copy()
     
-    # Ensure seed is an integer
-    if not isinstance(seed, int):
-        raise TypeError(f"Seed must be an integer, got {type(seed).__name__}")
+    if path.exists():
+        with open(path, 'r') as f:
+            user_config = yaml.safe_load(f) or {}
+            config = deep_merge(config, user_config)
     
-    # Set seed for reproducibility
-    random.seed(seed)
-    np.random.seed(seed)
-    RANDOM_SEED = seed
+    # If CPU/RAM limits are not set in config, detect from environment
+    if config["processing"]["cpu_limit"] is None:
+        env_report = get_environment_report()
+        config["processing"]["cpu_limit"] = env_report["cpu_limit"]
+        config["processing"]["ram_limit_gb"] = env_report["ram_limit_gb"]
     
-    return RANDOM_SEED
+    return config
+
+def get_seed(config: Dict[str, Any]) -> int:
+    """
+    Extract random seed from config.
+    """
+    return config.get("random_seed", DEFAULTS["random_seed"])
+
+def get_paths(config: Dict[str, Any]) -> Dict[str, Path]:
+    """
+    Extract and resolve paths from config.
+    """
+    raw_paths = config.get("paths", DEFAULTS["paths"])
+    return {k: Path(v) for k, v in raw_paths.items()}
+
+def main():
+    """
+    CLI to dump current configuration.
+    """
+    import json
+    config = load_config()
+    # Convert Path objects to strings for JSON serialization
+    serializable_config = {}
+    for k, v in config.items():
+        if isinstance(v, dict):
+            serializable_config[k] = {kk: str(vv) if isinstance(vv, Path) else vv for kk, vv in v.items()}
+        elif isinstance(v, Path):
+            serializable_config[k] = str(v)
+        else:
+            serializable_config[k] = v
+    
+    print(json.dumps(serializable_config, indent=2))
+
+if __name__ == "__main__":
+    main()

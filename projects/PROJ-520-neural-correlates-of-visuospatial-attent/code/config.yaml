@@ -1,0 +1,26 @@
+# Pipeline Configuration
+# This file can be overridden by command line arguments or environment variables.
+# CI-specific overrides are automatically detected by code/ci_limits.py.
+
+random_seed: 42
+
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  logs: "logs"
+  figures: "figures"
+
+processing:
+  # If null, the system will auto-detect limits from the CI environment.
+  cpu_limit: null
+  ram_limit_gb: null
+
+model:
+  classifier: "LDA"
+  cv_folds: 5
+
+features:
+  alpha_band: [8, 13]
+  beta_band: [13, 30]
+  electrodes_alpha: ["P3", "Pz", "P4"]
+  electrodes_beta: ["F3", "Fz", "F4"]

@@ -30,7 +30,7 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 - **Principle III (Data Hygiene)**: Raw data preserved; derivations written to new files. Checksums recorded in state file.
 - **Principle IV (Single Source of Truth)**: Figures/stats in paper trace to `data/` rows and `code/` blocks.
 - **Principle V (Versioning)**: Artifacts carry content hashes. State file updated on changes.
-- **Principle VI (EEG Standards)**: Pipeline follows MNE-Python bandpass (1-40 Hz), ICA, Morlet wavelets (low-to-mid frequency range), electrode selection (P/Pz/P4/F3/Fz/F4).
+- **Principle VI (EEG Standards)**: The research question investigates the temporal dynamics of neural oscillations. The method employs a pipeline following MNE-Python bandpass filtering within a low-frequency range. References include standard neurophysiological protocols (MNE-Python documentation)., ICA, Morlet wavelets (low-to-moderate frequency range), electrode selection (P3/Pz/P4/F3/Fz/F4).
 - **Principle VII (Statistical Validation)**: LDA with 5-fold CV, 1000-iteration permutation testing, α = 0.05 threshold, family-wise error correction.
 - **Principle VII Benchmark Note**: The [deferred] accuracy benchmark is a project-specific gating threshold per Constitution Principle VII, NOT a claim of scientific superiority. Analysis reports accuracy with confidence intervals; benchmark is for pass/fail gating.
 
@@ -57,7 +57,7 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 - Track `participant_count` for output schema (addresses plan_consistency-c63414a0)
 
 **Step 2**: Filter and clean
-- Apply bandpass filter (low-frequency to 40 Hz) per FR-002
+- Apply bandpass filter (low-frequency cutoff to 40 Hz) per FR-002
 - Apply notch filter (/60 Hz) for line noise removal per FR-002
 - Document residual line noise metric for SC-002 validation
 
@@ -76,13 +76,13 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 ### Phase 2: Feature Extraction (addresses US-2, FR-005 to FR-006, SC-001)
 
 **Step 1**: Time-frequency decomposition
-- Compute Morlet wavelet decomposition (8-30 Hz) per FR-005
-- **Baseline Normalization**: Use pre-stimulus baseline (−ms to 0ms) for dB conversion per methodology-448c5b0e
+- Compute Morlet wavelet decomposition across the beta and low-gamma frequency bands. per FR-005
+- **Baseline Normalization**: Use a pre-stimulus baseline period preceding stimulus onset for dB conversion. per methodology-448c5b0e
 - Desynchronization magnitude computed as log ratio of post-stimulus to baseline power (SC-001)
 
 **Step 2**: Feature extraction
 - Extract mean power for alpha (-12 Hz) @ P3, Pz, P4 per FR-006
-- Extract mean power for beta (low beta to low gamma range) @ F3, Fz, F4 per FR-006
+- Extract mean power for beta (low-beta to mid-beta range) @ F3, Fz, F4 per FR-006
 - Document electrode collinearity (neighboring electrodes correlated)
 
 **Step 3**: Feature validation
@@ -96,7 +96,7 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 - Report accuracy, precision, recall with standard deviation
 
 **Step 2**: Permutation testing
-- Execute a permutation test with a sufficient number of iterations to ensure statistical stability. per FR-008
+- Execute a permutation test with a sufficient number of iterations. per FR-008
 - Report p-value and null hypothesis rejection decision
 - Store PermutationResult entity in data model (addresses plan_consistency-409de6d8)
 

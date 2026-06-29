@@ -1,94 +1,78 @@
 import pytest
 import numpy as np
-from unittest.mock import patch, MagicMock
-import os
-import sys
-import tempfile
 from pathlib import Path
+import sys
+import os
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from preprocessing import (
-    get_subject_epoch_counts,
-    select_subjects_for_memory_limit,
-    validate_epoch_counts,
-    log_epoch_rejection_rate
+    download_and_validate_dataset,
+    apply_filters,
+    run_ica,
+    segment_epochs,
+    validate_sample_size,
+    preprocess_pipeline
 )
-from config import get_config
 
-@pytest.fixture
-def mock_bids_root(tmp_path):
-    """Create a mock BIDS structure."""
-    # Create sub-01, sub-02, sub-03
-    for i in [1, 2, 3]:
-        sub_dir = tmp_path / f"sub-{i:02d}"
-        sub_dir.mkdir()
-        # Create events.tsv with varying counts
-        events_file = sub_dir / "eeg" / "sub-01_task-navigation_events.tsv"
-        events_file.parent.mkdir(parents=True, exist_ok=True)
-        count = i * 50 # sub-01: 50, sub-02: 100, sub-03: 150
-        with open(events_file, 'w') as f:
-            f.write("onset\tduration\ttrial_type\n")
-            for _ in range(count):
-                f.write("1.0\t0.5\tactive\n")
-    return str(tmp_path)
+def test_download_and_validate_dataset():
+    """Test that the dataset download and validation function runs without error."""
+    # This test verifies FR-001 implementation
+    # We expect it to run with the sample dataset
+    try:
+        path, report = download_and_validate_dataset("sample-ica")
+        assert path.exists(), "Dataset path does not exist"
+        assert report["bids_compliant"], "Dataset is not BIDS compliant"
+        assert report["event_markers_found"], "Event markers not found"
+        assert "validation_report.json" in [f.name for f in path.glob("*.json")]
+    except ImportError as e:
+        pytest.skip(f"MNE not installed: {e}")
 
-def test_get_subject_epoch_counts(mock_bids_root):
-    counts = get_subject_epoch_counts(mock_bids_root)
-    assert 'sub-01' in counts
-    assert 'sub-02' in counts
-    assert 'sub-03' in counts
-    # Check approximate counts (might vary if parsing logic changes)
-    assert counts['sub-01'] == 50
-    assert counts['sub-02'] == 100
-    assert counts['sub-03'] == 150
-
-def test_select_subjects_for_memory_limit_deterministic(mock_bids_root):
-    """Test that selection is deterministic and sorts by epoch count descending."""
-    # We want min_epochs=100. 
-    # Sorted: sub-03 (150), sub-02 (100), sub-01 (50)
-    # Expected: sub-03 (150 >= 100) -> Stop.
-    selected = select_subjects_for_memory_limit(
-        mock_bids_root, 
-        max_ram_gb=10.0, # High enough to not hit RAM limit
-        min_epochs=100,
-        avg_bytes_per_epoch=1000 # Small to not hit RAM limit
-    )
-    assert len(selected) == 1
-    assert selected[0] == 'sub-03'
-
-def test_select_subjects_for_memory_limit_ram_constraint(mock_bids_root):
-    """Test selection stops due to RAM constraint."""
-    # Set a very low RAM limit
-    selected = select_subjects_for_memory_limit(
-        mock_bids_root,
-        max_ram_gb=0.001, # 1 MB - effectively 0
-        min_epochs=1000,
-        avg_bytes_per_epoch=1000000000 # 1GB per epoch (huge)
-    )
-    # Should select nothing or very few
-    # With 1GB per epoch and 1MB limit, should select 0
-    assert len(selected) == 0
-
-def test_validate_epoch_counts():
-    # Mock epochs object
-    class MockEpochs:
-        def __len__(self):
-            return 100
+def test_validate_sample_size_pass():
+    """Test sample size validation with sufficient epochs."""
+    # Create a mock epochs object
+    import mne
+    sfreq = 1000.0
+    info = mne.create_info(ch_names=['MEG 001', 'MEG 002'], sfreq=sfreq, ch_types='mag')
+    data = np.random.randn(100, 2, 2000) # 100 epochs, 2 chs, 2s
+    events = np.array([[i*1000, 0, 1] for i in range(100)]) # 100 events
+    event_id = {'test': 1}
     
-    epochs = MockEpochs()
-    assert validate_epoch_counts(epochs, 100) is True
-    assert validate_epoch_counts(epochs, 101) is False
+    epochs = mne.EpochsArray(data, info, events, event_id=event_id)
+    
+    report = validate_sample_size(epochs, min_epochs=50)
+    assert report["is_valid"]
+    assert report["total_epochs"] == 100
 
-def test_log_epoch_rejection_rate(tmp_path):
-    output_file = tmp_path / "rejection_report.json"
-    log_epoch_rejection_rate(100, 10, str(output_file))
-    assert output_file.exists()
-    import json
-    with open(output_file) as f:
-        data = json.load(f)
-    assert data['total_epochs'] == 100
-    assert data['rejected_epochs'] == 10
-    assert abs(data['rejection_rate'] - 0.1) < 1e-6
-    assert 'timestamp' in data
+def test_validate_sample_size_fail():
+    """Test sample size validation with insufficient epochs."""
+    import mne
+    sfreq = 1000.0
+    info = mne.create_info(ch_names=['MEG 001'], sfreq=sfreq, ch_types='mag')
+    data = np.random.randn(20, 1, 2000) # 20 epochs
+    events = np.array([[i*1000, 0, 1] for i in range(20)])
+    event_id = {'test': 1}
+    
+    epochs = mne.EpochsArray(data, info, events, event_id=event_id)
+    
+    with pytest.raises(ValueError):
+        validate_sample_size(epochs, min_epochs=50)
+
+def test_preprocess_pipeline_integration():
+    """Integration test for the full pipeline."""
+    # This is a lightweight integration test
+    # It may be skipped if MNE is not installed or if the download takes too long in CI
+    try:
+        result = preprocess_pipeline("sample-ica")
+        assert result["status"] == "success"
+        assert result["epochs_count"] > 0
+        assert "validation" in result
+    except ImportError:
+        pytest.skip("MNE not installed")
+    except Exception as e:
+        # If the specific dataset is not available, skip
+        if "download" in str(e).lower() or "not found" in str(e).lower():
+            pytest.skip("Dataset download failed or not found")
+        else:
+            raise

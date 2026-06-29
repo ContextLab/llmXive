@@ -1,18 +1,190 @@
 - artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
   attempts: 1
-  canonical: Examples include test tasks
-  claim_id: c_018388b7
-  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
-    include them if explicitly requested in the feature specification.'
+  canonical: dataset verification script validates OpenNeuro BIDS compliance
+  claim_id: c_b9870d78
+  context: Implement dataset verification script to validate OpenNeuro BIDS compliance
+    and event markers in `code/verify_dataset.py`
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+    source_url: https://en.wikipedia.org/wiki/Dataset_verification_script_validates_OpenNeuro_BIDS_complia
   kind: entity_fact
-  raw_text: The examples below include test tasks.
+  raw_text: Implement dataset verification script to validate OpenNeuro BIDS compliance
+    and event markers
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-29T20:25:28Z'
+  updated_at: '2026-06-29T20:57:28Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: halt processing if fewer than 50 epochs per condition
+  claim_id: c_207e5343
+  context: 'Implement sample size validation: halt if <50 epochs/condition; flag as
+    underpowered if <100 epochs/condition (addresses SC-005)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_processing_if_fewer_than_50_epochs_per_condition
+  kind: magnitude
+  raw_text: halt if <50 epochs/condition; flag as underpowered if <100 epochs/condition
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T20:57:42Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: feature matrix saved to data/processed/features_matrix.csv
+  claim_id: c_2585e127
+  context: "Save feature matrix to `data/processed/features_matrix.csv` with dimensions\
+    \ (epochs \xD7 multiple)"
+  evidence:
+    entailment_evidence: Feature matrix saved to data/processed/features matrix.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Feature_matrix_saved_to_data/processed/features_matrix.csv
+  kind: entity_fact
+  raw_text: "Save feature matrix to `data/processed/features_matrix.csv` with dimensions\
+    \ (epochs \xD7 multiple)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-29T20:57:58Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: feature validation requires at least 80% non-NaN epochs
+  claim_id: c_c24bc9cf
+  context: "Implement feature validation: check \u226580% epochs have non-NaN values\
+    \ and log failures"
+  evidence:
+    entailment_evidence: Feature validation requires at least 80% non-NaN epochs
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Feature_validation_requires_at_least_80%25_non-NaN_epochs
+  kind: magnitude
+  raw_text: "check \u226580% epochs have non-NaN values"
+  resolved_value: feature validation requires at least 80% non-NaN epochs
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T20:58:00Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: classifier reports accuracy, precision, and recall with standard deviation
+  claim_id: c_be0b3f2a
+  context: Implement LDA classifier training with k-fold cross-validation consuming
+    `data/processed/features_matrix.csv` in `code/classification.py` (addresses FR-007)
+    Report accuracy, precision, recall with standard deviation across folds in `code/classification.py`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Classifier_reports_accuracy,_precision,_and_recall_with_stan
+  kind: entity_fact
+  raw_text: Report accuracy, precision, recall with standard deviation across folds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T20:58:17Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: permutation testing used to establish statistical significance
+  claim_id: c_b65c8a62
+  context: Implement permutation testing with a sufficient number of iterations to
+    establish statistical significance in `code/classification.py` (addresses FR-008)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_used_to_establish_statistical_significan
+  kind: entity_fact
+  raw_text: permutation testing with a sufficient number of iterations to establish
+    statistical significance
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T20:59:04Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: classifier p-value reported with alpha = 0.05
+  claim_id: c_d0d8655e
+  context: "Report classifier p-value and null hypothesis rejection decision (\u03B1\
+    \ = 0.05) in `results.json`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Report classifier p-value and null hypothesis rejection decision (\u03B1\
+    \ = 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T20:59:36Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: family-wise error correction is applied (Bonferroni/FDR)
+  claim_id: c_147c0918
+  context: Implement family-wise error correction (Bonferroni/FDR) for univariate
+    t-tests on alpha (low-frequency range) at P3/Pz/P4 and beta (13-30 Hz) at F3/Fz/F4;
+    append `fwe_corrected_p_values` to `data/processed/feature_metadata.json` (addresses
+    FR-009, clarifies scope)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: "P800: Holm\u2013Bonferroni method"
+      source_id: Q858572
+      url: https://www.wikidata.org/wiki/Q858572
+      value: "Holm\u2013Bonferroni method"
+    filled: true
+  kind: entity_fact
+  raw_text: family-wise error correction (Bonferroni/FDR)
+  resolved_value: "Holm\u2013Bonferroni method"
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T20:59:45Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps classification threshold
+  claim_id: c_26579e32
+  context: 'Implement sensitivity analysis: sweep classification threshold and report
+    FP/FN variation in `code/classification.py` (addresses FR-010)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_classification_threshold
+  kind: entity_fact
+  raw_text: sweep classification threshold and report FP/FN variation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T20:59:48Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: no GPU usage is permitted
+  claim_id: c_b609d98d
+  context: All tasks must run on a limited number of CPU cores, limited RAM, NO GPU.
+    No 8-bit/4-bit quantization or CUDA-dependent libraries.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_GPU_usage_is_permitted
+  kind: entity_fact
+  raw_text: All tasks must run on a limited number of CPU cores, limited RAM, NO GPU.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T20:59:57Z'
