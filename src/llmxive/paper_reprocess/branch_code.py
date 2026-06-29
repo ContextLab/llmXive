@@ -55,7 +55,14 @@ def to_backfilled_project(project: Project, *, repo_root: Path) -> Project:
     from llmxive.paper_reprocess.classify import code_repos, load_metadata
     from llmxive.paper_reprocess.reprocess import project_dir as _project_dir
 
-    repo_root = Path(repo_root)
+    # Resolve to an ABSOLUTE repo root so the speckit context's project_dir is
+    # absolute (as production's graph.py path always is). The speckit mechanical
+    # step runs ``ctx.project_dir/.specify/.../create-new-feature.sh`` with
+    # cwd=ctx.project_dir; if project_dir is RELATIVE, run_script resolves the
+    # script against the cwd and DOUBLES the project path
+    # (projects/<id>/projects/<id>/.specify/...). Resolving here makes branch_code
+    # correct regardless of whether the caller passed a relative repo_root.
+    repo_root = Path(repo_root).resolve()
     pdir = _project_dir(project, repo_root)
     repos = code_repos(load_metadata(pdir))
     if not repos:
