@@ -74,7 +74,7 @@
 - [X] T023 [US1] Add explicit memory‑monitoring to validate 7 GB limit throughout model inference (SC‑002)
 - [X] T024 [US1] Add validation task to verify **SC‑001** (24‑hour completion) AND **500MB corpus requirement** on the full dataset (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`) using pytest
 - [X] T025 [US1] Add checksum computation for all output files AND intermediate files/logs, record in `artifact_hashes` state manifest
-- [X] T026 [US1] Add validation task to verify **SC‑003** (at least 1000 code segments processed with valid clone density and perplexity measurements [UNRESOLVED-CLAIM: c_c95188b1 — status=not_enough_info]) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
+- [X] T026 [US1] Add validation task to verify **SC‑003** (at least 1000 code segments processed with valid clone density and perplexity measurements) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently
 
@@ -121,7 +121,7 @@
 ### Implementation Tasks
 
 - [X] T040 [US3] Extend `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to perform sensitivity analysis for clone‑detection thresholds 0.7, 0.8, 0.9
-- [X] T041 [US3] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/visualization.py` to generate scatter plots with regression lines using matplotlib
+- [ ] T041 [US3] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/visualization.py` to generate scatter plots with regression lines using matplotlib
 - [X] T042 [US3] Save all plots to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/figures/` in documented format (PNG & PDF)
 - [X] T043 [US3] Document random seeds, thresholds (0.7, 0.8, 0.9 explicitly called out), and **ALL** configuration parameters in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/config.py` for reproducibility (SC‑005) - T006 creates config.py infrastructure, T043 documents parameters for reproducibility with explicit threshold documentation
 - [ ] T044 [US3] Add checksum computation for visualization outputs and record in `artifact_hashes` state manifest

@@ -1,3 +1,7 @@
 file,line,pattern,match,timestamp
-/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/data/quickstart_validation_results.json,35,api_key,001-evaluating-the-impact-of-code-duplication,2026-06-29T03:41:13.492458
-/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/data/quickstart_validation_results.json,36,api_key,001-evaluating-the-impact-of-code-duplication,2026-06-29T03:41:13.492474
+/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/data/quickstart_validation_results.json,35,api_key,001-evaluating-the-impact-of-code-duplication,2026-06-29T06:07:22.288022
+/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/data/quickstart_validation_results.json,36,api_key,001-evaluating-the-impact-of-code-duplication,2026-06-29T06:07:22.288031
+/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/data/analysis/pii_findings.csv,2,api_key,PROJ-261-evaluating-the-impact-of-code-duplicatio,2026-06-29T06:07:22.288586
+/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/data/analysis/pii_findings.csv,2,api_key,001-evaluating-the-impact-of-code-duplication,2026-06-29T06:07:22.288592
+/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/data/analysis/pii_findings.csv,3,api_key,PROJ-261-evaluating-the-impact-of-code-duplicatio,2026-06-29T06:07:22.288596
+/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/data/analysis/pii_findings.csv,3,api_key,001-evaluating-the-impact-of-code-duplication,2026-06-29T06:07:22.288599

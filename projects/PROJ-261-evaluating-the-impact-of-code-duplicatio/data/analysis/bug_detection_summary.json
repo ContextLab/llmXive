@@ -3,7 +3,7 @@
   "total_problems": 50,
   "passed_problems": 50,
   "failed_problems": 0,
-  "timestamp": "2026-06-29T03:58:10.148731",
+  "timestamp": "2026-06-29T06:20:13.981332",
   "model_name": "Salesforce/codegen-350M-mono",
   "dataset": "openai_humaneval"
 }

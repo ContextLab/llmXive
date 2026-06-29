@@ -1,19 +1,21 @@
 """
 Unit tests for visualization generation (T037 - US3).
 
-Tests the visualization.py module functions for scatter plots,
-regression analysis, and sensitivity analysis visualizations.
-
-Per spec.md Independent Test requirements: must be written BEFORE
-implementation code and verified to fail initially.
+Tests verify:
+- Scatter plot creation with regression lines
+- Clone density vs perplexity plots
+- Clone density vs accuracy plots
+- Sensitivity analysis plots
+- Output file generation (PNG & PDF)
+- Error handling for invalid data
 """
 import pytest
-import tempfile
 import os
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
 import numpy as np
 import pandas as pd
+from unittest.mock import patch, MagicMock, PropertyMock
 
 # Import visualization module functions
 from visualization import (
@@ -24,573 +26,650 @@ from visualization import (
     create_clone_density_vs_perplexity_plot,
     create_clone_density_vs_accuracy_plot,
     create_sensitivity_analysis_plot,
-    generate_all_visualizations,
+    generate_all_visualizations
 )
-from config import get_figure_format, get_figure_dpi
+from config import get_figure_format, get_figure_dpi, get_clone_thresholds
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend for testing
+import matplotlib.pyplot as plt
 
 
 class TestSetupLogging:
     """Tests for setup_logging function."""
     
     def test_setup_logging_returns_logger(self):
-        """Test that setup_logging returns a valid logger object."""
+        """Verify setup_logging returns a valid logger instance."""
         logger = setup_logging()
         assert logger is not None
-        assert hasattr(logger, 'info')
-        assert hasattr(logger, 'error')
-        assert hasattr(logger, 'warning')
-    
-    def test_setup_logging_creates_log_file(self):
-        """Test that setup_logging creates log file in analysis directory."""
+        assert logger.name == 'visualization'
+        
+    def test_setup_logging_creates_file_handler(self):
+        """Verify logging creates appropriate handlers."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('visualization.Path') as mock_path:
-                mock_path.return_value = Path(tmpdir)
-                logger = setup_logging()
-                assert logger is not None
-
+            log_path = Path(tmpdir) / 'test.log'
+            logger = setup_logging()
+            assert len(logger.handlers) > 0
+            
 
 class TestLoadCorrelationData:
     """Tests for load_correlation_data function."""
     
-    def test_load_correlation_data_valid_csv(self):
-        """Test loading valid correlation data CSV file."""
+    def test_load_correlation_data_with_valid_csv(self):
+        """Verify data loading from valid CSV file."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            csv_path = Path(tmpdir) / "test_correlation.csv"
+            csv_path = Path(tmpdir) / 'test_correlation.csv'
             
             # Create test data
-            test_data = pd.DataFrame({
+            data = {
                 'clone_density': [0.1, 0.2, 0.3, 0.4, 0.5],
-                'perplexity': [10.5, 11.2, 12.1, 13.0, 14.5],
-                'accuracy': [0.85, 0.80, 0.75, 0.70, 0.65]
-            })
-            test_data.to_csv(csv_path, index=False)
+                'perplexity': [10.5, 11.2, 12.1, 13.0, 14.2],
+                'accuracy': [0.85, 0.82, 0.78, 0.75, 0.70]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(csv_path, index=False)
             
-            result = load_correlation_data(str(csv_path))
+            result = load_correlation_data(csv_path)
             assert result is not None
+            assert len(result) == 5
             assert 'clone_density' in result.columns
             assert 'perplexity' in result.columns
             assert 'accuracy' in result.columns
-            assert len(result) == 5
-    
-    def test_load_correlation_data_missing_file(self):
-        """Test handling of missing correlation data file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            non_existent = Path(tmpdir) / "does_not_exist.csv"
-            with pytest.raises(FileNotFoundError):
-                load_correlation_data(str(non_existent))
-    
-    def test_load_correlation_data_invalid_columns(self):
-        """Test handling of CSV with missing required columns."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            csv_path = Path(tmpdir) / "invalid.csv"
-            test_data = pd.DataFrame({
-                'wrong_column': [1, 2, 3]
-            })
-            test_data.to_csv(csv_path, index=False)
             
-            result = load_correlation_data(str(csv_path))
-            assert result is not None
-            assert 'wrong_column' in result.columns
-    
-    def test_load_correlation_data_empty_file(self):
-        """Test handling of empty CSV file."""
+    def test_load_correlation_data_with_missing_file(self):
+        """Verify error handling for missing file."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            csv_path = Path(tmpdir) / "empty.csv"
+            csv_path = Path(tmpdir) / 'nonexistent.csv'
+            
+            with pytest.raises(FileNotFoundError):
+                load_correlation_data(csv_path)
+                
+    def test_load_correlation_data_with_empty_file(self):
+        """Verify handling of empty CSV file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / 'empty.csv'
             csv_path.touch()
             
-            with pytest.raises(pd.errors.EmptyDataError):
-                load_correlation_data(str(csv_path))
-    
-    def test_load_correlation_data_nan_values(self):
-        """Test handling of data with NaN values."""
+            with pytest.raises((pd.errors.EmptyDataError, ValueError)):
+                load_correlation_data(csv_path)
+                
+    def test_load_correlation_data_preserves_columns(self):
+        """Verify all expected columns are loaded."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            csv_path = Path(tmpdir) / "nan_test.csv"
-            test_data = pd.DataFrame({
-                'clone_density': [0.1, np.nan, 0.3, 0.4, 0.5],
-                'perplexity': [10.5, 11.2, np.nan, 13.0, 14.5],
-                'accuracy': [0.85, 0.80, 0.75, np.nan, 0.65]
-            })
-            test_data.to_csv(csv_path, index=False)
+            csv_path = Path(tmpdir) / 'test.csv'
             
-            result = load_correlation_data(str(csv_path))
-            assert result is not None
-            assert len(result) == 5  # Should load all rows, NaN handling elsewhere
-
+            data = {
+                'clone_density': [0.1],
+                'perplexity': [10.0],
+                'accuracy': [0.8],
+                'threshold_07': [0.05],
+                'threshold_08': [0.03],
+                'threshold_09': [0.02]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(csv_path, index=False)
+            
+            result = load_correlation_data(csv_path)
+            assert 'threshold_07' in result.columns
+            assert 'threshold_08' in result.columns
+            assert 'threshold_09' in result.columns
+            
 
 class TestComputeRegression:
     """Tests for compute_regression function."""
     
     def test_compute_regression_basic(self):
-        """Test basic regression computation."""
+        """Verify basic linear regression computation."""
         x = np.array([1, 2, 3, 4, 5])
-        y = np.array([2, 4, 5, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])  # Perfect linear relationship
         
         slope, intercept, r_squared = compute_regression(x, y)
         
-        assert isinstance(slope, (float, np.floating))
-        assert isinstance(intercept, (float, np.floating))
-        assert isinstance(r_squared, (float, np.floating))
-        assert 0 <= r_squared <= 1
-    
+        assert isinstance(slope, (int, float, np.number))
+        assert isinstance(intercept, (int, float, np.number))
+        assert isinstance(r_squared, (int, float, np.number))
+        assert np.isclose(slope, 2.0, atol=0.1)
+        assert np.isclose(intercept, 0.0, atol=0.1)
+        assert np.isclose(r_squared, 1.0, atol=0.01)
+        
+    def test_compute_regression_with_noise(self):
+        """Verify regression with noisy data."""
+        np.random.seed(42)
+        x = np.linspace(0, 10, 50)
+        y = 2 * x + 1 + np.random.normal(0, 2, 50)
+        
+        slope, intercept, r_squared = compute_regression(x, y)
+        
+        assert isinstance(slope, (int, float, np.number))
+        assert isinstance(intercept, (int, float, np.number))
+        assert isinstance(r_squared, (int, float, np.number))
+        assert 0 <= r_squared <= 1  # R-squared should be in valid range
+        
     def test_compute_regression_constant_y(self):
-        """Test regression with constant y values."""
+        """Verify handling of constant y values."""
         x = np.array([1, 2, 3, 4, 5])
-        y = np.array([5, 5, 5, 5, 5])
+        y = np.array([5, 5, 5, 5, 5])  # Constant values
         
         slope, intercept, r_squared = compute_regression(x, y)
         
-        assert isinstance(slope, (float, np.floating))
-        assert isinstance(intercept, (float, np.floating))
-        assert r_squared == 0.0  # No variance in y
-    
+        assert np.isclose(slope, 0.0, atol=0.001)
+        assert np.isclose(intercept, 5.0, atol=0.001)
+        assert np.isclose(r_squared, 0.0, atol=0.001)
+        
     def test_compute_regression_single_point(self):
-        """Test regression with single data point."""
+        """Verify error handling for single data point."""
         x = np.array([1])
         y = np.array([2])
         
-        with pytest.raises(ValueError):
+        with pytest.raises((ValueError, np.linalg.LinAlgError)):
             compute_regression(x, y)
-    
-    def test_compute_regression_mismatched_lengths(self):
-        """Test regression with mismatched x and y lengths."""
-        x = np.array([1, 2, 3])
-        y = np.array([1, 2])
-        
-        with pytest.raises(ValueError):
-            compute_regression(x, y)
-    
-    def test_compute_regression_negative_correlation(self):
-        """Test regression with negative correlation."""
-        x = np.array([1, 2, 3, 4, 5])
-        y = np.array([5, 4, 3, 2, 1])
-        
-        slope, intercept, r_squared = compute_regression(x, y)
-        
-        assert slope < 0  # Negative slope for negative correlation
-        assert 0 <= r_squared <= 1
-    
-    def test_compute_regression_perfect_correlation(self):
-        """Test regression with perfect correlation."""
-        x = np.array([1, 2, 3, 4, 5])
+            
+    def test_compute_regression_with_nan(self):
+        """Verify handling of NaN values."""
+        x = np.array([1, 2, np.nan, 4, 5])
         y = np.array([2, 4, 6, 8, 10])
         
         slope, intercept, r_squared = compute_regression(x, y)
         
-        assert abs(slope - 2.0) < 0.001
-        assert abs(intercept - 0.0) < 0.001
-        assert abs(r_squared - 1.0) < 0.001
-
+        # Should either handle NaN or raise appropriate error
+        assert isinstance(slope, (int, float, np.number))
+        assert isinstance(intercept, (int, float, np.number))
+        
+    def test_compute_regression_with_inf(self):
+        """Verify handling of infinite values."""
+        x = np.array([1, 2, np.inf, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
+        
+        # Should handle or raise appropriate error
+        with pytest.raises((ValueError, np.linalg.LinAlgError)):
+            compute_regression(x, y)
+            
+    def test_compute_regression_svd_convergence(self):
+        """Verify handling of SVD convergence issues (robustness)."""
+        # Create ill-conditioned data that might cause SVD issues
+        x = np.array([1, 1.0000001, 1.0000002, 1.0000003, 1.0000004])
+        y = np.array([2, 2, 2, 2, 2])
+        
+        # Should handle gracefully or raise informative error
+        try:
+            slope, intercept, r_squared = compute_regression(x, y)
+            assert isinstance(slope, (int, float, np.number))
+        except np.linalg.LinAlgError:
+            # Acceptable - function may raise for ill-conditioned data
+            pass
+            
 
 class TestCreateScatterPlotWithRegression:
     """Tests for create_scatter_plot_with_regression function."""
     
-    def test_create_scatter_plot_basic(self):
-        """Test basic scatter plot with regression line creation."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_scatter.png"
-            
-            x = np.array([1, 2, 3, 4, 5])
-            y = np.array([2, 4, 5, 4, 5])
-            
-            result = create_scatter_plot_with_regression(
-                x, y,
-                x_label='X Axis',
-                y_label='Y Axis',
-                title='Test Plot',
-                output_path=str(output_path)
-            )
-            
-            assert result is True
-            assert output_path.exists()
-    
-    def test_create_scatter_plot_formats(self):
-        """Test scatter plot in different formats."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            x = np.array([1, 2, 3, 4, 5])
-            y = np.array([2, 4, 5, 4, 5])
-            
-            # Test PNG format
-            png_path = Path(tmpdir) / "test.png"
-            result_png = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Test', str(png_path)
-            )
-            assert result_png is True
-            assert png_path.exists()
-            assert png_path.suffix == '.png'
-            
-            # Test PDF format
-            pdf_path = Path(tmpdir) / "test.pdf"
-            result_pdf = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Test', str(pdf_path)
-            )
-            assert result_pdf is True
-            assert pdf_path.exists()
-            assert pdf_path.suffix == '.pdf'
-    
-    def test_create_scatter_plot_small_dataset(self):
-        """Test scatter plot with small dataset (3 points)."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "small.png"
-            
-            x = np.array([1, 2, 3])
-            y = np.array([2, 4, 6])
-            
-            result = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Small Dataset', str(output_path)
-            )
-            
-            assert result is True
-            assert output_path.exists()
-    
-    def test_create_scatter_plot_large_dataset(self):
-        """Test scatter plot with large dataset (1000 points)."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "large.png"
-            
-            np.random.seed(42)
-            x = np.random.randn(1000)
-            y = 2 * x + np.random.randn(1000) * 0.5
-            
-            result = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Large Dataset', str(output_path)
-            )
-            
-            assert result is True
-            assert output_path.exists()
-    
-    def test_create_scatter_plot_invalid_output_path(self):
-        """Test scatter plot with invalid output path."""
-        x = np.array([1, 2, 3])
-        y = np.array([2, 4, 6])
+    def test_create_scatter_plot_creates_figure(self):
+        """Verify scatter plot creates valid matplotlib figure."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
         
-        with pytest.raises((OSError, PermissionError)):
-            create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Test', '/nonexistent/directory/test.png'
-            )
+        fig, ax = create_scatter_plot_with_regression(x, y, 'Test X', 'Test Y')
+        
+        assert fig is not None
+        assert ax is not None
+        assert len(ax.collections) > 0  # Scatter points exist
+        assert len(ax.lines) > 0  # Regression line exists
+        
+        plt.close(fig)
+        
+    def test_create_scatter_plot_with_labels(self):
+        """Verify axis labels are set correctly."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
+        
+        fig, ax = create_scatter_plot_with_regression(x, y, 'Clone Density', 'Perplexity')
+        
+        assert ax.get_xlabel() == 'Clone Density'
+        assert ax.get_ylabel() == 'Perplexity'
+        
+        plt.close(fig)
+        
+    def test_create_scatter_plot_with_title(self):
+        """Verify plot title is set correctly."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
+        
+        fig, ax = create_scatter_plot_with_regression(x, y, 'X', 'Y', title='Test Title')
+        
+        assert ax.get_title() == 'Test Title'
+        
+        plt.close(fig)
+        
+    def test_create_scatter_plot_with_r_squared(self):
+        """Verify R-squared value is displayed."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
+        
+        fig, ax = create_scatter_plot_with_regression(x, y, 'X', 'Y', show_r_squared=True)
+        
+        # Check that text annotation exists
+        texts = [child for child in ax.get_children() if hasattr(child, 'get_text')]
+        assert len(texts) > 0
+        
+        plt.close(fig)
+        
+    def test_create_scatter_plot_empty_data(self):
+        """Verify error handling for empty data."""
+        x = np.array([])
+        y = np.array([])
+        
+        with pytest.raises((ValueError, IndexError)):
+            create_scatter_plot_with_regression(x, y, 'X', 'Y')
+            
+    def test_create_scatter_plot_mismatched_lengths(self):
+        """Verify error handling for mismatched array lengths."""
+        x = np.array([1, 2, 3])
+        y = np.array([1, 2])
+        
+        with pytest.raises((ValueError, IndexError)):
+            create_scatter_plot_with_regression(x, y, 'X', 'Y')
+            
+    def test_create_scatter_plot_save_to_file(self):
+        """Verify plot can be saved to file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            x = np.array([1, 2, 3, 4, 5])
+            y = np.array([2, 4, 6, 8, 10])
+            
+            output_path = Path(tmpdir) / 'test_scatter.png'
+            fig, ax = create_scatter_plot_with_regression(x, y, 'X', 'Y')
+            fig.savefig(output_path)
+            
+            assert output_path.exists()
+            assert output_path.stat().st_size > 0
+            
+            plt.close(fig)
+            
 
 class TestCreateCloneDensityVsPerplexityPlot:
     """Tests for create_clone_density_vs_perplexity_plot function."""
     
-    def test_create_clone_density_vs_perplexity_basic(self):
-        """Test basic clone density vs perplexity plot."""
+    def test_create_clone_density_vs_perplexity_plot(self):
+        """Verify clone density vs perplexity plot creation."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "clone_perplexity.png"
+            csv_path = Path(tmpdir) / 'test_metrics.csv'
             
-            result = create_clone_density_vs_perplexity_plot(
-                output_path=str(output_path),
-                dpi=get_figure_dpi()
-            )
+            data = {
+                'clone_density': [0.1, 0.2, 0.3, 0.4, 0.5],
+                'perplexity': [10.5, 11.2, 12.1, 13.0, 14.2]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(csv_path, index=False)
             
-            # Should not raise exception
-            assert True
-    
-    def test_create_clone_density_vs_perplexity_pdf(self):
-        """Test clone density vs perplexity plot in PDF format."""
+            output_path = Path(tmpdir) / 'clone_vs_perplexity.png'
+            fig = create_clone_density_vs_perplexity_plot(csv_path, output_path)
+            
+            assert fig is not None
+            assert output_path.exists()
+            assert output_path.stat().st_size > 0
+            
+            plt.close(fig)
+            
+    def test_create_clone_density_vs_perplexity_plot_pdf(self):
+        """Verify PDF output format."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "clone_perplexity.pdf"
+            csv_path = Path(tmpdir) / 'test_metrics.csv'
+            data = {
+                'clone_density': [0.1, 0.2, 0.3],
+                'perplexity': [10.0, 11.0, 12.0]
+            }
+            pd.DataFrame(data).to_csv(csv_path, index=False)
             
-            result = create_clone_density_vs_perplexity_plot(
-                output_path=str(output_path),
-                dpi=get_figure_dpi()
-            )
+            output_path = Path(tmpdir) / 'clone_vs_perplexity.pdf'
+            fig = create_clone_density_vs_perplexity_plot(csv_path, output_path)
             
-            assert True
+            assert output_path.exists()
+            assert output_path.suffix == '.pdf'
+            
+            plt.close(fig)
+            
+    def test_create_clone_density_vs_perplexity_plot_missing_data(self):
+        """Verify handling of missing data columns."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / 'incomplete.csv'
+            data = {'clone_density': [0.1, 0.2]}  # Missing perplexity
+            pd.DataFrame(data).to_csv(csv_path, index=False)
+            
+            with pytest.raises((KeyError, ValueError)):
+                create_clone_density_vs_perplexity_plot(csv_path, Path(tmpdir) / 'out.png')
+                
 
 class TestCreateCloneDensityVsAccuracyPlot:
     """Tests for create_clone_density_vs_accuracy_plot function."""
     
-    def test_create_clone_density_vs_accuracy_basic(self):
-        """Test basic clone density vs accuracy plot."""
+    def test_create_clone_density_vs_accuracy_plot(self):
+        """Verify clone density vs accuracy plot creation."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "clone_accuracy.png"
+            csv_path = Path(tmpdir) / 'test_metrics.csv'
             
-            result = create_clone_density_vs_accuracy_plot(
-                output_path=str(output_path),
-                dpi=get_figure_dpi()
-            )
+            data = {
+                'clone_density': [0.1, 0.2, 0.3, 0.4, 0.5],
+                'accuracy': [0.85, 0.82, 0.78, 0.75, 0.70]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(csv_path, index=False)
             
-            assert True
-    
-    def test_create_clone_density_vs_accuracy_pdf(self):
-        """Test clone density vs accuracy plot in PDF format."""
+            output_path = Path(tmpdir) / 'clone_vs_accuracy.png'
+            fig = create_clone_density_vs_accuracy_plot(csv_path, output_path)
+            
+            assert fig is not None
+            assert output_path.exists()
+            assert output_path.stat().st_size > 0
+            
+            plt.close(fig)
+            
+    def test_create_clone_density_vs_accuracy_plot_negative_correlation(self):
+        """Verify plot handles negative correlation correctly."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "clone_accuracy.pdf"
+            csv_path = Path(tmpdir) / 'test_metrics.csv'
             
-            result = create_clone_density_vs_accuracy_plot(
-                output_path=str(output_path),
-                dpi=get_figure_dpi()
-            )
+            # Perfect negative correlation
+            data = {
+                'clone_density': [0.1, 0.2, 0.3, 0.4, 0.5],
+                'accuracy': [0.95, 0.85, 0.75, 0.65, 0.55]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(csv_path, index=False)
             
-            assert True
+            output_path = Path(tmpdir) / 'clone_vs_accuracy.png'
+            fig = create_clone_density_vs_accuracy_plot(csv_path, output_path)
+            
+            assert fig is not None
+            assert output_path.exists()
+            
+            plt.close(fig)
+            
 
 class TestCreateSensitivityAnalysisPlot:
     """Tests for create_sensitivity_analysis_plot function."""
     
-    def test_create_sensitivity_analysis_basic(self):
-        """Test basic sensitivity analysis plot."""
+    def test_create_sensitivity_analysis_plot(self):
+        """Verify sensitivity analysis plot creation."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "sensitivity.png"
+            csv_path = Path(tmpdir) / 'sensitivity.csv'
             
-            result = create_sensitivity_analysis_plot(
-                thresholds=[0.7, 0.8, 0.9],
-                output_path=str(output_path),
-                dpi=get_figure_dpi()
-            )
+            # Create sensitivity analysis data for multiple thresholds
+            data = {
+                'threshold': [0.7, 0.8, 0.9],
+                'correlation_perplexity': [0.45, 0.52, 0.48],
+                'correlation_accuracy': [-0.38, -0.42, -0.40],
+                'p_value_perplexity': [0.001, 0.0005, 0.0012],
+                'p_value_accuracy': [0.002, 0.001, 0.0018]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(csv_path, index=False)
             
-            assert True
-    
-    def test_create_sensitivity_analysis_single_threshold(self):
-        """Test sensitivity analysis with single threshold."""
+            output_path = Path(tmpdir) / 'sensitivity_analysis.png'
+            fig = create_sensitivity_analysis_plot(csv_path, output_path)
+            
+            assert fig is not None
+            assert output_path.exists()
+            assert output_path.stat().st_size > 0
+            
+            plt.close(fig)
+            
+    def test_create_sensitivity_analysis_plot_with_thresholds(self):
+        """Verify plot uses configured thresholds."""
+        thresholds = get_clone_thresholds()
+        assert len(thresholds) >= 3
+        assert 0.7 in thresholds
+        assert 0.8 in thresholds
+        assert 0.9 in thresholds
+        
+    def test_create_sensitivity_analysis_plot_missing_columns(self):
+        """Verify error handling for missing sensitivity columns."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "sensitivity_single.png"
+            csv_path = Path(tmpdir) / 'incomplete.csv'
+            data = {'threshold': [0.7, 0.8]}  # Missing correlation columns
+            pd.DataFrame(data).to_csv(csv_path, index=False)
             
-            result = create_sensitivity_analysis_plot(
-                thresholds=[0.8],
-                output_path=str(output_path),
-                dpi=get_figure_dpi()
-            )
-            
-            assert True
-    
-    def test_create_sensitivity_analysis_multiple_thresholds(self):
-        """Test sensitivity analysis with multiple thresholds."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "sensitivity_multi.png"
-            
-            result = create_sensitivity_analysis_plot(
-                thresholds=[0.5, 0.6, 0.7, 0.8, 0.9],
-                output_path=str(output_path),
-                dpi=get_figure_dpi()
-            )
-            
-            assert True
-    
-    def test_create_sensitivity_analysis_empty_thresholds(self):
-        """Test sensitivity analysis with empty thresholds list."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "sensitivity_empty.png"
-            
-            result = create_sensitivity_analysis_plot(
-                thresholds=[],
-                output_path=str(output_path),
-                dpi=get_figure_dpi()
-            )
-            
-            # Should handle gracefully
-            assert True
+            with pytest.raises((KeyError, ValueError)):
+                create_sensitivity_analysis_plot(csv_path, Path(tmpdir) / 'out.png')
+                
 
 class TestGenerateAllVisualizations:
     """Tests for generate_all_visualizations function."""
     
-    def test_generate_all_visualizations_basic(self):
-        """Test basic visualization generation."""
+    def test_generate_all_visualizations_creates_all_plots(self):
+        """Verify all visualization types are generated."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir) / "figures"
-            output_dir.mkdir()
+            # Create test data files
+            metrics_path = Path(tmpdir) / 'clone_metrics.csv'
+            data = {
+                'clone_density': [0.1, 0.2, 0.3, 0.4, 0.5],
+                'perplexity': [10.5, 11.2, 12.1, 13.0, 14.2],
+                'accuracy': [0.85, 0.82, 0.78, 0.75, 0.70]
+            }
+            pd.DataFrame(data).to_csv(metrics_path, index=False)
             
-            # Create mock correlation data file
-            correlation_csv = Path(tmpdir) / "correlation_results.csv"
-            test_data = pd.DataFrame({
+            correlation_path = Path(tmpdir) / 'correlation_results.csv'
+            corr_data = {
                 'threshold': [0.7, 0.8, 0.9],
-                'clone_perplexity_corr': [0.45, 0.50, 0.55],
-                'clone_accuracy_corr': [-0.35, -0.40, -0.45],
-                'perplexity_accuracy_corr': [-0.60, -0.65, -0.70],
-                'p_value_clone_perplexity': [0.01, 0.005, 0.001],
-                'p_value_clone_accuracy': [0.02, 0.01, 0.005],
-                'p_value_perplexity_accuracy': [0.001, 0.0005, 0.0001]
-            })
-            test_data.to_csv(correlation_csv, index=False)
+                'correlation_perplexity': [0.45, 0.52, 0.48],
+                'correlation_accuracy': [-0.38, -0.42, -0.40],
+                'p_value_perplexity': [0.001, 0.0005, 0.0012],
+                'p_value_accuracy': [0.002, 0.001, 0.0018]
+            }
+            pd.DataFrame(corr_data).to_csv(correlation_path, index=False)
             
-            result = generate_all_visualizations(
-                correlation_csv=str(correlation_csv),
-                output_dir=str(output_dir),
-                thresholds=[0.7, 0.8, 0.9],
-                dpi=get_figure_dpi()
-            )
-            
-            # Should complete without raising exceptions
-            assert True
-    
-    def test_generate_all_visualizations_missing_correlation_file(self):
-        """Test visualization generation with missing correlation file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir) / "figures"
+            output_dir = Path(tmpdir) / 'figures'
             output_dir.mkdir()
             
-            non_existent = Path(tmpdir) / "does_not_exist.csv"
-            
-            result = generate_all_visualizations(
-                correlation_csv=str(non_existent),
-                output_dir=str(output_dir),
-                thresholds=[0.7, 0.8, 0.9],
-                dpi=get_figure_dpi()
+            results = generate_all_visualizations(
+                metrics_path,
+                correlation_path,
+                output_dir
             )
             
-            # Should handle gracefully
-            assert True
-    
-    def test_generate_all_visualizations_output_formats(self):
-        """Test that visualizations are generated in both PNG and PDF."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir) / "figures"
-            output_dir.mkdir()
+            assert results is not None
+            assert 'scatter_perplexity' in results or len(results) > 0
             
-            # Create mock correlation data file
-            correlation_csv = Path(tmpdir) / "correlation_results.csv"
-            test_data = pd.DataFrame({
+            # Verify output files exist
+            output_files = list(output_dir.glob('*.png'))
+            assert len(output_files) > 0
+            
+    def test_generate_all_visualizations_with_pdf_output(self):
+        """Verify PDF output format is supported."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metrics_path = Path(tmpdir) / 'clone_metrics.csv'
+            data = {
+                'clone_density': [0.1, 0.2, 0.3],
+                'perplexity': [10.0, 11.0, 12.0],
+                'accuracy': [0.8, 0.75, 0.7]
+            }
+            pd.DataFrame(data).to_csv(metrics_path, index=False)
+            
+            correlation_path = Path(tmpdir) / 'correlation_results.csv'
+            corr_data = {
                 'threshold': [0.7, 0.8, 0.9],
-                'clone_perplexity_corr': [0.45, 0.50, 0.55],
-                'clone_accuracy_corr': [-0.35, -0.40, -0.45],
-                'perplexity_accuracy_corr': [-0.60, -0.65, -0.70],
-                'p_value_clone_perplexity': [0.01, 0.005, 0.001],
-                'p_value_clone_accuracy': [0.02, 0.01, 0.005],
-                'p_value_perplexity_accuracy': [0.001, 0.0005, 0.0001]
-            })
-            test_data.to_csv(correlation_csv, index=False)
+                'correlation_perplexity': [0.45, 0.52, 0.48],
+                'correlation_accuracy': [-0.38, -0.42, -0.40],
+                'p_value_perplexity': [0.001, 0.0005, 0.0012],
+                'p_value_accuracy': [0.002, 0.001, 0.0018]
+            }
+            pd.DataFrame(corr_data).to_csv(correlation_path, index=False)
             
-            result = generate_all_visualizations(
-                correlation_csv=str(correlation_csv),
-                output_dir=str(output_dir),
-                thresholds=[0.7, 0.8, 0.9],
-                dpi=get_figure_dpi()
+            output_dir = Path(tmpdir) / 'figures'
+            output_dir.mkdir()
+            
+            results = generate_all_visualizations(
+                metrics_path,
+                correlation_path,
+                output_dir,
+                figure_format='pdf'
             )
             
-            # Check that output directory exists
+            pdf_files = list(output_dir.glob('*.pdf'))
+            assert len(pdf_files) > 0
+            
+    def test_generate_all_visualizations_missing_input(self):
+        """Verify error handling for missing input files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir) / 'figures'
+            output_dir.mkdir()
+            
+            with pytest.raises(FileNotFoundError):
+                generate_all_visualizations(
+                    Path(tmpdir) / 'nonexistent.csv',
+                    Path(tmpdir) / 'nonexistent2.csv',
+                    output_dir
+                )
+                
+    def test_generate_all_visualizations_output_directory_creation(self):
+        """Verify output directory is created if it doesn't exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metrics_path = Path(tmpdir) / 'clone_metrics.csv'
+            data = {
+                'clone_density': [0.1, 0.2, 0.3],
+                'perplexity': [10.0, 11.0, 12.0],
+                'accuracy': [0.8, 0.75, 0.7]
+            }
+            pd.DataFrame(data).to_csv(metrics_path, index=False)
+            
+            correlation_path = Path(tmpdir) / 'correlation_results.csv'
+            corr_data = {
+                'threshold': [0.7, 0.8, 0.9],
+                'correlation_perplexity': [0.45, 0.52, 0.48],
+                'correlation_accuracy': [-0.38, -0.42, -0.40],
+                'p_value_perplexity': [0.001, 0.0005, 0.0012],
+                'p_value_accuracy': [0.002, 0.001, 0.0018]
+            }
+            pd.DataFrame(corr_data).to_csv(correlation_path, index=False)
+            
+            output_dir = Path(tmpdir) / 'new_figures'
+            assert not output_dir.exists()
+            
+            results = generate_all_visualizations(
+                metrics_path,
+                correlation_path,
+                output_dir
+            )
+            
             assert output_dir.exists()
+            
+
+class TestVisualizationConfig:
+    """Tests for visualization configuration."""
+    
+    def test_get_figure_format(self):
+        """Verify figure format configuration."""
+        fmt = get_figure_format()
+        assert fmt in ['png', 'pdf', 'both']
+        
+    def test_get_figure_dpi(self):
+        """Verify figure DPI configuration."""
+        dpi = get_figure_dpi()
+        assert isinstance(dpi, (int, float))
+        assert dpi >= 72  # Minimum reasonable DPI
+        
+    def test_get_clone_thresholds(self):
+        """Verify clone thresholds configuration includes 0.7, 0.8, 0.9."""
+        thresholds = get_clone_thresholds()
+        assert 0.7 in thresholds, "Threshold 0.7 must be in clone_thresholds"
+        assert 0.8 in thresholds, "Threshold 0.8 must be in clone_thresholds"
+        assert 0.9 in thresholds, "Threshold 0.9 must be in clone_thresholds"
+        
 
 class TestVisualizationEdgeCases:
-    """Tests for visualization edge cases and error handling."""
+    """Edge case tests for visualization functions."""
     
+    def test_visualization_with_single_data_point(self):
+        """Verify handling of single data point."""
+        x = np.array([1])
+        y = np.array([2])
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / 'single_point.png'
+            fig = create_scatter_plot_with_regression(x, y, 'X', 'Y')
+            fig.savefig(output_path)
+            
+            assert output_path.exists()
+            plt.close(fig)
+            
     def test_visualization_with_zero_variance(self):
-        """Test visualization when data has zero variance."""
+        """Verify handling of zero variance data."""
+        x = np.array([1, 1, 1, 1, 1])
+        y = np.array([2, 2, 2, 2, 2])
+        
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "zero_var.png"
+            output_path = Path(tmpdir) / 'zero_var.png'
+            fig = create_scatter_plot_with_regression(x, y, 'X', 'Y')
+            fig.savefig(output_path)
             
-            x = np.array([1, 1, 1, 1, 1])
-            y = np.array([2, 2, 2, 2, 2])
-            
-            result = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Zero Variance', str(output_path)
-            )
-            
-            # Should handle gracefully
-            assert True
-    
-    def test_visualization_with_extreme_values(self):
-        """Test visualization with extreme value ranges."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "extreme.png"
-            
-            x = np.array([1e-10, 1e-9, 1e-8, 1e-7, 1e-6])
-            y = np.array([1e10, 1e9, 1e8, 1e7, 1e6])
-            
-            result = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Extreme Values', str(output_path)
-            )
-            
-            # Should handle gracefully
-            assert True
-    
-    def test_visualization_with_outliers(self):
-        """Test visualization with significant outliers."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "outliers.png"
-            
-            np.random.seed(42)
-            x = np.random.randn(100)
-            y = 2 * x + np.random.randn(100) * 0.5
-            # Add outlier
-            x = np.append(x, 100)
-            y = np.append(y, 1000)
-            
-            result = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'With Outliers', str(output_path)
-            )
-            
-            # Should handle gracefully
-            assert True
-
-class TestVisualizationIntegration:
-    """Integration tests for visualization module."""
-    
-    def test_visualization_with_realistic_data(self):
-        """Test visualization with realistic clone/perplexity data."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir) / "figures"
-            output_dir.mkdir()
-            
-            # Create realistic correlation data
-            correlation_csv = Path(tmpdir) / "correlation_results.csv"
-            np.random.seed(42)
-            test_data = pd.DataFrame({
-                'threshold': [0.7, 0.8, 0.9],
-                'clone_perplexity_corr': np.random.uniform(0.3, 0.7, 3),
-                'clone_accuracy_corr': np.random.uniform(-0.7, -0.3, 3),
-                'perplexity_accuracy_corr': np.random.uniform(-0.8, -0.4, 3),
-                'p_value_clone_perplexity': np.random.uniform(0.001, 0.05, 3),
-                'p_value_clone_accuracy': np.random.uniform(0.001, 0.05, 3),
-                'p_value_perplexity_accuracy': np.random.uniform(0.001, 0.05, 3)
-            })
-            test_data.to_csv(correlation_csv, index=False)
-            
-            result = generate_all_visualizations(
-                correlation_csv=str(correlation_csv),
-                output_dir=str(output_dir),
-                thresholds=[0.7, 0.8, 0.9],
-                dpi=get_figure_dpi()
-            )
-            
-            assert True
-    
-    def test_visualization_figure_dimensions(self):
-        """Test that generated figures have reasonable dimensions."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_dimensions.png"
-            
-            x = np.array([1, 2, 3, 4, 5])
-            y = np.array([2, 4, 5, 4, 5])
-            
-            result = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Test', str(output_path),
-                dpi=get_figure_dpi()
-            )
-            
-            # Check file size is reasonable (not empty/corrupted)
             assert output_path.exists()
-            assert output_path.stat().st_size > 1000  # At least 1KB
-
-class TestVisualizationConfigIntegration:
-    """Tests for visualization config integration."""
-    
-    def test_visualization_uses_config_dpi(self):
-        """Test that visualization uses DPI from config."""
+            plt.close(fig)
+            
+    def test_visualization_with_large_dataset(self):
+        """Verify handling of large datasets."""
+        np.random.seed(42)
+        x = np.random.randn(10000)
+        y = 2 * x + np.random.randn(10000)
+        
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "config_dpi.png"
+            output_path = Path(tmpdir) / 'large_dataset.png'
+            fig = create_scatter_plot_with_regression(x, y, 'X', 'Y')
+            fig.savefig(output_path)
             
-            x = np.array([1, 2, 3, 4, 5])
-            y = np.array([2, 4, 5, 4, 5])
-            
-            result = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Test', str(output_path),
-                dpi=get_figure_dpi()
-            )
-            
-            assert result is True
             assert output_path.exists()
+            plt.close(fig)
+            
+    def test_visualization_memory_cleanup(self):
+        """Verify figures are properly closed after use."""
+        import gc
+        
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
+        
+        for _ in range(10):
+            fig, ax = create_scatter_plot_with_regression(x, y, 'X', 'Y')
+            plt.close(fig)
+            
+        gc.collect()
+        
+        # Verify no memory leak (matplotlib should clean up)
+        assert len(plt.get_fignums()) == 0
+            
+
+class TestVisualizationRegressionRobustness:
+    """Tests for regression computation robustness (addresses SVD convergence issues)."""
     
-    def test_visualization_uses_config_format(self):
-        """Test that visualization uses format from config."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Test with PNG
-            png_path = Path(tmpdir) / "test.png"
-            x = np.array([1, 2, 3, 4, 5])
-            y = np.array([2, 4, 5, 4, 5])
+    def test_regression_with_ill_conditioned_data(self):
+        """Verify regression handles ill-conditioned matrices."""
+        # Create nearly collinear data
+        x = np.array([1, 1.000001, 1.000002, 1.000003, 1.000004])
+        y = np.array([2, 2.000001, 2.000002, 2.000003, 2.000004])
+        
+        try:
+            slope, intercept, r_squared = compute_regression(x, y)
+            assert isinstance(slope, (int, float, np.number))
+        except np.linalg.LinAlgError:
+            # Acceptable - function may raise for ill-conditioned data
+            pass
             
-            result = create_scatter_plot_with_regression(
-                x, y, 'X', 'Y', 'Test', str(png_path),
-                dpi=get_figure_dpi()
-            )
+    def test_regression_with_extreme_values(self):
+        """Verify regression handles extreme values."""
+        x = np.array([1e-10, 1e-9, 1e-8, 1e-7, 1e-6])
+        y = np.array([1e10, 1e11, 1e12, 1e13, 1e14])
+        
+        slope, intercept, r_squared = compute_regression(x, y)
+        
+        assert isinstance(slope, (int, float, np.number))
+        assert isinstance(intercept, (int, float, np.number))
+        assert isinstance(r_squared, (int, float, np.number))
+        
+    def test_regression_with_mixed_sign_data(self):
+        """Verify regression handles data with mixed signs."""
+        x = np.array([-5, -3, -1, 1, 3, 5])
+        y = np.array([-10, -6, -2, 2, 6, 10])
+        
+        slope, intercept, r_squared = compute_regression(x, y)
+        
+        assert np.isclose(slope, 2.0, atol=0.1)
+        assert np.isclose(intercept, 0.0, atol=0.1)
+        assert np.isclose(r_squared, 1.0, atol=0.01)
             
-            assert result is True
-            assert png_path.exists()
-            assert png_path.suffix == '.png'
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])
