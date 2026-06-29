@@ -1,0 +1,137 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the results of the Random Forest training and evaluation."
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique ID for the experiment run."
+  model_type:
+    type: "string"
+    description: "Type of model (e.g., 'RF_DFT', 'RF_Baseline')."
+  fold_metrics:
+    type: "array"
+    description: "Metrics for each cross-validation fold."
+    items:
+      type: "object"
+      properties:
+        fold_id:
+          type: "integer"
+        r2_score:
+          type: "number"
+        mae:
+          type: "number"
+        rmse:
+          type: "number"
+      required:
+        - fold_id
+        - r2_score
+        - mae
+        - rmse
+  significance_test:
+    type: "object"
+    description: "Results of the paired t-test comparing models. Only present if n >= 20."
+    properties:
+      t_statistic:
+        type: "number"
+      p_value:
+        type: "number"
+      null_hypothesis:
+        type: "string"
+        description: "Description of the null hypothesis."
+      conclusion:
+        type: "string"
+        description: "Significance conclusion based on p < 0.05."
+      effect_size_cohen_d:
+        type: "number"
+        description: "Effect size (Cohen's d) if sample size is small."
+      statistical_mode:
+        type: "string"
+        enum: ["Full", "Exploratory"]
+        description: "Indicates if the test was performed or if only effect sizes are reported."
+    required:
+      - null_hypothesis
+      - statistical_mode
+  correlation_analysis:
+    type: "object"
+    description: "Pearson correlation between shear modulus and yield strength."
+    properties:
+      r_value:
+        type: "number"
+      p_value:
+        type: "number"
+      confidence_interval_95:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - r_value
+      - p_value
+      - confidence_interval_95
+  feature_importance:
+    type: "object"
+    description: "Importance scores for features."
+    additionalProperties:
+      type: "number"
+  shap_analysis:
+    type: "object"
+    description: "SHAP values for features."
+    properties:
+      mean_shap:
+        type: "object"
+        additionalProperties:
+          type: "number"
+      std_shap:
+        type: "object"
+        additionalProperties:
+          type: "number"
+    required:
+      - mean_shap
+      - std_shap
+  stability_analysis:
+    type: "object"
+    description: "Stability metrics from bootstrapping."
+    properties:
+      mean_importance:
+        type: "object"
+        additionalProperties:
+          type: "number"
+      std_importance:
+        type: "object"
+        additionalProperties:
+          type: "number"
+      max_std:
+        type: "number"
+        description: "Maximum standard deviation across features."
+    required:
+      - mean_importance
+      - std_importance
+      - max_std
+  provenance:
+    type: "object"
+    description: "Content hashes of scripts and data for reproducibility."
+    properties:
+      scripts:
+        type: "object"
+        additionalProperties:
+          type: "string"
+          description: "Content hash of a script file."
+      datasets:
+        type: "object"
+        additionalProperties:
+          type: "string"
+          description: "Content hash of a dataset file."
+    required:
+      - scripts
+      - datasets
+required:
+  - experiment_id
+  - model_type
+  - fold_metrics
+  - significance_test
+  - correlation_analysis
+  - feature_importance
+  - shap_analysis
+  - stability_analysis
+  - provenance
+additionalProperties: false
