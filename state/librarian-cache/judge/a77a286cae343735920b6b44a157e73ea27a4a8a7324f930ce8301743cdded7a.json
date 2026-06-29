@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.04921",
+  "judged_at": "2026-06-29T10:28:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "imaginative perception tokens enhance spatial reasoning in multimodal language models computer science",
+  "rationale": "This paper satisfies criteria (b) and (d) as it covers the user's domain (Multimodal Language Models) and the dependent variable category (Reasoning capabilities), serving as a canonical survey reference that establishes the state-of-the-art background required for a literature review on this topic.",
+  "relevant": true
+}

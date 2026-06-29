@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.13782",
+  "judged_at": "2026-06-29T10:29:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "imaginative perception tokens enhance spatial reasoning in multimodal language models computer science",
+  "rationale": "This paper measures the dependent variable (spatial reasoning) within the same domain (Vision Language Models) and establishes an empirical baseline for the task, satisfying criteria (b) and (c). It investigates the core mechanism of imagination/internal simulation relevant to the user's query, even if it uses different terminology for the specific token intervention.",
+  "relevant": true
+}

@@ -1,0 +1,434 @@
+{
+  "fetched_at": "2026-06-29T10:30:08Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language Models",
+      "target_n": 5
+    },
+    "duration_seconds": 403.95,
+    "ended_at": "2026-06-29T10:30:08Z",
+    "expansion": null,
+    "extracted_queries": [
+      "generative visual tokens internal representation",
+      "CLEVR GQA spatial benchmark",
+      "visual chain of thought multimodal",
+      "spatial understanding evaluation accuracy",
+      "cross-modal attention feature aggregation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2511.13782"
+      ]
+    },
+    "per_query_hit_count": {
+      "CLEVR GQA spatial benchmark": 3,
+      "Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language Models computer science": 3,
+      "cross-modal attention feature aggregation": 3,
+      "generative visual tokens internal representation": 3,
+      "spatial understanding evaluation accuracy": 2,
+      "visual chain of thought multimodal": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2407.04973",
+          "rationale": "This paper does not satisfy any inclusion criteria (a-f) because it measures general logical reasoning capabilities rather than the specific dependent variable (spatial reasoning) or the specific independent variable (Imaginative Perception Tokens) the user is studying. While it operates on the same domain (MLLMs), it is a benchmark paper for logical reasoning evaluation, not a study of the token mechanism or spatial reasoning enhancement that forms the core of the user's research question.",
+          "title": "LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-29T10:23:24Z",
+    "term_input": {
+      "normalized": "imaginative perception tokens enhance spatial reasoning in multimodal language models computer science",
+      "raw": "Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language Models computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is shown that an algebra $Λ$ can be lifted with nilpotent Jacobson radical $r = r(Λ)$ and has a generalized matrix unit $\\{e_{ii}\\}_I$ with each $\\bar e_{ii} $ in the center of $\\bar Λ= Λ/r$ iff $Λ$ is isomorphic to a generalized path algebra with weak relations. Representations of the generalized path algebras are given. As a corollary, $Λ$ is a finite algebra with non-zero unity element over perfect field $k$ (e.g. a field with characteristic zero or a finite field) iff $Λ$ is isomorphic to a generalized path algebra $k (D, Ω, ρ)$ of finite directed graph with weak relations and $dim {\\} Ω< \\infty $; $Λ$ is a generalized elementary algebra which can be lifted with nilpotent Jacobson radical and has a complete set of pairwise orthogonal idempotents iff $Λ$ is isomorphic to a path algebra with relations.",
+          "claimed_authors": [
+            "Shouchuan Zhang",
+            "Yao-Zhong Zhang"
+          ],
+          "claimed_title": "Structures and Representations of Generalized Path Algebras",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "math/0402188"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='Structures and Representations of Generalized Path Algebras')",
+        "failed_at": "2026-06-29T10:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rings of symmetric polynomials form an inverse system whose limit, the ring of symmetric functions, is the model for the bosonic Fock space representation of the affine Lie algebra. We categorify this construction by considering an inverse limit of categories of polynomial representation of general linear groups. We show that this limit naturally carries an action of the affine Lie algebra (in the sense of Rouquier), thereby obtaining a famiy of categorifications of the bosonic Fock space representation.",
+          "claimed_authors": [
+            "Jiuzu Hong",
+            "Oded Yacobi"
+          ],
+          "claimed_title": "Polynomial representations and categorifications of Fock Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.2456"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='Polynomial representations and categorifications of Fock Space')",
+        "failed_at": "2026-06-29T10:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study finite-dimensional representations of hyper loop algebras over non-algebraically closed fields. The main results concern the classification of the irreducible representations, the construction of the Weyl modules, base change, tensor products of irreducible and Weyl modules, and the block decomposition of the underlying abelian category. Several results are interestingly related to the study of irreducible representations of polynomial algebras and Galois theory.",
+          "claimed_authors": [
+            "Dijana Jakelic",
+            "Adriano Moura"
+          ],
+          "claimed_title": "Finite-Dimensional Representations of Hyper Loop Algebras Over Non-Algebraically Closed Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0711.0795"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='Finite-Dimensional Representations of Hyper Loop Algebras Over Non-Algebraically Closed Fields')",
+        "failed_at": "2026-06-29T10:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual Question Answering (VQA) models often perform poorly on out-of-distribution data and struggle on domain generalization. Due to the multi-modal nature of this task, multiple factors of variation are intertwined, making generalization difficult to analyze. This motivates us to introduce a virtual benchmark, Super-CLEVR, where different factors in VQA domain shifts can be isolated in order that their effects can be studied independently. Four factors are considered: visual complexity, question redundancy, concept distribution and concept compositionality. With controllably generated data, Super-CLEVR enables us to test VQA methods in situations where the test data differs from the training data along each of these axes. We study four existing methods, including two neural symbolic methods NSCL and NSVQA, and two non-symbolic methods FiLM and mDETR; and our proposed method, probabilistic NSVQA (P-NSVQA), which extends NSVQA with uncertainty reasoning. P-NSVQA outperforms other methods on three of the four domain shift factors. Our results suggest that disentangling reasoning and perception, combined with probabilistic uncertainty, form a strong VQA model that is more robust to domain shifts. The dataset and code are released at https://github.com/Lizw14/Super-CLEVR.",
+          "claimed_authors": [
+            "Zhuowan Li",
+            "Xingrui Wang",
+            "Elias Stengel-Eskin",
+            "Adam Kortylewski",
+            "Wufei Ma",
+            "Benjamin Van Durme",
+            "Alan Yuille"
+          ],
+          "claimed_title": "Super-CLEVR: A Virtual Benchmark to Diagnose Domain Robustness in Visual Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.00259"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='Super-CLEVR: A Virtual Benchmark to Diagnose Domain Robustness in Visual Reasoning')",
+        "failed_at": "2026-06-29T10:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Referring object detection and referring image segmentation are important tasks that require joint understanding of visual information and natural language. Yet there has been evidence that current benchmark datasets suffer from bias, and current state-of-the-art models cannot be easily evaluated on their intermediate reasoning process. To address these issues and complement similar efforts in visual question answering, we build CLEVR-Ref+, a synthetic diagnostic dataset for referring expression comprehension. The precise locations and attributes of the objects are readily available, and the referring expressions are automatically associated with functional programs. The synthetic nature allows control over dataset bias (through sampling strategy), and the modular programs enable intermediate reasoning ground truth without human annotators.\n  In addition to evaluating several state-of-the-art models on CLEVR-Ref+, we also propose IEP-Ref, a module network approach that significantly outperforms other models on our dataset. In particular, we present two interesting and important findings using IEP-Ref: (1) the module trained to transform feature maps into segmentation masks can be attached to any intermediate module to reveal the entire reasoning process step-by-step; (2) even if all training data has at least one object referred, IEP-Ref can correctly predict no-foreground when presented with false-premise referring expressions. To the best of our knowledge, this is the first direct and quantitative proof that neural modules behave in the way they are intended.",
+          "claimed_authors": [
+            "Runtao Liu",
+            "Chenxi Liu",
+            "Yutong Bai",
+            "Alan Yuille"
+          ],
+          "claimed_title": "CLEVR-Ref+: Diagnosing Visual Reasoning with Referring Expressions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.00850"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='CLEVR-Ref+: Diagnosing Visual Reasoning with Referring Expressions')",
+        "failed_at": "2026-06-29T10:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose an algorithm that extracts spatial frequent patterns to explain the relative characteristics of a specific location from the available social data. This paper proposes a spatial social data model which includes spatial social data, spatial support, spatial frequent patterns, spatial partition, and spatial clustering; these concepts are used for describing the exploration algorithm of spatial frequent patterns. With these defined concepts as the foundation, an SFP-tree structure that maintains not only the frequent words but also the frequent cells was proposed, and an SFP-growth algorithm that explores the frequent patterns on the basis of this SFP-tree was proposed.",
+          "claimed_authors": [
+            "Yongmi Lee",
+            "Kwang Woo Nam",
+            "Keun Ho Ryu"
+          ],
+          "claimed_title": "Fast Mining of Spatial Frequent Wordset from Social Database",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.09127"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='Fast Mining of Spatial Frequent Wordset from Social Database')",
+        "failed_at": "2026-06-29T10:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated deception detection systems can enhance health, justice, and security in society by helping humans detect deceivers in high-stakes situations across medical and legal domains, among others. This paper presents a novel analysis of the discriminative power of dimensional representations of facial affect for automated deception detection, along with interpretable features from visual, vocal, and verbal modalities. We used a video dataset of people communicating truthfully or deceptively in real-world, high-stakes courtroom situations. We leveraged recent advances in automated emotion recognition in-the-wild by implementing a state-of-the-art deep neural network trained on the Aff-Wild database to extract continuous representations of facial valence and facial arousal from speakers. We experimented with unimodal Support Vector Machines (SVM) and SVM-based multimodal fusion methods to identify effective features, modalities, and modeling approaches for detecting deception. Unimodal models trained on facial affect achieved an AUC of 80%, and facial affect contributed towards the highest-performing multimodal approach (adaptive boosting) that achieved an AUC of 91% when tested on speakers who were not part of training sets. This approach achieved a higher AUC than existing automated machine learning approaches that used interpretable visual, vocal, and verbal features to detect deception in this dataset, but did not use facial affect. Across all videos, deceptive and truthful speakers exhibited significant differences in facial valence and facial arousal, contributing computational support to existing psychological theories on affect and deception. The demonstrated importance of facial affect in our models informs and motivates the future development of automated, affect-aware machine learning approaches for modeling and detecting deception and other social behaviors in-the-wild.",
+          "claimed_authors": [
+            "Leena Mathur",
+            "Maja J Matarić"
+          ],
+          "claimed_title": "Introducing Representations of Facial Affect in Automated Multimodal Deception Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.13369"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='Introducing Representations of Facial Affect in Automated Multimodal Deception Detection')",
+        "failed_at": "2026-06-29T10:25:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Facial recognition systems are increasingly deployed in law enforcement and security contexts, where algorithmic decisions can carry significant societal consequences. Despite high reported accuracy, growing evidence demonstrates that such systems often exhibit uneven performance across demographic groups, leading to disproportionate error rates and potential harm. This paper argues that aggregate accuracy is an insufficient metric for evaluating the fairness and reliability of facial recognition systems in high-stakes environments. Through analysis of subgroup-level error distribution, including false positive rate (FPR) and false negative rate (FNR), the paper demonstrates how aggregate performance metrics can obscure critical disparities across demographic groups. Empirical observations show that systems with similar overall accuracy can exhibit substantially different fairness profiles, with subgroup error rates varying significantly despite a single aggregate metric. The paper further examines the operational risks associated with accuracy-centric evaluation practices in law enforcement applications, where misclassification may result in wrongful suspicion or missed identification. It highlights the importance of fairness-aware evaluation approaches and model-agnostic auditing strategies that enable post-deployment assessment of real-world systems. The findings emphasise the need to move beyond accuracy as a primary metric and adopt more comprehensive evaluation frameworks for responsible AI deployment.",
+          "claimed_authors": [
+            "Khalid Adnan Alsayed"
+          ],
+          "claimed_title": "Why Aggregate Accuracy is Inadequate for Evaluating Fairness in Law Enforcement Facial Recognition Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28675"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='Why Aggregate Accuracy is Inadequate for Evaluating Fairness in Law Enforcement Facial Recognition Systems')",
+        "failed_at": "2026-06-29T10:25:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study presents the first comprehensive comparison of rule-based methods, traditional machine learning models, and deep learning models in radio wave sensing with frequency modulated continuous wave multiple input multiple output radar. We systematically evaluated five approaches in two indoor environments with distinct layouts: a rule-based connected component method; three traditional machine learning models, namely k-nearest neighbors, random forest, and support vector machine; and a deep learning model combining a convolutional neural network and long short term memory. In the training environment, the convolutional neural network long short term memory model achieved the highest accuracy, while traditional machine learning models provided moderate performance. In a new layout, however, all learning based methods showed significant degradation, whereas the rule-based method remained stable. Notably, for binary detection of presence versus absence of people, all models consistently achieved high accuracy across layouts. These results demonstrate that high capacity models can produce fine grained outputs with high accuracy in the same environment, but they are vulnerable to domain shift. In contrast, rule-based methods cannot provide fine grained outputs but exhibit robustness against domain shift. Moreover, regardless of the model type, a clear trade off was revealed between spatial generalization performance and output granularity.",
+          "claimed_authors": [
+            "Tomoya Tanaka",
+            "Tomonori Ikeda",
+            "Ryo Yonemoto"
+          ],
+          "claimed_title": "Comprehensive Evaluation of Rule-Based, Machine Learning, and Deep Learning in Human Estimation Using Radio Wave Sensing: Accuracy, Spatial Generalization, and Output Granularity Trade-offs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.13031"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='Comprehensive Evaluation of Rule-Based, Machine Learning, and Deep Learning in Human Estimation Using Radio Wave Sensing: Accuracy, Spatial Generalization, and Output Granularity Trade-offs')",
+        "failed_at": "2026-06-29T10:25:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cross-modal retrieval aims to enable flexible retrieval experience by combining multimedia data such as image, video, text, and audio. One core of unsupervised approaches is to dig the correlations among different object representations to complete satisfied retrieval performance without requiring expensive labels. In this paper, we propose a Graph Pattern Loss based Diversified Attention Network(GPLDAN) for unsupervised cross-modal retrieval to deeply analyze correlations among representations. First, we propose a diversified attention feature projector by considering the interaction between different representations to generate multiple representations of an instance. Then, we design a novel graph pattern loss to explore the correlations among different representations, in this graph all possible distances between different representations are considered. In addition, a modality classifier is added to explicitly declare the corresponding modalities of features before fusion and guide the network to enhance discrimination ability. We test GPLDAN on four public datasets. Compared with the state-of-the-art cross-modal retrieval methods, the experimental results demonstrate the performance and competitiveness of GPLDAN.",
+          "claimed_authors": [
+            "Xueying Chen",
+            "Rong Zhang",
+            "Yibing Zhan"
+          ],
+          "claimed_title": "Graph Pattern Loss based Diversified Attention Network for Cross-Modal Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.13552"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='Graph Pattern Loss based Diversified Attention Network for Cross-Modal Retrieval')",
+        "failed_at": "2026-06-29T10:25:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent large vision-language models (LVLMs) have advanced capabilities in visual question answering (VQA). However, interpreting where LVLMs direct their visual attention remains a significant challenge, yet is essential for understanding model behavior. We introduce GLIMPSE (Gradient-Layer Importance Mapping for Prompted Visual Saliency Explanation), a lightweight, model-agnostic framework that jointly attributes LVLM outputs to the most relevant visual evidence and textual signals that support open-ended generation. GLIMPSE fuses gradient-weighted attention, adaptive layer propagation, and relevance-weighted token aggregation to produce holistic response-level heat maps for interpreting cross-modal reasoning, outperforming prior methods in faithfulness and pushing the state-of-the-art in human-attention alignment. We demonstrate an analytic approach to uncover fine-grained insights into LVLM cross-modal attribution, trace reasoning dynamics, analyze systematic misalignment, diagnose hallucination and bias, and ensure transparency.",
+          "claimed_authors": [
+            "Guanxi Shen"
+          ],
+          "claimed_title": "GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.18985"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models')",
+        "failed_at": "2026-06-29T10:25:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
+          "claimed_authors": [
+            "Zhiyuan Ma",
+            "Jianjun Li",
+            "Guohui Li",
+            "Kaiyan Huang"
+          ],
+          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12595"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language M', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
+        "failed_at": "2026-06-29T10:25:44Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mahtab Bigverdi",
+            "Linjie Li",
+            "Weikai Huang",
+            "Yiming Liu",
+            "Jaemin Cho",
+            "Jieyu Zhang",
+            "Tuhin Kundu",
+            "Chris Dangjoo Kim",
+            "Zelun Luo",
+            "Linda Shapiro",
+            "Ranjay Krishna"
+          ],
+          "title": "Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.03988",
+        "summary": "Vision language models (VLMs) excel at many tasks but still struggle with spatial reasoning when critical information is not directly observable. Many such problems require imaginative perception: inferring what would be seen from an unseen viewpoint, tracing paths through occluded spaces, or integrating partial observations into a coherent spatial representation. We introduce Imaginative Perception Tokens (IPT), intermediate perceptual representations that externalize what a VLM would perceive under alternative spatial configurations while remaining consistent with the observed input.\n  To study this capability, we formulate three tasks, Perspective Taking (PET), Path Tracing (PT), and Multiview Counting (MVC), and construct datasets of approximately 20K examples with ground truth imaginations, answers, and evaluation benchmarks. Using the unified VLM BAGEL as the backbone, IPT supervision consistently improves spatial reasoning and often outperforms textual chain of thought training, even without generating images at inference time. On MVC, IPT improves accuracy by 3.4% and achieves competitive performance with strong closed-source models on PT. We further find that combining IPT and label-only supervision yields additional gains, whereas textual chain of thought can substantially degrade performance, suggesting a modality mismatch when spatial computation is forced through language. Overall, IPT provides a principled supervision signal for reasoning about unobserved spatial structure, improving generalization while producing interpretable intermediate representations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.03988",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8182,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T10:25:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yunxin Li",
+            "Zhenyu Liu",
+            "Zitao Li",
+            "Xuanyu Zhang",
+            "Zhenran Xu",
+            "Xinyu Chen",
+            "Haoyuan Shi",
+            "Shenyuan Jiang",
+            "Xintong Wang",
+            "Jifang Wang",
+            "Shouzheng Huang",
+            "Xinping Zhao",
+            "Borui Jiang",
+            "Lanqing Hong",
+            "Longyue Wang",
+            "Zhuotao Tian",
+            "Baoxing Huai",
+            "Wenhan Luo",
+            "Weihua Luo",
+            "Zheng Zhang",
+            "Baotian Hu",
+            "Min Zhang"
+          ],
+          "title": "Perception, Reason, Think, and Plan: A Survey on Large Multimodal Reasoning Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.04921",
+        "summary": "Reasoning lies at the heart of intelligence, shaping the ability to make decisions, draw conclusions, and generalize across domains. In artificial intelligence, as systems increasingly operate in open, uncertain, and multimodal environments, reasoning becomes essential for enabling robust and adaptive behavior. Large Multimodal Reasoning Models (LMRMs) have emerged as a promising paradigm, integrating modalities such as text, images, audio, and video to support complex reasoning capabilities and aiming to achieve comprehensive perception, precise understanding, and deep reasoning. As research advances, multimodal reasoning has rapidly evolved from modular, perception-driven pipelines to unified, language-centric frameworks that offer more coherent cross-modal understanding. While instruction tuning and reinforcement learning have improved model reasoning, significant challenges remain in omni-modal generalization, reasoning depth, and agentic behavior. To address these issues, we present a comprehensive and structured survey of multimodal reasoning research, organized around a four-stage developmental roadmap that reflects the field's shifting design philosophies and emerging capabilities. First, we review early efforts based on task-specific modules, where reasoning was implicitly embedded across stages of representation, alignment, and fusion. Next, we examine recent approaches that unify reasoning into multimodal LLMs, with advances such as Multimodal Chain-of-Thought (MCoT) and multimodal reinforcement learning enabling richer and more structured reasoning chains. Finally, drawing on empirical insights from challenging benchmarks and experimental cases of OpenAI O3 and O4-mini, we discuss the conceptual direction of native large multimodal reasoning models (N-LMRMs), which aim to support scalable, agentic, and adaptive reasoning and planning in complex, real-world environments.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.04921",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T10:25:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaoxing Lian",
+            "Aidong Yang",
+            "Jun Zhu",
+            "Peng Wang",
+            "Yue Zhang"
+          ],
+          "title": "Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.13782",
+        "summary": "Large language models (LLMs) and vision language models (VLMs), such as DeepSeek R1,OpenAI o3, and Gemini 2.5 Pro, have demonstrated remarkable reasoning capabilities across logical inference, problem solving, and decision making. However, spatial reasoning:a fundamental component of human cognition that includes mental rotation, navigation, and spatial relationship comprehension remains a significant challenge for current advanced VLMs. We hypothesize that imagination, the internal simulation of spatial states, is the dominant reasoning mechanism within a spatial world model. To test this hypothesis and systematically probe current VLM spatial reasoning mechanisms, we introduce SpatiaLite, a fully synthetic benchmark that jointly measures spatial reasoning accuracy and reasoning efficiency. Comprehensive experiments reveal three key findings. First, advanced VLMs predominantly rely on linguistic representations for reasoning and imagination, resulting in significant deficiencies on visual centric tasks that demand perceptual spatial relations and 3D geometry transformations such as mental rotation or projection prediction. Second, advanced VLMs exhibit severe inefficiency in their current spatial reasoning mechanisms, with token usage growing rapidly as transformation complexity increases. Third, we propose an Imagery Driven Framework (IDF) for data synthesis and training, which can implicitly construct an internal world model that is critical for spatial reasoning in VLMs. Building on SpatiaLite, this work delineates the spatial reasoning limits and patterns of advanced VLMs, identifies key shortcomings, and informs future advances",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.13782",
+          "http_status": 200,
+          "pdf_sample_score": 0.2672,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T10:25:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zihui Cheng",
+            "Qiguang Chen",
+            "Xiao Xu",
+            "Jiaqi Wang",
+            "Weiyun Wang",
+            "Hao Fei",
+            "Yidong Wang",
+            "Alex Jinpeng Wang",
+            "Zhi Chen",
+            "Wanxiang Che",
+            "Libo Qin"
+          ],
+          "title": "Visual Thoughts: A Unified Perspective of Understanding Multimodal Chain-of-Thought",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.15510",
+        "summary": "Large Vision-Language Models (LVLMs) have achieved significant success in multimodal tasks, with multimodal chain-of-thought (MCoT) further enhancing performance and interpretability. Recent MCoT methods fall into two categories: (i) Textual-MCoT (T-MCoT), which takes multimodal input and produces textual output; and (ii) Interleaved-MCoT (I-MCoT), which generates interleaved image-text outputs. Despite advances in both approaches, the mechanisms driving these improvements are not fully understood. To fill this gap, we first reveal that MCoT boosts LVLMs by incorporating visual thoughts, which convey image information to the reasoning process regardless of the MCoT format, depending only on clarity and conciseness of expression. Furthermore, to explore visual thoughts systematically, we define four distinct forms of visual thought expressions and analyze them comprehensively. Our findings demonstrate that these forms differ in clarity and conciseness, yielding varying levels of MCoT improvement. Additionally, we explore the internal nature of visual thoughts, finding that visual thoughts serve as intermediaries between the input image and reasoning to deeper transformer layers, enabling more advanced visual information transmission. We hope that the visual thoughts can inspire further breakthroughs for future MCoT research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.15510",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-29T10:25:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "imaginative perception tokens enhance spatial reasoning in multimodal language models computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

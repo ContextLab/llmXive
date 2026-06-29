@@ -507,6 +507,10 @@
     "classified_at": "2026-06-18T01:21:09Z",
     "verdict": false
   },
+  "PROJ-681-imaginative-perception-tokens-enhance-sp::1.6.0": {
+    "classified_at": "2026-06-29T10:25:41Z",
+    "verdict": false
+  },
   "PROJ-684-latent-spatial-memory-for-video-world-mo::1.6.0": {
     "classified_at": "2026-06-15T00:46:48Z",
     "verdict": false
