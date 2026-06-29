@@ -1,0 +1,57 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Agency Score Schema
+description: Schema for per‑session agency scores output from the agency scoring pipeline
+type: object
+properties:
+  session_id:
+    type: string
+    description: Unique identifier for the therapy session
+  user_id:
+    type: string
+    description: User identifier associated with the session
+  agency_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Computed agency score normalized to [0, 1] range
+  marker_counts:
+    type: object
+    description: Count of each linguistic marker type detected
+    properties:
+      modal_verbs:
+        type: integer
+        minimum: 0
+        description: Count of modal verb markers (may, might, can, could, should, must)
+      choice_constructions:
+        type: integer
+        minimum: 0
+        description: Count of choice construction markers (you can choose, your option)
+      collaborative_phrasing:
+        type: integer
+        minimum: 0
+        description: Count of collaborative phrasing markers (let's, we could)
+      open_ended_questions:
+        type: integer
+        minimum: 0
+        description: Count of open‑ended question markers
+    required:
+      - modal_verbs
+      - choice_constructions
+      - collaborative_phrasing
+      - open_ended_questions
+  utterance_count:
+    type: integer
+    minimum: 0
+    description: Total number of utterances in the session
+  processing_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when agency score was computed
+required:
+  - session_id
+  - user_id
+  - agency_score
+  - marker_counts
+  - utterance_count
+  - processing_timestamp
+additionalProperties: false
