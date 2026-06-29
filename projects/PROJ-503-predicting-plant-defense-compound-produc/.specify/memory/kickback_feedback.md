@@ -1,0 +1,30 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 22 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- Plan.md Phase 2 references 'FR-004 Extended' for regulatory genes, but T035 only covers defense-biosynthetic pathway genes (terpenoid, alkaloid, phenylpropanoid). No task explicitly implements regulatory gene selection as stated in plan.md Phase 2. This is a plan element without corresponding task coverage.
+- T015 does not explicitly state aborting with E-POWER error code if n<28, despite plan.md and spec.md requiring this abort behavior. This is a critical dependency violation.
+- T055 creates exploratory cross-species model but does not specify which success criteria (SC-001 or SC-002) apply if the exploratory model succeeds, creating ambiguity in validation and potentially violating the Single Source of Truth principle.
+- Tasks reference `code/`, `tests/`, `logs/` at repository root while plan.md project structure shows these nested under `projects/PROJ-503-predicting-plant-defense-compound-produc/`. This path ambiguity could cause implementation errors.
+- The description of tasks in Phase 3 (User Story 3) lacks explicit links to the corresponding FRs (FR-005, FR-006, FR-007) within the task description itself. While the spec.md provides the mapping, it's best practice to include it directly in the tasks.md for traceability.
+- T001 'Create project structure per implementation plan' lacks concrete file/directory names. Specify exact paths: e.g., 'Create directories: code/, data/raw/, data/processed/, data/paired/, logs/, outputs/models/, docs/, tests/contract/, tests/integration/, tests/unit/'
+- T003 'Configure linting (flake8) and formatting (black) tools' lacks concrete deliverable. Specify config file names: e.g., 'Create .flake8 and pyproject.toml with black configuration'
+- T008 'Setup CI resource monitoring (abort if CPU time exceeds 4 hours per FR-008)' lacks implementation detail. Specify mechanism: e.g., 'Implement runtime timer in main.py that logs elapsed CPU time and raises E-TIMEOUT if >4h'
+- T054 'Implement VIF collinearity diagnostics and report in outputs/' lacks concrete output format. Specify: e.g., 'Create outputs/vif_diagnostics.csv with columns gene_id, vif_score, threshold_exceeded'
+- T055 'Create exploratory cross-species model (if sample size permits)' has conditional language that makes verification ambiguous. Specify: e.g., 'Create outputs/models/cross_species_model.pkl only if paired samples ≥50; otherwise log E-SAMPLESIZE'
+- T057 'Documentation updates in docs/ (quickstart.md, data-model.md, contracts/)' is too coarse. Split into: T057a 'Create docs/quickstart.md with E2E pipeline instructions', T057b 'Update docs/data-model.md with schema definitions', T057c 'Create contracts/ module specifications'
+- T058 'Code cleanup and refactoring across code/' is too coarse and non-deterministic. Specify: e.g., 'Run black --check and flake8; fix all violations; document changes in docs/refactoring_log.md'
+- T059 'Performance optimization to ensure E2E pipeline completes within 4 hours (SC-003)' is too coarse. Specify: e.g., 'Profile pipeline with cProfile; identify bottlenecks; optimize data loading and model training; verify E2E runtime <4h in tests/integration/test_e2e_runtime.py'
+- T060 'Additional unit tests in tests/unit/' is too coarse. Specify minimum coverage: e.g., 'Create tests/unit/test_data_download.py, tests/unit/test_preprocessing.py, tests/unit/test_modeling.py with ≥80% line coverage per module'
+- T061 'Security hardening (dependency vulnerability scanning)' lacks concrete deliverable. Specify: e.g., 'Run pip-audit or safety check; create docs/security_report.md with vulnerability findings and remediation status'
+- T062 'Run quickstart.md validation' lacks verification criteria. Specify: e.g., 'Execute quickstart.md instructions on fresh environment; verify all steps complete without error; document in docs/quickstart_validation.md'
+- T065 'Verify all assumptions in spec.md have deferred citations resolved in research.md' lacks concrete verification method. Specify: e.g., 'Parse spec.md assumptions for [deferred: citation required] markers; confirm each has corresponding entry in research.md with verified URL; create docs/assumption_resolution_log.md'
+- T015 states 'Run power analysis utility (T009) to confirm n≥28 samples available' but does not explicitly state aborting with E-POWER error code if n<28, despite spec.md FR-009 and plan.md requiring this abort behavior. This weakens the spec's constraint.
+- T055 implements an exploratory cross-species model, but spec.md FR-010 originally defined this as the primary model. The task does not reflect the plan.md correction that makes the cross-species model exploratory. This introduces a discrepancy with the plan.
+- The plan.md Constitution Check lists Principles I, II, and VI as 'PENDING VERIFICATION' without specifying concrete steps to transition them to 'PASS'. This is a documentation issue, but also a constraint violation if these principles are not actively verified.
+- Plan.md references 'FR-004 Extended' for regulatory genes, but spec.md FR-004 only mentions defense-biosynthetic pathway genes. The task list does not define what 'Extended' includes, creating ambiguity.
+- Tasks reference `code/`, `tests/`, `logs/` at repository root, while plan.md project structure shows these nested under `projects/PROJ-503-predicting-plant-defense-compound-produc/`. This path ambiguity could cause implementation errors and weakens the clarity of the task descriptions.

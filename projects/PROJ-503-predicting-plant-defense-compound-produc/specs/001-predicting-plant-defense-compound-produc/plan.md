@@ -111,8 +111,8 @@ projects/PROJ-503-predicting-plant-defense-compound-produc/
 ### Phase 3: Modeling & Evaluation
 
 1. Train **species-specific** Ridge Regression models (FR-005)
-2. 5-fold cross-validation; report RMSE, Pearson r (FR-005)
-3. Permutation test with 1,000 iterations (FR-006)
+2. k-fold cross-validation; report RMSE, Pearson r (FR-005)
+3. Permutation test with a sufficient number of iterations (FR-006)
 4. Bonferroni correction across metabolites (FR-007)
 5. Cross-species model is **exploratory only** if sample size permits
 
