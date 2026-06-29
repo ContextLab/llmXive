@@ -1,3 +1,4 @@
 {"event": "template_artifact_purge", "ts": "2026-05-15T11:42:05Z", "deleted_paths": ["projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/quickstart.md"], "prior_stage": "tasked", "new_stage": "flesh_out_complete", "reason": "speckit_prune purged TEMPLATE artifact(s) and downstream dependents", "run_id": "b22417dd-44f5-4092-97dc-862b88db438c"}
 {"at": "2026-06-14T02:41:36.801286+00:00", "from_stage": "flesh_out_complete", "last_run_id": "3085cab0-7ead-43a6-a230-e796e42368f3", "to_stage": "validated"}
 {"at": "2026-06-28T21:28:31.751231+00:00", "from_stage": "validated", "last_run_id": "d024b6b6-6603-40d7-9c7e-76e36bee794a", "to_stage": "project_initialized"}
+{"at": "2026-06-29T00:46:27.633137+00:00", "from_stage": "project_initialized", "last_run_id": "e70d7b68-fdc0-4fd6-9dac-956d7c46c5bf", "to_stage": "specified"}

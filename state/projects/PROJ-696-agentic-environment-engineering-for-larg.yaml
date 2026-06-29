@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-696-agentic-environment-engineering-for-larg
-last_run_id: b1f647f1-8241-4de8-9717-68d17743fe09
+last_run_id: eb08b5ea-a9ea-46f8-a6b5-6d1036e485a0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-696-agentic-environment-engineering-for-larg/specs/001-agentic-environment-engineering-for-larg
 title: 'Agentic Environment Engineering for Large Language Models: A Survey of Environment
   Modeling, Synthesis, Evaluation, and Application'
-updated_at: '2026-06-29T01:21:41.818020Z'
+updated_at: '2026-06-29T00:50:52.967734Z'

@@ -1,0 +1,461 @@
+project_id: PROJ-679-geneb-why-genomic-models-are-hard-to-com
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: fe0a240b8f3f
+  text: Add a Code and Data Availability section with a link to the GENEB evaluation
+    repository to enable reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 04522704c0ba
+  text: Include a requirements.txt or environment.yml file in the repository to ensure
+    dependency hygiene.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 57325591d8c0
+  text: 'The manuscript does not specify a license for the GENEB benchmark data or
+    code (Section: Limitations/Appendix). Please add a license statement (e.g., MIT,
+    CC-BY) to ensure reuse.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 2c9a323da90f
+  text: The arXiv ID `2606.04525` in the metadata corresponds to a future date (June
+    2026). Please verify and correct the submission ID for provenance accuracy.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 83f402c6fb80
+  text: Appendix `app:excluded_models` notes 25% of models excluded due to 'Private
+    weights' or 'Broken code'. Please discuss how this selection bias impacts the
+    benchmark's representativeness of the field.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 8229a08b0268
+  text: Task sources (NT, GUE, GB) are cited by name but lack specific versioned URLs
+    or DOIs in `tab:task_groups`. Please provide persistent links to the exact dataset
+    versions used.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 5acec32c2436
+  text: "Figure\u202F1 (chaotic_models.png) lacks a legend explaining what node colors\
+    \ or edge styles represent; add a concise legend and ensure the caption explicitly\
+    \ defines nodes\u202F=\u202Fmodels and edges\u202F=\u202Fexplicit baselines."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: cb5a9c99ab80
+  text: "Several heatmaps (e.g., Fig\u202F3 main_hitmap.png, Fig\u202F4 category_summary.png,\
+    \ Fig\u202F6 high\u2011variance tasks) use a red\u2011to\u2011green color map\
+    \ without a color\u2011blind\u2011safe palette; switch to a palette such as viridis\
+    \ or cividis and include a color bar with numeric MCC values."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: cedd1dc62fa4
+  text: "Axis labels and units are missing or ambiguous on many plots (e.g., Fig\u202F\
+    2 image_per_size_v2.png lacks a label for the x\u2011axis \u2018Parameter count\
+    \ (M)\u2019 and y\u2011axis \u2018Macro\u2011MCC\u2019); add clear axis titles\
+    \ with units where applicable."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 54db47fd86bb
+  text: "Font sizes in heatmaps and line plots are too small to be legible when printed\
+    \ (e.g., model names and task labels in Fig\u202F3 and Fig\u202F5 are cramped);\
+    \ increase label font size and consider rotating tick labels for readability."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 400597a47fb8
+  text: "Captions for multi\u2011panel figures (e.g., Fig\u202F6 high\u2011variance\
+    \ tasks) do not describe each panel (A) and (B) in sufficient detail; expand captions\
+    \ to serve as alt text for accessibility."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 03068ba1bc21
+  text: "Figure\u202F5 (few\u2011shot performance degradation) plots MCC values for\
+    \ 40 models but does not include a legend indicating which line corresponds to\
+    \ which model; add a legend or annotate key models directly on the plot."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 8d95ab84a1cb
+  text: "Some figures are stored as compressed PNGs with noticeable artifacts (e.g.,\
+    \ heatmap images in the zip archive); provide high\u2011resolution vector PDFs\
+    \ for all figures to avoid loss of detail."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 6e582c460272
+  text: Define all acronyms (MCC, SSM, BPE, k-mer, TF, lncRNA, MoE, T2T) at first
+    use in Abstract or Introduction.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 0b1dd7d161df
+  text: Replace technical shorthand (T-dec, T-enc, SN) with full terms in Appendix
+    tables or define in caption.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 1dfa52f6ae6b
+  text: Clarify 'shot' regimes (1-shot, 10-shot) as 'examples per class' for non-ML
+    readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: d532821b6e19
+  text: Expand benchmark acronyms (GUE, GB, NT, iDHS) in Appendix Task Taxonomy.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 667b043a0d80
+  text: "The manuscript claims that GENEB provides a comprehensive evaluation of genomic\
+    \ foundation models, yet it explicitly excludes long\u2011range regulatory tasks\
+    \ (>10\u202Fkb) which are central to many state\u2011of\u2011the\u2011art models\
+    \ (e.g., Enformer, Caduceus). This limitation should be acknowledged more prominently,\
+    \ and any statements suggesting that GENEB \u201Ccovers the full spectrum of genomic\
+    \ modeling\u201D must be qualified."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 300e52be2ab7
+  text: "Rank stability analyses (probe vs. MLP, regularization sweeps) are performed\
+    \ on a small subset of 11 models and 13 tasks. The paper extrapolates these results\
+    \ to all 40 models and 100 tasks, which is an over\u2011generalization. Include\
+    \ a discussion of this limitation or expand the stability checks to a broader\
+    \ sample."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 120c542716be
+  text: "The impact statement asserts that GENEB \u201Creduces risk of selecting models\
+    \ based on aggregate leaderboards masking heterogeneity.\u201D While the benchmark\
+    \ shows category\u2011wise differences, the claim implies that GENEB fully resolves\
+    \ this issue. Temper the language to reflect that the benchmark mitigates but\
+    \ does not eliminate the problem, especially given the limited task diversity\
+    \ in certain domains (e.g., virus/phage, plant lncRNA)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: b8b5d5bdac1e
+  text: "Add a dedicated discussion of dual\u2011use risks associated with large genomic\
+    \ foundation models, including potential misuse for pathogenic genome design or\
+    \ harmful gene drives, and outline concrete mitigation strategies (e.g., model\
+    \ access controls, responsible release policies)."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 0b276211193a
+  text: Provide a statement on data privacy and security measures taken to protect
+    any personally identifiable genetic information that may be present in the benchmark
+    datasets.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: b434423c2fc5
+  text: "Disclose any potential conflicts of interest related to funding sources (e.g.,\
+    \ Ministry of Economic Development of the Russian Federation) that could influence\
+    \ the presentation or interpretation of safety\u2011related findings."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: af51528904c7
+  text: Include recommendations for downstream users on responsible application of
+    the benchmark results, emphasizing the need for ethical review before deploying
+    models in clinical or ecological contexts.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: f3485f5bb1bc
+  text: Report confidence intervals or standard errors for MCC scores across the 5
+    seeds (Methodology) to quantify uncertainty in main results.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: a377b89dc37c
+  text: Address multiple-comparisons issue for the 13 category-level scaling correlations
+    (Table 1) using FDR or Bonferroni correction.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: ffa73680eadd
+  text: Provide statistical significance tests (e.g., paired t-tests or bootstrap
+    CIs) for the 30 controlled-pair differences (Appendix) rather than point estimates
+    alone.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 85661a2021de
+  text: "Duplicate LaTeX labels cause cross\u2011reference collisions (e.g., \\label{tab:stability_tasks}\
+    \ appears twice, and \\label{fig:high-var} is defined in two separate locations).\
+    \ Rename one of each duplicate to a unique identifier and update all \\ref calls\
+    \ accordingly."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 1167b83c8385
+  text: "Several tables lack a \\label command after the \\caption (e.g., the table\
+    \ introduced in Section\u202F2.1 after the \"Representative task subset used for\
+    \ probe stability\" paragraph). Add a \\label for each table to enable reliable\
+    \ referencing."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: df3060fe3d4c
+  text: The document uses \cite and \citep inconsistently; choose a single citation
+    command style (preferably \citep for parenthetical citations) and apply it uniformly
+    throughout the manuscript.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: ff92b1fe38ce
+  text: The manuscript relies on the booktabs commands (\toprule, \midrule, \bottomrule)
+    but does not include \usepackage{booktabs} in the preamble. Insert the package
+    to avoid compilation warnings.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 7b09aae214fd
+  text: "Long lines in the source (e.g., the abstract and several table rows) exceed\
+    \ typical 80\u2011character limits, making the .tex file hard to read. Wrap lines\
+    \ at a reasonable length without breaking LaTeX commands."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: e68a7e1c239a
+  text: Some tables use \small without a surrounding \centering or \begin{center}
+    environment, which can lead to misaligned tables. Ensure each table is centered
+    (e.g., add \centering before \small).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: fdd5c68a1404
+  text: "The hierarchy of headings is mostly correct, but the \"Related Work\" section\
+    \ appears both as a top\u2011level \\section and later as a \\section* in the\
+    \ appendix. Consolidate to a single heading level (e.g., use \\section for the\
+    \ main body and \\section* only for unnumbered appendix sections)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 589691a86ca2
+  text: "In the \"Methodology\" section, the description of the probing protocol is\
+    \ a paragraph without a subheading, while later subsections (e.g., \"Scale\u2013\
+    Performance Correlation\") are introduced. Consider adding a \\subsection{Probing\
+    \ Protocol} for consistency."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: b111e41f5bd3
+  text: "Abstract is dense; break the long sentence into two and clarify the meaning\
+    \ of \u201Cfull\u2011shot, 10\u2011shot, 1\u2011shot\u201D."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 8812fd382658
+  text: "In the Introduction, the phrase \u201Cmodels are benchmarked disjointly,\
+    \ hindering direct comparison\u201D is vague \u2013 replace with a more precise\
+    \ description of the fragmentation problem."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: f46446251ed5
+  text: "Figure captions (e.g., Fig.\u202F1, Fig.\u202F2) start with bold text but\
+    \ lack a period after the closing brace; add a period for consistency."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 420470c1c1a7
+  text: "Section\u202F3 (Methodology) contains a run\u2011on sentence: \u201CGENEB\
+    \ probes frozen embeddings with logistic regression (max_iter=1000) in 1\u2011\
+    shot, 10\u2011shot, and full\u2011data regimes (5 seeds: 13,\u202F17,\u202F42,\u202F\
+    123,\u202F997).\u201D Split into two sentences for readability."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: a2f01abcec7c
+  text: "Throughout the manuscript, commas are sometimes missing after introductory\
+    \ clauses (e.g., \u201CAfter removing the prokaryotic outlier \u2026 raises \u03C1\
+    \ to 0.685\u201D). Insert commas to improve flow."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 3f6085f587fe
+  text: "The use of \u201C\u2265\u201D and \u201C\u2264\u201D symbols in the text\
+    \ (e.g., \u201C31/36 models show a \u22655\xD7 smaller model outperforming\u2026\
+    \u201D) should be spelled out or placed in math mode for consistency."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 5b075f6532e7
+  text: "In Table\u202F1 and Table\u202F2 captions, the term \u201Cmacro\u2011MCC\u201D\
+    \ is introduced without definition; add a brief explanation of the metric on first\
+    \ use."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 8e677709b656
+  text: "The \u201CPractitioner Recommendations\u201D bullet list mixes model names\
+    \ with performance numbers without clear separators; reformat as \u201CModel (size,\
+    \ tokenization): performance metric\u201D."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 3d51a7d3ed53
+  text: "Section\u202F4.2 (Architecture Effects) uses the phrase \u201CTransformer\u2011\
+    decoder $+$0.149 macro\u2011MCC vs. Mamba\u201D \u2013 clarify that this is a\
+    \ performance gain and not a mathematical addition."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 2d6ee980a7a4
+  text: The conclusion repeats several points from the abstract verbatim; condense
+    to avoid redundancy.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 155719efc5f5
+  text: "Several abbreviations (e.g., \u201CMCC\u201D, \u201CSSM\u201D, \u201CBPE\u201D\
+    ) are not defined at first appearance; add definitions."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: 449ef15bc9af
+  text: "In the Limitations section, the bullet points lack parallel structure; rewrite\
+    \ so each starts with a gerund (e.g., \u201CExcluding long\u2011range tasks limits\u2026\
+    \u201D, \u201CTask curation may contain noisy labels\u2026\u201D)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+- id: b07940929c21
+  text: "The bibliography entries have inconsistent formatting (some use \u2018arXiv\u2019\
+    , others \u2018bioRxiv\u2019); standardize according to the journal\u2019s style."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 48 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-29T02:55:26.653589+00:00'
