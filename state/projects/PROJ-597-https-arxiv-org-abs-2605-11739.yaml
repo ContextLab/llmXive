@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-597-https-arxiv-org-abs-2605-11739
-last_run_id: null
+last_run_id: 045b0766-676e-43d1-a88e-59c70b0234f2
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-597-https-arxiv-org-abs-2605-11739/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation'
-updated_at: '2026-05-19T11:06:03.962754Z'
+updated_at: '2026-06-29T03:38:28.884978Z'
