@@ -1,0 +1,439 @@
+project_id: PROJ-579-https-arxiv-org-abs-2605-15155
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: c6cef9aba447
+  text: Theoretical analysis appendix contains only placeholder comment '% (Proofs
+    retained in full in the appendix.)' without actual proofs. Claim of theoretical
+    support is unsupported.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 9d11e0fc7d46
+  text: Multiple citations have 2026 publication dates (e.g., zhao2026opsd, yang2026rlsd,
+    he2026sdzero). Verify these are not future-dated errors or provide justification.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: b8e3980a1cdf
+  text: Performance gain claims (+9.4% ALFWorld, +7.0% Search-QA, +4.7% WebShop) reference
+    baseline values not visible in Table 1 (30 rows omitted). Verify numerical accuracy.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 42e7a913293c
+  text: Claim 'OPSD alone collapses (near-zero on Search-QA)' cannot be verified as
+    OPSD row is omitted from Table 1. Include or cite specific evidence.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 01214e0c571f
+  text: Citation '\citep{ye2025mobileagentv3,}' has trailing comma syntax error that
+    will break compilation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 0703a023e60e
+  text: Implementation code artifacts are not provided in the submission. Reproducibility
+    cannot be verified without access to the training/inference scripts.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: ce702f410a46
+  text: GitHub URL in text contains a typo (SDAR}) preventing direct access. Correct
+    to SDAR.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: d0ce5e281b0a
+  text: Specify exact dataset versions (commit hashes or release tags) for ALFWorld,
+    WebShop, and Search-QA to ensure reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: fc262ca0eaf9
+  text: Document the schema, file format, and license for the derived 'SkillBank'
+    dataset referenced in Implementation Details.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 82572404cb9a
+  text: Correct the GitHub repository link (remove trailing brace) to prevent link
+    rot and ensure code/data access.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: cd02bb0830d5
+  text: Add a section describing missing-data handling (e.g., failed search queries)
+    in the training pipeline.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: f6140e4f9987
+  text: Expand captions for ablation figures (fig:ablation_tip, fig:ablation_beta,
+    fig:ablation_lambda, fig:ablation_loss) to explicitly state the y-axis metric
+    (e.g., Success Rate %) and x-axis variable.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: ba5ac433febe
+  text: Verify that fig:7b_alfworld_gap_gate contains labeled subplots (a) and (b)
+    as referenced in the text, or update the caption to reflect the single-image structure.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: d9827dbd0efa
+  text: Ensure prompt template figures (fig:prompt_alfworld, etc.) use legible font
+    sizes for print; consider reducing text density or increasing figure height.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: c5cb47bf3772
+  text: Add alt text descriptions to all figure environments for accessibility compliance.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: bb0a8f908216
+  text: Define the acronym GRPO at its first occurrence (e.g., in the Baselines paragraph
+    of the Experiment section).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 77ce4558b44b
+  text: Define the acronym RLSD when it first appears (e.g., in the Baselines list).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 8c596f94ddfb
+  text: Introduce the term LLM (large language model) and RL (reinforcement learning)
+    with brief definitions before using the acronyms.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: dcbb96b0eff6
+  text: "Explain \u201Cprivileged context\u201D the first time it is mentioned in\
+    \ the Related Work section; readers unfamiliar with the concept may be confused."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: a488e8a05ecf
+  text: "Replace or clarify technical jargon such as \u201Cmode\u2011seeking advantage\u201D\
+    , \u201Cunbiased RL\u201D, and \u201Cauxiliary signal\u201D with simpler language\
+    \ or brief explanations."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 5d153230f7d6
+  text: "Provide a short description of KL (Kullback\u2011Leibler) divergence when\
+    \ referring to Reverse KL, Forward KL, and Jensen\u2013Shannon losses."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 9d51d36357b2
+  text: "Clarify the meaning of \u201COPSD signal\u201D when it first appears in Section\u202F\
+    3.2; a one\u2011sentence definition would aid non\u2011specialist readers."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: b55263603e81
+  text: "Consider adding a glossary of abbreviations (e.g., OPSD, GRPO, RLSD, Skill\u2011\
+    GRPO, Skill\u2011SD) at the end of the paper for quick reference."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 129c2c3e49c6
+  text: Provide the theoretical analysis in Appendix~\ref{appendix:proof} as claimed
+    in the text.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: c6f302a6b56c
+  text: Clarify the gradient flow in the loss definition to ensure teacher log-probs
+    are detached.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: cd8591ea7586
+  text: Include omitted table rows for key baselines (OPSD, GRPO) to verify numerical
+    claims.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: a8b09b9fc125
+  text: Theoretical analysis is claimed in Section 'Token-Level Gating' but Appendix
+    contains only a placeholder comment. Provide actual proofs.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: d89f8597ff1f
+  text: Claim that OPSD 'collapses (near-zero)' lacks supporting data in Table 1 (rows
+    omitted). Include full baseline results.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 5e1fcc3743f4
+  text: Conclusion overstates generalization without discussing limitations (e.g.,
+    SkillBank dependency, compute cost). Add limitations subsection.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 0d1ecb4be3f4
+  text: Add a dedicated safety and ethics discussion addressing dual-use risks of
+    autonomous agents trained with this method (e.g., automated purchasing, information
+    gathering, reconnaissance).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: f1df73315f04
+  text: Include discussion of potential misuse scenarios and recommended guardrails
+    for deployment of trained agents in real-world environments.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 6153d8e245b7
+  text: Add societal impact statement discussing how improved agentic capabilities
+    could affect users, markets, and information ecosystems.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 48415507a69c
+  text: Report standard deviations or confidence intervals for all main results in
+    Table 1 and Table 3. RL training is stochastic; point estimates alone are insufficient
+    to claim statistical significance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: f94eb0689b54
+  text: Specify the number of random seeds used for training and evaluation in the
+    'Implementation Details' section. Current text does not mention seed count.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 8db8b7fcd5c9
+  text: Clarify the '150 steps' training duration mentioned in 'Implementation Details'.
+    Is this total steps, per epoch, or per task? This is unusually low for RL and
+    requires justification.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 727fb9bde7ce
+  text: Confirm that hyperparameter tuning (e.g., beta=5, lambda=0.01) was performed
+    on a validation set, not the test set, to avoid data leakage.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 574822eca40b
+  text: Report standard deviations or confidence intervals for all main results in
+    Table 1. RL experiments are high-variance; point estimates are insufficient.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 72574f6fee18
+  text: Conduct statistical significance tests (e.g., paired t-test or bootstrap)
+    for all reported improvements over baselines (e.g., +9.4% on ALFWorld).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 05fdf0d7ff51
+  text: Explicitly state the number of random seeds used for each experiment. Current
+    text implies single runs or unreported aggregation.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 0658b3377da6
+  text: Address multiple comparisons correction given the 15+ sub-tasks across ALFWorld,
+    Search-QA, and WebShop to avoid inflated Type I error.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: dac6993433ee
+  text: Remove or comment out all stray section markers such as `e000`, `e001`, `e002`,
+    and any isolated `}` characters that appear outside of LaTeX environments (e.g.,
+    the stray brace after the bibliography). These cause compilation errors.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 5b8ba0b7754d
+  text: "Define the custom column type `C` used in the large tables (e.g., via `\n\
+    ewcolumntype{C}{>{\\centering\arraybackslash}p{...}}`) or replace it with a standard\
+    \ column specifier (`c`)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: e2b993f25386
+  text: Add the required packages for table styling (`booktabs`, `colortbl`, `xcolor`,
+    `array`) and for figure placement (`float` if `[H]` is desired). Ensure they are
+    loaded in the preamble.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: d7146121d439
+  text: "Place `\\label{...}` commands *after* the corresponding `\\caption{...}`\
+    \ inside figures and tables to guarantee proper cross\u2011referencing."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: e57e25115fff
+  text: "Replace the `[h]` float specifiers with more robust options such as `[htbp]`\
+    \ or use the `float` package\u2019s `[H]` if strict placement is required."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 61bf63751404
+  text: Check line wrapping in the source; very long lines (e.g., the bibliography
+    entries) should be broken at logical points to improve readability and avoid overfull
+    hbox warnings.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 84d79ceda5d0
+  text: "Ensure consistent heading hierarchy: all `\\subsection` commands appear under\
+    \ a `\\section`, and `\\subsubsection` (if any) are nested correctly. Verify that\
+    \ the `\appendix` command is followed by `\\section` headings for each appendix."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 585934aeeb94
+  text: "Remove row placeholders (e.g., \u201C... 30 rows omitted ...\u201D) from\
+    \ Table\u202F1 and Table\u202F2; ensure all data rows are present in the final\
+    \ manuscript."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: e3904a71675e
+  text: "Fix the Appendix reference in the \u201CMain Results\u201D section so that\
+    \ it points to the correct label (change \\ref{appendix:proof} to \\ref{appendix:algorithm})."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+- id: 8106c51d99b2
+  text: "Standardize spelling (e.g., \u201Cdestabilises\u201D vs. \u201Cstabilizes\u201D\
+    ) and hyphenation/en\u2011dash usage (e.g., \u201CSearch\u2011QA\u201D vs. \u201C\
+    Search\u2011QA\u201D) throughout the paper."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-579-https-arxiv-org-abs-2605-15155/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 50 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-29T02:44:56.494329+00:00'
