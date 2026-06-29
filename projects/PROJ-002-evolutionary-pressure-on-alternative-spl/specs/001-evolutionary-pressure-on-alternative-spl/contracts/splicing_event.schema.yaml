@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SplicingEvent"
+type: object
+required:
+  - event_id
+  - gene_id
+  - species
+  - delta_psi
+  - fdr
+  - flank_seq
+  - phyloP_score
+  - accelerated_flag
+  - origin_lineage
+properties:
+  event_id:
+    type: string
+    description: "SUPPA2 identifier for the alternative splicing event."
+  gene_id:
+    type: string
+    description: "Ensembl gene identifier (canonical across species)."
+  species:
+    type: string
+    enum: ["human", "chimpanzee", "macaque", "marmoset"]
+    description: "Species for which the PSI was computed."
+  delta_psi:
+    type: number
+    description: "Absolute change in PSI relative to outgroup."
+  fdr:
+    type: number
+    description: "Benjamini‑Hochberg adjusted false discovery rate."
+  flank_seq:
+    type: string
+    description: "FASTA string of ±500 bp intronic sequence."
+  phyloP_score:
+    type: ["number", "null"]
+    description: "Average phyloP score; null when unavailable."
+  accelerated_flag:
+    type: boolean
+    description: "TRUE if phyloP_score ≤ -2.0, else FALSE."
+  origin_lineage:
+    type: string
+    enum: ["human", "chimpanzee", "macaque", "marmoset"]
+    description: "Lineage where the event is identified as specific."

@@ -1,0 +1,301 @@
+resolved_at: '2026-06-29T08:22:41.973737+00:00'
+datasets:
+- intent: RNA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4185
+      parsed: true
+  - url: https://huggingface.co/datasets/toki64/rnabert_small/resolve/main/dataset_final.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/toki64/rnabert_small/resolve/main/dataset_final.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmelieSchreiber/data_of_protein-rna_binding_sites/20f5396cf4169d1b69f55c283a62882c7e26fad2/protein_binding_sites.csv?%2Fdatasets%2FAmelieSchreiber%2Fdata_of_protein-rna_binding_sites%2Fresolve%2Fmain%2Fprotein_binding_sites.csv=&etag=%2271cf6cfa51083f10c1ea77cefee056d4eaf85b2a%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supporting_data_for_Synergistic_Design_for_Mechanical_Thermal_and_Electromagnetic_Performance_of_Silicon_Nitride_Ceramic_Lattice_Structures_Enabled_by_Additive_Manufacturing_/32787024
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/figure/Hydropunk_-_Practice_Research_Early_Inspirations_Brainstorming_and_Visualisations/32035368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_clinical_brain_MRI_dataset_of_naturally_occurring_motion_artifacts_with_paired_artifact-free_images/30978316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/dataset/A_multi-centre_multi-device_benchmark_dataset_for_landmark-based_comprehensive_fetal_biometry/30819911
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.up.ac.za/articles/dataset/The_understanding_of_the_lived_experiences_of_visually_impaired_retirees_participating_in_group_music_therapy/32801874
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1490475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19249554
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4049430
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18607757
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19210864
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.rwth-aachen.de/record/1035904
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=b87012f480494bd6bd795510cde91908
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21025051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21025051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17863/cam.131584
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.repository.cam.ac.uk'',
+      port=443): Max retries exceeded with url: /handle/1810/405335 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''www.repository.cam.ac.uk'',
+      port=443) at 0x7f54218bc5d0>, ''Connection to www.repository.cam.ac.uk timed
+      out. (connect timeout=20.0)''))'
+- intent: PSI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/s-nlp/PsiloQA/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/PsiPi/robotics_stackexchange_com_QLORA/resolve/main/robotics_stackexchange_com_QLORA_eval.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/s-nlp/PsiloQA/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/PsiPi/robotics_stackexchange_com_QLORA/resolve/main/robotics_stackexchange_com_QLORA_eval.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/PsiPi/CodeAlpaca_20k_NoBlanks/6b1ab29fd2e6c9f7999ff7426830c28994a65a2e/code_alpaca_no_blank_ios_20k.json?%2Fdatasets%2FPsiPi%2FCodeAlpaca_20k_NoBlanks%2Fresolve%2Fmain%2Fcode_alpaca_no_blank_ios_20k.json=&etag=%2295e75cab38c7f96e17ab7ea46bc21db11e9036ad%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/PsiPi/PascalQnA100/resolve/main/train_pascal.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Supporting_data_for_Synergistic_Design_for_Mechanical_Thermal_and_Electromagnetic_Performance_of_Silicon_Nitride_Ceramic_Lattice_Structures_Enabled_by_Additive_Manufacturing_/32787024
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/figure/Hydropunk_-_Practice_Research_Early_Inspirations_Brainstorming_and_Visualisations/32035368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_clinical_brain_MRI_dataset_of_naturally_occurring_motion_artifacts_with_paired_artifact-free_images/30978316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/dataset/A_multi-centre_multi-device_benchmark_dataset_for_landmark-based_comprehensive_fetal_biometry/30819911
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.up.ac.za/articles/dataset/The_understanding_of_the_lived_experiences_of_visually_impaired_retirees_participating_in_group_music_therapy/32801874
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7057172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4926086
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0022311519314631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5969869
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.psi.ch/detail/10.16907%2F4314aaaa-435c-49ec-ad19-dcb8c6423c3e
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.psi.ch/detail/10.16907%2F2eab941f-2527-45a4-84e7-d9b44e7b4a45
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.psi.ch/detail/10.16907%2Fd029c5bb-fd79-42ed-99ef-051b70116e0c
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21023751
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21023751
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SRA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sradc/chunked-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-fce5f0af789cac4c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sradc/chunked-shuffled-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-550defad11191c81.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sradc/imagenet_resized_64x64/resolve/main/data/train-00000-of-00075-1a46269ad1efc5f4.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sradc/chunked-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-fce5f0af789cac4c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sradc/chunked-shuffled-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-550defad11191c81.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sradc/imagenet_resized_64x64/resolve/main/data/train-00000-of-00075-1a46269ad1efc5f4.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Srajanseth84/mydatasetlayoutlmv3/resolve/main/Training_layoutLMV3.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/conference_contribution/_i_Dataset_and_Prompts_Evaluating_and_Preventing_Security_Smells_in_AI-Generated_Ansible_Code_i_/32820551
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supporting_data_for_Synergistic_Design_for_Mechanical_Thermal_and_Electromagnetic_Performance_of_Silicon_Nitride_Ceramic_Lattice_Structures_Enabled_by_Additive_Manufacturing_/32787024
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/figure/Hydropunk_-_Practice_Research_Early_Inspirations_Brainstorming_and_Visualisations/32035368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_clinical_brain_MRI_dataset_of_naturally_occurring_motion_artifacts_with_paired_artifact-free_images/30978316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/dataset/A_multi-centre_multi-device_benchmark_dataset_for_landmark-based_comprehensive_fetal_biometry/30819911
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13890889
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13147461
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13147493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3919017
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17281851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.canal-u.tv/chaines/inrap/archeologie-preventive-sur-le-bati/diagnostic-sur-le-bati-deux-cas-de-figure
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21020619
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21020619
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21020103
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21020092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

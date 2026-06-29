@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EnrichmentResult"
+type: object
+required:
+  - lineage
+  - odds_ratio
+  - p_raw
+  - p_bonferroni
+  - p_fdr_lineage
+  - p_phylo_adjusted
+  - significant
+properties:
+  lineage:
+    type: string
+    enum: ["human", "chimpanzee", "macaque", "marmoset"]
+    description: "Lineage tested for enrichment."
+  odds_ratio:
+    type: number
+    description: "Odds ratio from Fisher's exact test."
+  p_raw:
+    type: number
+    description: "Unadjusted Fisher p‑value."
+  p_bonferroni:
+    type: number
+    description: "Bonferroni‑corrected p‑value within the lineage."
+  p_fdr_lineage:
+    type: number
+    description: "Benjamini‑Hochberg FDR across lineages."
+  p_phylo_adjusted:
+    type: number
+    description: "P‑value after phylogenetic PGLS correction."
+  significant:
+    type: boolean
+    description: "TRUE if final corrected p < 0.05."
