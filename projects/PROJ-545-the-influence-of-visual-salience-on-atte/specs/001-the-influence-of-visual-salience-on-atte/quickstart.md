@@ -2,77 +2,71 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Sufficient CPU Cores (minimum)
-- Adequate RAM (minimum)
-- Internet access (for dataset fetch)
+*   Python 3.11+
+*   Git
+*   Access to the Moral Machine dataset (public URL as per spec).
+*   A GitHub Actions Free Runner (or local machine with 7 GB+ RAM, 2+ CPU cores).
 
 ## Installation
 
-1.  **Clone Repository**
+1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-545-the-influence-of-visual-salience-on-atte
     ```
 
-2.  **Create Virtual Environment**
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
-    source venv/bin/activate  # Linux/Mac
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install Dependencies**
+3.  **Install dependencies**:
     ```bash
     pip install -r code/requirements.txt
     ```
 
-4.  **Verify Environment**
-    ```bash
-    python -c "import cv2; import numpy; print('OK')"
-    ```
+## Data Preparation
 
-## Running the Pipeline
-
-1.  **Download Data** (Note: URL unverified per system constraints; multiple fallback sources available)
+1.  **Download the dataset**:
+    Run the ingestion script to download and subset the Moral Machine dataset.
     ```bash
-    python code/data/download.py
+    python code/data/ingest.py --subset-size 50000 --seed 42
     ```
+    *Output*: `data/raw/moral_machine_subset.csv`
 
-2.  **Detect Culpability Labels** (FR-008)
+2.  **Compute Salience**:
+    Run the salience computation script.
     ```bash
-    python code/data/preprocess.py --detect-culpability
+    python code/data/salience.py --input data/raw/moral_machine_subset.csv --output data/processed/salience_enriched.csv
     ```
+    *Output*: `data/processed/salience_enriched.csv` (includes `salience_score` column).
 
-3.  **Compute Salience**
-    ```bash
-    python code/data/salience.py --input data/raw/moral_machine.csv --output data/processed/scenarios_salient.parquet
-    ```
+## Running the Analysis
 
-4.  **Fit Model** (Grid Search on a substantial sample, 5-fold CV)
+1.  **Fit the aDDM Models**:
+    Run the grid search and fitting script.
     ```bash
-    python code/models/fit.py --input data/processed/scenarios_salient.parquet --sample 10000 --cv-folds 5
+    python code/models/fit.py --input data/processed/salience_enriched.csv --output data/processed/model_fits.json
     ```
+    *Note*: This may take up to 30 minutes per fold on a CPU.
 
-5.  **Run Simulation Calibration**
+2.  **Run Model Comparison & Sensitivity**:
+    Run the comparison and sensitivity analysis.
     ```bash
-    python code/models/simulate.py --output results/simulation_ground_truth.json
+    python code/analysis/compare.py --fits data/processed/model_fits.json --data data/processed/salience_enriched.csv
     ```
+    *Output*: `data/processed/comparison_report.csv`
 
-6.  **Compare Models**
-    ```bash
-    python code/analysis/compare.py --input results/model_params.json
-    ```
+## Verification
+
+To verify the pipeline:
+1.  Check that `salience_enriched.csv` has no null values in `salience_score`.
+2.  Check that `comparison_report.csv` contains entries for threshold sweeps {0.01, 0.05, 0.10}.
+3.  Ensure the VIF diagnostic is present and flags any collinearity > 5.0.
 
 ## Troubleshooting
 
-- **Runtime Error**: Ensure `numba` is installed. If memory error, reduce `--sample` size.
-- **Dataset Fetch Fail**: If primary URL is blocked, the script will automatically try Harvard Dataverse and GitHub mirrors.
-- **Convergence Fail**: Check `results/logs/fit.log` for non-convergence warnings. If >5% of folds fail, investigate dataset quality.
-- **Culpability Detection**: If explicit culpability labels are found, the pipeline will halt and require manual review (unexpected for this dataset).
-
-## Known Limitations
-
-- **RT Data**: The aDDM implementation is a choice-only variant without response time data. This constrains parameter identifiability.
-- **Dataset Verification**: The Moral Machine dataset source is unverified per system constraints. Multiple fallback sources are provided for continuity.
-- **Representative Agent**: The analysis assumes a representative agent model; individual parameter variance is not estimable.
-
+*   **Non-convergence**: If a scenario fails to converge, check `logs/fit.log` for the retry count (capped at 3).
+*   **Missing Images**: The script automatically falls back to text heuristics for broken image URLs.
+*   **Memory Errors**: Ensure the subset size is ≤ 50,000 rows.

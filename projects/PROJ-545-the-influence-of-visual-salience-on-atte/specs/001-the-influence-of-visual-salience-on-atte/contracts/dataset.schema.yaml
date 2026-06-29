@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Salience Enriched Dataset Schema"
+description: "Schema for the processed dataset with computed salience scores."
+type: "object"
+properties:
+  scenario_id:
+    type: "string"
+    description: "Unique identifier for the moral dilemma scenario."
+  choice:
+    type: "integer"
+    description: "Binary choice outcome (0 = Left, 1 = Right)."
+    minimum: 0
+    maximum: 1
+  salience_score:
+    type: "number"
+    description: "Computed salience score (0.0–1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  salience_source:
+    type: "string"
+    description: "Method used to compute salience."
+    enum:
+      - "itti"
+      - "gbvs"
+      - "text_heuristic"
+  stimulus_type:
+    type: "string"
+    description: "Type of stimulus."
+    enum:
+      - "image"
+      - "text"
+  species_1:
+    type: "string"
+    description: "Species of the first actor."
+  age_1:
+    type: "string"
+    description: "Age category of the first actor."
+  lives_1:
+    type: "integer"
+    description: "Number of lives in the first option."
+    minimum: 0
+  species_2:
+    type: "string"
+    description: "Species of the second actor."
+  age_2:
+    type: "string"
+    description: "Age category of the second actor."
+  lives_2:
+    type: "integer"
+    description: "Number of lives in the second option."
+    minimum: 0
+required:
+  - scenario_id
+  - choice
+  - salience_score
+  - salience_source
+  - stimulus_type
+additionalProperties: true

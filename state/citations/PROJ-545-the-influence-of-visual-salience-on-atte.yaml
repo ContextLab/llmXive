@@ -1,33 +1,33 @@
-- artifact_hash: 2bd2c73fa462691b23c7d5f8d064ad6174a73ed7568417a109b469b15dd7489f
+- artifact_hash: 592c2013707fe66e0f4a142b54ed08abcab3e62060f80a19326f554351034211
   artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: OSF
   kind: url
-  value: https://github.com/awad-mit/Moral-Machine
-  verification_status: mismatch
-  verified_against_url: https://github.com/awad-mit/Moral-Machine
-  verified_at: '2026-06-29T13:01:24.936778Z'
-- artifact_hash: 2bd2c73fa462691b23c7d5f8d064ad6174a73ed7568417a109b469b15dd7489f
+  value: https://osf.io/5c8q9/
+  verification_status: verified
+  verified_against_url: https://osf.io/5c8q9/
+  verified_at: '2026-06-29T22:04:31.906752Z'
+- artifact_hash: 592c2013707fe66e0f4a142b54ed08abcab3e62060f80a19326f554351034211
   artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: dataset.xhtml?persistentId=
-  kind: url
-  value: https://dataverse.harvard.edu/dataset.xhtml?persistentId=
+  fetched_title: The Moral Machine experiment
+  kind: doi
+  value: 10.1038/s41586-018-0637-6
   verification_status: verified
-  verified_against_url: https://dataverse.harvard.edu/dataset.xhtml?persistentId=
-  verified_at: '2026-06-29T13:01:24.936778Z'
-- artifact_hash: 2bd2c73fa462691b23c7d5f8d064ad6174a73ed7568417a109b469b15dd7489f
-  artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
-  cite_id: c-003
+  verified_against_url: https://doi.org/10.1038/s41586-018-0637-6
+  verified_at: '2026-06-29T22:04:31.906752Z'
+- artifact_hash: 7096cfdc1273fd5656f26b8b4fc73fc78a021806872f297d6510a2cab4470d85
+  artifact_path: projects/PROJ-545-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/data-model.md
+  cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.7910/DVN/TTU5QD
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.7910/DVN/TTU5QD
-  verified_at: '2026-06-29T13:01:24.936778Z'
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: verified
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-06-29T22:05:02.624476Z'

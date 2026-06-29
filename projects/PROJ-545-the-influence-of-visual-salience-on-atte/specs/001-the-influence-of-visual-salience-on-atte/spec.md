@@ -69,7 +69,7 @@ The system MUST compare the salience-augmented model against a baseline (no sali
 - **FR-004**: System MUST perform grid search over salience weights (0.0 to 1.0 in steps of 0.1) to identify the maximum likelihood parameters. (See US-002)
 - **FR-005**: System MUST perform a sensitivity analysis on the decision threshold, sweeping the cutoff over absolute differences {0.01, 0.05, 0.10} and reporting how the log-likelihood and AIC vary across them. (See US-003)
 - **FR-006**: System MUST frame all reported findings as associational correlations between salience and choice outcomes, explicitly avoiding causal language regarding moral virtue. (See US-003)
-- **FR-007**: System MUST apply multiple-comparison correction (e.g., Bonferroni) if more than 3 hypothesis tests are conducted on the same dataset. (See US-003)
+- **FR-007**: System MUST apply multiple-comparison correction (e.g., Bonferroni) if more than a small number of hypothesis tests are conducted on the same dataset. (See US-003)
 - **FR-008**: System MUST detect absence of explicit 'actual culpability' labels in the dataset and MUST use scenario attributes (number of lives saved/lost, species, social status, age, gender) as proxy control variables for confounding; the Moral Machine dataset does not contain explicit 'actual culpability' labels as it is a survey experiment measuring moral preferences, not real-world accident data (convention in computational ethics literature, see Awad et al. Nature). (See US-003)
 
 ### Key Entities *(include if feature involves data)*

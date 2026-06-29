@@ -1,4 +1,4 @@
-resolved_at: '2026-06-29T12:32:30.368775+00:00'
+resolved_at: '2026-06-29T21:51:05.677329+00:00'
 datasets:
 - intent: MUST
   status: verified
@@ -26,23 +26,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+  - url: https://plos.figshare.com/articles/dataset/_p_Univariate_and_multivariable_logistic_regression_analyses_of_factors_associated_with_post-embolization_syndrome_p_/32827295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_analgesic_use_and_clinical_outcomes_between_the_two_groups_p_/32827292
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_numerical_rating_scale_and_hospital_anxiety_and_depression_scale_and_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827289
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_planta_i_growth_of_i_Leptosphaeria_maculans_i_as_a_measure_of_quantitative_resistance_to_blackleg_in_canola/32824972
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_baseline_clinical_characteristics_between_the_two_groups_of_patients_with_advanced_hepatocellular_carcinoma_p_/32827286
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Evolution_of_Partially_Coherent_Stokes_Skyrmions_in_Free_Space_-_7936814_pdf/32687139
+  - url: https://plos.figshare.com/articles/figure/_p_Comparison_of_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -66,23 +66,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+  - url: https://zenodo.org/records/21047670
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764/1
+  - url: https://zenodo.org/records/21047670
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20847819
+  - url: https://zenodo.org/records/21046712
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20847819
+  - url: https://zenodo.org/records/21046712
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032016
+  - url: https://zenodo.org/records/21047254
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -97,7 +97,7 @@ datasets:
       downloaded_bytes: 31
       parsed: true
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&response-content-type=text%2Fcsv&user_id=public&X-Xet-Cas-Uid=public&Expires=1782739675&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzM5Njc1fX19XX0_&Signature=MEUCIFcVp3WbaaTt~CAP4yJ9PK6110-8qVeqWGiTCskBbbHpAiEAiR4FobI6mL0TvVhyp-KCA25ZVToBmVV5SdZ8nrzjwhY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&Expires=1782773309&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzczMzA5fX19XX0_&Signature=MEYCIQDL8ln7THVDb374aL~ZtRY~YTClyq9qbswKXgm3X6ZV9wIhAJjUsid8c89whI5ZYGRCdTSdzt3O9P5cZhVHAK7D2Bk7&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -105,35 +105,27 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+  - url: https://plos.figshare.com/articles/dataset/_p_Univariate_and_multivariable_logistic_regression_analyses_of_factors_associated_with_post-embolization_syndrome_p_/32827295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_analgesic_use_and_clinical_outcomes_between_the_two_groups_p_/32827292
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_numerical_rating_scale_and_hospital_anxiety_and_depression_scale_and_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827289
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_planta_i_growth_of_i_Leptosphaeria_maculans_i_as_a_measure_of_quantitative_resistance_to_blackleg_in_canola/32824972
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_baseline_clinical_characteristics_between_the_two_groups_of_patients_with_advanced_hepatocellular_carcinoma_p_/32827286
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Evolution_of_Partially_Coherent_Stokes_Skyrmions_in_Free_Space_-_7936814_pdf/32687139
+  - url: https://plos.figshare.com/articles/figure/_p_Comparison_of_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19566985
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6334972
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6144837
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -145,23 +137,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20847819
-    source: datacite
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20847819
-    source: datacite
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.datalumos.org/datalumos/project/250581/version/V1/view
+  - url: https://www.datalumos.org/datalumos/project/250864/version/V1/view
     source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://www.datalumos.org/datalumos/project/250581/view
+  - url: https://www.datalumos.org/datalumos/project/250864/view
     source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://www.datalumos.org/datalumos/project/250580/version/V1/view
+  - url: https://www.datalumos.org/datalumos/project/250840/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250840/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250832/version/V1/view
     source: datacite
     status: wrong_format
     reason: HTTP 403
@@ -206,23 +206,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+  - url: https://plos.figshare.com/articles/dataset/_p_Univariate_and_multivariable_logistic_regression_analyses_of_factors_associated_with_post-embolization_syndrome_p_/32827295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_analgesic_use_and_clinical_outcomes_between_the_two_groups_p_/32827292
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_numerical_rating_scale_and_hospital_anxiety_and_depression_scale_and_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827289
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_planta_i_growth_of_i_Leptosphaeria_maculans_i_as_a_measure_of_quantitative_resistance_to_blackleg_in_canola/32824972
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_baseline_clinical_characteristics_between_the_two_groups_of_patients_with_advanced_hepatocellular_carcinoma_p_/32827286
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Evolution_of_Partially_Coherent_Stokes_Skyrmions_in_Free_Space_-_7936814_pdf/32687139
+  - url: https://plos.figshare.com/articles/figure/_p_Comparison_of_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -234,7 +234,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -242,27 +242,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032265
+  - url: https://zenodo.org/records/21005341
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032265
+  - url: https://zenodo.org/records/21005341
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21031997
+  - url: https://hammer.purdue.edu/articles/thesis/Enhancing_the_Accessibility_and_Utilization_of_Data-Parallel_Hardware_for_General-Purpose_Applications/32810036
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21031997
+  - url: https://hammer.purdue.edu/articles/thesis/Enhancing_the_Accessibility_and_Utilization_of_Data-Parallel_Hardware_for_General-Purpose_Applications/32810036/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/929442
+  - url: https://zenodo.org/records/21042196
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -303,27 +303,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
   - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Vibration-robust_lateral-scanning_white-light_interferometry_via_spatially_coupled_optical_phase_estimation_-_7946908_pdf/32760792
+  - url: https://plos.figshare.com/articles/dataset/_p_Univariate_and_multivariable_logistic_regression_analyses_of_factors_associated_with_post-embolization_syndrome_p_/32827295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Vibration-robust_lateral-scanning_white-light_interferometry_via_spatially_coupled_optical_phase_estimation_-_7946908_pdf/32685681
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_analgesic_use_and_clinical_outcomes_between_the_two_groups_p_/32827292
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_numerical_rating_scale_and_hospital_anxiety_and_depression_scale_and_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827289
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_baseline_clinical_characteristics_between_the_two_groups_of_patients_with_advanced_hepatocellular_carcinoma_p_/32827286
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+  - url: https://plos.figshare.com/articles/figure/_p_Comparison_of_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -343,27 +347,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/199064
+  - url: https://zenodo.org/records/20817412
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.datalumos.org/datalumos/project/250582/version/V1/view
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://www.datalumos.org/datalumos/project/250582/view
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/S138CX
+  - url: https://zenodo.org/records/21047249
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.datalumos.org/datalumos/project/250564/version/V1/view
+  - url: https://zenodo.org/records/21047249
     source: datacite
     status: wrong_format
-    reason: HTTP 403
-  - url: https://www.datalumos.org/datalumos/project/250564/view
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21024854
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21025879
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250829/version/V1/view
     source: datacite
     status: wrong_format
     reason: HTTP 403
@@ -371,31 +375,31 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Vibration-robust_lateral-scanning_white-light_interferometry_via_spatially_coupled_optical_phase_estimation_-_7946908_pdf/32760792
+  - url: https://plos.figshare.com/articles/dataset/_p_Univariate_and_multivariable_logistic_regression_analyses_of_factors_associated_with_post-embolization_syndrome_p_/32827295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Vibration-robust_lateral-scanning_white-light_interferometry_via_spatially_coupled_optical_phase_estimation_-_7946908_pdf/32685681
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_analgesic_use_and_clinical_outcomes_between_the_two_groups_p_/32827292
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_numerical_rating_scale_and_hospital_anxiety_and_depression_scale_and_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827289
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_baseline_clinical_characteristics_between_the_two_groups_of_patients_with_advanced_hepatocellular_carcinoma_p_/32827286
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+  - url: https://plos.figshare.com/articles/figure/_p_Comparison_of_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827283
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17936025
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -407,7 +411,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10173526
+  - url: https://zenodo.org/records/6373741
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -460,7 +464,7 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&Expires=1782739934&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzM5OTM0fX19XX0_&Signature=MEYCIQCjK-v0bvGAAcFxNOMmCoIowLpdSxfHqBmHMfdlkTdEAQIhAPMZe4SYokW30LBOYbAm4~KGpT3LpQlENHhK1o8P75zM&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&response-content-type=application%2Fjson&Expires=1782773443&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzczNDQzfX19XX0_&Signature=MEUCIQDTUMrjUB2d6nG74qg9dRjYLukYr2hOgN9X0C3D6wrAsgIgAZ5kQ9OqQl7ILGoHlSX9iZzOysEr0Wh~UFeqoPVwQBA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -472,6 +476,18 @@ datasets:
     source: huggingface
     status: verified
     format: tsv
+  - url: https://plos.figshare.com/articles/dataset/_p_Univariate_and_multivariable_logistic_regression_analyses_of_factors_associated_with_post-embolization_syndrome_p_/32827295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_analgesic_use_and_clinical_outcomes_between_the_two_groups_p_/32827292
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Comparison_of_postoperative_numerical_rating_scale_and_hospital_anxiety_and_depression_scale_and_strategies_used_by_people_to_promote_health_scale_between_the_two_groups_p_/32827289
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: US-001
   status: unresolved
   candidates: []
