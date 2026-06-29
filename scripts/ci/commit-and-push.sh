@@ -45,6 +45,26 @@ git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 # Stage every pipeline output present in this fresh CI checkout. -A is safe
 # here: the only working-tree changes are what this run produced.
 git add -A
+
+# Size guard: GitHub's pre-receive hook HARD-REJECTS any file >100MB, which
+# fails the ENTIRE push and loses this worker's whole tick (observed: a 260MB
+# pii_findings.csv + a 221MB raw CSV declined the push). Analysis runs emit
+# oversized data artifacts that escape the path-scoped .gitignore (data/analysis/*,
+# a misplaced projects/data/raw/*, or a tracked file regenerated past the limit).
+# Drop any staged blob over 95MB — it is a REGENERABLE analysis/raw artifact, not
+# source (the execution gate recomputes it each run). Never silent: log each skip.
+# A modified tracked file keeps its committed (smaller) version; a new one is left
+# untracked and excluded so a retry can't re-stage it.
+git diff --cached --name-only -z | while IFS= read -r -d '' f; do
+  [ -f "$f" ] || continue
+  sz=$(wc -c < "$f" 2>/dev/null || echo 0)
+  if [ "$sz" -gt 95000000 ]; then
+    echo "[commit] SKIP oversized $((sz / 1000000))MB file (>95MB GitHub limit): $f" >&2
+    git restore --staged -- "$f" 2>/dev/null || git rm --cached -q --ignore-unmatch -- "$f"
+    grep -qxF "$f" .git/info/exclude 2>/dev/null || echo "$f" >> .git/info/exclude
+  fi
+done
+
 if git diff --cached --quiet; then
   echo "no changes to commit"
   emit false
