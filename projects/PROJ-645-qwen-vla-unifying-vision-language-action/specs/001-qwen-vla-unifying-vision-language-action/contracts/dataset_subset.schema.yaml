@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: DatasetSubset
+type: object
+required:
+  - num_examples
+  - platform_ids
+  - checksum
+  - dataset_version
+  - path
+  - ratio
+properties:
+  num_examples:
+    type: integer
+    minimum: 1
+  platform_ids:
+    type: array
+    items:
+      type: string
+  checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+  dataset_version:
+    type: string
+    description: "Exact version identifier (e.g., commit hash or revision ID) of the source dataset."
+  path:
+    type: string
+    pattern: "^data/.*\\.parquet$"
+  ratio:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
