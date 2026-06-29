@@ -1,0 +1,309 @@
+schema_version: '1'
+project_id: PROJ-655-https-arxiv-org-abs-2606-02437
+rounds:
+- round_number: 1
+  ran_at: '2026-06-29T19:48:26.082500Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-29)
+  tasks_done: 19
+  tasks_failed: 0
+  tasks_skipped: 31
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-655-https-arxiv-org-abs-2606-02437/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[1c7cb8533dfc]** (severity: writing): Figure 1 caption
+      claims ''fraction of regulatory DNA increases... to 98% in humans'' citing ENCODE
+      2012. ENCODE 2012 reported ~80% biochemical'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[742051b98a44]** (severity: writing): Section 3.1
+      claims Kimi K2 has ''32.6B activated parameters and 1.04T total parameters''
+      citing kimiteam2026k2. Verify these exact figures aga'
+  - id: '003'
+    severity: writing
+    status: done
+    text: 'Address action item **[eae29f755da7]** (severity: writing): Section 5.1
+      claims ''Across 263 runs'' for DishNameBenchmark and Section 5.3 claims AIME24
+      accuracy ''0.3644 at k=1 to 0.4867 at k=198''. Ensure'
+  - id: '004'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[8fd2fcd6e2d1]** (severity: writing): Section 4.2
+      claims OLoRA KL divergence ''saturating near 8'' at step 100. Verify Figure
+      5 (olora_vs_olora_tail_reward_kl.pdf) visually support'
+  - id: '005'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[056091fa7ca5]** (severity: writing): Expand truncated
+      tables (e.g., tab:mint-handoff, tab:mint-policy-state) to show full metrics
+      rather than ''(... omitted ...)'' for transparenc'
+  - id: '006'
+    severity: writing
+    status: done
+    text: 'Address action item **[08d3913a0b76]** (severity: writing): Specify license
+      for released adapters, code, and benchmarks. Currently absent from the manuscript.'
+  - id: '007'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[66d2c7864ace]** (severity: writing): Replace company
+      blog URLs in bibliography (e.g., openai.com, qwenlm.github.io) with arXiv/DOI
+      links to mitigate link rot.'
+  - id: 008
+    severity: writing
+    status: skipped
+    text: 'Address action item **[cf7d909196c1]** (severity: writing): Ensure color
+      consistency for the R3 method across Figures 4, 5, and 6. The same line color
+      and marker style must be used to facilitate cross'
+  - id: 009
+    severity: writing
+    status: done
+    text: 'Address action item **[e278cb086488]** (severity: writing): Verify axis
+      label legibility in Figure 17 (heatmaps) and Figures 13 and 20 (log-scale plots).
+      Text may be too small for print resolution; in'
+  - id: '010'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[6997bcc0540e]** (severity: writing): Confirm error
+      bars are visually distinct in Figure 15. If standard deviation is small relative
+      to bar height, consider using a secondary y-a'
+  - id: '011'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[30d6672e36fd]** (severity: writing): Figure 27 should
+      explicitly plot the fitted regression line alongside the data points to visually
+      support the ln(k) claim in the text.'
+  - id: '012'
+    severity: writing
+    status: done
+    text: 'Address action item **[bffc1f26ab1c]** (severity: writing): Define all
+      acronyms (MoE, RL, KL, PPO, GRPO, RLVR, SVD, PiSSA, MiLoRA, OLoRA, DAPO, TIM,
+      MinT, ALFWorld, AIME) at first occurrence throughou'
+  - id: '013'
+    severity: writing
+    status: done
+    text: 'Address action item **[efe02f86fcce]** (severity: writing): Ensure "TIM"
+      (Training-Inference Mismatch) is defined in the text before its use in the Figure
+      3.2 caption.'
+  - id: '014'
+    severity: writing
+    status: done
+    text: 'Address action item **[28f75b107846]** (severity: writing): Simplify or
+      explain technical phrases like "KL leash", "trajectory distribution", and "expert
+      routing" for non-specialist readers.'
+  - id: '015'
+    severity: writing
+    status: done
+    text: 'Address action item **[c5e691e4c9b2]** (severity: writing): Briefly describe
+      benchmarks (DishNameBenchmark, ALFWorld, AIME24) upon first mention to clarify
+      their purpose.'
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[13c8b1597522]** (severity: writing): Title claims
+      Million Personal Models but only 10^6 addressable catalog is described, not
+      actual deployment. Clarify this is a theoretical ta'
+  - id: '017'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[fbf39fa6ac98]** (severity: writing): OLoRA-tail
+      claims as RL-native initialization overreach - it is one method that works,
+      not proven optimal. Temper language. (Section 4.2.2, '
+  - id: 018
+    severity: writing
+    status: skipped
+    text: 'Address action item **[a731b1637da0]** (severity: writing): Add a dedicated
+      Ethics Statement detailing IRB/consent protocols for any user data used to train
+      personal models or simulators.'
+  - id: 019
+    severity: writing
+    status: skipped
+    text: 'Address action item **[515961fec201]** (severity: writing): Discuss dual-use
+      risks of ''Million Personal Models'', specifically regarding impersonation,
+      manipulation, and privacy leakage from adapters.'
+  - id: '020'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[c9ae102514f3]** (severity: writing): Clarify safety
+      guardrails in MinT infrastructure (Section 7) to prevent serving harmful or
+      misaligned personal model instances.'
+  - id: '021'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[294f90f517b9]** (severity: writing): Address ethical
+      implications of ''User Simulators'' (Section 6) that model real group-opinion
+      dynamics, including potential for social enginee'
+  - id: '022'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[6a8a5bf2b4e8]** (severity: writing): Remove ''(...
+      rows omitted ...)'' placeholders from table environments (e.g., tab:mint-policy-state,
+      tab:mint-handoff) to ensure compilable La'
+  - id: '023'
+    severity: writing
+    status: done
+    text: 'Address action item **[25fd1a4852cc]** (severity: writing): Define or remove
+      custom macros (\pony, \apphead, \appkey, \fittowidth) used throughout text and
+      tables, as they are undefined in the preambl'
+  - id: '024'
+    severity: writing
+    status: done
+    text: 'Address action item **[765e4ba03be9]** (severity: writing): Correct label
+      naming conventions (e.g., \label{subsubsec:personality-as-environment} used
+      with \section command) to match section hierarchy.'
+  - id: '025'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[424fa2efab07]** (severity: writing): Standardize
+      caption formatting; \pony{} is used inconsistently across figure captions (e.g.,
+      present in fig:peft-perspective-teaser, absent '
+  - id: '026'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[bda21bb20b54]** (severity: writing): Remove all
+      \\pony{} macros from the LaTeX source to ensure clean publication-ready text.'
+  - id: '027'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[c12b5859745d]** (severity: writing): Replace placeholder
+      text like ''(... rows omitted ...)'' in tables with actual data or summary captions.'
+  - id: 028
+    severity: writing
+    status: skipped
+    text: 'Address action item **[5cad00acdcdc]** (severity: writing): Simplify complex
+      multi-clause sentences in mathematical derivations (e.g., Section 3.1.2) for
+      better readability.'
+  - id: 029
+    severity: writing
+    status: done
+    text: 'Address action item **[0706e776fe28]** (severity: writing): Standardize
+      citation commands (\\citep vs \\citet) throughout the document for consistency.'
+  - id: '030'
+    severity: science
+    status: skipped
+    text: 'Address action item **[03122ff9408f]** (severity: science): Complete all
+      truncated tables in the manuscript (MinT handoff, MoE scale curves, serving
+      readiness) to enable proper assessment of infrastru'
+  - id: '031'
+    severity: science
+    status: skipped
+    text: 'Address action item **[9bf5e9bf8160]** (severity: science): Provide full
+      statistical significance testing for the AIME24 accuracy improvement (0.3644
+      to 0.4867 at k=198) including confidence intervals'
+  - id: '032'
+    severity: science
+    status: skipped
+    text: 'Address action item **[370ca2515ca5]** (severity: science): Validate the
+      LoRA memory capacity law (10^-3 to 10^-2 tokens per trainable parameter) across
+      additional tasks and model scales beyond DishNa'
+  - id: '033'
+    severity: science
+    status: done
+    text: 'Address action item **[cd448f84ae8a]** (severity: science): Provide complete
+      implementation details for OLoRA-tail initialization including exact singular
+      value thresholding and scaling factor formula'
+  - id: '034'
+    severity: science
+    status: done
+    text: 'Address action item **[a8dcb1d63c63]** (severity: science): Add code repository
+      link and training configuration files to ensure reproducibility of the trillion-scale
+      LoRA RL experiments.'
+  - id: '035'
+    severity: science
+    status: done
+    text: 'Address action item **[d94581471f0f]** (severity: science): Release the
+      full code repository (training scripts, MinT infrastructure, evaluation harness)
+      to enable reproducibility verification of depen'
+  - id: '036'
+    severity: science
+    status: skipped
+    text: 'Address action item **[382dd0d3983f]** (severity: science): Provide concrete
+      implementation details for the Context Distillation algorithm (Listing 1) beyond
+      pseudocode to support replication.'
+  - id: '037'
+    severity: science
+    status: done
+    text: 'Address action item **[4e74d6e022f3]** (severity: science): Add a Data
+      Availability Statement linking to MinT infrastructure and DishNameBenchmark.
+      Claims in Sec 5 & 6 rely on these but no URLs are pr'
+  - id: 038
+    severity: science
+    status: skipped
+    text: 'Address action item **[377f5a7a9982]** (severity: science): The central
+      thesis claims PEFT is transformative ''only when the three axes reinforce one
+      another'' (Introduction, Sec 1). However, the eviden'
+  - id: 039
+    severity: science
+    status: skipped
+    text: 'Address action item **[c2d597be958a]** (severity: science): Kimi K2 trillion-scale
+      LoRA RL presented as proof of existence with limited empirical data. Add full
+      experimental details or reframe as unve'
+  - id: '040'
+    severity: science
+    status: skipped
+    text: 'Address action item **[6524e5fd1f16]** (severity: science): Collective
+      intelligence from majority voting may be simple ensemble effect. Distinguish
+      diversity-based gains from repetition baselines more'
+  - id: '041'
+    severity: science
+    status: skipped
+    text: 'Address action item **[48a5c076bf25]** (severity: science): LoRA memory
+      capacity law (10^-3 to 10^-2 tokens/param) is benchmark-specific. Add generalization
+      caveats and real-world validation. (Section'
+  - id: '042'
+    severity: science
+    status: skipped
+    text: 'Address action item **[a06a81ce1ce7]** (severity: science): Provide quantitative
+      compute budget table (FLOPs/wall-clock) comparing 1T MoE LoRA RL vs full-finetuning
+      baselines to substantiate the 10% c'
+  - id: '043'
+    severity: science
+    status: skipped
+    text: 'Address action item **[0cc05be81c7b]** (severity: science): Re-run rank-1
+      standard LoRA baseline with equivalent hyperparameter sweep (LR, alpha) to isolate
+      initialization effects from tuning sensitiv'
+  - id: '044'
+    severity: science
+    status: skipped
+    text: 'Address action item **[c8c2815d56f5]** (severity: science): Report confidence
+      intervals or p-values for the majority voting accuracy gains (k=198) to confirm
+      statistical significance over repetition b'
+  - id: '045'
+    severity: science
+    status: done
+    text: 'Address action item **[abe4a14f54c9]** (severity: science): No confidence
+      intervals or standard errors reported for any quantitative claims (e.g., 58.3%
+      vs 56.3% OLoRA-tail gain, majority voting accur'
+  - id: '046'
+    severity: science
+    status: done
+    text: 'Address action item **[27228a8cb49d]** (severity: science): No statistical
+      significance tests performed for key comparisons (OLoRA-tail vs LoRA, rank regimes,
+      memory capacity thresholds). Add t-tests '
+  - id: '047'
+    severity: science
+    status: done
+    text: "Address action item **[dbdb527ca334]** (severity: science): Multiple comparisons\
+      \ across 9 ranks \xD7 4 batch sizes \xD7 6 seeds (216 runs) without correction.\
+      \ Report FDR-adjusted p-values or use Bonferroni "
+  - id: 048
+    severity: science
+    status: skipped
+    text: "Address action item **[d9038535967c]** (severity: science): Majority voting\
+      \ regression (accuracy \u2248 0.386 + 0.0172 ln(k), R\xB2 \u2248 0.888) lacks\
+      \ residual analysis, standard errors on coefficients, or model "
+  - id: 049
+    severity: science
+    status: done
+    text: "Address action item **[77b147377eda]** (severity: science): Memory capacity\
+      \ ceiling claim (10\u207B\xB3 to 10\u207B\xB2 tokens/parameter) has no uncertainty\
+      \ quantification. Provide confidence intervals on the capacit"
+  - id: '050'
+    severity: science
+    status: done
+    text: "Address action item **[eb342bea2a83]** (severity: science): Seed-level\
+      \ results (6 seeds) insufficient for reliable mean estimates; recommend \u2265\
+      30 seeds for low-rank regime or report bootstrapped CIs."

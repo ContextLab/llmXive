@@ -3,73 +3,284 @@
   "arxiv_url": "https://arxiv.org/abs/2606.02437",
   "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters",
   "authors": [
-    "Mind Lab",
-    ":",
-    "Vin Bo",
-    "Song Cao",
-    "Vic Cao",
-    "Andrew Chen",
-    "Kaijie Chen",
-    "Cleon Cheng",
-    "Steven Chiang",
-    "Kaixuan Fan",
-    "Hera Feng",
-    "Huan Feng",
-    "Arthur Fu",
-    "Jun Gao",
-    "Hongquan Gu",
-    "Aaron Guan",
-    "Nolan Ho",
-    "Mutian Hong",
-    "Hailee Hou",
-    "Peixuan Hua",
-    "Charles Huang",
-    "Miles Jiang",
-    "Nora Jiang",
-    "Yuyi Jiang",
-    "Qiuyu Jin",
-    "Fancy Kong",
-    "Andrew Lei",
-    "Kyrie Lei",
-    "Alexy Li",
-    "Lucian Li",
-    "Ray Li",
-    "Theo Li",
-    "Wenhao Li",
-    "Zhihui Li",
-    "Allen Lin",
-    "Jiayi Lin",
-    "Kairus Liu",
-    "Kieran Liu",
-    "Logan Liu",
-    "Xiang Liu",
-    "Irvine Lu",
-    "Maeve Luo",
-    "Runze Lv",
-    "Pony Ma",
-    "Verity Niu",
-    "Anson Qiu",
-    "Vincent Wang",
-    "Rio Yang",
-    "Maxwell Yao",
-    "Carrie Ye",
-    "Regis Ye",
-    "Wenlin Ye",
-    "Josh Ying",
-    "Danney Zeng",
-    "Yuhan Zhan",
-    "Anya Zhang",
-    "Di Zhang",
-    "Ruijia Zhang",
-    "Shiyang Zhang",
-    "Sueky Zhang",
-    "Ya Zhang",
-    "Wei Zhao",
-    "Ada Zhou",
-    "Adrian Zhou",
-    "Yuhua Zhou",
-    "Xinyue Zhu",
-    "Murphy Zhuang"
+    {
+      "name": "Mind Lab",
+      "kind": "human"
+    },
+    {
+      "name": ":",
+      "kind": "human"
+    },
+    {
+      "name": "Vin Bo",
+      "kind": "human"
+    },
+    {
+      "name": "Song Cao",
+      "kind": "human"
+    },
+    {
+      "name": "Vic Cao",
+      "kind": "human"
+    },
+    {
+      "name": "Andrew Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Kaijie Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Cleon Cheng",
+      "kind": "human"
+    },
+    {
+      "name": "Steven Chiang",
+      "kind": "human"
+    },
+    {
+      "name": "Kaixuan Fan",
+      "kind": "human"
+    },
+    {
+      "name": "Hera Feng",
+      "kind": "human"
+    },
+    {
+      "name": "Huan Feng",
+      "kind": "human"
+    },
+    {
+      "name": "Arthur Fu",
+      "kind": "human"
+    },
+    {
+      "name": "Jun Gao",
+      "kind": "human"
+    },
+    {
+      "name": "Hongquan Gu",
+      "kind": "human"
+    },
+    {
+      "name": "Aaron Guan",
+      "kind": "human"
+    },
+    {
+      "name": "Nolan Ho",
+      "kind": "human"
+    },
+    {
+      "name": "Mutian Hong",
+      "kind": "human"
+    },
+    {
+      "name": "Hailee Hou",
+      "kind": "human"
+    },
+    {
+      "name": "Peixuan Hua",
+      "kind": "human"
+    },
+    {
+      "name": "Charles Huang",
+      "kind": "human"
+    },
+    {
+      "name": "Miles Jiang",
+      "kind": "human"
+    },
+    {
+      "name": "Nora Jiang",
+      "kind": "human"
+    },
+    {
+      "name": "Yuyi Jiang",
+      "kind": "human"
+    },
+    {
+      "name": "Qiuyu Jin",
+      "kind": "human"
+    },
+    {
+      "name": "Fancy Kong",
+      "kind": "human"
+    },
+    {
+      "name": "Andrew Lei",
+      "kind": "human"
+    },
+    {
+      "name": "Kyrie Lei",
+      "kind": "human"
+    },
+    {
+      "name": "Alexy Li",
+      "kind": "human"
+    },
+    {
+      "name": "Lucian Li",
+      "kind": "human"
+    },
+    {
+      "name": "Ray Li",
+      "kind": "human"
+    },
+    {
+      "name": "Theo Li",
+      "kind": "human"
+    },
+    {
+      "name": "Wenhao Li",
+      "kind": "human"
+    },
+    {
+      "name": "Zhihui Li",
+      "kind": "human"
+    },
+    {
+      "name": "Allen Lin",
+      "kind": "human"
+    },
+    {
+      "name": "Jiayi Lin",
+      "kind": "human"
+    },
+    {
+      "name": "Kairus Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Kieran Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Logan Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Xiang Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Irvine Lu",
+      "kind": "human"
+    },
+    {
+      "name": "Maeve Luo",
+      "kind": "human"
+    },
+    {
+      "name": "Runze Lv",
+      "kind": "human"
+    },
+    {
+      "name": "Pony Ma",
+      "kind": "human"
+    },
+    {
+      "name": "Verity Niu",
+      "kind": "human"
+    },
+    {
+      "name": "Anson Qiu",
+      "kind": "human"
+    },
+    {
+      "name": "Vincent Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Rio Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Maxwell Yao",
+      "kind": "human"
+    },
+    {
+      "name": "Carrie Ye",
+      "kind": "human"
+    },
+    {
+      "name": "Regis Ye",
+      "kind": "human"
+    },
+    {
+      "name": "Wenlin Ye",
+      "kind": "human"
+    },
+    {
+      "name": "Josh Ying",
+      "kind": "human"
+    },
+    {
+      "name": "Danney Zeng",
+      "kind": "human"
+    },
+    {
+      "name": "Yuhan Zhan",
+      "kind": "human"
+    },
+    {
+      "name": "Anya Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Di Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Ruijia Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Shiyang Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Sueky Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Ya Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Wei Zhao",
+      "kind": "human"
+    },
+    {
+      "name": "Ada Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Adrian Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Yuhua Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Xinyue Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Murphy Zhuang",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-29T19:48:26.082500Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "abstract": "Parameter-efficient fine-tuning (PEFT) is usually treated as a cheaper alternative to full fine-tuning. We study a broader role: small trainable adapters as persistent local state on top of strong shared foundation models. In this framing, the base model provides shared competence while adapters carry instance-specific behavior such as preferences, skills, tool habits, and memory-like updates. We organize the problem around three scaling axes: Scale Up, where stronger shared priors make small local updates more useful; Scale Down, where we study how small adapters can be while remaining reliable; and Scale Out, where many persistent adapted instances coexist. MinT provides one infrastructure example for managing adapter identity, revision, provenance, evaluation, and serving residency. Together, the results suggest that PEFT can be a compact substrate for persistent personal models rather than only a budget substitute for full fine-tuning.",

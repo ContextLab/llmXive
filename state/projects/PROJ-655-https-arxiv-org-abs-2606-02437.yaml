@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-655-https-arxiv-org-abs-2606-02437/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters'
-updated_at: '2026-06-11T22:06:02.314046Z'
+updated_at: '2026-06-29T19:48:26.082500Z'
