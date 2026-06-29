@@ -2,12 +2,7 @@
   "arxiv_id": "2605.13511",
   "arxiv_url": "https://arxiv.org/abs/2605.13511",
   "title": "Many-Shot CoT-ICL: Making In-Context Learning Truly Learn",
-  "authors": [
-    "Tsz Ting Chung",
-    "Lemao Liu",
-    "Mo Yu",
-    "Dit-Yan Yeung"
-  ],
+  "authors": [],
   "submitter": "github-actions[bot]",
   "submitted_via": "llmXive dashboard, GitHub issue #141",
   "license": "arXiv Non-exclusive Distribution License",

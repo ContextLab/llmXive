@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-14T04:20:00.022186Z'
-current_stage: paper_ingested
+current_stage: brainstormed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-568-identifying-stimulus-driven-neural-activ
-last_run_id: e801d4a0-e7b8-4455-8a56-8ddab7a46b0f
+last_run_id: b921b106-b29d-4e2e-87ac-b9bf3ed87edb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Identifying stimulus-driven neural activity patterns in multi-patient intracranial
   recordings
-updated_at: '2026-06-29T19:12:57.443582Z'
+updated_at: '2026-06-29T20:17:54.549374Z'

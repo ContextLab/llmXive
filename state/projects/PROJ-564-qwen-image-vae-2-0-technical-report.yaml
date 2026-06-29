@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-14T04:19:50.872340Z'
-current_stage: paper_ingested
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-564-qwen-image-vae-2-0-technical-report
-last_run_id: f77bf092-29bc-4c21-a856-445e17ae6207
+last_run_id: f2de893b-7561-4227-bfde-817f04709e5a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-564-qwen-image-vae-2-0-technical-r
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Qwen-Image-VAE-2.0 Technical Report
-updated_at: '2026-06-29T19:12:57.440048Z'
+updated_at: '2026-06-29T20:17:38.652629Z'
