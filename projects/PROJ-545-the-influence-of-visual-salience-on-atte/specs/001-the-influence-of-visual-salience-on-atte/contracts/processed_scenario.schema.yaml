@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Scenario Schema"
+description: "Schema for scenario data after salience computation."
+type: "object"
+properties:
+  scenario_id:
+    type: "string"
+    description: "Unique identifier for the moral dilemma instance."
+  stimulus_type:
+    type: "string"
+    enum:
+      - "image"
+      - "text"
+    description: "Type of stimulus provided in the dilemma."
+  salience_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Computed visual or text salience score (0.0-1.0)."
+  choice_outcome:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "Binary choice outcome recorded in dataset."
+  attributes:
+    type: "object"
+    description: "Scenario attributes (lives, species, status, age, gender)."
+    properties:
+      lives_saved:
+        type: "integer"
+      lives_lost:
+        type: "integer"
+      species:
+        type: "string"
+      social_status:
+        type: "string"
+      age_group:
+        type: "string"
+      gender:
+        type: "string"
+    required:
+      - lives_saved
+      - lives_lost
+required:
+  - scenario_id
+  - stimulus_type
+  - salience_score
+  - choice_outcome
+  - attributes
+additionalProperties: false
+

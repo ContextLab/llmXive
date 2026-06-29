@@ -1,0 +1,490 @@
+resolved_at: '2026-06-29T12:32:30.368775+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_planta_i_growth_of_i_Leptosphaeria_maculans_i_as_a_measure_of_quantitative_resistance_to_blackleg_in_canola/32824972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Evolution_of_Partially_Coherent_Stokes_Skyrmions_in_Free_Space_-_7936814_pdf/32687139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20847819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20847819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032016
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&response-content-type=text%2Fcsv&user_id=public&X-Xet-Cas-Uid=public&Expires=1782739675&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzM5Njc1fX19XX0_&Signature=MEUCIFcVp3WbaaTt~CAP4yJ9PK6110-8qVeqWGiTCskBbbHpAiEAiR4FobI6mL0TvVhyp-KCA25ZVToBmVV5SdZ8nrzjwhY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_planta_i_growth_of_i_Leptosphaeria_maculans_i_as_a_measure_of_quantitative_resistance_to_blackleg_in_canola/32824972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Evolution_of_Partially_Coherent_Stokes_Skyrmions_in_Free_Space_-_7936814_pdf/32687139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6557219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20847819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20847819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250581/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250581/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250580/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: CPU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/optimum-benchmark/cpu/resolve/main/cpu_inference_diffusers_stable-diffusion_CompVis/stable-diffusion-v1-4/benchmark.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_planta_i_growth_of_i_Leptosphaeria_maculans_i_as_a_measure_of_quantitative_resistance_to_blackleg_in_canola/32824972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Evolution_of_Partially_Coherent_Stokes_Skyrmions_in_Free_Space_-_7936814_pdf/32687139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032265
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032265
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21031997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21031997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Vibration-robust_lateral-scanning_white-light_interferometry_via_spatially_coupled_optical_phase_estimation_-_7946908_pdf/32760792
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Vibration-robust_lateral-scanning_white-light_interferometry_via_spatially_coupled_optical_phase_estimation_-_7946908_pdf/32685681
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20015164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15016031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7502186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/199064
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250582/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250582/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/S138CX
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250564/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250564/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Vibration-robust_lateral-scanning_white-light_interferometry_via_spatially_coupled_optical_phase_estimation_-_7946908_pdf/32760792
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Vibration-robust_lateral-scanning_white-light_interferometry_via_spatially_coupled_optical_phase_estimation_-_7946908_pdf/32685681
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/thesis/_p_Co-Translational_Folding_and_Assembly_of_a_Kinetically_Trapped_Homotrimeric_Protein_Chloramphenicol_Acetyltransferase_p_/32746764
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Literature_review_on_content_and_discourse_analyses_of_technoscientifc_media_coverage/30751136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Geometry-Driven_Neural_Operator_for_Real-Time_Digital_Twins_in_Seawater_Reverse_Osmosis_Systems/32824664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RAM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 130991
+      parsed: true
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 91560
+      parsed: true
+  - url: https://huggingface.co/datasets/ramybaly/conll2012/resolve/main/test.txt
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&Expires=1782739934&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzM5OTM0fX19XX0_&Signature=MEYCIQCjK-v0bvGAAcFxNOMmCoIowLpdSxfHqBmHMfdlkTdEAQIhAPMZe4SYokW30LBOYbAm4~KGpT3LpQlENHhK1o8P75zM&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ramybaly/conll2012/resolve/main/test.txt
+    source: huggingface
+    status: verified
+    format: tsv
+- intent: US-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-007
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-003
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-008
+  status: unresolved
+  candidates: []
+  candidates_tried: []

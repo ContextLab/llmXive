@@ -1,0 +1,134 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for aDDM fitting results and comparison metrics."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  dataset_version:
+    type: "string"
+    description: "Checksum or version of the input dataset."
+  parameters:
+    type: "object"
+    description: "Fitted aDDM parameters."
+    properties:
+      drift_rate:
+        type: "number"
+      threshold:
+        type: "number"
+      non_decision_time:
+        type: "number"
+      salience_weight:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+      attribute_coefficients:
+        type: "object"
+        description: "Coefficients for scenario attribute covariates (lives_saved, lives_lost, species, social_status, age_group, gender)."
+        additionalProperties:
+          type: "number"
+    required:
+      - drift_rate
+      - threshold
+      - non_decision_time
+      - salience_weight
+      - attribute_coefficients
+  metrics:
+    type: "object"
+    description: "Performance metrics."
+    properties:
+      log_likelihood:
+        type: "number"
+      aic:
+        type: "number"
+      bic:
+        type: "number"
+      convergence_status:
+        type: "string"
+        enum:
+          - "converged"
+          - "failed"
+      cv_fold:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+    required:
+      - log_likelihood
+      - aic
+      - bic
+      - convergence_status
+      - cv_fold
+  diagnostics:
+    type: "object"
+    description: "Statistical diagnostics."
+    properties:
+      vif_salience:
+        type: "number"
+        description: "Variance Inflation Factor for salience predictor."
+      vif_flag:
+        type: "boolean"
+        description: "Whether VIF > 5.0 threshold was exceeded."
+      remediation_applied:
+        type: "array"
+        items:
+          type: "string"
+          enum:
+            - "descriptive_bounds"
+            - "lasso_regularization"
+            - "joint_effect_only"
+        description: "Remediation steps taken if VIF exceeded threshold."
+      multiple_comparison_corrected:
+        type: "boolean"
+        description: "Whether Bonferroni correction was applied."
+      cv_convergence_rate:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Proportion of 5-fold CV splits that converged (SC-002 target: ≥ 0.95)."
+    required:
+      - vif_salience
+      - vif_flag
+      - remediation_applied
+      - multiple_comparison_corrected
+      - cv_convergence_rate
+  simulation_calibration:
+    type: "object"
+    description: "Simulation-based calibration results."
+    properties:
+      true_salience_weight:
+        type: "number"
+      fitted_salience_weight:
+        type: "number"
+      recovery_error:
+        type: "number"
+        description: "Absolute difference between true and fitted weights."
+    required:
+      - true_salience_weight
+      - fitted_salience_weight
+      - recovery_error
+  culpability_detection:
+    type: "object"
+    description: "FR-008 culpability label detection result."
+    properties:
+      explicit_labels_found:
+        type: "boolean"
+        description: "Whether explicit 'actual culpability' labels were found."
+      proxy_variables_used:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of proxy control variables used (e.g., lives_saved, species)."
+    required:
+      - explicit_labels_found
+      - proxy_variables_used
+required:
+  - run_id
+  - dataset_version
+  - parameters
+  - metrics
+  - diagnostics
+  - simulation_calibration
+  - culpability_detection
+additionalProperties: false
+
