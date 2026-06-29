@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-609-https-arxiv-org-abs-2605-14236/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Active Learners as Efficient PRP Rerankers
-updated_at: '2026-06-13T11:34:05.398565Z'
+updated_at: '2026-06-29T21:51:07.535806Z'
