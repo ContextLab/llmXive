@@ -41,21 +41,36 @@ def is_unprocessed_external_paper(project: Project, project_dir: Path) -> bool:
 
 
 def migrate_unprocessed_external_papers(
-    *, repo_root: Path | None = None, dry_run: bool = False
+    *, repo_root: Path | None = None, dry_run: bool = False,
+    limit: int | None = None, kind: str | None = None,
 ) -> list[str]:
-    """Move every stranded external paper from ``paper_review`` -> ``paper_ingested``.
+    """Move stranded external papers from ``paper_review`` -> ``paper_ingested``.
 
     Idempotent. Returns the list of migrated project ids (what WOULD migrate when
-    ``dry_run``). Persists each change individually (small commits, no big-bang).
+    ``dry_run``). ``limit`` migrates only the first N candidates (sorted by id for
+    a deterministic, resumable rollout) so the 124 can be drained in controlled
+    batches — process a few, fix any issues, then the next batch. ``kind`` filters
+    to ``"nocode"`` (fast brainstormed follow-ups — drain these first) or
+    ``"code"`` (slower submodule back-fills). Persists each change individually.
     """
     repo = repo_root or _repo_root()
+    from llmxive.paper_reprocess.classify import classify_paper
     from llmxive.paper_reprocess.reprocess import project_dir
 
-    migrated: list[str] = []
-    for project in project_store.list_all(repo_root=repo):
-        pdir = project_dir(project, repo)
-        if not is_unprocessed_external_paper(project, pdir):
+    cands: list = []
+    for p in project_store.list_all(repo_root=repo):
+        pd = project_dir(p, repo)
+        if not is_unprocessed_external_paper(p, pd):
             continue
+        if kind is not None and classify_paper(pd) != kind:
+            continue
+        cands.append(p)
+    candidates = sorted(cands, key=lambda p: p.id)
+    if limit is not None:
+        candidates = candidates[:limit]
+
+    migrated: list[str] = []
+    for project in candidates:
         migrated.append(project.id)
         if dry_run:
             continue

@@ -112,3 +112,15 @@ def test_migrate_moves_matches_and_is_idempotent(tmp_path, monkeypatch) -> None:
     assert project_store.load("PROJ-832-auth", repo_root=tmp_path).current_stage == Stage.PAPER_REVIEW
     # idempotent: nothing left to migrate
     assert migrate_unprocessed_external_papers(repo_root=tmp_path) == []
+
+
+def test_migrate_limit_batches_deterministically(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(tmp_path))
+    for pid in ("PROJ-840-c", "PROJ-841-a", "PROJ-842-b"):
+        _make_paper_project(tmp_path, pid)
+    # limit migrates the first N by SORTED id (resumable batches), not the rest
+    assert migrate_unprocessed_external_papers(repo_root=tmp_path, limit=2) == \
+        ["PROJ-840-c", "PROJ-841-a"]
+    assert project_store.load("PROJ-842-b", repo_root=tmp_path).current_stage == Stage.PAPER_REVIEW
+    # the next batch picks up the remainder
+    assert migrate_unprocessed_external_papers(repo_root=tmp_path, limit=10) == ["PROJ-842-b"]
