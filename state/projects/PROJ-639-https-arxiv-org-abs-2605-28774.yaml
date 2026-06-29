@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-639-https-arxiv-org-abs-2605-28774
-last_run_id: null
+last_run_id: 38711213-c0ac-48a1-931b-397bad3ee2b6
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-639-https-arxiv-org-abs-2605-28774/round-2
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Agent Explorative Policy Optimization for Multimodal Agentic Reasoning
-updated_at: '2026-06-12T17:14:57.682733Z'
+updated_at: '2026-06-29T11:15:59.687319Z'

@@ -1,0 +1,233 @@
+project_id: PROJ-639-https-arxiv-org-abs-2605-28774
+arxiv_id: '2605.28774'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-29T11:15:59.620876+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: c9e4772c4dd3
+    text: 'Resolve numerical discrepancy in 4B Pass@4 delta: Table shows 74.1 vs 71.7
+      (diff 2.4), but reported delta is 2.3. Ensure consistency between average columns
+      and delta rows.'
+    severity: writing
+  - id: 2f6ef42459a8
+    text: Verify citation support for claims (e.g., GRPO definition, SFT limitations).
+      The provided bibliography is truncated, preventing full verification of whether
+      cited sources support the attributed claims.
+    severity: science
+  - id: a43e3b2dd312
+    text: Missing implementation code (training/eval scripts) required for reproducibility.
+    severity: science
+  - id: 451112fe8ab8
+    text: Missing dependency specifications (e.g., requirements.txt, environment.yml).
+    severity: science
+  - id: cb8dcb83b742
+    text: Missing configuration files for RL framework (verl/rllm) referenced in appendix.
+    severity: science
+  - id: ab05a2c34adb
+    text: Add explicit provenance for all external datasets (MathVision, DynaMath,
+      V*, VisualProbe, HR-Bench, MMSearch, etc.) including URLs, version numbers,
+      and license information. This will clarify reuse permissions and prevent future
+      legal issues.
+    severity: writing
+  - id: 4065cd8c9b96
+    text: Provide a data schema description for the SFT and RL trajectory files (e.g.,
+      JSON format, required fields, tokenization conventions) and document how missing
+      or malformed entries are detected and handled during training.
+    severity: writing
+  - id: 33d7d2d08091
+    text: Include a version control reference (e.g., Git commit hash or tag) for the
+      code used to generate the figures, tables, and training pipelines. Currently
+      the repository is not mentioned, which hampers reproducibility.
+    severity: writing
+  - id: 73963fc2d267
+    text: "Document the licensing and usage terms of the external tools (Python interpreter,\
+      \ Tavily web search, image zoom\u2011in) and specify how API endpoints are accessed\
+      \ (including any API keys). This mitigates link\u2011rot risk and clarifies\
+      \ compliance."
+    severity: writing
+  - id: 8fe5cebff0fd
+    text: Describe the handling of potential missing data in the benchmark evaluations
+      (e.g., images that fail to load, tool call timeouts) and the fallback strategies
+      employed. This is essential for understanding robustness.
+    severity: writing
+  - id: c5c88fc58aa1
+    text: "Archive the exact versions of the benchmark datasets (e.g., via Zenodo\
+      \ or a similar DOI service) and provide permanent links. This prevents future\
+      \ link rot and ensures long\u2011term accessibility."
+    severity: writing
+  - id: 7a626768ee36
+    text: Add `alt` text to all `\includegraphics` commands to ensure accessibility
+      compliance for screen readers.
+    severity: writing
+  - id: cff714a180b5
+    text: Describe color mappings in figure captions (e.g., 'AXPO in blue, GRPO in
+      red') to ensure legibility for colorblind readers and print.
+    severity: writing
+  - id: dc5da3629bbf
+    text: Verify font sizes in `fig:analysis` subfigures (0.32\linewidth) are legible
+      at standard print scale; consider increasing width or reducing caption text.
+    severity: writing
+  - id: 77e76cbf143d
+    text: Define every acronym (e.g., AXPO, GRPO, SFT, RL, PPO) at its first occurrence;
+      otherwise readers unfamiliar with the field must guess their meaning.
+    severity: writing
+  - id: 36e29f53d91d
+    text: "Replace or explain highly technical terms such as \u201CThinking-Acting\
+      \ Gap\u201D, \u201Ctool\u2011using subgroup\u201D, \u201Call\u2011wrong\u201D\
+      , and \u201Ctool\u2011call tokens\u201D with clearer, plain\u2011English descriptions\
+      \ or add brief parenthetical definitions."
+    severity: writing
+  - id: 726e36f40c1d
+    text: "Reduce the density of bold/italic markup in sentences (e.g., multiple bolded\
+      \ phrases in the same paragraph) to improve readability for non\u2011specialist\
+      \ audiences."
+    severity: writing
+  - id: 2180d3590315
+    text: Simplify overly long, compound sentences (e.g., the abstract and introduction
+      contain multiple clauses separated by commas) to make the narrative easier to
+      follow.
+    severity: writing
+  - id: 52ac4c4471e5
+    text: "Provide a concise, non\u2011technical summary of the core idea (resampling\
+      \ at the tool\u2011call boundary) early in the paper, avoiding jargon\u2011\
+      heavy phrasing."
+    severity: writing
+  - id: 7e154ecbe9aa
+    text: "When referring to specific metrics (Pass@1, Pass@4, tool\u2011utilization\
+      \ rate), include a brief reminder of what they measure for readers not familiar\
+      \ with the evaluation protocol."
+    severity: writing
+  - id: a49748ca609e
+    text: "Avoid using domain\u2011specific shorthand like \u201CAXPO\u202Fw/o prefix\
+      \ fix\u201D in table captions without an accompanying plain\u2011language explanation."
+    severity: writing
+  - id: 7378adb66db6
+    text: "Standardize the naming of components (e.g., sometimes \u201Ctool\u2011\
+      call resampling\u201D is written as \u201Ctool\u2011call resampling\u201D, other\
+      \ times as \u201C\toolresample\u201D) to prevent confusion."
+    severity: writing
+  - id: 9c417d32bfaf
+    text: Consider adding a glossary of key terms and abbreviations to aid readers
+      from adjacent fields.
+    severity: writing
+  - id: 88baebf8814f
+    text: Clarify the theoretical link between uncertainty-based prefix selection
+      and the success probability condition in Proposition 1 (Sec 3.1).
+    severity: science
+  - id: deb5faf4ffe2
+    text: Explicitly address the assumption that the GPT-5.4 proxy for image search
+      preserves the tool-output distribution in Appendix A.4.
+    severity: science
+  - id: 9cb248c39142
+    text: Temper the claim that 8B AXPO 'surpasses' the 32B Base baseline (75.8% vs
+      75.1%) to 'matches or slightly exceeds' or provide statistical significance
+      testing, as the margin is within the reported variance of the 8B model (std
+      ~1.2%).
+    severity: writing
+  - id: 0e0132b24f43
+    text: Clarify in Table `tab_image_search.tex` and the main text that the 'unseen
+      tool' experiment used a GPT-5.4 text proxy rather than a real API tool, to avoid
+      overstating the generalization to actual external tool interfaces.
+    severity: writing
+  - id: fb0d560dda06
+    text: Expand the Broader Impacts section to explicitly discuss dual-use risks
+      of enhanced agentic tool capabilities, beyond sandboxing.
+    severity: writing
+  - id: 0fc924220ade
+    text: Address privacy implications of the web search tool usage (e.g., query logging,
+      data retention by third-party APIs).
+    severity: writing
+  - id: 3ea62cbedb67
+    text: Discuss mitigation strategies for potential misuse (e.g., adversarial prompts,
+      automated harmful actions) rather than stating safety is out of scope.
+    severity: writing
+  - id: 82bcfa74dfe1
+    text: Report statistical significance (p-values or confidence intervals) for the
+      main performance gains, particularly the 8B vs 32B comparison, as the reported
+      standard deviations (tab_main_p1_std.tex) suggest the margins are within noise.
+    severity: science
+  - id: bc84f4131e61
+    text: Clarify the total sample size (number of questions/steps) used to generate
+      the diagnostic curves in Figure 3 (fig3.tex) to ensure the trend analysis is
+      robust.
+    severity: science
+  - id: ef3beb77b7fe
+    text: Provide a more detailed compute budget comparison (FLOPs or wall-clock time)
+      between AXPO's 25% resampling budget and the 2x rollout baseline in Table 2
+      to validate the efficiency claim.
+    severity: science
+  - id: 21d045e15d9f
+    text: Report variance across multiple training seeds to validate statistical significance
+      of AXPO vs GRPO improvements, as evaluation std alone is insufficient.
+    severity: science
+  - id: 85b5467c0d4d
+    text: Address multiple-comparison issues across 9 benchmarks x 4 sizes x 2 metrics
+      (72 tests) via correction or explicit discussion of false positive risk.
+    severity: science
+  - id: 9c5879259d6c
+    text: Report 95% confidence intervals for main Pass@1/4 results derived from training
+      seeds, not just evaluation rollouts.
+    severity: writing
+  - id: 09dfb905ecd8
+    text: Move the abstract inclusion (input{text/0_abstract}) inside the document
+      environment, i.e., after begin{document} and before maketitle. This violates
+      LaTeX structure and can cause compilation warnings.
+    severity: writing
+  - id: adfedecbd334
+    text: 'Remove duplicate package imports: amsmath, amssymb, amsthm and booktabs
+      are each loaded twice. Consolidate them to a single usepackage line to avoid
+      redundancy.'
+    severity: writing
+  - id: 10dd7442f438
+    text: Consolidate the two natbib loading commands (PassOptionsToPackage{numbers,
+      compress}{natbib} and usepackage[numbers]{natbib}) into a single, correctly
+      ordered usepackage statement.
+    severity: writing
+  - id: bc59ef89f254
+    text: Correct malformed vspace commands in figures (e.g., vspace{-0.in} should
+      be vspace{-0in} or a valid length). Such syntax errors can lead to compilation
+      errors or unexpected spacing.
+    severity: writing
+  - id: 1bc16c325e7a
+    text: Ensure that all caption commands appear after the centering and before the
+      label for consistency with common LaTeX practice, and verify that the label
+      references match the figure/table numbers used in the text.
+    severity: writing
+  - id: 8a4044fa7752
+    text: 'Standardize the placement of label commands: they should immediately follow
+      the caption within each figure or table environment to guarantee correct cross-referencing.'
+    severity: writing
+  - id: ec2a09bba9b2
+    text: Review the use of begin{table*}[t] versus begin{table}[t] for consistency;
+      table* spans two columns in a two-column layout, but the document class appears
+      to be single-column. Use table unless a full-width table is intended.
+    severity: writing
+  - id: b67d8a920a78
+    text: Check that all custom commands (e.g., toolresample, gap) are defined before
+      first use; some appear in the text before their definitions in the preamble,
+      which can cause undefined-command warnings.
+    severity: writing
+  - id: 85b4a7aa5265
+    text: Verify that all autoref and custom reference macros (figref, secref, etc.)
+      are used consistently and that the referenced labels exist. Inconsistent naming
+      (e.g., Figref vs. figref) may lead to broken links.
+    severity: writing
+  - id: 9f998e31a0b8
+    text: Consider adding a clearpage before the bibliography to ensure that floats
+      (figures/tables) do not appear after the references, improving document flow.
+    severity: writing
+  - id: cbcdf417d1ec
+    text: Correct the grammatical error 'underperforms than' in Section 3.4 to 'underperforms'
+      or 'performs worse than'.
+    severity: writing
+  - id: 3cf8b11fa63c
+    text: Refine the Abstract sentence '8B with SFT+AXPO surpasses...' for smoother
+      flow and clarity.
+    severity: writing
+  - id: 1fbb14787e86
+    text: Break down complex sentences in Section 2 (Method) to improve readability
+      of the advantage calculation logic.
+    severity: writing

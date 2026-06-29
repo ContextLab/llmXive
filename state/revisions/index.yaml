@@ -252,3 +252,6 @@ ready:
 - project_id: PROJ-668-https-arxiv-org-abs-2606-05622
   revision_spec_path: specs/auto-revisions/PROJ-668-https-arxiv-org-abs-2606-05622/round-1
   queued_at: '2026-06-29T08:45:17.669071+00:00'
+- project_id: PROJ-639-https-arxiv-org-abs-2605-28774
+  revision_spec_path: specs/auto-revisions/PROJ-639-https-arxiv-org-abs-2605-28774/round-2
+  queued_at: '2026-06-29T11:15:59.652691+00:00'
