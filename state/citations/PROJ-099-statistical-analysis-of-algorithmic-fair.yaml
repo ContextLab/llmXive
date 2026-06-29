@@ -53,3 +53,47 @@
   verification_status: mismatch
   verified_against_url: https://www2.stat.duke.edu/~cr173/Sta112_Fa14/validation.html
   verified_at: '2026-06-29T03:49:51.478608Z'
+- artifact_hash: f51ddfefeed9067806d3b491c019f1dbd97ca903cbcc32fb4b6bd7d70ce12fd9
+  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data`
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data%60
+  verified_at: '2026-06-29T15:57:34.668898Z'
+- artifact_hash: f51ddfefeed9067806d3b491c019f1dbd97ca903cbcc32fb4b6bd7d70ce12fd9
+  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/propublica/compas-analysis/master/compas-scores-two-years.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/propublica/compas-analysis/master/compas-scores-two-years.csv%60
+  verified_at: '2026-06-29T15:57:34.668898Z'
+- artifact_hash: f51ddfefeed9067806d3b491c019f1dbd97ca903cbcc32fb4b6bd7d70ce12fd9
+  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data`
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data%60
+  verified_at: '2026-06-29T15:57:34.668898Z'
+- artifact_hash: f51ddfefeed9067806d3b491c019f1dbd97ca903cbcc32fb4b6bd7d70ce12fd9
+  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/UCI-ML/LSAT/master/lsat.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/UCI-ML/LSAT/master/lsat.csv%60
+  verified_at: '2026-06-29T15:57:34.668898Z'

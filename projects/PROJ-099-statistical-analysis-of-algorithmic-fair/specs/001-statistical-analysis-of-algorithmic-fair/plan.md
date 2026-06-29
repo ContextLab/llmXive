@@ -19,7 +19,7 @@ Analyze statistical patterns in algorithmic fairness metric discrepancies across
 **Project Type**: computational research project
 **Performance Goals**: Complete all phases within 6-hour GitHub Actions job window
 **Constraints**: CPU-only execution, ≤7 GB RAM, ≤14 GB disk, no GPU/CUDA
-**Scale/Scope**: 5-8 datasets, 3-5 models per dataset, 6+ fairness metrics, Multiple bootstrap iterations (reducible as necessary)
+**Scale/Scope**: multiple datasets, multiple models per dataset, multiple fairness metrics, Multiple bootstrap iterations (reducible as necessary)
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -173,7 +173,7 @@ projects/PROJ-099-statistical-analysis-of-algorithmic-fair/
 
 **SC Coverage**: SC-005 (measured against power analysis documentation in research.md)
 
-**Note**: With n=15 observations (5 datasets × 3 models) and 3 predictors, minimum detectable R²≈0.45 at α=0.05, power=0.80. This limitation is documented in all findings.
+**Note**: With n=15 observations (5 datasets × 3 models) and 3 predictors, minimum detectable R² of practical significance at α=0.05, power=0.80. This limitation is documented in all findings.
 
 ### Phase 5: Bootstrap Analysis (FR-007)
 

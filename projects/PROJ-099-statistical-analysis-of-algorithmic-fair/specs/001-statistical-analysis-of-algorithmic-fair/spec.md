@@ -66,9 +66,9 @@ As a researcher, I need to compute pairwise correlations between all metric pair
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download 5-8 public datasets (UCI Adult, Bank Marketing, COMPAS, etc.) via HTTP/HTTPS with verified file integrity (SHA-256 checksums) (See US-1)
+- **FR-001**: System MUST download multiple public datasets (UCI Adult, Bank Marketing, COMPAS, etc.) via HTTP/HTTPS with verified file integrity (SHA-256 checksums) (See US-1)
 - **FR-002**: System MUST preprocess datasets to extract binary protected attributes (e.g., gender=0/1, race=0/1) and binary outcomes, ensuring no more than 100k rows per dataset. If extraction fails, exclude dataset and log to logs/exclusion.log with dataset_id and missing_variable_name (See US-1)
-- **FR-003**: System MUST train 3-5 baseline models per dataset using scikit-learn (logistic regression, random forest, gradient boosting) with CPU-only execution (See US-2)
+- **FR-003**: System MUST train multiple baseline models per dataset using scikit-learn (logistic regression, random forest, gradient boosting) with CPU-only execution (See US-2)
 - **FR-004**: System MUST compute ≥6 fairness metrics per model: demographic parity difference, equalized odds difference, predictive parity, calibration within groups, disparate impact ratio, false positive rate disparity (See US-2)
 - **FR-005**: System MUST compute pairwise Pearson and Spearman correlations between all metric pairs across models and datasets with p-values and Benjamini-Hochberg false discovery rate correction (α=0.05) (See US-3)
 - **FR-006**: System MUST fit fixed-effects regression models to predict metric discrepancies from dataset characteristics (base rate difference, feature dimensionality, class imbalance ratio) with variance inflation factor (VIF) diagnostics; exclude predictors with VIF > 5. Mixed-effects models are documented as fallback but not used due to n=5 datasets < 10 minimum for reliable variance estimation (See US-3)
