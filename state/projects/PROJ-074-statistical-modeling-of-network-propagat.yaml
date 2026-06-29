@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T05:24:52.081872Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-074-statistical-modeling-of-network-propagat
-last_run_id: 18e73d8c-25e8-4a41-9991-b55c8790b40e
+last_run_id: 485d19b4-5e9b-49b2-8e70-b721bc4d27af
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat
 title: Statistical Modeling of Network Propagation in Online Misinformation
-updated_at: '2026-06-29T10:39:57.409307Z'
+updated_at: '2026-06-29T11:55:28.054624Z'

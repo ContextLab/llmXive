@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (generated)
+data/raw/*.json
+data/processed/*.csv
+data/processed/*.json
+results/*.csv
+results/*.nc
+results/*.json
+results/*.txt
+results/*.png
+results/*.pdf
+figures/*.png
+figures/*.pdf
+
+# Logs
+*.log
+pipeline.log
+skipped_cascades.log
+quickstart_validation.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Jupyter
+.ipynb_checkpoints/

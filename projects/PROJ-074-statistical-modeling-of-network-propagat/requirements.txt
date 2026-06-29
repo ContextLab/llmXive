@@ -1,0 +1,13 @@
+numpy==1.26.4
+pandas==2.2.1
+numpyro==0.13.2
+cmdstanpy==1.2.0
+networkx==3.2
+scikit-learn==1.4.0
+pyyaml==6.0.1
+jsonschema==4.20.0
+pytest==8.0.0
+ruff==0.3.0
+black==24.2.0
+requests==2.31.0
+beautifulsoup4==4.12.2

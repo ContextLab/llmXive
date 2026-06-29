@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FeatureSet Schema",
+  "description": "Schema for validated feature dataset used in Bayesian hierarchical modeling of misinformation cascade size",
+  "type": "object",
+  "properties": {
+    "columns": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of column names in the features dataset"
+    },
+    "required_columns": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Required column names that must be present",
+      "contains": {"const": "cascade_id"},
+      "contains": {"const": "user_id"},
+      "contains": {"const": "message_id"},
+      "contains": {"const": "platform_id"},
+      "contains": {"const": "susceptibility_score"},
+      "contains": {"const": "mean_degree"},
+      "contains": {"const": "std_degree"},
+      "contains": {"const": "clustering_coefficient"},
+      "contains": {"const": "mean_betweenness"},
+      "contains": {"const": "cascade_size"}
+    },
+    "column_types": {
+      "type": "object",
+      "properties": {
+        "cascade_id": {"type": "string"},
+        "user_id": {"type": "string"},
+        "message_id": {"type": "string"},
+        "platform_id": {"type": "string"},
+        "susceptibility_score": {"type": "number"},
+        "mean_degree": {"type": "number"},
+        "std_degree": {"type": "number"},
+        "clustering_coefficient": {"type": "number"},
+        "mean_betweenness": {"type": "number"},
+        "cascade_size": {"type": "integer"}
+      },
+      "additionalProperties": {"type": "number"}
+    }
+  },
+  "required": ["columns", "required_columns", "column_types"]
+}

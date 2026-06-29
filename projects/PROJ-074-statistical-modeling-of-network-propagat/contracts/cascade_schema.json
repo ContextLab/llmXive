@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Misinformation Cascade Schema",
+  "description": "JSON schema for misinformation cascade edge-list data",
+  "type": "object",
+  "required": ["cascade_id", "nodes", "edges"],
+  "properties": {
+    "cascade_id": {
+      "type": "string",
+      "description": "Unique identifier for the cascade",
+      "minLength": 1
+    },
+    "nodes": {
+      "type": "array",
+      "description": "List of nodes in the cascade",
+      "items": {
+        "type": "object",
+        "required": ["node_id", "timestamp", "cascade_id"],
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "description": "Unique identifier for the node"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp in UTC"
+          },
+          "cascade_id": {
+            "type": "string",
+            "description": "Reference to parent cascade"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "User identifier (optional)"
+          },
+          "message_id": {
+            "type": "string",
+            "description": "Message identifier (optional)"
+          },
+          "platform_id": {
+            "type": "string",
+            "description": "Platform identifier (optional)"
+          },
+          "historical_degree": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pre-cascade historical degree"
+          },
+          "historical_shares": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pre-cascade historical share count"
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "List of edges in the cascade",
+      "items": {
+        "type": "object",
+        "required": ["source", "target"],
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Source node ID"
+          },
+          "target": {
+            "type": "string",
+            "description": "Target node ID"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Edge creation timestamp in UTC"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional metadata about the cascade",
+      "properties": {
+        "collection_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

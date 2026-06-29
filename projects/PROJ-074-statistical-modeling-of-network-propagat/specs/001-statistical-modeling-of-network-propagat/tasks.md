@@ -1,6 +1,6 @@
 # Tasks: Bayesian Hierarchical Modeling of Misinformation Cascade Size
 
-**Input**: Design documents from `/specs/001-bayesian-misinformation-cascade/`  
+**Input**: Design documents from `/specs/001-bayesian-misinformation-cascade/`
 **Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
 **Tests**: The examples below include test tasks. Tests are **mandatory**.
@@ -24,25 +24,25 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure:
-  - `code/`, `data/`, `results/`, `tests/`, `contracts/`, `docs/`
-  - Add placeholder `README.md` and `.gitignore`
-- [ ] T004 Create `requirements.txt` with pinned versions:
-  ```
-  numpy==1.26.4
-  pandas==2.2.1
-  numpyro==0.13.2
-  cmdstanpy==1.2.0
-  networkx==3.2
-  scikit-learn==1.4.0
-  pyyaml==6.0.1
-  jsonschema==4.20.0
-  pytest==8.0.0
-  ruff==0.3.0
-  black==24.2.0
-  ```
-- [ ] T002 Initialize Python project (create `pyproject.toml`/virtualenv) and install dependencies from `requirements.txt`.
-- [ ] T003 Configure linting (ruff) and formatting (black) tools.
+- [X] T001 Create project directory structure:
+ - `code/`, `data/`, `results/`, `tests/`, `contracts/`, `docs/`
+ - Add placeholder `README.md` and `.gitignore`
+- [X] T004 Create `requirements.txt` with pinned versions:
+ ```
+ numpy==1.26.4
+ pandas==2.2.1
+ numpyro==0.13.2
+ cmdstanpy==1.2.0
+ networkx==3.2
+ scikit-learn==1.4.0
+ pyyaml==6.0.1
+ jsonschema==4.20.0
+ pytest==8.0.0
+ ruff==0.3.0
+ black==24.2.0
+ ```
+- [X] T002 Initialize Python project (create `pyproject.toml`/virtualenv) and install dependencies from `requirements.txt`.
+- [X] T003 Configure linting (ruff) and formatting (black) tools.
 
 ---
 
@@ -52,30 +52,30 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create `run_pipeline.sh` skeleton:
-  - Set `OMP_NUM_THREADS=2`
-  - Add memory‑monitoring hook (abort if RAM > 7 GB)
-  - Include placeholder sections for each pipeline stage and logging to `pipeline.log`.
-- [ ] T006 Create `code/pipeline/utils.py` with:
-  - Logging infrastructure (`setup_logger()`)
-  - Random‑seed initialization function (`set_global_seed(seed)`)
-  - Helper for SHA‑256 checksum calculation (`compute_checksum(path)`).
-- [ ] T007 Create `data-model.md` specifying schemas for `Cascade`, `FeatureSet`, `ModelOutput`.
-- [ ] T008 Create `contracts/` JSON schemas for:
-  - `features.csv`
-  - `model_trace.nc`
-  - `posterior_summary.csv`
-  - `cv_metrics.json`
-  - `collinearity_report.txt`
-- [ ] T009 Create `quickstart.md` with pipeline execution instructions and a reference to `model_spec.yaml`.
-- [ ] T010 Add node‑limit validation task: cascades with > 2,000 nodes are logged to `skipped_cascades.log` and skipped.
-- [ ] T060 [P] Add explicit random‑seed pinning in all code modules (call `set_global_seed(12345)` at script start).
-- [ ] T061 [P] Compute SHA‑256 checksums for every file in `data/raw/`, write to `data/checksums.txt`.
-- [ ] T062 [P] Implement proxy susceptibility score with formula `(historical_degree >= 2 AND historical_shares >= 1) ? 1.0 : 0.0` per FR‑003 Clarification; document formula in `susceptibility_method.md`.
-- [ ] T064 [P] Run citation verification using `python code/pipeline/verify_citations.py` which checks each markdown file for reachable URLs and title-token-overlap ≥ 0.7. Exit non-zero on any failure.
-- [ ] T065 Align `FeatureSet` definition in `data-model.md` with the JSON schema in `contracts/`; add validation step in the pipeline.
-- [ ] T066 [P] Add a reference to `model_spec.yaml` in `quickstart.md` and `README.md` (Constitution Principle VI).
-- [ ] T084 Create `data/raw/` directory with sample JSON cascade file for schema validation testing.
+- [X] T005 Create `run_pipeline.sh` skeleton:
+ - Set `OMP_NUM_THREADS=2`
+ - Add memory‑monitoring hook (abort if RAM > 7 GB)
+ - Include placeholder sections for each pipeline stage and logging to `pipeline.log`.
+- [X] T006 Create `code/pipeline/utils.py` with:
+ - Logging infrastructure (`setup_logger()`)
+ - Random‑seed initialization function (`set_global_seed(seed)`)
+ - Helper for SHA‑256 checksum calculation (`compute_checksum(path)`).
+- [X] T007 Create `data-model.md` specifying schemas for `Cascade`, `FeatureSet`, `ModelOutput`.
+- [X] T008 Create `contracts/` JSON schemas for:
+ - `features.csv`
+ - `model_trace.nc`
+ - `posterior_summary.csv`
+ - `cv_metrics.json`
+ - `collinearity_report.txt`
+- [X] T009 Create `quickstart.md` with pipeline execution instructions and a reference to `model_spec.yaml`.
+- [X] T010 Add node‑limit validation task: cascades with > 2,000 nodes are logged to `skipped_cascades.log` and skipped.
+- [X] T060 [P] Add explicit random‑seed pinning in all code modules (call `set_global_seed(12345)` at script start).
+- [X] T061 [P] Compute SHA‑256 checksums for every file in `data/raw/`, write to `data/checksums.txt`.
+- [X] T062 [P] Implement proxy susceptibility score with formula `(historical_degree >= 2 AND historical_shares >= 1) ? 1.0: 0.0` per FR‑003 Clarification; document formula in `susceptibility_method.md`.
+- [X] T064 [P] Run citation verification using `python code/pipeline/verify_citations.py` which checks each markdown file for reachable URLs and title-token-overlap ≥ 0.7. Exit non-zero on any failure.
+- [X] T065 Align `FeatureSet` definition in `data-model.md` with the JSON schema in `contracts/`; add validation step in the pipeline.
+- [X] T066 [P] Add a reference to `model_spec.yaml` in `quickstart.md` and `README.md` (Constitution Principle VI).
+- [X] T084 Create `data/raw/` directory with sample JSON cascade file for schema validation testing.
 
 **Checkpoint**: Foundation ready – user story implementation can now begin in parallel.
 
@@ -89,38 +89,38 @@
 
 ### Contract Tests (mandatory)
 
-- [ ] T011 [P] [US1] Contract test for JSON cascade schema validation in `tests/contract/test_cascade_schema.py`.
-- [ ] T012 [P] [US1] Contract test for `features.csv` schema in `tests/contract/test_features_schema.py`.
-- [ ] T013 [P] [US1] Contract test for `posterior_summary.csv` schema in `tests/contract/test_posterior_schema.py`.
-- [ ] T070 [P] [US1] Contract test verifying timestamps are normalized to UTC.
-- [ ] T071 [P] [US1] Contract test confirming that cascades exceeding the node limit are logged in `skipped_cascades.log`.
-- [ ] T072 [P] [US1] Contract test ensuring `posterior_summary.csv` contains required columns:
-  `predictor, mean, sd, lower_95, upper_95, prob_nonzero, direction_consistent`.
+- [X] T011 [P] [US1] Contract test for JSON cascade schema validation in `tests/contract/test_cascade_schema.py`.
+- [X] T012 [P] [US1] Contract test for `features.csv` schema in `tests/contract/test_features_schema.py`.
+- [X] T013 [P] [US1] Contract test for `posterior_summary.csv` schema in `tests/contract/test_posterior_schema.py`.
+- [X] T070 [P] [US1] Contract test verifying timestamps are normalized to UTC.
+- [X] T071 [P] [US1] Contract test confirming that cascades exceeding the node limit are logged in `skipped_cascades.log`.
+- [X] T072 [P] [US1] Contract test ensuring `posterior_summary.csv` contains required columns:
+ `predictor, mean, sd, lower_95, upper_95, prob_nonzero, direction_consistent`.
 
 ### Implementation
 
-- [ ] T019 [P] [US1] Create `model_spec.yaml` specifying priors, hyper‑parameters, and platform‑random‑effect logic.
-- [ ] T018 [P] [US1] Create `hierarchical_model.py` defining a Bayesian hierarchical model with:
-  - Negative‑Binomial likelihood for cascade size
-  - Fixed effects for all network and user predictors
-  - Random intercepts for `user_id`, `message_id`, and optional `platform_id` (if ≥ 2 platforms).
-- [ ] T080 [P] [US1] Extend `load_cascade()` in `code/pipeline/utils.py` to accept **JSON edge‑list** files only, validate required columns (`node_id`, `timestamp`, `cascade_id`), normalize timestamps to UTC, and log validation errors.
+- [X] T019 [P] [US1] Create `model_spec.yaml` specifying priors, hyper‑parameters, and platform‑random‑effect logic.
+- [X] T018 [P] [US1] Create `hierarchical_model.py` defining a Bayesian hierarchical model with:
+ - Negative‑Binomial likelihood for cascade size
+ - Fixed effects for all network and user predictors
+ - Random intercepts for `user_id`, `message_id`, and optional `platform_id` (if ≥ 2 platforms).
+- [X] T080 [P] [US1] Extend `load_cascade()` in `code/pipeline/utils.py` to accept **JSON edge‑list** files only, validate required columns (`node_id`, `timestamp`, `cascade_id`), normalize timestamps to UTC, and log validation errors.
 - [ ] T014 [P] [US1] Within `load_cascade`, enforce the [deferred]‑node limit; skip oversized cascades and log IDs to `skipped_cascades.log`.
 - [ ] T015 [P] [US1] Implement `network_features.py` to compute:
-  - Degree distribution moments
-  - Clustering coefficient
-  - Betweenness centrality (mean)
-  - All computed from **pre-cascade historical network context** (NOT cascade graph to avoid circularity).
-  Output intermediate CSV `intermediate_network_features.csv`.
-- [ ] T016 [P] [US1] Implement `user_susceptibility.py` to compute the susceptibility score using historical sharing frequency with formula `(historical_degree >= 2 AND historical_shares >= 1) ? 1.0 : 0.0`; fallback to proxy as documented in `susceptibility_method.md`.
-- [ ] T017 [P] [US1] Create `generate_synthetic.py` to synthesize a small benchmark dataset for testing. Dataset MUST include: cascade_id, node_id, timestamp, cascade_label, historical_degree, historical_shares, user_id, message_id, platform_id. Define 'small' as ≤50 cascades with ≤2,000 nodes each. Use formula `(historical_degree >= 2 AND historical_shares >= 1) ? 1.0 : 0.0` for susceptibility.
+ - Degree distribution moments
+ - Clustering coefficient
+ - Betweenness centrality (mean)
+ - All computed from **pre-cascade historical network context** (NOT cascade graph to avoid circularity).
+ Output intermediate CSV `intermediate_network_features.csv`.
+- [ ] T016 [P] [US1] Implement `user_susceptibility.py` to compute the susceptibility score using historical sharing frequency with formula `(historical_degree >= 2 AND historical_shares >= 1) ? 1.0: 0.0`; fallback to proxy as documented in `susceptibility_method.md`.
+- [ ] T017 [P] [US1] Create `generate_synthetic.py` to synthesize a small benchmark dataset for testing. Dataset MUST include: cascade_id, node_id, timestamp, cascade_label, historical_degree, historical_shares, user_id, message_id, platform_id. Define 'small' as ≤50 cascades with ≤2,000 nodes each. Use formula `(historical_degree >= 2 AND historical_shares >= 1) ? 1.0: 0.0` for susceptibility.
 - [ ] T082 [P] [US1] Add docstrings to all feature‑engineering scripts (`network_features.py`, `user_susceptibility.py`) that record input sources, transformation steps, and output files.
 - [ ] T083 [P] [US1] Generate `manifest.json` containing software versions, random seeds, and data hashes (including checksums from T061).
 - [ ] T067 [P] [US1] Ensure each feature‑engineering script logs its input file paths, transformation parameters, and output file paths to `pipeline.log` (Constitution Principle VII).
 - [ ] T020 [P] [US1] Implement HMC/NUTS sampling in `hierarchical_model.py`:
-  - Monitor divergent transitions (> 5 %)
-  - Auto‑reduce step size and retry up to 3 times
-  - Abort with diagnostic report if convergence still fails.
+ - Monitor divergent transitions (> 5 %)
+ - Auto‑reduce step size and retry up to 3 times
+ - Abort with diagnostic report if convergence still fails.
 - [ ] T021a [P] [US1] Implement data loading stage in `run_pipeline.sh`: call `load_cascade()` for all JSON files in `data/raw/`, validate schema, normalize timestamps, and write validated cascades to `data/processed/validated_cascades.json`.
 - [ ] T021b [P] [US1] Implement feature extraction stage in `run_pipeline.sh`: call `network_features.py` and `user_susceptibility.py`, aggregate outputs into `results/features.csv`, and log to `pipeline.log`.
 - [ ] T021c [P] [US1] Implement model fitting stage in `run_pipeline.sh`: call `hierarchical_model.py` with `features.csv` as input, run HMC/NUTS sampling, and write posterior trace to `results/model_trace.nc`.
@@ -128,13 +128,13 @@
 - [ ] T022 [P] [US1] Ensure `features.csv` contains **all** predictors with no missing values.
 - [ ] T023 [P] [US1] Ensure `model_trace.nc` stores posterior samples in NetCDF format.
 - [ ] T024 [P] [US1] Ensure `posterior_summary.csv` includes:
-  - `predictor`
-  - `mean`
-  - `sd`
-  - `lower_95`
-  - `upper_95`
-  - `prob_nonzero` (posterior probability of non‑zero effect)
-  - `direction_consistent` (TRUE if effect sign matches across folds, per SC‑001).
+ - `predictor`
+ - `mean`
+ - `sd`
+ - `lower_95`
+ - `upper_95`
+ - `prob_nonzero` (posterior probability of non‑zero effect)
+ - `direction_consistent` (TRUE if effect sign matches across folds, per SC‑001).
 - [ ] T026 [P] [US1] Log all major steps to `pipeline.log` (already provided by utils).
 
 **Checkpoint**: User Story 1 should be fully functional and testable independently.
@@ -257,10 +257,10 @@ Task: "Contract test for posterior_summary column completeness in tests/contract
 
 - Team finishes Setup + Foundational together.
 - Once ready:
-  - Dev A: User Story 1
-  - Dev B: User Story 2
-  - Dev C: User Story 3
-  - Dev D: Polish & cross‑cutting tasks
+ - Dev A: User Story 1
+ - Dev B: User Story 2
+ - Dev C: User Story 3
+ - Dev D: Polish & cross‑cutting tasks
 
 ---
 

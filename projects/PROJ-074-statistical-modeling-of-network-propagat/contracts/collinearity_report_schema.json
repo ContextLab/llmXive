@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Collinearity Report Schema",
+  "description": "Schema for collinearity_report.txt format per T074",
+  "type": "object",
+  "properties": {
+    "header": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "threshold": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "required": ["title", "generated_at", "threshold"]
+    },
+    "high_collinearity_pairs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "predictor_1": { "type": "string" },
+          "predictor_2": { "type": "string" },
+          "pearson_r": { "type": "number" },
+          "vif_predictor_1": { "type": "number", "minimum": 1 },
+          "vif_predictor_2": { "type": "number", "minimum": 1 }
+        },
+        "required": ["predictor_1", "predictor_2", "pearson_r", "vif_predictor_1", "vif_predictor_2"]
+      }
+    },
+    "vif_summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "predictor": { "type": "string" },
+          "vif": { "type": "number", "minimum": 1 }
+        },
+        "required": ["predictor", "vif"]
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": { "type": "string", "enum": ["drop", "combine", "keep"] },
+          "predictors": { "type": "array", "items": { "type": "string" } },
+          "rationale": { "type": "string" }
+        },
+        "required": ["action", "predictors", "rationale"]
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_predictors": { "type": "integer", "minimum": 1 },
+        "high_collinearity_count": { "type": "integer", "minimum": 0 },
+        "max_vif": { "type": "number", "minimum": 1 },
+        "mean_vif": { "type": "number", "minimum": 1 }
+      },
+      "required": ["total_predictors", "high_collinearity_count", "max_vif", "mean_vif"]
+    }
+  },
+  "required": ["header", "high_collinearity_pairs", "vif_summary", "recommendations", "summary"]
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CV Metrics JSON Schema",
+  "description": "Schema for cv_metrics.json with WAIC, LOO-CV, and coverage rates per T028",
+  "type": "object",
+  "properties": {
+    "waic": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "se": { "type": "number", "minimum": 0 }
+      },
+      "required": ["value", "se"]
+    },
+    "loo_cv": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "se": { "type": "number", "minimum": 0 },
+        "pareto_k_values": {
+          "type": "array",
+          "items": { "type": "number" }
+        }
+      },
+      "required": ["value", "se"]
+    },
+    "coverage_rates": {
+      "type": "object",
+      "properties": {
+        "nominal_50": { "type": "number", "minimum": 0, "maximum": 1 },
+        "nominal_80": { "type": "number", "minimum": 0, "maximum": 1 },
+        "nominal_95": { "type": "number", "minimum": 0, "maximum": 1 },
+        "nominal_99": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "required": ["nominal_50", "nominal_80", "nominal_95", "nominal_99"]
+    },
+    "folds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fold_id": { "type": "integer", "minimum": 1 },
+          "held_out_user": { "type": "string" },
+          "num_cascades": { "type": "integer", "minimum": 1 },
+          "fold_waic": { "type": "number" }
+        },
+        "required": ["fold_id", "held_out_user", "num_cascades"]
+      }
+    },
+    "method": {
+      "type": "string",
+      "const": "leave-one-user-out"
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "random_seed": { "type": "integer" }
+  },
+  "required": [
+    "waic", "loo_cv", "coverage_rates", "folds", "method", "created_at", "random_seed"
+  ]
+}

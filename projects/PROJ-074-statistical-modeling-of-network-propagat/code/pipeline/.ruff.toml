@@ -1,0 +1,24 @@
+# Ruff configuration for pipeline modules
+# Inherits settings from pyproject.toml at project root
+extend = "../../pyproject.toml"
+
+[lint]
+# Additional rules for pipeline-specific code
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "S",   # flake8-bandit (security)
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[lint.per-file-ignores]
+"utils.py" = ["E402"]  # allow imports after logging setup

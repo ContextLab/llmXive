@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Model Trace NetCDF Schema",
+  "description": "Schema for model_trace.nc - posterior samples in NetCDF format with metadata",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "file_format": { "type": "string", "const": "netcdf4" },
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "random_seed": { "type": "integer" },
+        "num_samples": { "type": "integer", "minimum": 1 },
+        "num_warmup": { "type": "integer", "minimum": 0 },
+        "num_chains": { "type": "integer", "minimum": 1 },
+        "model_type": { "type": "string", "const": "hierarchical_negative_binomial" },
+        "sampler": { "type": "string", "const": "NUTS" }
+      },
+      "required": [
+        "file_format", "created_by", "created_at", "random_seed",
+        "num_samples", "num_warmup", "num_chains", "model_type", "sampler"
+      ]
+    },
+    "dimensions": {
+      "type": "object",
+      "properties": {
+        "chain": { "type": "integer", "minimum": 1 },
+        "draw": { "type": "integer", "minimum": 1 },
+        "predictor": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["chain", "draw", "predictor"]
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "shape": { "type": "array", "items": { "type": "integer" } },
+          "dtype": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "required": ["name", "shape", "dtype"]
+      }
+    },
+    "required_variables": {
+      "type": "array",
+      "items": { "type": "string" },
+      "contains": { "const": "beta" },
+      "contains": { "const": "alpha" },
+      "contains": { "const": "sigma" },
+      "contains": { "const": "mu" },
+      "contains": { "const": "size" },
+      "contains": { "const": "user_intercept" },
+      "contains": { "const": "message_intercept" }
+    }
+  },
+  "required": ["metadata", "dimensions", "variables"]
+}

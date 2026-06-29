@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Posterior Summary Schema",
+  "description": "JSON schema for validating posterior_summary.csv output from Bayesian hierarchical model",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["predictor", "mean", "sd", "lower_95", "upper_95", "prob_nonzero", "direction_consistent"],
+    "additionalProperties": false,
+    "properties": {
+      "predictor": {
+        "type": "string",
+        "description": "Name of the predictor variable",
+        "minLength": 1
+      },
+      "mean": {
+        "type": "number",
+        "description": "Posterior mean estimate"
+      },
+      "sd": {
+        "type": "number",
+        "description": "Posterior standard deviation",
+        "minimum": 0
+      },
+      "lower_95": {
+        "type": "number",
+        "description": "Lower bound of 95% credible interval"
+      },
+      "upper_95": {
+        "type": "number",
+        "description": "Upper bound of 95% credible interval"
+      },
+      "prob_nonzero": {
+        "type": "number",
+        "description": "Posterior probability that effect is non-zero",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "direction_consistent": {
+        "type": "string",
+        "description": "Whether effect sign matches across folds",
+        "enum": ["TRUE", "FALSE"]
+      }
+    }
+  }
+}
