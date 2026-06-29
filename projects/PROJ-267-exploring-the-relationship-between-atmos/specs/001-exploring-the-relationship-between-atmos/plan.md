@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements statistical correlation analysis between Atmospheric River (AR) intensity metrics (from NOAA CPC Atmospheric River Catalog) and regional gravity anomalies (from GRACE-FO Level-2 mascon solutions) over the West Coast North America region (35°N-50°N, 120°W-125°W). The technical approach uses Pearson correlation with bootstrap resampling (1000 iterations, seed=42), multiple-comparison correction (Bonferroni or FDR), and control region validation to distinguish signal from noise. All findings are framed as associational per FR-007.
+This feature implements statistical correlation analysis between Atmospheric River (AR) intensity metrics (from NOAA CPC Atmospheric River Catalog) and regional gravity anomalies (from GRACE-FO processed mascon solutions) over the West Coast North America region (35°N-50°N, 120°W-125°W). The technical approach uses Pearson correlation with bootstrap resampling (1000 iterations, seed=42), multiple-comparison correction (Bonferroni or FDR), and control region validation to distinguish signal from noise. All findings are framed as associational per FR-007.
 
 ## Technical Context
 
@@ -99,10 +99,10 @@ projects/PROJ-267-exploring-the-relationship-between-atmos/
 |----|-------------|------------|------------------------|
 | FR-001 | Ingest GRACE-FO Level-2 mascon (≥90% completeness) | Phase 0 | `01_data_ingestion.py`; Gravity Anomaly entity |
 | FR-002 | Ingest NOAA AR catalog; aggregate to monthly | Phase 0 | `01_data_ingestion.py`; AR Event entity |
-| FR-003 | GRACE-FO preprocessing (degree-1, C20, 300km smoothing) | Phase 1 | `02_preprocessing.py`; Gravity Anomaly entity |
+| FR-003 | GRACE-FO preprocessing (degree-1, C20, Spatial smoothing at a defined scale) | Phase 1 | `02_preprocessing.py`; Gravity Anomaly entity |
 | FR-004 | Pearson correlation across lags 0-3; bootstrap 95% CI; signal vs noise floor (≥3σ) | Phase 2 | `03_correlation_analysis.py`; Correlation Result entity |
 | FR-005 | Multiple-comparison correction (Bonferroni/FDR) | Phase 2 | `03_correlation_analysis.py`; Correlation Result entity |
-| FR-006 | Sensitivity analysis (thresholds 0.4, 0.5, 0.6) | Phase 3 | `05_sensitivity_report.py` |
+| FR-006 | Sensitivity analysis (thresholds across a range of values) | Phase 3 | `05_sensitivity_report.py` |
 | FR-007 | No causal language in outputs | Phase 4 | Output validation checks |
 | FR-008 | Control region validation | Phase 2 | `03_correlation_analysis.py`; Correlation Result entity with region_type field |
 | FR-009 | Temporal aggregation bias documentation | Phase 3 | `05_sensitivity_report.py` |
