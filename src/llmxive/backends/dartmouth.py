@@ -97,6 +97,28 @@ def _deadline_for_model(model: str) -> float:
     return _DEFAULT_DEADLINE_S
 
 
+def _dartmouth_model_kwargs(model: str) -> dict[str, object]:
+    """ChatDartmouth ``model_kwargs`` for *model*: a hard per-request timeout,
+    plus thinking-OFF for Qwen3 reasoning models.
+
+    Qwen3 (qwen3.5-122b) DEFAULTS to emitting hidden ``<think>`` tokens that
+    consume the ENTIRE ``max_tokens`` budget before answering: every call takes
+    30-50s, and when the budget is exhausted mid-reasoning the model returns ''
+    (finish_reason='length'), which llmXive classifies as a transient empty reply
+    and RETRIES — the empty-reply retry storms, the multi-minute per-call stalls,
+    and the pipeline "throughput wall". Disabling thinking via the vLLM
+    chat-template kwarg makes the SAME call ~0.9s with a direct answer (verified
+    raw and via ChatDartmouth: 0.9s vs 38-50s), forwarded through ChatOpenAI's
+    ``extra_body``. Opt back in per-process with ``LLMXIVE_QWEN_ENABLE_THINKING=1``
+    for a stage that genuinely needs chain-of-thought. gpt-oss reasons far less and
+    is left alone; non-reasoning peers (gemma/llama) ignore the kwarg.
+    """
+    kwargs: dict[str, object] = {"timeout": _deadline_for_model(model)}
+    if "qwen" in model.lower() and os.environ.get("LLMXIVE_QWEN_ENABLE_THINKING") != "1":
+        kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+    return kwargs
+
+
 # --- circuit breaker (SUSTAINED-outage fast-abort) -----------------------
 #
 # The per-call retry/backoff above rides out SHORT flaps (minutes) — the user
@@ -564,13 +586,15 @@ class DartmouthBackend(BaseBackend):
         # is the intended escape hatch.
         import warnings as _warnings
 
+        model_kwargs = _dartmouth_model_kwargs(model)
         with _warnings.catch_warnings():
             _warnings.filterwarnings(
-                "ignore", message=r".*Parameters \{'timeout'\}.*"
+                "ignore",
+                message=r".*Parameters \{[^}]*\} should be specified explicitly.*",
             )
             return ChatDartmouth(
                 model_name=model,
-                model_kwargs={"timeout": _deadline_for_model(model)},
+                model_kwargs=model_kwargs,
             )
 
     def list_models(self) -> list[str]:
