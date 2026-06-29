@@ -5,12 +5,29 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import UTC, datetime
+
+import pytest
 
 from llmxive import cli
 from llmxive.pipeline import graph
 from llmxive.state import project as project_store
 from llmxive.types import Project, Stage
+
+
+@pytest.fixture(autouse=True)
+def _isolate_env():
+    """``cli._cmd_run`` sets process-global env vars (e.g. LLMXIVE_CLAIM_FILL via
+    ``os.environ.setdefault``); snapshot + restore os.environ so this test can
+    NEVER leak into later tests (the order-dependent test_flesh_out_reviser
+    pollution this otherwise caused)."""
+    saved = dict(os.environ)
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(saved)
 
 
 def _make_project(repo, pid: str) -> Project:

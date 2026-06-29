@@ -257,6 +257,30 @@ class PlannerAgent(SlashCommandAgent):
             # research.md URL reachability. Both run after the per-file write
             # loop so they see the full, committed artifact set.
             assert_data_model_contracts_consistent(files)
+
+            # Autonomous reference repair (user requirement): a dead research.md
+            # reference should trigger a librarian SEARCH for the correct
+            # location of the same resource — or a suitable replacement for the
+            # same intent — rather than tanking the project. Runs BEFORE the hard
+            # FR-006 gate: any dead URL that the librarian can replace with a
+            # VERIFIED, reachable source is swapped in (and the swap re-written to
+            # disk + logged, never silent); only references with NO reachable
+            # replacement fall through to ``assert_urls_reachable`` below, which
+            # then raises as before (→ the project holds at ``clarified``, which
+            # the autonomous re-plan flow handles — never human_input_needed).
+            from llmxive.speckit._reference_repair import repair_research_references
+
+            original_research = files.get("research.md", "")
+            files, _unresolved = repair_research_references(
+                files, project_dir=ctx.project_dir, repo_root=repo
+            )
+            repaired_research = files.get("research.md", "")
+            if repaired_research != original_research:
+                # Persist the repaired research.md so the committed artifact set
+                # carries the verified replacement (the write path).
+                research_target = feature_dir / "research.md"
+                research_target.write_text(repaired_research + "\n", encoding="utf-8")
+
             assert_urls_reachable(files.get("research.md", ""))
         except Exception:
             _unlink_all_written()

@@ -253,6 +253,29 @@ def assert_urls_reachable(research_md_text: str, *, timeout: int = 10) -> None:
         _probe(ref, timeout=timeout)
 
 
+def find_unreachable_references(
+    research_md_text: str, *, timeout: int = 10
+) -> list[tuple[str, str]]:
+    """Return EVERY unreachable reference in ``research.md`` as ``(url, reason)``.
+
+    Unlike :func:`assert_urls_reachable` (which raises on the FIRST dead ref for
+    the hard FR-006 gate), this collects ALL dead refs so the reference-repair
+    step (``_reference_repair.repair_research_references``) can attempt a
+    librarian-driven fix for each one before the gate is enforced. It reuses the
+    SAME :func:`_extract_references` + :func:`_probe` machinery (Constitution I,
+    SSoT) so "reachable" means exactly the same thing here as at the hard gate.
+
+    Returns an empty list when every reference is reachable (or none are cited).
+    """
+    dead: list[tuple[str, str]] = []
+    for ref in _extract_references(research_md_text):
+        try:
+            _probe(ref, timeout=timeout)
+        except UnreachableReference as exc:
+            dead.append((ref, exc.reason))
+    return dead
+
+
 _HEADING_ENTITY_RE = re.compile(r"^#{2,3}\s+(.+?)\s*$", re.MULTILINE)
 _BOLD_ENTITY_RE = re.compile(r"^\s*[-*]?\s*\*\*(.+?)\*\*\s*:", re.MULTILINE)
 
@@ -377,4 +400,5 @@ __all__ = [
     "assert_artifact_set_complete",
     "assert_data_model_contracts_consistent",
     "assert_urls_reachable",
+    "find_unreachable_references",
 ]
