@@ -1,0 +1,50 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Processed Dataset Schema
+description: "Schema for the processed code complexity dataset (FR-002, FR-003)"
+type: object
+properties:
+  code_unit_id:
+    type: string
+    description: "Unique identifier for the code unit"
+  project_id:
+    type: string
+    description: "Identifier for the source project"
+  file_path:
+    type: string
+    description: "Path relative to project root"
+  cyclomatic_complexity:
+    type: number
+    description: "Computed cyclomatic complexity metric"
+  lines_of_code:
+    type: integer
+    description: "Total lines of code in unit"
+  token_count:
+    type: integer
+    description: "Total token count in unit"
+  nesting_depth:
+    type: integer
+    description: "Maximum nesting depth"
+  halstead_volume:
+    type: number
+    description: "Computed Halstead volume"
+  is_bug_fix:
+    type: boolean
+    description: "Binary label: true if unit contains bug fix"
+  split:
+    type: string
+    enum:
+      - train
+      - test
+    description: "Dataset split assignment (FR-004)"
+required:
+  - code_unit_id
+  - project_id
+  - file_path
+  - cyclomatic_complexity
+  - lines_of_code
+  - token_count
+  - nesting_depth
+  - halstead_volume
+  - is_bug_fix
+  - split
+additionalProperties: false

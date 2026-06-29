@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: "Schema for model evaluation and inference results (FR-007, FR-008)"
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model (e.g. 'LogReg_L1', 'RandomForest')"
+  roc_auc:
+    type: number
+    description: "ROC-AUC score on test set (SC-001)"
+  pr_auc:
+    type: number
+    description: "Precision-Recall AUC score on test set"
+  calibration_error:
+    type: number
+    description: "Brier score or calibration error metric"
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        importance_score:
+          type: number
+        p_value:
+          type: number
+          description: "P-value after FDR correction (FR-008)"
+        is_significant:
+          type: boolean
+          description: "True if p < 0.05 after correction"
+      required:
+        - feature_name
+        - importance_score
+  stability_correlation:
+    type: number
+    description: "Spearman correlation of importance across models (SC-003)"
+  partial_dependence:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+        threshold:
+          type: number
+          description: "Practical threshold value (FR-009)"
+        justification:
+          type: string
+          description: "Reasoning for threshold (e.g. '≥10% risk')"
+    description: "Top 3 metrics with thresholds (FR-009)"
+required:
+  - model_type
+  - roc_auc
+  - pr_auc
+  - feature_importance
+  - stability_correlation
+  - partial_dependence
+additionalProperties: false
