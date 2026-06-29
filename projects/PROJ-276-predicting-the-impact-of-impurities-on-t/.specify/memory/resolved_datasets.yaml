@@ -1,0 +1,619 @@
+resolved_at: '2026-06-29T22:26:31.630325+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Deterministic_Reactive_Control-Based_Obstacle_Avoidance_for_Autonomous_Robotic_Systems_Challenges_and_Future_Recommendations_for_Modern_Manufacturing_Environments/32598000
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Mandarin_synth_speech_perception_in_deaf_CI_users_Zhang_et_al_2026_/32736135
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Supplementary_Material_An_Overview_of_Human_Aspects_in_the_Alignment_of_Requirements_Engineering_and_Software_Testing/32827319
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Effect_of_cough_testing_setup_on_peak_flow_Borders_Curtis_2026_/32719887
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/dataset/RTSS-Voice_Ingredient_reliability_and_dosage_Wolfberg_et_al_2026_/32785938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048064
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048064
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21044888
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21044888
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21047670
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: API
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6810479d5d6920a73b0b2261/4ca6b913c555026585074899460ca61e46de595f74948c069dd8d58ca1232f31?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27apigen-mt_5k.json%3B+filename%3D%22apigen-mt_5k.json%22%3B&response-content-type=application%2Fjson&user_id=public&X-Xet-Cas-Uid=public&Expires=1782775317&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxMDQ3OWQ1ZDY5MjBhNzNiMGIyMjYxLzRjYTZiOTEzYzU1NTAyNjU4NTA3NDg5OTQ2MGNhNjFlNDZkZTU5NWY3NDk0OGMwNjlkZDhkNThjYTEyMzJmMzFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YXBpZ2VuLW10XzVrLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJhcGlnZW4tbXRfNWsuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3NzUzMTd9fX1dfQ__&Signature=MEUCIDNZXDL9owIsIol0AMjmQgC0SDoKdAHtvggcyzCFAzm-AiEA5eoJ93n0KIluXLu6~B5xiCsy7UDg84I1fkXweVUGnlc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Deterministic_Reactive_Control-Based_Obstacle_Avoidance_for_Autonomous_Robotic_Systems_Challenges_and_Future_Recommendations_for_Modern_Manufacturing_Environments/32598000
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Mandarin_synth_speech_perception_in_deaf_CI_users_Zhang_et_al_2026_/32736135
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Supplementary_Material_An_Overview_of_Human_Aspects_in_the_Alignment_of_Requirements_Engineering_and_Software_Testing/32827319
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Effect_of_cough_testing_setup_on_peak_flow_Borders_Curtis_2026_/32719887
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/dataset/RTSS-Voice_Ingredient_reliability_and_dosage_Wolfberg_et_al_2026_/32785938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6998062
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7324045
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4746168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4488241
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20632
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048182
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048182
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20514985
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20514985
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21046969
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?user_id=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&X-Xet-Cas-Uid=public&Expires=1782775349&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzc1MzQ5fX19XX0_&Signature=MEYCIQD8-FcF-KCLj8wm311nIZG9YYuXRFdDoTWHWDzlxyJ~kQIhAI10AwP1B~4NTrhsGKTCOAGh7ym4FRk7xLiTGH0AziYL&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Deterministic_Reactive_Control-Based_Obstacle_Avoidance_for_Autonomous_Robotic_Systems_Challenges_and_Future_Recommendations_for_Modern_Manufacturing_Environments/32598000
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Mandarin_synth_speech_perception_in_deaf_CI_users_Zhang_et_al_2026_/32736135
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Supplementary_Material_An_Overview_of_Human_Aspects_in_the_Alignment_of_Requirements_Engineering_and_Software_Testing/32827319
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Effect_of_cough_testing_setup_on_peak_flow_Borders_Curtis_2026_/32719887
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/dataset/RTSS-Voice_Ingredient_reliability_and_dosage_Wolfberg_et_al_2026_/32785938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6557219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.3n5tb2rz6
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048093
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048093
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.4tmpg4fgs
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.cjsxksngm
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MgB2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/taqwa92/cm.mgb2/resolve/main/main/dev.tsv
+    source: huggingface
+    format: tsv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/BelalElhossany/mgb2_audios_transcriptions/resolve/main/data/train-00000-of-00003-61226c2c9e18e76d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/BelalElhossany/mgb2_audios_transcriptions_preprocessed/resolve/main/data/train-00000-of-00003-9d3a91865911d904.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/taqwa92/cm.mgb2/resolve/main/main/dev.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/BelalElhossany/mgb2_audios_transcriptions/resolve/main/data/train-00000-of-00003-61226c2c9e18e76d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BelalElhossany/mgb2_audios_transcriptions_preprocessed/resolve/main/data/train-00000-of-00003-9d3a91865911d904.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BelalElhossany/mgb2_audios_transcriptions_prepared/resolve/main/data/train-00000-of-00007-b2864c858f3bede7.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/taqwa92/mgb2_data/resolve/main/Data/archives/
+      mgb2_txt.test.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Deterministic_Reactive_Control-Based_Obstacle_Avoidance_for_Autonomous_Robotic_Systems_Challenges_and_Future_Recommendations_for_Modern_Manufacturing_Environments/32598000
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Mandarin_synth_speech_perception_in_deaf_CI_users_Zhang_et_al_2026_/32736135
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Supplementary_Material_An_Overview_of_Human_Aspects_in_the_Alignment_of_Requirements_Engineering_and_Software_Testing/32827319
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Effect_of_cough_testing_setup_on_peak_flow_Borders_Curtis_2026_/32719887
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/dataset/RTSS-Voice_Ingredient_reliability_and_dosage_Wolfberg_et_al_2026_/32785938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1039/C9CP00771G
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''pubs.rsc.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/15444774
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3572211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journal.eu-jr.eu/engineering/article/view/2419
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 429
+  - url: https://www.mdpi.com/1996-1073/14/23/7853
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20938606
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20938606
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20934557
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.48577/jpl.myiyga
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''dataverse.jpl.nasa.gov'',
+      port=80): Max retries exceeded with url: /citation?persistentId=doi:10.48577/jpl.MYIYGA
+      (Caused by ConnectTimeoutError(<HTTPConnection(host=''dataverse.jpl.nasa.gov'',
+      port=80) at 0x7fa67e98d410>, ''Connection to dataverse.jpl.nasa.gov timed out.
+      (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/20694333
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://plos.figshare.com/articles/figure/_p_Training_and_validation_loss_curves_across_training_steps_for_MiT-b0_model_showing_convergence_behavior_and_generalization_trends_p_/32827500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Training_and_validation_loss_curves_for_SegFormer_model_showing_optimization_behavior_and_generalization_performance_during_training_p_/32827497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Training_and_validation_loss_curves_for_the_U-Net_512_model_across_epochs_illustrating_the_model_s_optimization_behavior_and_generalization_performance_during_training_p_/32827494
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_A_-original_input_image_that_is_passed_through_the_model_B_-_model_predicted_mask_returned_after_analysis_and_C_-_result_of_background_elimination_0_3x_magnification_p_/32827491
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_An_illustration_of_IOU_A_-ground_truth_region_with_red_boundary_B_-predicted_region_with_blue_boundary_C_-area_of_intersection_between_ground_truth_and_predicted_regions_shaded_blue_which_is_nearly_0_5_IOU_since_the_area_of_overlap_is_al/32827488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21040161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21040161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250834/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250834/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: AC-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_96379135-46c3-4c2d-ac17-6f825b9e3125/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1454
+      parsed: true
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_ac1e6c41-f5dd-4458-b142-b303c03da498/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1454
+      parsed: true
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_b7b16ab0-d519-40e4-ac18-d836de034a6e/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1454
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_96379135-46c3-4c2d-ac17-6f825b9e3125/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_ac1e6c41-f5dd-4458-b142-b303c03da498/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_b7b16ab0-d519-40e4-ac18-d836de034a6e/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_d4a49251-4630-40ec-bae7-ac160a0bef3a/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://plos.figshare.com/articles/figure/_p_Box_plots_representing_the_alpha_diversity_indexes_Shannon_A_B_C_D_and_Chao1_E_F_G_H_and_the_related_significant_differences_obtained_through_the_Dunn_test_p_0_05_p_/32827563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_The_genus-level_microbial_composition_of_each_group_in_each_season_p_/32827560
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_The_family-level_bacterial_composition_of_each_group_in_each_season_p_/32827557
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_The_phylum-level_microbial_composition_of_ANIMAL_GRAZED_and_NGRAZED_groups_divided_by_season_p_/32827554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Representation_of_the_pilot_farm_and_sampling_sites_of_the_study_where_grazed_soil_GRAZED_is_in_orange_and_the_not-grazed_soil_NGRAZED_is_in_purple_p_/32827551
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14734272
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10908652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20847109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10786541
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6075064
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.e-rara.ch/doi/10.3931/e-rara-152671
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/e4c300b1-8bc3-4df2-b23a-e72e67eef2fd
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://doi.org/10.5285/cf10ea9a-a249-4074-ac0c-e0c3079e5e45
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://massive.ucsd.edu/ProteoSAFe/private-dataset.jsp?task=ce3d07b62a46416cbfe878b58326a095
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/103214
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://plos.figshare.com/articles/dataset/_p_PICO_framework_for_the_systematic_review_p_/32827650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_PRISMA-_P_Checklist_p_/32827647
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Draft_MEDLINE_search_strategy_p_/32827644
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Thematic_framework_of_depressive_symptoms_in_WLHIV_in_the_form_of_theme_and_sub-themes_2024_2025_p_/32827641
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Participants_demographic_information_in_women_living_with_HIV_2024_2025_p_/32827638
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GPa
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: VIF
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: ANOVA
+  status: unresolved
+  candidates: []
+  candidates_tried: []

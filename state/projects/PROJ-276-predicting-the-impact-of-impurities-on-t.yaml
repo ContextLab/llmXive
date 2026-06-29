@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T22:28:12.516646Z'
-current_stage: project_initialized
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-276-predicting-the-impact-of-impurities-on-t
-last_run_id: 1c9cc7c1-2b4e-4d06-9b3d-7ac5934b7725
+last_run_id: 16a91de1-9e08-4b5d-9a0b-64346f0d7668
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-276-predicting-the-impact-of-impurities-on-t/specs/001-predicting-the-impact-of-impurities-on-t
 title: Predicting the Impact of Impurities on the Superconductivity of Magnesium Diboride
-updated_at: '2026-06-24T11:19:52.339200Z'
+updated_at: '2026-06-29T22:46:35.226568Z'

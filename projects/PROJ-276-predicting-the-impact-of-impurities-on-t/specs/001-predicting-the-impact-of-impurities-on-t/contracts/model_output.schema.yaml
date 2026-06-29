@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance and Significance Output"
+description: "Schema for the output of the training and evaluation pipeline."
+type: "object"
+properties:
+  best_model_name:
+    type: string
+    description: "Name of the selected model."
+    enum:
+      - "Ridge"
+      - "RF"
+      - "XGB"
+  r2_cv_mean:
+    type: number
+    description: "Mean cross-validated R² score."
+  r2_cv_std:
+    type: number
+    description: "Standard deviation of cross-validated R²."
+  mae_cv_mean:
+    type: number
+    description: "Mean cross-validated MAE."
+  hyperparameters:
+    type: object
+    description: "Best hyperparameters found."
+  significance_tests:
+    type: array
+    description: "List of significance test results for impurities. P-values are derived from Feature Permutation Test (shuffling X) for trees, or Partial F-test for Ridge."
+    items:
+      type: object
+      properties:
+        impurity_element:
+          type: string
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "P-value from Feature Permutation Test (shuffling feature X) or Partial F-test."
+        is_significant:
+          type: boolean
+        delta_tc_per_pct:
+          type: number
+        importance_ci_lower:
+          type: number
+        importance_ci_upper:
+          type: number
+        effect_ci_lower:
+          type: number
+        effect_ci_upper:
+          type: number
+        sample_count:
+          type: integer
+          description: "Number of samples containing this impurity. Must be >= 5 for effect estimation."
+        collinearity_flag:
+          type: boolean
+          description: "True if VIF >= 5.0."
+      required:
+        - impurity_element
+        - p_value
+        - is_significant
+        - delta_tc_per_pct
+        - sample_count
+  top_3_impurities:
+    type: array
+    description: "Top 3 impurities by permutation importance (filtered for p < 0.05 and N >= 5). May be empty if fewer than 3 significant impurities exist."
+    items:
+      type: string
+  rule_of_thumb:
+    type: array
+    description: "Rule-of-Thumb table with effect sizes and 95% CIs (filtered for p < 0.05 and N >= 5). May be empty if fewer than 3 significant impurities exist."
+    items:
+      type: object
+      properties:
+        impurity_element:
+          type: string
+        delta_tc_per_pct:
+          type: number
+          description: "Estimated ΔTc per 1 atomic % (rounded to 1 decimal)."
+        ci_95_lower:
+          type: number
+        ci_95_upper:
+          type: number
+        sample_count:
+          type: integer
+      required:
+        - impurity_element
+        - delta_tc_per_pct
+        - ci_95_lower
+        - ci_95_upper
+        - sample_count
+required:
+  - best_model_name
+  - r2_cv_mean
+  - significance_tests
+  - top_3_impurities
+  - rule_of_thumb
+additionalProperties: false

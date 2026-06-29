@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MgB2 Dataset Schema"
+description: "Schema for the cleaned, analysis-ready MgB2 dataset."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the record."
+  source:
+    type: "string"
+    enum: ["materials_project", "supercon"]
+    description: "Origin of the data entry."
+  tc_k:
+    type: "number"
+    description: "Critical temperature in Kelvin."
+  impurities:
+    type: "object"
+    description: "Map of impurity element symbol to atomic percentage."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+  synthesis_temp_k:
+    type: "number"
+    description: "Synthesis temperature in Kelvin."
+  synthesis_pressure_gpa:
+    type: "number"
+    description: "Synthesis pressure in GPa."
+  method_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of synthesis methods used."
+  provenance:
+    type: "object"
+    properties:
+      query_timestamp:
+        type: "string"
+        format: "date-time"
+      data_version:
+        type: "string"
+      source_url:
+        type: "string"
+        description: "URL of the source dataset or API endpoint."
+required:
+  - id
+  - source
+  - tc_k
+  - impurities
+  - provenance
+additionalProperties: false

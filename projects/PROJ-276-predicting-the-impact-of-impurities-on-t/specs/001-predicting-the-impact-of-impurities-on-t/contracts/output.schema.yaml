@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the model performance and impurity effect results."
+type: "object"
+properties:
+  model_performance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        model_type:
+          type: "string"
+        hyperparameters:
+          type: "object"
+        r2_train:
+          type: "number"
+        r2_test:
+          type: "number"
+        mae_train:
+          type: "number"
+        mae_test:
+          type: "number"
+        fit_timestamp:
+          type: "string"
+          format: "date-time"
+      required:
+        - model_type
+        - r2_train
+        - r2_test
+  impurity_effects:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        element:
+          type: "string"
+        delta_tc_per_pct:
+          type: "number"
+        p_value:
+          type: "number"
+        is_significant:
+          type: "boolean"
+        confidence_interval:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
+        sample_count:
+          type: "integer"
+        collinearity_flag:
+          type: "boolean"
+      required:
+        - element
+        - delta_tc_per_pct
+        - p_value
+        - is_significant
+        - sample_count
+required:
+  - model_performance
+  - impurity_effects
+additionalProperties: false
