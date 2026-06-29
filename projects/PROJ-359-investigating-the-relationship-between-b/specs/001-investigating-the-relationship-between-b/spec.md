@@ -29,11 +29,11 @@ A researcher wants to fit a linear regression model that predicts each participa
 
 **Why this priority**: This story directly tests the scientific hypothesis and yields the primary quantitative result.
 
-**Independent Test**: Using a dataset where both baseline rs‑fMRI and post‑training working‑memory scores are available, run the regression script and check that the output file contains coefficient estimates, standard errors, and permutation‑test p‑values for each predictor.
+**Independent Test**: Using the OpenNeuro dataset ds000277, run the regression script and check that the output file contains coefficient estimates, standard errors, and permutation‑test p‑values for each predictor.
 
 **Acceptance Scenarios**:
 
-1. **Given** `baseline_metrics.csv` and `training_response.csv`, **when** the regression script is executed, **then** a `model_summary.csv` is produced containing the estimated β for frontoparietal strength, its [deferred] CI, and a permutation‑derived p‑value.
+1. **Given** `baseline_metrics.csv` and `training_response.csv` (derived from the same participant IDs in ds000277), **when** the regression script is executed, **then** a `model_summary.csv` is produced containing the estimated β for frontoparietal strength, its 95% CI, and a permutation‑derived p‑value.
 
 ---
 
@@ -61,19 +61,15 @@ A researcher wants automatically generated figures that display effect sizes and
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the Human Connectome Project S1200 release and OpenNeuro cognitive‑training datasets using only HTTP/HTTPS protocols and verify file integrity via checksums.  
+- **FR-001**: System MUST download the OpenNeuro dataset `ds000277` (HCP-1200 with cognitive training subset) using only HTTP/HTTPS protocols and verify file integrity via checksums.  
 - **FR-002**: System MUST preprocess all rs‑fMRI scans with fMRIPrep 23.1.3 applying motion correction, spatial normalization, and nuisance regression, and MUST fail gracefully if fMRIPrep exits with a non‑zero status.  
 - **FR-003**: System MUST extract ROI time series using the Schaefer 400‑region parcellation and compute a symmetric Pearson correlation matrix for each participant.  
 - **FR-004**: System MUST calculate the following network metrics for every participant: (a) global efficiency, (b) modularity (Q), (c) frontoparietal network strength (average edge weight among frontoparietal ROIs), and (d) default‑mode network strength, using only CPU‑compatible libraries (e.g., NetworkX, bctpy).  
-- **FR-005**: System MUST fit a multiple linear regression model predicting working‑memory gain from the four baseline metrics while controlling for age, sex, and baseline cognitive score; it MUST evaluate statistical significance with [deferred]‑iteration permutation testing and apply family‑wise error correction across the four predictors.
-- **FR-006**: System MUST generate a PDF report containing (i) a table of regression coefficients with [deferred] confidence intervals, (ii) permutation‑test p‑values, and (iii) effect‑size bar plots with error bars.
+- **FR-005**: System MUST fit a multiple linear regression model predicting working‑memory gain from the four baseline metrics while controlling for age, sex, and baseline cognitive score; it MUST evaluate statistical significance with permutation testing and apply Holm‑Bonferroni family‑wise error correction across the four predictors.
+- **FR-006**: System MUST generate a PDF report containing (i) a table of regression coefficients with 95% confidence intervals, (ii) permutation‑test p‑values, and (iii) effect‑size bar plots with error bars.
 - **FR-007**: System MUST log summary statistics for data exclusion (motion, missing scans, missing behavioral scores) and total runtime; logs MUST be parsable as JSON.  
-- **FR-008**: System MUST run entirely on a CPU‑only environment limited to ≤2 cores, ≤7 GB RAM, and ≤14 GB disk, completing the full pipeline on ≤100 participants within 6 hours.  
-
-*Clarification needed*:
-
-- **FR-009**: System MUST match each participant’s rs‑fMRI scan to a corresponding working‑memory training outcome.  
-  - `[NEEDS CLARIFICATION: Does the HCP S1200 release contain standardized working‑memory training scores for the same participants?]`
+- **FR-008**: System MUST run entirely on a CPU‑only environment limited to ≤2 cores, ≤7 GB RAM, and ≤14 GB disk, completing the full pipeline on the subset of participants in ds000277 who possess BOTH valid rs‑fMRI scans and complete training behavioral scores (maximum N=85) within 6 hours. If the valid subset size is <30, the system MUST proceed with the available N and log a warning that statistical power may be insufficient.
+- **FR-009**: System MUST parse the participant metadata from dataset `ds000277` to ensure that each participant ID in the rs‑fMRI data has a corresponding entry in the behavioral training data, and MUST raise a fatal error if any participant ID is missing from either source.
 
 ### Key Entities
 
@@ -86,18 +82,17 @@ A researcher wants automatically generated figures that display effect sizes and
 
 ### Measurable Outcomes
 
-- **SC-001**: The regression coefficient for frontoparietal network strength must be statistically significant after permutation‑based family‑wise error correction (adjusted *p* < 0.05) in at least two independent datasets with combined *N* ≥ 100.  
-- **SC-002**: The permutation test must produce a null distribution based on ≥1,000 random label shuffles, and the observed coefficient must lie outside the [deferred] percentile of this distribution for the frontoparietal predictor.
-- **SC-003**: A priori power analysis (using a two‑tailed test, α = 0.05, desired power = 0.80) must indicate that the planned sample size (N ≥ 100) provides ≥80 % power to detect an effect size of *r* = 0.30; the analysis result must be documented in `power_analysis.txt`.  
+- **SC-001**: The regression coefficient for frontoparietal network strength must be statistically significant after Holm‑Bonferroni correction (adjusted *p* < 0.05) in a single dataset with N ≥ 30 (the valid intersection of ds000277 rs-fMRI and behavioral data), or via split‑sample validation (50/50 split) on the same dataset.  
+- **SC-002**: The permutation test must produce a null distribution based on ≥1,000 random label shuffles, and the observed coefficient must lie outside the lower and upper percentiles of the distribution of this distribution for the frontoparietal predictor.
+- **SC-003**: A priori power analysis (using a two‑tailed test, α = 0.05, desired power = 0.80) must indicate that the planned sample size (N ≥ 85, the maximum valid intersection in ds000277) provides ≥80 % power to detect an effect size of *r* = 0.30; the analysis result must be documented in `power_analysis.txt`. If N < 85, the analysis must report the achieved power for the actual N.
 - **SC-004**: All generated figures must be reproducible (identical hashes) when the pipeline is re‑run on the same input data and random seeds.  
-- **SC-005**: The entire pipeline must complete on a GitHub Actions free‑tier runner (2 CPU, 7 GB RAM) within 6 hours for a test set of 100 participants; runtime is recorded in `runtime.log`.  
+- **SC-005**: The entire pipeline must complete on a GitHub Actions free‑tier runner (2 CPU, 7 GB RAM) within 6 hours for the valid subset of ds000277 participants (N ≤ 85); runtime is recorded in `runtime.log`.  
 
 ## Assumptions
 
-- The Human Connectome Project S1200 release provides, or can be linked to, a validated working‑memory training protocol and corresponding pre/post performance scores.  
-- OpenNeuro datasets selected contain the same cognitive‑training paradigm and are compatible with the HCP preprocessing pipeline.  
+- The OpenNeuro dataset `ds000277` provides both resting‑state fMRI scans and a validated working‑memory training protocol with pre/post performance scores for a subset of participants (approximately 85 subjects).
 - All required software (fMRIPrep, Python 3.11, NetworkX, bctpy, scikit‑learn, matplotlib) are available as CPU‑only wheels and can be installed in the CI environment.  
 - No GPU‑accelerated libraries (e.g., CUDA, bitsandbytes) will be used; all computations rely on CPU‑compatible implementations.  
 - Participants’ demographic covariates (age, sex) and baseline cognitive scores are present and complete for every subject included in the regression analysis.  
 - The Schaefer 400‑region parcellation adequately captures frontoparietal and default‑mode network boundaries for the purpose of computing network strength.  
-- Motion exclusion threshold (mean FD > 3 mm) is sufficient to mitigate motion artefacts without excessively reducing sample size.
+- Motion exclusion threshold (mean FD > 3 mm) is sufficient to mitigate motion artefacts without excessively reducing sample size below the minimum viable N=30.

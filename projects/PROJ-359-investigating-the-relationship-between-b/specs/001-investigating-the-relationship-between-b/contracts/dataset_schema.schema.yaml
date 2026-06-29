@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Dataset Schema (Pivoted: Baseline Association)"
+description: "Schema for the merged dataset of network metrics and baseline behavioral outcomes used in regression."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique participant identifier (e.g., 'sub-01')."
+  age:
+    type: "integer"
+    description: "Age in years."
+    minimum: 0
+  sex:
+    type: "string"
+    description: "Sex of the participant."
+    enum: ["M", "F"]
+  baseline_wm:
+    type: "number"
+    description: "Baseline working memory score (Outcome variable)."
+  global_efficiency:
+    type: "number"
+    description: "Global efficiency of the functional network."
+  modularity_q:
+    type: "number"
+    description: "Modularity (Q) of the network partition."
+  fpn_strength:
+    type: "number"
+    description: "Average edge weight within the frontoparietal network."
+  dmn_strength:
+    type: "number"
+    description: "Average edge weight within the default mode network."
+  mean_fd:
+    type: "number"
+    description: "Mean framewise displacement during rs-fMRI scan."
+    minimum: 0
+  included:
+    type: "boolean"
+    description: "Whether the participant passed all inclusion criteria."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if included is false."
+    enum: ["motion", "missing_fMRI", "missing_behav", null]
+required:
+  - participant_id
+  - age
+  - sex
+  - baseline_wm
+  - global_efficiency
+  - modularity_q
+  - fpn_strength
+  - dmn_strength
+  - mean_fd
+  - included
+  - exclusion_reason
