@@ -1,0 +1,453 @@
+schema_version: '1'
+project_id: PROJ-749-playful-agentic-robot-learning
+rounds:
+- round_number: 1
+  ran_at: '2026-06-29T09:37:32.707740Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-29)
+  tasks_done: 45
+  tasks_failed: 0
+  tasks_skipped: 28
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-749-playful-agentic-robot-learning/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[516a0f21b0b7]** (severity: writing): The citation
+      key `mu2024robocodexmultimodalcodegeneration` does not exist in the bibliography.
+      Replace it with the correct reference (e.g., '
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[a411743d4f34]** (severity: writing): Add missing
+      bibliography entries for `MolmoSpaces` (cite key `kim2026molmospaces`) and `RoboSuite`
+      (cite key `robosuite2020`) which are refe'
+  - id: '003'
+    severity: writing
+    status: done
+    text: "Address action item **[2ec6ec8fd605]** (severity: writing): Verify that\
+      \ all in\u2011text citations correspond to entries in the bibliography and that\
+      \ the referenced works actually support the statements ma"
+  - id: '004'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[6a139dbf7970]** (severity: writing): Create a public
+      code repository (e.g., GitHub) containing the full implementation of the RATs
+      system, organized into logical modules (task p'
+  - id: '005'
+    severity: writing
+    status: done
+    text: "Address action item **[b50898a6f2fc]** (severity: writing): Split monolithic\
+      \ source files (e.g., any >200\u2011line Python script) into smaller, purpose\u2011\
+      specific modules (e.g., `task_proposer.py`, `planner"
+  - id: '006'
+    severity: writing
+    status: done
+    text: 'Address action item **[67d4d2c72758]** (severity: writing): Add explicit
+      type hints to all functions, especially those in the skill extraction and feedback
+      generator sections, and enforce a consistent'
+  - id: '007'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[908a802e8076]** (severity: writing): Provide a `requirements.txt`
+      or `environment.yml` that lists exact versions of all dependencies (e.g., `torch`,
+      `numpy`, `openai`, `gym`, si'
+  - id: 008
+    severity: writing
+    status: done
+    text: "Address action item **[f47c0562a091]** (severity: writing): Include a comprehensive\
+      \ `README.md` with step\u2011by\u2011step instructions for setting up the simulation\
+      \ environments (LIBERO\u2011PRO, MolmoSpaces, Robo"
+  - id: 009
+    severity: writing
+    status: done
+    text: 'Address action item **[5c5a92715c67]** (severity: writing): Implement a
+      suite of unit tests (e.g., using `pytest`) for core components such as the task
+      proposer scoring function, the Goldilocks task s'
+  - id: '010'
+    severity: writing
+    status: done
+    text: 'Address action item **[915d9da34bd4]** (severity: writing): Remove deprecated
+      skills from the frozen library or clearly mark them as inactive; the current
+      appendix lists deprecated helpers that are st'
+  - id: '011'
+    severity: writing
+    status: done
+    text: "Address action item **[f75c1b3bc1bb]** (severity: writing): Replace magic\
+      \ numbers and hard\u2011coded thresholds (e.g., fixed grasp offsets, retry budgets)\
+      \ with configurable parameters stored in a single c"
+  - id: '012'
+    severity: writing
+    status: done
+    text: 'Address action item **[480932807d59]** (severity: writing): Set up continuous
+      integration (e.g., GitHub Actions) that runs linting (flake8/black), type checking
+      (mypy), and the unit test suite on ever'
+  - id: '013'
+    severity: writing
+    status: done
+    text: 'Address action item **[189bf4a0cb06]** (severity: writing): Consider providing
+      a Dockerfile or a reproducible container image that encapsulates the entire
+      software stack, including the simulation back'
+  - id: '014'
+    severity: writing
+    status: done
+    text: "Address action item **[df1e75f3b455]** (severity: writing): Add a Data\
+      \ Availability and License section that explicitly lists the sources of LIBERO\u2011\
+      PRO, MolmoSpaces, RoboSuite, and any other external "
+  - id: '015'
+    severity: writing
+    status: done
+    text: "Address action item **[e95e62ba4ff3]** (severity: writing): Replace the\
+      \ bare project website URL (https://Playful\u2011RATs.github.io) with a stable\
+      \ archival link (e.g., a Zenodo snapshot) and verify that "
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[45ca4a358b9e]** (severity: writing): Document how
+      missing or corrupted data (e.g., failed environment creation, unavailable simulation
+      assets) are detected and handled during bo'
+  - id: '017'
+    severity: writing
+    status: skipped
+    text: "Address action item **[26f914a6bbf9]** (severity: writing): Add descriptive\
+      \ alt\u2011text for every figure (e.g., using the optional argument of \\includegraphics\
+      \ or the \\caption* command) to improve access"
+  - id: 018
+    severity: writing
+    status: done
+    text: "Address action item **[a29f5e251fc9]** (severity: writing): For the qualitative\
+      \ simulation and real\u2011world figures (figs/figure_rats_sim.pdf and figs/rats_real.pdf),\
+      \ ensure the resolution is high enoug"
+  - id: 019
+    severity: writing
+    status: skipped
+    text: 'Address action item **[029c3050c8b1]** (severity: writing): Expand the
+      captions of the system diagram (figs/f2.pdf) and the teaser (figs/rats_teaser.pdf)
+      to explicitly name the components shown (e.g.,'
+  - id: '020'
+    severity: writing
+    status: done
+    text: 'Address action item **[c5c8004104b4]** (severity: writing): If any future
+      figures include plots or graphs (currently none), include axis labels with units
+      and a legend that remains legible at typical '
+  - id: '021'
+    severity: writing
+    status: done
+    text: "Address action item **[9615d6849d8f]** (severity: writing): Define every\
+      \ acronym at first use (e.g., VLA, VLM, LLM, CaP\u2011X, CaP\u2011Agent0)."
+  - id: '022'
+    severity: writing
+    status: done
+    text: "Address action item **[8513f4d3f25f]** (severity: writing): Replace or\
+      \ explain highly technical jargon such as \u201CCode\u2011as\u2011Policy\u201D\
+      , \u201Cintrinsic motivation\u201D, \u201CGoldilocks principle\u201D, \u201C\
+      Wilson\u2011bounded empiric"
+  - id: '023'
+    severity: writing
+    status: skipped
+    text: "Address action item **[0f46ef9aa068]** (severity: writing): Break up sentences\
+      \ that exceed 30 words (e.g., the long sentence in the Introduction paragraph\
+      \ starting with \u201CRecent foundation models have "
+  - id: '024'
+    severity: writing
+    status: done
+    text: "Address action item **[85f3612f1d47]** (severity: writing): Avoid over\u2011\
+      use of buzzwords like \u201Cplayful\u201D, \u201Cagentic\u201D, \u201Ccontinual\u201D\
+      , \u201Ccuriosity\u2011driven\u201D, and \u201Cintrinsically motivated\u201D\
+      \ without concrete expla"
+  - id: '025'
+    severity: writing
+    status: done
+    text: "Address action item **[d59477dbac47]** (severity: writing): Introduce a\
+      \ short glossary or inline parenthetical explanations for domain\u2011specific\
+      \ terms (e.g., \u201CVLM\u201D = visual\u2011language model, \u201CVLA\u201D\
+      \ = visi"
+  - id: '026'
+    severity: writing
+    status: skipped
+    text: "Address action item **[bd333c1b8e29]** (severity: writing): Simplify the\
+      \ description of the skill library lifecycle (experimental \u2192 verified \u2192\
+      \ deprecated) by using everyday language such as \u201Cnew\u201D, \u201Cte"
+  - id: '027'
+    severity: writing
+    status: skipped
+    text: "Address action item **[8f4f0458e481]** (severity: writing): In the Method\
+      \ section, replace the formal mathematical notation for task selection (e.g.,\
+      \ \u03C4\u209C = argmax\u2026) with a narrative description of how "
+  - id: 028
+    severity: writing
+    status: skipped
+    text: "Address action item **[f211820040a6]** (severity: writing): Add brief,\
+      \ non\u2011technical summaries at the start of each major subsection (e.g.,\
+      \ \u201CWhat the Task Proposer does\u201D instead of \u201CTask Proposer Team"
+  - id: 029
+    severity: writing
+    status: skipped
+    text: "Address action item **[9aef45b416a1]** (severity: writing): Remove or rephrase\
+      \ redundant phrases such as \u201Cthe robot should practice and accumulate before\
+      \ downstream tasks are given\u201D which repeats the "
+  - id: '030'
+    severity: writing
+    status: done
+    text: "Address action item **[600e1933f2ec]** (severity: writing): Ensure that\
+      \ all technical symbols (e.g., \u2194, \u2192) are accompanied by a plain\u2011\
+      English description for readers unfamiliar with mathematical notat"
+  - id: '031'
+    severity: writing
+    status: skipped
+    text: "Address action item **[44ed13ee5986]** (severity: writing): The comparison\
+      \ to a compute\u2011matched CaP\u2011Agent0 baseline (Table\u202F9) shows that\
+      \ most of the performance boost comes from the learned skill libr"
+  - id: '032'
+    severity: writing
+    status: skipped
+    text: "Address action item **[7a7b9ff39bd9]** (severity: writing): The abstract\
+      \ and conclusion present percentage\u2011point improvements (20.6\u202Fpp, 17.0\u202F\
+      pp) as if they are universally significant, but the baselin"
+  - id: '033'
+    severity: writing
+    status: skipped
+    text: "Address action item **[47887ce81bc9]** (severity: writing): Discuss dual\u2011\
+      use implications of publishing a reusable skill library that can be directly\
+      \ imported into other agents, and propose mitigation"
+  - id: '034'
+    severity: writing
+    status: skipped
+    text: "Address action item **[b2a9e29c0dfa]** (severity: writing): Provide a brief\
+      \ data\u2011privacy statement for any real\u2011world visual data captured (Section\u202F\
+      4.4\u202FSim\u2011to\u2011Real Evaluation, Fig.\u202F2) and describe ste"
+  - id: '035'
+    severity: writing
+    status: done
+    text: "Address action item **[90b641578925]** (severity: writing): Reference relevant\
+      \ robot safety standards (e.g., ISO\u202F10218, ISO\u202F15066) and explain\
+      \ how the system complies or plans to comply with them."
+  - id: '036'
+    severity: writing
+    status: done
+    text: 'Address action item **[625e36194e5b]** (severity: writing): Include details
+      on random seed handling and any stochasticity in the LLM calls, environment
+      resets, and policy execution. Provide a reproduc'
+  - id: '037'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[f7b2b60a426f]** (severity: writing): Move the teaser
+      figure out of the abstract environment. In LaTeX the abstract should contain
+      only text; place the figure after \maketitle (o'
+  - id: 038
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ae5543d708d6]** (severity: writing): Replace the
+      manual \vspace{-...} adjustments around figures and tables with proper float
+      placement options (e.g., [htbp]) and let LaTeX hand'
+  - id: 039
+    severity: writing
+    status: skipped
+    text: 'Address action item **[1856b4a5fbbc]** (severity: writing): Ensure all
+      tables use the standard \centering (or \begin{center}) and avoid manual width
+      scaling that exceeds \linewidth. Verify that \resiz'
+  - id: '040'
+    severity: writing
+    status: done
+    text: "Address action item **[fa21965f038a]** (severity: writing): Check heading\
+      \ hierarchy: all top\u2011level sections use \\section, while unnumbered sections\
+      \ such as Limitations and Acknowledgments correctly us"
+  - id: '041'
+    severity: writing
+    status: done
+    text: "Address action item **[c4754d00c7d0]** (severity: writing): Place the \\\
+      keywords command (or its equivalent) after the abstract and before the first\
+      \ \\section, or use the class\u2011provided macro if availab"
+  - id: '042'
+    severity: writing
+    status: done
+    text: 'Address action item **[e273cf059c24]** (severity: writing): Remove duplicated
+      or unnecessary package imports (e.g., both inputenc and fontenc are loaded but
+      may be redundant with modern LaTeX engines)'
+  - id: '043'
+    severity: writing
+    status: done
+    text: "Address action item **[2cd17eb0d316]** (severity: writing): Standardize\
+      \ line wrapping in the source files to \u226480 characters per line. Long lines\
+      \ in tables (e.g., the \\caption text) and algorithm listi"
+  - id: '044'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[c43b15470c92]** (severity: writing): Verify that
+      all figure and table captions are placed *inside* the float environment, immediately
+      after \includegraphics or \begin{tabular}, '
+  - id: '045'
+    severity: writing
+    status: done
+    text: 'Address action item **[afb3d9caa4d0]** (severity: writing): Ensure bibliography
+      style matches the conference template. The current \bibliography{example} may
+      need a corresponding \bibliographystyle{..'
+  - id: '046'
+    severity: writing
+    status: done
+    text: 'Address action item **[8c59882fcaeb]** (severity: writing): Run LaTeX with
+      the \showboxdepth and \showboxbreadth options or check the log for overfull/underfull
+      box warnings. Resolve any such warnings'
+  - id: '047'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[3e3a043f688a]** (severity: writing): Several sentences
+      are overly long and contain multiple clauses, which hampers readability. For
+      example, the first paragraph of the Introduct'
+  - id: 048
+    severity: writing
+    status: skipped
+    text: "Address action item **[861392cb7049]** (severity: writing): Inconsistent\
+      \ use of punctuation in figure captions (e.g., missing periods after captions\
+      \ in Fig.\u202F3 and Fig.\u202F4) and occasional missing spaces"
+  - id: 049
+    severity: writing
+    status: done
+    text: 'Address action item **[ceffaec24cfb]** (severity: writing): The LaTeX tables
+      contain raw numbers without thousand separators and inconsistent alignment;
+      consider using the siunitx package for better n'
+  - id: '050'
+    severity: writing
+    status: done
+    text: "Address action item **[de02c1f11735]** (severity: writing): Some LaTeX\
+      \ commands are redundant or misplaced, such as the manual patch of title spacing\
+      \ in the preamble (lines 12\u201115) which can be replace"
+  - id: '051'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[5d62abe57e40]** (severity: writing): The abstract
+      includes a line break before the first sentence and an unnecessary figure environment;
+      move the teaser figure to the main text '
+  - id: '052'
+    severity: writing
+    status: done
+    text: "Address action item **[4e476b6c0c99]** (severity: writing): Repeated use\
+      \ of the phrase \u201Cplayful agentic robot learning\u201D throughout the paper\
+      \ creates redundancy; vary wording or use pronouns after the "
+  - id: '053'
+    severity: writing
+    status: done
+    text: 'Address action item **[8458b55d6c89]** (severity: writing): The bibliography
+      contains several entries with missing fields (e.g., missing year for some arXiv
+      preprints) and inconsistent capitalization;'
+  - id: '054'
+    severity: writing
+    status: done
+    text: 'Address action item **[c6e9aa5d486a]** (severity: writing): The appendix
+      sections contain large blocks of code without line numbers or proper formatting;
+      consider using the `listings` package options '
+  - id: '055'
+    severity: science
+    status: done
+    text: "Address action item **[3bdc426218b7]** (severity: science): Add deterministic\
+      \ seeds for all random processes (environment resets, point\u2011cloud sampling,\
+      \ LLM temperature) and log them in experiment outp"
+  - id: '056'
+    severity: science
+    status: done
+    text: "Address action item **[1095efcd7bba]** (severity: science): Provide scripts\
+      \ to automatically generate the evaluation benchmarks (the subset tables for\
+      \ LIBERO\u2011PRO and MolmoSpaces) rather than manually "
+  - id: '057'
+    severity: science
+    status: done
+    text: "Address action item **[350a345eb280]** (severity: science): Document the\
+      \ token budget and compute\u2011matched baseline methodology used in the token\u2011\
+      cost analysis, including the exact LLM model names and "
+  - id: 058
+    severity: science
+    status: done
+    text: "Address action item **[a377e80ad51b]** (severity: science): Provide a persistent,\
+      \ version\u2011controlled repository (e.g., a GitHub release with a DOI via\
+      \ Zenodo) for the code that implements the \textsc{R"
+  - id: 059
+    severity: science
+    status: skipped
+    text: "Address action item **[354a231afdba]** (severity: science): The manuscript\
+      \ overstates the generality of the reported gains. Claims such as \u201Cplay\u2011\
+      learned skills improve downstream performance both with"
+  - id: '060'
+    severity: science
+    status: skipped
+    text: "Address action item **[9a09b7923af9]** (severity: science): The reported\
+      \ real\u2011world improvements (\u22488\u20139\u202Fpp) are based on very limited\
+      \ experiments (2 tasks, 40 trials each) and lack statistical signific"
+  - id: '061'
+    severity: science
+    status: skipped
+    text: "Address action item **[d9b1d9a05313]** (severity: science): Cross\u2011\
+      embodiment transfer (e.g., two\u2011arm lifting) is demonstrated on a single\
+      \ RoboSuite task with a modest success increase. The paper shoul"
+  - id: '062'
+    severity: science
+    status: skipped
+    text: "Address action item **[b64a3a873c79]** (severity: science): Add an explicit\
+      \ safety analysis section (e.g., \xA76) describing hardware limits, emergency\u2011\
+      stop mechanisms, and how the system prevents unsafe"
+  - id: '063'
+    severity: science
+    status: skipped
+    text: "Address action item **[2acae33385f2]** (severity: science): Introduce safety\
+      \ constraints into the Code\u2011as\u2011Policy generation pipeline (Section\u202F\
+      3\u202FMethod, lines\u202F45\u201170) to filter out commands that could e"
+  - id: '064'
+    severity: science
+    status: done
+    text: "Address action item **[6a1446dd88a2]** (severity: science): Provide statistical\
+      \ significance testing (e.g., confidence intervals, hypothesis tests, or bootstrapped\
+      \ variance) for all reported success\u2011r"
+  - id: '065'
+    severity: science
+    status: done
+    text: 'Address action item **[ccade87f3cab]** (severity: science): Report the
+      number of random seeds or environment initializations used per task beyond the
+      fixed trial counts (e.g., are the 10 initializatio'
+  - id: '066'
+    severity: science
+    status: done
+    text: "Address action item **[22f9c2bbd403]** (severity: science): Clarify the\
+      \ total token/computational budget allocated to the play phase versus test\u2011\
+      time inference, and justify that the observed gains are"
+  - id: '067'
+    severity: science
+    status: done
+    text: 'Address action item **[9feaccd134bd]** (severity: science): Include ablations
+      that control for potential confounds such as the effect of longer retry budgets,
+      different LLM models, or variations in th'
+  - id: 068
+    severity: science
+    status: done
+    text: "Address action item **[d4addd3f457d]** (severity: science): For the real\u2011\
+      world evaluation (80 trials total), perform statistical analysis (e.g., binomial\
+      \ confidence intervals) and discuss whether the "
+  - id: 069
+    severity: science
+    status: done
+    text: "Address action item **[4dc04e575271]** (severity: science): Provide confidence\
+      \ intervals (e.g., 95% Wilson intervals) for all reported success rates in Tables\u202F\
+      1,\u202F2,\u202F3,\u202F4,\u202F5, and the real\u2011world results"
+  - id: '070'
+    severity: science
+    status: done
+    text: "Address action item **[527346ff5233]** (severity: science): Conduct hypothesis\
+      \ tests (e.g., paired t\u2011tests or non\u2011parametric Wilcoxon signed\u2011\
+      rank tests) to assess whether the observed improvements of\u202F"
+  - id: '071'
+    severity: science
+    status: done
+    text: "Address action item **[27849d74db86]** (severity: science): Address multiple\u2011\
+      comparison issues: you compare several methods across multiple task splits (object,\
+      \ goal, spatial) and environments. Apply "
+  - id: '072'
+    severity: science
+    status: done
+    text: "Address action item **[b78f541927d1]** (severity: science): Report variance\
+      \ measures (standard deviation or standard error) for each mean success rate,\
+      \ especially for the smaller real\u2011world sample (40"
+  - id: '073'
+    severity: science
+    status: done
+    text: "Address action item **[b57ab317a3ee]** (severity: science): Clarify the\
+      \ statistical model assumptions underlying the token\u2011cost analysis (e.g.,\
+      \ independence of token counts across iterations) and just"

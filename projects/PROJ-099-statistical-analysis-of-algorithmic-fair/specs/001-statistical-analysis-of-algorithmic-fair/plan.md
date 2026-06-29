@@ -115,7 +115,7 @@ projects/PROJ-099-statistical-analysis-of-algorithmic-fair/
 **Objective**: Train multiple baseline models per dataset using scikit-learn.
 
 **Steps**:
-1. Split each dataset into train/test (80/20 stratified)
+1. Split each dataset into train/test (stratified)
 2. Train Logistic Regression, Random Forest, Gradient Boosting models
 3. Pin random seeds for reproducibility
 4. Save trained models to data/processed/models/

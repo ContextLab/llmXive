@@ -25,7 +25,7 @@ As a researcher, I need to download 5-8 public datasets containing binary protec
 
 ### User Story 2 - Fairness Metric Computation (Priority: P2)
 
-As a researcher, I need to train 3-5 baseline models per dataset and compute 6+ fairness metrics (demographic parity difference, equalized odds difference, predictive parity, calibration within groups, disparate impact ratio, false positive rate disparity), so that I can quantify metric divergence across models and datasets.
+As a researcher, I need to train 3-5 baseline models per dataset and compute Multiple fairness metrics (demographic parity difference, equalized odds difference, predictive parity, calibration within groups, disparate impact ratio, false positive rate disparity), so that I can quantify metric divergence across models and datasets.
 
 **Why this priority**: This delivers the core empirical measurements—the fairness metric values that will be analyzed for correlations. It depends on US-1 but can be tested independently once datasets are available.
 
