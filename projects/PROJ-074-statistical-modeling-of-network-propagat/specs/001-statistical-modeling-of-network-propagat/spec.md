@@ -55,10 +55,10 @@ A researcher wants an automated report that flags high collinearity among predic
 - **What happens when a required variable (e.g., user‑susceptibility score) is missing from the input dataset?**  
   The pipeline aborts with a clear error message indicating the missing column and suggests the user verify the dataset schema.  
 
-- **How does the system handle cascades larger than the RAM‑constrained limit (10 000 nodes)?**  
+- **How does the system handle cascades larger than the RAM‑constrained limit?**  
   Cascades exceeding the limit are logged and skipped; a summary `skipped_cascades.log` records their identifiers for later manual inspection.  
 
-- **What if Hamiltonian Monte Carlo fails to converge within the 6‑hour budget?**  
+- **What if Hamiltonian Monte Carlo fails to converge within the allocated time budget?**  
   The training script detects divergent transitions > 5 % and automatically reduces the step size, re‑runs up to three times; if convergence still fails, it exits with a diagnostic report.
 
 ## Requirements *(mandatory)*
