@@ -1,0 +1,11 @@
+- artifact_hash: 6996651288cac088d1a5ae53034fb1be4379bf0762dfc92ba238e7e2b1217ed1
+  artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Johns Hopkins Turbulence Database JHTDB
+  kind: url
+  value: https://turbulence.pha.jhu.edu/
+  verification_status: verified
+  verified_against_url: https://turbulence.idies.jhu.edu/home
+  verified_at: '2026-06-29T01:32:19.108824Z'
