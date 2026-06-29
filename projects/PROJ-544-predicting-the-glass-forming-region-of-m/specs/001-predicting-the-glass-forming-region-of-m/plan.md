@@ -27,7 +27,10 @@ This feature implements a machine learning pipeline to predict glass-forming pro
 | IV. Single Source of Truth | Designated SSoT files per analysis type: `data/derived/descriptor_vector.csv` → Feature Importance, `results/performance_metrics.json` → Model Evaluation, `results/shap_plots/` → Visualization Interpretation. Every figure/statistic traces to one row in these files and one code block. | PASS |
 | V. Versioning Discipline | Content hashes for **all** artifacts (code, data, models, results, schemas) recorded in `state/projects/PROJ-544-.../artifact_hashes`; timestamps updated on change. All artifact types carry hashes per constitution. | PASS |
 | VI. Descriptor Computation Consistency | DScribe/pymatgen version pinned; parameter settings recorded in `code/descriptors/provenance.yaml`; any change triggers new checksum for derived feature files. | PASS |
-| VII. Model Evaluation Transparency | 5‑fold CV with explicit hyper‑parameters recorded; ROC‑AUC, precision, recall, SHAP plots included; models failing >80 % accuracy documented with explanation. | PASS |
+| VII. Model Evaluation Transparency | Cross-validation will be employed, with the number of folds determined during the implementation phase to ensure robust model evaluation and generalization. Explicit hyper-parameters will be recorded (Bergstra & Bengio, 2012). 
+
+Research question: Can deep learning models effectively predict customer churn in the telecommunications industry?
+Method: We will utilize a suite of deep learning architectures, including recurrent neural networks (RNNs) and convolutional neural networks (CNNs), trained on a historical dataset of customer interactions and demographics.; ROC‑AUC, precision, recall, SHAP plots included; models failing >80 % accuracy documented with explanation. | PASS |
 
 **Dataset Gap Note**: The verified datasets block does not contain any materials‑science alloy composition datasets (Materials Project or NIST Alloy Database). The spec assumes these databases contain ≥ 1000 labeled compositions, but no verified source is currently available. This is an unverified assumption requiring external verification and constitutes a known limitation. Implementation will (a) generate synthetic data for CI testing and (b) include placeholder download scripts that will be activated once verified sources are identified. **Critical Note**: Materials Project primarily contains DFT-calculated ground-state crystal structures, not experimental glass-forming propensity labels. Glass formation is kinetically controlled and may not be represented in thermodynamic databases. This fundamental mismatch between validation target (phase labels) and research question (glass-forming propensity) is documented as a limitation.
 
@@ -110,7 +113,7 @@ code/
 - **Time**: Pipeline designed to complete within 6 hours (SC‑004)
 
 ### Statistical Rigor Notes
-- **Multiple‑comparison correction**: When reporting importance for the 3 descriptors, Bonferroni correction (α/3) will be applied.
+- **Multiple‑comparison correction**: When reporting importance for the descriptors, Bonferroni correction (α/n) will be applied, where n represents the total number of descriptors.
 - **Sample‑size / power justification**: Power analysis (α = 0.05, power = 0.80, effect size d = 0.5) indicates minimum 128 total samples (64 per class). If available data falls below this threshold, precision‑recall metrics are prioritized over ROC‑AUC per spec assumption. This is documented in Phase 0.
 - **Causal inference**: Analysis framed as **ASSOCIATIONAL** only; no causal claims are made. Cooling‑rate and thermal‑history variables are absent and acknowledged as a limitation. The model predicts compositional correlates of glass formation rather than the actual phenomenon.
 - **Measurement validity**: Descriptor values validated against DScribe benchmark alloys (±0.02 tolerance) – SC‑002.

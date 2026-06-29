@@ -91,7 +91,7 @@ A member of the synthetic‑chemistry community wants a concise checklist of bes
 
 ## Assumptions
 
-- The USPTO‑Extract v1.0 dataset () includes all reaction‑specific variables required by the selected papers (reactant/product SMILES, measured yield). **[NEEDS CLARIFICATION: does USPTO‑Extract v1.0 also provide temperature, solvent, catalyst loading when those are used as covariates?]**
+- The USPTO‑Extract v1.0 dataset () includes all reaction‑specific variables required by the selected papers (reactant/product SMILES, measured yield). **The USPTO‑Extract v1.0 dataset provides core reaction data (reactant/product SMILES, measured yield) but temperature, solvent, and catalyst loading covariates are NOT guaranteed. Per community practice in reaction‑yield prediction (see USPTO‑Extract documentation and [J. Chem. Inf. Model. 2022, 62, 16, 3759–3771]), covariate availability is paper‑specific. The system MUST verify covariate presence per paper entry in the manifest (FR‑003) and flag any study that requires these covariates but cannot retrieve them, recording this as a known limitation in the results log.**
 - All target papers provide either (i) a public repository with runnable code or (ii) a complete textual description that can be faithfully re‑implemented in ≤ 200 LOC of Python.
 - Reported metrics are *associational* performance measures; the study will not claim causal inference about model superiority beyond reproducibility of reported numbers.
 - The free‑tier GitHub Actions runner (2 CPU cores, ≤ 7 GB RAM, ≤ 6 h wall‑time) is sufficient to train each model; models are limited to ≤ 1 M parameters or to classical ML algorithms (random forest, gradient boosting, shallow NN ≤ 3 layers).

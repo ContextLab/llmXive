@@ -1,0 +1,82 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelArtifact Schema
+description: Ridge Regression model coefficients and evaluation metrics
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique model identifier"
+  metabolite_id:
+    type: string
+    description: "Target metabolite for prediction"
+  alpha:
+    type: number
+    minimum: 0
+    description: "Ridge penalty parameter"
+  random_seed:
+    type: integer
+    description: "Random seed for reproducibility"
+  coefficients:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Gene → coefficient mapping"
+  intercept:
+    type: number
+    description: "Model intercept"
+  folds:
+    type: integer
+    minimum: 1
+    description: "Number of CV folds"
+  rmse_mean:
+    type: number
+    minimum: 0
+    description: "Mean RMSE across folds"
+  rmse_std:
+    type: number
+    minimum: 0
+    description: "Standard deviation of RMSE"
+  pearson_r_mean:
+    type: number
+    minimum: -1
+    maximum: 1
+    description: "Mean Pearson correlation across folds"
+  pearson_r_std:
+    type: number
+    minimum: 0
+    description: "Standard deviation of Pearson correlation"
+  permutation_iterations:
+    type: integer
+    minimum: 1
+    description: "Number of permutation iterations"
+  permutation_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Permutation test p-value"
+  permutation_p_value_corrected:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-corrected p-value"
+  correction_method:
+    type: string
+    enum:
+      - bonferroni
+    description: "Multiple testing correction method"
+required:
+  - model_id
+  - metabolite_id
+  - alpha
+  - random_seed
+  - coefficients
+  - intercept
+  - folds
+  - rmse_mean
+  - rmse_std
+  - pearson_r_mean
+  - pearson_r_std
+  - permutation_iterations
+  - permutation_p_value
+  - permutation_p_value_corrected
+  - correction_method

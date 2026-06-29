@@ -122,7 +122,7 @@ def _compile_full(source_dir: Path) -> tuple[bool, bytes | None]:
     if primary is None:
         return False, None
     # Defence in depth: the publisher runs in a TeX-equipped lane
-    # (pipeline-paper-write.yml installs TeX Live), but if it is ever dispatched
+    # (paper-compile.yml installs TeX Live), but if it is ever dispatched
     # somewhere without lualatex, fail with a clear (False, None) the caller turns
     # into "final paper compile failed" — never a raw FileNotFoundError that reads
     # as a mystery crash (mirrors the implementer's shutil.which compile guard).

@@ -1,0 +1,76 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ExpressionMatrix Schema
+description: Normalized gene expression matrix with pathway annotations
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Data source (GEO accession ID)"
+      download_date:
+        type: string
+        format: date
+        description: "Date of data download"
+      preprocessing_version:
+        type: string
+        description: "Version of preprocessing script applied"
+      species:
+        type: array
+        items:
+          type: string
+        description: "List of species included (Arabidopsis, Solanum)"
+    required:
+      - source
+      - download_date
+      - preprocessing_version
+      - species
+  columns:
+    type: array
+    items:
+      type: string
+    description: "Column names in the matrix"
+  rows:
+    type: array
+    items:
+      type: object
+      properties:
+        gene_id:
+          type: string
+          description: "Gene identifier (e.g., AT1G01010)"
+        sample_id:
+          type: string
+          description: "Biological sample identifier"
+        expression_value:
+          type: number
+          minimum: 0
+          description: "TPM or FPKM normalized expression value"
+        species:
+          type: string
+          enum:
+            - Arabidopsis
+            - Solanum
+          description: "Species of origin"
+        condition:
+          type: string
+          description: "Treatment condition (e.g., herbivore, control)"
+        pathway_id:
+          type: string
+          description: "KEGG pathway ID (e.g., ko00900)"
+        variance:
+          type: number
+          minimum: 0
+          description: "Variance across all samples"
+      required:
+        - gene_id
+        - sample_id
+        - expression_value
+        - species
+        - condition
+        - pathway_id
+        - variance
+required:
+  - metadata
+  - columns
+  - rows

@@ -405,3 +405,87 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T00:47:51Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 0
+  canonical: 10000 Monte-Carlo replicates per statistical test
+  claim_id: c_23613697
+  context: "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in src/audit/monte_carlo_validation.py"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: nsim = 10 000 simulation runs. Throughout the simulations, the newly
+        developed tests T(u), T(w),a n d TW proposed in
+      source_id: https://doi.org/10.1002/sim.8343
+      url: https://refubium.fu-berlin.de/bitstream/fub188/34847/1/2019_Roy_etal.pdf
+      value: 10 000
+    filled: true
+  kind: numeric
+  raw_text: runs 10,000 replicates for each statistical test (z-test, Fisher's, Welch's,
+    binomial)
+  resolved_value: 10 000
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T01:26:55Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: 10000 simulated A/B test summaries in synthetic validation dataset
+  claim_id: c_f7ebb2f1
+  context: "T026 Implement synthetic dataset generator in src/audit/synthetic.py (FR\u2011\
+    030)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/10000_simulated_A/B_test_summaries_in_synthetic_validation_d
+  kind: magnitude
+  raw_text: outputs data/synthetic/synthetic_validation.csv + data/synthetic/synthetic_ground_truth.json
+    with at least 10,000 simulated summaries (binary AND continuous outcomes)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T01:28:35Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: 100 public A/B test URLs across 5 domains with 20 per domain minimum
+  claim_id: c_763ed883
+  context: "T069a Source \u2265 100 public A/B test summary URLs across five major\
+    \ domains"
+  evidence:
+    candidates:
+    - - Donate Create account Log in
+      - 100.0
+    - - B test URLs across 5 domains with
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/100_public_A/B_test_URLs_across_5_domains_with_20_per_domain
+  kind: magnitude
+  raw_text: "Source \u2265 100 public A/B test summary URLs across five major domains\
+    \ (tech, e\u2011commerce, finance, healthcare, SaaS) with at least 20 per domain"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-29T01:29:59Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: audited corpus size N at least 300
+  claim_id: c_e02cd1a8
+  context: "T028 Implement power\u2011analysis utility in src/audit/power_analysis.py\
+    \ (FR\u2011025)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://linkinghub.elsevier.com/retrieve/pii/S1877042814059588
+  kind: magnitude
+  raw_text: "audited corpus meets N \u2265 300 OR N \u2265 calculated_minimum"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T01:36:37Z'

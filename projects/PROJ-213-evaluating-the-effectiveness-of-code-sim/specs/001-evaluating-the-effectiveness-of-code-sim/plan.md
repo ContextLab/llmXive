@@ -93,7 +93,7 @@ projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/
 |----|------|-------------------------------|
 | FR-001 | Data fetch | Phase 2: `download.py` - HumanEval from HuggingFace |
 | FR-002 | AST simplification | Phase 2: `simplify.py` - dead-code removal, boolean reduction |
-| FR-003 | Inference setup | Phase 2: `inference.py` - 4-bit StarCoder via llama.cpp on CPU |
+| FR-003 | Inference setup | Phase 2: `inference.py` - quantized StarCoder via llama.cpp on CPU |
 | FR-004 | Metrics logging | Phase 2: `inference.py` - record token_count, inference_time_ms to CSV |
 | FR-005 | Statistical test | Phase 2: `analyze.py` - McNemar's (pass@1) + Wilcoxon (time) + Bonferroni (3 hypotheses) |
 | FR-006 | Report generation | Phase 2: `analyze.py` - PDF with tables, figures |

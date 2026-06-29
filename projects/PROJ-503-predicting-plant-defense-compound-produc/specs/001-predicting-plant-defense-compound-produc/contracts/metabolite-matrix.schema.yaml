@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MetaboliteMatrix Schema
+description: Log-transformed metabolite concentration matrix with sample pairing
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Data source (Metabolomics Workbench accession ID)"
+      download_date:
+        type: string
+        format: date
+        description: "Date of data download"
+      preprocessing_version:
+        type: string
+        description: "Version of preprocessing script applied"
+      species:
+        type: array
+        items:
+          type: string
+        description: "List of species included (Arabidopsis, Solanum)"
+    required:
+      - source
+      - download_date
+      - preprocessing_version
+      - species
+  columns:
+    type: array
+    items:
+      type: string
+    description: "Column names in the matrix"
+  rows:
+    type: array
+    items:
+      type: object
+      properties:
+        metabolite_id:
+          type: string
+          description: "Metabolite identifier (e.g., camalexin)"
+        sample_id:
+          type: string
+          description: "Biological sample identifier (must match ExpressionMatrix)"
+        concentration:
+          type: number
+          description: "Log2-transformed concentration value"
+        pathway_class:
+          type: string
+          enum:
+            - terpenoid
+            - alkaloid
+            - phenylpropanoid
+          description: "Defense pathway class"
+        detection_limit:
+          type: number
+          nullable: true
+          description: "Instrument detection limit (if applicable)"
+      required:
+        - metabolite_id
+        - sample_id
+        - concentration
+        - pathway_class
+required:
+  - metadata
+  - columns
+  - rows
