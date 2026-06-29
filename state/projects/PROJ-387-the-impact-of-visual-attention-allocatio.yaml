@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T03:19:07.490064Z'
-current_stage: project_initialized
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-387-the-impact-of-visual-attention-allocatio
-last_run_id: b6c48c68-674b-4c5f-8435-14984610c6c3
+last_run_id: 57e96dea-fa74-4a76-9cdd-ec6442517905
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-387-the-impact-of-visual-attention-allocatio/specs/001-the-impact-of-visual-attention-allocatio
 title: The Impact of Visual Attention Allocation on Recall of Emotionally Valenced
   Stories
-updated_at: '2026-06-24T10:10:05.918894Z'
+updated_at: '2026-06-29T19:11:13.858670Z'

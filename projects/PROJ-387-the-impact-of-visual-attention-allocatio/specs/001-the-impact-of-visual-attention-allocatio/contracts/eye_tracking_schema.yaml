@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EyeTrackingRecord Validation Schema"
+description: "Schema for validating input eye-tracking data per FR-002 and Constitution VI."
+type: "object"
+required:
+  - "participant_id"
+  - "passage_id"
+  - "fixation_duration_ms"
+  - "saccade_amplitude_deg"
+  - "gaze_distribution_density"
+  - "track_loss_pct"
+  - "calibrated"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  passage_id:
+    type: "string"
+    description: "Unique identifier for the story segment."
+  fixation_duration_ms:
+    type: "number"
+    description: "Average fixation duration in milliseconds."
+  saccade_amplitude_deg:
+    type: "number"
+    description: "Average saccade amplitude in degrees of visual angle."
+  gaze_distribution_density:
+    type: "number"
+    description: "AOI (Area of Interest) coverage percentage; minimum 70% for valid records."
+    minimum: 70.0
+    maximum: 100.0
+  track_loss_pct:
+    type: "number"
+    description: "Percentage of lost track data; must be ≤5.0."
+    maximum: 5.0
+  calibrated:
+    type: "boolean"
+    description: "Eye-tracker calibration status."
+additionalProperties: false
