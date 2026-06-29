@@ -23979,27 +23979,6 @@
   status: not_enough_info
   updated_at: '2026-06-18T06:42:00Z'
 - artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
-  attempts: 2
-  canonical: 9988 prime knots with crossing number less than or equal to 13
-  claim_id: c_719d60b7
-  context: "Goal: Download knot data from Knot Atlas including crossing numbers, braid\
-    \ indices, hyperbolic volume, and alternating/non\u2011alternating classification\
-    \ for all prime knots with crossing number \u2264 13 (\u2248 9988 knots, OEIS\
-    \ A002863)."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/9988_prime_knots_with_crossing_number_less_than_or_equal_to
-  kind: magnitude
-  raw_text: "The dataset includes approximately 9988 prime knots with crossing number\
-    \ \u2264 13."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-29T19:42:32Z'
-- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   attempts: 1
   canonical: 9988 prime knots with crossing number less than or equal to 13
   claim_id: c_97f51407
@@ -24127,3 +24106,81 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T19:44:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: examples include test tasks
+  claim_id: c_3083dadc
+  context: '**Tests**: The examples below include test tasks. Tests are OPTIONAL -
+    only include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T22:12:31Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 3
+  canonical: 9988 prime knots with crossing number less than or equal to 13
+  claim_id: c_719d60b7
+  context: "Goal: Download knot data from Knot Atlas including crossing numbers, braid\
+    \ indices, hyperbolic volume, and alternating/non\u2011alternating classification\
+    \ for all prime knots with crossing number \u2264 13 (\u2248 9988 knots, OEIS\
+    \ A002863)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/9988_prime_knots_with_crossing_number_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "The dataset includes approximately 9988 prime knots with crossing number\
+    \ \u2264 13."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T22:13:26Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: 9988 prime knots with crossing number less than or equal to 13
+  claim_id: c_444e84ba
+  context: "- [X] T017 [US1] Generate dataset size report in `docs/reproducibility/dataset_counts.md`\
+    \ stating the total number of prime knots with crossing number \u2264 13 (\u2248\
+    \ 9988, OEIS A002863) and per\u2011crossing\u2011number counts."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/9988_prime_knots_with_crossing_number_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "The dataset includes approximately 9988 prime knots with crossing number\
+    \ \u2264 13."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T22:13:33Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: 9988 prime knots with crossing number less than or equal to 13
+  claim_id: c_ef1d636f
+  context: "- [X] T020 [US1] Verify dataset size against OEIS A002863 (9988 prime\
+    \ knots \u2264 13 crossings)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/9988_prime_knots_with_crossing_number_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "The dataset includes approximately 9988 prime knots with crossing number\
+    \ \u2264 13."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T22:13:39Z'

@@ -7,7 +7,7 @@ description: "Task list template for feature implementation"
 **Input**: Design documents from `/specs/001-knot-complexity-analysis/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. [UNRESOLVED-CLAIM: c_3083dadc — status=not_enough_info] Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -188,7 +188,7 @@ description: "Task list template for feature implementation"
 
 - [X] T081 [US3] Refactor `code/analysis/invariant_coverage.py` (created in T026b) into focused modules: `code/analysis/coverage.py` (pure calculations) and `code/analysis/coverage_reporting.py` (report generation) (per Reviewer Action Item Modularity & Readability).
 - [X] T082 [US3] Refactor `code/analysis/hyperbolic_volume_validation.py` (created in T040b) into `code/analysis/validation.py` (cross‑check logic) and `code/analysis/validation_reporting.py` (report generation) (per Reviewer Action Item Modularity & Readability).
-- [ ] T083 [US3] Refactor `code/analysis/regression.py` into `code/analysis/model_fitting.py` (regression fitting, residuals, metrics) and `code/analysis/plotting.py` (figure generation) (per Reviewer Action Item Modularity & Readability).
+- [X] T083 [US3] Refactor `code/analysis/regression.py` into `code/analysis/model_fitting.py` (regression fitting, residuals, metrics) and `code/analysis/plotting.py` (figure generation) (per Reviewer Action Item Modularity & Readability).
 - [ ] T084 [US1] Add PEP 484 type annotations to `code/download/knot_atlas_loader.py` (per Reviewer Action Item Type Hints).
 - [ ] T085 [US2] Add PEP 484 type annotations to `code/analysis/precision.py` (per Reviewer Action Item Type Hints).
 - [ ] T086 [US3] Add unit tests in `tests/unit/test_regression.py` for regression model fitting and goodness‑of‑fit metric calculation (per Reviewer Action Item Testing).

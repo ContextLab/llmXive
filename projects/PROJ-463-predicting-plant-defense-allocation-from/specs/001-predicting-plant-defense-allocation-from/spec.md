@@ -13,12 +13,15 @@ As a researcher, I want to automatically acquire publicly available RNA‑seq da
 
 **Why this priority**: This is the foundational step without which no analysis is possible. All subsequent user stories depend on having clean, batch‑corrected expression data.
 
-**Independent Test**: Can be fully tested by running the pipeline on a subset of GEO studies and verifying that output TPM matrices have ≥95% of genes with non‑zero counts and batch‑corrected samples show reduced variance across studies (ComBat‑seq output metrics).
+**Independent Test**: Can be fully tested by running the pipeline on a subset of GEO studies and verifying that:
+1. Output files match the expected FASTA/TPM format specifications.
+2. The batch correction module executes successfully and reports a variance reduction metric for the defined housekeeping gene set.
+3. The pipeline correctly flags samples with coverage below the configurable threshold.
 
 **Acceptance Scenarios**:
 
 1. **Given** 3+ GEO/SRA studies with plant herbivory RNA‑seq data and tissue metadata, **When** the pipeline runs, **Then** FASTQ files are downloaded, quality‑trimmed with fastp, aligned with HISAT2, and quantified with featureCounts into TPM matrices
-2. **Given** multiple studies with batch effects, **When** ComBat‑seq batch correction is applied, **Then** the coefficient of variation across batches decreases by ≥20% for housekeeping genes
+2. **Given** multiple studies with batch effects, **When** ComBat‑seq batch correction is applied, **Then** the coefficient of variation across batches decreases by ≥20% for the defined housekeeping gene set
 3. **Given** studies lacking tissue information or biological replicates, **When** filtering is applied, **Then** those studies are excluded and a log reports the exclusion reason
 
 ---
@@ -29,12 +32,12 @@ As a researcher, I want to compute differential expression between herbivore tre
 
 **Why this priority**: This transforms raw expression data into the predictor variables for the research question. It is the core analytical step that enables US‑3.
 
-**Independent Test**: Can be fully tested by running DESeq2 on a single species‑tissue pair with known chewing vs control samples and verifying that ≥150 of the top 200 DE genes match published herbivory response genes (Jaccard similarity ≥0.75).
+**Independent Test**: Can be fully tested by running DESeq2 on a single species‑tissue pair with known chewing vs control samples and verifying that the pipeline correctly identifies DE genes and constructs the response vector using the specified aggregation logic.
 
 **Acceptance Scenarios**:
 
 1. **Given** normalized TPM matrices with ≥2 biological replicates per condition, **When** DESeq2 is run with FDR < 0.05 and |log₂FC| > 1 thresholds, **Then** a list of DE genes with signed log₂FC values is produced for each herbivore type (chewing vs piercing‑sucking)
-2. **Given** DE genes across multiple studies, **When** the top 200 common DE genes are selected, **Then** a herbivore‑response vector is derived with consistent gene ordering across species
+2. **Given** DE genes across multiple studies, **When** the top 200 common DE genes are selected (based on aggregate significance within the training fold), **Then** a herbivore‑response vector is derived with consistent gene ordering across species
 3. **Given** species with insufficient replicates (<2 per condition), **When** filtering is applied, **Then** those species are excluded and the exclusion is logged for traceability
 
 ---
@@ -45,12 +48,16 @@ As a researcher, I want to train regularized linear models (Elastic Net) and ran
 
 **Why this priority**: This delivers the final research output (the prediction model and its validation). It depends on US‑1 and US‑2 being complete.
 
-**Independent Test**: Can be fully tested by running leave‑one‑species‑out CV on ≥5 species and verifying that the model achieves Spearman correlation ≥0.3 between predicted and observed defense allocation indices with permutation p < 0.05.
+**Independent Test**: Can be fully tested by running the modeling pipeline on a dataset of ≥5 species and verifying that:
+1. The dimensionality reduction step (pathway aggregation) is executed, reducing features to ≤50.
+2. The model training executes the specified leave-one-species-out cross-validation loop.
+3. The permutation test executes the specified number of iterations and calculates p-values.
+4. The output includes all required performance metrics (R², Spearman correlation) and confidence intervals.
 
 **Acceptance Scenarios**:
 
-1. **Given** herbivore‑response vectors and defense allocation indices for ≥5 species, **When** Elastic Net and random‑forest models are trained with leave‑one‑species‑out CV, **Then** test‑set R² and Spearman correlation are computed for each fold
-2. **Given** 10,000 permutations of the defense allocation index, **When** the null distribution is generated, **Then** the observed correlation's p‑value is calculated and reported with 95% CI via bootstrapping
+1. **Given** pathway-level herbivore-response vectors and defense allocation indices for ≥5 species, **When** Elastic Net and random‑forest models are trained with leave‑one‑species‑out CV, **Then** test‑set R² and Spearman correlation are computed for each fold
+2. **Given** [deferred] permutations of the defense allocation index, **When** the null distribution is generated, **Then** the observed correlation's p‑value is calculated and reported with [deferred]% CI via bootstrapping
 3. **Given** multiple tissue‑specific models, **When** results are compared, **Then** a tissue‑specificity effect size (ΔR² between leaf‑only and multi‑tissue models) is reported
 
 ---
@@ -59,7 +66,7 @@ As a researcher, I want to train regularized linear models (Elastic Net) and ran
 
 - What happens when a species has RNA‑seq data for chewing herbivores but not piercing‑sucking herbivores (or vice versa)? → The species is excluded from the paired analysis and logged; a sensitivity analysis is run on the subset with both herbivore types.
 - How does the system handle batch effects that exceed ComBat‑seq correction capacity (e.g., different sequencing platforms)? → Batch is recorded as a covariate; if residual batch variance >15% after correction, the study is flagged for manual review and may be excluded.
-- What happens when the defense trait database (TRY) lacks data for a species included in the RNA‑seq analysis? → That species is excluded from the prediction model; the exclusion rate is tracked and if >30% of species lack defense traits, a `[NEEDS CLARIFICATION: can alternative trait sources be integrated?]` is raised.
+- What happens when the defense trait database (TRY) lacks data for a species included in the RNA‑seq analysis? → That species is excluded from the prediction model; the exclusion rate is tracked. If the system cannot retrieve data for >30% of the target species after attempting fallback sources, the modeling phase halts, the exclusion count is logged, and a `human_input_needed` flag is raised (See FR-011).
 
 ## Requirements *(mandatory)*
 
@@ -67,14 +74,16 @@ As a researcher, I want to train regularized linear models (Elastic Net) and ran
 
 - **FR-001**: System MUST download FASTQ files from NCBI GEO/SRA for ≥3 plant herbivory studies with tissue metadata and ≥2 biological replicates per condition (See US-1)
 - **FR-002**: System MUST perform quality trimming with fastp, alignment with HISAT2, and transcript quantification with featureCounts to produce TPM matrices (See US-1)
-- **FR-003**: System MUST apply ComBat‑seq batch correction and verify that batch variance reduction ≥20% for housekeeping genes (See US-1)
+- **FR-003**: System MUST apply ComBat‑seq batch correction and verify that batch variance reduction ≥20% for the top 50 most stable genes per tissue as identified by GeNorm or a pre-defined reference set (See US-1)
 - **FR-004**: System MUST run DESeq2 with FDR < 0.05 and |log₂FC| > 1 to identify DE genes for each herbivore type (See US-2)
-- **FR-005**: System MUST derive a herbivore‑response vector from the top 200 common DE genes with consistent gene ordering across species (See US-2)
-- **FR-006**: System MUST compile a defense allocation index = (sum of standardized chemical traits) / (sum of standardized physical traits) from TRY database and literature (See US-3)
-- **FR-007**: System MUST train Elastic Net and random‑forest regressors with leave‑one‑species‑out cross‑validation (See US-3)
-- **FR-008**: System MUST calculate Spearman correlation between predicted and observed defense allocation indices with 10,000 permutations for significance (See US-3)
+- **FR-005**: System MUST derive a herbivore‑response vector from the top 200 common DE genes ranked by aggregate significance (mean -log10(p-value)) across the training set within each Leave-One-Species-Out fold, ensuring no data leakage (See US-2)
+- **FR-006**: System MUST compile a defense allocation index = (mean of standardized chemical traits) / (mean of standardized physical traits) using a fixed, documented list of traits (e.g., top 5 by variance) from TRY database, Phenoscape, GBIF trait extensions, or specific literature repositories (See US-3)
+- **FR-007**: System MUST train Elastic Net and random‑forest regressors with leave‑one‑species‑out cross‑validation where feature selection and model training occur strictly within the training fold (See US-3)
+- **FR-008**: System MUST calculate Spearman correlation between predicted and observed defense allocation indices with [deferred] permutations for significance (See US-3)
 - **FR-009**: System MUST perform sensitivity analysis varying the number of DE genes in the response vector (across multiple levels) and report how R² varies (See US-3)
 - **FR-010**: System MUST apply family‑wise error correction (Bonferroni or Holm) when testing >1 hypothesis (See US-3)
+- **FR-011**: System MUST attempt to integrate alternative public sources (e.g., Phenoscape, GBIF trait extensions, or specific literature repositories) via a fallback lookup if the primary source (TRY) lacks data for a species. If no alternative source yields data for >30% of the target species, the system MUST halt the modeling phase, log the exclusion count, and raise a `human_input_needed` flag (See US-3)
+- **FR-012**: System MUST perform pathway-level aggregation (e.g., KEGG/GO) to reduce the herbivore-response vector from 200 genes to ≤50 pathway-level features before model training to address the small-n, large-p problem (See US-3)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -94,17 +103,18 @@ As a researcher, I want to train regularized linear models (Elastic Net) and ran
 - **SC-001**: Batch variance reduction is measured against pre‑correction housekeeping gene CV (See US-1)
 - **SC-002**: DE gene reproducibility is measured against published herbivory response gene lists (Jaccard similarity ≥0.75) (See US-2)
 - **SC-003**: Predictive model performance (R², Spearman correlation) is measured against leave‑one‑species‑out test sets (See US-3)
-- **SC-004**: Statistical significance (p‑value) is measured against 10,000‑permutation null distribution (See US-3)
-- **SC-005**: Sensitivity to DE gene count is measured by R² variation across {100, 150, 200, 250} genes (See US-3)
+- **SC-004**: Statistical significance (p‑value) is measured against [deferred]-permutation null distribution (See US-3)
+- **SC-005**: Sensitivity to DE gene count is measured by R² variation across [deferred] gene counts (See US-3)
 
 ## Assumptions
 
-- Public RNA‑seq studies in GEO/SRA contain ≥2 biological replicates per herbivore treatment condition for at least 5 plant species with both chewing and piercing‑sucking herbivore data
-- The TRY plant trait database or supplementary tables of the RNA‑seq studies contain standardized chemical defense (e.g., glucosinolates, alkaloids) and physical defense (e.g., trichome density, leaf tensile strength) metrics for ≥5 of the species in the transcriptomic dataset
-- All required data (FASTQ files, reference genomes, trait databases) fit within 7 GB RAM and 14 GB disk on a GitHub Actions free‑tier runner; larger datasets will be sampled to ≤1 GB before processing
-- The analysis will complete within ≤6 hours of CPU time on a 2‑core, ~7 GB RAM runner without GPU acceleration
+- Public RNA‑seq studies in GEO/SRA contain [deferred] biological replicates per herbivore treatment condition for at least [deferred] plant species with both chewing and piercing‑sucking herbivore data
+- The TRY plant trait database or supplementary tables of the RNA‑seq studies contain standardized chemical defense (e.g., glucosinolates, alkaloids) and physical defense (e.g., trichome density, leaf tensile strength) metrics for [deferred] of the species in the transcriptomic dataset
+- All required data (FASTQ files, reference genomes, trait databases) fit within [deferred] RAM and [deferred] disk on a GitHub Actions free‑tier runner; larger datasets will be sampled to [deferred] before processing
+- The analysis will complete within [deferred] of CPU time on a [deferred] runner without GPU acceleration
 - Tissue metadata in GEO/SRA submissions are sufficiently accurate to distinguish leaf, stem, and root samples for tissue‑specific analysis
 - Herbivore treatment annotations (chewing vs piercing‑sucking) in the original studies are correctly labeled and do not require manual curation beyond automated keyword matching
-- The 200‑gene threshold for the herbivore‑response vector is based on community‑standard top‑DE gene cutoffs in plant transcriptomics; this will be validated via the sensitivity analysis in FR-009
+- The [deferred]-gene threshold for the herbivore‑response vector is based on community‑standard top‑DE gene cutoffs in plant transcriptomics; this will be validated via the sensitivity analysis in FR-009
+- The Defense Allocation Index (ratio of means) is justified as a robust, interpretable metric for comparative analysis, avoiding the instability of summing standardized traits across small sample sizes
 - Findings are framed as associational (not causal) because the design is observational with no random assignment of herbivore treatments
 - Family‑wise error correction uses Holm‑Bonferroni method as a standard choice for ≤10 hypothesis tests in ecological meta‑analyses

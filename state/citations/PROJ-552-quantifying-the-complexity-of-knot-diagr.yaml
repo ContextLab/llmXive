@@ -897,25 +897,3 @@
   verification_status: unreachable
   verified_against_url: https://katlas.org`
   verified_at: '2026-06-29T11:24:37.498270Z'
-- artifact_hash: 9089cc913a8702c008885329e0256739c76643400ab20ba3b78070423402ab2a
-  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Knot Atlas
-  kind: url
-  value: https://katlas.org
-  verification_status: verified
-  verified_against_url: https://katlas.org/wiki/Main_Page
-  verified_at: '2026-06-29T19:19:43.270460Z'
-- artifact_hash: 9089cc913a8702c008885329e0256739c76643400ab20ba3b78070423402ab2a
-  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://oeis.org/A002863
-  verification_status: unreachable
-  verified_against_url: https://oeis.org/A002863
-  verified_at: '2026-06-29T19:19:43.270460Z'

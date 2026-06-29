@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T09:41:51.409910Z'
-current_stage: tasked
+current_stage: clarified
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-079-investigating-the-predictive-power-of-vi
-last_run_id: bb7485bd-4ec2-4558-a393-f318b43b9639
+last_run_id: bd08b2cf-372f-4742-a9fc-36542e1f0117
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi
 title: Investigating the Predictive Power of Viral Sequence Features for Host Immune
   Response
-updated_at: '2026-06-29T19:41:00.563416Z'
+updated_at: '2026-06-29T22:02:56.227030Z'
