@@ -1,0 +1,169 @@
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/data/README.md
+  attempts: 1
+  canonical: HumanEval dataset contains 164 total problems
+  claim_id: c_408831d3
+  context: '### Dataset Information ... - **Total Problems**: 164'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems,
+        collected from various online educational websites.'
+      source_id: Language model benchmark
+      url: https://en.wikipedia.org/wiki/Language_model_benchmark
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: '- **Total Problems**: 164'
+  resolved_value: '164'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T06:12:58Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains 164 problems
+  claim_id: c_c9ee2ab8
+  context: "spec FR-010 requires n\u2265200 but HumanEval has n=164; propose mitigation\
+    \ (document limitation in final report, note reduced power)"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: manEval (Chen et al., 2021) with 164 tasks,
+      source_id: '2410.12381'
+      url: https://arxiv.org/abs/2410.12381
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: HumanEval has n=164
+  resolved_value: '164'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T06:18:01Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: StarCoder-1.3B 4-bit GGUF requires 7GB RAM on CPU
+  claim_id: c_847df114
+  context: 'Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within
+    7GB RAM limit; HumanEval (the complete problem set) can be processed within maximum
+    job duration limit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T06:22:41Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/research.md
+  attempts: 0
+  canonical: HumanEval dataset contains 164 problems
+  claim_id: c_00a5b9b4
+  context: HumanEval Dataset Information table with dataset_name, version_number,
+    and total_problems fields
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems,
+        collected from various online educational websites.'
+      source_id: Language model benchmark
+      url: https://en.wikipedia.org/wiki/Language_model_benchmark
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: total_problems | 164
+  resolved_value: '164'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-29T06:27:24Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/research.md
+  attempts: 1
+  canonical: bartowski/starcoderbase-1b-GGUF repository has 15000+ downloads
+  claim_id: c_12464d43
+  context: Model Source Verification table with repository_id, author, downloads,
+    and likes fields
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downloads | 15000+
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T06:43:41Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/research.md
+  attempts: 1
+  canonical: bartowski/starcoderbase-1b-GGUF repository has 500+ likes
+  claim_id: c_86065456
+  context: Model Source Verification table with repository_id, author, downloads,
+    and likes fields
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: likes | 500+
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T06:50:21Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/research.md
+  attempts: 1
+  canonical: StarCoder-1.3B model has 1.3 billion parameters
+  claim_id: c_80164ed0
+  context: CPU Feasibility Analysis table with metric parameters and quantization
+    fields
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: parameters | 1.3B
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T07:06:11Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: StarCoder-1.3B 4-bit CPU RAM requirement 7GB
+  claim_id: c_e1a81050
+  context: 'Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within
+    7GB RAM limit; HumanEval (the complete problem set) can be processed within maximum
+    job duration limit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T07:06:35Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset from HuggingFace Datasets
+  claim_id: c_7b495681
+  context: 'Section 1: Dataset version (HumanEval version number from HuggingFace)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_from_HuggingFace_Datasets
+  kind: entity_fact
+  raw_text: HumanEval dataset version from HuggingFace Datasets
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T07:10:45Z'

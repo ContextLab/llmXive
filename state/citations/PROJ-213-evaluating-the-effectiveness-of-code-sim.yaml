@@ -9,3 +9,37 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/openai_humaneval**/datasets
   verified_at: '2026-06-28T23:37:37.209136Z'
+- artifact_hash: f5caa9bf215ac8d53f77229f85e0e5c09fd976fda2731f5b481e89bde6def2be
+  artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/data/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/openai_humaneval
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/openai_humaneval/datasets
+  verified_at: '2026-06-29T06:03:45.528820Z'
+- artifact_hash: a9ad7d7f4dd0bb7cc6fcfc21665bbdb79275944aecc6bab9b51ae62fe21d664d
+  artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Language model benchmark - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Language_model_benchmark
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Language_model_benchmark
+  verified_at: '2026-06-29T07:06:11.359954Z'
+- artifact_hash: 1d0512ff60973cd5b7eac0b5a673484a4fb61130e02c247fef403a77cc74551a
+  artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2410.12381] HumanEval-V: Benchmarking High-Level Visual Reasoning
+    with Complex Diagrams in Coding Tasks'
+  kind: url
+  value: https://arxiv.org/abs/2410.12381
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2410.12381
+  verified_at: '2026-06-29T07:10:45.127555Z'

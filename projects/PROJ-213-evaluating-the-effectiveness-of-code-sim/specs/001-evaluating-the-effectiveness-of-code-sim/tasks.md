@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 0: Research (Blocking Prerequisites)
@@ -52,11 +52,11 @@
 - Section 4: Statistical design (test names, hypotheses, correction method)
 - Section 5: Constitutional compliance checklist (seeds, checksums, citation verification)
 
-- [ ] T001 [P] Verify HumanEval dataset availability and version from HuggingFace Datasets; record version in data/README.md with explicit output format: research.md Section 1 must include dataset_name, version_number, fetch_date, source_url
-- [ ] T001a [P] Generate MD5/SHA256 checksums for HumanEval dataset files; record checksums in state/map.json under data/raw/ with artifact_id, checksum, timestamp, hash fields (Constitution Principle III)
-- [ ] T002 [P] Verify StarCoder-1.3B 4-bit GGUF model source and CPU feasibility; document in research.md Section 2 with model_name, quantization_level, estimated_ram_gb, estimated_runtime_hours
-- [ ] T003 [P] Create power/sample-size justification in research.md Section 3 (FR-010: document minimum detectable effect for n=164 at power≥0.8; include constraint_mismatch field noting spec requires n≥200)
-- [ ] T003a [P] Document power analysis constraint mismatch in research.md Section 3: spec FR-010 requires n≥200 but HumanEval has n=164; propose mitigation (document limitation in final report, note reduced power)
+- [X] T001 [P] Verify HumanEval dataset availability and version from HuggingFace Datasets; record version in data/README.md with explicit output format: research.md Section 1 must include dataset_name, version_number, fetch_date, source_url
+- [X] T001a [P] Generate MD5/SHA256 checksums for HumanEval dataset files; record checksums in state/map.json under data/raw/ with artifact_id, checksum, timestamp, hash fields (Constitution Principle III)
+- [X] T002 [P] Verify StarCoder-1.3B 4-bit GGUF model source and CPU feasibility; document in research.md Section 2 with model_name, quantization_level, estimated_ram_gb, estimated_runtime_hours
+- [ ] T003 [P] Create power/sample-size justification in research.md Section 3 (FR-010: document minimum detectable effect forn=164 at power≥0.8; include constraint_mismatch field noting spec requires n≥200)
+- [ ] T003a [P] Document power analysis constraint mismatch in research.md Section 3: spec FR-010 requires n≥200 but {{claim:c_c9ee2ab8}} (2410.12381, https://arxiv.org/abs/2410.12381); propose mitigation (document limitation in final report, note reduced power)
 - [ ] T004 [P] Document statistical design in research.md Section 4 (Wilcoxon for pass@1 and latency per spec FR-005, Bonferroni for 2 hypotheses)
 - [ ] T004a [P] Implement Reference-Validator Agent verification gate for external citations in code/verify_citations.py (Constitution Principle II: verify all citations before Phase 1; fail if unreachable/mismatch)
 
@@ -68,7 +68,7 @@
 
 - [ ] T005 Create project structure per implementation plan: data/raw/, data/processed/, data/logs/, code/, tests/, state/
 - [ ] T006 [P] Initialize Python version project with requirements.txt dependencies (datasets, transformers, llama-cpp-python, ast, scipy, matplotlib, pandas, pytest)
-- [ ] T007 [P] Configure linting and formatting tools (ruff, black) with concrete deliverables: create .ruff.toml (ruff==0.1.0), pyproject.toml with black version pin (black==23.0.0); verification: run ruff code/ --exit-zero and black --check code/ with zero warnings/errors
+- [ ] T007 [P] Configure linting and formatting tools (ruff, black) with concrete deliverables: create.ruff.toml (ruff==0.1.0), pyproject.toml with black version pin (black==23.0.0); verification: run ruff code/ --exit-zero and black --check code/ with zero warnings/errors
 - [ ] T008 [P] Create quickstart.md in specs/001-eval-code-simplification/ with setup instructions and CLI usage examples
 
 ---
@@ -98,7 +98,7 @@
 
 **Independent Test**: Run the "run-benchmark" command and verify two CSV files are produced (one for raw inputs, one for simplified inputs) each containing pass@1 scores and per-sample latency with matching problem IDs
 
-**⚠️ DEPENDENCY ORDERING**: 
+**⚠️ DEPENDENCY ORDERING**:
 - T018-T019 depend on T017 (simplify must complete before logging failures/semantic changes)
 - T020-T022 depend on T016-T017 (download and simplify must complete before inference)
 - T023 depends on T022 (orchestration must complete before result table generation)
@@ -159,7 +159,7 @@
 
 **⚠️ DEPENDENCY**: This phase requires US1 and US2 CSV outputs (T023, T028 completed); CANNOT start until US1 and US2 complete. US3 is independently testable AFTER US1 and US2 completion.
 
-**⚠️ SPEC ALIGNMENT NOTE**: 
+**⚠️ SPEC ALIGNMENT NOTE**:
 - SC-001/SC-002 use deferred effect-size thresholds; threshold values will be defined in research.md Section 3
 - T033: Use Wilcoxon signed-rank test per spec FR-005 (plan.md uses McNemar's but spec is authoritative; plan flagged for amendment)
 - T035: Use Bonferroni correction for 2 hypotheses (accuracy, latency) per spec FR-005 (token reduction is descriptive, not gating hypothesis)
@@ -216,24 +216,24 @@
 - **Phase 1 (Setup)**: Depends on Phase 0 completion - BLOCKS all user stories
 - **Phase 2 (Foundational)**: Depends on Phase 1 completion - BLOCKS all user stories
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
-  - User Story 1 (Phase 3): Can start after Phase 2 - No dependencies on other stories
-  - User Story 2 (Phase 4): Requires US1 inference output (T020); CANNOT run in parallel with US1
-  - User Story 3 (Phase 5): Requires US1 and US2 CSV outputs (T023, T028); CANNOT run in parallel with US1 or US2
+ - User Story 1 (Phase 3): Can start after Phase 2 - No dependencies on other stories
+ - User Story 2 (Phase 4): Requires US1 inference output (T020); CANNOT run in parallel with US1
+ - User Story 3 (Phase 5): Requires US1 and US2 CSV outputs (T023, T028); CANNOT run in parallel with US1 or US2
 - **Phase 6 (Polish)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-  - Requires T016 (download) before T017 (simplify) before T020 (inference)
-  - T018-T019 depend on T017
-  - T020-T022 depend on T016-T017
+ - Requires T016 (download) before T017 (simplify) before T020 (inference)
+ - T018-T019 depend on T017
+ - T020-T022 depend on T016-T017
 - **User Story 2 (P2)**: Requires US1 inference output (T020) - CANNOT run in parallel with US1
-  - Requires T020 (inference) before T026-T030 (metrics logging)
-  - Independently testable AFTER US1 completion
+ - Requires T020 (inference) before T026-T030 (metrics logging)
+ - Independently testable AFTER US1 completion
 - **User Story 3 (P3)**: Requires US1 and US2 CSV outputs (T023, T028) - CANNOT run in parallel with US1 or US2
-  - Requires T023, T028 (result CSVs) before T033-T040 (analysis)
-  - Independently testable AFTER US1 and US2 completion
-  - T037a (SC-003 gating) and T038a (SC-005 validation) are mandatory per spec
+ - Requires T023, T028 (result CSVs) before T033-T040 (analysis)
+ - Independently testable AFTER US1 and US2 completion
+ - T037a (SC-003 gating) and T038a (SC-005 validation) are mandatory per spec
 
 ### Within Each User Story
 
@@ -293,9 +293,9 @@ Due to data dependencies, sequential execution is required:
 
 1. Team completes Phase 0-2 together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (benchmark pipeline) → BLOCKS US2/US3
-   - After US1 complete: Developer B: User Story 2 (metrics logging) → BLOCKS US3
-   - After US2 complete: Developer C: User Story 3 (statistical analysis)
+ - Developer A: User Story 1 (benchmark pipeline) → BLOCKS US2/US3
+ - After US1 complete: Developer B: User Story 2 (metrics logging) → BLOCKS US3
+ - After US2 complete: Developer C: User Story 3 (statistical analysis)
 3. Stories complete and integrate sequentially
 
 ---
@@ -308,7 +308,7 @@ Due to data dependencies, sequential execution is required:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Feasibility Check**: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within 7GB RAM limit; HumanEval (the complete problem set) can be processed within maximum job duration limit
+- **Feasibility Check**: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within 7GB RAM limit [UNRESOLVED-CLAIM: c_e1a81050 — status=not_enough_info]; HumanEval (the complete problem set) can be processed within maximum job duration limit
 - **Avoid**: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Path**: T016 → T017 → T020 → T023 → T028 → T033-T040 (download → simplify → infer → results → metrics → report)
 - **Statistical Test Clarification**: Wilcoxon signed-rank test for pass@1 (per spec FR-005; plan.md uses McNemar's - follow spec, flag plan for amendment); Wilcoxon for continuous latency metrics; Bonferroni for 2 hypotheses (accuracy, latency)
@@ -316,8 +316,8 @@ Due to data dependencies, sequential execution is required:
 - **Effect Size Clarification**: Cohen's d required per spec FR-006; rank-biserial may be supplementary for Wilcoxon
 - **Drop Rate Clarification**: SC-005 requires experiment marked under-sampled if >5% drop rate (T038a implements threshold validation); plan's remediation allows proceeding but spec is authoritative
 - **Constitutional Compliance**: Random seeds pinned (T009a), dataset checksums recorded (T001a), citation verification gate (T004a)
-- **Plan Amendment Flags**: 
-  1. plan.md uses McNemar's for pass@1 and 3 hypotheses for Bonferroni; spec FR-005 requires Wilcoxon and 2 hypotheses - tasks follow spec, plan flagged for amendment
-  2. plan.md SC-003 describes token reduction as descriptive; spec SC-003 requires gating - tasks follow spec, plan flagged for amendment
-  3. plan.md SC-005 allows proceeding with >5% drop rate; spec SC-005 requires under-sampled status - tasks follow spec, plan flagged for amendment
-  4. plan.md uses 164 problems; spec FR-010 requires n≥200 - tasks document constraint mismatch, plan flagged for amendment
+- **Plan Amendment Flags**:
+ 1. plan.md uses McNemar's for pass@1 and 3 hypotheses for Bonferroni; spec FR-005 requires Wilcoxon and 2 hypotheses - tasks follow spec, plan flagged for amendment
+ 2. plan.md SC-003 describes token reduction as descriptive; spec SC-003 requires gating - tasks follow spec, plan flagged for amendment
+ 3. plan.md SC-005 allows proceeding with >5% drop rate; spec SC-005 requires under-sampled status - tasks follow spec, plan flagged for amendment
+ 4. plan.md uses 164 problems; spec FR-010 requires n≥200 - tasks document constraint mismatch, plan flagged for amendment
