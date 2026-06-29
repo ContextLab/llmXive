@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/alloy_composition.schema.json",
+  "title": "Alloy Composition",
+  "description": "Schema for alloy composition records including elemental stoichiometry and experimental validation status",
+  "type": "object",
+  "required": [
+    "sample_id",
+    "elements",
+    "stoichiometry",
+    "experimental_validation_status"
+  ],
+  "properties": {
+    "sample_id": {
+      "type": "string",
+      "description": "Unique identifier for the alloy sample",
+      "minLength": 1
+    },
+    "elements": {
+      "type": "array",
+      "description": "List of elemental symbols in the alloy",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][a-z]?$",
+        "description": "Valid chemical element symbol (e.g., Cu, Zr, Fe)"
+      },
+      "minItems": 2,
+      "uniqueItems": true
+    },
+    "stoichiometry": {
+      "type": "array",
+      "description": "Atomic fractions corresponding to each element",
+      "items": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0
+      },
+      "minItems": 2
+    },
+    "source": {
+      "type": "string",
+      "description": "Data source for this composition (e.g., Materials Project, experimental database)",
+      "enum": ["experimental", "Materials Project", "ucimlrepo", "synthetic", "DFT"]
+    },
+    "experimental_validation_status": {
+      "type": "string",
+      "description": "Status of experimental validation per Constitution IV traceability requirements",
+      "enum": ["yes", "no", "unknown"]
+    },
+    "cooling_rate": {
+      "type": ["number", "null"],
+      "description": "Cooling rate in K/s, if measured (per reviewer rosalind-franklin-simulated feedback on thermal history)",
+      "minimum": 0.0
+    },
+    "thermal_history_notes": {
+      "type": ["string", "null"],
+      "description": "Additional notes on thermal processing history"
+    },
+    "xrd_confirmed": {
+      "type": ["boolean", "null"],
+      "description": "Whether X-ray diffraction confirmed glass structure"
+    },
+    "phase_label": {
+      "type": "string",
+      "description": "Phase classification",
+      "enum": ["glass", "crystalline", "mixed", "unknown"]
+    },
+    "data_row_id": {
+      "type": "string",
+      "description": "UUID for traceability linking to source data",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,112 @@
+# Pre-commit configuration for linting and formatting
+# Install with: pip install pre-commit && pre-commit install
+# Run all hooks: pre-commit run --all-files
+# Run on staged files: pre-commit run
+
+fail_fast: false
+minimum_pre_commit_version: 2.15.0
+
+repos:
+  # Black - Code formatter
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        name: black
+        description: "Black: The uncompromising Python code formatter"
+        entry: black
+        language: python
+        types: [python]
+        require_serial: true
+        args: [--line-length=88]
+
+  # Ruff - Fast Python linter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.5
+    hooks:
+      - id: ruff
+        name: ruff
+        description: "Ruff: An extremely fast Python linter"
+        entry: ruff
+        language: python
+        types: [python]
+        require_serial: true
+        args: [--fix, --exit-non-zero-on-fix]
+
+      - id: ruff-format
+        name: ruff-format
+        description: "Ruff: Fast Python formatter (alternative to black)"
+        entry: ruff
+        language: python
+        types: [python]
+        require_serial: true
+        args: [format]
+
+  # Check YAML syntax
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        name: yamllint
+        description: "Check YAML syntax"
+        entry: yamllint
+        language: python
+        types: [yaml]
+        args: [-c=.yamllint]
+
+  # Check for common issues
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: trailing-whitespace
+        description: "Trim trailing whitespace"
+        entry: trailing-whitespace-fixer
+        language: python
+        types: [text]
+        args: [--markdown-linebreak-ext=md]
+
+      - id: end-of-file-fixer
+        name: end-of-file-fixer
+        description: "Ensure files end with a newline"
+        entry: end-of-file-fixer
+        language: python
+        types: [text]
+
+      - id: check-yaml
+        name: check-yaml
+        description: "Check YAML files for syntax errors"
+        entry: check-yaml
+        language: python
+        types: [yaml]
+        args: [--allow-multiple-documents]
+
+      - id: check-json
+        name: check-json
+        description: "Check JSON files for syntax errors"
+        entry: check-json
+        language: python
+        types: [json]
+
+      - id: check-added-large-files
+        name: check-added-large-files
+        description: "Prevent large files from being committed"
+        entry: check-added-large-files
+        language: python
+        types: [file]
+        args: [--maxkb=1024]
+
+      - id: detect-private-key
+        name: detect-private-key
+        description: "Detect private keys in files"
+        entry: detect-private-key
+        language: python
+        types: [text]
+
+      - id: mixed-line-ending
+        name: mixed-line-ending
+        description: "Ensure consistent line endings"
+        entry: mixed-line-ending
+        language: python
+        types: [text]
+        args: [--fix=lf]

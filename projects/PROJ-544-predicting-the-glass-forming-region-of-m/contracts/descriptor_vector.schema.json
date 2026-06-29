@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/descriptor_vector.schema.json",
+  "title": "Descriptor Vector",
+  "description": "Schema for computed thermodynamic descriptor vectors for alloy samples",
+  "type": "object",
+  "required": [
+    "sample_id",
+    "atomic_size_mismatch",
+    "mixing_enthalpy",
+    "electronegativity_variance",
+    "experimental_validation_status",
+    "data_row_id",
+    "code_block_id"
+  ],
+  "properties": {
+    "sample_id": {
+      "type": "string",
+      "description": "Unique identifier linking to alloy_composition record",
+      "minLength": 1
+    },
+    "atomic_size_mismatch": {
+      "type": "number",
+      "description": "Atomic size mismatch parameter δ (dimensionless)",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "mixing_enthalpy": {
+      "type": "number",
+      "description": "Mixing enthalpy ΔH in kJ/mol",
+      "minimum": -100.0,
+      "maximum": 100.0
+    },
+    "electronegativity_variance": {
+      "type": "number",
+      "description": "Electronegativity variance Δχ (dimensionless, Pauling scale)",
+      "minimum": 0.0,
+      "maximum": 10.0
+    },
+    "experimental_validation_status": {
+      "type": "string",
+      "description": "Status of experimental validation per Constitution IV traceability requirements",
+      "enum": ["yes", "no", "unknown"]
+    },
+    "data_row_id": {
+      "type": "string",
+      "description": "UUID for traceability linking to source data row",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "code_block_id": {
+      "type": "string",
+      "description": "Identifier for the code block that generated this record per Constitution IV"
+    },
+    "descriptor_parameters": {
+      "type": "object",
+      "description": "Parameters used in descriptor calculation",
+      "properties": {
+        "atomic_radii_source": {
+          "type": "string",
+          "enum": ["pymatgen", "custom", "DScribe"]
+        },
+        "enthalpy_source": {
+          "type": "string",
+          "enum": ["Miedema", "pymatgen", "DScribe"]
+        },
+        "electronegativity_source": {
+          "type": "string",
+          "enum": ["Pauling", "Allen", "Mulliken"]
+        }
+      }
+    },
+    "vif_scores": {
+      "type": ["object", "null"],
+      "description": "Variance Inflation Factor scores for each descriptor"
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "description": "Error code if calculation failed",
+      "enum": ["INVALID_SYMBOL", "INVALID_STOICHIOMETRY", null]
+    }
+  },
+  "additionalProperties": false
+}

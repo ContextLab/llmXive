@@ -1,0 +1,6 @@
+atomic_radii_source: pymatgen.core.periodic_table.Element.atomic_radius
+enthalpy_of_mixing_source: pymatgen.analysis.phase_diagram.EnthalpyOfMixing
+electronegativity_source: pymatgen.core.periodic_table.Element.electronegativity
+random_seed: 42
+timestamp: '2026-01-10T00:00:00'
+version: '1.0.0'

@@ -1,0 +1,5 @@
+# This directory is for data files
+# Subdirectories:
+# - raw/ : Raw downloaded datasets
+# - derived/ : Processed and derived data
+# - samples/ : Sample datasets for testing

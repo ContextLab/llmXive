@@ -1,0 +1,4 @@
+descriptor_vectors:
+  descriptor_vector.csv:
+    hash: placeholder_hash_until_computation
+    updated_at: '2026-01-10T00:00:00'

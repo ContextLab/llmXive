@@ -1,0 +1,2 @@
+# This directory is for state tracking files
+# - artifact_hashes.yaml : SHA-256 hashes of generated artifacts
