@@ -13,7 +13,7 @@ This project investigates the associational relationship between soil microbiome
 **Primary Dependencies**: scikit-learn, pandas, numpy, scipy, statsmodels, biopython, networkx, qiime2 (via subprocess), co-occurrence network tools  
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `code/`)  
 **Testing**: pytest with contract validation against schema files  
-**Target Platform**: Linux (GitHub Actions free-tier runner: standard CPU resources, ~7 GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: standard CPU resources, limited RAM, no GPU)  
 **Project Type**: computational research pipeline  
 **Performance Goals**: Complete analysis within 6 hours on CPU-only runner; memory usage ≤7 GB  
 **Constraints**: No GPU acceleration; default precision only; sampled datasets if needed to fit RAM; all analyses must be reproducible per Constitution Principle I  
@@ -104,10 +104,10 @@ projects/PROJ-136-investigating-the-impact-of-soil-microbi/
 | FR ID | Plan Element | Research.md Section |
 |-------|--------------|---------------------|
 | FR-001 | data_acquisition.py downloads EMP/MG-RAST | Dataset Strategy |
-| FR-002 | preprocessing.py rarefaction to 10k reads | Preprocessing |
+| FR-002 | preprocessing.py rarefaction to a standardized read depth | Preprocessing |
 | FR-003 | diversity_analysis.py computes Shannon/Simpson/Faith's PD | Alpha-Diversity Computation |
 | FR-004 | statistical_models.py fits beta regression/GLMM | Beta Regression / GLMM |
-| FR-005 | permutation_tests.py executes 10,000 permutations | Permutation Tests |
+| FR-005 | permutation_tests.py executes multiple permutations | Permutation Tests |
 | FR-006 | keystone_taxa.py runs ANCOM | ANCOM Differential Abundance |
 | FR-007 | keystone_taxa.py constructs CoNet networks | Co-occurrence Networks |
 | FR-008 | data_acquisition.py checks required variables | Dataset Strategy (variable verification) |

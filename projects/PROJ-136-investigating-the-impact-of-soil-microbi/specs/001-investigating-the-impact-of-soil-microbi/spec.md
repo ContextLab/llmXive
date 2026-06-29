@@ -18,7 +18,7 @@ Researcher downloads processed 16S rRNA amplicon tables from Earth Microbiome Pr
 **Acceptance Scenarios**:
 
 1. **Given** MG-RAST and Qiita agricultural soil microbiome data sources are accessible, **When** researcher executes data download scripts, **Then** ≥100 EMP/MG-RAST samples and ≥50 disease incidence records are retrieved with ≥30 matched samples containing complete metadata
-2. **Given** raw OTU/ASV tables contain taxa with <5% prevalence, **When** filtering is applied, **Then** only taxa present in ≥5% of samples are retained and rarefied to 10k reads per sample
+2. **Given** raw OTU/ASV tables contain taxa with <5% prevalence, **When** filtering is applied, **Then** only taxa present in ≥5% of samples are retained and rarefied to a sufficiently low read depth per sample
 
 ---
 
@@ -33,7 +33,7 @@ Researcher computes alpha-diversity metrics (Shannon, Simpson, Faith's PD) per s
 **Acceptance Scenarios**:
 
 1. **Given** ≥30 matched samples with computed alpha-diversity metrics, **When** beta regression or binomial GLMM is fitted with disease incidence as response, **Then** diversity coefficient p-value <0.05 (or null result reported) with effect size and 95% confidence interval
-2. **Given** observed correlation coefficient, **When** 10,000 permutation tests are executed, **Then** p-permutation <0.05 confirming correlation exceeds random expectations
+2. **Given** observed correlation coefficient, **When** Multiple permutation tests are executed, **Then** p-permutation <0.05 confirming correlation exceeds random expectations
 3. **Given** samples stratified by crop type into ≥2 subsets, **When** diversity-disease model is fitted per subset, **Then** effect direction (positive/negative) is consistent across ≥80% of subsets with effect sizes within same order of magnitude
 
 ---

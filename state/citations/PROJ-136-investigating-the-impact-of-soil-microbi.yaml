@@ -31,3 +31,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/LanceaKing/asvspoof2019/9e3c700a884eb823b3b6c9bd993f3197cdfdacb6/dataset_infos.json?%2Fdatasets%2FLanceaKing%2Fasvspoof2019%2Fresolve%2Fmain%2Fdataset_infos.json=&etag=%22616583decf767846ce81868412aeca19a15a5934%22
   verified_at: '2026-06-29T06:02:57.549637Z'
+- artifact_hash: b40e802f985b7e3cd65be2137ccb2e61fd120b6dc8b80d235bd22f5aaa1f071c
+  artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Qiita
+  kind: url
+  value: https://qiita.ucsd.edu/
+  verification_status: verified
+  verified_against_url: https://qiita.ucsd.edu/
+  verified_at: '2026-06-29T14:13:41.200560Z'
