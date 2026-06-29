@@ -30,7 +30,7 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 - **Principle III (Data Hygiene)**: Raw data preserved; derivations written to new files. Checksums recorded in state file.
 - **Principle IV (Single Source of Truth)**: Figures/stats in paper trace to `data/` rows and `code/` blocks.
 - **Principle V (Versioning)**: Artifacts carry content hashes. State file updated on changes.
-- **Principle VI (EEG Standards)**: Pipeline follows MNE-Python bandpass (1-40 Hz), ICA, Morlet wavelets (8-30 Hz), electrode selection (P3/Pz/P4/F3/Fz/F4).
+- **Principle VI (EEG Standards)**: Pipeline follows MNE-Python bandpass (1-40 Hz), ICA, Morlet wavelets (low-to-mid frequency range), electrode selection (P/Pz/P4/F3/Fz/F4).
 - **Principle VII (Statistical Validation)**: LDA with 5-fold CV, 1000-iteration permutation testing, α = 0.05 threshold, family-wise error correction.
 - **Principle VII Benchmark Note**: The [deferred] accuracy benchmark is a project-specific gating threshold per Constitution Principle VII, NOT a claim of scientific superiority. Analysis reports accuracy with confidence intervals; benchmark is for pass/fail gating.
 
@@ -57,8 +57,8 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 - Track `participant_count` for output schema (addresses plan_consistency-c63414a0)
 
 **Step 2**: Filter and clean
-- Apply bandpass filter (1-40 Hz) per FR-002
-- Apply notch filter (50/60 Hz) for line noise removal per FR-002
+- Apply bandpass filter (low-frequency to 40 Hz) per FR-002
+- Apply notch filter (/60 Hz) for line noise removal per FR-002
 - Document residual line noise metric for SC-002 validation
 
 **Step 3**: ICA artifact rejection
@@ -67,7 +67,7 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 - Track epoch rejection rate
 
 **Step 4**: Epoch segmentation
-- Segment into 2-second epochs centered on attention shift events per FR-004
+- Segment into short epochs centered on attention shift events per FR-004
 - **SC-005 Coverage**: Verify ≥100 epochs per condition (active/passive)
 - If <100 epochs per condition, HALT with power limitation report (not just flag)
 - If a limited number of epochs per condition, run exploratory analysis with 'underpowered' label
@@ -77,12 +77,12 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 
 **Step 1**: Time-frequency decomposition
 - Compute Morlet wavelet decomposition (8-30 Hz) per FR-005
-- **Baseline Normalization**: Use pre-stimulus baseline (−500ms to 0ms) for dB conversion per methodology-448c5b0e
+- **Baseline Normalization**: Use pre-stimulus baseline (−ms to 0ms) for dB conversion per methodology-448c5b0e
 - Desynchronization magnitude computed as log ratio of post-stimulus to baseline power (SC-001)
 
 **Step 2**: Feature extraction
-- Extract mean power for alpha (8-12 Hz) @ P3, Pz, P4 per FR-006
-- Extract mean power for beta (13-30 Hz) @ F3, Fz, F4 per FR-006
+- Extract mean power for alpha (-12 Hz) @ P3, Pz, P4 per FR-006
+- Extract mean power for beta (low beta to low gamma range) @ F3, Fz, F4 per FR-006
 - Document electrode collinearity (neighboring electrodes correlated)
 
 **Step 3**: Feature validation
@@ -92,11 +92,11 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 ### Phase 3: Classification and Validation (addresses US-3, FR-007 to FR-010, SC-002 to SC-004, SC-006)
 
 **Step 1**: LDA classifier training
-- Train LDA with 5-fold cross-validation per FR-007
+- Train LDA with k-fold cross-validation per FR-007
 - Report accuracy, precision, recall with standard deviation
 
 **Step 2**: Permutation testing
-- Execute 1000-iteration permutation test per FR-008
+- Execute a permutation test with a sufficient number of iterations to ensure statistical stability. per FR-008
 - Report p-value and null hypothesis rejection decision
 - Store PermutationResult entity in data model (addresses plan_consistency-409de6d8)
 

@@ -28,7 +28,7 @@ Extract mean power values from alpha (8-12 Hz) band over parietal (P3, Pz, P4) e
 
 **Why this priority**: This operationalizes the core research question by transforming raw EEG into the specific frequency-band features needed to test for attention-related signatures. Without this step, the hypothesis cannot be evaluated.
 
-**Independent Test**: Can be fully tested by verifying that feature extraction produces a matrix with dimensions (epochs × features) where features include alpha power from parietal electrodes and beta power from frontal electrodes, and that values fall within physiologically plausible ranges (0-100 dB).
+**Independent Test**: Can be fully tested by verifying that feature extraction produces a matrix with dimensions (epochs × features) where features include alpha power from parietal electrodes and beta power from frontal electrodes, and that values fall within physiologically plausible ranges.
 
 **Acceptance Scenarios**:
 

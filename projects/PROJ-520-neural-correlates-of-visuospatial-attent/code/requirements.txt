@@ -1,0 +1,11 @@
+# Existing dependencies
+mne>=1.5.0
+numpy>=1.24.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+pandas>=2.0.0
+pyyaml>=6.0
+matplotlib>=3.7.0
+
+# New dependency for integration test (if not already covered, but mne covers it)
+# No new dependencies required for this test beyond the core stack.
