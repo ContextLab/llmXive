@@ -1,0 +1,418 @@
+resolved_at: '2026-06-29T19:26:27.557847+00:00'
+datasets:
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://aura.american.edu/articles/thesis/Cognitive_Control_in_Trichotillomania_An_Examination_of_Intra-Individual_Variability_in_Impulsivity_and_Compulsivity/32826821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Tai_Solarin_University_of_Education_TASUED_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_IJGIS_submission_/32826434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Federal_University_of_Agriculture_Abeokuta_FUNAAB_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Features_of_the_epizootic_process_and_ways_to_improve_measures_to_combat_avian_flu/32826835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://aura.american.edu/articles/thesis/Cognitive_Control_in_Trichotillomania_An_Examination_of_Intra-Individual_Variability_in_Impulsivity_and_Compulsivity/32826821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Tai_Solarin_University_of_Education_TASUED_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_IJGIS_submission_/32826434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Federal_University_of_Agriculture_Abeokuta_FUNAAB_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Features_of_the_epizootic_process_and_ways_to_improve_measures_to_combat_avian_flu/32826835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21044586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21044586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Advancing_the_practice_of_cultural_safety_in_physiotherapy_a_scoping_review/30704336
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Advancing_the_practice_of_cultural_safety_in_physiotherapy_a_scoping_review/30704336/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Advancing_the_practice_of_cultural_safety_in_physiotherapy_a_scoping_review/30704336/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HCP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atta00/cpt-hcpcs-codes/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kavi1622/Synthetic_hcp/resolve/main/8_slot.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://aura.american.edu/articles/thesis/Cognitive_Control_in_Trichotillomania_An_Examination_of_Intra-Individual_Variability_in_Impulsivity_and_Compulsivity/32826821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Tai_Solarin_University_of_Education_TASUED_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_IJGIS_submission_/32826434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Federal_University_of_Agriculture_Abeokuta_FUNAAB_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Features_of_the_epizootic_process_and_ways_to_improve_measures_to_combat_avian_flu/32826835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5607652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15581959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7736031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/205782
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/use-outcome-measures-healthcare-professionals-young-people-adolescent
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/do-initial-impressions-trust-predict-recovery-people-presenting-musculoskeletal
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/facilitators-and-barriers-enhancing-physical-activity-older-patients-during
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/implementation-risk-stratified-guideline-based-pathway-care-improve-health
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.esrf.fr/10.15151/ESRF-ES-2417063068
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: S1200
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/adroitLee/eval_260112_ep50_syrg_bz50_R50_Rtn50_pjw_s12000/resolve/main/meta/info.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2516
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/adroitLee/eval_260112_ep50_syrg_bz50_R50_Rtn50_pjw_s12000/resolve/main/meta/info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://aura.american.edu/articles/thesis/Cognitive_Control_in_Trichotillomania_An_Examination_of_Intra-Individual_Variability_in_Impulsivity_and_Compulsivity/32826821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Tai_Solarin_University_of_Education_TASUED_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_IJGIS_submission_/32826434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Federal_University_of_Agriculture_Abeokuta_FUNAAB_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Features_of_the_epizootic_process_and_ways_to_improve_measures_to_combat_avian_flu/32826835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8339845
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20805056
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20736221
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13259599
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13260208
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20805056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20805056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20736221
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20736221
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20645614
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://aura.american.edu/articles/thesis/Cognitive_Control_in_Trichotillomania_An_Examination_of_Intra-Individual_Variability_in_Impulsivity_and_Compulsivity/32826821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Tai_Solarin_University_of_Education_TASUED_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_IJGIS_submission_/32826434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Federal_University_of_Agriculture_Abeokuta_FUNAAB_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32826818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Features_of_the_epizootic_process_and_ways_to_improve_measures_to_combat_avian_flu/32826835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.zs7h44jq3
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/_i_A_massive_burden_off_my_shoulders_i_participant_experiences_of_a_novel_cyberscam_psychosocial_recovery_intervention_for_people_with_acquired_brain_injury/30987457
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/_i_A_massive_burden_off_my_shoulders_i_participant_experiences_of_a_novel_cyberscam_psychosocial_recovery_intervention_for_people_with_acquired_brain_injury/30987457/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250810/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250810/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403

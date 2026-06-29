@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HCP Derived Dataset Schema"
+description: "Schema for the HCP-derived parquet dataset used in the analysis. Contains subject IDs, behavioral scores, and derived metrics."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject."
+  age:
+    type: integer
+    description: "Age of the subject in years."
+  sex:
+    type: string
+    description: "Sex of the subject (M/F)."
+  motor_task_score:
+    type: number
+    description: "Motor Task Performance composite score (proxy for proprioceptive accuracy)."
+  fd_mean:
+    type: number
+    description: "Mean Framewise Displacement (motion covariate)."
+  tSNR:
+    type: number
+    description: "Temporal signal-to-noise ratio (mean signal / std dev, excluding first 5 volumes)."
+  modularity:
+    type: number
+    description: "Global modularity metric derived from the connectivity matrix."
+  global_efficiency:
+    type: number
+    description: "Global efficiency metric derived from the connectivity matrix."
+  participation_coef_mean:
+    type: number
+    description: "Mean participation coefficient across all nodes."
+  within_module_degree_mean:
+    type: number
+    description: "Mean within-module degree across all nodes."
+required:
+  - subject_id
+  - motor_task_score
+  - fd_mean
+additionalProperties: false

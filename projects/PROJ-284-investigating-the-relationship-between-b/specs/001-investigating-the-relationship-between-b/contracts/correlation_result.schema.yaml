@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result Schema"
+description: "Schema for the output of the correlation analysis, including FDR correction and Confidence Intervals."
+type: object
+properties:
+  metric_name:
+    type: string
+    description: "Name of the network metric (e.g., modularity, participation_coef_mean, or 'PC1' for PCA factor)."
+  r_value:
+    type: number
+    description: "Pearson or Spearman correlation coefficient."
+  p_value:
+    type: number
+    description: "Uncorrected p-value."
+  q_value:
+    type: number
+    description: "Benjamini-Hochberg FDR corrected p-value."
+  significant:
+    type: boolean
+    description: "True if q_value < 0.05."
+  covariate_controlled:
+    type: boolean
+    description: "True if FD was controlled for."
+  ci_lower:
+    type: number
+    description: "Lower bound of the 95% Confidence Interval for r_value."
+  ci_upper:
+    type: number
+    description: "Upper bound of the 95% Confidence Interval for r_value."
+  n_subjects:
+    type: integer
+    description: "Number of subjects included in this specific test."
+required:
+  - metric_name
+  - r_value
+  - p_value
+  - q_value
+  - significant
+  - covariate_controlled
+  - ci_lower
+  - ci_upper
+  - n_subjects
+additionalProperties: false
