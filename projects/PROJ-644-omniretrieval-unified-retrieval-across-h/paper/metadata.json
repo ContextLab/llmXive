@@ -3,14 +3,48 @@
   "arxiv_url": "https://arxiv.org/abs/2605.29250",
   "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources",
   "authors": [
-    "Jinheon Baek",
-    "Soyeong Jeong",
-    "Sangwoo Park",
-    "Woongyeong Yeo",
-    "Minki Kang",
-    "Patara Trirat",
-    "Heejun Lee",
-    "Sung Ju Hwang"
+    {
+      "name": "Jinheon Baek",
+      "kind": "human"
+    },
+    {
+      "name": "Soyeong Jeong",
+      "kind": "human"
+    },
+    {
+      "name": "Sangwoo Park",
+      "kind": "human"
+    },
+    {
+      "name": "Woongyeong Yeo",
+      "kind": "human"
+    },
+    {
+      "name": "Minki Kang",
+      "kind": "human"
+    },
+    {
+      "name": "Patara Trirat",
+      "kind": "human"
+    },
+    {
+      "name": "Heejun Lee",
+      "kind": "human"
+    },
+    {
+      "name": "Sung Ju Hwang",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-29T23:41:03.452722Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "abstract": "Real-world information needs require access to structurally diverse knowledge sources, from unstructured text and relational tables to knowledge graphs and property graphs. Existing retrievers, however, operate over one source at a time under a fixed query language, leaving the broader landscape of available knowledge fragmented behind incompatible interfaces. A natural attempt at unification would collapse these sources into a shared space, but this erases the structural affordances (such as schemas, ontologies, compositional operators) that give each source its expressive power. Effective retrieval over diverse knowledge, therefore, requires not homogenization but an overarching layer that meets each source on its own terms. To achieve this, we present OmniRetrieval, a framework that takes any natural-language query, identifies appropriate knowledge sources, and dispatches source-native queries to their native execution engines. Across an extensive benchmark spanning 13 datasets and 309 distinct knowledge bases over text, relational, and graph-structured sources, OmniRetrieval exceeds single-source baselines, demonstrating that it can serve as a general-purpose interface to the heterogeneous sources while preserving the structural distinctions that make each source valuable.",
