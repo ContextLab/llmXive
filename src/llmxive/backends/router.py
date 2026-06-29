@@ -41,11 +41,15 @@ def make_backend(name: str) -> BaseBackend:
 # pipeline runs alive when one Dartmouth-hosted model has a vLLM
 # outage but other models on the same backend are healthy.
 MODEL_FALLBACKS: dict[str, list[str]] = {
-    # qwen3.5-122b is the primary free reasoning model (back up 2026-06-25). When
-    # one model's vLLM flaps (gpt-oss has been hanging — the "tons of job
-    # failures"), the router walks the SAME-backend peers in order before falling
-    # through to the next backend, keeping runs alive. Free peers first, then the
-    # guarded paid model last:
+    # The Dartmouth free reasoning models FLAP on a multi-day cycle: 2026-06-25
+    # gpt-oss was hanging so the registry moved to qwen primary; by 2026-06-29
+    # qwen had gone slow+flaky (verified 31-71s/call + empty-reply retry loops,
+    # and because it SUCCEEDS-but-slow it never triggers fallback) while gpt-oss
+    # was back to ~8s — so the registry default moved BACK to openai.gpt-oss-120b
+    # (the throughput bottleneck behind 77-min convergence steps). Whichever model
+    # is the registry default, when its vLLM flaps the router walks the SAME-backend
+    # peers below in order before falling through to the next backend, keeping runs
+    # alive. Free peers first, then the guarded paid model last:
     #   1. gemma-3-27b — free, FAST, non-reasoning (degrades a qwen flap to a
     #      sub-second model instead of a 360s deadline wait).
     #   2. gpt-oss-120b — free, capable reasoning (often up; flaps).
