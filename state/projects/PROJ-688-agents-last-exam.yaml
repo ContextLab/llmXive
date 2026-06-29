@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-688-agents-last-exam/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Agents' Last Exam
-updated_at: '2026-06-11T19:00:15.802204Z'
+updated_at: '2026-06-29T19:33:23.566547Z'

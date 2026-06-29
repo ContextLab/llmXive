@@ -3,314 +3,1248 @@
   "arxiv_url": "https://arxiv.org/abs/2606.05405",
   "title": "Agents' Last Exam",
   "authors": [
-    "Yiyou Sun",
-    "Xinyang Han",
-    "Weichen Zhang",
-    "Yuanbo Pang",
-    "Tianyu Wang",
-    "Yuhan Cao",
-    "Yixiao Huang",
-    "Chris Duroiu",
-    "Haoyun Zhang",
-    "Jeffrey Lin",
-    "Weishu Zhang",
-    "Tyler Zeng",
-    "Ying Yan",
-    "Bo Liu",
-    "Hanson Wen",
-    "Mingyang Xu",
-    "Xiaoyuan Liu",
-    "Zimeng Chen",
-    "Weiyan Shi",
-    "Amanda Dsouza",
-    "Vincent Sunn Chen",
-    "Patrick Bryant",
-    "Carl Boettiger",
-    "Yamini Rangan",
-    "Bradley Rothenberg",
-    "Kyle Steinfeld",
-    "Arvind Rao",
-    "Tapio Schneider",
-    "Georgios Yannakakis",
-    "Laure Zanna",
-    "Kaan Ozbay",
-    "Ida Sim",
-    "Tarek Zohdi",
-    "George Em Karniadakis",
-    "Jack Gallant",
-    "Teresa Head-gordon",
-    "Yushan Li",
-    "Wenxi Deng",
-    "Tao Sun",
-    "Huiqi Wang",
-    "Zhun Wang",
-    "Justin Xu",
-    "Chris Yuhao Liu",
-    "Yafei Cheng",
-    "Rongwang Hu",
-    "Aras Bacho",
-    "Shengcao Cao",
-    "Zengyi Qin",
-    "Yixiong Chen",
-    "Hengduan Fan",
-    "Hao Liu",
-    "Lin Zeng",
-    "Shashank Muralidhar Bharadwaj",
-    "Litian Gong",
-    "Yingxuan Yang",
-    "Maojia Song",
-    "Ruheng Wang",
-    "Zongzheng Zhang",
-    "Honglin Bao",
-    "Shuo Lu",
-    "Jianhong Tu",
-    "Zhonghua Wang",
-    "Zheng Zhang",
-    "Zijiao Chen",
-    "yanqiong Jiang",
-    "Zhendong Li",
-    "Bohan Lyu",
-    "Chang Ma",
-    "Peiran Xu",
-    "Benran Zhang",
-    "Shangding Gu",
-    "Haoyue Hua",
-    "Haoyang Li",
-    "Wanzhe Liao",
-    "Chengzhi Liu",
-    "Junbo Peng",
-    "Haoran Sun",
-    "Zechen Xu",
-    "Bo Chen",
-    "Jiayi Cheng",
-    "Yi Jiang",
-    "Keying Kuang",
-    "Yuan Li",
-    "Youbang Pan",
-    "Ziyan Rao",
-    "Alexander Schubert",
-    "Yifan Shen",
-    "Vincent Siu",
-    "Xiatao Sun",
-    "Kangqi Zhang",
-    "Xiaopan Zhang",
-    "Yuchen Zhu",
-    "Ishaan Singh Chandok",
-    "Lei Ding",
-    "Jingxuan Fan",
-    "Andrew Glover",
-    "Jiaming Hu",
-    "Yiran Hu",
-    "Wenbo Huang",
-    "Zixin Jiang",
-    "Haoran Jin",
-    "Lukas Kim",
-    "Ming Liu",
-    "Yang Liu",
-    "Alireza Rafiei",
-    "Xuhuan Shen",
-    "Kunyang Sun",
-    "Sophia Sun",
-    "Ting Sun",
-    "Eric Wang",
-    "Yixin Wang",
-    "Hanwen Xing",
-    "Sihan Xu",
-    "Yuzheng Xu",
-    "Zhongxing Xu",
-    "Zhiling Yan",
-    "Boqin Yuan",
-    "Ruiqi Zhang",
-    "Yifan Zhang",
-    "Zibo Zhao",
-    "Liana",
-    "Santanu Bosu Antu",
-    "Haoyue Bai",
-    "Carlo Bosio",
-    "Joseph Cavanagh",
-    "Patricia Cavazos-Rehg",
-    "Tianxing Chen",
-    "Xuewen Chen",
-    "Yipu Chen",
-    "Zhu Chenyu",
-    "Chen Dai",
-    "Stefano De Castro",
-    "Yunfu Deng",
-    "Kaustubh Dhole",
-    "Jiayuan Ding",
-    "Chenchen Du",
-    "Zhehang Du",
-    "Hao Fan",
-    "Run-ze Fan",
-    "Hengyu Fu",
-    "Shi Gu",
-    "Yifan Gu",
-    "Charlie Guo",
-    "Baihe Huang",
-    "Baixiang Huang",
-    "Rimika Jaiswal",
-    "Zhihan Jiang",
-    "Ran Jin",
-    "Erin Kasson",
-    "Xin Lan",
-    "Joseph Lee",
-    "Deren Lei",
-    "Chenyu Li",
-    "Daofeng Li",
-    "Haitao Li",
-    "Hongwei Li",
-    "Jingyan Li",
-    "Xiao Li",
-    "Yi Li",
-    "Yinsheng Li",
-    "Yuangang Li",
-    "Zhixu Li",
-    "Wenyu Liang",
-    "Longtai Liao",
-    "Kevin Qinghong Lin",
-    "AndyZeyi Liu",
-    "Che Liu",
-    "Jiaming Liu",
-    "Kaiyuan Liu",
-    "Xuan Liu",
-    "Pan Lu",
-    "Wenbo Lv",
-    "Yicheng Lv",
-    "Qiuyang Mang",
-    "Kyle Montgomery",
-    "Yuzhou Nie",
-    "Ruoxi Ning",
-    "Jorin Overwiening",
-    "Xu Pan",
-    "Layna Paraboschi",
-    "Core Francisco Park",
-    "Justin Purnomo",
-    "Swati Rajwal",
-    "Scott Rankin",
-    "Bixuan Ren",
-    "Yiren Rong",
-    "HaoYang Shang",
-    "Ventus Shaw",
-    "Fiona Shen",
-    "Jiawei Shen",
-    "Minqi Shi",
-    "Qiu Shi",
-    "Huaxiu Yao",
-    "Tianneng Shi",
-    "Jonah So",
-    "Vladislav Susoy",
-    "Hannah Szlyk",
-    "Haocheng Wang",
-    "Jialu Wang",
-    "Wei Wang",
-    "Xinyu Wang",
-    "Zehao Wang",
-    "Dowling Wong",
-    "Angela Wu",
-    "Dehao Wu",
-    "Fangyu Wu",
-    "Mengyuan \"Millie\" Wu",
-    "Yu Wu",
-    "Yuchen Wu",
-    "Yuhao Wu",
-    "Qingpo Wuwu",
-    "Weihang Xiao",
-    "Yongyi Xiong",
-    "Fan Xu",
-    "Ruiling Xu",
-    "Mingxuan Yan",
-    "Benjamin Yang",
-    "Jirong Yang",
-    "Sen Yang",
-    "Xiaoli Yang",
-    "Yushi Yang",
-    "Haoran Ye",
-    "Xiaohu Yu",
-    "Zhengming Yu",
-    "Chenlong Zhang",
-    "Chi Zhang",
-    "Hanning Zhang",
-    "Hanwen Zhang",
-    "Junge Zhang",
-    "Kunpeng Zhang",
-    "Song Zhang",
-    "Wenjin Zhang",
-    "Wenshuo Zhang",
-    "Ying Zhang",
-    "Yizhi Zhang",
-    "Brian Zhao",
-    "Qijian Zhao",
-    "Yimin Zhao",
-    "Yuhaohua Zheng",
-    "Liwei Zhou",
-    "Tianyue Zhou",
-    "Sichen Zhu",
-    "Siqi Zhu",
-    "Yan Zhu",
-    "Yishu Zhu",
-    "Jierui Zuo",
-    "Chonghao Cai",
-    "Helena Casademunt",
-    "Wenjia Chen",
-    "Benjamin Cheng",
-    "Nawen Deng",
-    "Rao Fu",
-    "Tianfu Fu",
-    "Yifan Han",
-    "Ren He",
-    "Zhenyu He",
-    "Qiao Jin",
-    "Lang Lang",
-    "Yuetai Li",
-    "Sylvia Liu",
-    "Lu Lu",
-    "Qing Lu",
-    "Subhabrata Mukherjee",
-    "Yunqi Ouyang",
-    "Yin Ren",
-    "Dawei Shi",
-    "Haoran Wu",
-    "Zhiyue Wu",
-    "Hannah Yao",
-    "Zhuoran Yi",
-    "Jenny Yu",
-    "Rhea Zhan",
-    "Hang Zhou",
-    "Blake Zhu",
-    "Junfan Zhu",
-    "Alan Yuille",
-    "Yang Liu",
-    "Russell Alan Poldrack",
-    "Jiachen Li",
-    "Zhenglu Li",
-    "Molei Tao",
-    "Jing Huang",
-    "Wenqi Shi",
-    "Costas Spanos",
-    "Lichao Sun",
-    "Chenguang Wang",
-    "Orson Xu",
-    "Zhen Dong",
-    "Hector Gomez",
-    "Aylin Caliskan",
-    "Ali Emami",
-    "Haimin Hu",
-    "Zhi Li",
-    "Lihui Liu",
-    "Murphy Niu",
-    "Yi Shao",
-    "Jianxin Sun",
-    "Mikko Tolonen",
-    "Ting Wang",
-    "Sanjiv Das",
-    "Yanjun Gao",
-    "Wenbo Guo",
-    "Erika J Schneider",
-    "Zhiyong Lu",
-    "Mark Mueller",
-    "Radha Poovendran",
-    "Somayeh Sojoudi",
-    "Dawn Song"
+    {
+      "name": "Yiyou Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Xinyang Han",
+      "kind": "human"
+    },
+    {
+      "name": "Weichen Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Yuanbo Pang",
+      "kind": "human"
+    },
+    {
+      "name": "Tianyu Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Yuhan Cao",
+      "kind": "human"
+    },
+    {
+      "name": "Yixiao Huang",
+      "kind": "human"
+    },
+    {
+      "name": "Chris Duroiu",
+      "kind": "human"
+    },
+    {
+      "name": "Haoyun Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Jeffrey Lin",
+      "kind": "human"
+    },
+    {
+      "name": "Weishu Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Tyler Zeng",
+      "kind": "human"
+    },
+    {
+      "name": "Ying Yan",
+      "kind": "human"
+    },
+    {
+      "name": "Bo Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Hanson Wen",
+      "kind": "human"
+    },
+    {
+      "name": "Mingyang Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Xiaoyuan Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Zimeng Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Weiyan Shi",
+      "kind": "human"
+    },
+    {
+      "name": "Amanda Dsouza",
+      "kind": "human"
+    },
+    {
+      "name": "Vincent Sunn Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Patrick Bryant",
+      "kind": "human"
+    },
+    {
+      "name": "Carl Boettiger",
+      "kind": "human"
+    },
+    {
+      "name": "Yamini Rangan",
+      "kind": "human"
+    },
+    {
+      "name": "Bradley Rothenberg",
+      "kind": "human"
+    },
+    {
+      "name": "Kyle Steinfeld",
+      "kind": "human"
+    },
+    {
+      "name": "Arvind Rao",
+      "kind": "human"
+    },
+    {
+      "name": "Tapio Schneider",
+      "kind": "human"
+    },
+    {
+      "name": "Georgios Yannakakis",
+      "kind": "human"
+    },
+    {
+      "name": "Laure Zanna",
+      "kind": "human"
+    },
+    {
+      "name": "Kaan Ozbay",
+      "kind": "human"
+    },
+    {
+      "name": "Ida Sim",
+      "kind": "human"
+    },
+    {
+      "name": "Tarek Zohdi",
+      "kind": "human"
+    },
+    {
+      "name": "George Em Karniadakis",
+      "kind": "human"
+    },
+    {
+      "name": "Jack Gallant",
+      "kind": "human"
+    },
+    {
+      "name": "Teresa Head-gordon",
+      "kind": "human"
+    },
+    {
+      "name": "Yushan Li",
+      "kind": "human"
+    },
+    {
+      "name": "Wenxi Deng",
+      "kind": "human"
+    },
+    {
+      "name": "Tao Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Huiqi Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Zhun Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Justin Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Chris Yuhao Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Yafei Cheng",
+      "kind": "human"
+    },
+    {
+      "name": "Rongwang Hu",
+      "kind": "human"
+    },
+    {
+      "name": "Aras Bacho",
+      "kind": "human"
+    },
+    {
+      "name": "Shengcao Cao",
+      "kind": "human"
+    },
+    {
+      "name": "Zengyi Qin",
+      "kind": "human"
+    },
+    {
+      "name": "Yixiong Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Hengduan Fan",
+      "kind": "human"
+    },
+    {
+      "name": "Hao Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Lin Zeng",
+      "kind": "human"
+    },
+    {
+      "name": "Shashank Muralidhar Bharadwaj",
+      "kind": "human"
+    },
+    {
+      "name": "Litian Gong",
+      "kind": "human"
+    },
+    {
+      "name": "Yingxuan Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Maojia Song",
+      "kind": "human"
+    },
+    {
+      "name": "Ruheng Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Zongzheng Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Honglin Bao",
+      "kind": "human"
+    },
+    {
+      "name": "Shuo Lu",
+      "kind": "human"
+    },
+    {
+      "name": "Jianhong Tu",
+      "kind": "human"
+    },
+    {
+      "name": "Zhonghua Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Zheng Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Zijiao Chen",
+      "kind": "human"
+    },
+    {
+      "name": "yanqiong Jiang",
+      "kind": "human"
+    },
+    {
+      "name": "Zhendong Li",
+      "kind": "human"
+    },
+    {
+      "name": "Bohan Lyu",
+      "kind": "human"
+    },
+    {
+      "name": "Chang Ma",
+      "kind": "human"
+    },
+    {
+      "name": "Peiran Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Benran Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Shangding Gu",
+      "kind": "human"
+    },
+    {
+      "name": "Haoyue Hua",
+      "kind": "human"
+    },
+    {
+      "name": "Haoyang Li",
+      "kind": "human"
+    },
+    {
+      "name": "Wanzhe Liao",
+      "kind": "human"
+    },
+    {
+      "name": "Chengzhi Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Junbo Peng",
+      "kind": "human"
+    },
+    {
+      "name": "Haoran Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Zechen Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Bo Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Jiayi Cheng",
+      "kind": "human"
+    },
+    {
+      "name": "Yi Jiang",
+      "kind": "human"
+    },
+    {
+      "name": "Keying Kuang",
+      "kind": "human"
+    },
+    {
+      "name": "Yuan Li",
+      "kind": "human"
+    },
+    {
+      "name": "Youbang Pan",
+      "kind": "human"
+    },
+    {
+      "name": "Ziyan Rao",
+      "kind": "human"
+    },
+    {
+      "name": "Alexander Schubert",
+      "kind": "human"
+    },
+    {
+      "name": "Yifan Shen",
+      "kind": "human"
+    },
+    {
+      "name": "Vincent Siu",
+      "kind": "human"
+    },
+    {
+      "name": "Xiatao Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Kangqi Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Xiaopan Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Yuchen Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Ishaan Singh Chandok",
+      "kind": "human"
+    },
+    {
+      "name": "Lei Ding",
+      "kind": "human"
+    },
+    {
+      "name": "Jingxuan Fan",
+      "kind": "human"
+    },
+    {
+      "name": "Andrew Glover",
+      "kind": "human"
+    },
+    {
+      "name": "Jiaming Hu",
+      "kind": "human"
+    },
+    {
+      "name": "Yiran Hu",
+      "kind": "human"
+    },
+    {
+      "name": "Wenbo Huang",
+      "kind": "human"
+    },
+    {
+      "name": "Zixin Jiang",
+      "kind": "human"
+    },
+    {
+      "name": "Haoran Jin",
+      "kind": "human"
+    },
+    {
+      "name": "Lukas Kim",
+      "kind": "human"
+    },
+    {
+      "name": "Ming Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Yang Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Alireza Rafiei",
+      "kind": "human"
+    },
+    {
+      "name": "Xuhuan Shen",
+      "kind": "human"
+    },
+    {
+      "name": "Kunyang Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Sophia Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Ting Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Eric Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Yixin Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Hanwen Xing",
+      "kind": "human"
+    },
+    {
+      "name": "Sihan Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Yuzheng Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Zhongxing Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Zhiling Yan",
+      "kind": "human"
+    },
+    {
+      "name": "Boqin Yuan",
+      "kind": "human"
+    },
+    {
+      "name": "Ruiqi Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Yifan Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Zibo Zhao",
+      "kind": "human"
+    },
+    {
+      "name": "Liana",
+      "kind": "human"
+    },
+    {
+      "name": "Santanu Bosu Antu",
+      "kind": "human"
+    },
+    {
+      "name": "Haoyue Bai",
+      "kind": "human"
+    },
+    {
+      "name": "Carlo Bosio",
+      "kind": "human"
+    },
+    {
+      "name": "Joseph Cavanagh",
+      "kind": "human"
+    },
+    {
+      "name": "Patricia Cavazos-Rehg",
+      "kind": "human"
+    },
+    {
+      "name": "Tianxing Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Xuewen Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Yipu Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Zhu Chenyu",
+      "kind": "human"
+    },
+    {
+      "name": "Chen Dai",
+      "kind": "human"
+    },
+    {
+      "name": "Stefano De Castro",
+      "kind": "human"
+    },
+    {
+      "name": "Yunfu Deng",
+      "kind": "human"
+    },
+    {
+      "name": "Kaustubh Dhole",
+      "kind": "human"
+    },
+    {
+      "name": "Jiayuan Ding",
+      "kind": "human"
+    },
+    {
+      "name": "Chenchen Du",
+      "kind": "human"
+    },
+    {
+      "name": "Zhehang Du",
+      "kind": "human"
+    },
+    {
+      "name": "Hao Fan",
+      "kind": "human"
+    },
+    {
+      "name": "Run-ze Fan",
+      "kind": "human"
+    },
+    {
+      "name": "Hengyu Fu",
+      "kind": "human"
+    },
+    {
+      "name": "Shi Gu",
+      "kind": "human"
+    },
+    {
+      "name": "Yifan Gu",
+      "kind": "human"
+    },
+    {
+      "name": "Charlie Guo",
+      "kind": "human"
+    },
+    {
+      "name": "Baihe Huang",
+      "kind": "human"
+    },
+    {
+      "name": "Baixiang Huang",
+      "kind": "human"
+    },
+    {
+      "name": "Rimika Jaiswal",
+      "kind": "human"
+    },
+    {
+      "name": "Zhihan Jiang",
+      "kind": "human"
+    },
+    {
+      "name": "Ran Jin",
+      "kind": "human"
+    },
+    {
+      "name": "Erin Kasson",
+      "kind": "human"
+    },
+    {
+      "name": "Xin Lan",
+      "kind": "human"
+    },
+    {
+      "name": "Joseph Lee",
+      "kind": "human"
+    },
+    {
+      "name": "Deren Lei",
+      "kind": "human"
+    },
+    {
+      "name": "Chenyu Li",
+      "kind": "human"
+    },
+    {
+      "name": "Daofeng Li",
+      "kind": "human"
+    },
+    {
+      "name": "Haitao Li",
+      "kind": "human"
+    },
+    {
+      "name": "Hongwei Li",
+      "kind": "human"
+    },
+    {
+      "name": "Jingyan Li",
+      "kind": "human"
+    },
+    {
+      "name": "Xiao Li",
+      "kind": "human"
+    },
+    {
+      "name": "Yi Li",
+      "kind": "human"
+    },
+    {
+      "name": "Yinsheng Li",
+      "kind": "human"
+    },
+    {
+      "name": "Yuangang Li",
+      "kind": "human"
+    },
+    {
+      "name": "Zhixu Li",
+      "kind": "human"
+    },
+    {
+      "name": "Wenyu Liang",
+      "kind": "human"
+    },
+    {
+      "name": "Longtai Liao",
+      "kind": "human"
+    },
+    {
+      "name": "Kevin Qinghong Lin",
+      "kind": "human"
+    },
+    {
+      "name": "AndyZeyi Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Che Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Jiaming Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Kaiyuan Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Xuan Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Pan Lu",
+      "kind": "human"
+    },
+    {
+      "name": "Wenbo Lv",
+      "kind": "human"
+    },
+    {
+      "name": "Yicheng Lv",
+      "kind": "human"
+    },
+    {
+      "name": "Qiuyang Mang",
+      "kind": "human"
+    },
+    {
+      "name": "Kyle Montgomery",
+      "kind": "human"
+    },
+    {
+      "name": "Yuzhou Nie",
+      "kind": "human"
+    },
+    {
+      "name": "Ruoxi Ning",
+      "kind": "human"
+    },
+    {
+      "name": "Jorin Overwiening",
+      "kind": "human"
+    },
+    {
+      "name": "Xu Pan",
+      "kind": "human"
+    },
+    {
+      "name": "Layna Paraboschi",
+      "kind": "human"
+    },
+    {
+      "name": "Core Francisco Park",
+      "kind": "human"
+    },
+    {
+      "name": "Justin Purnomo",
+      "kind": "human"
+    },
+    {
+      "name": "Swati Rajwal",
+      "kind": "human"
+    },
+    {
+      "name": "Scott Rankin",
+      "kind": "human"
+    },
+    {
+      "name": "Bixuan Ren",
+      "kind": "human"
+    },
+    {
+      "name": "Yiren Rong",
+      "kind": "human"
+    },
+    {
+      "name": "HaoYang Shang",
+      "kind": "human"
+    },
+    {
+      "name": "Ventus Shaw",
+      "kind": "human"
+    },
+    {
+      "name": "Fiona Shen",
+      "kind": "human"
+    },
+    {
+      "name": "Jiawei Shen",
+      "kind": "human"
+    },
+    {
+      "name": "Minqi Shi",
+      "kind": "human"
+    },
+    {
+      "name": "Qiu Shi",
+      "kind": "human"
+    },
+    {
+      "name": "Huaxiu Yao",
+      "kind": "human"
+    },
+    {
+      "name": "Tianneng Shi",
+      "kind": "human"
+    },
+    {
+      "name": "Jonah So",
+      "kind": "human"
+    },
+    {
+      "name": "Vladislav Susoy",
+      "kind": "human"
+    },
+    {
+      "name": "Hannah Szlyk",
+      "kind": "human"
+    },
+    {
+      "name": "Haocheng Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Jialu Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Wei Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Xinyu Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Zehao Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Dowling Wong",
+      "kind": "human"
+    },
+    {
+      "name": "Angela Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Dehao Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Fangyu Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Mengyuan \"Millie\" Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Yu Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Yuchen Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Yuhao Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Qingpo Wuwu",
+      "kind": "human"
+    },
+    {
+      "name": "Weihang Xiao",
+      "kind": "human"
+    },
+    {
+      "name": "Yongyi Xiong",
+      "kind": "human"
+    },
+    {
+      "name": "Fan Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Ruiling Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Mingxuan Yan",
+      "kind": "human"
+    },
+    {
+      "name": "Benjamin Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Jirong Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Sen Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Xiaoli Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Yushi Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Haoran Ye",
+      "kind": "human"
+    },
+    {
+      "name": "Xiaohu Yu",
+      "kind": "human"
+    },
+    {
+      "name": "Zhengming Yu",
+      "kind": "human"
+    },
+    {
+      "name": "Chenlong Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Chi Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Hanning Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Hanwen Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Junge Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Kunpeng Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Song Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Wenjin Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Wenshuo Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Ying Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Yizhi Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Brian Zhao",
+      "kind": "human"
+    },
+    {
+      "name": "Qijian Zhao",
+      "kind": "human"
+    },
+    {
+      "name": "Yimin Zhao",
+      "kind": "human"
+    },
+    {
+      "name": "Yuhaohua Zheng",
+      "kind": "human"
+    },
+    {
+      "name": "Liwei Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Tianyue Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Sichen Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Siqi Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Yan Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Yishu Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Jierui Zuo",
+      "kind": "human"
+    },
+    {
+      "name": "Chonghao Cai",
+      "kind": "human"
+    },
+    {
+      "name": "Helena Casademunt",
+      "kind": "human"
+    },
+    {
+      "name": "Wenjia Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Benjamin Cheng",
+      "kind": "human"
+    },
+    {
+      "name": "Nawen Deng",
+      "kind": "human"
+    },
+    {
+      "name": "Rao Fu",
+      "kind": "human"
+    },
+    {
+      "name": "Tianfu Fu",
+      "kind": "human"
+    },
+    {
+      "name": "Yifan Han",
+      "kind": "human"
+    },
+    {
+      "name": "Ren He",
+      "kind": "human"
+    },
+    {
+      "name": "Zhenyu He",
+      "kind": "human"
+    },
+    {
+      "name": "Qiao Jin",
+      "kind": "human"
+    },
+    {
+      "name": "Lang Lang",
+      "kind": "human"
+    },
+    {
+      "name": "Yuetai Li",
+      "kind": "human"
+    },
+    {
+      "name": "Sylvia Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Lu Lu",
+      "kind": "human"
+    },
+    {
+      "name": "Qing Lu",
+      "kind": "human"
+    },
+    {
+      "name": "Subhabrata Mukherjee",
+      "kind": "human"
+    },
+    {
+      "name": "Yunqi Ouyang",
+      "kind": "human"
+    },
+    {
+      "name": "Yin Ren",
+      "kind": "human"
+    },
+    {
+      "name": "Dawei Shi",
+      "kind": "human"
+    },
+    {
+      "name": "Haoran Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Zhiyue Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Hannah Yao",
+      "kind": "human"
+    },
+    {
+      "name": "Zhuoran Yi",
+      "kind": "human"
+    },
+    {
+      "name": "Jenny Yu",
+      "kind": "human"
+    },
+    {
+      "name": "Rhea Zhan",
+      "kind": "human"
+    },
+    {
+      "name": "Hang Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Blake Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Junfan Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Alan Yuille",
+      "kind": "human"
+    },
+    {
+      "name": "Yang Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Russell Alan Poldrack",
+      "kind": "human"
+    },
+    {
+      "name": "Jiachen Li",
+      "kind": "human"
+    },
+    {
+      "name": "Zhenglu Li",
+      "kind": "human"
+    },
+    {
+      "name": "Molei Tao",
+      "kind": "human"
+    },
+    {
+      "name": "Jing Huang",
+      "kind": "human"
+    },
+    {
+      "name": "Wenqi Shi",
+      "kind": "human"
+    },
+    {
+      "name": "Costas Spanos",
+      "kind": "human"
+    },
+    {
+      "name": "Lichao Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Chenguang Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Orson Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Zhen Dong",
+      "kind": "human"
+    },
+    {
+      "name": "Hector Gomez",
+      "kind": "human"
+    },
+    {
+      "name": "Aylin Caliskan",
+      "kind": "human"
+    },
+    {
+      "name": "Ali Emami",
+      "kind": "human"
+    },
+    {
+      "name": "Haimin Hu",
+      "kind": "human"
+    },
+    {
+      "name": "Zhi Li",
+      "kind": "human"
+    },
+    {
+      "name": "Lihui Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Murphy Niu",
+      "kind": "human"
+    },
+    {
+      "name": "Yi Shao",
+      "kind": "human"
+    },
+    {
+      "name": "Jianxin Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Mikko Tolonen",
+      "kind": "human"
+    },
+    {
+      "name": "Ting Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Sanjiv Das",
+      "kind": "human"
+    },
+    {
+      "name": "Yanjun Gao",
+      "kind": "human"
+    },
+    {
+      "name": "Wenbo Guo",
+      "kind": "human"
+    },
+    {
+      "name": "Erika J Schneider",
+      "kind": "human"
+    },
+    {
+      "name": "Zhiyong Lu",
+      "kind": "human"
+    },
+    {
+      "name": "Mark Mueller",
+      "kind": "human"
+    },
+    {
+      "name": "Radha Poovendran",
+      "kind": "human"
+    },
+    {
+      "name": "Somayeh Sojoudi",
+      "kind": "human"
+    },
+    {
+      "name": "Dawn Song",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-29T19:33:23.566547Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "abstract": "Recent AI systems have achieved strong results on a wide range of benchmarks, yet these gains have not translated into economically meaningful deployment across many professional domains. We argue that this gap is largely an evaluation problem: widely used benchmarks lack sustained performance measurement on real and economically valuable workflows. This paper introduces Agents' Last Exam (ALE), a benchmark designed to evaluate AI agents on long-horizon, economically valuable, real-world tasks with verifiable outcomes. Developed in collaboration with 250+ industry experts, ALE covers non-physical industries defined with reference to O*NET / SOC 2018 (the U.S. federal occupational taxonomy). It is organized around a task taxonomy with 55 subfields grouped into 13 industry clusters covering 1K+ tasks. Current results show that the hardest tier remains far from saturated: across mainstream harness and backbone configurations, the average full pass rate is 2.6%. ALE is designed as a living benchmark: its task pool grows continuously as new workflows and industries are onboarded. More broadly, ALE is intended not merely as another leaderboard, but as an instrument for closing the gap between benchmark success and GDP-relevant impact.",
