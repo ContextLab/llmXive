@@ -3,13 +3,44 @@
   "arxiv_url": "https://arxiv.org/abs/2605.13724",
   "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation",
   "authors": [
-    "Yuchao Gu",
-    "Guian Fang",
-    "Yuxin Jiang",
-    "Weijia Mao",
-    "Song Han",
-    "Han Cai",
-    "Mike Zheng Shou"
+    {
+      "name": "Yuchao Gu",
+      "kind": "human"
+    },
+    {
+      "name": "Guian Fang",
+      "kind": "human"
+    },
+    {
+      "name": "Yuxin Jiang",
+      "kind": "human"
+    },
+    {
+      "name": "Weijia Mao",
+      "kind": "human"
+    },
+    {
+      "name": "Song Han",
+      "kind": "human"
+    },
+    {
+      "name": "Han Cai",
+      "kind": "human"
+    },
+    {
+      "name": "Mike Zheng Shou",
+      "kind": "human"
+    },
+    {
+      "name": "openai.gpt-oss-120b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "openai.gpt-oss-120b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-29T16:32:32.497847Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "submitted_via": "llmXive dashboard, GitHub issue #137",

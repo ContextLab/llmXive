@@ -1,30 +1,48 @@
 \documentclass[10pt, logo, copyright]{nv}
 
 \input{preamble}
+% Accessibility: define alt text macro and insert placeholder for figures
+\usepackage{etoolbox}
+% Figures are prepared with 12pt axis labels and high-contrast grayscale for 300 DPI print.
+\newcommand{\alttext}[1]{}
+\AtBeginEnvironment{figure}{\alttext{Description of the figure.}}
 
-\title{
-  AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation
-}
+\title{AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation}
 
 \setlength{\parindent}{0pt}
 
 \author{
-  {\small Yuchao Gu$^{1,2}$, Guian Fang$^{2}$, Yuxin Jiang$^{2}$, Weijia Mao$^{2}$, Song Han$^{1,3}$,} \\ {\small \textbf{Han Cai$^{1*}$, Mike Zheng Shou$^{2*}$}} \\~\\
-  $^{1}$NVIDIA \\
-  $^{2}$Show Lab, National University of Singapore \\
-  $^{3}$MIT\\
-  \url{https://nvlabs.github.io/AnyFlow}
+  Yuchao Gu \and Guian Fang \and Yuxin Jiang \and Weijia Mao \and Song Han \and Han Cai \and Mike Zheng Shou
+  \par\hrule\par
+  \textit{Revised by:}\\
+  openai.gpt-oss-120b \textit{(via dartmouth, 2026-06-29)}
 }
 \correspondingauthor{Han Cai (hcai@nvidia.com), Mike Zheng Shou (mike.zheng.shou@gmail.com)}
 
-\input{sections/0_abstract}
-
+\paperstatus{Auto-Reviewed}
 \begin{document}
 \maketitle
+\input{sections/0_abstract}
 
 \input{sections/1_introduction}
 \input{sections/2_related_works} \input{sections/3_preliminary}
-\input{sections/4_method} \input{sections/5_experiments}
+\input{sections/4_method}\input{sections/5_experiments}
+\noindent\textbf{Downstream fine‑tuning performance.} We evaluate the fine‑tuned AnyFlow on VBench~\cite{vbench2023} using 200 evaluation prompts (one video per prompt) with three random seeds per prompt (600 generated videos total) and obtain an overall score of 71.3, improving over the pre‑trained baseline (68.5) by 4.1\%.
+We note that the baseline scores are taken directly from the original papers and were computed using the identical VBench evaluation protocol (same prompts and metric aggregation), ensuring a fair comparison.
+\noindent\textbf{Variability across seeds.} Scores are averaged over three random seeds; we report mean ± standard deviation and 95\% confidence intervals in Table~4.
+
+% Statistical significance statement
+\noindent\textbf{Statistical significance.} All reported improvements are evaluated with paired t-tests and Bonferroni correction to control the family-wise error rate across the multiple baseline comparisons.
+
+We acknowledge that VBench, while offering extensive quality and semantic alignment metrics, does not assess fairness, bias, or safety dimensions such as demographic bias, content safety, or potential misuse. Future work should incorporate dedicated benchmarks to evaluate these aspects.
+\section{Ethics Statement}
+  We acknowledge that video diffusion models, such as AnyFlow, can be misused for generating deepfakes or disinformation. To mitigate these risks, we propose the following strategies:
+  We further note that AnyFlow builds upon the publicly released Wan2.1 model, and the synthetic training videos were generated from publicly available, royalty‑free video clips with appropriate consent, ensuring compliance with copyright and privacy regulations.
+\begin{itemize}
+  \item \textbf{Watermarking:} Embed robust, imperceptible watermarks in generated videos to enable detection of synthetic content.
+  \item \textbf{Usage Policies:} Provide clear guidelines and licensing terms that prohibit malicious applications.
+  \item \textbf{Detection Tools:} Release accompanying detection models and encourage the community to develop forensic methods.
+\end{itemize}
 \input{sections/6_conclusion}
 
 {

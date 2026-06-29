@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-567-anyflow-any-step-video-diffusion-model-w/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation'
-updated_at: '2026-06-21T09:55:41.391197Z'
+updated_at: '2026-06-29T16:32:32.497847Z'

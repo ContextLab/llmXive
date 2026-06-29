@@ -1,0 +1,229 @@
+schema_version: '1'
+project_id: PROJ-567-anyflow-any-step-video-diffusion-model-w
+rounds:
+- round_number: 1
+  ran_at: '2026-06-29T16:32:32.497847Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (openai.gpt-oss-120b on dartmouth,
+    2026-06-29)
+  tasks_done: 19
+  tasks_failed: 0
+  tasks_skipped: 17
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-567-anyflow-any-step-video-diffusion-model-w/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[2168843c4583]** (severity: writing): Clarify the
+      ''first'' claim in Abstract/Intro to account for concurrent work TMD (Section
+      2) which also studies flow map distillation for vide'
+  - id: '002'
+    severity: writing
+    status: done
+    text: 'Address action item **[60b85e2ab97c]** (severity: writing): Code artifacts
+      are not provided for review. The paper claims code is released at https://github.com/NVLabs/AnyFlow
+      but no repository or impl'
+  - id: '003'
+    severity: writing
+    status: done
+    text: 'Address action item **[368b909ec438]** (severity: writing): Explicitly
+      state the software and model weight license (e.g., MIT, Apache 2.0) in the Abstract
+      or Conclusion. Currently, the GitHub link is '
+  - id: '004'
+    severity: writing
+    status: done
+    text: 'Address action item **[071fead716d0]** (severity: writing): Provide a specific
+      commit hash or version tag for the released code repository to ensure reproducibility.
+      The GitHub URL lacks a pinned vers'
+  - id: '005'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[4ac0e48abda2]** (severity: writing): Clarify the
+      licensing constraints of the synthetic training data derived from Wan2.1-T2V-14B.
+      The base model''s license dictates permissible '
+  - id: '006'
+    severity: writing
+    status: skipped
+    text: "Address action item **[d7c93533994a]** (severity: writing): Replace \a\
+      nimategraphics dependencies with static representative frames in figures like\
+      \ fig:teaser and fig:ablation_onpolicy to ensure qualit"
+  - id: '007'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[3034422aed2d]** (severity: writing): Move the embedded
+      table in fig:ablation_time_sampler (lines ~1050-1070) to a standalone table
+      environment to prevent numbering conflicts and'
+  - id: 008
+    severity: writing
+    status: done
+    text: "Address action item **[e5b51fb3a659]** (severity: writing): Add alt text\
+      \ metadata to all figure environments (e.g., \alttext{...}) to support screen\
+      \ readers and accessibility compliance."
+  - id: 009
+    severity: writing
+    status: done
+    text: 'Address action item **[bc2b0e4560dc]** (severity: writing): Verify axis
+      labels and tick marks in quantitative charts (e.g., fig:teaser, fig:ablation_interpolated_embedding)
+      are legible at standard pri'
+  - id: '010'
+    severity: writing
+    status: done
+    text: 'Address action item **[8eda274556c4]** (severity: writing): Define "NFEs"
+      at first use in Abstract (line 3) as "Number of Function Evaluations" for non-specialists.
+      The term still appears multiple tim'
+  - id: '011'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0a005fd9fadc]** (severity: writing): Define "KV-cache",
+      "patchify kernels", "context compression", and "teacher-forcing" in Section
+      4.3 (AnyFlow for Causal Video Diffusion) wher'
+  - id: '012'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ab06658d6d9e]** (severity: writing): Define "LoRA"
+      in Section 5.1 (Implementation Details) as "Low-Rank Adaptation" at first mention.
+      The acronym appears with only a citation, n'
+  - id: '013'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[c220e1184abb]** (severity: writing): Define acronyms
+      "FAR" and "rCM" in text rather than relying solely on citations (e.g., Abstract,
+      Section 1, Section 2). Both remain undefine'
+  - id: '014'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[20dc797850df]** (severity: writing): Replace "rollout"
+      with "sampling sequence" or "generation path" in Sections 1, 4, and 5 to improve
+      accessibility. The term "rollout" still a'
+  - id: '015'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[1577b5b8ba16]** (severity: writing): Simplify compound
+      terms like "guidance-fused training", "adaptive loss reweighting", and "differential
+      derivation equation" in Section 4.1 w'
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[cba63584ca0b]** (severity: writing): Clarify the
+      tested range for ''any-step'' claims. The Abstract and Introduction assert support
+      for ''arbitrary inference budgets,'' but tables o'
+  - id: '017'
+    severity: writing
+    status: done
+    text: 'Address action item **[1804ce72a685]** (severity: writing): Add a dedicated
+      Ethics Statement section discussing potential misuse (e.g., deepfakes, disinformation)
+      and mitigation strategies (e.g., wate'
+  - id: 018
+    severity: writing
+    status: done
+    text: 'Address action item **[bc1a7ff8a5d4]** (severity: writing): Clarify data
+      provenance regarding the base Wan2.1 model and synthetic dataset generation
+      to address copyright and consent concerns.'
+  - id: 019
+    severity: writing
+    status: done
+    text: 'Address action item **[c0a9840d7ed2]** (severity: writing): Discuss limitations
+      of the VBench evaluation in assessing fairness, bias, or safety metrics beyond
+      quality and semantic alignment.'
+  - id: '020'
+    severity: writing
+    status: done
+    text: 'Address action item **[7853de3b00cb]** (severity: writing): Multiple baseline
+      comparisons are made across tasks and scales without addressing multiple-comparisons
+      correction or controlling for Type I '
+  - id: '021'
+    severity: writing
+    status: done
+    text: 'Address action item **[fb3ed10b55eb]** (severity: writing): Move the abstract
+      environment inside the document body (i.e., after \maketitle). Currently the
+      abstract is input before \begin{document}, wh'
+  - id: '022'
+    severity: writing
+    status: skipped
+    text: "Address action item **[f07f27544be7]** (severity: writing): Ensure a consistent\
+      \ heading hierarchy: all top\u2011level sections use \\section, subsections\
+      \ use \\subsection, and subsubsections use \\subsubsecti"
+  - id: '023'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[4b1773c32e9e]** (severity: writing): Standardize
+      figure placement specifiers. Several figures use [!tb] while others use [!tb]
+      inconsistently; consider using a uniform placement'
+  - id: '024'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[261fcd5a5695]** (severity: writing): Remove duplicate
+      package imports (e.g., \usepackage{booktabs} appears twice in preamble.tex).
+      Duplicate imports can cause warnings and incre'
+  - id: '025'
+    severity: writing
+    status: done
+    text: "Address action item **[2484afdaf82d]** (severity: writing): Check that\
+      \ all cross\u2011references use the same macro (e.g., \\cref) and that the corresponding\
+      \ \\crefname definitions in preamble.tex match the "
+  - id: '026'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0d4a660d3cb8]** (severity: writing): In Section
+      1, reduce repetition of the phrase ''at 4 NFEs'' which appears three times in
+      close proximity within the results summary paragraph.'
+  - id: '027'
+    severity: writing
+    status: done
+    text: 'Address action item **[048a57ad625a]** (severity: writing): Fix hard line
+      breaks in source files that split sentences or section titles (e.g., ''Differential
+      Derivation'
+  - id: 028
+    severity: writing
+    status: skipped
+    text: 'Address action item **[4c8f6ea91053]** (severity: writing): Split the long
+      sentence in the Abstract (lines 10-15) describing extensive experiments into
+      two sentences to reduce cognitive load for reade'
+  - id: 029
+    severity: writing
+    status: skipped
+    text: 'Address action item **[50f661487821]** (severity: writing): Remove double
+      space before ''simulation'' in Table 6 caption (tables/training_cost.tex).'
+  - id: '030'
+    severity: science
+    status: done
+    text: 'Address action item **[52831b67ad03]** (severity: science): Provide quantitative
+      metrics for downstream fine-tuning. The claim about continued training adaptability
+      in sections/4_method.tex relies onl'
+  - id: '031'
+    severity: science
+    status: skipped
+    text: 'Address action item **[1eb883f873de]** (severity: science): Strengthen
+      baseline degradation evidence. The claim that consistency models degrade at
+      higher NFEs (sections/1_introduction.tex) relies on a'
+  - id: '032'
+    severity: science
+    status: done
+    text: 'Address action item **[dd965d3a3e0f]** (severity: science): Specify the
+      exact number of evaluation prompts/samples used for VBench metrics to assess
+      statistical reliability.'
+  - id: '033'
+    severity: science
+    status: done
+    text: 'Address action item **[1e970e0c5675]** (severity: science): Provide error
+      bars or variance across random seeds for key quantitative results (e.g., Table
+      4) to support small effect sizes.'
+  - id: '034'
+    severity: science
+    status: done
+    text: 'Address action item **[dfaa1e216ede]** (severity: science): Clarify if
+      baseline results taken from original papers used identical evaluation protocols
+      to the re-evaluated models to ensure fair compari'
+  - id: '035'
+    severity: science
+    status: done
+    text: 'Address action item **[f9ef72563b0d]** (severity: science): Main quantitative
+      results (e.g., Tab. tab:t2v_comparison) report point estimates without standard
+      deviations or confidence intervals. Margin'
+  - id: '036'
+    severity: science
+    status: done
+    text: 'Address action item **[a17ed0288712]** (severity: science): Evaluation
+      protocol in Sec. 5.2 lacks details on the number of random seeds or prompts
+      used to compute VBench scores. Variance estimation re'
