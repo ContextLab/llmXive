@@ -1,132 +1,55 @@
-- artifact_hash: 61869d943824f34e85224f156e465389d9f7c54c5fafc6023b076772f36fcf69
-  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/imodels/compas-recidivism/resolve/main/test.csv`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/imodels/compas-recidivism/resolve/main/test.csv%60
-  verified_at: '2026-06-29T02:58:26.336043Z'
-- artifact_hash: 61869d943824f34e85224f156e465389d9f7c54c5fafc6023b076772f36fcf69
-  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/mstz/compas/resolve/main/priors-prediction-no-race/train.csv`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/mstz/compas/resolve/main/priors-prediction-no-race/train.csv%60
-  verified_at: '2026-06-29T02:58:26.336043Z'
-- artifact_hash: 61869d943824f34e85224f156e465389d9f7c54c5fafc6023b076772f36fcf69
-  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/plan.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/birgermoell/synthetic_compassion/resolve/main/data/train-00000-of-00001-4a3c2c42d74eb42b.parquet`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/birgermoell/synthetic_compassion/resolve/main/data/train-00000-of-00001-4a3c2c42d74eb42b.parquet%60
-  verified_at: '2026-06-29T02:58:26.336043Z'
-- artifact_hash: 61869d943824f34e85224f156e465389d9f7c54c5fafc6023b076772f36fcf69
-  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/plan.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/uci_adult/uci_adult/resolve/main/adult.csv`
-  verification_status: unreachable
-  verified_against_url: https://huggingface.co/datasets/uci_adult/uci_adult/resolve/main/adult.csv%60
-  verified_at: '2026-06-29T02:58:26.336043Z'
-- artifact_hash: 61869d943824f34e85224f156e465389d9f7c54c5fafc6023b076772f36fcf69
-  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/plan.md
-  cite_id: c-005
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/german_credit/german_credit/resolve/main/credit.csv`
-  verification_status: unreachable
-  verified_against_url: https://huggingface.co/datasets/german_credit/german_credit/resolve/main/credit.csv%60
-  verified_at: '2026-06-29T02:58:26.336043Z'
-- artifact_hash: 61869d943824f34e85224f156e465389d9f7c54c5fafc6023b076772f36fcf69
-  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/plan.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/law_school_admission/law_school/resolve/main/law.csv`
-  verification_status: unreachable
-  verified_against_url: https://huggingface.co/datasets/law_school_admission/law_school/resolve/main/law.csv%60
-  verified_at: '2026-06-29T02:58:26.336043Z'
-- artifact_hash: 4b71cecf6933cf8a8d4a1b4806ade44d902f443eed2f4c22ba05a9244c32586c
+- artifact_hash: a459a6979c9c83c8d40a384f3975e2ed48bb537d27464c50e7d29854fcb89b75
   artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: test.csv
   kind: url
-  value: https://huggingface.co/datasets/imodels/compas-recidivism/resolve/main/test.csv`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/imodels/compas-recidivism/resolve/main/test.csv%60
-  verified_at: '2026-06-29T03:10:35.184185Z'
-- artifact_hash: 4b71cecf6933cf8a8d4a1b4806ade44d902f443eed2f4c22ba05a9244c32586c
+  value: https://huggingface.co/datasets/imodels/compas-recidivism/resolve/main/test.csv
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/imodels/compas-recidivism/63f215c870e53f469daffe7bc8886c5d2425b7d7/test.csv?%2Fdatasets%2Fimodels%2Fcompas-recidivism%2Fresolve%2Fmain%2Ftest.csv=&etag=%22cf6a82ce4d0a6c3bf593201a2a65bfcb85318df0%22
+  verified_at: '2026-06-29T03:49:51.478608Z'
+- artifact_hash: a459a6979c9c83c8d40a384f3975e2ed48bb537d27464c50e7d29854fcb89b75
   artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://huggingface.co/datasets/mstz/compas/resolve/main/priors-prediction-no-race/train.csv`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/mstz/compas/resolve/main/priors-prediction-no-race/train.csv%60
-  verified_at: '2026-06-29T03:10:35.184185Z'
-- artifact_hash: 4b71cecf6933cf8a8d4a1b4806ade44d902f443eed2f4c22ba05a9244c32586c
+  value: https://archive.ics.uci.edu/ml/datasets/adult
+  verification_status: verified
+  verified_against_url: https://archive.ics.uci.edu/dataset/2/adult
+  verified_at: '2026-06-29T03:49:51.478608Z'
+- artifact_hash: a459a6979c9c83c8d40a384f3975e2ed48bb537d27464c50e7d29854fcb89b75
   artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://huggingface.co/datasets/birgermoell/synthetic_compassion/resolve/main/data/train-00000-of-00001-4a3c2c42d74eb42b.parquet`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/birgermoell/synthetic_compassion/resolve/main/data/train-00000-of-00001-4a3c2c42d74eb42b.parquet%60
-  verified_at: '2026-06-29T03:10:35.184185Z'
-- artifact_hash: 4b71cecf6933cf8a8d4a1b4806ade44d902f443eed2f4c22ba05a9244c32586c
+  value: https://archive.ics.uci.edu/ml/datasets/bank+marketing
+  verification_status: verified
+  verified_against_url: https://archive.ics.uci.edu/dataset/222/bank+marketing
+  verified_at: '2026-06-29T03:49:51.478608Z'
+- artifact_hash: a459a6979c9c83c8d40a384f3975e2ed48bb537d27464c50e7d29854fcb89b75
   artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/research.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv`
+  value: https://archive.ics.uci.edu/ml/datasets/statlog+
   verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv%60
-  verified_at: '2026-06-29T03:10:35.184185Z'
-- artifact_hash: 4b71cecf6933cf8a8d4a1b4806ade44d902f443eed2f4c22ba05a9244c32586c
+  verified_against_url: https://archive.ics.uci.edu/ml/datasets/statlog+
+  verified_at: '2026-06-29T03:49:51.478608Z'
+- artifact_hash: a459a6979c9c83c8d40a384f3975e2ed48bb537d27464c50e7d29854fcb89b75
   artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/research.md
   cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet`
+  value: https://www2.stat.duke.edu/~cr173/Sta112_Fa14/validation.html
   verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet%60
-  verified_at: '2026-06-29T03:10:35.184185Z'
-- artifact_hash: 4b71cecf6933cf8a8d4a1b4806ade44d902f443eed2f4c22ba05a9244c32586c
-  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/research.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet%60
-  verified_at: '2026-06-29T03:10:35.184185Z'
+  verified_against_url: https://www2.stat.duke.edu/~cr173/Sta112_Fa14/validation.html
+  verified_at: '2026-06-29T03:49:51.478608Z'

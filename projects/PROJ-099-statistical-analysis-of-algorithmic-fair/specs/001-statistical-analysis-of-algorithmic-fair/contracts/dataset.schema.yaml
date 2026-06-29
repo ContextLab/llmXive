@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for preprocessed fairness analysis datasets"
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "Unique identifier for the dataset"
+  row_count:
+    type: integer
+    description: "Number of rows after preprocessing"
+    minimum: 1
+  feature_count:
+    type: integer
+    description: "Number of features used for modeling"
+    minimum: 1
+  protected_attribute_name:
+    type: string
+    description: "Name of the protected attribute column"
+  protected_attribute_values:
+    type: array
+    items:
+      type: string
+    description: "Binary values of the protected attribute"
+    minItems: 2
+    maxItems: 2
+  outcome_name:
+    type: string
+    description: "Name of the outcome column"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of raw file"
+    pattern: "^[a-f0-9]{64}$"
+required:
+  - dataset_id
+  - row_count
+  - feature_count
+  - protected_attribute_name
+  - protected_attribute_values
+  - outcome_name
+  - checksum
+additionalProperties: false

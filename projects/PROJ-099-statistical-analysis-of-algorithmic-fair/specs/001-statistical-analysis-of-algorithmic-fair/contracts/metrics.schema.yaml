@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fairness Metrics Schema"
+description: "Schema for computed fairness metric values"
+type: object
+properties:
+  metric_id:
+    type: string
+    description: "Unique identifier for the metric record"
+  metric_name:
+    type: string
+    description: "Name of the fairness metric"
+    enum:
+      - "demographic_parity_difference"
+      - "equalized_odds_difference"
+      - "predictive_parity"
+      - "calibration_within_groups"
+      - "disparate_impact_ratio"
+      - "false_positive_rate_disparity"
+  metric_value:
+    type: number
+    description: "Computed fairness metric value"
+  model_id:
+    type: string
+    description: "Foreign key to trained model"
+  dataset_id:
+    type: string
+    description: "Foreign key to dataset"
+  protected_attribute:
+    type: string
+    description: "Protected attribute used for computation"
+  confidence_interval_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval"
+    nullable: true
+  confidence_interval_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval"
+    nullable: true
+required:
+  - metric_id
+  - metric_name
+  - metric_value
+  - model_id
+  - dataset_id
+  - protected_attribute
+additionalProperties: false

@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for pairwise correlation analysis results"
+type: object
+properties:
+  correlation_id:
+    type: string
+    description: "Unique identifier for the correlation record"
+  metric_1:
+    type: string
+    description: "First metric name in the pair"
+  metric_2:
+    type: string
+    description: "Second metric name in the pair"
+  correlation_coefficient:
+    type: number
+    description: "Pearson or Spearman correlation coefficient"
+    minimum: -1
+    maximum: 1
+  p_value:
+    type: number
+    description: "Raw p-value for the correlation test"
+    minimum: 0
+    maximum: 1
+  q_value:
+    type: number
+    description: "Benjamini-Hochberg corrected q-value"
+    minimum: 0
+    maximum: 1
+  ci_lower:
+    type: number
+    description: "Bootstrap confidence interval lower bound"
+    nullable: true
+  ci_upper:
+    type: number
+    description: "Bootstrap confidence interval upper bound"
+    nullable: true
+  method:
+    type: string
+    description: "Correlation method used"
+    enum:
+      - "pearson"
+      - "spearman"
+required:
+  - correlation_id
+  - metric_1
+  - metric_2
+  - correlation_coefficient
+  - p_value
+  - q_value
+  - method
+additionalProperties: false

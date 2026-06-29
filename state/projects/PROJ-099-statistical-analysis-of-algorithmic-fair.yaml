@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-099-statistical-analysis-of-algorithmic-fair
-last_run_id: 220d5930-f051-48dc-93e1-35f8afc426ec
+last_run_id: e03d45f5-54db-44f2-b34a-eab993ba813b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair
 title: Statistical Analysis of Algorithmic Fairness Metrics
-updated_at: '2026-06-29T03:19:00.917831Z'
+updated_at: '2026-06-29T03:51:32.358121Z'
