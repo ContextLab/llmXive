@@ -1809,3 +1809,172 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T12:51:03Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: HumanEval benchmark contains 50 problems
+  claim_id: c_10c6361f
+  context: Implement bug_detection.py to load the 50-problem HumanEval subset and
+    compute pass@1 accuracy
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load the 50-problem HumanEval subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:25:30Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: codeparrot/github-code dataset has 500 MB subset
+  claim_id: c_b5147097
+  context: Implement data_loader.py to stream codeparrot/github-code (500 MB subset)
+    using HuggingFace datasets library with streaming mode enabled
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stream codeparrot/github-code (500 MB subset)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:28:16Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: At least 1000 code segments processed with valid measurements
+  claim_id: c_11e74c05
+  context: Add validation task to verify SC-003 (at least 1000 code segments processed
+    with valid clone density and perplexity measurements)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_1000_code_segments_processed_with_valid_measurement
+  kind: magnitude
+  raw_text: verify at least 1000 code segments processed with valid clone density
+    and perplexity measurements
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:32:01Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: Model inference memory limit is 7 GB
+  claim_id: c_c5750cf8
+  context: Add explicit memory-monitoring to validate 7 GB limit throughout model
+    inference (SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: validate 7 GB limit throughout model inference
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:37:01Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: Salesforce/codegen-350M-mono model loaded in 8-bit quantization
+  claim_id: c_7dc5d9e2
+  context: Implement model_metrics.py to load Salesforce/codegen-350M-mono in 8-bit
+    quantization using bitsandbytes and compute perplexity
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load Salesforce/codegen-350M-mono in 8-bit quantization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:44:23Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: HuggingFace datasets library supports streaming mode
+  claim_id: c_78e4dedb
+  context: Implement data_loader.py to stream codeparrot/github-code (500 MB subset)
+    using HuggingFace datasets library with streaming mode enabled
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_datasets_library_supports_streaming_mode
+  kind: entity_fact
+  raw_text: use HuggingFace datasets library with streaming mode
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:55:29Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: bitsandbytes library supports 8-bit quantization
+  claim_id: c_eec25992
+  context: Implement model_metrics.py to load Salesforce/codegen-350M-mono in 8-bit
+    quantization using bitsandbytes and compute perplexity
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use bitsandbytes for 8-bit quantization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T13:58:33Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: Spearman rank correlation calculated between duplication density, perplexity,
+    and accuracy
+  claim_id: c_d3ee2cfb
+  context: Implement correlation_analysis.py to calculate Spearman rank correlation
+    between duplication density and both perplexity and accuracy
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_rank_correlation_calculated_between_duplication_den
+  kind: entity_fact
+  raw_text: calculate Spearman rank correlation between duplication density and both
+    perplexity and accuracy
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T14:10:19Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: Clone detection thresholds tested at 0.7, 0.8, 0.9
+  claim_id: c_9eaedc27
+  context: Extend correlation_analysis.py to perform sensitivity analysis for clone-detection
+    thresholds 0.7, 0.8, 0.9
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: clone-detection thresholds 0.7, 0.8, 0.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T14:16:09Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: pass@1 accuracy metric computed for bug detection
+  claim_id: c_6fbc7d3a
+  context: Implement bug_detection.py to load the 50-problem HumanEval subset and
+    compute pass@1 accuracy
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: compute pass@1 accuracy
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T14:29:38Z'

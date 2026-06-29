@@ -74,7 +74,7 @@
 - [X] T023 [US1] Add explicit memory‑monitoring to validate 7 GB limit throughout model inference (SC‑002)
 - [X] T024 [US1] Add validation task to verify **SC‑001** (24‑hour completion) AND **500MB corpus requirement** on the full dataset (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`) using pytest
 - [X] T025 [US1] Add checksum computation for all output files AND intermediate files/logs, record in `artifact_hashes` state manifest
-- [X] T026 [US1] Add validation task to verify **SC‑003** (at least 1000 code segments processed with valid clone density and perplexity measurements [UNRESOLVED-CLAIM: c_8d5b5001 — status=not_enough_info]) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
+- [X] T026 [US1] Add validation task to verify **SC‑003** (at least 1000 code segments processed with valid clone density and perplexity measurements) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently
 
@@ -95,8 +95,8 @@
 
 ### Implementation Tasks
 
-- [X] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset and compute pass@1 accuracy
-- [X] T032 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to calculate Spearman rank correlation between duplication density and both perplexity and accuracy
+- [X] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset and compute pass@1 accuracy [UNRESOLVED-CLAIM: c_6fbc7d3a — status=not_enough_info]
+- [X] T032 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to calculate Spearman rank correlation between duplication density and both perplexity and accuracy [UNRESOLVED-CLAIM: c_d3ee2cfb — status=not_enough_info]
 - [X] T033 [US2] Join all intermediate metrics (clone, perplexity, bug‑detection) for correlation input
 - [X] T034 [US2] Save correlation results with p‑values to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/correlation_results.csv`
 - [X] T035 [US2] Add validation task to verify **SC‑004** – ({{claim:c_5bb2307c}}) documented (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_significance.py`) using pytest
