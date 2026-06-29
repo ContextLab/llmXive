@@ -3,56 +3,216 @@
   "arxiv_url": "https://arxiv.org/abs/2606.07591",
   "title": "ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research",
   "authors": [
-    "Wanghan Xu",
-    "Shuo Li",
-    "Tianlin Ye",
-    "Qinglong Cao",
-    "Yixin Chen",
-    "Hengjian Gao",
-    "Yiheng Wang",
-    "Qi Li",
-    "Kun Li",
-    "Sheng Xu",
-    "Shengdu Chai",
-    "Fangchen Yu",
-    "Xiangyu Zhao",
-    "Zhangrui Zhao",
-    "Weijie Ma",
-    "Zijie Guo",
-    "Haoyu Zhou",
-    "Haoxiang Yin",
-    "Lixue Cheng",
-    "Chaofan Hu",
-    "Haoxuan Li",
-    "Lu Mi",
-    "Xuxuan Xie",
-    "Yifan Zhou",
-    "Ruizhe Chen",
-    "Zhiwang Zhou",
-    "Xingjian Guo",
-    "Yuhao Zhou",
-    "Xuming He",
-    "Shengyuan Xu",
-    "Xinyu Gu",
-    "Jiamin Wu",
-    "Mianxin Liu",
-    "Chunfeng Song",
-    "Fenghua Ling",
-    "Dongzhan Zhou",
-    "Shixiang Tang",
-    "Yuqiang Li",
-    "Mao Su",
-    "Peng Ye",
-    "Siqi Sun",
-    "Bin Wang",
-    "Xue Yang",
-    "Zhenfei Yin",
-    "Tianfan Fu",
-    "Guangtao Zhai",
-    "Wanli Ouyang",
-    "Bo Zhang",
-    "Lei Bai",
-    "Wenlong Zhang"
+    {
+      "name": "Wanghan Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Shuo Li",
+      "kind": "human"
+    },
+    {
+      "name": "Tianlin Ye",
+      "kind": "human"
+    },
+    {
+      "name": "Qinglong Cao",
+      "kind": "human"
+    },
+    {
+      "name": "Yixin Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Hengjian Gao",
+      "kind": "human"
+    },
+    {
+      "name": "Yiheng Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Qi Li",
+      "kind": "human"
+    },
+    {
+      "name": "Kun Li",
+      "kind": "human"
+    },
+    {
+      "name": "Sheng Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Shengdu Chai",
+      "kind": "human"
+    },
+    {
+      "name": "Fangchen Yu",
+      "kind": "human"
+    },
+    {
+      "name": "Xiangyu Zhao",
+      "kind": "human"
+    },
+    {
+      "name": "Zhangrui Zhao",
+      "kind": "human"
+    },
+    {
+      "name": "Weijie Ma",
+      "kind": "human"
+    },
+    {
+      "name": "Zijie Guo",
+      "kind": "human"
+    },
+    {
+      "name": "Haoyu Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Haoxiang Yin",
+      "kind": "human"
+    },
+    {
+      "name": "Lixue Cheng",
+      "kind": "human"
+    },
+    {
+      "name": "Chaofan Hu",
+      "kind": "human"
+    },
+    {
+      "name": "Haoxuan Li",
+      "kind": "human"
+    },
+    {
+      "name": "Lu Mi",
+      "kind": "human"
+    },
+    {
+      "name": "Xuxuan Xie",
+      "kind": "human"
+    },
+    {
+      "name": "Yifan Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Ruizhe Chen",
+      "kind": "human"
+    },
+    {
+      "name": "Zhiwang Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Xingjian Guo",
+      "kind": "human"
+    },
+    {
+      "name": "Yuhao Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Xuming He",
+      "kind": "human"
+    },
+    {
+      "name": "Shengyuan Xu",
+      "kind": "human"
+    },
+    {
+      "name": "Xinyu Gu",
+      "kind": "human"
+    },
+    {
+      "name": "Jiamin Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Mianxin Liu",
+      "kind": "human"
+    },
+    {
+      "name": "Chunfeng Song",
+      "kind": "human"
+    },
+    {
+      "name": "Fenghua Ling",
+      "kind": "human"
+    },
+    {
+      "name": "Dongzhan Zhou",
+      "kind": "human"
+    },
+    {
+      "name": "Shixiang Tang",
+      "kind": "human"
+    },
+    {
+      "name": "Yuqiang Li",
+      "kind": "human"
+    },
+    {
+      "name": "Mao Su",
+      "kind": "human"
+    },
+    {
+      "name": "Peng Ye",
+      "kind": "human"
+    },
+    {
+      "name": "Siqi Sun",
+      "kind": "human"
+    },
+    {
+      "name": "Bin Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Xue Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Zhenfei Yin",
+      "kind": "human"
+    },
+    {
+      "name": "Tianfan Fu",
+      "kind": "human"
+    },
+    {
+      "name": "Guangtao Zhai",
+      "kind": "human"
+    },
+    {
+      "name": "Wanli Ouyang",
+      "kind": "human"
+    },
+    {
+      "name": "Bo Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Lei Bai",
+      "kind": "human"
+    },
+    {
+      "name": "Wenlong Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-29T20:31:06.831885Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "abstract": "AI coding agents are increasingly used for scientific work, but their end-to-end autonomous research capability remains difficult to verify. We present ResearchClawBench, a benchmark for evaluating autonomous scientific research across 40 tasks from 10 scientific domains. Each task is grounded in a real published paper, provides related literature and raw data, and hides the target paper during evaluation. Expert-curated multimodal rubrics decompose the target scientific artifacts into weighted criteria, enabling evaluation of target-paper-level re-discovery while leaving room for new discovery. We evaluate seven autonomous research (auto-research) agents under a unified protocol and seventeen native LLMs through the lightweight ResearchHarness. Current systems remain far from reliable re-discovery: the strongest autonomous agent, Claude Code, averages 21.5, and the strongest ResearchHarness LLM, Claude-Opus-4.7, averages 20.7, with an LLM frontier mean of only 26.5. Error analysis shows that failures concentrate in experimental protocol mismatch, evidence mismatch, and missing scientific core. ResearchClawBench provides a reproducible evaluation frontier for measuring progress toward autonomous scientific research.",

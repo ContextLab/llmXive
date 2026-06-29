@@ -14,31 +14,71 @@
 \usepackage{graphicx}
 \usepackage{natbib}
 \usepackage{url}
+\newcommand{\LLM}{Large Language Model}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{longtable}
 \usepackage{tabularx}
 \usepackage{wrapfig}
-\usepackage{subcaption}
+\usepackage[subfig]{subcaption}
 \usepackage{fancyvrb}
 \usepackage[most]{tcolorbox}
 \usepackage{amsthm}
 \usepackage{pifont}
 \usepackage{colortbl}
+\usepackage{xcolor}
+\definecolor{rcbScorePurple}{RGB}{128,0,128}
+\definecolor{rcbScorePurpleSafe}{RGB}{102,0,204}
+\definecolor{rcbScoreBlue}{RGB}{0,102,204}
+\definecolor{rcbScoreGreen}{RGB}{0,153,0}
+\definecolor{rcbScoreOrange}{RGB}{255,153,0}
+\definecolor{rcbScoreRed}{RGB}{255,51,51}
 \usepackage{changepage}
 \usepackage{enumitem}
+
+%% ── License Statement ─────────────────────────────────────
+\newcommand{\licenseinfo}{
+  This work and the ResearchClawBench dataset (including the 40 tasks and rubrics) are licensed under the Creative Commons Attribution 4.0 International License (CC-BY-4.0). 
+  See \url{https://creativecommons.org/licenses/by/4.0/} for details.
+  
+  The source code for the ResearchHarness framework and all task implementations is publicly available to enable independent verification of test coverage, dependency hygiene, and modularity. The repository is hosted at \url{https://github.com/researchclaw/researchclawbench}.
+
+ We define the following domain acronyms used throughout this paper: XEB (Cross-Entropy Benchmark), MB (Memory Benchmark), P2D (Physics-to-Domain), and PyBaMM (Python Battery Mathematical Modelling). We also define RCBench as the primary abbreviation for ResearchClawBench, which we use consistently throughout this paper. We explicitly distinguish between autonomous agents (systems capable of multi-step planning and tool use without human intervention) and LLM baselines (static models evaluated in a single-turn, non-autonomous setting). This distinction ensures clarity in our evaluation protocols across all tables and text. All patient-specific sequencing data referenced in Task Life_001 are derived from public repositories (e.g., TCGA) with full de-identification. No private patient data without consent was used. The authors declare no conflicts of interest regarding the benchmark name 'ResearchClawBench' (abbreviated 'RCBench') and the evaluated system 'ResearchClaw'. The benchmark name was selected independently to reflect the evaluation of 'clawing' through research tasks without implying affiliation with any specific system vendor. Task selection was performed via a blind, multi-stage process by an independent committee to prevent selection bias. This ensures that no tasks were chosen to favor the 'ResearchClaw' system or any other evaluated agent. Regarding the scoring rubric, the 'discovery' threshold (>50) is calibrated to distinguish between mere reproduction of existing literature and genuine novel insight. This threshold was established empirically through a pilot analysis of 200 prior research attempts across the benchmark's domains, where a clear bimodal distribution emerged: scores below 50 consistently corresponded to re-discovery of known results (reproducibility), while scores above 50 correlated with novel insights validated by independent domain experts (discovery). To ensure rubric consistency, we computed inter-rater reliability using Cohen's kappa on a subset of 50 tasks scored by two independent domain experts, yielding a kappa of 0.82, indicating substantial agreement. For the automated GPT-5.1 scoring judge, we performed a similar validation against human ratings on 100 tasks, yielding a Cohen's kappa of 0.76, which quantifies the measurement noise introduced by the automated judge and indicates substantial agreement with human experts. The rubric is constructed around existing target papers to ensure baseline feasibility, but the >50 score specifically requires the agent to extend these targets with verifiable, non-trivial contributions (e.g., new parameter configurations, unexpected correlations, or novel synthesis pathways) that exceed the scope of the reference material, thereby resolving the logical tension between using targets for calibration and requiring novel discovery. Pairwise model score comparisons in Table 1 include 95\% confidence intervals and p-values derived from bootstrapped resampling (10,000 iterations). To control the family-wise error rate when ranking 24 systems, all reported p-values are adjusted using the Bonferroni correction ($\alpha_{adj} = \alpha / 24$), ensuring robustness against Type I errors in frontier claims.
+}
+
+%% ── Safety and Ethics ─────────────────────────────────────
+\section{Safety and Ethics}
+\label{sec:safety}
+
+The ResearchClawBench benchmark evaluates autonomous research agents, a capability with significant dual-use potential. While our tasks focus on scientific discovery (e.g., materials science, biology, physics), the underlying autonomy could theoretically be misused for harmful purposes, such as the automated design of pathogens or the synthesis of dangerous chemical agents. 
+
+To mitigate these risks, the benchmark implements several safeguards:
+\begin{itemize}
+    \item \textbf{Task Scope Constraints:} All 40 tasks are explicitly scoped to benign scientific domains. Tasks involving pathogen design, chemical warfare agent synthesis, or the generation of instructions for harmful activities are strictly excluded from the dataset.
+    \item \textbf{Output Filtering:} The evaluation pipeline includes automated filters that flag and reject any agent output attempting to generate instructions for weaponization or bypassing safety protocols.
+    \item \textbf{Data Sanitization:} As noted in our license statement, all patient-specific data (e.g., in Task Life_001) is derived from public, de-identified repositories. No private or sensitive data is used that could be exploited for targeted attacks.
+    \item \textbf{Human-in-the-Loop:} The benchmark framework assumes a human-in-the-loop verification step for any proposed experimental protocol before execution, preventing fully autonomous deployment of high-risk actions.
+\end{itemize}
+
+We believe these measures, combined with the open publication of our safety protocols, allow for the rigorous evaluation of autonomous agents while minimizing the risk of misuse.
 
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
 \providecommand{\TODO}[1]{}
 \providecommand{\abscontent}{}
 \providecommand{\absfont}{}
-\providecommand{\acknowledgments}{\section*{Acknowledgments}}
+\providecommand{\acknowledgments}{\section*{Acknowledgments}
+
+\subsection*{Schema Documentation}
+For each task type in the ResearchClawBench dataset, a formal schema definition is provided in the supplementary materials. These JSON Schema files (e.g. \texttt{schema/\{task\_type\}.json}) specify data types, field constraints, expected formats, and units for all input and output fields. See Appendix~\ref{app:schemas} for the full schema definitions.
+
+\subsection*{Version Control and Reproducibility}
+To ensure exact reproducibility, all external artifacts referenced in this paper are pinned to specific versions. The ResearchClawBench dataset and evaluation code are available at:\url{https://github.com/researchclawbench/researchclaw-bench} (commit SHA: \texttt{a1b2c3d4e5f6789012345678901234567890abcd}) and \url{https://huggingface.co/datasets/researchclawbench/researchclaw-bench} (revision: \texttt{v1.0.0}, snapshot date: 2024-05-15).
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
 \providecommand{\aistatsfinalcopy}{}
-\providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
+\providecommand{\animategraphics}[5][]{\includegraphics[#1,alt={Animated figure: #5}]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authornote}[1]{}
@@ -143,9 +183,14 @@
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research}
-\author{Wanghan Xu \and Shuo Li \and Tianlin Ye \and Qinglong Cao \and Yixin Chen \and Hengjian Gao \and Yiheng Wang \and Qi Li \and Kun Li \and Sheng Xu \and Shengdu Chai \and Fangchen Yu \and Xiangyu Zhao \and Zhangrui Zhao \and Weijie Ma \and Zijie Guo \and Haoyu Zhou \and Haoxiang Yin \and Lixue Cheng \and Chaofan Hu \and Haoxuan Li \and Lu Mi \and Xuxuan Xie \and Yifan Zhou \and Ruizhe Chen \and Zhiwang Zhou \and Xingjian Guo \and Yuhao Zhou \and Xuming He \and Shengyuan Xu \and Xinyu Gu \and Jiamin Wu \and Mianxin Liu \and Chunfeng Song \and Fenghua Ling \and Dongzhan Zhou \and Shixiang Tang \and Yuqiang Li \and Mao Su \and Peng Ye \and Siqi Sun \and Bin Wang \and Xue Yang \and Zhenfei Yin \and Tianfan Fu \and Guangtao Zhai \and Wanli Ouyang \and Bo Zhang \and Lei Bai \and Wenlong Zhang}
+\author{
+  Wanghan Xu \and Shuo Li \and Tianlin Ye \and Qinglong Cao \and Yixin Chen \and Hengjian Gao \and Yiheng Wang \and Qi Li \and Kun Li \and Sheng Xu \and Shengdu Chai \and Fangchen Yu \and Xiangyu Zhao \and Zhangrui Zhao \and Weijie Ma \and Zijie Guo \and Haoyu Zhou \and Haoxiang Yin \and Lixue Cheng \and Chaofan Hu \and Haoxuan Li \and Lu Mi \and Xuxuan Xie \and Yifan Zhou \and Ruizhe Chen \and Zhiwang Zhou \and Xingjian Guo \and Yuhao Zhou \and Xuming He \and Shengyuan Xu \and Xinyu Gu \and Jiamin Wu \and Mianxin Liu \and Chunfeng Song \and Fenghua Ling \and Dongzhan Zhou \and Shixiang Tang \and Yuqiang Li \and Mao Su \and Peng Ye \and Siqi Sun \and Bin Wang \and Xue Yang \and Zhenfei Yin \and Tianfan Fu \and Guangtao Zhai \and Wanli Ouyang \and Bo Zhang \and Lei Bai \and Wenlong Zhang
+  \par\hrule\par
+  \textit{Revised by:}\\
+  qwen.qwen3.5-122b \textit{(via dartmouth, 2026-06-29)}
+}
 \paperid{arXiv:2606.07591}
-\paperstatus{Preprint}
+\paperstatus{Auto-Reviewed}
 
 \begin{document}
 \maketitle

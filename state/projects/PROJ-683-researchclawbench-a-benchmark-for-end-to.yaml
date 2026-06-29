@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-683-researchclawbench-a-benchmark-for-end-to/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research'
-updated_at: '2026-06-12T19:54:39.792778Z'
+updated_at: '2026-06-29T20:31:06.831885Z'
