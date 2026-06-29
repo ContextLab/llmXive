@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Defects4J Dataset Schema
+type: object
+properties:
+  bug_id:
+    type: string
+    description: "Unique identifier for bug (e.g. 'Defects4J-Lang-1')"
+  project_name:
+    type: string
+    description: "Defects4J project name (e.g. 'Lang', 'Math', 'Time')"
+  buggy_file_path:
+    type: string
+    description: "Path to buggy source file within dataset"
+  test_suite_path:
+    type: string
+    description: "Path to test suite within dataset"
+  commit_message:
+    type: ["string", "null"]
+    description: "Optional reference text from developer commit"
+  issue_description:
+    type: ["string", "null"]
+    description: "Optional reference text from issue tracker"
+  checksum:
+    type: string
+    description: "SHA-256 hash of original file"
+required:
+  - bug_id
+  - project_name
+  - buggy_file_path
+  - test_suite_path
+  - checksum
+additionalProperties: false

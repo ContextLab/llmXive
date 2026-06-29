@@ -1,112 +1,117 @@
 # Feature Specification: Evaluating the Explainability of LLM-Based Bug Fixes
 
-**Feature Branch**: `001-eval-explainability-llm-bug-fixes`  
-**Created**: 2026-06-29  
+**Feature Branch**: `001-evaluating-explainability`  
+**Created**: 2024-01-15  
 **Status**: Draft  
-**Input**: User description: "How well do different explainability techniques (attention visualization, code‑diff saliency maps, and generated natural‑language rationales) reflect the actual correctness and safety of bug fixes suggested by large language models for source‑code defects? The project will use Defects4J, CodeLlama‑7B‑Instruct, and statistical analysis to evaluate correlation and predictive power of each technique."
+**Input**: User description: "How well do different explainability techniques (attention visualization, code‑diff saliency maps, and generated natural‑language rationales) reflect the actual correctness and safety of bug fixes suggested by large language models for source‑code defects?"
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 – Generate Explainable Patches (Priority: P1)
+### US-1 - Generate Patches and Assess Correctness (Priority: P1)
 
-A researcher wants to run the pipeline on a set of buggy programs, obtain a generated patch from CodeLlama, and automatically extract three explainability artefacts (attention heatmap, saliency map, natural‑language rationale) for each patch.
+For each bug in the Defects4J dataset, generate a code patch using CodeLlama-7B-Instruct and determine whether the patch passes the test suite without introducing new failures.
 
-**Why this priority**: This story delivers the core data needed for any downstream analysis; without it the research question cannot be addressed.
+**Why this priority**: This is the foundational data layer—without correctness labels (pass/fail/unsafe), no explainability analysis can proceed. This delivers the ground truth against which all explanation methods are evaluated.
 
-**Independent Test**: Execute the pipeline on a single Defects4J bug and verify that (a) a diff‑style patch is saved, (b) an attention heatmap file is produced, (c) a saliency‑score CSV is generated, and (d) a textual rationale file is created.
+**Independent Test**: Can be fully tested by running the patch generation pipeline on 50 bugs and verifying that each produces a binary correctness label (pass/fail) plus an unsafe flag if new test failures occur.
 
 **Acceptance Scenarios**:
 
-1. **Given** a buggy version of a Defects4J project and the associated failing test description, **When** the pipeline is invoked, **Then** a patch file, attention heatmap, saliency scores, and rationale text are written to the output directory.
-2. **Given** a bug where the model fails to produce a syntactically valid patch, **When** the pipeline reaches the generation step, **Then** it logs a warning and skips explainability extraction for that bug without aborting the whole run.
+1. **Given** a buggy source file and failing test description from Defects4J, **When** the system prompts CodeLlama-7B-Instruct, **Then** the system outputs a patch in diff format and a correctness label after running the test suite
+2. **Given** a generated patch, **When** the system applies it and runs all associated tests, **Then** the system records pass/fail status and flags any new test failures as unsafe changes
+3. **Given** a target sample of 50 bugs from Defects4J v2.0, **When** the pipeline completes, **Then** valid correctness labels are recorded for the maximum feasible subset (coverage rate is a feasibility target, not a hard requirement)
 
 ---
 
-### User Story 2 – Assess Patch Correctness and Safety (Priority: P2)
+### US-2 - Extract Explainability Scores (Priority: P2)
 
-A developer wants to automatically apply each generated patch to the buggy code, run the full Defects4J test suite, and record whether the patch passes all original tests and does not introduce new failures.
+For each generated patch, compute three explainability metrics: attention weights on edited tokens, Integrated Gradients saliency on the diff, and BLEU/ROUGE similarity between generated and reference rationales.
 
-**Why this priority**: Correctness labels are the ground‑truth outcome against which explainability scores are correlated.
+**Why this priority**: This delivers the predictor variables for the core research question. Without these scores, we cannot measure the relationship between explanation fidelity and fix quality.
 
-**Independent Test**: Run the correctness assessment on the output of User Story 1 for a single bug and confirm that a binary pass/fail flag and a count of newly failing tests are stored.
+**Independent Test**: Can be fully tested by processing 10 patches and verifying that each produces three numerical scores (attention weight, saliency magnitude, BLEU/ROUGE) in the expected ranges.
 
 **Acceptance Scenarios**:
 
-1. **Given** a generated patch and its corresponding buggy source, **When** the patch is applied and the test suite is executed, **Then** the system records `correct = True` if all original tests pass and no new failures appear, otherwise `correct = False`.
+1. **Given** a generated patch and the model's forward pass, **When** the system extracts attention weights from the last decoder layer, **Then** the system outputs file-level aggregated attention scores for edited tokens
+2. **Given** a tokenized diff, **When** the system applies Captum's Integrated Gradients, **Then** the system outputs summed saliency magnitude scores for each edited line
+3. **Given** a generated rationale and available reference (human-written explanation, developer commit message, or issue description), **When** the system computes BLEU/ROUGE similarity, **Then** the system outputs a BLEU score between 0-100 (percentage) or 0-1 (normalized) and ROUGE score in the same range
 
 ---
 
-### User Story 3 – Quantitative Evaluation & Reporting (Priority: P3)
+### US-3 - Statistical Analysis and Correlation Testing (Priority: P3)
 
-A researcher wants to compute explainability scores, correlate them with patch correctness, fit logistic‑regression models, perform multiple‑comparison‑corrected hypothesis tests, and generate a reproducible Jupyter notebook summarizing the results.
+Compute point-biserial correlations between each explainability score and correctness, fit logistic regression models, and perform paired t-tests with Bonferroni correction to compare predictive power.
 
-**Why this priority**: This story produces the empirical evidence needed to answer the research question and supports reproducibility.
+**Why this priority**: This delivers the research findings—the statistical evidence answering whether explainability techniques reflect fix correctness. This is the final output that validates or challenges assumptions about interpretability methods.
 
-**Independent Test**: Execute the analysis script on a pre‑computed dataset of 50 bugs and verify that (a) Spearman ρ values, (b) logistic‑regression odds ratios, (c) AUC‑ROC scores, and (d) a notebook with tables/figures are produced, and that all statistical tests report p‑values ≤ 0.05 after Bonferroni correction where appropriate.
+**Independent Test**: Can be fully tested by running the analysis notebook on pre-computed scores from 50 bugs and verifying that correlation coefficients, logistic regression AUC-ROC values, and p-values are produced with Bonferroni correction applied.
 
 **Acceptance Scenarios**:
 
-1. **Given** a CSV containing explainability scores and correctness labels for 50 bugs, **When** the analysis notebook is run, **Then** it outputs correlation coefficients, regression summaries, and a table of pairwise t‑test results with Bonferroni‑adjusted p‑values.
-2. **Given** the same input, **When** the notebook is executed with a different threshold for attention‑weight aggregation (e.g., 0.01 vs. 0.05), **Then** a sensitivity‑analysis section reports how the headline correlation and regression odds ratios vary across thresholds.
+1. **Given** 50 bugs with correctness labels and explainability scores, **When** the system computes point-biserial correlations, **Then** the system outputs correlation coefficients (r_pb) and p-values for each technique
+2. **Given** the same dataset, **When** the system fits logistic regression models, **Then** the system outputs AUC-ROC scores and odds ratios for each explainability predictor
+3. **Given** three paired technique comparisons, **When** the system performs t-tests, **Then** the system outputs Bonferroni-corrected p-values with α = 0.05
 
 ---
 
 ### Edge Cases
 
-- What happens when a bug lacks a human‑written patch note in Defects4J?  
-  *The pipeline falls back to a placeholder rationale and records `[NO_HUMAN_RATIONALE]` for BLEU computation.*
-
-- How does the system handle a model‑generated patch that does not compile?  
-  *The patch is flagged as invalid, `correct = False`, and explainability extraction is skipped for that bug.*
-
-- What if Captum’s Integrated Gradients fails on a very long diff?  
-  *The script truncates the diff to the first 512 tokens (the model’s context limit) and logs the truncation.*
+- What happens when a generated patch fails to apply cleanly (merge conflict or syntax error)? → The system records the patch as "invalid" and excludes it from statistical analysis, logging the error count
+- How does the system handle bugs where Defects4J lacks human-written rationales for BLEU/ROUGE comparison? → The system records BLEU/ROUGE as `[missing]` and excludes those cases from rationale-based analysis, logging the count
+- What happens when the model times out or fails to generate a patch within the CPU budget? → The system retries up to 3 times; after 3 failed attempts, the bug is marked "generation_failed" and excluded from analysis
+- How does the system handle test suite timeouts exceeding 60 seconds per bug? → The system enforces a 60-second timeout per test run; timeouts are recorded as "timeout" and excluded from correctness labels
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and extract the Defects4J v2.0 dataset, preserving buggy source files, test suites, and any available human patch notes. (See US‑1)  
-- **FR-002**: System MUST load the CodeLlama‑7B‑Instruct model using the `transformers` library in CPU‑only mode and generate a diff‑format patch for each bug prompt. (See US‑1)  
-- **FR-003**: System MUST extract per‑token attention weights from the model’s final decoder layer for the generated patch and aggregate them into a file‑level heatmap. (See US‑1)  
-- **FR-004**: System MUST compute Integrated Gradients saliency scores for each edited line of the diff using Captum and output a numeric importance score per line. (See US‑1)  
-- **FR-005**: System MUST prompt the model to produce a short natural‑language rationale for each edit and compute BLEU and ROUGE scores against the human‑written patch note when available. (See US‑1)  
-- **FR-006**: System MUST apply each generated patch to the buggy source, run the full Defects4J test suite, and record a binary correctness label plus a count of newly failing tests. (See US‑2)  
-- **FR-007**: System MUST compute three explainability scores per bug: (a) average attention weight on edited tokens, (b) summed absolute saliency magnitude on edited lines, (c) BLEU similarity of the rationale. (See US‑3)  
-- **FR-008**: System MUST perform Spearman correlation analysis between each explainability score and the binary correctness label, reporting ρ and two‑tailed p‑value. (See US‑3)  
-- **FR-009**: System MUST fit logistic‑regression models predicting correctness from each explainability score individually and from the multivariate combination, reporting odds ratios, confidence intervals, and AUC‑ROC. (See US‑3)  
-- **FR-010**: System MUST conduct paired t‑tests comparing the predictive performance of the three techniques, applying Bonferroni correction for multiple comparisons. (See US‑3)  
-- **FR-011**: System MUST include a sensitivity analysis that sweeps the attention‑aggregation threshold over a low, intermediate, and higher range of values and the saliency‑magnitude threshold over a comparable set of values, reporting how correlation coefficients and regression odds ratios change. (Methodological soundness: threshold justification & sensitivity) (See US‑3)  
-- **FR-012**: System MUST generate a reproducible Jupyter notebook that contains all data tables, figures, and statistical test outputs, and can be executed on the CI runner using the same 50‑bug subset. (See US‑3)  
-- **FR-013**: System MUST enforce CPU‑only execution; any attempt to enable CUDA or GPU‑accelerated libraries must raise a runtime error and abort the job. (Compute feasibility) (See US‑1)  
-
-### Clarification Needs
-
-- **FR-014**: System MUST verify that Defects4J provides a human‑written patch note for each bug used in BLEU evaluation. [NEEDS CLARIFICATION: Does Defects4J contain human rationale text for all selected bugs?] (See US‑1)  
-- **FR-015**: System MUST ensure that the test suite for each bug fully captures functional correctness and safety; otherwise, additional safety checks must be defined. [NEEDS CLARIFICATION: Are there known safety‑critical test failures in Defects4J that should be treated specially?] (See US‑2)  
-- **FR-016**: System MUST determine the minimum sample size required for adequate power to detect a Spearman ρ of 0.3 at α = 0.05. [NEEDS CLARIFICATION: Desired power level (e.g., 0.8) and whether 50 bugs is sufficient.] (See US‑3)
+- **FR-001**: System MUST download a standard bug repository dataset and extract buggy source files with associated test suites (See US-1)
+- **FR-002**: System MUST prompt CodeLlama-Instruct with buggy files and failing test descriptions to generate patches in diff format (See US-1)
+- **FR-003**: System MUST execute each generated patch against the Defects4J test suite and record binary pass/fail outcome plus unsafe flag for new failures (See US-1)
+- **FR-004**: System MUST extract per-token attention weights from the last decoder layer and aggregate to file-level heatmaps for edited tokens (See US-2)
+- **FR-005**: System MUST apply Captum's Integrated Gradients to tokenized diffs and compute summed saliency magnitude scores for edited lines (See US-2)
+- **FR-006**: System MUST compute BLEU and ROUGE similarity between generated rationales and reference text (developer commit messages, issue descriptions, or human-written explanations where available) (See US-2)
+- **FR-007**: System MUST compute point-biserial correlation between each explainability score and binary correctness outcome (See US-3)
+- **FR-008**: System MUST fit logistic regression models to predict correctness from explainability scores and evaluate via AUC-ROC (See US-3)
+- **FR-009**: System MUST perform paired t-tests comparing predictive power of the three techniques with α = 0.05 and Bonferroni correction (See US-3)
+- **FR-010**: System MUST enforce a 60-second timeout per test run and exclude timeout cases from correctness labels (See US-1)
+- **FR-011**: System MUST pin random seeds in all stochastic operations (model inference, data sampling, statistical resampling) to ensure reproducibility (See US-1, US-2, US-3)
+- **FR-012**: System MUST record dataset checksums (the designated defect dataset) and model revision identifiers (CodeLlama-7B-Instruct commit/tag) in the output metadata (See US-1, US-2, US-3)
 
 ### Key Entities
 
-- **BugInstance**: Represents a single Defects4J bug, with attributes `bug_id`, `buggy_source`, `test_suite`, `human_patch_note` (optional).  
-- **GeneratedPatch**: Contains `diff_text`, `attention_heatmap`, `saliency_scores`, `rationale_text`, and derived explainability scores.  
-- **EvaluationResult**: Holds `correctness_label`, `new_failure_count`, and statistical outputs for the bug.
+- **Bug**: A Defects4J defect with buggy source files, test suite, and optional reference text (commit message, issue description, or human-written rationale)
+- **Patch**: A generated code diff modifying buggy files to fix the defect
+- **CorrectnessLabel**: Binary pass/fail outcome plus unsafe flag derived from test suite execution
+- **ExplainabilityScore**: Three numerical metrics (attention weight, saliency magnitude, BLEU/ROUGE) per patch
+- **StatisticalResult**: Correlation coefficients, AUC-ROC values, and Bonferroni-corrected p-values from analysis
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: ≥ 95% of bugs in the 50‑bug subset produce a syntactically valid diff file (See US‑1).  
-- **SC-002**: All attention, saliency, and rationale artefacts are generated within 30 seconds per bug on the CI runner (CPU‑only) (See US‑1).  
-- **SC-003**: Spearman correlation between saliency‑map score and correctness is statistically significant (p < 0.05) after Bonferroni correction (See US‑3).  
-- **SC-004**: Logistic‑regression model using rationale‑BLEU achieves an odds‑ratio > 2 with 95% confidence interval not crossing 1 (See US‑3).  
-- **SC-005**: Sensitivity analysis shows that varying the attention threshold across {0.01, 0.05, 0.1} changes the Spearman ρ by no more than ±0.05, demonstrating robustness (See US‑3).
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: Point-biserial correlation coefficient (r_pb) between each explainability score and correctness is measured against the Defects4J ground-truth test suite outcomes (See US-3)
+- **SC-002**: Logistic regression AUC-ROC for predicting correctness from explainability scores is measured against the same test suite ground truth (See US-3)
+- **SC-003**: Bonferroni-corrected p-values for paired t-tests are measured against the α = 0.05 significance threshold (See US-3)
+- **SC-004**: Dataset-variable fit is measured against the Defects4J v2.0 schema to confirm all required variables (buggy files, test suites, optional reference text) are present (See US-1)
+- **SC-005**: Multiplicity correction is measured against the number of hypothesis tests performed (3 techniques × 2 tests = 6 comparisons) to verify Bonferroni adjustment is applied (See US-3)
+- **SC-006**: Power limitation is documented as a constraint with sample size of 50 bugs; power analysis is deferred to implementation phase (See US-3)
+- **SC-007**: Explainability scores are measured against expected numerical ranges for attention weights (0-1), saliency magnitudes (0-∞), and BLEU/ROUGE scores (0-100 or 0-1) to confirm valid output (See US-2)
 
 ## Assumptions
 
-- The CI environment provides 2 CPU cores, ~7 GB RAM, and ≤ 6 h runtime; all scripts are written in pure Python 3.11 with CPU‑only libraries.  
-- Defects4J v2.0 contains both buggy source files and corresponding JUnit test suites for every selected bug.  
-- CodeLlama‑7B‑Instruct can be loaded in CPU memory (~13 GB) within the CI runner’s 7 GB RAM limit by using `torch_dtype=torch.float16` and `low_cpu_mem_usage=True`.  
-- Human‑written patch notes are available for at least 30 of the 50 bugs; for the remainder, BLEU will be computed against a manually curated subset (assumed sufficient for exploratory analysis).  
-- Statistical significance thresholds (α = 0.05) and Bonferroni correction are appropriate for the three pairwise comparisons.  
-- No GPU or CUDA libraries will be installed; any attempt to import them will cause the job to fail, satisfying the free‑CPU feasibility requirement.
+- A bug dataset contains buggy source files and test suites; human-written rationales are NOT available as a standard dataset component. Where reference text is required for BLEU/ROUGE computation, the system will use developer commit messages or issue descriptions as alternative references. If no reference text is available for a bug, BLEU/ROUGE will be recorded as `[missing]` and that case excluded from rationale-based analysis.
+- The design is observational (no random assignment of patches to bugs), so all findings will be framed as ASSOCIATIONAL, not causal; no causal claims about explainability techniques causing higher correctness will be made
+- The GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job) is sufficient to process 50 bugs end-to-end; if runtime exceeds a predetermined threshold, the sample size will be reduced accordingly.
+- CodeLlama-7B-Instruct will run in 16-bit (default) precision on CPU; 8-bit quantization (load_in_8bit, bitsandbytes) will NOT be used as it requires CUDA and is incompatible with the free-tier runner
+- The sample size is chosen based on feasibility.; power analysis is deferred but will be documented as a limitation in the final report
+- BLEU/ROUGE similarity will use the standard 4-gram configuration with smoothing; the threshold of BLEU > 30 for "strong predictor" is based on community-standard interpretation of BLEU scores in code-generation literature
+- All statistical tests will use the Bonferroni correction for family-wise error control (α_corrected = 0.05 / 6 = 0.0083 for 6 comparisons)
+- The 60-second timeout per test run is based on typical Defects4J test execution times; if a bug's test suite regularly exceeds this, it will be excluded from analysis
+- Random seeds are pinned to ensure reproducibility of model inference, data sampling, and statistical resampling operations
+- Dataset checksums and model revision identifiers are recorded in output metadata to enable replication and audit of the experimental setup

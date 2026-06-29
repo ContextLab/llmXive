@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Explainability Score Schema
+type: object
+properties:
+  score_id:
+    type: string
+    description: "Unique identifier for score record"
+  patch_id:
+    type: string
+    description: "Foreign key to Patch entity"
+  attention_weight:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Aggregated attention score for edited tokens (0-1)"
+  saliency_magnitude:
+    type: number
+    minimum: 0
+    description: "Summed saliency magnitude for edited lines (0-∞)"
+  rationale_coherence:
+    type: ["number", "null"]
+    description: "Coherence score between generated rationale and code change (0-1, or null if missing)"
+  reference_type:
+    type: string
+    enum:
+      - code_change
+      - missing
+      - unavailable
+    description: "Source of reference for coherence computation"
+  coherence_method:
+    type: string
+    enum:
+      - semantic_similarity
+      - missing
+    description: "Method used for coherence computation"
+required:
+  - score_id
+  - patch_id
+  - attention_weight
+  - saliency_magnitude
+  - reference_type
+  - coherence_method
+additionalProperties: false
+

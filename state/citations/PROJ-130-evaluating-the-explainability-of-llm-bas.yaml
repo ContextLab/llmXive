@@ -1,1 +1,37 @@
-[]
+- artifact_hash: a5e3708478ada6020e7b02723b5788ad35ee9d62a9a9fb86978753e7d74810b3
+  artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - rjust/defects4j: A Database of Real Faults and an Experimental\
+    \ Infrastructure to Enable Controlled Experiments in Software Engineering Research\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/rjust/defects4j
+  verification_status: verified
+  verified_against_url: https://github.com/rjust/defects4j
+  verified_at: '2026-06-29T16:11:41.224258Z'
+- artifact_hash: cd79841635bf5a5c2b64601f321d34def7b58add566be923b4c8412a9e8ab5df
+  artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - rjust/defects4j: A Database of Real Faults and an Experimental\
+    \ Infrastructure to Enable Controlled Experiments in Software Engineering Research\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/rjust/defects4j
+  verification_status: verified
+  verified_against_url: https://github.com/rjust/defects4j
+  verified_at: '2026-06-29T16:14:21.007058Z'
+- artifact_hash: cd79841635bf5a5c2b64601f321d34def7b58add566be923b4c8412a9e8ab5df
+  artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "codellama/CodeLlama-7b-Instruct-hf \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/codellama/CodeLlama-7b-Instruct-hf
+  verification_status: verified
+  verified_against_url: https://huggingface.co/codellama/CodeLlama-7b-Instruct-hf
+  verified_at: '2026-06-29T16:14:21.007058Z'

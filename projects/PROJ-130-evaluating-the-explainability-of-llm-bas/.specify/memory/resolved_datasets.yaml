@@ -1,0 +1,887 @@
+resolved_at: '2026-06-29T15:22:19.531562+00:00'
+datasets:
+- intent: Defects4J
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-all-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-all-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j_prompt/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/defects4j_sketch_code/resolve/main/rambo_defects4j_sketch_fixed_re.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Umuahia_2026_2027_Post_Basic_Admission_Form_Out_CALL_DR_MRS_GRACE_i_0704_913_8563_i_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_b_the_institution_has_officially_released_its_Post-_b_b_UTME/32825759
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kcl.figshare.com/articles/dataset/Structuring_the_Decision_Space_of_Emergency_Department_Simulation_Design_-_Dataset/32301423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genome_annotation_files_of_Promethis_valgipes/31294198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Springer_Nature_Social_Media_Survey_2025/32634201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/NMDA_Receptor_Subunit_NMR-2_Regulates_Pathogen-Induced_Immune_Responses_via_the_Nervous_System_in_i_C_elegans_i_/32762328
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7922699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15274979
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17634840
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4773743
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2706506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20847819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20847819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20954622
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AUC-ROC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://rdr.ucl.ac.uk/articles/dataset/HyKey_Dataset_A_robotic-acquired_dual-modality_RGB-HSI_Laparoscopic_Dataset/32793294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Umuahia_2026_2027_Post_Basic_Admission_Form_Out_CALL_DR_MRS_GRACE_i_0704_913_8563_i_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_b_the_institution_has_officially_released_its_Post-_b_b_UTME/32825759
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kcl.figshare.com/articles/dataset/Structuring_the_Decision_Space_of_Emergency_Department_Simulation_Design_-_Dataset/32301423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genome_annotation_files_of_Promethis_valgipes/31294198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Springer_Nature_Social_Media_Survey_2025/32634201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7471393
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6610410
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14411559
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10631919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21034483
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21034483
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/risk-stratification-self-self-evaluation-functional-capacity-non-return-work
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/plantar-pressure-evaluation-flatfoot-among-young-females-specificity-and
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/logistic-regression-random-forest-and-neural-networks-predict-tkr-postoperative
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://rdr.ucl.ac.uk/articles/dataset/HyKey_Dataset_A_robotic-acquired_dual-modality_RGB-HSI_Laparoscopic_Dataset/32793294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Umuahia_2026_2027_Post_Basic_Admission_Form_Out_CALL_DR_MRS_GRACE_i_0704_913_8563_i_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_b_the_institution_has_officially_released_its_Post-_b_b_UTME/32825759
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kcl.figshare.com/articles/dataset/Structuring_the_Decision_Space_of_Emergency_Department_Simulation_Design_-_Dataset/32301423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genome_annotation_files_of_Promethis_valgipes/31294198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Springer_Nature_Social_Media_Survey_2025/32634201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://rdr.ucl.ac.uk/articles/dataset/HyKey_Dataset_A_robotic-acquired_dual-modality_RGB-HSI_Laparoscopic_Dataset/32793294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Umuahia_2026_2027_Post_Basic_Admission_Form_Out_CALL_DR_MRS_GRACE_i_0704_913_8563_i_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_b_the_institution_has_officially_released_its_Post-_b_b_UTME/32825759
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kcl.figshare.com/articles/dataset/Structuring_the_Decision_Space_of_Emergency_Department_Simulation_Design_-_Dataset/32301423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genome_annotation_files_of_Promethis_valgipes/31294198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Springer_Nature_Social_Media_Survey_2025/32634201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20694409
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20694409
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/NMDA_Receptor_Subunit_NMR-2_Regulates_Pathogen-Induced_Immune_Responses_via_the_Nervous_System_in_i_C_elegans_i_/32762328/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/NMDA_Receptor_Subunit_NMR-2_Regulates_Pathogen-Induced_Immune_Responses_via_the_Nervous_System_in_i_C_elegans_i_/32762328/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/NMDA_Receptor_Subunit_NMR-2_Regulates_Pathogen-Induced_Immune_Responses_via_the_Nervous_System_in_i_C_elegans_i_/32762328
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://rdr.ucl.ac.uk/articles/dataset/HyKey_Dataset_A_robotic-acquired_dual-modality_RGB-HSI_Laparoscopic_Dataset/32793294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Umuahia_2026_2027_Post_Basic_Admission_Form_Out_CALL_DR_MRS_GRACE_i_0704_913_8563_i_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_b_the_institution_has_officially_released_its_Post-_b_b_UTME/32825759
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kcl.figshare.com/articles/dataset/Structuring_the_Decision_Space_of_Emergency_Department_Simulation_Design_-_Dataset/32301423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genome_annotation_files_of_Promethis_valgipes/31294198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Springer_Nature_Social_Media_Survey_2025/32634201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/3046789.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/3049871.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/3087765.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/2875255.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-012
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://rdr.ucl.ac.uk/articles/dataset/HyKey_Dataset_A_robotic-acquired_dual-modality_RGB-HSI_Laparoscopic_Dataset/32793294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Umuahia_2026_2027_Post_Basic_Admission_Form_Out_CALL_DR_MRS_GRACE_i_0704_913_8563_i_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_b_the_institution_has_officially_released_its_Post-_b_b_UTME/32825759
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kcl.figshare.com/articles/dataset/Structuring_the_Decision_Space_of_Emergency_Department_Simulation_Design_-_Dataset/32301423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genome_annotation_files_of_Promethis_valgipes/31294198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Springer_Nature_Social_Media_Survey_2025/32634201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10283722
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118353
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962290
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963628
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10318984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18829784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18829784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189885
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189885
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 103062
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11221
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_smolvla/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Association_of_reallocation_of_movement_behaviours_with_ectopic_fat_accumulation_a_cross-sectional_analysis_of_the_UK_Biobank_cohort/32785854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/dataset/Supplementary_File_5_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/dataset/HyKey_Dataset_A_robotic-acquired_dual-modality_RGB-HSI_Laparoscopic_Dataset/32793294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Umuahia_2026_2027_Post_Basic_Admission_Form_Out_CALL_DR_MRS_GRACE_i_0704_913_8563_i_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_b_the_institution_has_officially_released_its_Post-_b_b_UTME/32825759
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kcl.figshare.com/articles/dataset/Structuring_the_Decision_Space_of_Emergency_Department_Simulation_Design_-_Dataset/32301423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3559755
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7372808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5245315
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17102351
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/2875255.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/2753012.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/2722393.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/2895877.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-3
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/JJY-0823/US-365K/resolve/main/test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kuan0/us3c_llama3/resolve/main/alpaca_data_cleaned.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5839
+      parsed: true
+  - url: https://huggingface.co/datasets/JasonXF/US3D-Enhanced/resolve/main/prompt.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 696
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/JJY-0823/US-365K/resolve/main/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/kuan0/us3c_llama3/resolve/main/alpaca_data_cleaned.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/JasonXF/US3D-Enhanced/resolve/main/prompt.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S4_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825825
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S5_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825822
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S6_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/dataset/Supplementary_File_1_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825816
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/dataset/Supplementary_File_2_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825813
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15805059
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7755506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6383363
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6405907
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6394296
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/x85t5-cgm47
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/hgq87-m6966
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/3079541.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/2921624.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://esdcdoi.esac.esa.int/doi/html/data/astronomy/cheops/3095062.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-004
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S1_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825834
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S2_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825831
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S3_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825828
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S4_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825825
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S5_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825822
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3594903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19522446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962113
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10296042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20471461
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11945
+      parsed: true
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nothingiisreal/Reddit-Dirty-And-WritingPrompts/resolve/main/reddit_dirty_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S1_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825834
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S2_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825831
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S3_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825828
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S4_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825825
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S5_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825822
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16039952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4277137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BLEU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dousey/culture_bleuet/resolve/main/data/train-00000-of-00001-bbebcaa107c49829.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bleugreen/typescript-chunks/resolve/main/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/dousey/culture_bleuet/resolve/main/data/train-00000-of-00001-bbebcaa107c49829.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bleugreen/typescript-chunks/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/bleugreen/typescript-instruct/resolve/main/ts-instruct.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S1_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825834
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S2_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825831
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S3_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825828
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S4_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825825
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S5_from_3D_Emboli_Culture_Models_Epithelial_Breast_Cancer_Cell_Oxidative_Mitochondrial_Metabolism_with_Relevance_for_Lung_Metastasis/32825822
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5794093
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10317906
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROUGE
+  status: unresolved
+  candidates: []
+  candidates_tried: []

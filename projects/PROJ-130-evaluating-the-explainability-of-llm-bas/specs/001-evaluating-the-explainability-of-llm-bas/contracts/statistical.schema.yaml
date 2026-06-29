@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Result Schema
+type: object
+properties:
+  result_id:
+    type: string
+    description: "Unique identifier for statistical result"
+  technique:
+    type: string
+    enum:
+      - attention
+      - saliency
+      - rationale
+    description: "Explainability technique being evaluated"
+  correlation_coefficient:
+    type: number
+    description: "Point-biserial correlation coefficient (r_pb)"
+  correlation_p_value:
+    type: number
+    description: "Uncorrected p-value for correlation test"
+  auc_roc:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Logistic regression AUC-ROC"
+  odds_ratio:
+    type: number
+    minimum: 0
+    description: "Logistic regression odds ratio"
+  bonferroni_corrected_p:
+    type: number
+    description: "Bonferroni-corrected p-value (α_corrected = 0.0083)"
+  significance_threshold:
+    type: number
+    const: 0.0083
+    description: "Corrected significance threshold"
+required:
+  - result_id
+  - technique
+  - correlation_coefficient
+  - correlation_p_value
+  - auc_roc
+  - odds_ratio
+  - bonferroni_corrected_p
+  - significance_threshold
+additionalProperties: false
