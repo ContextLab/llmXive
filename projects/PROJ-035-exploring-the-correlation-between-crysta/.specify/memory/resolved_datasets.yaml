@@ -1,160 +1,5 @@
-resolved_at: '2026-06-29T04:41:22.580265+00:00'
+resolved_at: '2026-06-29T04:47:05.630391+00:00'
 datasets:
-- intent: API
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
-    source: huggingface
-    format: csv
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6810479d5d6920a73b0b2261/4ca6b913c555026585074899460ca61e46de595f74948c069dd8d58ca1232f31?response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27apigen-mt_5k.json%3B+filename%3D%22apigen-mt_5k.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1782711459&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxMDQ3OWQ1ZDY5MjBhNzNiMGIyMjYxLzRjYTZiOTEzYzU1NTAyNjU4NTA3NDg5OTQ2MGNhNjFlNDZkZTU5NWY3NDk0OGMwNjlkZDhkNThjYTEyMzJmMzFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdhcGlnZW4tbXRfNWsuanNvbiUzQitmaWxlbmFtZSUzRCUyMmFwaWdlbi1tdF81ay5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3MTE0NTl9fX1dfQ__&Signature=MEYCIQDVFH6HdL404wY2Xz~DQwEQI1aPtePpTyG3x14ooCwx3AIhAJBqfN7h847dgWGG2To7qvpeExmLd8ni9xJdaKdVfOAE&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://frontiersin.figshare.com/articles/figure/Image_5_The_influence_of_chronic_exercise_intervention_on_the_executive_function_of_children_with_neurodevelopmental_disorders_a_meta-analysis_jpeg/32818919
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_influence_of_chronic_exercise_intervention_on_the_executive_function_of_children_with_neurodevelopmental_disorders_a_meta-analysis_xlsx/32818922
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_3_The_influence_of_chronic_exercise_intervention_on_the_executive_function_of_children_with_neurodevelopmental_disorders_a_meta-analysis_jpeg/32818913
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_4_The_influence_of_chronic_exercise_intervention_on_the_executive_function_of_children_with_neurodevelopmental_disorders_a_meta-analysis_jpeg/32818916
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_The_influence_of_chronic_exercise_intervention_on_the_executive_function_of_children_with_neurodevelopmental_disorders_a_meta-analysis_jpeg/32818907
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6998062
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7324045
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4746168
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4488241
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20632
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21019112
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21019112
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21018439
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21018439
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21018299
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: FR-002
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Diagnostic_performance_of_multimodal_ultrasound-based_deep_learning_models_in_differentiating_benign_and_malignant_thyroid_nodules_docx/32818955
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Diagnostic_performance_of_multimodal_ultrasound-based_deep_learning_models_in_differentiating_benign_and_malignant_thyroid_nodules_docx/32818958
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Diagnostic_performance_of_multimodal_ultrasound-based_deep_learning_models_in_differentiating_benign_and_malignant_thyroid_nodules_docx/32818952
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Diagnostic_performance_of_multimodal_ultrasound-based_deep_learning_models_in_differentiating_benign_and_malignant_thyroid_nodules_tif/32818943
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Diagnostic_performance_of_multimodal_ultrasound-based_deep_learning_models_in_differentiating_benign_and_malignant_thyroid_nodules_docx/32818946
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10358914
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604171
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604159
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604137
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5603470
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635248
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20564541
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20564417
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: MUST
   status: verified
   candidates:
@@ -181,6 +26,10 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://figshare.com/articles/preprint/Evaluasi_Usability_Gemini_AI_Menggunakan_Model_Nielsen_dan_SEM-PLS/32818892
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://dro.deakin.edu.au/articles/journal_contribution/Opportunities_for_primary_and_secondary_prevention_of_excess_gestational_weight_gain_General_Practitioner_s_perspectives/32818925
     source: figshare
     status: wrong_format
@@ -194,10 +43,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_9_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818970
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_6_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818961
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -241,6 +86,251 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+- intent: API
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6810479d5d6920a73b0b2261/4ca6b913c555026585074899460ca61e46de595f74948c069dd8d58ca1232f31?X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27apigen-mt_5k.json%3B+filename%3D%22apigen-mt_5k.json%22%3B&Expires=1782711716&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxMDQ3OWQ1ZDY5MjBhNzNiMGIyMjYxLzRjYTZiOTEzYzU1NTAyNjU4NTA3NDg5OTQ2MGNhNjFlNDZkZTU5NWY3NDk0OGMwNjlkZDhkNThjYTEyMzJmMzFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdhcGlnZW4tbXRfNWsuanNvbiUzQitmaWxlbmFtZSUzRCUyMmFwaWdlbi1tdF81ay5qc29uJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3MTE3MTZ9fX1dfQ__&Signature=MEYCIQCulYrfd~PkcN4W6dgHefTWDkv2mmdZZAXhe2vX4939MAIhAKIX4wSP7wC2Zc3Ysc1ZuZnDwv9Q5yP9ENYxfmHTImkQ&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/Evaluasi_Usability_Gemini_AI_Menggunakan_Model_Nielsen_dan_SEM-PLS/32818892
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Opportunities_for_primary_and_secondary_prevention_of_excess_gestational_weight_gain_General_Practitioner_s_perspectives/32818925
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_10_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_8_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818967
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_9_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818970
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6998062
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7324045
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4746168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20632
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journal.nsa.bg/article/33134/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21018439
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21018439
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21018299
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&Expires=1782711759&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0X2xpc3QuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRfbGlzdC5qc29uJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3MTE3NTl9fX1dfQ__&Signature=MEUCIQC~7LTCYyWXdGUV44HXpAB1qPhq0gV-L4o3g-XMCqSQNwIgNDEBSOEWUeYw6v97LEcqNNkaVWNIGPgNLB4aPgWPqaI_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Evaluasi_Usability_Gemini_AI_Menggunakan_Model_Nielsen_dan_SEM-PLS/32818892
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Opportunities_for_primary_and_secondary_prevention_of_excess_gestational_weight_gain_General_Practitioner_s_perspectives/32818925
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_10_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_8_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818967
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_9_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818970
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10867253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20931042
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21018350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21018350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21018260
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21017721
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Evaluasi_Usability_Gemini_AI_Menggunakan_Model_Nielsen_dan_SEM-PLS/32818892
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Opportunities_for_primary_and_secondary_prevention_of_excess_gestational_weight_gain_General_Practitioner_s_perspectives/32818925
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_10_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_8_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818967
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_9_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818970
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10358914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: US-1
   status: verified
   candidates:
@@ -267,23 +357,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Opportunities_for_primary_and_secondary_prevention_of_excess_gestational_weight_gain_General_Practitioner_s_perspectives/32818925
+  - url: https://acs.figshare.com/articles/journal_contribution/A_FRET-Mediated_AIE_Biosensor_Based_on_Functionalized_Peptide-Stabilized_Gold_Nanoclusters_for_Sensitive_Detection_of_Matrix_Metalloproteinase_2/32818986
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_10_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818973
+  - url: https://figshare.com/articles/dataset/KORE-Map_1_2_Suppelmetary_Tables/32257602
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_8_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818967
+  - url: https://figshare.com/articles/online_resource/_b_TsrF_a_transcriptional_regulator_in_clinical_b_b_i_Pseudomonas_aeruginosa_i_b_b_modulates_H4-T6SS_expression_and_bacterial_virulence_b_/31646008
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_9_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818970
+  - url: https://acs.figshare.com/articles/journal_contribution/Resistance-CONKAT-seq_Guided_Discovery_of_a_ClpP_Active_Natural_Product_from_a_Soil_Metagenome/32818983
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_6_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818961
+  - url: https://figshare.com/articles/dataset/Consolidated_Snake_Road_Graph_Data/32818832
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -307,124 +397,101 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.caltech.edu/records/p7rqq-79851
+  - url: https://data.caltech.edu/records/cgrs3-fgd96
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.caltech.edu/records/yw0t4-az064
+  - url: https://data.caltech.edu/records/jtf32-da434
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.caltech.edu/records/eg2h6-ymp17
+  - url: https://data.caltech.edu/records/yzzm2-31p21
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+  - url: https://data.caltech.edu/records/zqa9m-va696
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19198938
+  - url: https://data.caltech.edu/records/ddsne-c1444
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: RAM
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
-    source: huggingface
-    format: json
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 130991
-      parsed: true
-  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 91560
-      parsed: true
-  - url: https://huggingface.co/datasets/ramybaly/conll2012/resolve/main/test.txt
-    source: huggingface
-    format: tsv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
+- intent: FR-014
+  status: unresolved
+  candidates: []
   candidates_tried:
-  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1782711659&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzExNjU5fX19XX0_&Signature=MEQCIBkiJd-ym8GkQHWikfNl2ttUl1qNDrFrgu5o0DuUmWftAiAumHOQqpVcgUDmaPJ0CdS6T8RdYBix7WRameTJXf~2ug__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/ramybaly/conll2012/resolve/main/test.txt
-    source: huggingface
-    status: verified
-    format: tsv
-  - url: https://figshare.com/articles/preprint/Evaluasi_Usability_Gemini_AI_Menggunakan_Model_Nielsen_dan_SEM-PLS/32818892
+  - url: https://acs.figshare.com/articles/journal_contribution/An_Ultra-High_Throughput_Hydrogen_Deuterium_Exchange_Workflow_Using_Acoustic_Ejection_Mass_Spectrometry_for_Studying_Peptide_Solution_Structural_Conformation/32818989
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Opportunities_for_primary_and_secondary_prevention_of_excess_gestational_weight_gain_General_Practitioner_s_perspectives/32818925
+  - url: https://acs.figshare.com/articles/journal_contribution/A_FRET-Mediated_AIE_Biosensor_Based_on_Functionalized_Peptide-Stabilized_Gold_Nanoclusters_for_Sensitive_Detection_of_Matrix_Metalloproteinase_2/32818986
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_10_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818973
+  - url: https://figshare.com/articles/dataset/KORE-Map_1_2_Suppelmetary_Tables/32257602
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_8_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818967
+  - url: https://figshare.com/articles/online_resource/_b_TsrF_a_transcriptional_regulator_in_clinical_b_b_i_Pseudomonas_aeruginosa_i_b_b_modulates_H4-T6SS_expression_and_bacterial_virulence_b_/31646008
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_9_Mitochondrial_calcium_uniporter-mediated_mitochondrial_dynamics_imbalance_contributes_to_contrast_medium-induced_renal_tubular_cell_injury_zip/32818970
+  - url: https://acs.figshare.com/articles/journal_contribution/Resistance-CONKAT-seq_Guided_Discovery_of_a_ClpP_Active_Natural_Product_from_a_Soil_Metagenome/32818983
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10272639
+  - url: https://zenodo.org/records/3627657
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20065754
+  - url: https://zenodo.org/records/10299128
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10353767
+  - url: https://zenodo.org/records/10166876
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7951034
+  - url: https://zenodo.org/records/10234932
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5150655
+  - url: https://zenodo.org/records/10337569
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.32575.27041
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://arxiv.org/abs/2606.07157
+  - url: https://zenodo.org/records/20635248
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.27727
+  - url: https://zenodo.org/records/20615161
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.27556
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.27497
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+- intent: US-2
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-005
+  status: unresolved
+  candidates: []
+  candidates_tried: []

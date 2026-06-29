@@ -1,46 +1,34 @@
 # Data Model: Exploring the Correlation Between Crystal Structure and Thermal Conductivity in Perovskites
 
-## Entities
+## Overview
+The project produces a single canonical merged dataset that serves as the single source of truth for all downstream analyses. The schema below defines required columns, types, and validation rules.
 
-### PerovskiteEntry
-Represents a single material record after ingestion and cleaning.
+**Note on VIF**: Variance Inflation Factor (VIF) is a diagnostic computed during regression phase (FR‑008). It is NOT stored in the canonical merged dataset. VIF values are stored only in regression results (`results/regression_summary.json`) for descriptors that pass the VIF filter.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `material_id` | string | Unique identifier from Materials Project (e.g., "mp-12345"). |
-| `stoichiometry` | string | Chemical formula (e.g., "ABX3"). |
-| `thermal_conductivity` | float | Thermal conductivity in W/m·K. |
-| `unit_cell_volume` | float | Volume in Å³. |
-| `tolerance_factor` | float | Goldschmidt tolerance factor (unitless). |
-| `tilting_angle` | float | Octahedral tilting angle in degrees. |
-| `bond_length_variance` | float | Variance of bond lengths (unitless). |
-| `source_api_date` | string | ISO 8601 date of API query. |
+**Note on Temperature**: The `temperature` column stores the ORIGINAL measurement temperature (pre-normalization). Thermal conductivity values are normalized to 300 K ± 10 K per FR‑013 before any analysis. The normalized value is stored in `thermal_conductivity`.
 
-### AnalysisResult
-Represents the output of the correlation/regression phase.
+## Merged Perovskite Dataset (`data/cleaned/merged_perovskite.csv`)
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `descriptor_name` | string | Name of the structural descriptor. |
-| `pearson_r` | float | Pearson correlation coefficient. |
-| `spearman_r` | float | Spearman correlation coefficient. |
-| `p_value` | float | Raw p-value. |
-| `p_value_fdr` | float | Benjamini-Hochberg corrected p-value. |
-| `significant` | boolean | True if `p_value_fdr` < 0.05. |
-| `regression_coefficient` | float | Coefficient from OLS model. |
-| `vif_score` | float | Variance Inflation Factor for this predictor. |
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| `structure_id` | string | Unique identifier from Materials Project (e.g., `"mp-12345"`). | Non‑null, unique. |
+| `chemical_formula` | string | Stoichiometric formula, must match regex `^[A-Z][a-z]?[A-Z][a-z]?[A-Z][a-z]?$` (ABX₃). | Non‑null, ABX₃ only (FR‑001). |
+| `chemistry_class` | string | One of `"oxide"`, `"halide"`, `"nitride"`. | Non‑null, enum (FR‑014). |
+| `thermal_conductivity` | float | Conductivity (W·m⁻¹·K⁻¹) normalized to 300 K ± 10 K (FR‑013). | Non‑null, > 0. |
+| `temperature` | float | Original measurement temperature (K) BEFORE normalization. | Non‑null; if outside 300 K ± 10 K, corrected per Slack (FR‑013). |
+| `source_reference` | string | Bibliographic citation or NIST entry URL. | Non‑null, peer‑reviewed or NIST (FR‑010). |
+| `tilting_angle` | float | Octahedral tilting angle (degrees). | Non‑null after descriptor calculation (FR‑003). |
+| `bond_length_variance` | float | Variance of bond lengths (Å²). | Non‑null (FR‑003). |
+| `tolerance_factor` | float | Goldschmidt tolerance factor. | Non‑null (FR‑003). |
+| `unit_cell_volume` | float | Unit cell volume (Å³). | Non‑null (FR‑003). |
 
-## Data Flow
+**Note**: `vif` column removed from merged dataset. VIF is computed during regression phase and stored in `results/regression_summary.json` only for descriptors that pass the VIF filter (VIF ≤ 5).
 
-1.  **Raw Fetch**: API response saved to `data/raw/mp_query_[timestamp].json`.
-2.  **Ingestion**: Filtered/merged to `data/processed/cleaned_perovskites.csv`.
-3.  **Descriptors**: Computed and appended to `data/processed/with_descriptors.csv`.
-4.  **Analysis**: Results saved to `data/processed/analysis_results.csv`.
-5.  **Report**: Figures and text generated from `analysis_results.csv`.
+## Derived Files
+- `data/derived/descriptors.csv`: Same rows as merged dataset plus computed descriptor columns (identical to above without `vif`).  
+- `results/correlation_matrix_{class}.csv`: Correlation coefficients, raw p‑values, corrected p‑values per descriptor and chemistry class.  
+- `results/regression_summary.json`: Cross‑validated metrics, test‑set R², RMSE, feature importance scores, VIF values for included features.  
 
-## Integrity Rules
+All files are CSV/JSON with UTF‑8 encoding and include a header row.
 
-- **Uniqueness**: `material_id` is primary key.
-- **Completeness**: `thermal_conductivity` must not be null (enforced in Ingestion).
-- **Determinism**: All CSVs generated with fixed seed for sorting/ordering.
-- **Checksum**: Every file in `data/` has a SHA-256 hash recorded in `state/...yaml`.
+---

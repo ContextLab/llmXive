@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Perovskite Dataset Schema"
+type: "object"
+properties:
+  structure_id:
+    type: "string"
+    description: "Materials Project identifier (e.g., \"mp-12345\")."
+  chemical_formula:
+    type: "string"
+    pattern: "^[A-Z][a-z]?[A-Z][a-z]?[A-Z][a-z]?$"
+    description: "ABX₃ formula; must match perovskite stoichiometry."
+  chemistry_class:
+    type: "string"
+    enum: ["oxide", "halide", "nitride"]
+    description: "Perovskite chemistry class."
+  thermal_conductivity:
+    type: "number"
+    minimum: 0
+    description: "Thermal conductivity (W·m⁻¹·K⁻¹) normalized to 300 K ± 10 K."
+  temperature:
+    type: "number"
+    description: "Original measurement temperature (K) before normalization."
+  source_reference:
+    type: "string"
+    description: "URL or citation of peer‑reviewed experimental source or NIST entry."
+  tilting_angle:
+    type: "number"
+    description: "Octahedral tilting angle (degrees)."
+  bond_length_variance:
+    type: "number"
+    description: "Variance of bond lengths (Å²)."
+  tolerance_factor:
+    type: "number"
+    description: "Goldschmidt tolerance factor."
+  unit_cell_volume:
+    type: "number"
+    description: "Unit cell volume (Å³)."
+required:
+  - structure_id
+  - chemical_formula
+  - chemistry_class
+  - thermal_conductivity
+  - temperature
+  - source_reference
+  - tilting_angle
+  - bond_length_variance
+  - tolerance_factor
+  - unit_cell_volume
+additionalProperties: false

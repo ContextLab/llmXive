@@ -1,53 +1,59 @@
 # Quickstart: Exploring the Correlation Between Crystal Structure and Thermal Conductivity in Perovskites
 
 ## Prerequisites
+- Python 3.9 installed (via `pyenv` or system Python).
+- GitHub Actions runner (or local Linux environment) with ≥ 2 CPU cores and ≤ 7 GB RAM.
+- **Thermal conductivity CSV**: User must supply `data/raw/thermal/thermal_conductivity.csv` with peer-reviewed experimental values and `source_reference` field (see FR‑010).
 
-- Python 3.11+
-- Materials Project API Key (stored in `MP_API_KEY` env var)
-- 7 GB RAM available
+## Setup
+```bash
+# Clone the repository
+git clone
+cd perovskite-thermal-correlation
 
-## Installation
+# Create a virtual environment
+python -m venv.venv
+source.venv/bin/activate
 
-1.  **Clone & Setup**
-    ```bash
-    cd projects/PROJ-035-exploring-the-correlation-between-crysta
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
+# Install pinned dependencies
+pip install -r requirements.txt
+```
 
-2.  **Configure API**
-    ```bash
-    export MP_API_KEY="your_api_key_here"
-    ```
+## Run the Full Pipeline
+```bash
+# Execute the orchestrator (deterministic seed = 42)
+python src/main.py --seed 42
+```
+The orchestrator performs the following phases in order:
 
-## Execution
+1. **Ingestion** – fetch structures, load thermal data, merge → `data/cleaned/merged_perovskite.csv`.
+2. **Descriptor Calculation** – compute crystallographic metrics → `data/derived/descriptors.csv`.
+3. **Correlation Analysis** – stratified Pearson/Spearman + multiple‑comparison correction → `results/correlation_matrix_*.csv`.
+4. **Regression Modeling** – 5‑fold CV, test evaluation, feature importance → `results/regression_summary.json`.
+5. **Visualization** – scatter plots with 95 % CI saved under `figures/`.
 
-1.  **Ingest Data** (Phase 1)
-    ```bash
-    python code/ingestion.py --output data/processed/cleaned_perovskites.csv
-    ```
-    *Checks for ABX3 stoichiometry and missing thermal values.*
+All intermediate and final artifacts are validated against the schema in `contracts/merged_perovskite.schema.yaml`. The CI workflow (`.github/workflows/ci.yml`) runs the same commands automatically and fails if any contract validation or functional test fails.
 
-2.  **Compute Descriptors** (Phase 2)
-    ```bash
-    python code/descriptors.py --input data/processed/cleaned_perovskites.csv --output data/processed/with_descriptors.csv
-    ```
-    *Calculates tilting, bond variance, tolerance factor.*
+## Inspect Results
+```bash
+# View correlation matrices
+head results/correlation_matrix_oxide.csv
 
-3.  **Run Analysis** (Phase 3)
-    ```bash
-    python code/analysis.py --input data/processed/with_descriptors.csv --output data/processed/analysis_results.csv
-    ```
-    *Runs correlations, FDR correction, VIF, and regression.*
+# View regression summary
+cat results/regression_summary.json | jq
 
-4.  **Generate Report** (Phase 4)
-    ```bash
-    python code/reporting.py --input data/processed/analysis_results.csv --output docs/report.md
-    ```
-    *Generates plots and text with associational framing.*
+# Open a figure (requires an image viewer)
+xdg-open figures/tilting_vs_kappa.png
+```
 
-## Verification
+## Reproducibility Checklist
+- Random seed fixed (`--seed 42`).
+- `requirements.txt` pins exact library versions.
+- Checksums of all raw files recorded in `data/metadata.yaml`.
+- All generated files are version‑controlled via content hashes in `state/projects/...yaml`.
 
-- **Contract Test**: Run `pytest tests/contract/` to validate output against `contracts/analysis_result.schema.yaml`.
-- **Reproducibility**: Re-run `code/` scripts; checksums in `state/...yaml` should match (if data unchanged).
+**Limitations Note**: Results should be interpreted with awareness of documented limitations (structural mismatch, uncontrolled confounds, sample size/power, Slack formula applicability, descriptor multicollinearity). See `research.md` for full details.
+
+Enjoy exploring structure–property relationships in perovskites!
+
+---
