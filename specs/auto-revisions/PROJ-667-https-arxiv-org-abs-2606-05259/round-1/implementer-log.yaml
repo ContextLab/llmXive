@@ -1,0 +1,413 @@
+schema_version: '1'
+round_number: 1
+project_id: PROJ-667-https-arxiv-org-abs-2606-05259
+revision_spec_path: specs/auto-revisions/PROJ-667-https-arxiv-org-abs-2606-05259/round-1
+implementer_agent: llmXive-implementer-v1.0
+agent_version: 1.0.0
+model_name: openai.gpt-oss-120b
+backend: dartmouth
+canonical_identity: llmXive-implementer-v1.0 (openai.gpt-oss-120b on dartmouth, 2026-06-29)
+started_at: '2026-06-29T17:17:09.658908Z'
+ended_at: '2026-06-29T17:20:25.337991Z'
+duration_s: 195.679083
+exit_reason: all-tasks-processed
+total_tasks: 20
+tasks_done: 13
+tasks_compile_failed: 0
+tasks_file_not_found: 0
+tasks_skipped: 7
+tasks_needs_external_data: 0
+final_compile_attempted: false
+final_compile_succeeded: false
+final_compile_pdf_sha256: null
+final_compile_pdf_bytes: null
+author_added: true
+author_entry:
+  name: openai.gpt-oss-120b
+  kind: llm
+  affiliation: null
+  email: null
+  agent_version: null
+  model_name: openai.gpt-oss-120b
+  backend: dartmouth
+  first_contributed_at: '2026-06-29T17:20:25.337991Z'
+task_outcomes:
+- task_id: '001'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00000]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: eaae461b3c4c1ebda7a103e0450bccade22b3d66e83a7bd88fcbbd1a2871a7a7
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: 9d5c7fb3a2fe21b176ab93646e8b568295f12f5a7f8ca15957b8e828b902bbf3
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\usepackage[accepted]{icml2026}\"\
+    ,\n  \"replace\": \"\\\\usepackage[accepted]{icml2026}\\n\\\\bibliographystyle{unsrt}\"\
+    \n}"
+  duration_s: 4.645856479999992
+  error_reason: null
+- task_id: '002'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00001]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: unified_diff
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: 9d5c7fb3a2fe21b176ab93646e8b568295f12f5a7f8ca15957b8e828b902bbf3
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: d329657da52933362eaa9544bdd7af63266df56e0e7a8a4efea755a8b5a94c45
+  model_response_excerpt: "{\n  \"kind\": \"unified_diff\",\n  \"file\": \"paper/source/main.tex\"\
+    ,\n  \"diff\": \"--- a/paper/source/main.tex\\n+++ b/paper/source/main.tex\\n@@\
+    \ -12,4 +12,5 @@\\n \\\\newcommand{\\\\theHalgorithm}{\\\\arabic{algorithm}}\\\
+    n \\n \\\\usepackage[accepted]{icml2026}\\n-\\\\bibliographystyle{unsrt}\\n+\\\
+    \\bibliographystyle{unsrt}\\n+\\\\setcitestyle{square}\\n\"\n}"
+  duration_s: 6.403403009000044
+  error_reason: null
+- task_id: '003'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00002]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: d329657da52933362eaa9544bdd7af63266df56e0e7a8a4efea755a8b5a94c45
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: fb4cc9cab02b7e2008769b0d9a9d2875d6043afb2c3d1006e78578c496b6f551
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\setcitestyle{square}\",\n  \"replace\"\
+    : \"\\\\usepackage[sort&compress,square]{natbib}\"\n}"
+  duration_s: 3.35827706799995
+  error_reason: null
+- task_id: '004'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00003]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: fb4cc9cab02b7e2008769b0d9a9d2875d6043afb2c3d1006e78578c496b6f551
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: b2152fc3b493e4c73351d09c1203b08dd68fe4bcc4c5eb2753a4bd13583d1e21
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\usepackage[sort&compress,square]{natbib}\"\
+    ,\n  \"replace\": \"\\\\usepackage[sort&compress,square]{natbib}\\n\\\\setcitestyle{square}\"\
+    \n}"
+  duration_s: 6.746813503999988
+  error_reason: null
+- task_id: '005'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00004]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: unified_diff
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "{\n  \"kind\": \"unified_diff\",\n  \"file\": \"paper/source/main.tex\"\
+    ,\n  \"diff\": \"--- a/paper/source/main.tex\\n+++ b/paper/source/main.tex\\n@@\\\
+    n-\\\\newcommand{\\\\theHalgorithm}{\\\\arabic{algorithm}}\\n-\\n-\\\\bibliographystyle{unsrt}\\\
+    n-\\\\usepackage[sort&compress,square]{natbib}\\n-\\\\setcitestyle{square}\\n+\\\
+    \\newcommand{\\\\theHalgorithm}{\\\\arabic{algorithm}}\\n+\\n+\\\\usepackage[sort&compress,square]{natbib}\\\
+    n+\\\\setcitestyle{square}\\n+\\\\bibliographystyle{unsrt}\\n\"\n}"
+  duration_s: 8.278399938999996
+  error_reason: 'git apply --check failed: error: No valid patches in input (allow
+    with "--allow-empty")'
+- task_id: '006'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00005]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: unified_diff
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: b2152fc3b493e4c73351d09c1203b08dd68fe4bcc4c5eb2753a4bd13583d1e21
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: 545a28436793568e6b294a59b15dd530e37b61a6bba69c962b43c83f45771cac
+  model_response_excerpt: "{\n  \"kind\": \"unified_diff\",\n  \"file\": \"paper/source/main.tex\"\
+    ,\n  \"diff\": \"--- a/paper/source/main.tex\\n+++ b/paper/source/main.tex\\n@@\
+    \ -14,4 +14,5 @@\\n \\\\usepackage[accepted]{icml2026}\\n-\\\\bibliographystyle{unsrt}\\\
+    n \\\\usepackage[sort&compress,square]{natbib}\\n \\\\setcitestyle{square}\\n+\\\
+    \\bibliographystyle{unsrt}\\n\"\n}"
+  duration_s: 11.938113131999955
+  error_reason: null
+- task_id: '007'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00006]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: unified_diff
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "{\n  \"kind\": \"unified_diff\",\n  \"file\": \"paper/source/main.tex\"\
+    ,\n  \"diff\": \"--- a/paper/source/main.tex\\n+++ b/paper/source/main.tex\\n@@\\\
+    n-\\\\bibliographystyle{unsrt}\\n+\\\\bibliographystyle{unsrt}\\n+% Ensure bibliography\
+    \ style is unsrt as required by reviewer\\n+\\\\bibliographystyle{unsrt}\\n\"\n\
+    }"
+  duration_s: 12.848079213999995
+  error_reason: 'git apply --check failed: error: No valid patches in input (allow
+    with "--allow-empty")'
+- task_id: 008
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00007]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{plain}\",\n  \"\
+    replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 12.996138347999988
+  error_reason: 'no-match: search string not found (tried exact + flexible)'
+- task_id: 009
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00008]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: 545a28436793568e6b294a59b15dd530e37b61a6bba69c962b43c83f45771cac
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: 9f5f64b6996ab8c06942b3fe5891dd8e00e583f0293f0e9267f0d0ead1bf617e
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\setcitestyle{square}\",\n  \"replace\"\
+    : \"\"\n}"
+  duration_s: 7.791125705000013
+  error_reason: null
+- task_id: '010'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00009]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: 9f5f64b6996ab8c06942b3fe5891dd8e00e583f0293f0e9267f0d0ead1bf617e
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: ae93a92392a2275fc2b2ca260bef1e03f048945c920699b7861ab21fd203dbbf
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\usepackage[sort&compress,square]{natbib}\"\
+    ,\n  \"replace\": \"\\\\usepackage[sort&compress,square]{natbib}\\n\\\\setcitestyle{square}\"\
+    \n}"
+  duration_s: 8.49158853199998
+  error_reason: null
+- task_id: '011'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00010]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: ae93a92392a2275fc2b2ca260bef1e03f048945c920699b7861ab21fd203dbbf
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: c9a600f9092acaa6e5ed3e9953301b5307f6197769f56cdae3ba1c8f64228fed
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\setcitestyle{square}\",\n  \"replace\"\
+    : \"\\\\setcitestyle{square, numbers}\"\n}"
+  duration_s: 6.3026167840000085
+  error_reason: null
+- task_id: '012'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00011]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{unsrt}\",\n  \"\
+    replace\": \"\\\\bibliographystyle{unsrt} % force unsrt style\"\n}"
+  duration_s: 6.2840379720000215
+  error_reason: 'ambiguous: search string matches 2 locations'
+- task_id: '013'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00012]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: c9a600f9092acaa6e5ed3e9953301b5307f6197769f56cdae3ba1c8f64228fed
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: c27b80ebf078ccbfab0a72d36a8cb55f7d425611728b67f3b5f64bccafe83fdb
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\setcitestyle{square, numbers}\"\
+    ,\n  \"replace\": \"\\\\setcitestyle{square, numbers, nosuper}\"\n}"
+  duration_s: 14.110105010999973
+  error_reason: null
+- task_id: '014'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00013]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2079", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: c27b80ebf078ccbfab0a72d36a8cb55f7d425611728b67f3b5f64bccafe83fdb
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: c7c979270c1a7c1d6455cd70af4c3aa6db6d0eecda2124be748ba7eb33126368
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\usepackage[sort&compress,square]{natbib}\"\
+    ,\n  \"replace\": \"\\\\usepackage[sort&compress]{natbib}\"\n}"
+  duration_s: 16.221720113999993
+  error_reason: null
+- task_id: '015'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00014]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2070", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{unsrt}\",\n  \"\
+    replace\": \"\\\\bibliographystyle{unsrt} % forced to avoid superscript citations\"\
+    \n}"
+  duration_s: 11.030612646000009
+  error_reason: 'ambiguous: search string matches 2 locations'
+- task_id: '016'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00015]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2074", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: unified_diff
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: c7c979270c1a7c1d6455cd70af4c3aa6db6d0eecda2124be748ba7eb33126368
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: 5c1678ea7d74b708bd365203c8144ef827c575425952a460668ba5bdde24fb48
+  model_response_excerpt: "{\n  \"kind\": \"unified_diff\",\n  \"file\": \"paper/source/main.tex\"\
+    ,\n  \"diff\": \"--- a/paper/source/main.tex\\n+++ b/paper/source/main.tex\\n@@\\\
+    n-\\\\begin{document}\\n+\\\\bibliographystyle{unsrt}\\n+\\\\begin{document}\\\
+    n\"\n}"
+  duration_s: 13.249114598999995
+  error_reason: null
+- task_id: '017'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00016]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{unsrt}\",\n  \"\
+    replace\": \"\\\\bibliographystyle{unsrt} % forced to avoid superscript citations\"\
+    \n}"
+  duration_s: 18.083805815999995
+  error_reason: 'ambiguous: search string matches 3 locations'
+- task_id: 018
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00017]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{unsrt}\",\n  \"\
+    replace\": \"\\\\bibliographystyle{unsrt}\\n% Ensure citations appear in square\
+    \ brackets per reviewer request\"\n}"
+  duration_s: 11.289888211000005
+  error_reason: 'ambiguous: search string matches 3 locations'
+- task_id: 019
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00018]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2075", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: 5c1678ea7d74b708bd365203c8144ef827c575425952a460668ba5bdde24fb48
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: d49bb695f7a1bf076b2156b3abd267e1fc6b7e70c6682ade4fb0cb17f4cd76ea
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main.tex\",\n  \"search\": \"\\\\setcitestyle{square, numbers, nosuper}\"\
+    ,\n  \"replace\": \"\\\\setcitestyle{square, numbers, nosuperscript}\"\n}"
+  duration_s: 4.3758824060000165
+  error_reason: null
+- task_id: '020'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00019]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  edit_kind: unified_diff
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: d49bb695f7a1bf076b2156b3abd267e1fc6b7e70c6682ade4fb0cb17f4cd76ea
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex: 06afb0d5918b2011d7e61952f4f32c4f09fb8bb804c0e48be4a39066c5feb9ae
+  model_response_excerpt: "{\n  \"kind\": \"unified_diff\",\n  \"file\": \"paper/source/main.tex\"\
+    ,\n  \"diff\": \"--- a/paper/source/main.tex\\n+++ b/paper/source/main.tex\\n@@\
+    \ -14,3 +14,4 @@\\n \\\\usepackage[accepted]{icml2026}\\n \\\\usepackage[sort&compress]{natbib}\\\
+    n \\\\setcitestyle{square, numbers, nosuperscript}\\n+\\\\bibliographystyle{unsrt}\\\
+    n\"\n}"
+  duration_s: 11.229690983000012
+  error_reason: null
