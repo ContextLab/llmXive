@@ -1,0 +1,203 @@
+project_id: PROJ-630-wbench-a-comprehensive-multi-turn-benchm
+arxiv_id: '2605.25874'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-29T06:09:59.433812+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 52f62270d379
+    text: Replace all placeholder macros (e.g., \numvideo, \numturn, \nummodel, \numsubmetric)
+      with concrete numeric values throughout the manuscript, especially in the abstract,
+      dataset description, and experimental summary, to make factual claims verifiable.
+    severity: writing
+  - id: 278f149ec1e7
+    text: Provide explicit citation support for the claim that interactive video world
+      models require five roles (Renderer, Director, Controller, Memory, Engine),
+      or rephrase the statement to avoid an unsupported assertion.
+    severity: writing
+  - id: c19dc6fb7c3d
+    text: "Verify that the numbers reported in Table\u202F1 (e.g., VBench cases\u202F\
+      =\u202F946, turns\u202F=\u202F946) match the original sources; if any discrepancy\
+      \ exists, correct the values or add a clarifying footnote."
+    severity: writing
+  - id: f212eeeee332
+    text: The linked repository must include a pinned requirements.txt or environment.yml
+      specifying exact versions for all dependencies (e.g., PyTorch, MegaSaM, CLIP,
+      TransNetV2) to ensure reproducibility from scratch.
+    severity: science
+  - id: 7d00bad2aaf3
+    text: Specify exact model checkpoint hashes or commit IDs for all VLMs and encoders
+      used (e.g., Qwen3-VL-30B-A3B, Depth Anything 3) in the repository README or
+      code comments.
+    severity: science
+  - id: eea1af8ddd82
+    text: Include unit tests for the evaluation metric scripts (e.g., NavScore calculation,
+      consistency checks) in the repository to verify implementation correctness and
+      prevent regression.
+    severity: science
+  - id: 6609c9ac182d
+    text: Explicitly state the dataset license (e.g., CC-BY-4.0) in Section 3 or Appendix.
+    severity: writing
+  - id: cef8788e1d53
+    text: Clarify licensing terms for initial frames generated via proprietary APIs
+      (Nano Banana 2, GPT-Image-1.5).
+    severity: writing
+  - id: 425544f83c55
+    text: Replace undefined LaTeX macros (\numvideo, \numturn) with concrete values
+      for reproducibility.
+    severity: writing
+  - id: d40fa69f8906
+    text: Verify stability of external model URLs (e.g., klingai.com) or provide archived
+      versions.
+    severity: writing
+  - id: bc2468315934
+    text: Figure 2 (category_pie_new.pdf) uses pie charts for eight axes. Pie charts
+      hinder precise comparison of proportions. Replace with a grouped bar chart or
+      stacked bar chart for better readability.
+    severity: writing
+  - id: be162247d6e7
+    text: Figure 3 (fig_analysis_combined.pdf) contains three sub-panels. Ensure each
+      panel (a, b, c) has explicit axis labels and legends embedded in the image,
+      not just in the caption, for standalone legibility.
+    severity: writing
+  - id: ca4b3bcc8eaa
+    text: Appendix qualitative figures (EE_case, SA_case, PS_case, PF_case) must clearly
+      annotate model names and indicate success/failure status directly on the image
+      or via a consistent legend to avoid ambiguity.
+    severity: writing
+  - id: 018502310049
+    text: Figure 4 (fig1_combined_degradation.pdf) Y-axis represents scores [0,100].
+      Verify the axis label explicitly states 'Score' and includes the unit range
+      for clarity.
+    severity: writing
+  - id: 03b55f8e30f8
+    text: Verify all color maps (especially in Figure 3 heatmaps) are colorblind-safe
+      (e.g., viridis, cividis) to ensure accessibility for all readers.
+    severity: writing
+  - id: 331cfbdeb92d
+    text: Define all acronyms (VLM, ATE, DiT, EM, 6-DoF) at first use in main text,
+      not just appendix.
+    severity: writing
+  - id: b74b54853b33
+    text: Expand technical terms (Slerp, KV caching, PLCC, MSE, PSNR, MAE) in Appendix
+      E and F.
+    severity: writing
+  - id: 52fd2061e2a0
+    text: Replace Table 1 abbreviations (Navi, SA, EE, PS, Qual, Adh, Inter, Cons,
+      Phys) with full terms or ensure caption is self-contained.
+    severity: writing
+  - id: 0f07d84f2091
+    text: Clarify statistical terms (Spearman rho, z-score) for non-specialist readers
+      in Section 6.
+    severity: writing
+  - id: 508b91afda88
+    text: 'The paper presents a substantial benchmark, but several claims overreach
+      the provided evidence, particularly regarding metric validity and capability
+      decoupling. Metric Validity Overclaim: In Section 5.3 (Human Preference Alignment),
+      the authors claim Spearman $\rho \ge 0.94$ across ten aspects, with four reaching
+      $\rho=1.00$. A perfect correlation in human-AI alignment is statistically improbable
+      and suggests potential data leakage (e.g., the automated metric may be trivially
+      derived from the h'
+    severity: writing
+  - id: 9c4491ab83dc
+    text: Add an explicit statement regarding the ethical treatment of the 400 human
+      annotators, including IRB approval status, informed consent procedures, and
+      compensation rates.
+    severity: writing
+  - id: 6691314239e5
+    text: Expand the Broader Impact section to discuss specific dual-use risks (e.g.,
+      deepfakes, disinformation) and concrete mitigation strategies beyond general
+      claims.
+    severity: writing
+  - id: 2c77fc7e83ab
+    text: Expand all LaTeX macros (e.g., \numvideo, \numturn, \nummodel) to concrete
+      numbers in the text to allow verification of sample sizes.
+    severity: science
+  - id: b9dcdcad7753
+    text: Report standard deviations or confidence intervals for model scores to support
+      claims of performance differences and statistical significance.
+    severity: science
+  - id: a995f56401b8
+    text: Clarify the statistical significance of the reported correlations (e.g.,
+      p-values for the "near-zero correlation" claim in Figure 3).
+    severity: science
+  - id: 40c106261d06
+    text: "Report confidence intervals (95% CI) for all Spearman/Pearson correlation\
+      \ coefficients in Section 5.3 and Figure 3. Current claims (\u03C1\u22650.94,\
+      \ r\u22480) lack uncertainty quantification."
+    severity: science
+  - id: 5c36299c5ec9
+    text: "Apply multiple-comparisons correction (e.g., Bonferroni or FDR) for the\
+      \ 10 human validation aspects tested. Four \u03C1=1.00 claims require adjusted\
+      \ p-values to avoid false positives."
+    severity: science
+  - id: c895780a5321
+    text: Provide standard errors or confidence intervals for the -33 point navigation
+      degradation claim (Figure 4). Specify sample sizes per turn level (T1, T2, T3,
+      T4+).
+    severity: science
+  - id: a2d298ac5db1
+    text: Clarify z-score calculation methodology for difficulty analysis (Figure
+      3c). What is the baseline distribution? Are differences statistically significant
+      (t-test/ANOVA)?
+    severity: science
+  - id: 7ce26db66d5e
+    text: Report variance/standard error for model scores in Table 1. Without error
+      bars, ranking claims (e.g., "LingBot-World achieves highest overall") lack statistical
+      support.
+    severity: science
+  - id: 4f123f0f582c
+    text: Define or replace all custom macros such as \benchmark, \numvideo, \numturn,
+      \nummodel, \numsubmetric, \myparagraph, \tagbox, and any others that are not
+      defined in the preamble. Either provide definitions in the preamble or replace
+      them with explicit text/numbers.
+    severity: writing
+  - id: 5b52082d50bf
+    text: Add missing package imports for symbols used in tables and captions, e.g.,
+      \usepackage{fontawesome5} (or appropriate package) for \faVideo, \faGamepad,
+      and any other icon commands.
+    severity: writing
+  - id: 30ac4c8bab15
+    text: "Check table column specifications for alignment consistency. Some tables\
+      \ use complex multi\u2011row specifications (e.g., @{}l c cc cccc ccccc rr@{})\
+      \ but lack explicit column type for multi\u2011row cells; verify that \\multirow\
+      \ works as intended and that column widths are appropriate."
+    severity: writing
+  - id: 521d6a6a88a0
+    text: "Standardize citation commands: the manuscript mixes plain \\cite{...} with\
+      \ \\citep/\\citet in the text. Choose a single style (e.g., natbib\u2019s \\\
+      citep for parenthetical citations) and apply it uniformly."
+    severity: writing
+  - id: 4d17510e8b76
+    text: "Wrap long lines in the source file to \u226480 characters for readability.\
+      \ Many lines (especially in tables and long \\tcolorbox prompts) exceed this\
+      \ limit, making version control diffs harder to read."
+    severity: writing
+  - id: fa539a4f4e2a
+    text: "Verify that all cross\u2011references (\\cref, \\ref) point to existing\
+      \ labels. For example, \\cref{tab:benchmark_comparison} is used before the table\
+      \ is defined; ensure the label exists and is placed correctly."
+    severity: writing
+  - id: d47d026bcae1
+    text: Run LaTeX compilation with the `-interaction=nonstopmode` flag and check
+      the log for undefined control sequences or missing references. Resolve any warnings
+      related to undefined macros or missing packages.
+    severity: writing
+  - id: a2e4d00b5e90
+    text: Resolve duplicate Abstract, Introduction, and Dataset sections found in
+      e000 and e002 to ensure a single coherent narrative.
+    severity: writing
+  - id: 03d476f31439
+    text: Define all placeholder macros (\numvideo, \numturn, \nummodel, \numsubmetric)
+      in the preamble or replace with values.
+    severity: writing
+  - id: 8600a0d7d6c2
+    text: Unify citation commands (\cite vs \citep) across the manuscript to match
+      the bibliography style.
+    severity: writing
+  - id: b6fc64b514a2
+    text: Clarify pronoun references in Appendix (e.g., 'It leverages...' in e001)
+      to explicitly name the subject.
+    severity: writing
