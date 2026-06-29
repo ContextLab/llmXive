@@ -258,3 +258,6 @@ ready:
 - project_id: PROJ-616-video2gui-synthesizing-large-scale-inter
   revision_spec_path: specs/auto-revisions/PROJ-616-video2gui-synthesizing-large-scale-inter/round-2
   queued_at: '2026-06-29T19:21:31.299296+00:00'
+- project_id: PROJ-700-spatialclaw-rethinking-action-interface
+  revision_spec_path: specs/auto-revisions/PROJ-700-spatialclaw-rethinking-action-interface/round-1
+  queued_at: '2026-06-29T21:13:33.918868+00:00'

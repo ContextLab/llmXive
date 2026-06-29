@@ -1,0 +1,224 @@
+project_id: PROJ-700-spatialclaw-rethinking-action-interface
+arxiv_id: '2606.13673'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-29T21:13:33.890884+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 8c752f4cb32c
+    text: The abstract and introduction claim a +11.2 point gain over SpaceTools (59.9%
+      vs 48.7%). However, Table 1 (comparison_agents) lists SpaceTools at 52.0% and
+      Ours at 61.3% for the Gemma4-31B backbone, a +9.3 point gap. The 48.7% figure
+      appears to be the average across 15 benchmarks in the ablation table (Tab. ablation_components),
+      not the 20-benchmark main comparison. The text must clarify which average is
+      being cited or correct the numbers to match the specific table referenced.
+    severity: writing
+  - id: f68044dd6d41
+    text: The radar chart (Fig. radar) caption states 'No-tool, Ours -> Tab. main_results',
+      but the data points for 'No-tool' in the chart (e.g., MindCube 63.19) do not
+      match the 'No-tool' values in Table main_results (MindCube 58.3 for Gemma4-31B).
+      The chart appears to use data from a different backbone or a different experimental
+      run. The source of the radar chart data must be explicitly identified and aligned
+      with the cited table.
+    severity: science
+  - id: 63b45d8e4170
+    text: The paper claims 'consistent gains across six VLM backbones' in the abstract.
+      However, Table main_results shows that for Qwen3.5-397B-A17B, the method degrades
+      on ERQA (-1.0), Omni3D (-1.9), and BLINK (-5.1). While the average improves,
+      the claim of 'consistent gains' is misleading without qualifying that specific
+      benchmarks show degradation. The text should be softened to 'average gains'
+      or 'gains on the majority of benchmarks'.
+    severity: writing
+  - id: ea0d1264c9dc
+    text: The LaTeX source lacks a `requirements.txt`, `pyproject.toml`, or `Dockerfile`
+      necessary to reproduce the persistent kernel environment. The paper mentions
+      specific library versions (e.g., Depth Anything 3, SAM3) and sandbox constraints
+      but provides no dependency list or container definition. Without these, the
+      'reproducibility from scratch' criterion cannot be met.
+    severity: science
+  - id: e4b1bd569633
+    text: The code execution sandbox logic (AST traversal, regex checks) is described
+      in `supple.tex` (Sec. app:sandbox) but the actual implementation code is not
+      provided. To verify the security claims and the 'persistent kernel' behavior,
+      the source code for the kernel wrapper and the static analyzer must be included
+      in the artifact.
+    severity: science
+  - id: 1a3ac0c8a383
+    text: The evaluation script logic (sampling 1,000 items, random seed handling,
+      metric aggregation across 20 benchmarks) is described in `supple.tex` (Sec.
+      app:benchmarks) but the script itself is missing. A `run_eval.py` or similar
+      entry point is required to reproduce the exact numbers in `tables/main_results.tex`.
+    severity: science
+  - id: 1d4ea2e31469
+    text: 'The paper presents a sophisticated agentic framework but lacks sufficient
+      data provenance details to ensure long-term reproducibility and prevent link
+      rot. Provenance and Version Control: The manuscript relies heavily on external
+      benchmarks (20 total) and perception models (Depth Anything 3, SAM3). However,
+      the specific versions of these datasets and models are not explicitly defined.
+      For instance, the bibliography lists videommev2_2026 and qwen3.5 with future
+      dates and no stable URLs (e.g., htt'
+    severity: writing
+  - id: b535eef82f66
+    text: The figure suite in this paper is ambitious, particularly the radar chart
+      in figures/tex/radar.tex which attempts to visualize performance across 20 distinct
+      benchmarks simultaneously. However, several critical issues regarding legibility
+      and data interpretation require attention before publication. First, the radar
+      chart implementation in figures/tex/radar.tex relies heavily on resizebox to
+      force two dense plots into the available width. This is a significant risk for
+      legibility; the benchmark
+    severity: writing
+  - id: 1db8a8662939
+    text: 'The manuscript relies heavily on domain-specific acronyms and jargon that
+      create barriers for non-specialist readers. While the technical precision is
+      high, the density of undefined terms reduces accessibility. Acronyms: The term
+      VLM (Vision-Language Model) appears in the first sentence of the Abstract without
+      definition. Similarly, AST (Abstract Syntax Tree) is used in Section 4.3 without
+      expansion. In the Supplementary Material, MRA and VCI are used as column headers
+      and in captions without be'
+    severity: writing
+  - id: 2bda706284c4
+    text: 'Planner Input Consistency: In Section 4.2 (Stage I: Planning), the text
+      states the planner receives "the question, metadata, and tool documentation,
+      but not the input frames." Later, in Appendix \ref{app:prompt_planner}, it clarifies
+      the planner receives "question text, the per-sample metadata... and the system
+      prompt only." The term "metadata" is used loosely. If "metadata" includes frame
+      indices or temporal structure, the planner *does* have structural information
+      about the visual input. The l'
+    severity: writing
+  - id: 6715cabbf75f
+    text: 'Causal Attribution of "Composition": The analysis in Section 5 attributes
+      >50% of wins to "code composition" (Fig. C.1). The logical leap here is that
+      the *Structured Tool-Call* baseline is incapable of composition. As described
+      in Appendix \ref{app:baseline_react}, the structured baseline *does* allow chaining
+      tools across steps (e.g., "arguments must be... references to previously bound
+      names"). The key difference is that the code interface allows *arbitrary* composition
+      within a single step ('
+    severity: writing
+  - id: 033afeb9455d
+    text: 'Radar Chart Normalization Logic: The caption of Figure 1 states, "Each
+      axis is individually rescaled so SpatialClaw (Ours) maps to a constant radius...
+      a vertex outside that ring means the method beats Ours." The normalization formula
+      is raw * 80 / ours. If ours is 80, then normalized = raw. If a baseline has
+      raw > 80, it appears outside. This is logically consistent. However, the text
+      "beats Ours" is ambiguous. Does it mean "has higher raw accuracy" or "has a
+      higher normalized score"? Since the'
+    severity: writing
+  - id: 17d6af8fc482
+    text: The claim of 'consistent gains' across all 20 benchmarks (Abstract) is contradicted
+      by Table 1 (main_results.tex), which shows performance drops on ERQA and BLINK
+      for Qwen3.5-397B. Qualify the claim to 'majority of benchmarks' or specify where
+      gains occur.
+    severity: writing
+  - id: 06ec6ac974d8
+    text: The assertion of 'no modification' across backbones (Intro) glosses over
+      implicit config differences (context limits, MoE vs dense). Clarify if 'no modification'
+      refers strictly to prompt text or also to execution parameters like truncation
+      strategies.
+    severity: writing
+  - id: a2acb0f81ec2
+    text: The claim that 'no pre-specified tool call captures required composition'
+      (Intro) is too strong. The ablation only shows specific wrappers were unnecessary,
+      not that all structured interfaces fail. Soften to 'evaluated structured interfaces'.
+    severity: writing
+  - id: 8098bbaa3ae6
+    text: 'Sec 4.1/App. app:sandbox: Explicitly list blocked modules (e.g., socket,
+      os.system) and confirm strict read-only filesystem/network policies to prevent
+      RCE or data exfiltration risks in the persistent kernel.'
+    severity: writing
+  - id: 74abb18b9866
+    text: 'Sec 5/App. app:benchmarks: Clarify if PII redaction (faces, plates) was
+      applied to video/image benchmarks before ingestion, given the agent''s ability
+      to store and display intermediate results containing sensitive data.'
+    severity: writing
+  - id: dce4af554e17
+    text: 'App. Additional Analysis: Disclose data privacy compliance for sending
+      reasoning traces to the external Gemini-3.1-Pro judge, ensuring no sensitive
+      benchmark data is retained by the third-party provider.'
+    severity: writing
+  - id: 8d958485b3a1
+    text: The paper reports aggregate accuracy across 20 heterogeneous benchmarks
+      (Tab. 1, Tab. 2) without addressing the statistical validity of averaging metrics
+      with different distributions (binary Acc vs. continuous MRA). A weighted average
+      or a unified statistical test (e.g., Friedman test with Nemenyi post-hoc) is
+      required to support the claim of 'consistent gains' across the board, as simple
+      arithmetic means may be biased by benchmarks with different sample sizes or
+      difficulty distributions.
+    severity: science
+  - id: 6f905221da96
+    text: The ablation study in Tab. 3 (ablation_components.tex) uses a subsample
+      of 500 examples per benchmark for the 'No utility functions' and 'No perception
+      tools' variants, while the main results use up to 1,000. The paper fails to
+      report confidence intervals or standard errors for these ablation results. Without
+      variance estimates, it is impossible to determine if the reported differences
+      (e.g., 56.4 vs 56.9) are statistically significant or within the noise floor
+      of the sampling process.
+    severity: science
+  - id: 3232862be751
+    text: The 'LLM-as-Judge' analysis in the Supplementary Material (Fig. C.1, C.2)
+      relies on a single proprietary model (Gemini-3.1-Pro) to categorize failure
+      modes and attribute wins. The review must include inter-rater reliability metrics
+      (e.g., Cohen's Kappa) or a sensitivity analysis using multiple judge models
+      to validate that these qualitative attributions are not artifacts of the specific
+      judge model's biases.
+    severity: science
+  - id: 9470ee2a26f3
+    text: 'Citation Spacing in Captions: In figures/tex/radar.tex, the caption for
+      fig:radar has inconsistent spacing around citation commands. While the use of
+      ~ before \citep is correct, ensure that the text preceding these citations does
+      not end with a word that could cause a line break. For example, SpaceTools-Toolshed~\citep{chen2025spacetools}
+      should be checked to ensure that SpaceTools-Toolshed does not break to the next
+      line before the citation.'
+    severity: writing
+  - id: 76006860cec6
+    text: 'Table Coloring and Booktabs: In tables/ablation_action_interface.tex, the
+      use of \rowcolor and \cellcolor with booktabs rules requires careful handling.
+      The booktabs package is designed to work best without vertical lines and with
+      specific spacing rules. Ensure that the row colors do not obscure the horizontal
+      rules and that the spacing between rows is consistent. The colortbl package
+      is loaded via xcolor with the table option, so this should work, but visual
+      verification is recommended.'
+    severity: writing
+  - id: 58ee840a0402
+    text: 'Paragraph Command Alias: The \paragrapht command in main.tex is an alias
+      for \paragraph. In sections/4_method.tex, this command is used to create run-in
+      headings. Ensure that the spacing after these headings is consistent with the
+      rest of the document. If the nvidiatechreport class has specific spacing rules
+      for \paragraph, the alias should behave identically. Consider using \paragraph
+      directly to avoid any potential issues.'
+    severity: writing
+  - id: ebc601d34249
+    text: 'Figure Caption Spacing: In figures/tex/teaser.tex, the caption has a negative
+      vertical space adjustment (\vspace{-4em}) immediately after the \label. This
+      is unusual and might cause the label to be placed incorrectly or the caption
+      to overlap with the next element. Move the \vspace command to after the \end{figure}
+      environment or ensure it does not interfere with the caption''s placement. Overall,
+      the manuscript is well-formatted, but these minor adjustments will ensure perfect
+      consistency and ad'
+    severity: writing
+  - id: 36334a2c554d
+    text: In Section 5 (Results), the phrase 'video spatial & 4D reasoning' is used
+      repeatedly. The ampersand (&) is stylistically inconsistent with the formal
+      prose of the paper. Replace with 'and' or rephrase to 'video and 4D spatial
+      reasoning' for better flow.
+    severity: writing
+  - id: 4730a46358c4
+    text: In Section 4 (Method), the sentence 'The kernel exposes six public entry
+      points' is followed by a numbered list. However, item 3 ('tools exposes...')
+      and item 4 ('show(...) registers...') lack parallel grammatical structure with
+      items 1 and 2. Consider rephrasing to ensure all items start with a noun phrase
+      or a consistent verb form (e.g., 'The tools module exposes...').
+    severity: writing
+  - id: 319803c9df51
+    text: In the Abstract, the phrase 'without any benchmark- or model-specific adaptation'
+      is slightly clunky. Consider 'without requiring benchmark- or model-specific
+      adaptation' for smoother readability.
+    severity: writing
+  - id: 562dbb9fcf8a
+    text: In Section 5 (Analysis), the finding block 'The agent spontaneously adapts
+      its tool composition...' ends with a citation '(Fig.~\ref{fig:caa-vocab})' inside
+      the text but the sentence structure makes the citation feel tacked on. Integrate
+      the figure reference more naturally, e.g., '...to the question type, as shown
+      in Fig.~\ref{fig:caa-vocab}.'
+    severity: writing
