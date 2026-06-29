@@ -1,0 +1,86 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Analysis Output Schema"
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique identifier for the experiment run"
+  participant_count:
+    type: "integer"
+    description: "Number of participants included in analysis"
+  epoch_count:
+    type: "integer"
+    description: "Total number of epochs processed (target: >= 200)"
+  condition_distribution:
+    type: "object"
+    properties:
+      active:
+        type: "integer"
+        description: "Count of active condition epochs (target: >= 100)"
+      passive:
+        type: "integer"
+        description: "Count of passive condition epochs (target: >= 100)"
+  preprocessing_metrics:
+    type: "object"
+    properties:
+      rejection_rate:
+        type: "number"
+        description: "Fraction of epochs rejected for artifacts (max: 0.20)"
+      line_noise_residual:
+        type: "number"
+        description: "Residual line noise at 50/60 Hz (max: 0.05)"
+  feature_extraction:
+    type: "object"
+    properties:
+      valid_epochs_ratio:
+        type: "number"
+        description: "Ratio of epochs with non-NaN features (min: 0.80)"
+      electrodes_used:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of electrodes used (e.g., P3, Pz, P4, F3, Fz, F4)"
+  classification_results:
+    type: "object"
+    properties:
+      accuracy:
+        type: "number"
+        description: "Cross-validated accuracy (benchmark: >= 0.65)"
+      precision:
+        type: "number"
+        description: "Cross-validated precision"
+      recall:
+        type: "number"
+        description: "Cross-validated recall"
+      p_value:
+        type: "number"
+        description: "Permutation test p-value (significance: <= 0.05)"
+  statistical_corrections:
+    type: "object"
+    properties:
+      method:
+        type: "string"
+        description: "Correction method used (e.g., Bonferroni, FDR)"
+      corrected_p_value:
+        type: "number"
+        description: "Corrected p-value for multiple comparisons"
+  permutation_results:
+    type: "object"
+    properties:
+      iterations:
+        type: "integer"
+        description: "Number of permutation iterations (>= 1000)"
+      null_distribution_size:
+        type: "integer"
+        description: "Size of null distribution array"
+      rejection_decision:
+        type: "boolean"
+        description: "Whether null hypothesis rejected at alpha = 0.05"
+required:
+  - experiment_id
+  - participant_count
+  - epoch_count
+  - classification_results
+  - statistical_corrections
+  - permutation_results
+additionalProperties: false

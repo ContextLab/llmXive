@@ -1,0 +1,11 @@
+- artifact_hash: 84998dbb49f9862790aa2c2fd0c6aa55d9a1131284bdd9330311f492f10eda85
+  artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00048-3d720ad254981f90.parquet
+  kind: url
+  value: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652db96c244f88dd65151850/434776539da82c134c664eca0b123d751e66bdc65e59fb4a245eeedb12eab1f8?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00048-3d720ad254981f90.parquet%3B+filename%3D%22train-00000-of-00048-3d720ad254981f90.parquet%22%3B&Expires=1782737161&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZGI5NmMyNDRmODhkZDY1MTUxODUwLzQzNDc3NjUzOWRhODJjMTM0YzY2NGVjYTBiMTIzZDc1MWU2NmJkYzY1ZTU5ZmI0YTI0NWVlZWRiMTJlYWIxZjhcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwNDgtM2Q3MjBhZDI1NDk4MWY5MC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwNDgtM2Q3MjBhZDI1NDk4MWY5MC5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3MzcxNjF9fX1dfQ__&Signature=MEUCIQC7xeTHDpBXg%7EKi126KTxZRrs1bKarHNHJyAbFUuyM9awIgfLwuAOtFb-hEsf5Bpn-SkbkjhwdO68VBgiXQEhJpQ94_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-06-29T11:46:01.615111Z'
