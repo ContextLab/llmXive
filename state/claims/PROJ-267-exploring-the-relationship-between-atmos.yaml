@@ -1,0 +1,112 @@
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO processed mascon solutions data source
+  claim_id: c_f289c3ab
+  context: Phase 3 User Story 1 data fetching script requirements for data ingestion
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_processed_mascon_solutions_data_source
+  kind: entity_fact
+  raw_text: fetches GRACE-FO processed mascon solutions from [data source]
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:20:07Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: NOAA CPC Atmospheric River Catalog data source
+  claim_id: c_58ed8cf2
+  context: Phase 3 User Story 1 data fetching script requirements for data ingestion
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_CPC_Atmospheric_River_Catalog_data_source
+  kind: entity_fact
+  raw_text: fetches NOAA CPC Atmospheric River Catalog data from [data source]
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:25:15Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: West Coast NA geographic region 35N-50N 120W-125W
+  claim_id: c_cb5e545f
+  context: User Story 1 data alignment requirements for regional filtering
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "West Coast NA region defined as 35\xB0N-50\xB0N, 120\xB0W-125\xB0W"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:31:05Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations
+  claim_id: c_f5481b1c
+  context: User Story 2 Statistical Correlation Analysis bootstrap correction requirements
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bootstrap resampling with 1000 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:38:14Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling seed 42
+  claim_id: c_5e8f1ea0
+  context: User Story 2 Statistical Correlation Analysis bootstrap correction requirements
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bootstrap resampling with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:44:14Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: effective sample size formula n_eff equals n times 1 minus rho over 1
+    plus rho
+  claim_id: c_19bb2643
+  context: User Story 2 correlation computation autocorrelation correction requirements
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "effective sample size calculation formula n_eff = n \xD7 (1-\u03C1)/(1+\u03C1\
+    )"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:52:00Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO measurement noise floor 3 sigma threshold
+  claim_id: c_c78e1a76
+  context: User Story 2 control validation signal magnitude comparison requirements
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "signal magnitude comparison to GRACE-FO measurement noise floor at \u2265\
+    \ 3\u03C3 threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-29T08:52:00Z'

@@ -1,0 +1,4 @@
+# This file ensures the data/raw directory is tracked by git.
+# Raw downloaded datasets (GRACE-FO mascon solutions and NOAA CPC
+# Atmospheric River Catalog data) will be stored here before preprocessing.
+# See code/01_data_ingestion.py for data fetching implementation.

@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/` root directory
-- [ ] T002 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/code/` directory
-- [ ] T003 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data/raw/` directory
+- [X] T001 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/` root directory
+- [X] T002 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/code/` directory
+- [X] T003 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data/raw/` directory
 - [ ] T004 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/` directory
 - [ ] T005 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/` directory
 
