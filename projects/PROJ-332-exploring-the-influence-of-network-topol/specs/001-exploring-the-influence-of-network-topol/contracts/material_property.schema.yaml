@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Material Property Schema"
+description: "Schema for validating material properties in material_db.py"
+type: "object"
+properties:
+  name:
+    type: "string"
+    description: "Material name (e.g., Si, CNT, Ag, Au)"
+  bulk_k:
+    type: "number"
+    description: "Bulk thermal conductivity in W/(m·K) at 300K"
+  source:
+    type: "string"
+    enum: ["NIST", "User"]
+    description: "Source of the material property"
+required:
+  - name
+  - bulk_k
+  - source
+additionalProperties: false

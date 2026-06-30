@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T00:57:39.760802Z'
-current_stage: specified
+current_stage: analyzed
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-332-exploring-the-influence-of-network-topol
-last_run_id: 9053c5b1-ff57-4b2f-b2e7-381c9f3bb0a0
+last_run_id: 7c50f279-8c12-40f4-8b90-86429a37280a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol
 title: Exploring the Influence of Network Topology on Thermal Conductivity in Nanomaterials
-updated_at: '2026-06-25T07:34:48.847841Z'
+updated_at: '2026-06-30T07:24:51.758336Z'

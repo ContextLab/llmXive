@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Result Schema"
+description: "Schema for validating rows in data/processed/simulation_results.csv"
+type: "object"
+properties:
+  run_id:
+    type: "integer"
+    description: "Unique identifier for the simulation run"
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility"
+  N:
+    type: "integer"
+    description: "Number of nodes in the network"
+  p:
+    type: "number"
+    description: "Connection probability (0.01 to 0.10)"
+  avg_degree:
+    type: "number"
+    description: "Measured average degree of the graph"
+  is_connected:
+    type: "boolean"
+    description: "True if source and sink are connected"
+  effective_k:
+    type: "number"
+    description: "Effective thermal conductivity in W/(m·K)"
+  convergence_residual:
+    type: "number"
+    description: "Solver residual norm (must be <= 1e-6 for converged)"
+  solver_status:
+    type: "string"
+    enum: ["Converged", "Failed", "Disconnected"]
+    description: "Status of the linear solver"
+  material:
+    type: "string"
+    description: "Material name (e.g., Si, CNT, Ag, Au)"
+  diameter:
+    type: "number"
+    description: "Wire diameter in nm"
+  length:
+    type: "number"
+    description: "Wire length in nm"
+  scaling_factor:
+    type: "number"
+    description: "Resistance scaling factor (0.9, 1.0, 1.1)"
+required:
+  - run_id
+  - seed
+  - N
+  - p
+  - avg_degree
+  - is_connected
+  - effective_k
+  - convergence_residual
+  - solver_status
+  - material
+  - diameter
+  - length
+  - scaling_factor
+additionalProperties: false

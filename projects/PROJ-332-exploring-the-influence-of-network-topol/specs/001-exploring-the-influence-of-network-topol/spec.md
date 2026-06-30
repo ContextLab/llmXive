@@ -14,7 +14,7 @@ A researcher wants to create synthetic nanowire network graphs with a prescribed
 
 **Why this priority**: This is the core data‑generation step; without reliable networks the downstream analysis cannot proceed.
 
-**Independent Test**: Run the generator for a single target degree (e.g., 4) and verify that the produced graph’s measured average degree is within ±5 % of the target and that an effective conductivity value is returned.
+**Independent Test**: Run the generator for a single target degree (e.g., 4) and verify that the produced graph’s measured average degree is within ±5 % of the target and that an effective conductivity value is produced.
 
 **Acceptance Scenarios**:
 
@@ -29,11 +29,11 @@ A researcher wants to fit a scaling law between graph‑theoretic metrics (avera
 
 **Why this priority**: This delivers the scientific insight required to answer the research question.
 
-**Independent Test**: Execute the full pipeline on a small parameter grid (e.g., 5 connectivity levels, 20 simulations each) and verify that regression outputs include a statistically significant exponent for at least one metric and that a Bonferroni‑adjusted p‑value < 0.05 is reported when the mean degree exceeds the identified threshold.
+**Independent Test**: Execute the full pipeline on a small parameter grid (e.g., 5 connectivity levels, 20 simulations each) and verify that regression outputs include calculated scaling exponents, confidence intervals, and p-values, and that the system correctly reports the correlation matrix of the metrics.
 
 **Acceptance Scenarios**:
 
-1. **Given** simulation results across connectivity levels, **When** the regression module runs, **Then** it returns scaling exponents, confidence intervals, and Bonferroni‑corrected p‑values for each metric.  
+1. **Given** simulation results across connectivity levels, **When** the regression module runs, **Then** it returns scaling exponents, confidence intervals, and p-values for the primary metric (average degree), along with a correlation matrix of all metrics.  
 2. **Given** a set of results where all mean degrees are below the percolation threshold, **When** the regression runs, **Then** it reports “no significant scaling detected” without error.
 
 ---
@@ -49,30 +49,31 @@ A researcher wants to assess how sensitive the conductivity estimates are to the
 **Acceptance Scenarios**:
 
 1. **Given** a completed set of simulations, **When** the sensitivity module is invoked, **Then** it produces a table showing conductivity for each scaling factor and confirms that the maximum deviation is ≤ 10 %.  
-2. **Given** missing material‑property inputs, **When** the sensitivity module starts, **Then** it aborts with a clear “[NEEDS CLARIFICATION]” message.
+2. **Given** missing material‑property inputs, **When** the sensitivity module starts, **Then** it aborts with a clear error message indicating the missing material.
 
 ---
 
 ### Edge Cases
 
-- What happens when the generated graph is disconnected (no path between source and sink nodes)?
-- How does the system handle a zero‑resistance edge (e.g., infinite thermal conductivity assumption)?
-- What is the behavior if the material property database does not contain a requested value (e.g., thermal conductivity of a novel alloy)?
+- **Disconnected Graph**: If the generated graph is disconnected (no path between source and sink nodes), the system MUST return an effective conductivity of 0.0 W/(m·K) and log a warning "Graph disconnected; conductivity set to 0.0".
+- **Zero-Resistance Edge**: If an edge resistance is calculated as zero (infinite conductivity), the system MUST clamp the resistance to a minimum non-zero value to prevent division-by-zero errors in the solver.
+- **Missing Material Properties**: If the material database lacks a requested value, the system MUST default to the NIST standard value for standard materials (Si, CNT, Ag, Au) as defined in FR-010. For non-standard materials, the system MUST raise a clear error.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: The system MUST generate random geometric graphs with user‑specified node count *N* and connection probability *p* (or target average degree) using NetworkX. *(See US-1)*
-- **FR-002**: The system MUST assign a thermal resistance to each edge based on the material’s bulk thermal conductivity and a user‑provided wire diameter *d* and length *ℓ* (R = ℓ/(k·A)). *(See US-1)*
+- **FR-002**: The system MUST assign a thermal resistance to each edge based on the material’s bulk thermal conductivity (adjusted by a size-correction factor for d < 100nm), and a user‑provided wire diameter *d* and length *ℓ* (R = ℓ/(k_eff·A)). *(See US-1)*
 - **FR-003**: The system MUST solve the linear Kirchhoff heat‑flow equations for the network to obtain the effective thermal conductivity between two designated boundary nodes. Convergence is achieved when the residual norm ≤ 1e‑6. *(See US-1)*
 - **FR-004**: The system MUST compute the following graph‑theoretic metrics for every generated network: average degree, average shortest‑path length, and clustering coefficient. *(See US-2)*
-- **FR-005**: The system MUST perform ordinary least‑squares regression on log‑transformed metrics versus log‑conductivity, outputting scaling exponents, 95 % confidence intervals, and p‑values. *(See US-2)*
-- **FR-006**: The system MUST apply a family‑wise error correction (Bonferroni) when testing multiple connectivity metrics to control the Type I error rate. *(Methodological)*
+- **FR-005**: The system MUST perform ordinary least‑squares regression on log‑transformed average degree versus log‑conductivity, outputting scaling exponents, 95 % confidence intervals, and p-values. This regression serves to validate the solver's numerical stability and characterize the synthetic relationship, not to discover novel empirical laws. *(See US-2)*
+- **FR-006**: The system MUST report the Pearson correlation matrix of all computed metrics (average degree, path length, clustering) to demonstrate their collinearity, and MUST use average degree as the primary metric for regression to avoid multiple-comparison issues. *(See US-2)*
 - **FR-007**: The system MUST conduct a sensitivity analysis by sweeping the edge‑resistance scaling factor over the set {0.9, 1.0, 1.1} and report the resulting conductivity range. *(See US-3)*
-- **FR-008**: The system MUST enforce a total runtime ceiling of 6 hours on a 2‑CPU‑core, ≤ 7 GB RAM CI runner; if exceeded, the job aborts with a timeout error. *(Compute feasibility)*
-- **FR-009**: The system MUST log all simulation parameters (graph seed, *N*, *p*, material k, d, ℓ, scaling factor) and results to a CSV file for reproducibility. *(General)*
-- **FR-010**: The system MUST validate that required material thermal‑conductivity values (e.g., silicon, carbon nanotube) are present in the local data store; if absent, raise a clear `[NEEDS CLARIFICATION: provide thermal conductivity for <material>]` error. *(See Edge Cases)*
+- **FR-008**: The system MUST enforce a total runtime ceiling of 6 hours on a 2‑CPU‑core, ≤ 7 GB RAM CI runner for the default grid (Multiple simulations × 10 connectivity levels); if exceeded, the job aborts with a timeout error. *(See US-1)*
+- **FR-009**: The system MUST log all simulation parameters (graph seed, *N*, *p*, material k, d, ℓ, scaling factor) and results to a CSV file for reproducibility. *(See US-1, US-2)*
+- **FR-010**: The system MUST validate that required material thermal‑conductivity values are present in the local data store. If a required value for a standard material (Si, CNT, Ag, Au) is absent, the system MUST default to the NIST standard value at 300K: Silicon = 149 W/(m·K), Carbon Nanotube = 3500 W/(m·K), Silver = 429 W/(m·K), Gold = 318 W/(m·K). If a non-standard material is requested, the system MUST raise a clear error: "Material <material> not found in local store or NIST defaults; please provide value in W/(m·K)." *(See Edge Cases)*
+- **FR-011**: The system MUST apply a size-correction factor (e.g., Fuchs-Sondheimer model) to bulk thermal conductivity values when calculating edge resistances for nanowires with diameter *d* < 100nm to ensure physical validity in the nanoscale regime. *(See US-1)*
 
 ### Key Entities
 
@@ -86,18 +87,17 @@ A researcher wants to assess how sensitive the conductivity estimates are to the
 
 - **SC-001**: For ≥ 95 % of generated graphs, the measured average degree must be within ±5 % of the user‑specified target. *(See US-1)*
 - **SC-002**: The heat‑flow solver must achieve convergence (residual ≤ 1e‑6) for ≥ 99 % of simulations. *(See US-1)*
-- **SC-003**: After Bonferroni correction, at least one connectivity metric must exhibit a statistically significant scaling exponent (adjusted p < 0.05) when the mean degree exceeds the identified percolation threshold. *(See US-2)*
+- **SC-003**: The system MUST correctly calculate the percolation threshold (defined as the smallest average degree where ≥ 80% of graphs are connected) and report a statistically significant scaling exponent (p < 0.05) for the average degree metric when the mean degree exceeds this calculated threshold. *(See US-2)*
 - **SC-004**: The sensitivity sweep must show that conductivity variation across the scaling‑factor set {0.9, 1.0, 1.1} does not exceed ±10 % of the baseline (1.0) estimate. *(See US-3)*
-- **SC-005**: The complete pipeline (graph generation, solver, regression, sensitivity) must finish within 6 hours on the CI runner for the default grid (100 simulations × 10 connectivity levels). *(Compute feasibility)*
+- **SC-005**: The complete pipeline (graph generation, solver, regression, sensitivity) must finish within 6 hours on the CI runner for the default grid (100 simulations × 10 connectivity levels, ranging from p=0.01 to p=0.10 in steps of 0.01). *(See US-1)*
 
 ## Assumptions
 
-- The CI environment provides **2 CPU cores**, **≈ 7 GB RAM**, **≈ 14 GB disk**, and **no GPU**. All code must run in pure‑CPU mode.
-- Material thermal conductivities are taken from publicly available NIST tables or the values cited in the two arXiv papers listed in the idea. If a required value is missing, the user will supply it manually. *(NEEDS CLARIFICATION marker in FR‑010)*
-- Wire geometry is approximated as cylinders with a constant diameter *d* = 50 nm and length *ℓ* = 1 µm unless the user overrides them. This default follows standard nanowire‑fabrication literature. *(NEEDS CLARIFICATION: confirm geometry defaults)*
-- The percolation threshold is operationally defined as the smallest average degree at which ≥ 80 % of generated graphs yield a finite effective conductivity (i.e., a connected source‑sink path). This definition is community‑standard for random geometric graphs. *(Threshold justification embedded in FR‑006)*
+- The CI environment provides **CPU cores**, **≈ 7 GB RAM**, **≈ 14 GB disk**, and **no GPU**. All code must run in pure‑CPU mode.
+- Material thermal conductivities are taken from publicly available NIST tables. For standard materials (Si, CNT, Ag, Au), if a value is missing from the local store, the system defaults to the NIST standard value at 300K (Si=149, CNT=3500, Ag=429, Au=318 W/(m·K)). For non-standard materials, the user must provide a value.
+- Wire geometry is approximated as cylinders with a constant diameter *d* = 50 nm and length *ℓ* = 1 µm unless the user overrides them. This default follows standard nanowire‑fabrication literature.
+- The percolation threshold is operationally defined as the smallest average degree at which ≥ 80 % of generated graphs yield a finite effective conductivity (i.e., a connected source‑sink path). This definition is community‑standard for random geometric graphs.
 - All random processes are seeded for reproducibility; the seed is logged in the CSV output.  
 - No external GPU‑accelerated libraries (e.g., CUDA, bitsandbytes) are used; all numerical linear algebra relies on NumPy / SciPy which are CPU‑compatible.  
 - The analysis treats the relationship between topology and conductivity as **associational**; causal claims are avoided because the data are synthetic and no random assignment of physical parameters occurs.  
-
----
+- The 6-hour runtime limit and 100x10 grid size are defined as necessary feasibility constraints for the CI environment; larger grids are subject to user-defined timeouts.
