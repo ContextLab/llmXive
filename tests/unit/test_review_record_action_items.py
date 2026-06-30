@@ -65,3 +65,31 @@ class TestReviewRecordActionItems:
         rec = ReviewRecord(**_base_kwargs(verdict="fundamental_flaws", score=0.0,
                                           prompt_version="1.1.0", action_items=items))
         assert rec.action_items[0].severity == "fatal"
+
+
+def test_canonical_llm_review_score_derives_from_verdict() -> None:
+    """The LLM review score is a pure function of the verdict (accept -> 0.5,
+    every non-accept -> 0.0). The reviewer agents derive it through this helper
+    so a weak model's stray score never fails ReviewRecord validation."""
+    from llmxive.types import canonical_llm_review_score
+
+    assert canonical_llm_review_score("accept") == 0.5
+    for v in ("minor_revision", "full_revision", "reject",
+              "major_revision_writing", "major_revision_science", "fundamental_flaws"):
+        assert canonical_llm_review_score(v) == 0.0
+
+
+def test_derived_score_repairs_model_verdict_score_mismatch() -> None:
+    """A weak model emits `accept` + score 1.0 (a valid-set member, but wrong for
+    the verdict) — `_score_matches_verdict` rejects it, which burned the whole
+    reviewer retry budget at research_review (live PROJ-552 first-crossing run).
+    Deriving the score from the verdict before validation makes the record
+    valid — exactly what research_reviewer / paper_reviewer now do."""
+    from llmxive.types import canonical_llm_review_score
+
+    front = _base_kwargs(verdict="accept", score=1.0)  # as the weak model wrote it
+    with pytest.raises(ValidationError, match="accept must score 0.5"):
+        ReviewRecord(**front)
+    front["score"] = canonical_llm_review_score(front["verdict"])
+    rec = ReviewRecord(**front)
+    assert rec.score == 0.5 and rec.verdict == "accept"

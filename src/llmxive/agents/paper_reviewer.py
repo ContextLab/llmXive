@@ -658,6 +658,7 @@ class PaperReviewerAgent(Agent):
         from llmxive.types import (  # local import to avoid cycle at module load
             action_item_id,
             action_items_from_text,
+            canonical_llm_review_score,
         )
         normalized: list[dict[str, Any]] = []
         for raw in items:
@@ -716,6 +717,13 @@ class PaperReviewerAgent(Agent):
             if meta_path.is_file():
                 front["artifact_hash"] = hash_file(meta_path)
                 front["artifact_path"] = str(meta_path.relative_to(repo))
+
+        # The score is a DERIVED invariant of the verdict (types.py
+        # _score_matches_verdict), not a free model choice — weak models emit a
+        # stray score (e.g. accept + 1.0) that fails validation and burns the
+        # whole retry budget. Override whatever the model wrote.
+        if isinstance(verdict, str):
+            front["score"] = canonical_llm_review_score(verdict)
 
         try:
             record = ReviewRecord.model_validate(front)

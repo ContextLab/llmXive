@@ -32,6 +32,7 @@ from llmxive.types import (
     ReviewerKind,
     ReviewRecord,
     action_items_from_text,
+    canonical_llm_review_score,
 )
 
 _FRONTMATTER_RE = re.compile(
@@ -428,6 +429,14 @@ class ResearchReviewerAgent(Agent):
             synth = action_items_from_text(body, verdict=_verdict)
             if synth:
                 front["action_items"] = [it.model_dump() for it in synth]
+
+        # The score is a DERIVED invariant of the verdict (types.py
+        # _score_matches_verdict), not a free model choice — weak models emit a
+        # stray score (e.g. accept + 1.0) that fails validation and burns the
+        # whole retry budget. Override whatever the model wrote so a correct
+        # verdict is never rejected over a mis-set score.
+        if isinstance(_verdict, str):
+            front["score"] = canonical_llm_review_score(_verdict)
 
         try:
             record = ReviewRecord.model_validate(front)

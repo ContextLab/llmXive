@@ -631,6 +631,17 @@ class ReviewRecord(_Strict):
         return self
 
 
+def canonical_llm_review_score(verdict: str) -> float:
+    """The ReviewRecord ``score`` for an LLM review is a DERIVED invariant of the
+    verdict (``accept`` -> 0.5, any non-accept -> 0.0), per
+    ``ReviewRecord._score_matches_verdict`` — NOT a free model choice. Weak models
+    routinely emit an arbitrary score (e.g. ``accept`` + 1.0) that fails the
+    verdict/score check and burns the reviewer's whole retry budget. Every caller
+    parsing an LLM review's frontmatter MUST set the score through here so a
+    correct verdict is never rejected over a stray score."""
+    return 0.5 if verdict == "accept" else 0.0
+
+
 class RunLogEntry(_Strict):
     """One line in state/run-log/<YYYY-MM>/<run-id>.jsonl."""
 
