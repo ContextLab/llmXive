@@ -96,10 +96,28 @@ def test_url_as_cited_title_does_not_false_mismatch():
 
 
 def test_real_title_still_mismatches_when_unrelated():
-    """A genuine cited title that doesn't match the fetched title still MISMATCHES
-    (anti-fabrication intact)."""
-    out = cf._classify_match("Attention Is All You Need", "Just a moment... | Cloudflare")
+    """A genuine cited title that doesn't match a genuine (non-block) fetched title
+    still MISMATCHES (anti-fabrication intact)."""
+    out = cf._classify_match(
+        "Attention Is All You Need", "A Totally Unrelated Paper About Sourdough Bread"
+    )
     assert out == VerificationStatus.MISMATCH
+
+
+def test_block_or_redirect_page_title_is_pending_not_mismatch():
+    """A real reference that resolved (200) but served a JS-redirect / bot-wall /
+    cookie interstitial (so the paper title can't be read) DEFERS to PENDING, not a
+    fabricated-reference MISMATCH."""
+    assert cf._classify_match("Seifert circles and crossing number", "Redirecting") == VerificationStatus.PENDING
+    assert cf._classify_match("Some Real Paper Title Here", "Just a moment...") == VerificationStatus.PENDING
+    # empty/too-short fetched title (non-HTML page, or unreadable) -> pending
+    assert cf._classify_match("Some Real Paper Title Here", "") == VerificationStatus.PENDING
+
+
+def test_clean_url_strips_trailing_junk():
+    assert cf._clean_url("https://katlas.org`") == "https://katlas.org"
+    assert cf._clean_url("https://doi.org/10.1/x).") == "https://doi.org/10.1/x"
+    assert cf._clean_url("  https://ex.com/p  ") == "https://ex.com/p"
 
 
 def test_arxiv_doi_routes_to_arxiv_not_crossref(monkeypatch):

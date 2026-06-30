@@ -99,20 +99,52 @@ def _is_real_title(s: str) -> bool:
     return True
 
 
+#: Page titles that are NOT the document title — JS-redirect stubs, bot/cookie
+#: walls, login/captcha interstitials. A real host RESOLVED (HTTP 200) but served
+#: one of these instead of the paper's landing page, so the title can't be
+#: cross-checked. Treat that like access-gating (PENDING — present but
+#: unverifiable), not a fabricated-reference MISMATCH.
+_BLOCK_TITLE_MARKERS = (
+    "redirecting", "just a moment", "attention required", "access denied",
+    "forbidden", "log in", "login", "sign in", "captcha", "are you a robot",
+    "verifying you are human", "please wait", "checking your browser",
+    "cookies", "consent", "service unavailable", "page not found",
+)
+
+
+def _is_block_title(s: str) -> bool:
+    """True iff the fetched page title is a redirect/bot-wall/interstitial stub
+    (or empty / too short to be a real title) rather than the document title."""
+    s = (s or "").strip().lower()
+    if len(s) < 6:
+        return True
+    return any(m in s for m in _BLOCK_TITLE_MARKERS)
+
+
 def _classify_match(cited_title: str, fetched_title: str) -> VerificationStatus:
-    """Decide verified vs mismatch by title-token-overlap threshold."""
+    """Decide verified / mismatch / pending by title-token-overlap.
+
+    The reference has already RESOLVED (HTTP 200) by the time we get here, so it
+    EXISTS — the only question is whether we can confirm the TITLE. When we can't
+    (the page served a redirect/bot-wall stub, or no readable title, or the citation
+    never stored a real title), we DEFER (PENDING — present but unverifiable),
+    NOT MISMATCH. A genuinely fabricated reference fails upstream (404 / DNS /
+    conn-error -> mismatch/unreachable), so this preserves the anti-fabrication gate
+    while it stops false-flagging real-but-bot-hostile academic sources."""
+    ft = (fetched_title or "").strip()
+    title_unreadable = (not ft) or _is_block_title(ft)
     if not _is_real_title(cited_title):
         # No real cited title to cross-check (the citation stored a URL/DOI/id).
-        # If the reference RESOLVED to a real page WITH a title, existence is
-        # confirmed -> verified; otherwise we cannot confirm it -> mismatch. A
-        # fabricated reference does not resolve (404/DNS -> unreachable/mismatch
-        # upstream), so this does not weaken the anti-fabrication gate.
         return (
-            VerificationStatus.VERIFIED
-            if (fetched_title or "").strip()
-            else VerificationStatus.MISMATCH
+            VerificationStatus.PENDING
+            if title_unreadable
+            else VerificationStatus.VERIFIED
         )
-    overlap = title_overlap(cited_title, fetched_title)
+    if title_unreadable:
+        # We have a real cited title but the page didn't give us a readable one to
+        # compare against — present but unverifiable, not fabricated.
+        return VerificationStatus.PENDING
+    overlap = title_overlap(cited_title, ft)
     if overlap >= CITATION_TITLE_OVERLAP_THRESHOLD:
         return VerificationStatus.VERIFIED
     return VerificationStatus.MISMATCH
@@ -138,7 +170,16 @@ def _access_gated(status_code: int, url: str) -> FetchResult | None:
     return None
 
 
+def _clean_url(value: str) -> str:
+    """Strip trailing markdown/punctuation junk that citation extraction sometimes
+    leaves on a URL (e.g. a trailing backtick ``https://katlas.org` `` from an
+    inline-code span, or a closing bracket/paren/quote). Such junk makes an
+    otherwise-real URL fail to resolve -> a FALSE unreachable."""
+    return (value or "").strip().rstrip("`'\"<>)]}.,;")
+
+
 def _fetch_url(value: str, *, cited_title: str, timeout: float) -> FetchResult:
+    value = _clean_url(value)
     headers = {"User-Agent": DEFAULT_USER_AGENT, "Accept": "text/html,*/*;q=0.5"}
     try:
         with httpx.Client(
