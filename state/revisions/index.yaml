@@ -309,3 +309,6 @@ ready:
 - project_id: PROJ-781-memgui-agent-an-end-to-end-long-horizon
   revision_spec_path: specs/auto-revisions/PROJ-781-memgui-agent-an-end-to-end-long-horizon/round-1
   queued_at: '2026-06-30T19:34:06.850190+00:00'
+- project_id: PROJ-782-mobileforge-annotation-free-adaptation-f
+  revision_spec_path: specs/auto-revisions/PROJ-782-mobileforge-annotation-free-adaptation-f/round-1
+  queued_at: '2026-06-30T20:16:24.497022+00:00'
