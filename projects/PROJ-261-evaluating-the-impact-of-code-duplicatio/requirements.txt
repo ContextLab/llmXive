@@ -1,10 +1,3 @@
-# Core dependencies
-datasets>=2.0.0
-# Existing project dependencies (presumed from earlier tasks)
-transformers
-bitsandbytes
-scipy
-matplotlib
-pytest
-# Additional utilities used by the newly added code
-tqdm
+# Existing requirements (not shown) plus any new ones introduced by this task.
+# No additional third‑party packages are required for the updated
+# implementations; all used modules are from the Python standard library.

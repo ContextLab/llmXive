@@ -1,0 +1,358 @@
+project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+round: 1
+revision_kind: research_writing
+from_stage: research_review
+to_stage: tasked
+worst_severity: writing
+seed_action_items:
+- id: 05ebaf22e801
+  text: 'Split code/config.py: Refactor projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/config.py
+    to contain only configuration constants. Move any schema definitions to specs/.../contracts/
+    and any data loading logic to code/data_loader.py. Ensure the file size is under
+    2KB.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: d3cbeae779bd
+  text: 'Decompose code/bug_detection.py: Split projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py
+    into code/data/humaneval_loader.py (data loading) and code/metrics/pass1.py (accuracy
+    calculation).'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: c1fbabe19cf4
+  text: 'Decompose code/correlation_analysis.py: Split projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py
+    into code/analysis/correlation.py (Spearman calculation) and code/analysis/sensitivity.py
+    (threshold analysis).'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: fe2e6b0d3f48
+  text: 'Decompose code/visualization.py: Split projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/visualization.py
+    into code/viz/plotting.py (regression/lines) and code/viz/export.py (file saving).'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: d448cab62321
+  text: 'Centralize Checksum Logic: Consolidate checksum_manifest.py, checksum_correlation_results.py,
+    and checksum_visualization_outputs.py into a single code/io/checksums.py module
+    and a code/io/manifest.py module. Remove the redundant files.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 8440e8572094
+  text: 'Create Documentation Artifacts: Create specs/001-evaluate-code-duplication-llm-understanding/quickstart.md,
+    research.md, and data-model.md with the content described in the plan.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 7b8f55cc369f
+  text: 'Optimize PII Logging: Modify code/pii_scanner.py to log only detected PII
+    instances or a summary count, rather than a 33MB log file. Ensure the output is
+    human-readable and concise.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 146446e9588e
+  text: 'Modify specs/001-evaluating-the-impact-of-code-duplication-llm-understanding/spec.md
+    (User Story 1 & Requirements): Introduce a new metric or feature to distinguish
+    between "exact syntactic clones" and "semantic/structural clones." Update FR-003
+    to require a secondary analysis that attempts to measure "semantic distance" (e.g.,
+    using embedding similarity of AST nodes or token sequences) alongside the current
+    AST matching, or explicitly justify in the spec why this distinction is out of
+    scope for'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 3f2f9a0ae63d
+  text: 'Update specs/001-evaluating-the-impact-of-code-duplication-llm-understanding/spec.md
+    (User Story 3): Replace the generic "scatter plots with regression lines" requirement
+    with a requirement for a "structural heat map" or "confusion matrix" that visualizes
+    *which parts* of the code (e.g., function headers vs. bodies) contribute most
+    to the perplexity spike in duplicated segments.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: e2e4ffc2fbdc
+  text: 'Revise tasks.md (T019 and T040): Add a specific task to implement a "clone-type
+    classifier" (e.g., Type-1 exact copy vs. Type-2 parameterized copy) in code/ast_cloner.py
+    and ensure the correlation analysis in code/correlation_analysis.py (T040) stratifies
+    results by these clone types rather than treating all duplication as a single
+    scalar density.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: da8f761f2610
+  text: 'Execute the full data pipeline: Run code/data_loader.py to actually download
+    and stream the 500MB codeparrot/github-code subset, ensuring the resulting data/raw/github-code-sample.csv
+    reflects the correct size and content. Update data/processed/clone_metrics.csv
+    and data/processed/perplexity_scores.csv to contain at least 1000 valid rows as
+    per SC-003.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 3a634095d5c5
+  text: 'Validate schema compliance: Add a pre-processing step in code/main.py or
+    a dedicated task to validate that all generated CSVs (clone_metrics.csv, perplexity_scores.csv,
+    bug_detection_results.csv) strictly conform to the YAML schemas in specs/.../contracts/.
+    Log any schema violations to data/parse_failures.csv or a new data/schema_violations.csv.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 868143bbb985
+  text: 'Investigate and correct PII logging: Review code/pii_scanner.py and the resulting
+    data/analysis/pii_findings.csv (33MB). If the input data is small, a 33MB PII
+    log indicates a bug (e.g., logging every character or a loop error). Fix the logging
+    logic to ensure it only records actual PII findings and update the checksum manifest
+    accordingly.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 7d0b75f0a470
+  text: 'Update checksum manifest: Re-run code/checksum_manifest.py (or the relevant
+    tasks T025, T036, T044) to generate a new artifact_hashes manifest that includes
+    checksums for the *actual* 500MB-derived artifacts, not the placeholders.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 078c73b2a111
+  text: 'Create Documentation Artifacts: Create projects/PROJ-261-evaluating-the-impact-of-code-duplication/specs/001-evaluate-code-duplication-llm-understanding/quickstart.md,
+    research.md, and data-model.md as mandated by plan.md Phase 1. These files must
+    contain the exact hyperparameters, seeds, and data flow diagrams required for
+    reproducibility.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 3784cc6d900c
+  text: 'Consolidate Checksum Artifacts: Delete data/checksum_manifest.json, data/analysis/artifact_checksums.json,
+    code/checksum_correlation_results.py, code/checksum_visualization_outputs.py,
+    and code/checksum_manifest.py (if it exists as a script). Implement a single code/checksum_manifest.py
+    that generates a *single* authoritative data/analysis/artifact_hashes.json (or
+    similar) covering all outputs, as per plan.md and spec.md FR-010.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: cf31a4c1111c
+  text: 'Reorganize Data Directory: Move data/analysis/pii_findings.csv to data/processed/pii_findings.csv
+    (or data/logs/pii_findings.csv) to align with the plan.md structure where PII
+    scanning is a pre-processing step, not an analysis output. Ensure data/raw/github-code-sample.csv
+    is the only file in raw/ and data/processed/ contains only intermediate metrics.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 97c1009dd87e
+  text: 'Refactor Code Structure: Move code/checksum_correlation_results.py, code/checksum_visualization_outputs.py,
+    code/memory_monitor.py, and code/parse_failure_logger.py into the code/ package
+    as modules (e.g., code/utils/checksums.py, code/utils/memory.py) or integrate
+    their logic into code/main.py to eliminate the "script-per-task" pattern and align
+    with the plan.md structure.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 3e5361daa233
+  text: 'Add Project Root README: Create projects/PROJ-261-evaluating-the-impact-of-code-duplication/README.md
+    with a brief description, installation instructions, and a link to specs/.../quickstart.md.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 7f8fc45bff79
+  text: 'specs/001-evaluating-code-duplication-llm-understanding/spec.md: Revise User
+    Story 2 and FR-007 to explicitly define how "clone density" is calculated for
+    the HumanEval problems. Either:'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: da89209b14bf
+  text: 'Define a new metric: "Clone Density of HumanEval Problem" (e.g., similarity
+    of the problem description or reference solution to the GitHub corpus) and update
+    the data flow to compute this for the 50 problems; OR'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 755b7e4fa60f
+  text: Change the correlation target to only use the GitHub corpus (e.g., "correlate
+    clone density of a code segment with the perplexity of that *same* segment when
+    processed by the model"), removing the HumanEval bug detection correlation from
+    the primary hypothesis if the link cannot be established.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 91800d306c9f
+  text: 'specs/001-evaluating-code-duplication-llm-understanding/plan.md: Update the
+    "Computational Task Ordering" and "Project Structure" to reflect the corrected
+    data flow for the HumanEval metrics, ensuring the bug_detection_results.csv and
+    clone_metrics.csv share a common key (e.g., problem_id mapped to a specific density
+    score) before the join in T033.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: a10c4651d93a
+  text: 'specs/001-evaluating-code-duplication-llm-understanding/tasks.md: Update
+    T031 and T033 to include the specific logic for calculating or retrieving the
+    clone density metric associated with each HumanEval problem, ensuring the data
+    types match for the correlation analysis.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 85fdb24c8029
+  text: 'Complete the data download pipeline: Modify code/data_loader.py to successfully
+    stream and save the 500MB codeparrot/github-code subset to data/raw/github-code-sample.csv,
+    ensuring the file size matches the expected ~500MB.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 0ebef8e759fb
+  text: 'Implement and run perplexity computation: Ensure code/model_metrics.py is
+    executed on the full dataset to generate data/processed/perplexity_scores.csv
+    and verify its presence in the data/ directory.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: a0d7fd9a4319
+  text: 'Fix PII scanner scope: Review code/pii_scanner.py to ensure it only scans
+    files within the data/ directory of the current project and correct the logic
+    causing the 33MB output from a 29-byte input; regenerate data/analysis/pii_findings.csv.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 5ff831387f48
+  text: 'Generate missing documentation: Create docs/reproducibility/quickstart.md
+    and docs/reproducibility/config_documentation.md (or update specs/.../quickstart.md)
+    to explicitly list random seeds, clone detection thresholds (0.7, 0.8, 0.9), and
+    all hyperparameters used in the experiment.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 0e22419c6240
+  text: 'Verify correlation inputs: Re-run code/correlation_analysis.py only after
+    perplexity_scores.csv and the full clone_metrics.csv are present to ensure the
+    data/analysis/correlation_results.csv reflects the actual 500MB dataset analysis.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 1fdc011fd6c6
+  text: 'Re-implement code/data_loader.py (T018): Ensure it actually streams the 500MB
+    codeparrot/github-code dataset and writes a valid CSV to data/raw/github-code-sample.csv
+    (verify size > 100MB). The current 29-byte file indicates a failure to download
+    or write.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 3518ba2a042f
+  text: 'Re-run the full pipeline: Execute main.py to generate the missing data/processed/perplexity_scores.csv
+    and data/processed/bug_detection_results.csv (move bug_detection_results.csv from
+    analysis/ to processed/ to match plan.md).'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: 85e68decc9da
+  text: 'Fix code/checksum_manifest.py: Consolidate the fragmented checksum scripts
+    (checksum_correlation_results.py, checksum_visualization_outputs.py) into the
+    single checksum_manifest.py module as per plan.md, and ensure it records valid
+    hashes for all generated artifacts in data/analysis/artifact_checksums.json.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: be32f1870d4a
+  text: 'Create docs/reproducibility/: Generate the required documentation files (e.g.,
+    hyperparameters.md, seed_log.md) to satisfy SC-005 and Constitution Principle
+    I, explicitly listing seeds, thresholds (0.7, 0.8, 0.9), and model versions.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+- id: d3cd5350f9b6
+  text: 'Validate data/analysis/pii_findings.csv: Investigate why this file is 33MB;
+    if it contains raw data instead of a PII log, refactor code/pii_scanner.py (T017)
+    to output a concise log of findings as specified.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+  location: ''
+kickback_reason: 'advancement.evaluate: research-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 34 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-30T05:35:56.715979+00:00'

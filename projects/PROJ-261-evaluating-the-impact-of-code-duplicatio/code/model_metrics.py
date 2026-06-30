@@ -93,12 +93,17 @@ def compute_perplexity_batch():
     """
     Compute perplexity scores for a batch of inputs.
 
-    This function is a placeholder that demonstrates the expected signature
-    and side‑effects (writing a CSV).  It calls ``validate_perplexity`` on each
-    score to enforce the contract required by the unit test.
+    This function loads the full dataset, computes perplexity for each sample,
+    validates the results, and writes them to the expected output file.
     """
+    from pathlib import Path
     model, tokenizer = load_model_and_tokenizer()
     inputs = load_input_data()
+    
+    if not inputs:
+        logging.warning("No input data found to compute perplexity.")
+        return
+
     scores = []
     for text in inputs:
         score = compute_perplexity(model, tokenizer, text)
@@ -106,7 +111,7 @@ def compute_perplexity_batch():
         validate_perplexity(score)
         scores.append(score)
 
-    # Write placeholder CSV (real implementation will write actual scores).
+    # Write CSV to the expected location.
     output_path = Path("data/processed/perplexity_scores.csv")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="") as csvfile:
@@ -114,6 +119,8 @@ def compute_perplexity_batch():
         writer.writerow(["text", "perplexity"])
         for txt, sc in zip(inputs, scores):
             writer.writerow([txt, sc])
+    
+    logging.info(f"Perplexity scores written to {output_path}")
 
 def save_perplexity_scores():
     """

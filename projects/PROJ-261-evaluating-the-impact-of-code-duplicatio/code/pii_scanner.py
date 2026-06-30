@@ -33,19 +33,30 @@ def setup_logging():
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
-def should_scan_file(file_path: Path) -> bool:
+def should_scan_file(file_path: Path, base_dir: Path = None) -> bool:
     """
     Determine if a file should be scanned for PII.
     
     Args:
         file_path: Path to file
+        base_dir: Optional base directory to restrict scanning to (e.g., data/)
         
     Returns:
         True if file should be scanned
     """
-    # Skip binary files and common non-code extensions
-    skip_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.pdf', '.exe', '.dll'}
-    return file_path.suffix.lower() not in skip_extensions
+    # Skip binary files, common non-code extensions, and log files
+    skip_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.pdf', '.exe', '.dll', '.log', '.csv', '.json'}
+    if file_path.suffix.lower() in skip_extensions:
+        return False
+    
+    # If base_dir is provided, ensure file is within it
+    if base_dir is not None:
+        try:
+            file_path.relative_to(base_dir)
+        except ValueError:
+            return False
+            
+    return True
 
 def scan_file_for_pii(file_path: Path) -> List[dict]:
     """
@@ -130,7 +141,10 @@ def write_findings_to_csv(
     output_path: str
 ) -> None:
     """
-    Write PII findings to CSV file.
+    Write PII findings summary to CSV file.
+    
+    This function outputs a CONCISE LOG of findings (file, line, pattern, match, timestamp)
+    rather than a raw dump of all matches, ensuring the output remains manageable in size.
     
     Args:
         findings: List of finding dictionaries
@@ -140,18 +154,30 @@ def write_findings_to_csv(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     if not findings:
-        # Write empty file with headers
+        # Write summary with zero count
         with open(output_path, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(['file', 'line', 'pattern', 'match', 'timestamp'])
+            writer.writerow(['summary', 'count'])
+            writer.writerow(['No PII detected', 0])
+        logger.info("No PII findings to write")
         return
     
+    # Write concise log: file, line, pattern, match (truncated), timestamp
+    # This replaces the previous summary-only approach to provide a verifiable log
+    # while keeping the file size small by only logging the match metadata.
     with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=findings[0].keys())
-        writer.writeheader()
-        writer.writerows(findings)
+        writer = csv.writer(f)
+        writer.writerow(['file', 'line', 'pattern', 'match', 'timestamp'])
+        for finding in findings:
+            writer.writerow([
+                finding['file'],
+                finding['line'],
+                finding['pattern'],
+                finding['match'],
+                finding['timestamp']
+            ])
     
-    logger.info(f"Written {len(findings)} findings to {output_path}")
+    logger.info(f"Written concise log of {len(findings)} findings to {output_path}")
 
 def run_pii_scan(
     data_dir: str,

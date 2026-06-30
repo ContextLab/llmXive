@@ -1,10 +1,11 @@
-"""Integration test for the data‑loader.
+"""Integration test for the data loader.
 
-The test verifies that ``download_and_save_sample`` creates the expected
-CSV file without raising an exception.
+The test ensures that ``download_and_save_sample`` creates the expected CSV
+file and that the file contains at least one data row.  It is deliberately
+lightweight to keep CI runtimes short.
 """
 
-import os
+import csv
 from pathlib import Path
 
 import pytest
@@ -12,22 +13,18 @@ import pytest
 from code.data_loader import download_and_save_sample
 
 @pytest.mark.integration
-def test_download_and_save_sample_creates_file(tmp_path, monkeypatch):
-    """Run the loader in a temporary directory and check output."""
-    # Redirect the output path to a temporary location.
-    tmp_csv = tmp_path / "github-code-sample.csv"
-    monkeypatch.setattr(
-        "code.data_loader.Path",
-        lambda *parts: tmp_csv if parts == ("data", "raw", "github-code-sample.csv") else Path(*parts),
-    )
+def test_download_and_save_sample_creates_csv(tmp_path: Path) -> None:
+    # Use a temporary directory to avoid polluting the repository data folder.
+    csv_path = tmp_path / "sample.csv"
+    result_path = download_and_save_sample(raw_csv_path=csv_path, num_examples=10)
 
-    # Execute the download (it will stream a very small sample because of the
-    # byte‑budget logic – this keeps the test fast and deterministic).
-    result_path = download_and_save_sample()
+    # The function should return the absolute path to the file we asked for.
+    assert result_path == csv_path.resolve()
+    assert csv_path.is_file()
 
-    assert result_path == tmp_csv
-    assert tmp_csv.is_file()
-    # Basic sanity check – the CSV must have at least a header row.
-    with tmp_csv.open() as f:
-        header = f.readline()
-        assert "content" in header.lower()
+    # Verify that the CSV has a header and at least one data row.
+    with csv_path.open(newline="") as f:
+        rows = list(csv.reader(f))
+    assert rows, "CSV should not be empty"
+    assert rows[0] == ["repo_name", "content"], "Header row mismatch"
+    assert len(rows) > 1, "CSV should contain at least one data row"

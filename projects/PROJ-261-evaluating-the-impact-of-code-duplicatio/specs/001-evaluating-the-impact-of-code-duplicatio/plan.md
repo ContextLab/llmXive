@@ -115,10 +115,10 @@ The pipeline MUST execute in the following order to satisfy data dependencies:
 3. **Clone Detection**: Parse AST → compute clone density → `data/processed/clone_metrics.csv` (T019)
 4. **Model Inference**: Load codegen-350M-mono (8-bit) → compute perplexity → `data/processed/perplexity_scores.csv` (T020)
 5. **Pipeline Orchestration**: Join clone-density and perplexity metrics (T021 main.py)
-6. **Bug Detection**: Load human-eval → evaluate pass@1 → `data/processed/bug_detection_results.csv` (T031)
-7. **Correlation Analysis**: Join metrics → compute Spearman correlation → `data/analysis/correlation_results.csv` (T032)
+6. **Bug Detection**: Load human-eval → evaluate pass@1 → `data/processed/bug_detection_results.csv` (T031). **Note**: Ensure `bug_detection_results.csv` includes a `problem_id` column mapping to the specific density score key used in `clone_metrics.csv` to enable correct joining in T033.
+7. **Correlation Analysis**: Join metrics (using common `problem_id` key) → compute Spearman correlation → `data/analysis/correlation_results.csv` (T032)
 8. **Visualization**: Generate scatter plots with regression lines → `data/analysis/figures/` (T041)
 
-**Ordering Rationale**: Data must be downloaded before any task consumes it (Principle I). PII scanning requires data to exist. Clone detection runs before model inference to establish baseline metrics. Correlation analysis requires all intermediate metrics to be complete. Visualization is last to document final findings. Pipeline orchestration (main.py) joins intermediate results.
+**Ordering Rationale**: Data must be downloaded before any task consumes it (Principle I). PII scanning requires data to exist. Clone detection runs before model inference to establish baseline metrics. Correlation analysis requires all intermediate metrics to be complete and share a common key (`problem_id`) for the join in T033. Visualization is last to document final findings. Pipeline orchestration (main.py) joins intermediate results.
 
 **Phase Alignment Note**: Computational pipeline stages (Data Download → PII Scan → Clone Detection → Model Inference → Pipeline Orchestration → Bug Detection → Correlation Analysis → Visualization) correspond to development phases in tasks.md (Setup → Foundational → US1 → US2 → US3 → Polish) and serve both technical correctness and project management clarity. Computational stages describe data flow dependencies, while development phases describe implementation ordering and team workflow. Both ordering systems are maintained separately and now aligned for consistency.

@@ -44,16 +44,16 @@ As a researcher, I want to evaluate bug detection accuracy on a held-out human-e
 
 ### User Story 3 - Perform Sensitivity Analysis and Generate Visualizations (Priority: P3)
 
-As a researcher, I want to perform sensitivity analysis across multiple clone-detection thresholds and generate scatter plots with regression lines, so that I can verify result robustness and document findings for publication.
+As a researcher, I want to perform sensitivity analysis across multiple clone-detection thresholds and generate a structural heat map (or confusion matrix) that visualizes which parts of the code (e.g., function headers vs. bodies) contribute most to the perplexity spike in duplicated segments, so that I can verify result robustness and document findings for publication.
 
 **Why this priority**: This enhances research validity and produces publication-ready outputs but is not required for initial correlation discovery. It supports reproducibility requirements and documentation needs.
 
-**Independent Test**: Can be fully tested by running the sensitivity analysis with different threshold values and verifying that visualization outputs are generated correctly. **Test tasks are MANDATORY and must be included in tasks.md**.
+**Independent Test**: Can be fully tested by running the sensitivity analysis with different threshold values and verifying that structural heat map or confusion matrix outputs are generated correctly. **Test tasks are MANDATORY and must be included in tasks.md**.
 
 **Acceptance Scenarios**:
 
 1. **Given** the correlation pipeline is complete, **When** sensitivity analysis is run across three clone-detection thresholds (0.7, 0.8, 0.9), **Then** correlation results are compared to verify robustness of findings.
-2. **Given** correlation data is available, **When** scatter plots are generated using matplotlib, **Then** regression lines are overlaid and all plots are saved in a documented format.
+2. **Given** correlation data is available, **When** a structural heat map or confusion matrix is generated using matplotlib/seaborn, **Then** the visualization explicitly highlights contributions from specific code regions (e.g., function headers vs. bodies) to perplexity spikes, and all plots are saved in a documented format.
 3. **Given** all hyperparameters are configured, **When** the experiment completes, **Then** random seeds, clone detection thresholds (0.7, 0.8, 0.9), and all configuration parameters are documented for reproducibility.
 
 ---
@@ -75,11 +75,11 @@ As a researcher, I want to perform sensitivity analysis across multiple clone-de
 
 - **FR-001**: System MUST download a 500MB subset of the codeparrot/github-code dataset using the datasets library with streaming mode enabled
 - **FR-002**: System MUST parse Python files using the built-in ast module to extract function bodies for AST subtree matching
-- **FR-003**: System MUST compute syntactic clone density without external dependencies beyond Python standard library
+- **FR-003**: System MUST compute syntactic clone density without external dependencies beyond Python standard library. Additionally, the system MUST perform a secondary analysis to measure 'semantic distance' (e.g., using embedding similarity of AST nodes or token sequences) to distinguish between 'exact syntactic clones' and 'semantic/structural clones'.
 - **FR-004**: System MUST load the Salesforce/codegen-350M-mono model in 8-bit quantization using bitsandbytes
 - **FR-005**: System MUST compute token-level perplexity using the model's log-probability outputs for each code segment
 - **FR-006**: System MUST evaluate bug detection accuracy on a held-out 50-problem subset from human-eval using pass@1 accuracy
-- **FR-007**: System MUST calculate Spearman's rank correlation between duplication density and both perplexity and bug detection accuracy
+- **FR-007**: System MUST calculate Spearman's rank correlation between duplication density and both perplexity and bug detection accuracy. For HumanEval problems, clone density is defined as the ratio of duplicated code segments (identified via AST subtree matching with a default threshold) to the total number of segments in the problem file, where a segment is a function body.
 - **FR-008**: System MUST store all intermediate metrics in CSV format for auditability and reproducibility
 - **FR-009**: System MUST scan all files under `data/` for PII patterns and log findings per Constitution Principle III (Data Hygiene)
 - **FR-010**: System MUST compute checksums for all output files and record them in `artifact_hashes` state manifest

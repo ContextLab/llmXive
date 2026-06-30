@@ -47,10 +47,15 @@ def load_metrics_data(file_path: Path) -> Optional[pd.DataFrame]:
 
     Returns:
         DataFrame with metrics data, or None if file not found
+
+    Raises:
+        FileNotFoundError: If the file does not exist and is required for analysis.
     """
     if not file_path.exists():
         logger.error(f"Metrics file not found: {file_path}")
-        return None
+        raise FileNotFoundError(f"Required data file missing: {file_path}. "
+                                "Ensure 'perplexity_scores.csv' and 'clone_metrics.csv' "
+                                "are generated before running correlation analysis.")
 
     try:
         df = pd.read_csv(file_path)

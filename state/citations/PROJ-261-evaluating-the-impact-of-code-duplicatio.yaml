@@ -54,7 +54,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-06-24T20:55:04.868089Z'
-- artifact_hash: a2910b155be79e7ebb252bd6c2dac8fbd7d8378e8d726b5f669f10675ba6764c
+- artifact_hash: 93b967b6ae557566ea001810e31d76816630ddc9f07404b4d3f9e0d5d37d8fc0
   artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -65,4 +65,4 @@
   value: https://arxiv.org/abs/2409.08555
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2409.08555
-  verified_at: '2026-06-30T04:32:08.341392Z'
+  verified_at: '2026-06-30T05:30:57.849600Z'
