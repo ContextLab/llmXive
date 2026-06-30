@@ -1,0 +1,152 @@
+%YAML 1.1
+---
+title: Output Schema for Distribution Shift Detection
+description: |
+  Schema definitions for the results produced by the MMD detector, evaluation metrics,
+  and sensitivity analysis. Ensures consistency in reporting.
+
+definitions:
+  FlagRecord:
+    type: object
+    required:
+      - week_index
+      - mmd_statistic
+      - p_value
+      - is_shift
+    properties:
+      week_index:
+        type: integer
+        minimum: 0
+        description: Index of the week where the shift was tested
+      window_left_start:
+        type: integer
+        description: Start index of the left comparison window
+      window_right_start:
+        type: integer
+        description: Start index of the right comparison window
+      mmd_statistic:
+        type: number
+        minimum: 0.0
+        description: Calculated MMD squared statistic
+      p_value:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Permutation p-value
+      bonferroni_threshold:
+        type: number
+        description: The adjusted threshold (0.01 / N)
+      is_shift:
+        type: boolean
+        description: True if p_value < bonferroni_threshold
+      permutation_count:
+        type: integer
+        description: Number of permutations used for this calculation
+
+  EvaluationMetricRecord:
+    type: object
+    required:
+      - metric_name
+      - value
+    properties:
+      metric_name:
+        type: string
+        enum: ["precision", "recall", "f1_score", "detection_delay_mean", "detection_delay_std"]
+        description: Name of the metric being reported
+      value:
+        type: number
+        description: Value of the metric
+      tolerance_weeks:
+        type: integer
+        minimum: 0
+        description: Tolerance window used for matching (e.g., 2)
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of the evaluation
+
+  BaselineChangePointRecord:
+    type: object
+    required:
+      - method
+      - week_index
+      - statistic
+    properties:
+      method:
+        type: string
+        enum: ["pettitt", "bocpd"]
+        description: Name of the baseline method
+      week_index:
+        type: integer
+        minimum: 0
+        description: Detected change point week index
+      statistic:
+        type: number
+        description: Test statistic value
+      confidence:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Confidence level or posterior probability (for BOCPD)
+
+  SensitivityConfigRecord:
+    type: object
+    required:
+      - bandwidth
+      - window_size
+      - tolerance
+    properties:
+      bandwidth:
+        type: number
+        description: Kernel bandwidth parameter
+      window_size:
+        type: integer
+        description: Size of the sliding window
+      tolerance:
+        type: integer
+        description: Week alignment tolerance
+      precision:
+        type: number
+      recall:
+        type: number
+      f1_score:
+        type: number
+      detection_delay:
+        type: number
+
+schemas:
+  flags_csv:
+    description: Schema for data/processed/flags.csv
+    type: array
+    items:
+      $ref: "#/definitions/FlagRecord"
+    unique_keys:
+      - week_index
+
+  metrics_csv:
+    description: Schema for data/processed/metrics.csv
+    type: array
+    items:
+      $ref: "#/definitions/EvaluationMetricRecord"
+    unique_keys:
+      - metric_name
+      - tolerance_weeks
+
+  baselines_csv:
+    description: Schema for data/processed/baselines.csv
+    type: array
+    items:
+      $ref: "#/definitions/BaselineChangePointRecord"
+    unique_keys:
+      - method
+      - week_index
+
+  sensitivity_csv:
+    description: Schema for data/processed/sensitivity.csv
+    type: array
+    items:
+      $ref: "#/definitions/SensitivityConfigRecord"
+    unique_keys:
+      - bandwidth
+      - window_size
+      - tolerance

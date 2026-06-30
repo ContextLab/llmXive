@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-detect-shift"
+version = "0.1.0"
+description = "Detecting Distribution Shift in Public Health Surveillance Data"
+requires-python = ">=3.8"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pytest",
+    "pydantic"
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

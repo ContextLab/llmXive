@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pipeline Configuration Schema"
+description: "Schema for the config.yaml file defining runtime parameters"
+type: object
+properties:
+  seed:
+    type: integer
+    description: "Random seed for reproducibility"
+  window_length:
+    type: integer
+    description: "Length of the sliding window in weeks"
+    minimum: 1
+  n_permutations:
+    type: integer
+    description: "Number of permutations for MMD p-value estimation"
+    minimum: 100
+  alpha:
+    type: number
+    description: "Base significance level (e.g., 0.01)"
+    minimum: 0.0
+    maximum: 1.0
+  bandwidth_method:
+    type: string
+    enum: ["median", "cross_validated"]
+    description: "Method for selecting kernel bandwidth"
+  baseline_methods:
+    type: array
+    items:
+      type: string
+      enum: ["Pettitt", "BOCPD"]
+    description: "List of baseline methods to run"
+  tolerance_weeks:
+    type: integer
+    description: "Tolerance window for ground truth matching (used in sensitivity analysis)"
+    minimum: 1
+    maximum: 5
+required:
+  - seed
+  - window_length
+  - n_permutations
+  - alpha
+  - bandwidth_method
+  - baseline_methods
+additionalProperties: false

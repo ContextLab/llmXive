@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FluView ILI Dataset Schema"
+description: "Schema for the preprocessed CDC FluView ILI dataset"
+type: object
+properties:
+  week_id:
+    type: string
+    description: "ISO week identifier (e.g., '2020-W01')"
+  ili_rate:
+    type: number
+    description: "Original ILI rate percentage"
+  log_ili:
+    type: number
+    description: "Log-transformed ILI rate (with 0s replaced by 0.01)"
+  standardized_ili:
+    type: number
+    description: "Z-score standardized ILI rate (computed within window)"
+required:
+  - week_id
+  - ili_rate
+  - log_ili
+  - standardized_ili
+additionalProperties: false

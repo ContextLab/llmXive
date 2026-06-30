@@ -1,0 +1,113 @@
+%YAML 1.1
+---
+title: Dataset Schema for Public Health Surveillance
+description: |
+  Schema definitions for raw and processed datasets used in the distribution shift detection pipeline.
+  Enforces data integrity for CDC FluView ILI data and Ground Truth Events.
+
+definitions:
+  RawILIRecord:
+    type: object
+    required:
+      - week_start
+      - ili_percentage
+    properties:
+      week_start:
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+        description: ISO 8601 date string for the start of the surveillance week (e.g., "2020-01-05")
+      ili_percentage:
+        type: number
+        minimum: 0.0
+        description: Percentage of ILI visits (can be null for missing weeks)
+      region:
+        type: string
+        description: Region or National identifier (optional)
+      year:
+        type: integer
+        minimum: 1900
+        maximum: 2100
+        description: Year of the data point
+      num:
+        type: integer
+        description: Number of ILI visits (optional)
+      total:
+        type: integer
+        description: Total number of visits (optional)
+
+  GroundTruthEventRecord:
+    type: object
+    required:
+      - start_week
+      - end_week
+      - event_name
+    properties:
+      start_week:
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+        description: ISO 8601 date string for the start of the event week
+      end_week:
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+        description: ISO 8601 date string for the end of the event week
+      event_name:
+        type: string
+        minLength: 1
+        description: Human-readable name of the event (e.g., "H1N1 Surge")
+      event_type:
+        type: string
+        enum: ["virological", "hospitalization", "policy", "outbreak"]
+        description: Category of the event
+      source_url:
+        type: string
+        format: uri
+        description: Reference URL for the event data
+
+  ProcessedSeriesRecord:
+    type: object
+    required:
+      - week_index
+      - value
+    properties:
+      week_index:
+        type: integer
+        minimum: 0
+        description: Sequential index of the week in the processed series
+      week_date:
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+        description: Original date of the week
+      value:
+        type: number
+        description: Processed value (log-transformed and standardized)
+      is_outlier:
+        type: boolean
+        default: false
+        description: Flag indicating if the point was identified as an outlier
+
+schemas:
+  fluview_ili_csv:
+    description: Schema for data/raw/fluview_ili.csv
+    type: array
+    items:
+      $ref: "#/definitions/RawILIRecord"
+    unique_keys:
+      - week_start
+      - region
+
+  ground_truth_events_csv:
+    description: Schema for data/raw/ground_truth_events.csv
+    type: array
+    items:
+      $ref: "#/definitions/GroundTruthEventRecord"
+    unique_keys:
+      - start_week
+      - event_name
+
+  processed_series_csv:
+    description: Schema for data/processed/processed_series.csv
+    type: array
+    items:
+      $ref: "#/definitions/ProcessedSeriesRecord"
+    unique_keys:
+      - week_index

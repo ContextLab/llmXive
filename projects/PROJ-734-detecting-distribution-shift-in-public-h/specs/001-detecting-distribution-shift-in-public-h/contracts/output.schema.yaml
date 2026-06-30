@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MMD Detection Output Schema"
+description: "Schema for the flags.csv output containing detected shift weeks"
+type: object
+properties:
+  center_week:
+    type: string
+    description: "The week at the boundary of the two windows"
+  mmd_stat:
+    type: number
+    description: "Computed MMD statistic"
+  p_value:
+    type: number
+    description: "Permutation-based p-value"
+  flagged:
+    type: boolean
+    description: "True if p-value < Bonferroni-adjusted alpha"
+  window_length:
+    type: integer
+    description: "Length of the sliding window used"
+  bandwidth_method:
+    type: string
+    description: "Method used for bandwidth selection (e.g., 'median')"
+required:
+  - center_week
+  - mmd_stat
+  - p_value
+  - flagged
+  - window_length
+  - bandwidth_method
+additionalProperties: false
