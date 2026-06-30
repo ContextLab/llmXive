@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CoverageRecord"
+description: "Coverage metrics and execution status for a generated solution."
+type: "object"
+required:
+  - record_id
+  - solution_id
+  - line_coverage
+  - run_status
+properties:
+  record_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique identifier for this coverage record."
+  solution_id:
+    type: "string"
+    description: "Foreign key referencing the GeneratedSolution."
+  line_coverage:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Percentage of lines covered (0.0 to 1.0)."
+  branch_coverage:
+    type: ["number", "null"]
+    minimum: 0.0
+    maximum: 1.0
+    description: "Percentage of branches covered. Null if not applicable (e.g., HumanEval)."
+  run_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failure"
+      - "syntax_error"
+      - "timeout"
+    description: "Outcome of the test execution."
+  error_message:
+    type: ["string", "null"]
+    description: "Error details if run_status is not 'success'."

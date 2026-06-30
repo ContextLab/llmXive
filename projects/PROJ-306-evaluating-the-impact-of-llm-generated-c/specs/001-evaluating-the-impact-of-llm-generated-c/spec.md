@@ -31,11 +31,11 @@ A researcher wants to compare the coverage of LLM‑generated solutions against 
 
 **Why this priority**: Provides the primary empirical answer to the research question.
 
-**Independent Test**: Run the analysis on a paired set of tasks (LLM vs. human) and confirm that a statistical summary table is produced containing mean differences, paired‑t test p‑value, and Cohen’s d effect size.
+**Independent Test**: Run the analysis on a paired set of tasks (LLM vs. human) and confirm that a statistical summary table is produced containing mean differences, p‑value, effect size, and the result of the normality test.
 
 **Acceptance Scenarios**:
 
-1. **Given** coverage tables for LLM and human solutions on the same 100 tasks, **when** the analysis script is executed, **then** it outputs a CSV `stats_summary.csv` with columns: `mean_llm`, `mean_human`, `mean_diff`, `p_value`, `cohen_d`.
+1. **Given** coverage tables for LLM and human solutions on the same 100 tasks, **when** the analysis script is executed, **then** it outputs a CSV `stats_summary.csv` with columns: `mean_llm`, `mean_human`, `mean_diff`, `p_value`, `cohen_d`, `test_type` (t-test or Wilcoxon).
 2. **Given** the same inputs, **when** the p‑value is ≤ 0.05, **then** the script flags the result as “significant” in the summary.
 
 ---
@@ -68,30 +68,28 @@ A researcher wants to see how coverage gaps vary by problem difficulty and by co
 ### Functional Requirements
 
 - **FR-001**: The system MUST ingest the full MBPP and HumanEval task lists and expose them as a normalized JSON catalog. *(See US-1)*
-- **FR-002**: The system MUST generate exactly one Python solution per task by invoking a configurable LLM endpoint (e.g., OpenAI GPT‑4 or CodeLlama‑7B). *(See US-1)*
+- **FR-002**: The system MUST generate exactly one Python solution per task by invoking a configurable LLM endpoint. The **Primary Model** shall be `gpt-4` or `code-llama-7b`. If the Primary Model is inaccessible due to resource constraints (e.g., in a free-CPU CI environment), the system MUST fall back to `bigcode/starcoderbase-3b`. The system MUST log the model used for each task and stratify final results by model capability to ensure the baseline is preserved. If the fallback is used, the system MUST retry the Primary Model up to 3 times with exponential backoff before failing the task. Explicit API keys for proprietary models (e.g., OpenAI) are optional and must be provided via `LLM_API_KEY` secret; if absent, the open-source fallback is mandatory. *(See US-1)*
 - **FR-003**: The system MUST execute each generated solution against its official test suite using `pytest --cov` and record both line‑ and branch‑coverage percentages. *(See US-1)*
-- **FR-004**: The system MUST store paired coverage records (LLM vs. human) in a CSV `coverage_pairs.csv` for downstream statistical testing. *(See US-2)*
-- **FR-005**: The system MUST perform a paired‑t test (α = 0.05) on the coverage differences and output `stats_summary.csv` with mean difference, p‑value, and Cohen’s d. *(See US-2)*
-- **FR-006**: The system MUST apply a family‑wise error correction (Bonferroni) when multiple subgroup tests are performed. *(Methodological soundness – multiplicity)*
+- **FR-004**: The system MUST store paired coverage records (LLM vs. human) in a CSV `coverage_pairs.csv` for downstream statistical testing. The pairing MUST be based on the **same task_id** (i.e., the same prompt and test suite) solved by both the LLM and the human reference. *(See US-2)*
+- **FR-005**: The system MUST perform a statistical test (paired t-test or Wilcoxon signed-rank) on the coverage differences and output `stats_summary.csv` with mean difference, p‑value, and Cohen’s d. *(See US-2)*
+- **FR-006**: The system MUST apply a family‑wise error correction method (Bonferroni or Holm-Bonferroni) when multiple subgroup hypothesis tests are performed. This correction applies ONLY to hypothesis tests (e.g., subgroup comparisons) and explicitly EXCLUDES the sensitivity analysis of effect magnitude thresholds defined in FR-011. *(See US-2)*
 - **FR-007**: The system MUST allow stratification by at least three metadata dimensions: problem difficulty, code pattern, and presence of boundary‑case tests. *(See US-3)*
 - **FR-008**: The system MUST generate visualizations (box‑plots, bar‑charts) using only matplotlib/seaborn and save them as PNG files. *(See US-3)*
-- **FR-009**: The system MUST validate that each dataset entry includes the required variables: `task_id`, `prompt`, `human_solution`, `test_suite`. *(Dataset‑variable fit)*
-- **FR-010**: The system MUST treat coverage differences as **associational** findings, not causal claims, and must label all result statements accordingly. *(Inference framing)*
-- **FR-011**: The system MUST report coverage‑difference sensitivity across three absolute‑diff thresholds {0.01, 0.05, 0.10} and include the resulting variation in `sensitivity_report.csv`. *(Threshold justification & sensitivity)*
-- **FR-012**: The system MUST use `pytest‑cov` (v4.0 or later) as the validated coverage measurement tool. *(Measurement validity)*
-- **FR-013**: The system MUST log collinearity diagnostics (Variance Inflation Factor) for any numeric predictors derived from code‑pattern counts before reporting effect sizes. *(Predictor collinearity)*
-
-*Clarification needed*:
-
-- **FR-002**: [NEEDS CLARIFICATION: Which LLM endpoint (OpenAI GPT‑4 vs. CodeLlama‑7B) will be the default for the free‑CPU CI environment?]  
-- **FR-009**: [NEEDS CLARIFICATION: Do the HumanEval entries include explicit branch‑coverage expectations, or must we rely solely on measured coverage?]  
-- **FR-011**: [NEEDS CLARIFICATION: Should the sensitivity analysis also sweep the significance α (e.g., 0.01, 0.05, 0.10) or only the coverage‑diff thresholds?]
+- **FR-009**: The system MUST validate that each dataset entry includes the required variables: `task_id`, `prompt`, `human_solution`, `test_suite`. For HumanEval entries, which do not include explicit branch-coverage expectations, the system MUST measure and report **only line coverage** and log branch coverage as `N/A` to avoid invalid comparisons. Any discrepancy between expected and measured coverage is an artifact of test suite completeness, which the system must log as a warning but not as a pass/fail criterion. *(See US-1)*
+- **FR-010**: The system MUST treat coverage differences as **associational** findings, not causal claims, and must label all result statements accordingly. *(See US-2)*
+- **FR-011**: The system MUST report coverage‑difference sensitivity across absolute‑diff thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} and include the resulting variation in `sensitivity_report.csv`. *(See US-2)*
+- **FR-012**: The system MUST use `pytest‑cov` (v4.0 or later) as the validated coverage measurement tool. *(See US-1)*
+- **FR-013**: The system MUST calculate collinearity diagnostics (Variance Inflation Factor) for numeric predictors derived from code-pattern counts **only if** a multi-variable regression model (e.g., `Coverage ~ Model_Type + Difficulty + Loop_Count + Conditional_Count`) is performed. If only a paired group comparison is performed, this step is skipped. *(See US-2)*
+- **FR-014**: The system MUST report the exclusion rate (percentage of tasks excluded due to missing test suites or generation failures) in the final summary to ensure the paired dataset is not biased. *(See US-2)*
+- **FR-015**: The system MUST ensure that the human baseline consists of solutions for the **exact same tasks** (same prompt/test suite) as the LLM-generated solutions to enable valid paired statistical testing. *(See US-2)*
+- **FR-016**: The system MUST perform a Shapiro-Wilk normality test on the coverage differences. If the p-value is < 0.05, the system MUST automatically switch from the paired t-test to the Wilcoxon signed-rank test for the primary analysis. *(See US-2)*
 
 ### Key Entities *(include if feature involves data)*
 
 - **TaskCatalog**: Represents a programming task; attributes: `task_id`, `prompt`, `human_solution`, `test_suite_path`, `difficulty`, `code_patterns` (list).  
 - **GeneratedSolution**: Holds the LLM‑produced source code, generation timestamp, and any generation metadata (model used, temperature).  
-- **CoverageRecord**: Contains `task_id`, `line_coverage`, `branch_coverage`, `run_status` (success/failure).  
+- **CoverageRecord**: Contains `task_id`, `line_coverage`, `branch_coverage` (or `N/A`), `run_status` (success/failure).  
+- **PatternCounts**: Numeric attributes representing the count of specific code structures in a solution, including `loop_count`, `conditional_count`, `function_count`, and `recursion_depth`. Used for regression analysis and collinearity checks.
 
 ---
 
@@ -100,10 +98,10 @@ A researcher wants to see how coverage gaps vary by problem difficulty and by co
 ### Measurable Outcomes
 
 - **SC-001**: The pipeline processes **≥ 100 distinct tasks** (including both MBPP and HumanEval) and produces a complete `coverage_pairs.csv` without manual intervention. *(See US-1)*
-- **SC-002**: The paired‑t test yields a **p‑value ≤ 0.05** for the overall mean branch‑coverage difference *or* correctly reports non‑significance, and the effect size (Cohen’s d) is calculated for every analysis run. *(See US-2)*
-- **SC-003**: The sensitivity analysis across thresholds {0.01, 0.05, 0.10} shows that the sign of the mean coverage gap does **not** flip; the variation is documented in `sensitivity_report.csv`. *(See FR-011)*
+- **SC-002**: The system MUST output a p‑value, effect size (Cohen’s d), and the test type used (t-test or Wilcoxon) for the overall mean coverage difference, regardless of whether the result is statistically significant. *(See US-2)*
+- **SC-003**: The sensitivity analysis across thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} shows that the sign of the mean coverage gap does **not** flip; the variation is documented in `sensitivity_report.csv`. *(See FR-011)*
 - **SC-004**: All generated visualizations are viewable PNG files with a resolution of at least **800 × 600 px** and include axis labels and legends. *(See US-3)*
-- **SC-005**: No single CI job exceeds **6 hours** wall‑clock time, **≤ 2 CPU cores**, **≤ 7 GB RAM**, and **≤ 14 GB disk** usage on the GitHub Actions free tier. *(Compute feasibility)*
+- **SC-005**: No single CI job exceeds **6 hours** wall‑clock time, **≤ 2 CPU cores**, **≤ 7 GB RAM**, and **≤ 14 GB disk** usage on the GitHub Actions free tier **under the load of processing ≥ 100 tasks (per SC-001)**. *(See US-1)*
 
 ---
 
@@ -111,10 +109,8 @@ A researcher wants to see how coverage gaps vary by problem difficulty and by co
 
 - The CI environment provides Python 3.10+, `pip`, and internet access for dataset download and LLM API calls.  
 - The MBPP and HumanEval datasets together contain **≤ 1 GB** of source files, comfortably fitting the 7 GB RAM limit after loading.  
-- The chosen LLM (either GPT‑4 via OpenAI or CodeLlama‑7B via HuggingFace) can be invoked with **CPU‑only** inference; if the default model exceeds CPU limits, the pipeline will fall back to a smaller open‑source model (e.g., `bigcode/starcoderbase-3b`).  
+- The chosen LLM (either GPT-4 via OpenAI or CodeLlama-7B via HuggingFace) can be invoked with **CPU‑only** inference; if the default model exceeds CPU limits, the pipeline will fall back to a smaller open-source model (e.g., `bigcode/starcoderbase-3b`).  
 - All test suites are deterministic and complete within **30 seconds** per task on the free‑CPU runner.  
 - Researchers will supply a valid API key for the selected LLM service via the `LLM_API_KEY` secret; the pipeline will respect rate limits by exponential back‑off.  
 - Coverage is measured **associationally**; no causal language will be used in the final report.  
-- The statistical analysis assumes **paired independence** of tasks and normality of coverage differences; if normality fails, a Wilcoxon signed‑rank test will be used (fallback documented).  
-
----
+- The statistical analysis assumes **paired independence** of tasks; if normality fails (per FR-016), a Wilcoxon signed-rank test will be used as the default fallback.  

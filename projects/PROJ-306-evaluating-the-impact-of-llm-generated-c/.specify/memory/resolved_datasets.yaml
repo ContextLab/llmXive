@@ -1,0 +1,284 @@
+resolved_at: '2026-06-30T11:53:29.560731+00:00'
+datasets:
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1782823682&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODIzNjgyfX19XX0_&Signature=MEQCIAXH5ZAV5e0IGeQ6Ft-AEgfi1Hn-1zgiAN6Iulgbh27fAiA8eO2XYosyuponEFDtEk8HXEOX8aoE~9ABx~DDVo7VrA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/CondenSimAdapter_A_Versatile_Builder_for_Multiscale_Simulations_of_Protein_Condensates_with_Broad_Force-Field_Compatibility_and_Robust_Dense-Phase_Relaxation/32835688
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/2D_Materials_Enhance_Thermal_Conductance_at_van_der_Waals_Interfaces_of_Ga_sub_2_sub_O_sub_3_sub_/32835685
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Transcriptomic_profiles_from_stereo-EEGs_may_reflect_the_local_brain_cell_microenvironment_in_human_epilepsy/32335617
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Transcriptomic_profiles_from_stereo-EEGs_may_reflect_the_local_brain_cell_microenvironment_in_human_epilepsy/32335617
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://acs.figshare.com/articles/journal_contribution/Biobased_Microgel_Nucleating_Agent-Enhanced_Polylactic_Acid_Fibers_with_High_Strength_Superior_Heat_Resistance_and_Dyeability/32835676
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Integration_of_a_Modified_Synchrotron_Radiation_Photoionization_Time-of-Flight_Mass_Spectrometer_with_a_Residual_Gas_Analyzer_for_Complementary_Detection_of_Catalytic_Products_with_Different_Ionization_Energies/32835670
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6557219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20396303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17491242
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unimore.it/handle/11380/1182469
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20396303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.fdr.uni-hamburg.de/record/18601
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PNG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/akanksha8618/hackathon_png/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AmanK1202/LogoGeneration_png/resolve/main/data/train-00000-of-00001-e88c3f2fdc758bb3.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/akanksha8618/hackathon_png_2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/akanksha8618/hackathon_png/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/AmanK1202/LogoGeneration_png/resolve/main/data/train-00000-of-00001-e88c3f2fdc758bb3.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/akanksha8618/hackathon_png_2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kmewhort/tu-berlin-png/resolve/main/data/test-00000-of-00001-4c87e761e3fce046.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://rs.figshare.com/articles/dataset/Original_data_from_Physical_constraints_not_sociality_shape_primate_vocal_repertoire_size/32835703
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/Original_code_from_Physical_constraints_not_sociality_shape_primate_vocal_repertoire_size/32835697
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Supplementary_Materials_from_Physical_constraints_not_sociality_shape_primate_vocal_repertoire_size/32835700
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aubh.figshare.com/articles/thesis/_b_The_Impact_of_Social_Media_Engagement_on_Consumer_Trust_and_Satisfaction_towards_Small_and_Medium-Sized_Enterprises_in_Bahrain_b_/32835593
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Harnessing_Theoretical_Knowledge_for_Proactive_Preparation_against_Peroxide-Based_Explosives/32835694
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.biodiversitylibrary.org/part/373463
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/15136777
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19105565
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15136769
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15136773
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/PrivacyLib_Replication_Package/32835536
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/PrivacyLib_Replication_Package/32835536/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.ffbg79d9f
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17055591
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17055591
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-009
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://repository.rcsi.com/articles/journal_contribution/The_concise_guide_to_PHARMACOLOGY_2025_26_enzymes/32335494
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/The_concise_guide_to_PHARMACOLOGY_2025_26_enzymes/32335494
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://rs.figshare.com/articles/dataset/Original_data_from_Physical_constraints_not_sociality_shape_primate_vocal_repertoire_size/32835703
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/Original_code_from_Physical_constraints_not_sociality_shape_primate_vocal_repertoire_size/32835697
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Supplementary_Materials_from_Physical_constraints_not_sociality_shape_primate_vocal_repertoire_size/32835700
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aubh.figshare.com/articles/thesis/_b_The_Impact_of_Social_Media_Engagement_on_Consumer_Trust_and_Satisfaction_towards_Small_and_Medium-Sized_Enterprises_in_Bahrain_b_/32835593
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10281827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963576
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118469
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962193
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10241872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20651588
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20651588
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-014
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-2
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: LLM
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: API
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: MBPP
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []

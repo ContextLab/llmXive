@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TaskCatalog"
+description: "Normalized representation of a programming task from MBPP or HumanEval."
+type: "object"
+required:
+  - task_id
+  - prompt
+  - human_solution
+  - test_suite_path
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task (e.g., 'mbpp_1')."
+  prompt:
+    type: "string"
+    description: "Natural language description of the programming problem."
+  human_solution:
+    type: "string"
+    description: "Reference Python code solution."
+  test_suite_path:
+    type: "string"
+    description: "Relative path to the transformed test file in data/benchmarks/processed/."
+  difficulty:
+    type: "string"
+    enum:
+      - "Easy"
+      - "Medium"
+      - "Hard"
+    description: "Estimated difficulty level of the task."
+  code_patterns:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of code structures present (e.g., 'loops', 'recursion')."
+  benchmark_source:
+    type: "string"
+    description: "Source benchmark (e.g., 'MBPP', 'HumanEval') used for random effects."

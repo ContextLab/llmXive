@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GeneratedSolution"
+description: "LLM-generated code solution for a specific task."
+type: "object"
+required:
+  - solution_id
+  - task_id
+  - source_code
+  - model_used
+properties:
+  solution_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique identifier for this generated solution."
+  task_id:
+    type: "string"
+    description: "Foreign key referencing the TaskCatalog."
+  source_code:
+    type: "string"
+    description: "The generated Python source code."
+  model_used:
+    type: "string"
+    description: "The LLM model used for generation (e.g., 'gpt-4', 'phi-2-4bit')."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of generation."
+  temperature:
+    type: "number"
+    description: "Temperature setting used for generation."
