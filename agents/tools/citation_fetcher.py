@@ -84,6 +84,26 @@ def _classify_match(cited_title: str, fetched_title: str) -> VerificationStatus:
     return VerificationStatus.MISMATCH
 
 
+def _access_gated(status_code: int, url: str) -> FetchResult | None:
+    """A real host that ANSWERED with access-gating (401 / 403 / 429: paywall,
+    bot-block, or rate-limit) — the reference EXISTS, an automated client just
+    can't read the body to title-match it. Classify as PENDING: honestly
+    unverified, but NON-blocking (the research-accept / paper-accept gate blocks
+    only UNREACHABLE / MISMATCH). This stops real-but-bot-hostile academic sources
+    (publisher pages, OEIS behind Cloudflare, KnotInfo, rate-limited registrars)
+    from being false-flagged as fabricated and HARD-blocking advancement. A
+    genuinely fabricated reference fails differently — a made-up domain DNS-fails
+    and a made-up path 404s (still UNREACHABLE / MISMATCH below) — so this does NOT
+    weaken the anti-fabrication gate. Returns None for any other status."""
+    if status_code in (401, 403, 429):
+        return FetchResult(
+            status=VerificationStatus.PENDING,
+            fetched_url=url,
+            error=f"access-gated (HTTP {status_code}); host present, title unverifiable",
+        )
+    return None
+
+
 def _fetch_url(value: str, *, cited_title: str, timeout: float) -> FetchResult:
     headers = {"User-Agent": DEFAULT_USER_AGENT, "Accept": "text/html,*/*;q=0.5"}
     try:
@@ -103,6 +123,9 @@ def _fetch_url(value: str, *, cited_title: str, timeout: float) -> FetchResult:
             fetched_url=str(resp.url),
             error="404 Not Found",
         )
+    gated = _access_gated(resp.status_code, str(resp.url))
+    if gated is not None:
+        return gated
     if resp.status_code >= 400:
         return FetchResult(
             status=VerificationStatus.UNREACHABLE,
@@ -186,6 +209,9 @@ def _fetch_doi(value: str, *, cited_title: str, timeout: float) -> FetchResult:
             fetched_url=url,
             error="DOI not found",
         )
+    gated = _access_gated(resp.status_code, url)
+    if gated is not None:
+        return gated
     if resp.status_code >= 400:
         return FetchResult(
             status=VerificationStatus.UNREACHABLE,
@@ -244,6 +270,9 @@ def _fetch_dataset(value: str, *, cited_title: str, timeout: float) -> FetchResu
             fetched_url=url,
             error="HF dataset not found",
         )
+    gated = _access_gated(resp.status_code, url)
+    if gated is not None:
+        return gated
     if resp.status_code >= 400:
         return FetchResult(
             status=VerificationStatus.UNREACHABLE,

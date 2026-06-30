@@ -158,3 +158,40 @@ def test_verify_handles_missing_abstract_gracefully():
     # sides were empty — but we DON'T fail when both sides are empty,
     # we just mark the score 0.
     assert result.verification_log.summary_grounding_score == 0.0
+
+
+def test_direct_403_is_present_not_unreachable(monkeypatch):
+    """A real host that 403s an automated client DIRECTLY (no redirect first —
+    e.g. a publisher page, OEIS behind Cloudflare, KnotInfo) must classify as
+    present_ambiguous (the reference EXISTS), NOT unreachable. The old code
+    required a redirect chain and hard-blocked these real-but-bot-hostile refs."""
+    import requests as _rq
+
+    from llmxive.librarian import verify as _v
+
+    class _Resp:
+        status_code = 403
+        url = "https://www.worldscientific.com/doi/abs/10.1142/X"
+        history: list = []  # NO redirect
+
+    monkeypatch.setattr(_v.requests, "head", lambda *a, **k: _Resp())
+    out = _v.resolve_reference("url", "https://www.worldscientific.com/doi/abs/10.1142/X")
+    assert out.state == "present_ambiguous", out
+    assert out.present is True
+
+
+def test_direct_404_is_still_unreachable(monkeypatch):
+    """A 404 (resource does not exist) must STILL be unreachable — the
+    anti-fabrication gate is preserved; only access-gating (401/403/429) is
+    reclassified as present."""
+    from llmxive.librarian import verify as _v
+
+    class _Resp:
+        status_code = 404
+        url = "https://example.com/fabricated-path"
+        history: list = []
+
+    monkeypatch.setattr(_v.requests, "head", lambda *a, **k: _Resp())
+    out = _v.resolve_reference("url", "https://example.com/fabricated-path")
+    assert out.state == "unreachable", out
+    assert out.present is False

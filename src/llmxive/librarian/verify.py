@@ -316,8 +316,9 @@ class _HeadResult:
 def _head_with_get_fallback(url: str, *, timeout: float = 30.0) -> _HeadResult:
     """Match spec 003's pattern: HEAD with redirect-follow; GET fallback on 405.
 
-    Per spec 003: 401/403/429 after ≥1 redirect classifies as
-    ``ambiguous`` (paywall/login-wall on a real host), NOT unreachable.
+    A 401/403/429 (paywall / login-wall / bot-block / rate-limit on a real host
+    that ANSWERED) classifies as ``ambiguous``, NOT unreachable — with or without
+    a preceding redirect (academic hosts often 403 an automated client directly).
     """
     try:
         r = requests.head(
@@ -340,7 +341,11 @@ def _head_with_get_fallback(url: str, *, timeout: float = 30.0) -> _HeadResult:
             return _HeadResult("resolved", r.status_code, r.url, chain, None)
         if 300 <= r.status_code < 400:
             return _HeadResult("ambiguous", r.status_code, r.url, chain, None)
-        if r.status_code in (401, 403, 429) and r.history:
+        if r.status_code in (401, 403, 429):
+            # A real host answered with a paywall / bot-block / rate-limit — the
+            # resource exists. True whether or not a redirect preceded it (many
+            # academic hosts 403 an automated client directly); requiring history
+            # mis-flagged real-but-bot-hostile sources as unreachable.
             return _HeadResult("ambiguous", r.status_code, r.url, chain, None)
         return _HeadResult("unreachable", r.status_code, r.url, chain, None)
     except (requests.RequestException, OSError) as exc:
@@ -391,10 +396,10 @@ class ResolutionOutcome:
 
     * ``resolved``           — the reference EXISTS (final HTTP 2xx/3xx). Do NOT
       flag.
-    * ``present_ambiguous``  — a real host answered with a paywall/rate-limit
-      (401/403/429) AFTER at least one redirect. The DOI/URL resolved to a real
-      landing page that simply gated the body; the reference EXISTS. Do NOT flag
-      (paywalled real papers must never be marked fabricated).
+    * ``present_ambiguous``  — a real host ANSWERED with a paywall / bot-block /
+      rate-limit (401/403/429), with or without a preceding redirect. The host
+      exists and gated the body; the reference EXISTS. Do NOT flag (paywalled or
+      bot-hostile real papers must never be marked fabricated).
     * ``unreachable``        — the reference does NOT exist: 404, DNS failure,
       connection error, or a malformed token that resolves to nothing. FLAG it.
 
@@ -429,7 +434,7 @@ def resolve_reference(
     Outcome mapping (see :class:`ResolutionOutcome`):
 
     * final 2xx/3xx                              → ``resolved``
-    * 401/403/429 AFTER ≥1 redirect (paywall)    → ``present_ambiguous``
+    * 401/403/429 (paywall / bot-block / rate-limit; host answered) → ``present_ambiguous``
     * 404 / other 4xx-5xx / DNS / conn / malformed → ``unreachable``
 
     No title-overlap requirement — this is an anti-fabrication existence check
@@ -440,14 +445,23 @@ def resolve_reference(
     status = head.http_status
     if status is not None and 200 <= status < 400:
         return ResolutionOutcome("resolved", head.final_url, status, "")
-    if status in (401, 403, 429) and head.redirect_chain:
-        # A real host answered behind a paywall/rate-limit on a real landing
-        # page — the reference exists.
+    if status in (401, 403, 429):
+        # A real host ANSWERED with a paywall / bot-block / rate-limit — the
+        # reference EXISTS (DNS + TCP + HTTP all succeeded; the server returned a
+        # status, it just gated the body). This holds whether or not there was a
+        # redirect first: many legitimate academic hosts (publisher pages, OEIS
+        # behind Cloudflare, KnotInfo, journal sites) 403 an automated client
+        # DIRECTLY. Requiring a redirect mis-classified those real-but-bot-hostile
+        # references as ``unreachable`` and HARD-BLOCKED advancement on real work.
+        # A FABRICATED reference fails differently — a made-up domain DNS-fails and
+        # a made-up path 404s (both still ``unreachable`` below) — so accepting a
+        # 401/403/429 as present does not weaken the anti-fabrication gate.
+        gate = "after redirect" if head.redirect_chain else "direct"
         return ResolutionOutcome(
             "present_ambiguous",
             head.final_url,
             status,
-            f"present but access-gated (HTTP {status} after redirect)",
+            f"present but access-gated (HTTP {status}, {gate})",
         )
     if status is not None:
         return ResolutionOutcome(
