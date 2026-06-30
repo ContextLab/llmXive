@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Validation Report Schema
+description: Schema for the structured validation report mapping code output to paper claims.
+type: object
+properties:
+  summary:
+    type: object
+    properties:
+      total_claims:
+        type: integer
+        description: Total number of claims analyzed.
+      claims_supported:
+        type: integer
+        description: Number of claims supported by evidence.
+      claims_partial:
+        type: integer
+        description: Number of claims partially supported.
+      claims_unsupported:
+        type: integer
+        description: Number of claims not supported.
+    required:
+      - total_claims
+      - claims_supported
+      - claims_partial
+      - claims_unsupported
+  mappings:
+    type: array
+    description: Detailed mapping of claims to artifacts.
+    items:
+      type: object
+      properties:
+        claim_id:
+          type: string
+          description: Identifier for the claim (e.g., C1-Interface).
+        claim_text:
+          type: string
+          description: The text of the claim from the abstract.
+        artifact_id:
+          type: string
+          description: The file path of the supporting artifact.
+        evidence:
+          type: string
+          description: Description of how the artifact supports the claim.
+        status:
+          type: string
+          enum:
+            - supported
+            - partial
+            - unsupported
+      required:
+        - claim_id
+        - claim_text
+        - artifact_id
+        - evidence
+        - status
+    minItems: 3
+required:
+  - summary
+  - mappings
+additionalProperties: false

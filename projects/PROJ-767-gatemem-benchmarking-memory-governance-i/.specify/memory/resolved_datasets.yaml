@@ -1,0 +1,178 @@
+resolved_at: '2026-06-30T16:25:15.650365+00:00'
+datasets:
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/The_Invisible_Mind_Memory_Matter_and_the_Edge_of_Time_An_Inquiry_into_Consciousness_Isotopic_Decay_and_the_Nature_of_Black_Holes/32837789
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Genomic_epidemiology_evolution_and_transmission_dynamics_of_porcine_sapelovirus_associated_with_diarrheic_piglets/32832937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MHGNN-M-v1_0/32838392
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Assessing_Input_Slacks_and_Associated_Emissions_in_Rice_Farming_A_DEA-Based_Approach_across_rural_regions_of_the_Mekong_Delta_b_/32838374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Sustainable_Banking_in_Indonesia_and_Malaysia_Optimizing_Corporate_Governance_and_The_Role_of_CEOs_Social_Networks/32838383
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074727
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074727
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069914
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069914
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GGUF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_Josephgflowers__Cinder-Phi-2-V1-F16-gguf/resolve/main/2024-02-29T18-49-27.879543/details_harness|arc:challenge|25_2024-02-29T18-49-27.879543.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_Josephgflowers__Tinyllama-616M-Cinder-DPO-With-GGUF/resolve/main/2024-04-03T03-56-14.436511/details_harness|arc:challenge|25_2024-04-03T03-56-14.436511.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-source-metrics/gguf-public-stats/resolve/main/2024-04-13.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 227
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_Josephgflowers__Cinder-Phi-2-V1-F16-gguf/resolve/main/2024-02-29T18-49-27.879543/details_harness|arc:challenge|25_2024-02-29T18-49-27.879543.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_Josephgflowers__Tinyllama-616M-Cinder-DPO-With-GGUF/resolve/main/2024-04-03T03-56-14.436511/details_harness|arc:challenge|25_2024-04-03T03-56-14.436511.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-source-metrics/gguf-public-stats/resolve/main/2024-04-13.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_Josephgflowers__Phi-3-mini-4k-instruct-Cinder-llamafied-with-16bit-GGUF/resolve/main/2024-04-29T04-02-27.869902/details_harness|arc:challenge|25_2024-04-29T04-02-27.869902.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Plant_species_identity_and_cardinal_direction_determine_soil_microbial_diversity_in_a_vertical_garden_system/32838413
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Invisible_Mind_Memory_Matter_and_the_Edge_of_Time_An_Inquiry_into_Consciousness_Isotopic_Decay_and_the_Nature_of_Black_Holes/32837789
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Genomic_epidemiology_evolution_and_transmission_dynamics_of_porcine_sapelovirus_associated_with_diarrheic_piglets/32832937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MHGNN-M-v1_0/32838392
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Assessing_Input_Slacks_and_Associated_Emissions_in_Rice_Farming_A_DEA-Based_Approach_across_rural_regions_of_the_Mekong_Delta_b_/32838374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20773625
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14236306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21005737
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20310027
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16987789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074983
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074983
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6hyg8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21046683
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21046683
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

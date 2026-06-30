@@ -1,4 +1,80 @@
+? "T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled\
+  \ LLM via HuggingFace model cards [UNRESOLVED-CLAIM: c_92eae728 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? 'T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+  LLM via HuggingFace model cards; create `src/research/verify_models.py` script;
+  document in research.md section "Model Verification" with fields: model_name, hf_id,
+  size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
+: 2
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_d4b5150d \u2014 status=not_enough_info]\
+  \ check before contributing review points; add blocking gate for Constitution II\
+  \ compliance (Constitution II, Plan Gap)"
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check before contributing review points [UNRESOLVED-CLAIM:\
+  \ c_06e339d8 \u2014 status=not_enough_info]; add blocking gate for Constitution\
+  \ II compliance (Constitution II, Plan Gap)"
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
+  \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
+: 1
+"T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
+T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 1
+? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88 [UNRESOLVED-CLAIM:\
+  \ c_bd9bece5 \u2014 status=not_enough_info], target-version=py311 [UNRESOLVED-CLAIM:\
+  \ c_5f64b587 \u2014 status=not_enough_info]) and pyproject.toml (black config) in\
+  \ repository root"
+: 1
+? "T015 Create quickstart.md with setup instructions; include sections: (1) Prerequisites\
+  \ list (Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info],\
+  \ pip, git), (2) Setup commands (clone, venv, install), (3) Verification steps (run\
+  \ --help, check data/), (4) Troubleshooting common issues (US-1)"
+: 1
+? "T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py\
+  \ (FR-010); function signatures: download_dataset(url, max_retries=3 [UNRESOLVED-CLAIM:\
+  \ c_ee5121e3 \u2014 status=not_enough_info], timeout=300 [UNRESOLVED-CLAIM: c_4222a53b\
+  \ \u2014 status=not_enough_info]) -> (path, checksum); verify URLs: UCI_HAR via\
+  \ `datasets.load_dataset('UCI_HAR')`, DROP/MUST via HuggingFace datasets; depends\
+  \ on T007/T008 complete"
+: 1
 ? 'T023 [US1] Create task_runner.py in src/tasks/task_runner.py (FR-001, FR-006);
   class TaskRunner with methods: run_task(task_id), get_task(task_id), validate_task(task_id);
   depends on T017 complete'
+: 2
+? "T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007,\
+  \ FR-014, FR-011); MUST include: paired t-test (scipy.stats.ttest_rel), Wilcoxon\
+  \ signed-rank with {{claim:c_7c3d210d}} and 95% CI as PRIMARY outcome [UNRESOLVED-CLAIM:\
+  \ c_965f43c9 \u2014 status=not_enough_info] (document formula), {{claim:c_55db4237}}\
+  \ (explicit count), configurable \u03B1 threshold (default 0.05 (Wikipedia: P-value,\
+  \ https://en.wikipedia.org/wiki/P-value)) [UNRESOLVED-CLAIM: c_a57c782c \u2014 status=verified]\
+  \ with logging; function signatures: paired_ttest(condition_a, condition_b, {{claim:c_08e60571}}),\
+  \ wilcoxon_effect_size(condition_a, condition_b), bootstrap_ci(values, {{claim:c_e50ac6bc}},\
+  \ confidence=0.95)"
+: 1
+? "T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007);\
+  \ MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI ({{claim:c_8176747a}})\
+  \ [UNRESOLVED-CLAIM: c_517f038e \u2014 status=not_enough_info], (d) Wilcoxon effect\
+  \ size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results,\
+  \ output_path), generate_pdf_report(results, output_path)"
+: 1
+? 'T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with
+  required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300),
+  {{claim:c_340e25bd}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))'
+: 1
+? 'T047 [US3] Implement time-series to text conversion logic in src/models/translation.py
+  (US-3 Scenario 1); deterministic schema: "Mean heart rate = X bpm, max = Y bpm,
+  min = Z bpm, std = W bpm " (all quantitative information retained); function signature:
+  timeseries_to_text(data, label_name) -> string'
+: 1
+? "T055c Implement per-task inference verification in src/evaluation/runtime_verification.py;\
+  \ verify per-task inference \u22645 minutes (SC-002); record pass/fail to data/runtime_metrics.yaml"
+: 1
+? "T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy differences\
+  \ within 95% CI with CI width \u226415% (implementation-specific threshold - document\
+  \ in spec as staged); run benchmark 5 times with different seeds, compare results"
 : 1

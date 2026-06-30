@@ -76,3 +76,15 @@
 [submodule "projects/PROJ-640-https-arxiv-org-abs-2605-28293/external/ProRL"]
 	path = projects/PROJ-640-https-arxiv-org-abs-2605-28293/external/ProRL
 	url = https://github.com/hongruhou89/ProRL
+[submodule "projects/PROJ-606-https-arxiv-org-abs-2605-18747/external/Awesome-Code-as-Agent-Harness-Papers"]
+	path = projects/PROJ-606-https-arxiv-org-abs-2605-18747/external/Awesome-Code-as-Agent-Harness-Papers
+	url = https://github.com/YennNing/Awesome-Code-as-Agent-Harness-Papers
+[submodule "projects/PROJ-667-https-arxiv-org-abs-2606-05259/external/VideoKR"]
+	path = projects/PROJ-667-https-arxiv-org-abs-2606-05259/external/VideoKR
+	url = https://github.com/Fu-Fu-Fu-Fu/VideoKR
+[submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
+	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
+	url = https://github.com/jianuo-huang/Domino
+[submodule "projects/PROJ-688-agents-last-exam/external/agents-last-exam"]
+	path = projects/PROJ-688-agents-last-exam/external/agents-last-exam
+	url = https://github.com/rdi-berkeley/agents-last-exam

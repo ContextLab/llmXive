@@ -53,7 +53,63 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmXive-proj-573
   verified_at: '2026-06-30T06:58:50.279484Z'
-- artifact_hash: 7d08986d971e28b2aa3202befd2e9716092c62e9b9ca1996cd6f926b8a6e85d2
+- artifact_hash: cd3ac9d6f48ac1edb42c1921108279af42ce84c7b2586faf566d33e5355706f3
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/UCI_HAR
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/UCI_HAR/datasets
+  verified_at: '2026-06-30T16:46:43.125497Z'
+- artifact_hash: cd3ac9d6f48ac1edb42c1921108279af42ce84c7b2586faf566d33e5355706f3
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/uci_adult
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/uci_adult/datasets
+  verified_at: '2026-06-30T16:46:43.125497Z'
+- artifact_hash: cd3ac9d6f48ac1edb42c1921108279af42ce84c7b2586faf566d33e5355706f3
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: drop (droppy)
+  kind: url
+  value: https://huggingface.co/datasets/drop
+  verification_status: verified
+  verified_against_url: https://huggingface.co/drop/datasets
+  verified_at: '2026-06-30T16:46:43.125497Z'
+- artifact_hash: cd3ac9d6f48ac1edb42c1921108279af42ce84c7b2586faf566d33e5355706f3
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2604.27351] Heterogeneous Scientific Foundation Model Collaboration'
+  kind: url
+  value: https://arxiv.org/abs/2604.27351
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2604.27351
+  verified_at: '2026-06-30T16:46:43.125497Z'
+- artifact_hash: cd3ac9d6f48ac1edb42c1921108279af42ce84c7b2586faf566d33e5355706f3
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1311.5354] Another Argument in Favour of Wilcoxon&#39;s Signed
+    Rank Test'
+  kind: url
+  value: https://arxiv.org/abs/1311.5354
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/1311.5354
+  verified_at: '2026-06-30T16:46:43.125497Z'
+- artifact_hash: 9c6e536a900f1f38271a17ab3220d8af4d80104db9b0ba29e79fdb50a2382d85
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,8 +120,8 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-06-30T15:25:22.775027Z'
-- artifact_hash: 7d08986d971e28b2aa3202befd2e9716092c62e9b9ca1996cd6f926b8a6e85d2
+  verified_at: '2026-06-30T17:02:09.996562Z'
+- artifact_hash: 9c6e536a900f1f38271a17ab3220d8af4d80104db9b0ba29e79fdb50a2382d85
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -75,8 +131,8 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-06-30T15:25:22.775027Z'
-- artifact_hash: 7d08986d971e28b2aa3202befd2e9716092c62e9b9ca1996cd6f926b8a6e85d2
+  verified_at: '2026-06-30T17:02:09.996562Z'
+- artifact_hash: 9c6e536a900f1f38271a17ab3220d8af4d80104db9b0ba29e79fdb50a2382d85
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -86,8 +142,8 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-06-30T15:25:22.775027Z'
-- artifact_hash: 7d08986d971e28b2aa3202befd2e9716092c62e9b9ca1996cd6f926b8a6e85d2
+  verified_at: '2026-06-30T17:02:09.996562Z'
+- artifact_hash: 9c6e536a900f1f38271a17ab3220d8af4d80104db9b0ba29e79fdb50a2382d85
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -97,4 +153,4 @@
   value: https://en.wikipedia.org/wiki/Hutter_Prize
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Hutter_Prize
-  verified_at: '2026-06-30T15:25:22.775027Z'
+  verified_at: '2026-06-30T17:02:09.996562Z'
