@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Foundation Protocol Dataset Schema"
+description: "Schema for the synthetic and simulated datasets used in the experiment."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      task_name:
+        type: "string"
+        description: "Name of the benchmark task (hanabi, spear, resource_allocation)"
+      protocol_type:
+        type: "string"
+        enum: ["foundation", "native_direct"]
+        description: "Protocol used for this dataset (foundation or native_direct)"
+      seed:
+        type: "integer"
+        description: "Random seed used for generation"
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "Generation timestamp"
+      checksum:
+        type: "string"
+        description: "SHA-256 checksum of the dataset file"
+      source_artifact:
+        type: "string"
+        description: "Path to the verified source artifact (e.g., code/benchmarks/resource_alloc_runner.py)"
+  records:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        episode_id:
+          type: "integer"
+        step:
+          type: "integer"
+        sender:
+          type: "string"
+        receiver:
+          type: "string"
+        message_type:
+          type: "string"
+        payload_size:
+          type: "integer"
+        signature_valid:
+          type: "boolean"
+        checkpoint_applied:
+          type: "boolean"
+        error_code:
+          type: "string"
+          nullable: true
+          description: "Error code if message failed"
+required:
+  - metadata
+  - records
+additionalProperties: false
