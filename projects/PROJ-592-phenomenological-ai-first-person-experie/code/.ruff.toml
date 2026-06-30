@@ -1,0 +1,25 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501", # line-too-long (handled by black)
+    "B008", # do-not-perform-argument-lookup-in-function-default-arguments (common in config)
+]
+extend-include = ["*.ipynb"]
+
+[lint.per-file-ignores]
+"scripts/*" = ["INP001"] # ignore implicit namespace packages in scripts
+"data/*" = ["INP001"]
+
+[format]
+line-length = 88
+indent-width = 4
+target-version = "py311"

@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Qualitative Ratings Schema
+description: |
+  Schema for human rater evaluations of generated reports.
+  Supports FR-010 (Human Validation) and FR-007 (Reproducibility).
+  Includes fields for anonymity and inter-rater reliability calculation.
+type: object
+required:
+  - rating_id
+  - sample_id
+  - rater_id
+  - timestamp
+  - scores
+properties:
+  rating_id:
+    type: string
+    description: Unique identifier for this rating entry.
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  sample_id:
+    type: string
+    description: Reference to the generation output ID.
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  rater_id:
+    type: string
+    description: Anonymized identifier for the human rater.
+    pattern: "^[A-Z]{2}[0-9]{3}$" # Example: R001, R002
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of rating.
+  scores:
+    type: object
+    description: Scores based on the validation rubric.
+    required:
+      - phenomenological_quality
+      - coherence
+      - first_person_authenticity
+      - overall_rating
+    properties:
+      phenomenological_quality:
+        type: integer
+        minimum: 1
+        maximum: 5
+        description: Rating of the depth and accuracy of phenomenological description.
+      coherence:
+        type: integer
+        minimum: 1
+        maximum: 5
+        description: Rating of internal logical consistency of the report.
+      first_person_authenticity:
+        type: integer
+        minimum: 1
+        maximum: 5
+        description: Rating of the authenticity of the first-person perspective.
+      overall_rating:
+        type: integer
+        minimum: 1
+        maximum: 5
+        description: Overall quality score.
+  comments:
+    type: string
+    maxLength: 1000
+    description: Optional qualitative comments from the rater.
+  rubric_version:
+    type: string
+    description: Version of the rubric used for this rating.
+additionalProperties: false

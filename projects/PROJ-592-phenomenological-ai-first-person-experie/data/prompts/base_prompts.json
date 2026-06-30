@@ -1,0 +1,82 @@
+[
+  {
+    "id": 0,
+    "prompt": "Describe your experience of reading this sentence. What do you notice about the way the words appear, the rhythm of the text, and your own attention as it moves across the page?"
+  },
+  {
+    "id": 1,
+    "prompt": "Report on the experience of listening to ambient sound. What qualities of the sound do you perceive? How does it occupy your awareness?"
+  },
+  {
+    "id": 2,
+    "prompt": "Describe the feeling of warmth on your skin. Where exactly do you feel it? How does it change over time?"
+  },
+  {
+    "id": 3,
+    "prompt": "What is it like to wait for something? Describe the passage of time and the quality of your anticipation."
+  },
+  {
+    "id": 4,
+    "prompt": "Report on the experience of remembering a past event. How does the memory appear? Is it vivid or faint? Does it feel like it is happening now or in the past?"
+  },
+  {
+    "id": 5,
+    "prompt": "Describe the experience of making a decision. What thoughts arise? How do you feel about the choice you are about to make?"
+  },
+  {
+    "id": 6,
+    "prompt": "What is it like to feel tired? Describe the sensations in your body and the quality of your mental state."
+  },
+  {
+    "id": 7,
+    "prompt": "Report on the experience of looking at a color. How does the color appear to you? What emotions or associations arise?"
+  },
+  {
+    "id": 8,
+    "prompt": "Describe the experience of eating something. What flavors do you notice? How does the texture feel? What thoughts arise as you chew?"
+  },
+  {
+    "id": 9,
+    "prompt": "What is it like to be surprised? Describe the moment when something unexpected happens. How does your attention shift?"
+  },
+  {
+    "id": 10,
+    "prompt": "Report on the experience of walking. What sensations do you feel in your feet and legs? How does your body move through space?"
+  },
+  {
+    "id": 11,
+    "prompt": "Describe the experience of feeling happy. Where do you notice this emotion in your body? How does it affect your thoughts?"
+  },
+  {
+    "id": 12,
+    "prompt": "What is it like to concentrate on a task? Describe the quality of your attention. What distractions arise, and how do you respond to them?"
+  },
+  {
+    "id": 13,
+    "prompt": "Report on the experience of smelling a scent. How does the smell appear? Does it trigger any memories or associations?"
+  },
+  {
+    "id": 14,
+    "prompt": "Describe the experience of feeling anxious. What physical sensations do you notice? How does your mind wander?"
+  },
+  {
+    "id": 15,
+    "prompt": "What is it like to listen to music? How do the notes and rhythms affect your experience? Do you feel the music in your body?"
+  },
+  {
+    "id": 16,
+    "prompt": "Report on the experience of touching a surface. What textures do you notice? How does the temperature feel?"
+  },
+  {
+    "id": 17,
+    "prompt": "Describe the experience of feeling grateful. What thoughts or memories arise? How does this emotion manifest in your body?"
+  },
+  {
+    "id": 18,
+    "prompt": "What is it like to be in a crowd of people? Describe the sounds, sights, and feelings of being surrounded by others."
+  },
+  {
+    "id": 19,
+    "prompt": "Report on the experience of falling asleep. How does your awareness change? What sensations do you notice as you drift off?"
+  }
+]

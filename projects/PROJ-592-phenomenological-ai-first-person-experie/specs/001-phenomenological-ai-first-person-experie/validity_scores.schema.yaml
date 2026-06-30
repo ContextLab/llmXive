@@ -1,0 +1,76 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Validity Scores Schema
+description: |
+  Schema for computed validity metrics (Consistency, Stability, Markers).
+  These scores are derived from the generation outputs and used for statistical analysis.
+  Aligns with FR-005 (Statistical Analysis) and FR-012 (Assumption Testing).
+type: object
+required:
+  - sample_id
+  - timestamp
+  - metrics
+properties:
+  sample_id:
+    type: string
+    description: Reference to the generation output ID.
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of computation.
+  metrics:
+    type: object
+    description: The computed validity scores.
+    required:
+      - consistency_score
+      - stability_score
+      - marker_scores
+    properties:
+      consistency_score:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: |
+          Internal Consistency score (0-1). Higher values indicate fewer contradictions
+          detected via NLI models (cross-encoder/stsb-distilroberta-base).
+      stability_score:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: |
+          Semantic Stability score (0-1). Higher values indicate higher cosine similarity
+          between embeddings of repeated generations.
+      marker_scores:
+        type: object
+        description: Counts and normalized densities of phenomenological markers.
+        required:
+          - sensory
+          - temporal
+          - intentional
+          - total_density
+        properties:
+          sensory:
+            type: integer
+            minimum: 0
+            description: Raw count of sensory markers (see, hear, feel, etc.).
+          temporal:
+            type: integer
+            minimum: 0
+            description: Raw count of temporal markers (now, then, before, etc.).
+          intentional:
+            type: integer
+            minimum: 0
+            description: Raw count of intentional markers (think, believe, desire, etc.).
+          total_density:
+            type: number
+            minimum: 0
+            description: Total marker count normalized by text length (markers per 100 tokens).
+  strategy:
+    type: string
+    enum:
+      - Direct
+      - Hypothetical
+      - Comparative
+      - Role-play
+    description: The strategy used for the associated sample.
+additionalProperties: false
