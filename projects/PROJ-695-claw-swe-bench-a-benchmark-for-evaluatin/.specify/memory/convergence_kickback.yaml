@@ -1,0 +1,182 @@
+artifact_links:
+- projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+- specs/*/contracts/*
+- specs/*/data-model.md
+- specs/*/plan.md
+- specs/*/quickstart.md
+- specs/*/research.md
+reason: 12 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst
+  unresolved severity = 'science'. Routing to 'specified' with full provenance so
+  the next worker can address the root cause.
+stage: plan
+to_stage: specified
+unresolved_concerns:
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: methodology-510c9134
+  location: research.md:Statistical & Methodological Rigor
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: "The plan acknowledges a ~5.1% standard error for the Lite subset (80 instances)\
+    \ but fails to define a statistical test (e.g., McNemar's test for paired binary\
+    \ outcomes) to determine if the observed delta between adapters is statistically\
+    \ significant. Relying solely on a '\xB15% flag' is insufficient to validate the\
+    \ paper's claim of a 'substantial' performance gap."
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: methodology-9e173ba9
+  location: research.md:Compute Feasibility & Risk Mitigation
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The plan proposes running 350 instances with concurrency=4 on a 6-hour CI
+    limit. With LLM API latency (often 10-30s per request) and network overhead, this
+    schedule is mathematically infeasible for a full run. The plan lacks a power analysis
+    or a defined stopping rule (e.g., 'stop after N successful instances') to ensure
+    the resulting sample size is sufficient to draw any conclusion about the 'Full'
+    dataset performance.
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: methodology-eb4d5d83
+  location: research.md:Causal Inference & Validity
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The plan assumes the vendored `claw-swe-bench` submodule's evaluation logic
+    is correct without a validation step. If the submodule's `evaluate.py` has a bug
+    or deviates from the SWE-bench standard, the entire Pass@1 metric is invalid.
+    The methodology lacks a 'sanity check' run against a known-good subset or a cross-verification
+    of the evaluation harness before the main experiment.
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: data_resources-0f20c60b
+  location: research.md:Dataset Strategy
+  reviewer: data_resources
+  round: 1
+  severity: methodology
+  text: The plan cites 'SWE-bench Multilingual' and 'SWE-bench Verified' as distinct
+    datasets with separate HuggingFace URLs. However, the standard SWE-bench ecosystem
+    (as per the original SWE-bench paper and HuggingFace hub) typically provides a
+    single 'swebench' dataset with a 'verified' split, or a 'multilingual' extension
+    that is a separate, smaller benchmark. The URL 'https://huggingface.co/datasets/SWE-bench/SWE-bench_Multilingual/resolve/main/data/test-00000-of-00001.parquet'
+    may not exist or may not contain the 350 instances described if 'Multilingual'
+    is a distinct, smaller benchmark (often ~100 instances). The plan conflates the
+    'Verified' subset (80 instances) with a 'Multilingual' full set (350 instances).
+    If 'Multilingual' is the target, the instance count and language distribution
+    must be verified against the actual dataset metadata, as the standard 'swebench'
+    dataset is English-only. Using the wrong dataset (English-only vs. Multilingual)
+    invalidates the '8 languages' claim in FR-001.
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: data_resources-76bc8aac
+  location: research.md:Dataset Strategy
+  reviewer: data_resources
+  round: 1
+  severity: methodology
+  text: The plan assumes the 'SWE-bench Multilingual' dataset contains 350 instances
+    across 8 languages. The standard SWE-bench 'Verified' set is 80 instances. The
+    'Multilingual' extension (if it exists as a separate dataset) often has a different
+    total count (e.g., ~100-200). The specific claim of '350 instances' for the 'Multilingual'
+    set appears to be a conflation of the total SWE-bench test set size (which is
+    ~300-400) with the 'Multilingual' label. If the dataset does not actually contain
+    350 instances or 8 languages, the evaluation scope (FR-001) is impossible to fulfill
+    as written. The plan must cite the exact dataset version and verify the instance
+    count and language distribution before proceeding.
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: data_resources-d0b8f99d
+  location: research.md:Dataset Strategy
+  reviewer: data_resources
+  round: 1
+  severity: writing
+  text: The 'Verified datasets' block lists 'SWE-bench Pro' as 'Reference only; not
+    used'. However, the 'Dataset Fit Analysis' section mentions 'post-task anxiety/rumination'
+    as irrelevant, which is a copy-paste error from a different project (likely a
+    psychology study). While this does not affect the dataset choice, it indicates
+    a lack of rigor in the research documentation that could lead to confusion about
+    the actual variables being measured.
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: plan_consistency-278c57a5
+  location: plan.md:Constitution Check
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: 'The ''Constitution Check'' section states: ''Gates determined based on constitution
+    file (None provided in input; assuming standard research integrity principles).''
+    This violates Constitution Principle I (SSoT) and Principle V (Real-Call Testing).
+    The plan cannot assume ''standard principles'' when a specific `constitution.md`
+    (FR-030) is required for the project. The plan must explicitly reference and adhere
+    to the project''s specific constitution file, not a hypothetical assumption.'
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: plan_consistency-2694d2bc
+  location: plan.md:Project Structure
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: The 'Project Structure' section lists `quickstart.md` and `data-model.md`
+    under `specs/.../` but the `quickstart.md` and `data-model.md` files provided
+    in the input are located at `specs/001-reproduce-claw-swe-bench/` (root of spec
+    folder). While the paths are technically correct relative to the spec folder,
+    the plan's tree structure implies these are Phase 1 outputs generated *after*
+    the plan, yet the plan itself references them as existing inputs for the 'Constitution
+    Check' and 'Technical Context'. Ensure the plan acknowledges these as pre-existing
+    design artifacts, not future deliverables, to avoid confusion on the SSoT flow.
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: plan_consistency-316a24f2
+  location: plan.md:Technical Context
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: The 'Technical Context' lists 'Python 3.10' but the 'Assumptions' in `spec.md`
+    (which the plan must align with) mention 'Python 3.9+'. While 3.10 is compatible,
+    the plan should explicitly state the minimum supported version to match the spec's
+    assumption block to ensure consistency in CI configuration (e.g., `actions/setup-python@v4`
+    version pinning).
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: scientific_soundness-a60e6cad
+  location: research.md:Model & Adapter Strategy
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The plan validates the 'Full Adapter' hypothesis (targeting 73.4% Pass@1)
+    by running it against the 'SWE-bench Verified (Test)' dataset. This dataset is
+    defined as a subset of tasks 'known to be solvable' (i.e., ground-truth patches
+    exist and are known to work). Validating a generative model's ability to solve
+    tasks *known to be solvable* against a ground-truth that assumes solvability creates
+    a selection bias. The metric (Pass@1) on this specific subset does not measure
+    general problem-solving capability but rather the ability to replicate known solutions
+    on a curated, non-representative set. If the paper's 73.4% claim relies on this
+    specific 'Verified' subset, the plan reproduces a potentially inflated metric
+    that does not generalize to the full 'Multilingual' population (which includes
+    unsolvable or ambiguous tasks). The validation target (solvability on Verified
+    set) is not independent of the dataset's curation criteria (solvable tasks), making
+    the result tautological regarding the 'solvability' claim.
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: scientific_soundness-9c9908fc
+  location: research.md:Statistical & Methodological Rigor
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The plan treats the 'Lite' subset (80 instances) as a standard benchmark for
+    comparative analysis. However, the 'Verified' subset is explicitly curated to
+    contain only instances where a solution is known to exist. Comparing a 'Minimal'
+    vs. 'Full' adapter on a subset of *solvable* tasks validates the *efficiency*
+    of finding a known solution, not the *capability* to solve novel problems. The
+    plan fails to distinguish between 'Pass@1 on solvable tasks' (a measure of search
+    efficiency) and 'Pass@1 on all tasks' (a measure of general capability). If the
+    paper's claim is about general capability, using a 'Verified' subset for the primary
+    comparison (US-2) is a category error in experimental design, as it removes the
+    'unsolvable' class from the evaluation space, artificially inflating the baseline
+    and potentially masking the true performance gap on harder, ambiguous, or unsolvable
+    instances.
+- artifact: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/plan.md
+  id: scientific_soundness-232e55d5
+  location: research.md:Statistical & Methodological Rigor
+  reviewer: scientific_soundness
+  round: 1
+  severity: methodology
+  text: The plan acknowledges a standard error of ~5.1% for the Lite subset but proposes
+    a comparison against a single point estimate (73.4%) without defining a statistical
+    test for the *difference* between the two adapters (Minimal vs. Full) on the *same*
+    80 instances. Since the same instances are used for both adapters, the data is
+    paired. A simple comparison of two independent proportions (or a delta check)
+    ignores the variance reduction from the paired design. The plan should specify
+    a paired statistical test (e.g., McNemar's test or a paired t-test on the binary
+    outcomes) to rigorously determine if the observed delta is significant, rather
+    than just checking if the delta is within +/- 5% of a paper's number.
+worst_severity: science

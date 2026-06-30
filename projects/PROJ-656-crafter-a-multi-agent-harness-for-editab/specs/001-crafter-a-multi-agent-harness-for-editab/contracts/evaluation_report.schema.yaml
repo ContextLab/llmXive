@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationReport"
+description: "Summary of the CraftBench evaluation run."
+type: "object"
+properties:
+  success_rate:
+    type: "number"
+    description: "Ratio of successful runs to total runs (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  quality_score:
+    type: "number"
+    description: "Automated quality score (e.g., LLM judge score)."
+  editability_score:
+    type: "number"
+    description: "Score representing the editability of the SVG output."
+  samples_processed:
+    type: "integer"
+    description: "Total number of samples processed in the manifest."
+    minimum: 0
+  errors:
+    type: "array"
+    description: "List of error messages encountered during processing."
+    items:
+      type: "string"
+  timestamp:
+    type: "string"
+    description: "ISO 8601 timestamp of the evaluation run."
+    format: "date-time"
+  mode:
+    type: "string"
+    description: "Execution mode: 'dry-run' (CI) or 'full-run' (Local)."
+    enum:
+      - "dry-run"
+      - "full-run"
+required:
+  - "success_rate"
+  - "samples_processed"
+  - "timestamp"
+  - "mode"
+additionalProperties: false

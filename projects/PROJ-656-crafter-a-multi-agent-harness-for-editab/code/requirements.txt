@@ -1,0 +1,9 @@
+datasets
+pandas
+numpy
+scipy
+scikit-image
+matplotlib
+pillow
+requests
+scikit-learn  # auto-added: imported by run-book but missing from venv
