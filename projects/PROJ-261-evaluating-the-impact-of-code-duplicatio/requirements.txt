@@ -1,9 +1,8 @@
-# Core dependencies for the project
 datasets>=2.0.0
-transformers>=4.40.0
-bitsandbytes>=0.44.0
-scipy>=1.13.0
-matplotlib>=3.8.0
-pytest>=8.0.0
 psutil>=5.9.0
-# Pin Python version compatibility (runtime uses Python 3.11)
+# Existing requirements from earlier phases (not duplicated here):
+transformers
+bitsandbytes
+scipy
+matplotlib
+pytest

@@ -1,144 +1,50 @@
-"""Main pipeline orchestration for the code duplication impact study.
+"""Top‑level pipeline orchestration.
 
-This script orchestrates the end‑to‑end workflow:
-1. Download a sample of the ``codeparrot/github-code`` dataset.
-2. Compute AST clone‑density metrics.
-3. Compute token‑level perplexity scores using the CodeGen model.
-4. Write the resulting CSV files to the locations declared in the
-   specification.
-
-The script is deliberately tolerant of missing arguments and can be
-invoked directly (``python code/main.py``) as part of the quick‑start
-run‑book.
+This script is the entry point used by the quick‑start run‑book
+(``python code/main.py``).  It now uses absolute imports so that it can be
+executed as a script without being part of a package.
 """
 
 import logging
 from pathlib import Path
 
-# Import pipeline building blocks
-from data_loader import download_and_save_sample
-from ast_cloner import compute_clone_density_batch
-from model_metrics import compute_perplexity_batch
-from memory_monitor import (
-    setup_memory_monitoring,
-    start_memory_monitoring,
-    stop_memory_monitoring,
-)
+# Absolute imports – required when the module is run as ``__main__``.
+from code.data_loader import download_and_save_sample
+from code.ast_cloner import compute_clone_density_batch
+from code.memory_monitor import setup_memory_monitoring, memory_monitor_context
+from code.model_metrics import main as run_model_metrics
 
-# ----------------------------------------------------------------------
-# Logging helper
-# ----------------------------------------------------------------------
-def _setup_logging() -> logging.Logger:
-    """Configure a simple console logger and return it."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-    )
-    return logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-# ----------------------------------------------------------------------
-# Core pipeline
-# ----------------------------------------------------------------------
-def run_pipeline(
-    raw_csv_path: Path,
-    clone_csv_path: Path,
-    perplexity_csv_path: Path,
-    max_samples: int = 1000,
-) -> None:
-    """Execute the three‑stage pipeline.
+def run_pipeline() -> None:
+    """Execute the full US‑1 pipeline.
 
-    Parameters
-    ----------
-    raw_csv_path: Path
-        Destination for the raw ``github-code`` CSV sample.
-    clone_csv_path: Path
-        Destination for the clone‑density CSV.
-    perplexity_csv_path: Path
-        Destination for the perplexity‑scores CSV.
-    max_samples: int, optional
-        Upper bound on the number of examples to download. The default
-        (1000) keeps the run‑book lightweight while still providing a
-        meaningful sample.
+    1. Download a sample of the GitHub‑code dataset.
+    2. Scan for PII (handled in a separate task – already executed elsewhere).
+    3. Compute clone density.
+    4. Run the model‑metrics step (perplexity).
     """
-    logger = _setup_logging()
-    logger.info("Starting pipeline execution")
+    # Step 1 – download data.
+    raw_csv_path = download_and_save_sample()
 
-    # ------------------------------------------------------------------
-    # Stage 1 – download raw data (if not already present)
-    # ------------------------------------------------------------------
-    if not raw_csv_path.is_file():
-        logger.info("Downloading raw dataset to %s", raw_csv_path)
-        download_and_save_sample(
-            output_path=str(raw_csv_path),
-            max_samples=max_samples,
-        )
-    else:
-        logger.info("Raw dataset already exists at %s – skipping download", raw_csv_path)
+    # Step 2 – (PII scan is performed by a separate script; we just log).
+    logger.info("Data downloaded to %s", raw_csv_path)
 
-    # ------------------------------------------------------------------
-    # Stage 2 – clone density computation
-    # ------------------------------------------------------------------
-    logger.info("Computing clone‑density metrics")
-    compute_clone_density_batch(
-        input_path=str(raw_csv_path),
-        output_path=str(clone_csv_path),
-    )
-    logger.info("Clone‑density metrics written to %s", clone_csv_path)
+    # Step 3 – compute clone density.
+    raw_dir = Path("data/raw")
+    compute_clone_density_batch(input_path=raw_dir)
 
-    # ------------------------------------------------------------------
-    # Stage 3 – perplexity computation
-    # ------------------------------------------------------------------
-    logger.info("Computing perplexity scores")
-    compute_perplexity_batch(
-        input_path=str(raw_csv_path),
-        output_path=str(perplexity_csv_path),
-    )
-    logger.info("Perplexity scores written to %s", perplexity_csv_path)
+    # Step 4 – run model‑metrics (perplexity computation).
+    run_model_metrics()
 
-    logger.info("Pipeline completed successfully")
-
-# ----------------------------------------------------------------------
-# Entry point
-# ----------------------------------------------------------------------
 def main() -> None:
-    """CLI entry point used by the quick‑start run‑book."""
-    # Initialise optional memory monitoring (the function is tolerant of
-    # missing arguments – see the patch in ``memory_monitor.py``).
-    try:
-        setup_memory_monitoring()
-    except Exception as exc:  # pragma: no cover – defensive
-        logging.getLogger(__name__).warning(
-            "Memory‑monitoring initialisation failed: %s", exc
-        )
-
-    # Start background memory monitor (if the implementation supports it)
-    try:
-        start_memory_monitoring()
-    except Exception:  # pragma: no cover – defensive
-        pass
-
-    try:
-        # Resolve all required paths
-        raw_path = Path("data/raw/github-code-sample.csv")
-        clone_path = Path("data/processed/clone_metrics.csv")
-        perplexity_path = Path("data/processed/perplexity_scores.csv")
-
-        # Ensure destination directories exist
-        raw_path.parent.mkdir(parents=True, exist_ok=True)
-        clone_path.parent.mkdir(parents=True, exist_ok=True)
-        perplexity_path.parent.mkdir(parents=True, exist_ok=True)
-
-        run_pipeline(
-            raw_csv_path=raw_path,
-            clone_csv_path=clone_path,
-            perplexity_csv_path=perplexity_path,
-        )
-    finally:
-        # Gracefully stop the monitor regardless of success/failure.
-        try:
-            stop_memory_monitoring()
-        except Exception:  # pragma: no cover – defensive
-            pass
+    """Entry point for ``python code/main.py``."""
+    # Initialise a memory monitor to respect the 7 GB limit.
+    setup_memory_monitoring()
+    with memory_monitor_context():
+        run_pipeline()
 
 if __name__ == "__main__":
+    # Configure a basic logger for ad‑hoc runs.
+    logging.basicConfig(level=logging.INFO)
     main()

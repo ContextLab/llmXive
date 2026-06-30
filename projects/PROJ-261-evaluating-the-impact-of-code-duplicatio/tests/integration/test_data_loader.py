@@ -16,10 +16,12 @@ import pytest
 
 from code import data_loader
 
+
 @pytest.fixture
 def temp_output(tmp_path: pathlib.Path) -> pathlib.Path:
     """Path to a temporary CSV output file."""
     return tmp_path / "github-code-sample.csv"
+
 
 def fake_stream_generator(fail_first: bool = True):
     """Yield a few dummy records, optionally raising on the first iteration."""
@@ -35,6 +37,7 @@ def fake_stream_generator(fail_first: bool = True):
             yield {"id": f"sample-{i}", "content": f"print({i})"}
 
     return generator
+
 
 def test_download_resilient_to_transient_error(tmp_path, monkeypatch):
     """Ensure the downloader retries after a simulated network error."""
@@ -68,6 +71,7 @@ def test_download_resilient_to_transient_error(tmp_path, monkeypatch):
     for i, row in enumerate(rows[1:]):
         assert row[0] == f"sample-{i}"
         assert row[1] == f"print({i})"
+
 
 def test_cli_parses_unknown_arguments(monkeypatch, tmp_path):
     """The CLI should ignore unknown arguments (e.g. comments in quick‑start)."""

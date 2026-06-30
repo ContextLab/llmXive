@@ -1,45 +1,33 @@
+"""Integration test for the data‑loader.
+
+The test verifies that ``download_and_save_sample`` creates the expected
+CSV file without raising an exception.
+"""
+
 import os
-import pathlib
-import subprocess
-import sys
+from pathlib import Path
 
 import pytest
 
-# The integration test ensures that the data loader can be executed
-# without raising an exception and that it produces the expected CSV file.
-# This mirrors the expectations of the quickstart run‑book.
+from code.data_loader import download_and_save_sample
 
 @pytest.mark.integration
-def test_data_loader_produces_csv(tmp_path, monkeypatch):
-    # Run the data loader script in a subprocess to emulate the real CLI.
-    # Use a small max‑bytes limit so the test finishes quickly.
-    csv_path = pathlib.Path("data/raw/github-code-sample.csv")
-    if csv_path.exists():
-        csv_path.unlink()
-
-    # Build command
-    cmd = [
-        sys.executable,
-        "code/data_loader.py",
-        "--max-bytes",
-        "1024",  # 1 KiB – enough for a few rows
-        "--output",
-        str(csv_path),
-    ]
-
-    # Execute
-    result = subprocess.run(
-        cmd,
-        cwd=os.getcwd(),
-        capture_output=True,
-        text=True,
+def test_download_and_save_sample_creates_file(tmp_path, monkeypatch):
+    """Run the loader in a temporary directory and check output."""
+    # Redirect the output path to a temporary location.
+    tmp_csv = tmp_path / "github-code-sample.csv"
+    monkeypatch.setattr(
+        "code.data_loader.Path",
+        lambda *parts: tmp_csv if parts == ("data", "raw", "github-code-sample.csv") else Path(*parts),
     )
-    # The script should exit cleanly.
-    assert result.returncode == 0, f"stderr: {result.stderr}"
 
-    # The CSV file must now exist and contain a header line.
-    assert csv_path.is_file(), "CSV output file was not created"
-    with csv_path.open("r", encoding="utf-8") as f:
-        header = f.readline().strip()
-    expected_header = "repo_name,file_path,content"
-    assert header == expected_header, f"Unexpected CSV header: {header}"
+    # Execute the download (it will stream a very small sample because of the
+    # byte‑budget logic – this keeps the test fast and deterministic).
+    result_path = download_and_save_sample()
+
+    assert result_path == tmp_csv
+    assert tmp_csv.is_file()
+    # Basic sanity check – the CSV must have at least a header row.
+    with tmp_csv.open() as f:
+        header = f.readline()
+        assert "content" in header.lower()

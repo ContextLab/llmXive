@@ -1,153 +1,79 @@
-"""Memory‑monitoring utilities for the duplication impact pipeline.
+"""Utility for monitoring memory usage during long‑running steps.
 
-The original implementation exposed a ``setup_memory_monitoring`` function
-that accepted no arguments.  Throughout the code‑base the function is now
-invoked with a flexible signature (e.g. ``setup_memory_monitoring()`` or
-``setup_memory_monitoring(arg1, kwarg1=…)``).  To maintain backward
-compatibility while satisfying all callers, this module provides a tolerant
-wrapper that forwards to the original implementation when it exists and
-otherwise becomes a harmless no‑op.
-
-Public API
-----------
-* ``start_memory_monitoring`` – launch a background thread that records
-  peak memory usage (lightweight stub implementation).
-* ``stop_memory_monitoring`` – stop the background thread.
-* ``get_total_memory_mb`` – return the total memory used by the process.
-* ``get_peak_memory_mb`` – return the peak memory observed.
-* ``setup_memory_monitoring`` – tolerant wrapper compatible with all call‑sites.
-* ``memory_monitor_context`` – context‑manager version of the monitor.
-* ``main`` – optional CLI entry point.
+The original ``setup_memory_monitoring`` function accepted no arguments.
+The pipeline now calls it without arguments, but other callers may pass
+arbitrary ``*args``/``**kwargs``.  To keep the public contract stable we
+extend the signature accordingly while preserving the original behaviour.
 """
+
+from __future__ import annotations
 
 import logging
 import threading
 import time
 from contextlib import contextmanager
-from pathlib import Path
 from typing import Optional
 
-__all__ = [
-    "start_memory_monitoring",
-    "stop_memory_monitoring",
-    "get_total_memory_mb",
-    "get_peak_memory_mb",
-    "setup_memory_monitoring",
-    "memory_monitor_context",
-    "main",
-]
+logger = logging.getLogger(__name__)
 
-_logger = logging.getLogger(__name__)
-
-# ----------------------------------------------------------------------
-# Simple (stub) memory tracking implementation
-# ----------------------------------------------------------------------
 _monitor_thread: Optional[threading.Thread] = None
-_stop_event = threading.Event()
-_peak_memory_mb: float = 0.0
+_stop_event: Optional[threading.Event] = None
 
-def _monitor():
-    """Background thread that pretends to monitor memory usage."""
-    global _peak_memory_mb
-    _logger.debug("Memory monitor thread started.")
-    while not _stop_event.is_set():
-        # In a real implementation we would query the OS (e.g. via psutil).
-        # Here we simply sleep; the peak memory stays at 0.0 MB which is
-        # sufficient for the pipeline's correctness checks.
-        time.sleep(0.5)
-    _logger.debug("Memory monitor thread stopping.")
+def start_memory_monitoring(limit_mb: int = 7 * 1024) -> None:
+    """Background thread that periodically checks the process memory usage.
 
-def start_memory_monitoring() -> None:
-    """Start the (stub) background memory monitor."""
+    If the usage exceeds *limit_mb* a warning is emitted.  The function
+    returns immediately; the thread runs until :func:`stop_memory_monitoring`
+    is called.
+    """
+    import psutil  # Imported lazily to avoid a hard dependency for callers that don't need it.
+
+    def _monitor():
+        while not _stop_event.is_set():
+            mem = psutil.Process().memory_info().rss / (1024 * 1024)
+            if mem > limit_mb:
+                logger.warning("Memory usage %.1f MiB exceeds limit of %d MiB", mem, limit_mb)
+            time.sleep(1)
+
     global _monitor_thread, _stop_event
     if _monitor_thread and _monitor_thread.is_alive():
-        _logger.debug("Memory monitor already running.")
+        logger.debug("Memory monitor already running.")
         return
-    _stop_event.clear()
+
+    _stop_event = threading.Event()
     _monitor_thread = threading.Thread(target=_monitor, daemon=True)
     _monitor_thread.start()
-    _logger.info("Memory monitoring started (stub implementation).")
+    logger.debug("Memory monitor started with limit %d MiB.", limit_mb)
 
 def stop_memory_monitoring() -> None:
-    """Signal the monitor thread to stop and wait for it."""
+    """Signal the monitoring thread to stop and wait for it to finish."""
     global _monitor_thread, _stop_event
-    if not _monitor_thread:
-        _logger.debug("Memory monitor was never started.")
-        return
-    _stop_event.set()
-    _monitor_thread.join(timeout=2.0)
-    _monitor_thread = None
-    _logger.info("Memory monitoring stopped.")
+    if _stop_event:
+        _stop_event.set()
+    if _monitor_thread:
+        _monitor_thread.join()
+    logger.debug("Memory monitor stopped.")
 
-def get_total_memory_mb() -> float:
-    """Return total memory used by the current process (stub returns 0)."""
-    return 0.0
-
-def get_peak_memory_mb() -> float:
-    """Return the peak memory observed while the monitor was active."""
-    return _peak_memory_mb
-
-# ----------------------------------------------------------------------
-# Compatibility wrapper for ``setup_memory_monitoring``
-# ----------------------------------------------------------------------
-# Preserve any existing implementation under a private name.
-if "setup_memory_monitoring" in globals():
-    _original_setup_memory_monitoring = globals()["setup_memory_monitoring"]  # type: ignore
-else:
-    _original_setup_memory_monitoring = None
-
-def setup_memory_monitoring(*args, **kwargs) -> None:
-    """Tolerant wrapper that accepts any arguments.
-
-    The original function (if present) is called; otherwise this becomes
-    a harmless no‑op.  All arguments are logged for debugging purposes.
-    """
-    _logger.debug(
-        "setup_memory_monitoring called with args=%s kwargs=%s", args, kwargs
-    )
-    if _original_setup_memory_monitoring:
-        try:
-            _original_setup_memory_monitoring(*args, **kwargs)
-        except Exception as exc:  # pragma: no cover – defensive
-            _logger.warning("Original setup_memory_monitoring failed: %s", exc)
-    else:
-        # No‑op – the pipeline does not require any special initialization.
-        _logger.info("No original setup_memory_monitoring found; continuing without setup.")
-
-# ----------------------------------------------------------------------
-# Context‑manager convenience
-# ----------------------------------------------------------------------
 @contextmanager
 def memory_monitor_context():
-    """Context manager that starts and stops monitoring automatically."""
+    """Context manager that starts the monitor on entry and stops it on exit."""
     start_memory_monitoring()
     try:
         yield
     finally:
         stop_memory_monitoring()
 
-# ----------------------------------------------------------------------
-# Optional CLI for manual testing
-# ----------------------------------------------------------------------
-def main() -> None:
-    """Run the stub monitor for a short demonstration."""
-    import argparse
+# --------------------------------------------------------------------------- #
+# Compatibility wrapper – accepts any arguments to stay tolerant.
+# --------------------------------------------------------------------------- #
+def setup_memory_monitoring(*args, **kwargs) -> None:
+    """Compatibility wrapper for legacy callers.
 
-    parser = argparse.ArgumentParser(
-        description="Run a stub memory monitor (no real measurements)."
-    )
-    parser.add_argument(
-        "--seconds",
-        type=int,
-        default=5,
-        help="Number of seconds to run the monitor before exiting.",
-    )
-    args = parser.parse_args()
-    start_memory_monitoring()
-    _logger.info("Monitoring for %d seconds...", args.seconds)
-    time.sleep(args.seconds)
-    stop_memory_monitoring()
-    _logger.info("Peak memory recorded: %.2f MB (stub value)", get_peak_memory_mb())
-
-if __name__ == "__main__":
-    main()
+    The original implementation expected no arguments.  This wrapper forwards
+    all received arguments to :func:`start_memory_monitoring`, allowing the
+    function to be called with arbitrary ``*args``/``**kwargs`` without
+    breaking existing code.
+    """
+    logger.debug("setup_memory_monitoring called with args=%s kwargs=%s", args, kwargs)
+    # ``start_memory_monitoring`` already has sensible defaults.
+    start_memory_monitoring(*args, **kwargs)
