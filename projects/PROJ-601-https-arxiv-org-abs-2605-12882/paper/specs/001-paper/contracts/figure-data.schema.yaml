@@ -1,0 +1,102 @@
+# Figure Data Schema Contracts
+
+This file defines the strict schema requirements for the data artifacts used to generate the paper's figures. The Figure-Generation-Agent must validate data against these schemas before rendering.
+
+## 1. Evaluation Report Schema
+**File**: `outputs/evaluation_report.json`
+**Purpose**: Source for Figure 2 (Error Distribution) and Results section metrics.
+
+```yaml
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - saa_score
+  - standard_accuracy
+  - attribution_hallucination_rate
+  - total_samples
+  - skipped_count
+  - error_breakdown
+  - memory_peak_gb
+properties:
+  saa_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Strict Attributed Accuracy score (0.0 to 1.0)"
+  standard_accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Accuracy based on answer correctness only"
+  attribution_hallucination_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Ratio of region_only_correct to total_correct_answers"
+  total_samples:
+    type: integer
+    minimum: 0
+  skipped_count:
+    type: integer
+    minimum: 0
+  error_breakdown:
+    type: object
+    required:
+      - both_correct
+      - answer_only_correct
+      - region_only_correct
+      - both_wrong
+    properties:
+      both_correct:
+        type: integer
+        minimum: 0
+      answer_only_correct:
+        type: integer
+        minimum: 0
+      region_only_correct:
+        type: integer
+        minimum: 0
+      both_wrong:
+        type: integer
+        minimum: 0
+  memory_peak_gb:
+    type: number
+    description: "Peak memory usage in GB during inference/evaluation"
+```
+
+## 2. Validation Log Schema
+**File**: `outputs/validation_log.json`
+**Purpose**: Source for Figure 3 (Dataset Integrity).
+
+```yaml
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - total_records_checked
+  - skipped_count
+  - skipped_records
+properties:
+  total_records_checked:
+    type: integer
+    minimum: 0
+  skipped_count:
+    type: integer
+    minimum: 0
+  skipped_records:
+    type: array
+    items:
+      type: object
+      required:
+        - record_id
+        - reason
+      properties:
+        record_id:
+          type: string
+        reason:
+          type: string
+          enum:
+            - missing_bbox
+            - missing_image
+            - ambiguous_bbox
+            - format_error
+```

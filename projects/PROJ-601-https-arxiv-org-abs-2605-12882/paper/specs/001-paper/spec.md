@@ -52,7 +52,7 @@ A future researcher extending this work MUST be able to locate the exact data su
 
 ---
 
-### Edge Cases
+## Edge Cases
 
 - **What happens if the ground-truth bounding boxes are ambiguous or missing in the dataset?** The system (and paper) MUST explicitly state that such records are excluded from the SAA calculation and logged in `outputs/validation_log.json` to prevent skewing the metric. The paper must report the `skipped_count` as a metric of data quality.
 - **What if the CPU inference produces non-deterministic results due to floating-point variations?** The paper MUST acknowledge this limitation and define the acceptable variance range for the SAA score, or mandate a fixed random seed in the reproduction script to ensure exact reproducibility.
@@ -68,27 +68,36 @@ The paper artifact must contain the following sections, mapped to the research i
 4. **Results**: Present the SAA score, the `attribution_hallucination_rate`, and the breakdown of error types derived from `outputs/evaluation_report.json`. Include the `skipped_count` from `outputs/validation_log.json`.
 5. **Discussion**: Analyze the implications of the high attribution hallucination rate for the "coherence vs. truth" debate. Discuss the feasibility of CPU-only MLLM benchmarking.
 6. **References**: Cite the original CiteVQA paper, the transformers library, and relevant literature on WYSIATI bias.
-7. **Reproducibility Appendix**: Provide the exact commands, environment variables, and a link to the `docs/reproducibility/pipeline_validation.md` for full pipeline replication.
+7. **Reproducibility Appendix**: Provide the exact commands, environment variables, and a link to the `docs/reproducibility/pipeline_validation.md` for full pipeline replication. **MUST explicitly list the random seed configuration and the exact `transformers`/`torch` versions used.**
 
 ## Required Figures
 
 1. **Figure 1: The SAA Calculation Workflow**: A flowchart illustrating the pipeline from `infer/run.py` (prediction) to `eval/run.py` (IoU calculation and error categorization), highlighting the branching logic for "Answer Correct/Region Wrong" vs. "Answer Wrong".
  * *Source*: Logic in `eval/saa_scoring.py` and `eval/metrics.py`.
+ * *Mandatory Requirement*: This figure MUST include a self-contained legend defining **'SAA'**, **'IoU'**, and **'Attribution Hallucination'** without requiring the reader to consult the Methods section.
+
 2. **Figure 2: Error Distribution Bar Chart**: A bar chart showing the counts of `both_correct`, `answer_only_correct`, `region_only_correct` (Attribution Hallucination), and `both_wrong` cases.
- * *Source*: Aggregated data from `outputs/evaluation_report.json`.
+ * *Source*: Aggregated data from `outputs/evaluation_report.json`. **The research implementation MUST generate these specific breakdowns (answer_only_correct, region_only_correct) to render this chart.**
+ * *Mandatory Requirement*: The figure caption MUST explicitly state the implication of the 'region_only_correct' bar for the paper's main claim (e.g., "This bar represents the rate of Attribution Hallucination, demonstrating that standard accuracy overestimates truthfulness by ignoring spatial context").
+
 3. **Figure 3: Dataset Integrity & Skipped Records**: A pie chart or table showing the distribution of skipped records by reason (e.g., missing bbox, missing image) and the total `skipped_count`.
- * *Source*: `outputs/validation_log.json`.
+ * *Source*: `outputs/validation_log.json`. **The research implementation MUST generate these specific breakdowns (skipped reasons) to render this chart.**
 
 ## Required Claims
 
-The paper will make the following inferential claims, which the Reference-Validator will verify against the artifacts:
+The paper will make the following inferential claims, which the Reference-Validator will verify against the artifacts. **Note: All claims must be supported by specific numerical results from `outputs/evaluation_report.json` or explicitly framed as hypotheses if results are not yet available.**
 
 1. **Claim 1**: "Standard accuracy metrics fail to penalize models that provide correct answers derived from incorrect regions (Attribution Hallucination), leading to an overestimation of model truthfulness."
- * *Verification*: Supported by the `attribution_hallucination_rate` in `outputs/evaluation_report.json` and the discussion in Figure 2.
+ * *Verification Requirement*: The claim text MUST include the specific delta found in results (e.g., "Standard Accuracy = X% vs. SAA = Y%").
+ * *Data Requirement*: The `outputs/evaluation_report.json` MUST contain a comparative result showing both 'Standard Accuracy' and 'SAA'. **The research plan MUST explicitly include the calculation of Standard Accuracy to support this claim.**
+
 2. **Claim 2**: "The CiteVQA benchmark can be successfully reproduced on free-tier CPU hardware (<7 GB RAM) using quantized models and streaming data loaders."
- * *Verification*: Supported by the successful execution of `infer/run.py` in the CI logs and the memory usage metrics in `docs/reproducibility/pipeline_validation.md`.
-3. **Claim 3**: "Roughly X% of 'correct' answers in the CiteVQA subset are actually attribution hallucinations, indicating a significant WYSIATI bias in current MLLMs."
- * *Verification*: The specific percentage must be derived from the ratio of `region_only_correct` (or `answer_only_correct` depending on definition) to total correct answers in `outputs/evaluation_report.json`.
+ * *Verification Requirement*: The claim is supported by the successful execution of `infer/run.py` in the CI logs and the memory usage metrics.
+ * *Data Requirement*: The `outputs/evaluation_report.json` (primary research result) MUST contain the actual peak memory usage value (e.g., '6.2 GB') to substantiate the '<7 GB' claim. Relying solely on a separate documentation file is insufficient.
+
+3. **Claim 3**: "Roughly [INSERT_SPECIFIC_VALUE]% of 'correct' answers in the CiteVQA subset are actually attribution hallucinations, indicating a significant WYSIATI bias in current MLLMs."
+ * *Verification Requirement*: The specific percentage must be derived from the ratio of `region_only_correct` (or `answer_only_correct` depending on definition) to total correct answers in `outputs/evaluation_report.json`.
+ * *Data Requirement*: The claim text MUST be replaced with the actual calculated value (e.g., '[deferred]') OR explicitly defined as a range and confidence interval (e.g., '32% to 36% (95% CI)'). If the research has not produced this number, the claim MUST be explicitly framed as a hypothesis (e.g., "We hypothesize that roughly X%...") rather than a definitive statement with a placeholder.
 
 ## Edge Cases (Paper Specific)
 
