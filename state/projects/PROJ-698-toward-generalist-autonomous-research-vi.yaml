@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-698-toward-generalist-autonomous-research-vi/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Toward Generalist Autonomous Research via Hypothesis-Tree Refinement
-updated_at: '2026-06-15T11:39:09.456719Z'
+updated_at: '2026-06-30T01:25:15.001347Z'
