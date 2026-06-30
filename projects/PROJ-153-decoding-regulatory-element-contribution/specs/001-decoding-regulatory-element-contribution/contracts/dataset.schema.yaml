@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "YeastChIPDataset"
+description: "Schema for input ChIP-seq and eQTL data for Yeast CRE analysis."
+type: object
+properties:
+  chip_runs:
+    type: array
+    items:
+      type: object
+      properties:
+        run_id:
+          type: string
+          description: "Unique identifier for the run (e.g., SRR123456)."
+        tf:
+          type: string
+          enum: ["Hsf1", "Msn2", "Msn4", "Hog1"]
+          description: "Transcription Factor name."
+        condition:
+          type: string
+          enum: ["heat_shock", "osmotic", "oxidative", "control"]
+          description: "Stress condition."
+        fastq_path:
+          type: string
+          description: "Path to the FASTQ file."
+        md5:
+          type: string
+          description: "MD5 checksum of the FASTQ file."
+      required:
+        - run_id
+        - tf
+        - condition
+        - fastq_path
+        - md5
+  eqtl_data:
+    type: object
+    properties:
+      gene_id:
+        type: string
+        description: "Yeast ORF identifier."
+      log2fc_heat:
+        type: number
+        description: "Log2 fold change under heat shock."
+      log2fc_osmotic:
+        type: number
+        description: "Log2 fold change under osmotic stress."
+      log2fc_oxidative:
+        type: number
+        description: "Log2 fold change under oxidative stress."
+      promoter_binding_score:
+        type: number
+        description: "Baseline promoter binding score."
+    required:
+      - gene_id
+      - log2fc_heat
+      - log2fc_osmotic
+      - log2fc_oxidative
+      - promoter_binding_score
+required:
+  - chip_runs
+  - eqtl_data
