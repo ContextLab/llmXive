@@ -51,12 +51,19 @@ DEFAULTS: dict[str, float | int] = {
     # implement-stage project IS picked, drain up to IMPLEMENT_TASK_BATCH tasks in
     # that tick, bounded by IMPLEMENT_BATCH_BUDGET_SECONDS wall-clock so the cron
     # job timeout is never threatened. Applies to every project, both tracks.
-    "IMPLEMENT_TASK_BATCH": 12,
-    # Wall-clock cap per implement tick. Kept well under the implement cron's
-    # 50-min job timeout (which commits only at job end — a timeout-kill would
-    # drop the tick's uncommitted task checkoffs), with headroom for the rare
-    # multi-in_progress-pick run. The count cap above is the primary lever; this
-    # only binds for pathologically slow tasks.
+    "IMPLEMENT_TASK_BATCH": 30,
+    # Wall-clock cap per implement tick — the SAFETY lever, NOT the throughput
+    # one. The implement batch runs in the advancement lanes (advance.yml /
+    # reprocess.yml, 150-min job timeout; and llmxive-pipeline.yml, 330-min) —
+    # NOT in maintenance.yml (50 min, which only seeds brainstorms + runs intake,
+    # never `llmxive run`). With advance.yml's `--max-tasks 10`, ten back-to-back
+    # 600 s batches = 100 min, comfortably inside the 150-min timeout (a
+    # timeout-kill commits nothing, dropping the tick's task checkoffs). The COUNT
+    # cap above is the primary lever and is intentionally LARGER than the count a
+    # 600 s budget fits at the average task rate, so fast scaffolding/setup tasks
+    # (dir/__init__/config creation — seconds each) drain many-per-batch and a
+    # project reaches its execution gate in fewer ticks, while this wall-clock cap
+    # still bounds the slow-task case (so raising the count adds ZERO timeout risk).
     "IMPLEMENT_BATCH_BUDGET_SECONDS": 600,
 }
 
