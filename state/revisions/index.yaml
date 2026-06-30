@@ -285,3 +285,6 @@ ready:
 - project_id: PROJ-738-efficientrollout-system-aware-self-specu
   revision_spec_path: specs/auto-revisions/PROJ-738-efficientrollout-system-aware-self-specu/round-1
   queued_at: '2026-06-30T10:48:26.910467+00:00'
+- project_id: PROJ-750-dragmesh-2-physically-plausible-dexterou
+  revision_spec_path: specs/auto-revisions/PROJ-750-dragmesh-2-physically-plausible-dexterou/round-1
+  queued_at: '2026-06-30T13:52:45.279849+00:00'
