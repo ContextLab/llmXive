@@ -505,3 +505,24 @@ def test_parse_response_accepts_json_review_object():
     assert _try_json_review_object('```json\n{"responses": [{"concern_id": "x", "response": "ok"}]}\n```') is None
     # a stray JSON snippet inside prose (no verdict key) is ignored
     assert _try_json_review_object("see {\"foo\": 1} in the data") is None
+
+
+def test_feedback_with_colon_recovers():
+    """A specialist reviewer's `feedback:` (or summary/rationale/notes) routinely
+    contains a colon ('Critical gap: no report'), which makes the raw frontmatter
+    invalid YAML. `feedback` (and siblings) must be in _FREE_TEXT_KEYS so the
+    recovery cascade salvages the verdict instead of rejecting the whole review
+    (which left review coverage permanently incomplete and blocked advancement)."""
+    from llmxive.convergence.llm_reviewer import _safe_yaml_load
+
+    for key in ("feedback", "summary", "rationale", "notes", "justification"):
+        fm = (
+            "verdict: minor_revision\n"
+            "score: 0.4\n"
+            f"{key}: Critical documentation gap: no reproducibility report exists\n"
+            "action_items: []\n"
+        )
+        out = _safe_yaml_load(fm)
+        assert isinstance(out, dict), f"{key} should recover to a mapping"
+        assert out["verdict"] == "minor_revision"
+        assert "Critical documentation gap" in out[key]

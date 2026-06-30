@@ -196,7 +196,18 @@ _CODE_FENCE_RE = re.compile(
 _PROBLEMATIC_CHARS_RE = re.compile(r"['\"]")
 
 
-_FREE_TEXT_KEYS = ("text", "location", "response", "what_changed")
+_FREE_TEXT_KEYS = (
+    "text", "location", "response", "what_changed",
+    # Specialist-reviewer frontmatter free-text fields. These hold prose that
+    # routinely contains a colon ("Critical gap: no report exists"), which makes
+    # the raw YAML invalid ("mapping values are not allowed here"). Without these
+    # in the free-text set the recovery cascade skipped them and the whole review
+    # was rejected -> the specialist produced NO verdict -> review coverage stayed
+    # incomplete (7/7 never reached) -> the project could never advance. Treat them
+    # as free text so the recovery quotes / block-scalars them.
+    "feedback", "summary", "rationale", "justification", "comment", "comments",
+    "notes", "explanation",
+)
 # Matches a YAML key line OR a list-item-key line:
 #   "    text: value"
 #   "    - text: value"
