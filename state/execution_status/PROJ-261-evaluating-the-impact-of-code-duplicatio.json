@@ -1,22 +1,12 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "5 command(s) failed: python code/main.py (rc=1); python code/data_loader.py # Stage 1: Download data (rc=2); python code/ast_cloner.py # Stage 2: Clone detection (rc=2); 1 declared deliverable(s) absent: data/raw/github-code-sample.csv",
-  "artifacts": [
-    "data/analysis/artifact_checksums.json",
-    "data/analysis/bug_detection_results.csv",
-    "data/analysis/bug_detection_summary.json",
-    "data/analysis/correlation_results.csv",
-    "data/analysis/pii_findings.csv"
-  ],
+  "reason": "1 command(s) failed: python code/main.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv",
+  "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    HF_TOKEN to enable higher rate limits and faster downloads.\n2026-06-29 15:08:59,027 - data_loader - ERROR - Download failed: Dataset scripts are no longer supported, but found github-code.py\n\n2026-06-29 15:08:59,171 - __main__ - ERROR - Pipeline failed with exception: data_loader.py failed with return code 1\n2026-06-29 15:08:59,171 - memory_monitor - INFO - Memory monitoring stopped. Peak: 0.00 MB",
-    "python code/data_loader.py # Stage 1: Download data -> rc=2\n    usage: data_loader.py [-h] [--output OUTPUT] [--max-samples MAX_SAMPLES]\n                      [--dataset DATASET] [--config CONFIG] [--streaming]\n                      [--log-file LOG_FILE]\ndata_loader.py: error: unrecognized arguments: # Stage 1: Download data",
-    "python code/ast_cloner.py # Stage 2: Clone detection -> rc=2\n    usage: ast_cloner.py [-h] --input INPUT --output OUTPUT [--log-file LOG_FILE]\nast_cloner.py: error: the following arguments are required: --input, --output",
-    "python code/model_metrics.py # Stage 3: Perplexity computation -> rc=2\n    usage: model_metrics.py [-h] --input INPUT --output OUTPUT [--model MODEL]\n                        [--max-length MAX_LENGTH] [--device DEVICE]\nmodel_metrics.py: error: the following arguments are required: --input, --output",
-    "python code/quickstart_validation.py -> rc=1\n    Usage: python quickstart_validation.py <command>\nCommands: validate_directory_structure, validate_config_documentation,\n          validate_checksum_manifest, validate_quickstart_documentation,\n          validate_output_files, validate_quickstart_steps, main"
+    "python code/main.py -> rc=1\n    runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/main.py\", line 131, in main\n    run_pipeline(\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/main.py\", line 82, in run_pipeline\n    compute_clone_density_batch(\nTypeError: compute_clone_density_batch() got an unexpected keyword argument 'input_path'"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 4,
   "model_tier": 1,
-  "updated_at": "2026-06-29T15:09:18Z"
+  "updated_at": "2026-06-30T02:19:31Z"
 }

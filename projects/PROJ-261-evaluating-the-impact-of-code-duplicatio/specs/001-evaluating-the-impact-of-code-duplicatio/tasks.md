@@ -68,13 +68,13 @@
 - [X] T018 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/data_loader.py` to stream `codeparrot/github-code` (500 MB subset) using HuggingFace datasets library with streaming mode enabled, outputting to `data/raw/github-code-sample.csv` (verify streaming=True in implementation)
 - [X] T017 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/pii_scanner.py` to scan all files under `data/` including `raw/`, `processed/`, and `analysis/` subdirectories for PII patterns per Constitution Principle III (must run after T018 completes)
 - [X] T019 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/ast_cloner.py` to parse Python files via the built‑in `ast` module and compute clone density (stdlib only - verify no external dependencies in implementation)
-- [ ] T020 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/model_metrics.py` to load `Salesforce/codegen-350M-mono` in 8‑bit quantization using bitsandbytes and compute perplexity
-- [ ] T021 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/main.py` pipeline orchestration to join clone‑density and perplexity metrics, saving to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/processed/clone_metrics.csv` and `.../perplexity_scores.csv`
+- [X] T020 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/model_metrics.py` to load `Salesforce/codegen-350M-mono` in 8‑bit quantization using bitsandbytes and compute perplexity
+- [X] T021 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/main.py` pipeline orchestration to join clone‑density and perplexity metrics, saving to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/processed/clone_metrics.csv` and `.../perplexity_scores.csv`
 - [X] T022 [US1] Add error handling for parse failures (log to `data/parse_failures.csv`), NaN/infinite perplexity values, network interruptions, and syntax errors (implementation layer - distinct from test tasks T012, T013, T015a, T016a-c)
 - [X] T023 [US1] Add explicit memory‑monitoring to validate 7 GB limit throughout model inference (SC‑002)
 - [X] T024 [US1] Add validation task to verify **SC‑001** (24‑hour completion) AND **500MB corpus requirement** on the full dataset (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`) using pytest
 - [X] T025 [US1] Add checksum computation for all output files AND intermediate files/logs, record in `artifact_hashes` state manifest
-- [X] T026 [US1] Add validation task to verify **SC‑003** (at least 1000 code segments processed with valid clone density and perplexity measurements) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
+- [X] T026 [US1] Add validation task to verify **SC‑003** ({{claim:c_df8f9f4b}} (2409.08555, https://arxiv.org/abs/2409.08555)) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently
 

@@ -1,5 +1,9 @@
 [
   {
+    "symbol": "compute_clone_density_batch",
+    "owner": null
+  },
+  {
     "symbol": "setup_memory_monitoring",
     "owner": null
   }

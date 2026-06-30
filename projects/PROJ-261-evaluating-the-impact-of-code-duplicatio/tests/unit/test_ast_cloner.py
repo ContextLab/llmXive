@@ -33,7 +33,9 @@ def syntax_error_file(tmp_path: pathlib.Path) -> pathlib.Path:
     syntax error that the ``ast`` module cannot parse.
     """
     file_path = tmp_path / "bad_syntax.py"
-    file_path.write_text("if True:\n    print('missing indentation')\n  bad_indent")
+    file_path.write_text(
+        "if True:\\n    print('missing indentation')\\n  bad_indent"
+    )
     return file_path
 
 

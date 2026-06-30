@@ -80,7 +80,7 @@ def test_cli_parses_unknown_arguments(monkeypatch, tmp_path):
         lambda *args, **kwargs: None,
     )
 
-    # Simulate a command line that includes a stray comment token.
+    # Simulate command line that includes a stray comment token.
     argv = ["--output", str(output_path), "#", "Stage", "1", "Download", "data"]
     # The function should not raise.
     data_loader.main(argv)

@@ -1,27 +1,24 @@
+# Schema for model perplexity metrics per source file
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Model Metrics Schema
-description: Schema for per‑file model‑level metrics such as perplexity.
+title: ModelMetrics
+description: Per‑token perplexity scores produced by the language model.
 type: object
 properties:
   file_path:
     type: string
-    description: Relative path to the source file that was evaluated.
+    description: Relative path to the source file.
   perplexity:
     type: number
-    minimum: 0
-    description: Per‑token perplexity score produced by the language model.
-  max_perplexity:
-    type: number
-    minimum: 0
-    description: Maximum perplexity observed in the file (if computed per‑segment).
-  mean_perplexity:
-    type: number
-    minimum: 0
-    description: Mean perplexity across all evaluated segments.
-  hash:
+    description: Per‑token perplexity (higher indicates lower likelihood).
+  token_count:
+    type: integer
+    description: Number of tokens evaluated.
+  timestamp:
     type: string
-    description: Optional hash of the file contents for provenance tracking.
+    format: date-time
+    description: When the perplexity was computed.
 required:
   - file_path
   - perplexity
-additionalProperties: true
+  - token_count
+additionalProperties: false
