@@ -55,7 +55,7 @@ specs/PROJ-300-01-solar-wind-reconnection/
 projects/PROJ-300-exploring-the-relationship-between-solar/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py                # Paths, constants (60 Re, lag window -90 min)
+│   ├── config.py                # Paths, constants (60 Re, lag window min)
 │   ├── data/
 │   │   ├── ingest.py            # OMNIWeb & CDAWeb fetchers
 │   │   ├── clean.py             # NaN removal, resampling
