@@ -1,0 +1,16 @@
+{
+  "experiment": "MulTaBench_CPU_Adaptation",
+  "task": "classification",
+  "samples": 2000,
+  "frozen_model": "RandomForest",
+  "tuned_model": "LogisticRegression (Simulated Tuning)",
+  "frozen_metrics": {
+    "accuracy": 1.0,
+    "f1_macro": 1.0
+  },
+  "tuned_metrics": {
+    "accuracy": 1.0,
+    "f1_macro": 1.0
+  },
+  "runtime_seconds": 1.700944185256958
+}

@@ -94,14 +94,14 @@ external/MulTaBench/
 2. Install dependencies in a virtual environment.
 3. Run `init.sh` or equivalent to verify the dataset registry.
 4. **Critical Step**: Explicitly list available datasets via `multabench.datasets.all_datasets`.
-5. **Abort Condition**: If the required dataset IDs (`BIN_TEXT_FAKE_JOB_POSTING`, `MUL_IMAGE_CIFAR10`) are not found in the registry, log a fatal error and abort the run. Do not proceed.
+5. **Abort Condition**: If the required dataset IDs (`BIN_TEXT_FAKE_JOB_POSTING`, `MUL_IMAGE_CBIS_DDSM`) are not found in the registry, log a fatal error and abort the run. Do not proceed.
 
 ### Phase 1: Configuration & Memory Profiling
 1. Create a configuration file (`config_subset.yaml`) specifying:
    - Datasets: `BIN_TEXT_FAKE_JOB_POSTING`, `MUL_IMAGE_CIFAR10`.
    - Models: `lgbm`, `tabpfnv2`.
    - Device: `cpu`.
-   - Batch size: `` (initial).
+    - Batch size: 1 (initial).
    - Fallback: `lightgbm` (if `tabpfnv2` fails).
 2. **Memory Profiling**: Run a dry-run with `batch_size=1` for TabPFNv2.
    - Measure peak RSS memory.
@@ -110,9 +110,12 @@ external/MulTaBench/
 
 ### Phase 2: Execution
 1. Run `benchmark.py --config config_subset.yaml`.
-2. Monitor for CUDA errors; if detected, force `device='cpu'`.
-3. Monitor for memory errors; if detected, trigger fallback to LightGBM.
-4. **Verification Step**: Before training, assert `requires_grad` status on backbone weights for the "tuned" configuration to ensure the mechanism is active.
+2. **Flag Verification**: Verify that the `benchmark.py` entry point supports a `--freeze-embeddings` (or equivalent) flag.
+   - If the flag exists: Ensure it is passed appropriately for the "frozen" configuration runs.
+   - If the flag does **not** exist in the vendored code: Implement a minimal wrapper or configuration override to force the "frozen" state (e.g., setting `requires_grad=False` on backbone weights) before the training loop begins.
+3. Monitor for CUDA errors; if detected, force `device='cpu'`.
+4. Monitor for memory errors; if detected, trigger fallback to LightGBM.
+5. **Verification Step**: Before training, assert `requires_grad` status on backbone weights for the "tuned" configuration to ensure the mechanism is active.
 
 ### Phase 3: Validation
 1. Check for output files: `results_subset.csv`.

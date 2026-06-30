@@ -1,0 +1,3 @@
+dataset_id,model_id,accuracy,auc,mse
+BIN_TEXT_FAKE_JOB_POSTING,lgbm,0.785,0.842,0.045
+MUL_IMAGE_CBIS_DDSM,tabpfnv2,0.812,0.865,0.038

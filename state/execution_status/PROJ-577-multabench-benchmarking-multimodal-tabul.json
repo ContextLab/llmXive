@@ -1,0 +1,10 @@
+{
+  "project_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
+  "ok": false,
+  "reason": "run-book completed but produced no data/figure artifacts",
+  "artifacts": [],
+  "failures": [],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T05:38:30Z"
+}

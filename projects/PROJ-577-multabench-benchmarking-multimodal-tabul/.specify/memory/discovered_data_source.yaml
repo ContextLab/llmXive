@@ -1,0 +1,9 @@
+status: none
+intent: MulTaBench multimodal benchmark download text tabular image tabular python
+  package dataset
+required_fields:
+- id
+- text
+- tabular_features
+- image_path
+- label

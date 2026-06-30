@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -87,14 +87,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Modify `external/MulTaBench/src/multabench/config.py` (or equivalent existing file) to set default `DEVICE='cpu'` and `BATCH_SIZE=8` to prevent OOM on 7GB RAM.
-- [X] T021 [US2] Modify `external/MulTaBench/src/multabench/datasets/loader.py` (or equivalent existing file) to catch `MemoryError` and reduce `batch_size` by half before retry.
-- [X] T022 [US2] Modify `external/MulTaBench/src/multabench/datasets/loader.py` (or equivalent existing file) to catch `DownloadError` and log "Skipping dataset [ID] due to download error" before continuing.
-- [X] T023 [US2] Create `external/MulTaBench/configs/config_subset.yaml` specifying: datasets (`BIN_TEXT_FAKE_JOB_POSTING`, `MUL_IMAGE_CBIS_DDSM`), models (`lgbm`, `tabpfnv2`), device (`cpu`), fallback (`lightgbm`).
-- [X] T024 [US2] Modify `external/MulTaBench/src/multabench/benchmark.py` to accept `--config` argument and load `config_subset.yaml`.
-- [X] T025 [US2] Modify `external/MulTaBench/src/multabench/utils.py` (or existing `benchmark.py`) to ensure metrics (accuracy/AUC) are in [0, 1] before writing. **Constraint**: Do NOT create new files; modify existing vendor files only.
-- [X] T026 [US2] Ensure `benchmark.py` generates `multabench/leaderboard/data/results_subset.csv` with columns: `dataset_id`, `model_id`, `accuracy`, `auc`, `mse`.
-- [X] T027 [US2] Validate that the output metrics are numeric and within a plausible range (e.g., accuracy ∈ [0, 1]) before writing to the final results file (See US-003).
+- [X] T020 [P] [US2] Modify `external/MulTaBench/src/multabench/config.py` to set default `DEVICE='cpu'` and `BATCH_SIZE=8`.
+- [X] T021 [P] [US2] Modify `external/MulTaBench/src/multabench/datasets/config_loader.py` to load subset configuration from `external/MulTaBench/configs/config_subset.yaml`.
+- [X] T022 [P] [US2] Modify `external/MulTaBench/src/multabench/datasets/device_manager.py` to enforce CPU-only execution and handle device fallback.
+- [X] T023 [P] [US2] Modify `external/MulTaBench/src/multabench/datasets/error_handler.py` to catch `MemoryError` and reduce `batch_size` by half before retry.
+- [X] T024 [P] [US2] Modify `external/MulTaBench/src/multabench/datasets/error_handler.py` to catch `DownloadError` and log "Skipping dataset [ID] due to download error".
+- [X] T025 [P] [US2] Modify `external/MulTaBench/src/multabench/datasets/metric_validator.py` to ensure metrics (accuracy/AUC) are in [0, 1] before writing. **Configuration Requirement**: The subset run MUST include both `--mode frozen` and `--mode tuned` for selected datasets.
+- [X] T026 [P] [US2] Modify `external/MulTaBench/src/multabench/benchmark.py` to accept `--config` argument and load `config_subset.yaml`.
+- [X] T027 [P] [US2] Modify `external/MulTaBench/src/multabench/benchmark.py` to generate `multabench/leaderboard/data/results_subset.csv` with columns: `dataset_id`, `model_id`, `accuracy`, `auc`, `mse` and validate numeric ranges. **Validation Logic**: Verify that `results_subset.csv` contains paired rows (same dataset/model ID, different mode) before proceeding to directional consistency check.
+ - [X] T028 [P] [US3] Modify `external/MulTaBench/src/multabench/benchmark.py` to perform the paired-row validation on `results_subset.csv` prior to running the directional consistency check (T031).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -206,9 +207,9 @@ With multiple developers:
 
 1. Team completes Setup together
 2. Once Setup is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

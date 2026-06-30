@@ -1,0 +1,35 @@
+# Results Schema for MultiBench Benchmarking
+# Defines the expected structure, types, and constraints for benchmark output.
+# Satisfies Constitution Principle IV: Data Integrity and Reproducibility.
+
+columns:
+  - name: dataset_id
+    type: string
+    description: Unique identifier for the dataset used.
+    constraints:
+      pattern: "^[a-z0-9_-]+$"
+
+  - name: model_id
+    type: string
+    description: Unique identifier for the model configuration.
+    constraints:
+      pattern: "^[a-z0-9_-]+$"
+
+  - name: accuracy
+    type: number
+    description: Classification accuracy score.
+    constraints:
+      range: [0.0, 1.0]
+
+  - name: auc
+    type: number
+    description: Area Under the Receiver Operating Characteristic Curve.
+    constraints:
+      range: [0.0, 1.0]
+
+  - name: mse
+    type: number
+    description: Mean Squared Error for regression tasks.
+    constraints:
+      range: [0.0, null]
+      minimum: 0.0

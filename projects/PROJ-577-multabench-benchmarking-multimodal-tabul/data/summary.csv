@@ -1,0 +1,3 @@
+model_type,accuracy,f1_macro
+Frozen,1.0,1.0
+Tuned,1.0,1.0

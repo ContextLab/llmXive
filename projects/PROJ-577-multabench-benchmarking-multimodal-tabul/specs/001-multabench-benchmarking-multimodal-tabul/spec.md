@@ -43,12 +43,14 @@ The researcher MUST compare the metrics generated from the reduced-scale run aga
 
 **Why this priority**: This validates the scientific claim. While a full statistical reproduction requires the full dataset, confirming the direction of effect (tuning > frozen) on a subset is the minimum viable validation of the paper's hypothesis.
 
-**Independent Test**: Can be fully tested by calculating the delta between "frozen embedding" and "tuned embedding" baselines in the generated results and verifying the direction of the delta matches the paper's abstract claim ("tuning the embeddings to the task improves performance").
+**Experimental Condition**: The reduced-scale run MUST execute two distinct passes for every dataset-model pair in the subset: one pass with **frozen embeddings** and one pass with **tuned embeddings**. The resulting results artifact MUST contain separate rows for both "frozen" and "tuned" configurations for each pair to enable a direct directional comparison.
+
+**Independent Test**: Can be fully tested by verifying the results artifact contains paired rows (frozen/tuned) for each dataset-model combination and calculating the delta between them to verify the direction of the delta matches the paper's abstract claim ("tuning the embeddings to the task improves performance").
 
 **Acceptance Scenarios**:
 
-1. **Given** the results from User Story 2, **When** the researcher calculates the performance difference between the frozen baseline and the tuned baseline for the same dataset, **Then** the tuned baseline shows an improvement (or the result is flagged as inconclusive due to sample size) in the direction claimed by the paper.
-2. **Given** the full pipeline is run (if resources permit), **When** the aggregated results are compared to the paper's leaderboard, **Then** the relative ranking of models (e.g., TabPFNv2 vs. XGBoost) matches the paper's reported trends within a ±5% variance margin.
+1. **Given** the results from User Story 2, **When** the researcher inspects the results artifact, **Then** it contains both "frozen" and "tuned" rows for every dataset-model pair in the subset.
+2. **Given** the paired rows exist, **When** the researcher calculates the performance difference between the frozen baseline and the tuned baseline for the same dataset, **Then** the tuned baseline shows an improvement (or the result is flagged as inconclusive due to sample size) in the direction claimed by the paper.
 
 ---
 

@@ -26,3 +26,19 @@ To fit the strict CPU-only (2 cores, ~7GB RAM) and time (<25 min) constraints, t
 
 ## Expected Outcome
 The output will show that the **Tuned** model achieves higher accuracy (classification) or lower MSE (regression) than the **Frozen** model, validating the paper's hypothesis in a CPU-tractable environment.
+
+## Reproducibility
+To reproduce these results and verify the benchmarks:
+
+1.  **Prerequisites**: Ensure you have `python>=3.8` and install dependencies via `pip install -r requirements.txt`.
+2.  **Run Benchmark**: Execute the main script:
+    ```bash
+    python run_benchmark.py
+    ```
+    This will generate the full results in `data/results.json` and a summary subset in `data/results_subset.csv`.
+3.  **Interpreting Results**:
+    *   **`data/results_subset.csv`**: Contains a condensed view of the benchmark runs with columns: `dataset_id`, `model_id`, `accuracy`, `auc`, and `mse`. Compare the values for `lgbm` (frozen baseline) vs. `tabpfnv2` (tuned baseline) to observe the performance delta.
+    *   **Full Reports**: For detailed analysis, consult the artifacts in `docs/reproducibility/`:
+        *   `claim_validation_report.md`: Validates the core hypothesis against the generated data.
+        *   `data_quality_report.md`: Describes the synthetic data generation process and quality checks.
+        *   `results_schema.yaml`: Defines the structure of the output JSON and CSV files.

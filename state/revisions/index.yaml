@@ -273,3 +273,6 @@ ready:
 - project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
   revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-2
   queued_at: '2026-06-30T05:08:11.359559+00:00'
+- project_id: PROJ-577-multabench-benchmarking-multimodal-tabul
+  revision_spec_path: specs/auto-revisions/PROJ-577-multabench-benchmarking-multimodal-tabul/round-3
+  queued_at: '2026-06-30T05:34:50.003511+00:00'
