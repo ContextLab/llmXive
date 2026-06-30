@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2105.01758",
+  "judged_at": "2026-06-30T07:21:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical properties of integer partitions into distinct prime summands mathematics",
+  "rationale": "The paper focuses on the general combinatorial properties of \"distinct partitions\" and a specific metric called \"$k$-measure,\" but it does not address the specific constraint of summands being \"prime numbers\" or the statistical properties arising from that restriction. Since the paper lacks the critical variable (primality) central to the user's question, it falls under the rejection rule for distinct constructs sharing only homonym keywords (i.e., \"distinct partitions\" in general vs. \"distinct ",
+  "relevant": false
+}

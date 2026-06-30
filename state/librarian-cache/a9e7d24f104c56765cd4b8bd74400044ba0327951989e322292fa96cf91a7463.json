@@ -1,0 +1,529 @@
+{
+  "fetched_at": "2026-06-30T07:21:06Z",
+  "field": "mathematics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "mathematics",
+      "idea_body_excerpt": "Statistical Properties of Integer Partitions Into Distinct Prime Summands",
+      "target_n": 5
+    },
+    "duration_seconds": 109.671,
+    "ended_at": "2026-06-30T07:21:06Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Additive partitions into distinct primes"
+        ],
+        [
+          2,
+          "Prime partitions with distinct parts"
+        ],
+        [
+          3,
+          "Asymptotic behavior of prime partitions"
+        ],
+        [
+          4,
+          "Distribution of prime partition functions"
+        ],
+        [
+          5,
+          "Partitions of integers into prime numbers"
+        ],
+        [
+          6,
+          "Restricted prime partitions"
+        ],
+        [
+          7,
+          "Prime summands in integer partitions"
+        ],
+        [
+          8,
+          "Statistical analysis of prime partitions"
+        ],
+        [
+          9,
+          "Additive number theory prime partitions"
+        ],
+        [
+          10,
+          "Counting partitions into distinct primes"
+        ],
+        [
+          11,
+          "Partition function for distinct prime parts"
+        ],
+        [
+          12,
+          "Prime composition of integers"
+        ],
+        [
+          13,
+          "Hardy-Ramanujan asymptotics for prime partitions"
+        ],
+        [
+          14,
+          "Additive combinatorics of prime sets"
+        ],
+        [
+          15,
+          "Variance and mean of prime partition counts"
+        ],
+        [
+          16,
+          "Distinct prime sum representations"
+        ],
+        [
+          17,
+          "Probabilistic properties of prime partitions"
+        ],
+        [
+          18,
+          "Goldbach-type problems in partitions"
+        ],
+        [
+          19,
+          "Prime partition generating functions"
+        ],
+        [
+          20,
+          "Arithmetic statistics of prime partitions"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Additive partitions into distinct primes": 1,
+        "Statistical Properties of Integer Partitions Into Distinct Prime Summands mathematics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "prime partition distinct summands",
+      "Erdos Lehner prime partition asymptotics",
+      "Goldbach conjecture additive number theory",
+      "partition function omega distinct primes",
+      "multiplicative partition generating function"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1904.02776"
+      ]
+    },
+    "per_query_hit_count": {
+      "Erdos Lehner prime partition asymptotics": 2,
+      "Goldbach conjecture additive number theory": 3,
+      "Statistical Properties of Integer Partitions Into Distinct Prime Summands mathematics": 3,
+      "multiplicative partition generating function": 2,
+      "partition function omega distinct primes": 3,
+      "prime partition distinct summands": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "0812.4610",
+          "rationale": "The paper focuses on the Goldbach Conjecture and representing even integers as the sum of exactly two distinct primes, which is a specific additive number theory problem distinct from the statistical properties of partitions into an arbitrary number of distinct prime summands. It does not measure the same mechanism, establish a baseline for partition statistics, or provide the foundational methodology for the user's specific inquiry into partition distributions.",
+          "title": "Goldbach Conjecture and the least prime number in an arithmetic progression"
+        },
+        {
+          "primary_pointer": "2105.01758",
+          "rationale": "The paper focuses on the general combinatorial properties of \"distinct partitions\" and a specific metric called \"$k$-measure,\" but it does not address the specific constraint of summands being \"prime numbers\" or the statistical properties arising from that restriction. Since the paper lacks the critical variable (primality) central to the user's question, it falls under the rejection rule for distinct constructs sharing only homonym keywords (i.e., \"distinct partitions\" in general vs. \"distinct ",
+          "title": "On the $k$-measure of partitions and distinct partitions"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-30T07:19:16Z",
+    "term_input": {
+      "normalized": "statistical properties of integer partitions into distinct prime summands mathematics",
+      "raw": "Statistical Properties of Integer Partitions Into Distinct Prime Summands mathematics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There is a familiar conjugate for integer partitions: transpose the Ferrers diagram, and a conjugate for integer compositions: transpose a Ferrers-like diagram. Here we propose a conjugate for set partitions and show that it interchanges # singletons and # adjacencies. Its restriction to noncrossing partitions cropped up in a 1972 paper of Kreweras. We also exhibit an analogous pairs of statistics interchanged by the composition conjugate.",
+          "claimed_authors": [
+            "David Callan"
+          ],
+          "claimed_title": "On conjugates for set partitions and integer compositions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0508052"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='On conjugates for set partitions and integer compositions')",
+        "failed_at": "2026-06-30T07:20:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $ x\\geq 1 $ be a large number, let $ [x]=x-\\{x\\} $ be the largest integer function, and let $ \\varphi(n)$ be the Euler totient function. The asymptotic formula for the new finite sum over the primes $ \\sum_{p\\leq x}\\varphi([x/p])=(6/π^2)x\\log \\log x+c_0x+O\\left (x(\\log x)^{-1}\\right) $, where $c_0$ is a constant, is evaluated in this note.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "Euler Totient Function And The Largest Integer Function Over The Shifted Primes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.00790"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Euler Totient Function And The Largest Integer Function Over The Shifted Primes')",
+        "failed_at": "2026-06-30T07:20:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Andrews, Lewis and Lovejoy introduced the partition function $PD(n)$ as the number of partitions of $n$ with designated summands. In a recent work, Lin studied a partition function $PD_{t}(n)$ which counts the number of tagged parts over all the partitions of $n$ with designated summands. He proved that $PD_{t}(3n+2)$ is divisible by $3$. In this paper, we first introduce a structure named partitions with overline designated summands, which is counted by $PD_t(n)$. We then define a generalized rank of partitions with overline designated summands and give a combinatorial interpretation of the congruence for $PD_t(3n+2)$.",
+          "claimed_authors": [
+            "Robert. X. J. Hao",
+            "Erin Y. Y. Shen",
+            "Wenston J. T. Zang"
+          ],
+          "claimed_title": "A rank of partitions with overline designated summands",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.03122"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='A rank of partitions with overline designated summands')",
+        "failed_at": "2026-06-30T07:20:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove unconditionally that for each $\\ell \\geq 1$, the difference $φ(p-\\ell) - φ(p+\\ell)$ is positive for $50\\%$ of odd primes $p$ and negative for $50\\%$.",
+          "claimed_authors": [
+            "Stephan Ramon Garcia",
+            "Florian Luca"
+          ],
+          "claimed_title": "On the difference in values of the Euler totient function near prime arguments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.00392"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='On the difference in values of the Euler totient function near prime arguments')",
+        "failed_at": "2026-06-30T07:20:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "P.L. Erdos and L.A. Szekely [Adv. Appl. Math. 10(1989), 488-496] gave a bijection between rooted semilabeled trees and set partitions. L.H. Harper's results [Ann. Math. Stat. 38(1967), 410-414] on the asymptotic normality of the Stirling numbers of the second kind translates into asymptotic normality of rooted semilabeled trees with given number of vertices, when the number of internal vertices varies. The Erdos-Szekely bijection specializes to a bijection between phylogenetic trees and set partitions with classes of size \\geq 2. We consider modified Stirling numbers of the second kind that enumerate partitions of a fixed set into a given number of classes of size \\geq 2, and obtain their asymptotic normality as the number of classes varies. The Erdos- Szekely bijection translates this result into the asymptotic normality of the number of phylogenetic trees with given number of vertices, when the number of leaves varies. We also obtain asymptotic normality of the number of phylogenetic trees with given number of leaves and varying number of internal vertices, which make more sense to students of phylogeny. By the Erdos-Szekely bijection this means the asymptotic normality of the number of partitions of n + m elements into m classes of size \\geq 2, when n is fixed and m varies. The proofs are adaptations of the techniques of L.H. Harper [ibid.]. We provide asymptotics for the relevant expectations and variances with error term O(1/n).",
+          "claimed_authors": [
+            "Eva Czabarka",
+            "Peter L. Erdos",
+            "Virginia Johnson",
+            "Anne Kupczok",
+            "Laszlo A. Szekely"
+          ],
+          "claimed_title": "Asymptotically normal distribution of some tree families relevant for phylogenetics, and of partitions without singletons",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1108.6015"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Asymptotically normal distribution of some tree families relevant for phylogenetics, and of partitions without singletons')",
+        "failed_at": "2026-06-30T07:20:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Caccetta-Haggkvist conjecture states that if G is a finite directed graph with at least n/k edges going out of each vertex, then G contains a directed cycle of length at most k. Hamidoune used methods and results from additive number theory to prove the conjecture for Cayley graphs and for vertex-transitive graphs. This expository paper contains a survey of results on the Caccetta-Haggkvist conjecture, and complete proofs of the conjecture in the case of Cayley and vertex-transitive graphs.",
+          "claimed_authors": [
+            "Melvyn B. Nathanson"
+          ],
+          "claimed_title": "The Caccetta-Haggkvist conjecture and additive number theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "math/0603469"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='The Caccetta-Haggkvist conjecture and additive number theory')",
+        "failed_at": "2026-06-30T07:20:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "According to some discussions based on syllogism, we present results on the binary Goldbach conjecture in three categories: results that are weaker than the Goldbach conjecture, sufficient conditions for the Goldbach conjecture, and results that are similar in nature to the Goldbach conjecture. Additionally, we explore the connections between the Goldbach conjecture and other well-known conjectures.",
+          "claimed_authors": [
+            "Huixi Li"
+          ],
+          "claimed_title": "Some discussions on the Goldbach conjecture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.17769"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Some discussions on the Goldbach conjecture')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The time evolution of atmospheric dust at high southern latitudes on Mars has been determined using observations of the south seasonal cap acquired in the near infrared (1-2.65 μm) by OMEGA/Mars Express in 2005. Observations at different solar zenith angles and one EPF sequence demonstrate that the reflectance in the 2.64 μm saturated absorption band of the surface CO2 ice is mainly due to the light scattered by aerosols above most places of the seasonal cap. We have mapped the total optical depth of dust aerosols in the near-IR above the south seasonal cap of Mars from mid-spring to early summer with a time resolution ranging from one day to one week and a spatial resolution of a few kilometers. The optical depth above the south perennial cap is determined on a longer time range covering southern spring and summer. A constant set of optical properties of dust aerosols is consistent with OMEGA observations during the analyzed period. Strong variations of the optical depth are observed over small horizontal and temporal scales, corresponding in part to moving dust clouds. The late summer peak in dust opacity observed by Opportunity in 2005 propagated to the south pole contrarily to that observed in mid spring. This may be linked to evidence for dust scavenging by water ice-rich clouds circulating at high southern latitudes at this season.",
+          "claimed_authors": [
+            "Mathieu Vincendon",
+            "Yves Langevin",
+            "François Poulet",
+            "Jean-Pierre Bibring",
+            "Brigitte Gondet",
+            "Denis Jouglet",
+            "OMEGA Team"
+          ],
+          "claimed_title": "Dust aerosols above the south polar cap of Mars as seen by OMEGA",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1103.0854"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Dust aerosols above the south polar cap of Mars as seen by OMEGA')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When investigating the distribution of the Euler totient function, one encounters sets of primes P where if p is in P then r is in P for all r|(p-1). While it is easy to construct finite sets of such primes, the only infinite set known is the set of all primes. We translate this problem into the function field setting and construct an infinite such set in F_p[x] whenever p is equivalent to 2 or 5 modulo 9.",
+          "claimed_authors": [
+            "Julio Andrade",
+            "Steven J. Miller",
+            "Kyle Pratt",
+            "Minh-Tam Trinh"
+          ],
+          "claimed_title": "Special Sets of Primes in Function Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.5597"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Special Sets of Primes in Function Fields')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The partition function, $U$, the number of available states in an atom or molecules, is crucial for understanding the physical state of any astrophysical system in thermodynamic equilibrium. There are surprisingly few {\\em useful} discussions of the partition function's numerical value. Textbooks often define $U$; some give tables of representative values, while others do a deep dive into the theory of a dense plasma. Most say that it depends on temperature, atomic structure, density, and that it diverges, that is, it goes to infinity, at high temperatures, but few give practical examples. We aim to rectify this. We show that there are two limits, one and two-electron (or closed-shell) systems like H or He, and species with a complicated electronic structure like C, N, O, and Fe. The high-temperature divergence does not occur for one and two-electron systems in practical situations since, at high temperatures, species are collisionally ionized to higher ionization stages and are not abundant. The partition function is then close to the statistical weight of the ground state. There is no such simplification for many-electron species. $U$ is temperature-sensitive across the range of temperatures where an ion is abundant but remains finite at even the highest practical temperatures. The actual value depends on highly uncertain truncation theories in high-density plasmas. We show that there are various theories for continuum lowering but that they are not in good agreement. This remains a long-standing unsolved problem.",
+          "claimed_authors": [
+            "P. Alimohamadi",
+            "G. J. Ferland"
+          ],
+          "claimed_title": "A Practical Guide to the Partition Function of Atoms and Ions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.02188"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='A Practical Guide to the Partition Function of Atoms and Ions')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the {\\it growth partition function} $Z_{Γ,G}(t)$ associate with any cancellative infinite monoid $Γ$ with a finite generator system $G$. It is a power series in $t$ whose coefficients lie in integral Lie-like space $\\mathcal{L}_{\\Z}(Γ,G)$ in the configuration algebra associated with the Cayley graph $(Γ,G)$. We determine them for homogeneous monoids admitting left greatest common divisor and right common multiple. Then, for braid monoids and Artin monoids of finite type, using that formula, we explicitly determine their limit partition functions $ω_{Γ,G}$.",
+          "claimed_authors": [
+            "Kyoji Saito"
+          ],
+          "claimed_title": "Growth partition functions for cancellative infinite monoids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.6076"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Growth partition functions for cancellative infinite monoids')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Using unitary equivalence of magnetic translation operators, explicit upper and lower convex bounds on the partition function of the Hofstadter model are given for any rational ``flux\" and any value of Bloch momenta. These bounds (i) generalize straightforwardly to the case of a general asymmetric hopping and to the case of hopping of the form $t_{jn}(S_j^n+S_j^{-n})$ with $n$ arbitrary integer larger than or equal $2$, and (ii) allow to derive bounds on the derivatives of the partition function.",
+          "claimed_authors": [
+            "Alexander Moroz"
+          ],
+          "claimed_title": "Upper and Lower Bounds on the Partition Function of the Hofstadter Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "cond-mat/9601083"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Upper and Lower Bounds on the Partition Function of the Hofstadter Model')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In answer to a question of Andrews about finding combinatorial proofs of two identities in Ramanujan's \"Lost\" Notebook, we obtain weighted forms of Euler's theorem on partitions with odd parts and distinct parts. This work is inspired by the insight of Andrews on the connection between Ramanujan's identities and Euler's theorem. Our combinatorial formulations of Ramanujan's identities rely on the notion of rooted partitions. Iterated Dyson's map and Sylvester's bijection are the main ingredients in the weighted forms of Euler's theorem.",
+          "claimed_authors": [
+            "William Y. C. Chen",
+            "Kathy Q. Ji"
+          ],
+          "claimed_title": "Weighted Forms of Euler's Theorem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0510121"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title=\"Weighted Forms of Euler's Theorem\")",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider the polynomials $\\displaystyle f(x)=x^d+c$, where $d\\ge 2$ and $c\\in\\mathbb Q$. It is conjectured that if $d=2$, then $f$ has no rational periodic point of exact period $N\\ge 4$. In this note, fixing some integer $d\\ge 2$, we show that the density of such polynomials with a rational periodic point of any period among all polynomials $f(x)=x^d+c$, $c\\in\\Q$, is zero. Furthermore, we establish the connection between polynomials $f$ with periodic points and two arithmetic sequences. This yields necessary conditions that must be satisfied by $c$ and $d$ in order for the polynomial $f$ to possess a rational periodic point of exact period $N$, and a lower bound on the number of primitive prime divisors in the critical orbit of $f$ when such a rational periodic point exists. The note also introduces new results on the irreducibility of iterates of $f$.",
+          "claimed_authors": [
+            "Mohammad Sadek"
+          ],
+          "claimed_title": "On rational periodic points of $x^d+c$",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.09839"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='On rational periodic points of $x^d+c$')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The partition perimeter is a statistic defined to be one less than the sum of the number of parts and the largest part. Recently, Amdeberhan, Andrews, and Ballantine proved the following analog of Glaisher's theorem: for all $m \\geq 2$ and $n \\geq 1$, there are at least as many partitions with perimeter $n$ and parts $\\not \\equiv 0 \\pmod{m}$ as partitions with perimeter $n$ and parts repeating fewer than $m$ times. In this work, we provide a combinatorial proof of their theorem by relating the combinatorics of the partition perimeter to that of compositions. Using this technique, we also show that a composition theorem of Huang implies a refinement of another perimeter theorem of Fu and Tang.",
+          "claimed_authors": [
+            "Hunter Waldron"
+          ],
+          "claimed_title": "A combinatorial proof of a partition perimeter inequality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.00645"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='A combinatorial proof of a partition perimeter inequality')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Let $α$ and $β$ be two nonnegative integers such that $β< α$. For an arbitrary sequence $\\{a_n\\}_{n\\geqslant 1}$ of complex numbers, we consider the generalized Lambert series in order to investigate linear combinations of the form $\\sum_{k\\geqslant 1} S(αk-β,n) a_k$, where $S(k,n)$ is the total number of non-overlined parts equal to $k$ in all the overpartitions of $n$. The general nature of the numbers $a_n$ allows us to provide connections between overpartitions and functions from multiplicative number theory.",
+          "claimed_authors": [
+            "Mircea Merca"
+          ],
+          "claimed_title": "Overpartitions and functions from multiplicative number theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.01379"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Overpartitions and functions from multiplicative number theory')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The 2-adic valuation of an integer n which is the exponent of the highest power of 2 that divides n. In this paper, we give representations of certain restricted partition functions in terms of 2-adic valuation.",
+          "claimed_authors": [
+            "Sabi Biswas",
+            "Nipen Saikia"
+          ],
+          "claimed_title": "Some restricted partition functions in terms of 2-adic valuation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.20064"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Some restricted partition functions in terms of 2-adic valuation')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Let $\\overline{p}_o(n)$ denote the number of overpartitions of $n$ into odd parts. The partition function $\\overline{p}_o(n)$ has been the subject of many recent studies where many explicit Ramanujan-like congruences were discovered. In this paper, we provide three linear recurrence relation for $\\overline{p}_o(n)$. Several connections with partitions into parts not congruent to $2 \\pmod 4$, overpartitions and partitions into distinct parts are presented in this context.",
+          "claimed_authors": [
+            "Deepthi G.",
+            "S. Chandankumar"
+          ],
+          "claimed_title": "Linear relations for the number of overpartitions into odd parts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.05866"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Properties of Integer Partitions Into Distinct Prime Summands mathem', candidate_title='Linear relations for the number of overpartitions into odd parts')",
+        "failed_at": "2026-06-30T07:20:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. V. N. Murthy",
+            "M. Brack",
+            "R. K. Bhaduri"
+          ],
+          "title": "On the asymptotic distinct prime partitions of integers",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1904.02776",
+        "summary": "We discuss $Q(n)$, the number of ways a given integer $n$ may be written as a sum of distinct primes, and study its asymptotic form $Q_{as}(n)$ valid in the limit $n\\to\\infty$. We obtain $Q_{as}(n)$ by Laplace inverting the fermionic partition function of primes, in number theory called the generating function of the distinct prime partitions, in the saddle-point approximation. We find that our result of $Q_{as}(n)$, which includes two higher-order corrections to the leading term in its exponent and a pre-exponential correction factor, approximates the exact $Q(n)$ far better than its simple leading-order exponential form given so far in the literature.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1904.02776",
+          "http_status": 200,
+          "pdf_sample_score": 0.1795,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T07:20:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Melvyn B. Nathanson"
+          ],
+          "title": "On Erdos's elementary method in the asymptotic theory of partitions",
+          "venue": "arXiv",
+          "year": 2000
+        },
+        "primary_pointer": "math/0002171",
+        "summary": "Let m be a positive integer, and let A be the set of all positive integers that belong to a union of r distinct congruence classes modulo m. We assume that the elements of A are relatively prime, that is, gcd(A) = 1. Let p_A(n) denote the number of partitions of n into parts belonging to A. We obtain the asymptotic formula log p_A(n) ~ π\\sqrt(2rn/3m). The proof is based on Erdos's elementary method to obtain the asymptotic formula for the usual partition function p(n).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/math/0002171",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T07:20:37Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical properties of integer partitions into distinct prime summands mathematics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

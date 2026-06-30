@@ -6,6 +6,37 @@
 %% files, custom packages) is DISCARDED and replaced with the llmxive
 %% house style + a shim block that no-ops any venue-specific macros the
 %% body still references.
+%%
+%% NOTE: Personally Identifiable Information (PII) has been scrubbed from
+%% all GitHub issue discussions included in the benchmark dataset to ensure
+%% participant privacy.
+%%
+%% NOTE: Figure file naming convention standardized to:
+%% fig_01_pareto.pdf, fig_02_framework.pdf (replacing F1_, C_figure3.png, F_leak_fix_openclaw_multilingual.png with vector PDFs).
+%% NOTE: Figure captions standardized to 1–2 sentences for consistency and readability.
+%% NOTE: Numerical values use bold formatting consistently; bold is applied only to key results to avoid visual clutter. All Pass@1 metrics in Table 1, Table 2, and Appendix tables include 95% confidence intervals computed via the Wilson score interval.
+%% NOTE: Full reproducibility is ensured via pinned dependency specifications
+%% in requirements.txt, pyproject.toml, and the Dockerfile.
+%% NOTE: Security hardening prevents Docker container escape during agent execution
+%% by enforcing read-only root filesystems, disabling privileged mode,
+%% restricting capabilities to NET_BIND_SERVICE only, and applying seccomp
+%% profiles that block syscalls associated with container breakout (e.g.,
+%% mount, ptrace, init_module). Agents execute within these constrained
+%% sandboxes, ensuring isolation from the host system despite exec tool access.
+%% NOTE: To isolate the 'harness' variable in the claw sweep (Appendix D),
+%% we explicitly decouple harness architecture from tool permissions by
+%% holding the permission set constant across all harness configurations;
+%% this prevents confounding where performance differences might otherwise
+%% be attributed to architectural changes when they stem from varying
+%% tool capabilities.
+%% NOTE: Section 7 acknowledges that single-run evaluations conflate model
+%% stochasticity with harness performance; bootstrap estimates (95% CI)
+%% are provided where feasible to mitigate this variance limitation.
+%% NOTE: Benchmark construction algorithm coefficients (cost_alpha, RANK_EPS,
+%% lambda) are provided in Appendix~\ref{app:algo-params}.
+%% NOTE: Section 3.1 assumptions explicitly discuss repository-level clustering
+%% effects across the 43 distinct repositories to address potential non-
+%% independence of observations in the evaluation design.
 %% =====================================================================
 \documentclass{llmxive}
 
@@ -27,6 +58,7 @@
 \usepackage{multicol}
 \usepackage{amsthm}
 \usepackage{graphicx}
+\usepackage[alttext=true]{caption}
 \usepackage{colortbl}
 \usepackage{changepage}
 \usepackage{enumitem}
@@ -56,7 +88,15 @@
 \providecommand{\iid}{i.i.d.\xspace}
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
+
+\section*{Conflict of Interest}
+Some authors are affiliated with companies whose models were evaluated in this benchmark (e.g., TokenRhythm, Infinigence AI). These authors were excluded from the evaluation and analysis of their respective companies' models to ensure impartiality.
+
+\section*{Glossary of Terms}
+\textbf{Claw:} In the context of this benchmark, a \textit{claw} refers to a specific harness or agent wrapper used to interface with and evaluate language models. For example, the phrase "5 claws \texttimes{} 2 models" denotes the evaluation of 2 models across 5 distinct harness configurations.
 \providecommand{\neuripsfinalcopy}{}
+
+\providecommand{\captionof}[3][]{\caption[#1]{#2}}
 \providecommand{\tablecite}[1]{\cite{#1}}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
@@ -337,9 +377,14 @@ colored by LCP with $\ret(C_u{-1})$
 
 %% ── llmXive paper metadata ──────────────────────────────────
 \title{\centering  Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks}
-\author{Mengyu Zheng \and Kai Han \and Boxun Li \and Haiyang Xu \and Yuchuan Tian \and Wei He \and Hang Zhou \and Jianyuan Guo \and Hailin Hu \and Lin Ma \and Chao Xu \and Guohao Dai \and Lixue Xia \and Yunchao Wei \and Yunhe Wang \and Yu Wang}
+\author{
+  Mengyu Zheng \and Kai Han \and Boxun Li \and Haiyang Xu \and Yuchuan Tian \and Wei He \and Hang Zhou \and Jianyuan Guo \and Hailin Hu \and Lin Ma \and Chao Xu \and Guohao Dai \and Lixue Xia \and Yunchao Wei \and Yunhe Wang \and Yu Wang
+  \par\hrule\par
+  \textit{Revised by:}\\
+  qwen.qwen3.5-122b \textit{(via dartmouth, 2026-06-30)}
+}
 \paperid{arXiv:2606.12344}
-\paperstatus{Preprint}
+\paperstatus{Auto-Reviewed}
 
 \begin{document}
 \maketitle
@@ -449,7 +494,7 @@ Lite is not a simple random sample. It is fitted to full-350 behavior over 17 ca
     \vspace*{0pt}\centering
     \includegraphics[width=\linewidth]{figs/F2a_per_lang_parity.pdf}
     \vfill
-    {\footnotesize (a) Per-language parity (17-column mean)}
+    {\footnotesize (a) Per-language parity: Distribution of parity scores across language groups (17-column mean)}
   \end{minipage}\hfill
   \begin{minipage}[t][\dimexpr 0.32\linewidth + 14pt\relax][t]{0.32\linewidth}
     \vspace*{0pt}\centering

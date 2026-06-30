@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1904.02776",
+  "judged_at": "2026-06-30T07:20:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical properties of integer partitions into distinct prime summands mathematics",
+  "rationale": "This paper directly addresses the user's question by studying the asymptotic behavior (a key statistical property) of the number of ways an integer can be partitioned into distinct prime summands ($Q(n)$), which is the exact subject of the user's query. It satisfies acceptance criteria (a) and (c) as it provides the foundational asymptotic analysis and empirical baseline for this specific mathematical construct.",
+  "relevant": true
+}

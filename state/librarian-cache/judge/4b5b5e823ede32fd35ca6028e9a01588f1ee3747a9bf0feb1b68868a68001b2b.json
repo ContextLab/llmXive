@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "math/0002171",
+  "judged_at": "2026-06-30T07:20:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical properties of integer partitions into distinct prime summands mathematics",
+  "rationale": "This paper satisfies criterion (a) and (b) as it provides the foundational asymptotic theory for partition functions where the set of allowed summands is defined by arithmetic constraints (congruence classes), which is the direct mathematical mechanism and domain for studying partitions into distinct primes (a specific subset of such arithmetic constraints). It establishes the empirical and theoretical baseline for the statistical properties of such partition functions, which is the core of the ",
+  "relevant": true
+}
