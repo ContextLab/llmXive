@@ -1,0 +1,114 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model performance, permutation results, and runtime metrics"
+type: "object"
+properties:
+  fold_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        fold_id:
+          type: "integer"
+          description: "Fold number (1–5)"
+        roc_auc:
+          type: "number"
+          description: "ROC-AUC score for this fold"
+        accuracy:
+          type: "number"
+          description: "Accuracy for this fold"
+        f1_score:
+          type: "number"
+          description: "F1-score for this fold"
+        best_params:
+          type: "object"
+          properties:
+            n_estimators:
+              type: "integer"
+            max_depth:
+              type: ["integer", "null"]
+          required:
+            - n_estimators
+            - max_depth
+        selected_features:
+          type: "array"
+          items:
+            type: "string"
+          description: "List of feature names selected in this fold"
+      required:
+        - fold_id
+        - roc_auc
+        - accuracy
+        - f1_score
+        - best_params
+  mean_metrics:
+    type: "object"
+    properties:
+      mean_roc_auc:
+        type: "number"
+      mean_accuracy:
+        type: "number"
+      mean_f1_score:
+        type: "number"
+    required:
+      - mean_roc_auc
+      - mean_accuracy
+      - mean_f1_score
+  permutation_p_value:
+    type: "number"
+    description: "P-value from permutation test (proportion of permuted runs with ROC-AUC >= original)"
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+          description: "Decision threshold (0.45, 0.50, 0.55)"
+        fpr:
+          type: "number"
+          description: "False positive rate at this threshold"
+        fnr:
+          type: "number"
+          description: "False negative rate at this threshold"
+      required:
+        - threshold
+        - fpr
+        - fnr
+  verification_status:
+    type: "object"
+    properties:
+      roc_auc_threshold_met:
+        type: "boolean"
+        description: "True if mean_roc_auc > 0.50"
+      p_value_threshold_met:
+        type: "boolean"
+        description: "True if permutation_p_value < 0.05"
+      overall_status:
+        type: "string"
+        enum: ["PASS", "FAIL"]
+        description: "Overall verification status"
+    required:
+      - roc_auc_threshold_met
+      - p_value_threshold_met
+      - overall_status
+  runtime_report:
+    type: "object"
+    properties:
+      total_runtime_seconds:
+        type: "number"
+        description: "Total runtime of the pipeline in seconds"
+      limit_exceeded:
+        type: "boolean"
+        description: "True if total_runtime_seconds > 21600 (6 hours)"
+    required:
+      - total_runtime_seconds
+      - limit_exceeded
+required:
+  - fold_results
+  - mean_metrics
+  - permutation_p_value
+  - sensitivity_analysis
+  - verification_status
+  - runtime_report
+additionalProperties: false

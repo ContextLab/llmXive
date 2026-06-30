@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Graph Metrics Schema"
+description: "Schema for graph-theoretical metrics derived from connectivity matrices"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique subject identifier"
+  node_degree:
+    type: "number"
+    description: "Average node degree across 90 regions"
+  global_efficiency:
+    type: "number"
+    description: "Global efficiency of the network"
+  clustering_coefficient:
+    type: "number"
+    description: "Average clustering coefficient"
+  characteristic_path_length:
+    type: "number"
+    description: "Characteristic path length"
+  modularity:
+    type: ["number", "null"]
+    description: "Modularity score (optional)"
+  small_worldness:
+    type: ["number", "null"]
+    description: "Small-worldness metric (optional)"
+required:
+  - subject_id
+  - node_degree
+  - global_efficiency
+  - clustering_coefficient
+  - characteristic_path_length
+additionalProperties: false

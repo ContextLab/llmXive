@@ -1,0 +1,11 @@
+- artifact_hash: 4572d35da085405e991c6bdd9a7fbca8bcd51829a282f57e461737d13ffec4d0
+  artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000248`
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds000248%60
+  verified_at: '2026-06-30T00:12:24.633143Z'

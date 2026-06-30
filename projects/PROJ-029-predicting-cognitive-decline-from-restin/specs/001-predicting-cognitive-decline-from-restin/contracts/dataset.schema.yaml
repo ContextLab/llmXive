@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for filtered subject dataset (graph_metrics.csv)"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique subject identifier (e.g., 'sub-001')"
+  baseline_mmse:
+    type: ["integer", "null"]
+    description: "Baseline MMSE score (0–30) or null"
+  followup_mmse:
+    type: ["integer", "null"]
+    description: "Follow-up MMSE score (0–30) or null"
+  baseline_moca:
+    type: ["integer", "null"]
+    description: "Baseline MOCA score (0–30) or null"
+  followup_moca:
+    type: ["integer", "null"]
+    description: "Follow-up MOCA score (0–30) or null"
+  decline_status:
+    type: "integer"
+    description: "Binary label: 0 = stable, 1 = decline"
+  excluded_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion (if applicable)"
+required:
+  - subject_id
+  - decline_status
+additionalProperties: false
