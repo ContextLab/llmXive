@@ -274,3 +274,39 @@ def test_science_residue_redoes_analysis_at_round_cap(tmp_path: Path) -> None:
         f"science residue must redo the analysis, got {out.current_stage}")
     note = tmp_path / "projects" / PROJ_ID / "paper_writing_residue.md"
     assert not note.is_file(), "science residue must NOT advance/carry-forward"
+
+
+def test_writing_only_residue_advances_after_one_cleanup_round(tmp_path: Path) -> None:
+    """Efficiency: writing-only residue advances after a SINGLE cleanup round
+    (WRITING_RESIDUE_REVISION_ROUNDS=1), not the full 3-round treadmill — the
+    science is sound and the nits rarely converge. Pins the throughput fix."""
+    project = _bootstrap(tmp_path)
+    for name in ("research_reviewer_code_quality_research",
+                 "research_reviewer_filesystem_hygiene"):
+        _make_record(
+            tmp_path, project, reviewer_name=name, verdict="minor_revision",
+            action_items=[ActionItem.from_text("dedup the reproducibility docs.", "writing")],
+        )
+    # ONE revision round has happened (round-1 exists) — not the 3-round cap.
+    (tmp_path / "specs" / "auto-revisions" / PROJ_ID / "round-1").mkdir(parents=True)
+
+    out = advancement.evaluate(project, repo_root=tmp_path)
+
+    assert out.current_stage == Stage.RESEARCH_ACCEPTED, (
+        f"writing-only residue should advance after 1 round, got {out.current_stage}")
+    assert (tmp_path / "projects" / PROJ_ID / "paper_writing_residue.md").is_file()
+
+
+def test_writing_residue_first_review_does_one_round_first(tmp_path: Path) -> None:
+    """A FRESH review (round 0, no revision history) does NOT advance immediately —
+    it gets one cleanup round first (a revision spec), then advances next time."""
+    project = _bootstrap(tmp_path)
+    _make_record(
+        tmp_path, project, reviewer_name="research_reviewer_code_quality_research",
+        verdict="minor_revision",
+        action_items=[ActionItem.from_text("split the big module.", "writing")],
+    )
+    # No round dirs → rounds_done == 0.
+    out = advancement.evaluate(project, repo_root=tmp_path)
+    assert out.current_stage == Stage.RESEARCH_REVIEW
+    assert out.revision_spec_path is not None  # a cleanup round is scheduled

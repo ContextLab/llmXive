@@ -209,6 +209,16 @@ def _infer_live_hash(records: list[ReviewRecord]) -> str | None:
 #: per-step convergence convention.
 MAX_REVISION_ROUNDS = 3
 
+#: WRITING-only residue (science gate satisfied — every non-accept reviewer voted
+#: minor_revision) advances after just THIS many cleanup rounds, not the full
+#: MAX_REVISION_ROUNDS. The nits are cosmetic (file organization, doc dedup, prose
+#: polish), rarely converge (they re-appear every round), and are carried forward +
+#: re-reviewed at the paper stage — so grinding the full treadmill wastes cron
+#: cycles and traps scientifically-sound projects at the gate. One attempt, then
+#: advance. The SCIENCE gate is unaffected: any science/fatal residue still uses
+#: MAX_REVISION_ROUNDS and then redoes the analysis.
+WRITING_RESIDUE_REVISION_ROUNDS = 1
+
 
 def _revision_rounds_exhausted(
     project_id: str, *, repo_root: Path | None = None
@@ -652,59 +662,68 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         # out after applying the revision.
         consolidated = _consolidate_action_items(records, required=required)
         if consolidated:
-            if _revision_rounds_exhausted(project.id, repo_root=repo_root):
-                # TWO-TIER exhaustion (Constitution 1.2.0 — the science gate is
-                # never relaxed; writing-level residue is). Severity is the
-                # reviewers' OWN verdict (minor_revision -> writing; major/full ->
-                # science; reject -> fatal). After MAX_REVISION_ROUNDS the residue
-                # is one of:
-                #   * SCIENCE / FATAL — a reviewer judged the ANALYSIS itself
-                #     unsound; no doc-edit round fixes that, so the honest move is
-                #     to redo it: RESEARCH_FULL_REVISION (-> in_progress).
-                #   * WRITING-ONLY — every non-accept reviewer voted
-                #     minor_revision (file organization, doc dedup, prose polish —
-                #     NOT the science). Trapping a scientifically-sound project
-                #     here forever (the doom loop: full_revision -> redo same
-                #     analysis -> same nits) produces ZERO papers and serves
-                #     quality not at all. ADVANCE to research_accepted, carrying
-                #     the residual writing items forward as a note the paper stage
-                #     addresses (the paper is reviewed again before publication).
-                residue = _max_severity_across_specialists(records)
-                if residue in ("science", "fatal"):
-                    logger.warning(
-                        "%s: %d revision rounds without convergence; "
-                        "%s-severity residue remains — RESEARCH_FULL_REVISION "
-                        "(redo the analysis)",
-                        project.id, MAX_REVISION_ROUNDS, residue,
-                    )
-                    return _transition(
-                        project, Stage.RESEARCH_FULL_REVISION
-                    ).model_copy(update={"revision_spec_path": None})
-                if not _has_blocking_citations(cits) and not _has_unverified_markers(
-                    project, track="research", repo_root=repo_root
-                ):
+            # TWO-TIER advancement (Constitution 1.2.0 — the science gate is never
+            # relaxed; writing-level residue is). Severity is the reviewers' OWN
+            # verdict (minor_revision -> writing; major/full -> science; reject ->
+            # fatal).
+            from llmxive.convergence.revision_adapter import next_round_number
+
+            residue = _max_severity_across_specialists(records)
+            science_blocked = residue in ("science", "fatal")
+            cite_or_marker_blocked = _has_blocking_citations(cits) or (
+                _has_unverified_markers(project, track="research", repo_root=repo_root)
+            )
+            rounds_done = max(
+                0, next_round_number(repo_root or _repo_root(), project.id) - 1
+            )
+            cap_exhausted = _revision_rounds_exhausted(project.id, repo_root=repo_root)
+            if not science_blocked:
+                # WRITING-ONLY residue: every non-accept reviewer voted
+                # minor_revision (file org, doc dedup, prose polish — NOT the
+                # science). The science is sound, so after a single cleanup round
+                # (WRITING_RESIDUE_REVISION_ROUNDS) ADVANCE to research_accepted,
+                # carrying the residual items forward to the paper stage (re-reviewed
+                # before publication). Grinding the full treadmill on nits that rarely
+                # converge produced ZERO papers and served quality not at all. A
+                # blocking citation / unverified marker still hard-blocks (a
+                # fabricated reference is never "writing-level"); a cleanup round
+                # re-validates citations, so transient access-gated blocks clear on
+                # their own — only a block that PERSISTS to the cap forces a redo.
+                if rounds_done >= WRITING_RESIDUE_REVISION_ROUNDS and not cite_or_marker_blocked:
                     _carry_forward_writing_residue(
                         project.id, consolidated, repo_root=repo_root or _repo_root()
                     )
                     logger.info(
-                        "%s: %d revision rounds; WRITING-ONLY residue (%d item(s), "
-                        "science gate satisfied) — advancing to RESEARCH_ACCEPTED, "
-                        "residue carried forward to the paper stage",
-                        project.id, MAX_REVISION_ROUNDS, len(consolidated),
+                        "%s: WRITING-ONLY residue (%d item(s)) after %d cleanup "
+                        "round(s), science gate satisfied — advancing to "
+                        "RESEARCH_ACCEPTED (residue carried to the paper stage)",
+                        project.id, len(consolidated), rounds_done,
                     )
                     return _transition(
                         project, Stage.RESEARCH_ACCEPTED
                     ).model_copy(update={"revision_spec_path": None})
-                # Writing residue but a citation/unverified-marker still hard-blocks
-                # (a fabricated reference is never "writing-level") — redo.
+                if cite_or_marker_blocked and cap_exhausted:
+                    logger.warning(
+                        "%s: writing residue but a blocking citation/unverified "
+                        "marker persists after %d rounds — RESEARCH_FULL_REVISION",
+                        project.id, MAX_REVISION_ROUNDS,
+                    )
+                    return _transition(
+                        project, Stage.RESEARCH_FULL_REVISION
+                    ).model_copy(update={"revision_spec_path": None})
+                # else: do a cleanup round (also re-validates citations) — fall through.
+            elif cap_exhausted:
+                # SCIENCE / FATAL residue at the cap: a reviewer judged the ANALYSIS
+                # unsound; no doc-edit round fixes that, so redo it.
                 logger.warning(
-                    "%s: %d revision rounds; writing residue but a blocking "
-                    "citation/unverified marker remains — RESEARCH_FULL_REVISION",
-                    project.id, MAX_REVISION_ROUNDS,
+                    "%s: %d revision rounds without convergence; %s-severity "
+                    "residue remains — RESEARCH_FULL_REVISION (redo the analysis)",
+                    project.id, MAX_REVISION_ROUNDS, residue,
                 )
                 return _transition(
                     project, Stage.RESEARCH_FULL_REVISION
                 ).model_copy(update={"revision_spec_path": None})
+            # else (science residue below the cap): fall through to a revision round.
             from llmxive.convergence.revision_adapter import (
                 kickback_to_revision_spec,
             )
