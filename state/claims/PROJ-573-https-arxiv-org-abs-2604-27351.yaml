@@ -14662,26 +14662,6 @@
   status: not_enough_info
   updated_at: '2026-06-30T22:12:21Z'
 - artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  attempts: 2
-  canonical: TimeSeries-Transformer, TabPFN, and distilled LLM model weights are less
-    than 1 GB
-  claim_id: c_93ce84ee
-  context: T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
-    LLM via HuggingFace model cards; create src/research/verify_models.py script
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/TimeSeries-Transformer,_TabPFN,_and_distilled_LLM_model_weig
-  kind: magnitude
-  raw_text: Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
-    LLM via HuggingFace model cards
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T22:15:20Z'
-- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   attempts: 1
   canonical: Full benchmark execution generates results.csv and summary.pdf within
     4 hours
@@ -14699,43 +14679,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T22:15:47Z'
-- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  attempts: 1
-  canonical: Total benchmark runtime is less than or equal to 4 hours on reference
-    hardware
-  claim_id: c_b8ebc5c0
-  context: "T055b Implement total runtime verification in src/evaluation/runtime_verification.py;\
-    \ verify total runtime \u22644 hours on reference hardware"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Total_benchmark_runtime_is_less_than_or_equal_to_4_hours_on
-  kind: magnitude
-  raw_text: "Verify total runtime \u22644 hours on reference hardware"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T22:16:15Z'
-- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  attempts: 1
-  canonical: Per-task inference time is less than or equal to 5 minutes
-  claim_id: c_cec09be1
-  context: "T055c Implement per-task inference verification in src/evaluation/runtime_verification.py;\
-    \ Verify per-task inference \u22645 minutes"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Per-task_inference_time_is_less_than_or_equal_to_5_minutes
-  kind: magnitude
-  raw_text: "Verify per-task inference \u22645 minutes"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T22:16:51Z'
 - artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   attempts: 1
   canonical: Benchmark is run 5 times with different seeds to verify reproducibility
@@ -14955,41 +14898,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T22:25:11Z'
-- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  attempts: 5
-  canonical: Full benchmark execution time is less than or equal to 4 hours
-  claim_id: c_390ed533
-  context: "Compute Feasibility Notes: Full benchmark \u2264 4 hours wall-clock time"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Full_benchmark_execution_time_is_less_than_or_equal_to_4_hou
-  kind: magnitude
-  raw_text: "Full benchmark \u2264 4 hours wall-clock time"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T22:25:15Z'
-- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  attempts: 1
-  canonical: Per-task inference time is less than or equal to 5 minutes
-  claim_id: c_631f49f0
-  context: "T055c Implement per-task inference verification in src/evaluation/runtime_verification.py;\
-    \ Verify per-task inference \u22645 minutes (SC-002)"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Per-task_inference_time_is_less_than_or_equal_to_5_minutes
-  kind: magnitude
-  raw_text: "Verify per-task inference \u22645 minutes"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T22:25:19Z'
 - artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   attempts: 1
   canonical: Benchmark is run 5 times with different seeds to verify reproducibility
@@ -15556,3 +15464,1201 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T22:43:48Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: model weights less than 1 GB for TimeSeries-Transformer, TabPFN, and
+    distilled LLM
+  claim_id: c_98070d96
+  context: 'Phase 0: Research & Dataset Verification - T006 Verify model weights <1
+    GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_weights_less_than_1_GB_for_TimeSeries-Transformer,_Tab
+  kind: magnitude
+  raw_text: Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:53:16Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: all models must be CPU-tractable with weights less than 1 GB
+  claim_id: c_c3d9b427
+  context: Compute Feasibility Notes - All models must be CPU-tractable (< 1 GB weights)
+    - validated in T006
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/All_models_must_be_CPU-tractable_with_weights_less_than_1_GB
+  kind: magnitude
+  raw_text: All models must be CPU-tractable (< 1 GB weights)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:53:39Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: full benchmark execution takes less than or equal to 4 hours wall-clock
+    time
+  claim_id: c_9925a685
+  context: "Compute Feasibility Notes - Full benchmark \u2264 4 hours wall-clock time"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_benchmark_execution_takes_less_than_or_equal_to_4_hours
+  kind: magnitude
+  raw_text: "Full benchmark \u2264 4 hours wall-clock time"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:54:00Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: statistical tests report 95% confidence interval as primary outcome
+  claim_id: c_99f30fe1
+  context: 'Phase 3: User Story 1 - T027 Implement statistical tests in src/evaluation/statistical_tests.py;
+    MUST include... with 95% CI as PRIMARY outcome'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement statistical tests with 95% CI as PRIMARY outcome
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:54:03Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: reproducibility verification requires mean accuracy differences within
+    95% confidence interval
+  claim_id: c_697682eb
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T056 Verify reproducibility
+    across multiple seeds (SC-004); mean accuracy differences within 95% CI'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify reproducibility across multiple seeds with mean accuracy differences
+    within 95% CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:54:06Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: benchmark run 5 times with different seeds for reproducibility verification
+  claim_id: c_f91b8ac9
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T056... run benchmark 5 times
+    with different seeds, compare results'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run benchmark 5 times with different seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:54:25Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: benchmark CLI accepts --seeds argument with default value 5
+  claim_id: c_5bf51ed8
+  context: 'Phase 3: User Story 1 - T029 Create run_benchmark.py main entry point;
+    CLI arguments: --config..., --mode..., --seeds (5)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CLI arguments include --seeds (5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:54:48Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: default timeout per task is 300 seconds
+  claim_id: c_57e36218
+  context: 'Phase 3: User Story 1 - T030 Create default.yaml config with required
+    keys: ... timeout_per_task (300)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default timeout_per_task is 300 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:55:12Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: dataset download implements 3-retry logic
+  claim_id: c_59877ec7
+  context: 'Phase 3: User Story 1 - T022 Implement dataset download with 3-retry logic
+    in src/data/download.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement dataset download with 3-retry logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:55:33Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: per-task inference time must be less than or equal to 5 minutes
+  claim_id: c_452e2d98
+  context: "Phase 6: Polish & Cross-Cutting Concerns - T055c Implement per-task inference\
+    \ verification; Verify per-task inference \u22645 minutes"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-task_inference_time_must_be_less_than_or_equal_to_5_minu
+  kind: magnitude
+  raw_text: "Verify per-task inference \u22645 minutes"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:56:26Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: statistical test alpha threshold default is 0.05
+  claim_id: c_48ec0bc8
+  context: "Phase 3: User Story 1 - T027... configurable \u03B1 threshold (default\
+    \ 0.05)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Configurable \u03B1 threshold default 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:56:45Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: benchmark report includes t-statistic, p-value, bootstrap confidence
+    interval, and Wilcoxon effect size
+  claim_id: c_9b0df2e8
+  context: 'Phase 3: User Story 1 - T028 MUST verify report includes (a) t-statistic,
+    (b) p-value, (c) bootstrap CI, (d) Wilcoxon effect size'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_report_includes_t-statistic,_p-value,_bootstrap_co
+  kind: entity_fact
+  raw_text: Report must include t-statistic, p-value, bootstrap CI, and Wilcoxon effect
+    size
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:57:29Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: UCI_HAR dataset used for time-series; DROP and MUST datasets used for
+    text
+  claim_id: c_1459a0af
+  context: Compute Feasibility Notes - Use UCI_HAR for time-series, DROP/MUST for
+    text
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_HAR_dataset_used_for_time-series;_DROP_and_MUST_datasets
+  kind: entity_fact
+  raw_text: Use UCI_HAR for time-series, DROP/MUST for text
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:57:49Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: TimeSeries-Transformer, TabPFN, and distilled LLM model weights are less
+    than 1 GB
+  claim_id: c_d1791c3b
+  context: T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards; create `src/research/verify_models.py` script
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TimeSeries-Transformer,_TabPFN,_and_distilled_LLM_model_weig
+  kind: magnitude
+  raw_text: Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:59:30Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: All benchmark models must be CPU-tractable with weights less than 1 GB
+  claim_id: c_9c26e81d
+  context: 'Compute Feasibility Notes: All models must be CPU-tractable (< 1 GB weights)
+    - validated in T006'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/All_benchmark_models_must_be_CPU-tractable_with_weights_less
+  kind: magnitude
+  raw_text: All models must be CPU-tractable (< 1 GB weights)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:59:35Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Full benchmark execution time is less than or equal to 4 hours wall-clock
+    time
+  claim_id: c_9ef37d5b
+  context: "Compute Feasibility Notes: Full benchmark \u2264 4 hours wall-clock time"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_benchmark_execution_time_is_less_than_or_equal_to_4_hou
+  kind: magnitude
+  raw_text: "Full benchmark \u2264 4 hours wall-clock time"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T22:59:39Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Reproducibility verification requires mean accuracy differences within
+    95% CI with CI width less than or equal to 15%
+  claim_id: c_e30bcfdc
+  context: "T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy\
+    \ differences within 95% CI with CI width \u226415%"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_verification_requires_mean_accuracy_differen
+  kind: magnitude
+  raw_text: "Mean accuracy differences within 95% CI with CI width \u226415%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:00:14Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 2
+  canonical: Per-task inference time is less than or equal to 5 minutes
+  claim_id: c_631f49f0
+  context: "T055c Implement per-task inference verification in src/evaluation/runtime_verification.py;\
+    \ Verify per-task inference \u22645 minutes (SC-002)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-task_inference_time_is_less_than_or_equal_to_5_minutes
+  kind: magnitude
+  raw_text: "Verify per-task inference \u22645 minutes"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:00:19Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Benchmark reproducibility test involves running the benchmark 5 times
+    with different seeds
+  claim_id: c_72f095b4
+  context: T056 Verify reproducibility across multiple seeds (SC-004); ... run benchmark
+    5 times with different seeds, compare results
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run benchmark 5 times with different seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:00:21Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: UCI_HAR dataset is used for time-series tasks and DROP/MUST datasets
+    are used for text tasks
+  claim_id: c_3f951ca8
+  context: 'Compute Feasibility Notes: Use UCI_HAR for time-series, DROP/MUST for
+    text (per plan.md substitution strategy)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_HAR_dataset_is_used_for_time-series_tasks_and_DROP/MUST
+  kind: entity_fact
+  raw_text: Use UCI_HAR for time-series, DROP/MUST for text
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:00:27Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: TimeSeries-Transformer, TabPFN, and distilled LLM weights are less than
+    1 GB
+  claim_id: c_9b81a40e
+  context: T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards; create src/research/verify_models.py script
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TimeSeries-Transformer,_TabPFN,_and_distilled_LLM_weights_ar
+  kind: magnitude
+  raw_text: Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:03:48Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: UCI_HAR dataset is used for time-series; DROP and MUST datasets are used
+    for text
+  claim_id: c_1d7cf0db
+  context: 'Compute Feasibility Notes: Use UCI_HAR for time-series, DROP/MUST for
+    text (per plan.md substitution strategy)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_HAR_dataset_is_used_for_time-series;_DROP_and_MUST_datas
+  kind: entity_fact
+  raw_text: Use UCI_HAR for time-series, DROP/MUST for text
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:03:58Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: TimeSeries-Transformer model is CPU-tractable
+  claim_id: c_4bf30af5
+  context: T035 Implement modality-specific model wrapper for time-series; use CPU-tractable
+    TimeSeries-Transformer (< 1 GB)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TimeSeries-Transformer_model_is_CPU-tractable
+  kind: entity_fact
+  raw_text: TimeSeries-Transformer is CPU-tractable
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:04:21Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: TabPFN model is CPU-tractable
+  claim_id: c_1049e20b
+  context: T036 Implement modality-specific model wrapper for tabular; use TabPFN
+    (< 1 GB)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TabPFN_model_is_CPU-tractable
+  kind: entity_fact
+  raw_text: TabPFN is CPU-tractable
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:04:40Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Distilled LLM model is CPU-tractable
+  claim_id: c_db7d7b17
+  context: T037 Implement modality-specific model wrapper for text; use distilled
+    LLM (< 1 GB)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distilled_LLM_model_is_CPU-tractable
+  kind: entity_fact
+  raw_text: Distilled LLM is CPU-tractable
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:05:07Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: TimeSeries-Transformer, TabPFN, and distilled LLM model weights are under
+    1 GB
+  claim_id: c_78dcd9b2
+  context: T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards; create src/research/verify_models.py script
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:08:18Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 7
+  canonical: Full benchmark execution time is less than or equal to 4 hours
+  claim_id: c_390ed533
+  context: "Compute Feasibility Notes: Full benchmark \u2264 4 hours wall-clock time"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_benchmark_execution_time_is_less_than_or_equal_to_4_hou
+  kind: magnitude
+  raw_text: "Full benchmark \u2264 4 hours wall-clock time"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:08:22Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Benchmark implementation has no GPU or CUDA dependencies
+  claim_id: c_99ae3926
+  context: 'Compute Feasibility Notes: No GPU/CUDA dependencies'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: GPU Cuda JSEG Segmentation Algorithm associated with Deep Learning Classifier
+        for Electrical Network Images Identification
+      source_id: Q129317410
+      url: https://www.wikidata.org/wiki/Q129317410
+      value: GPU Cuda JSEG Segmentation Algorithm
+    filled: true
+  kind: entity_fact
+  raw_text: No GPU/CUDA dependencies
+  resolved_value: GPU Cuda JSEG Segmentation Algorithm
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T23:09:10Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: 8-bit and 4-bit quantization are not used because bitsandbytes requires
+    CUDA
+  claim_id: c_c1c50998
+  context: 'Compute Feasibility Notes: No 8-bit/4-bit quantization (bitsandbytes requires
+    CUDA)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No 8-bit/4-bit quantization (bitsandbytes requires CUDA)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:09:52Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Total benchmark runtime verification target is 4 hours on reference hardware
+  claim_id: c_1b80230b
+  context: "T055b Implement total runtime verification in src/evaluation/runtime_verification.py;\
+    \ verify total runtime \u22644 hours on reference hardware (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify total runtime \u22644 hours on reference hardware"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:09:55Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Per-task inference time verification target is 5 minutes
+  claim_id: c_f510b376
+  context: "T055c Implement per-task inference verification in src/evaluation/runtime_verification.py;\
+    \ Verify per-task inference \u22645 minutes (SC-002)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify per-task inference \u22645 minutes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:09:58Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Benchmark reproducibility verification requires running 5 times with
+    different seeds
+  claim_id: c_9acb48af
+  context: "T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy\
+    \ differences within 95% CI with CI width \u226415% (implementation-specific threshold\
+    \ - document in spec as staged); run benchmark 5 times with different seeds, compare\
+    \ results"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run benchmark 5 times with different seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:10:01Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Reproducibility verification requires confidence interval width less
+    than or equal to 15 percent
+  claim_id: c_a2427ee7
+  context: "T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy\
+    \ differences within 95% CI with CI width \u226415%"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_verification_requires_confidence_interval_wi
+  kind: magnitude
+  raw_text: "CI width \u226415%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:11:18Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Reproducibility verification requires mean accuracy differences to be
+    within 95 percent confidence interval
+  claim_id: c_880ca544
+  context: "T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy\
+    \ differences within 95% CI with CI width \u226415%"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean accuracy differences within 95% CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:11:21Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Statistical significance alpha threshold default is 0.05
+  claim_id: c_95a63648
+  context: "T027 Implement statistical tests in src/evaluation/statistical_tests.py;\
+    \ configurable \u03B1 threshold (default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))"
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T23:11:33Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Dataset download implementation uses 3 retries
+  claim_id: c_f4595ba0
+  context: 'T022 Implement dataset download with 3-retry logic in src/data/download.py
+    (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3-retry logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:12:39Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Dataset download timeout is 300 seconds
+  claim_id: c_75015067
+  context: 'T022 Implement dataset download with 3-retry logic in src/data/download.py
+    (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: timeout=300
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:13:27Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Per-task timeout configuration is 300 seconds
+  claim_id: c_652c2bf9
+  context: 'T030 Create default.yaml config in src/benchmark/config/default.yaml with
+    required keys: datasets (list), modalities (list), seeds (5), timeout_per_task
+    (300)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: timeout_per_task (300)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:15:03Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Ruff linter line length is set to 88 characters
+  claim_id: c_894bffc9
+  context: 'T009 Configure linting and formatting tools: ruff.toml (line-length=88,
+    target-version=py311)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length=88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:16:23Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Reference-Validator Agent requires title token overlap greater than or
+    equal to 0.7
+  claim_id: c_7e5196f0
+  context: "T006a Implement Reference-Validator Agent in src/validators/reference_validator.py\
+    \ with title-token-overlap \u2265 0.7 check before contributing review points"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reference-Validator_Agent_requires_title_token_overlap_great
+  kind: magnitude
+  raw_text: "title-token-overlap \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:17:25Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python version 3.11
+  claim_id: c_92679e95
+  context: T008 Initialize Python 3.11 project
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:18:33Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 0
+  canonical: Significance threshold alpha is default 0.05
+  claim_id: c_a2b5d32d
+  context: "T027 Implement statistical tests; configurable \u03B1 threshold (default\
+    \ 0.05)"
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T23:29:57Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 3
+  canonical: TimeSeries-Transformer, TabPFN, and distilled LLM model weights are less
+    than 1 GB
+  claim_id: c_93ce84ee
+  context: T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards; create src/research/verify_models.py script
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TimeSeries-Transformer,_TabPFN,_and_distilled_LLM_model_weig
+  kind: magnitude
+  raw_text: Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:30:44Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: TimeSeries-Transformer model is CPU tractable and less than 1 GB
+  claim_id: c_4a32d8c3
+  context: T035 Implement modality-specific model wrapper for time-series in src/models/timeseries_model.py;
+    use CPU-tractable TimeSeries-Transformer (< 1 GB)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TimeSeries-Transformer_model_is_CPU_tractable_and_less_than
+  kind: magnitude
+  raw_text: Use CPU-tractable TimeSeries-Transformer (< 1 GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:31:30Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: TabPFN model is less than 1 GB
+  claim_id: c_6f298bd1
+  context: T036 Implement modality-specific model wrapper for tabular in src/models/tabular_model.py;
+    use TabPFN (< 1 GB)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TabPFN_model_is_less_than_1_GB
+  kind: magnitude
+  raw_text: Use TabPFN (< 1 GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:32:24Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Distilled LLM model is less than 1 GB
+  claim_id: c_e86c8cc0
+  context: T037 Implement modality-specific model wrapper for text in src/models/text_model.py;
+    use distilled LLM (< 1 GB)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distilled_LLM_model_is_less_than_1_GB
+  kind: magnitude
+  raw_text: Use distilled LLM (< 1 GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:33:20Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Full benchmark execution takes less than or equal to 4 hours
+  claim_id: c_7e70a4fb
+  context: "Compute Feasibility Notes: Full benchmark \u2264 4 hours wall-clock time"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_benchmark_execution_takes_less_than_or_equal_to_4_hours
+  kind: magnitude
+  raw_text: "Full benchmark \u2264 4 hours wall-clock time"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:33:30Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 2
+  canonical: Total benchmark runtime is less than or equal to 4 hours on reference
+    hardware
+  claim_id: c_b8ebc5c0
+  context: "T055b Implement total runtime verification in src/evaluation/runtime_verification.py;\
+    \ verify total runtime \u22644 hours on reference hardware"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_benchmark_runtime_is_less_than_or_equal_to_4_hours_on
+  kind: magnitude
+  raw_text: "Verify total runtime \u22644 hours on reference hardware"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:34:52Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 2
+  canonical: Per-task inference time is less than or equal to 5 minutes
+  claim_id: c_cec09be1
+  context: "T055c Implement per-task inference verification in src/evaluation/runtime_verification.py;\
+    \ Verify per-task inference \u22645 minutes"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-task_inference_time_is_less_than_or_equal_to_5_minutes
+  kind: magnitude
+  raw_text: "Verify per-task inference \u22645 minutes"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:35:01Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Benchmark is run 5 times with different seeds for reproducibility verification
+  claim_id: c_71493cde
+  context: T056 Verify reproducibility across multiple seeds; run benchmark 5 times
+    with different seeds, compare results
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run benchmark 5 times with different seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:35:04Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Dataset download function uses 3 retries and 300 second timeout
+  claim_id: c_5b99ede3
+  context: 'T022 Implement dataset download with 3-retry logic in src/data/download.py;
+    function signatures: download_dataset(url, max_retries=3, timeout=300)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'download_dataset function signatures: download_dataset(url, max_retries=3,
+    timeout=300)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:35:48Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Enforce timeout function uses 300 second default timeout
+  claim_id: c_fee65391
+  context: 'T024 Implement timeout enforcement in src/utils/timeout.py; function signatures:
+    enforce_timeout(func, timeout_seconds=300)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'enforce_timeout function signatures: enforce_timeout(func, timeout_seconds=300)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:36:39Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Timeout per task is set to 300 seconds
+  claim_id: c_65fc11e0
+  context: 'T030 Create default.yaml config in src/benchmark/config/default.yaml with
+    required keys: timeout_per_task (300)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: timeout_per_task (300)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:36:42Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: 95% confidence interval is the primary outcome for statistical tests
+  claim_id: c_bc0e3294
+  context: 'T027 Implement statistical tests; MUST include: ... with 95% CI as PRIMARY
+    outcome'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% CI as PRIMARY outcome
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:36:45Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Wilcoxon effect size with 95% confidence interval is the primary outcome
+    in the report
+  claim_id: c_23b235fd
+  context: T028 Implement report generator; MUST verify report includes ... (d) Wilcoxon
+    effect size as PRIMARY outcome with 95% CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wilcoxon effect size as PRIMARY outcome with 95% CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:36:48Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Title-token overlap must be greater than or equal to 0.7 to contribute
+    review points
+  claim_id: c_635eaca0
+  context: "T006a Implement Reference-Validator Agent in src/validators/reference_validator.py\
+    \ with title-token-overlap \u2265 0.7 check before contributing review points"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Title-token_overlap_must_be_greater_than_or_equal_to_0.7_to
+  kind: magnitude
+  raw_text: "title-token-overlap \u2265 0.7 check before contributing review points"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:37:55Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Ruff linter line length is set to 88
+  claim_id: c_992d09db
+  context: 'T009 Configure linting and formatting tools: ruff.toml (line-length=88)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length=88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:37:58Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Python target version is 3.11
+  claim_id: c_49ece9de
+  context: 'T009 Configure linting and formatting tools: ruff.toml (target-version=py311)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: target-version=py311
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:38:45Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Confidence interval width must be less than or equal to 15% for reproducibility
+  claim_id: c_e59fa8ba
+  context: "T056 Verify reproducibility across multiple seeds; mean accuracy differences\
+    \ within 95% CI with CI width \u226415%"
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 15.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Confidence_interval_width_must_be_less_than_or_equal_to_15%25
+  kind: magnitude
+  raw_text: "CI width \u226415%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-30T23:38:51Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Artifact hash format is sha256
+  claim_id: c_25436689
+  context: T017 Create checksum tracking infrastructure in state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml
+    artifact_hashes map with sha256 format
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Artifact_hash_format_is_sha256
+  kind: entity_fact
+  raw_text: 'hash format: sha256'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:39:46Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Archived artifact hash format is sha256
+  claim_id: c_6fac9454
+  context: 'T057 Archive artifacts with content hashes in state/artifact_hashes; hash
+    format: sha256'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Archived_artifact_hash_format_is_sha256
+  kind: entity_fact
+  raw_text: 'hash format: sha256'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:39:57Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: UCI_HAR dataset is used for time-series and DROP/MUST for text
+  claim_id: c_564f04e5
+  context: 'Compute Feasibility Notes: Use UCI_HAR for time-series, DROP/MUST for
+    text'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_HAR_dataset_is_used_for_time-series_and_DROP/MUST_for_te
+  kind: entity_fact
+  raw_text: UCI_HAR for time-series, DROP/MUST for text
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:41:29Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: No 8-bit or 4-bit quantization is used
+  claim_id: c_d16ee6e7
+  context: 'Compute Feasibility Notes: No 8-bit/4-bit quantization (bitsandbytes requires
+    CUDA)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No 8-bit/4-bit quantization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:41:32Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Bitsandbytes library requires CUDA
+  claim_id: c_7eca27cd
+  context: 'Compute Feasibility Notes: No 8-bit/4-bit quantization (bitsandbytes requires
+    CUDA)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bitsandbytes_library_requires_CUDA
+  kind: entity_fact
+  raw_text: bitsandbytes requires CUDA
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:42:04Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Project is initialized with Python 3.11
+  claim_id: c_493ca185
+  context: T008 Initialize Python 3.11 project
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:43:46Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Statistical test referenced in arXiv paper 1809.01635
+  claim_id: c_7143932a
+  context: 'T027 Implement statistical tests; MUST include: ... (1809.01635, https://arxiv.org/abs/1809.01635)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '1809.01635'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:44:16Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Bootstrap CI method referenced in arXiv paper 1710.08708
+  claim_id: c_6a5e7d18
+  context: T027 Implement statistical tests; bootstrap_ci values ... (1710.08708,
+    https://arxiv.org/abs/1710.08708)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '1710.08708'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:45:07Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Wikidata entity Q129317410 referenced for compute feasibility
+  claim_id: c_f94f22ce
+  context: 'Compute Feasibility Notes: {{claim:c_99ae3926}} (Wikidata Q129317410,
+    https://www.wikidata.org/wiki/Q129317410)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P478: 126'
+      source_id: Q129317410
+      url: https://www.wikidata.org/wiki/Q129317410
+      value: '126'
+    filled: true
+  kind: entity_fact
+  raw_text: Wikidata Q129317410
+  resolved_value: '126'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T23:45:17Z'

@@ -1,12 +1,8 @@
-# Ruff configuration for llmXive project
-# Line length set to 88 as per specification
-# Target version set to Python 3.11
-
+# Ruff configuration for llmXive benchmark project
 line-length = 88
 target-version = "py311"
 
 [lint]
-# Enable a set of recommended rules
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -17,19 +13,11 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501", # Line too long (handled by formatter)
-    "B008", # Do not perform function call in argument defaults (common in testing)
+    "E501", # line too long (handled by black/ruff format)
+    "B008", # do not perform function calls in argument defaults (common in CLI/ML)
 ]
 
 [lint.isort]
-known-first-party = ["src", "tests", "research"]
-
-[format]
-# Use double quotes for strings
-quote-style = "double"
-# Indent with spaces
-indent-style = "space"
-# Respect magic trailing commas
-skip-magic-trailing-comma = false
-# Use Unix newlines
-line-ending = "auto"
+known-first-party = ["src", "tests", "research", "setup"]
+force-single-line = false
+lines-after-imports = 2

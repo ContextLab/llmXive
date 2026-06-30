@@ -1,6 +1,5 @@
-'|benchmark different reproducibility run seed time verification':
-  quote: 'tasks [5, 6]. Policy gradient methods can be generally divided into two
-    groups: off-policy gradient'
-  source_id: '1708.04133'
-  url: https://arxiv.org/abs/1708.04133
-  value: '5'
+'|q129317410 wikidata':
+  quote: 'P478: 126'
+  source_id: Q129317410
+  url: https://www.wikidata.org/wiki/Q129317410
+  value: '126'
