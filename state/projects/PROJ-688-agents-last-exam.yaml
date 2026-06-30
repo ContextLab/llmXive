@@ -13,6 +13,6 @@ points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-688-agents-last-exam/specs/001-agents-last-exam
 title: Agents' Last Exam
 updated_at: '2026-06-30T15:54:03.373421Z'

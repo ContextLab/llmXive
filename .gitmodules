@@ -85,3 +85,6 @@
 [submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
 	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
 	url = https://github.com/jianuo-huang/Domino
+[submodule "projects/PROJ-688-agents-last-exam/external/agents-last-exam"]
+	path = projects/PROJ-688-agents-last-exam/external/agents-last-exam
+	url = https://github.com/rdi-berkeley/agents-last-exam

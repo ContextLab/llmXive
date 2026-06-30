@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-12T09:26:31.837436Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses
   on Coding Tasks'
-updated_at: '2026-06-30T07:24:42.483513Z'
+updated_at: '2026-06-30T17:12:11.673671Z'
