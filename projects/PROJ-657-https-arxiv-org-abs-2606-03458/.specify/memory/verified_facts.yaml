@@ -1,0 +1,10 @@
+'|apply bit project quantization':
+  quote: GGUF supports 2-bit to 8-bit quantized integer types, common floating-point
+    data formats such as float32, float16 and bfloat16, and 1.58-bit quantization.
+    Several "K-quant" variants (such as Q4_K, Q5_K and Q6_K) use a block-based scheme
+    with separate scale and minimum values per super-block, generally giving better
+    quality at a given bit-width than the simpler legacy quantizations such as Q4_0
+    and Q8_0.
+  source_id: GGUF
+  url: https://en.wikipedia.org/wiki/GGUF
+  value: 8-bit

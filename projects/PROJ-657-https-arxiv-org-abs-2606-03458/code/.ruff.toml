@@ -1,0 +1,12 @@
+# Ruff configuration file
+extend = "pyproject.toml"
+line-length = 88
+target-version = "py310"
+
+[lint]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501"]
+
+[lint.isort]
+known-first-party = ["kvarn"]
+force-sort-within-sections = true

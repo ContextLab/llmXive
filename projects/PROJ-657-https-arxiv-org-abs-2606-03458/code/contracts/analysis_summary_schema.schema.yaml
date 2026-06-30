@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Analysis Summary Schema
+description: >
+  Schema for the output of the statistical analysis phase (T026).
+  Aggregates results from benchmark runs and statistical tests.
+type: object
+required:
+  - experiment_id
+  - timestamp
+  - model_used
+  - datasets_analyzed
+  - statistical_tests
+  - error_accumulation_analysis
+  - conclusions
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier for the experiment run.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the analysis execution.
+  model_used:
+    type: string
+    description: Identifier of the model used (e.g., "microsoft/phi-2").
+  datasets_analyzed:
+    type: array
+    items:
+      type: string
+    description: List of dataset names included in this analysis.
+  statistical_tests:
+    type: object
+    description: Results of statistical comparisons between quantization methods.
+    required:
+      - mcnemar_results
+      - paired_ttest_results
+    properties:
+      mcnemar_results:
+        type: object
+        description: McNemar's test results for binary accuracy comparisons.
+        additionalProperties:
+          type: object
+          properties:
+            statistic:
+              type: number
+            p_value:
+              type: number
+            significant:
+              type: boolean
+      paired_ttest_results:
+        type: object
+        description: Paired t-test results for MSE comparisons.
+        additionalProperties:
+          type: object
+          properties:
+            statistic:
+              type: number
+            p_value:
+              type: number
+            significant:
+              type: boolean
+  error_accumulation_analysis:
+    type: object
+    description: Analysis of error accumulation trends (FR-009, FR-010).
+    required:
+      - correlation_coefficient
+      - regression_slope_comparison
+    properties:
+      correlation_coefficient:
+        type: number
+        description: Pearson correlation between cumulative MSE and task accuracy.
+      regression_slope_comparison:
+        type: object
+        description: Comparison of linear regression slopes for error accumulation.
+        properties:
+          kvarn_slope:
+            type: number
+          uniform_slope:
+            type: number
+          slope_difference:
+            type: number
+          p_value_slope_diff:
+            type: number
+  conclusions:
+    type: array
+    items:
+      type: string
+    description: List of textual conclusions drawn from the analysis.

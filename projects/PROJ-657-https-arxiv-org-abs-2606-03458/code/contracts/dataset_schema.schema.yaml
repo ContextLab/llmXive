@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Dataset Schema for Raw MSE Logs
+description: >
+  Schema for the raw per-token Mean Squared Error data points.
+  Used by T014b and consumed by T024/T025.
+type: object
+required:
+  - token_position
+  - mse
+  - quantizer_type
+properties:
+  token_position:
+    type: integer
+    minimum: 0
+    description: The index of the token in the generated sequence.
+  mse:
+    type: number
+    minimum: 0.0
+    description: The Mean Squared Error for the reconstruction at this token.
+  quantizer_type:
+    type: string
+    enum:
+      - KVarN
+      - Uniform
+    description: The type of quantizer used to generate this error.
+  sequence_id:
+    type: string
+    description: Optional unique identifier for the sequence this token belongs to.
+  dataset_name:
+    type: string
+    description: Optional name of the dataset this sample came from.
+additionalProperties: false

@@ -1,0 +1,10 @@
+# Existing dependencies
+torch
+transformers
+datasets
+scikit-learn
+pandas
+numpy
+pytest
+# Added for integration tests if needed
+accelerate

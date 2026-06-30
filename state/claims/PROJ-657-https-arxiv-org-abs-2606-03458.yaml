@@ -1,0 +1,198 @@
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: Llama-2-7B model excluded from implementation due to RAM constraints
+  claim_id: c_eb8b4163
+  context: 'Phase 4: User Story 2 - Execute Comparative Inference on Reasoning Benchmarks.
+    Implementation for User Story 2. Note: Spec Assumptions updated to reflect Phi-2
+    usage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Plan Deviation: Llama-2-7B excluded due to RAM'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T01:31:07Z'
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: Implementation uses transformers library and microsoft/phi-2 model
+  claim_id: c_2182504f
+  context: 'Notes section. Plan Deviation: Spec FR-003 (vllm) and Assumptions (Llama-2-7B)
+    are infeasible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tasks implement transformers + microsoft/phi-2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T01:31:30Z'
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: KVarN algorithm scales quantization parameters based on local variance
+  claim_id: c_93a8b13d
+  context: 'Phase 3: User Story 1 - Implement Variance-Normalized KV-Cache Quantization
+    (Priority: P1) Goal: Implement the core KVarN algorithm to scale quantization
+    parameters based on local variance, ensuring statistical distribution preservation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/KVarN_algorithm_scales_quantization_parameters_based_on_loca
+  kind: entity_fact
+  raw_text: The project implements the KVarN algorithm to scale quantization parameters
+    based on local variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T01:56:05Z'
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: Phi-2 2.7B model used in FP16
+  claim_id: c_93da5697
+  context: 'T018 [US2] Implement code/src/inference/engine.py logic to load **Phi
+    (2.7B)** model (`microsoft/phi-2`) in FP16 (Plan Deviation: Llama-2-7B excluded
+    due to RAM)'
+  evidence:
+    asserted: '2.7'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: The project uses the Phi (2.7B) model (microsoft/phi-2) in FP16.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T01:56:05Z'
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: Datasets loaded include MATH500, AIME, Human Eval, and IFEval
+  claim_id: c_46741f1b
+  context: T007 [P] Create code/src/benchmarks/loader.py to load math_dataset (MATH500),
+    aime, human_eval, and ifeval via datasets.load_dataset using canonical IDs (FR-004,
+    Constitution Principle VII).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_loaded_include_MATH500,_AIME,_Human_Eval,_and_IFEva
+  kind: entity_fact
+  raw_text: The project loads datasets including math_dataset (MATH500), aime, human_eval,
+    and ifeval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T01:57:01Z'
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: Transformers library used instead of vllm due to CPU constraints
+  claim_id: c_446e28c8
+  context: 'T013b [US1] Implement code/src/inference/engine.py with CustomGenerateLoop
+    that injects KVarNQuantizer into the forward pass (FR-003 Deviation: uses transformers
+    instead of vllm due to CPU constraints)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Transformers_library_used_instead_of_vllm_due_to_CPU_constra
+  kind: entity_fact
+  raw_text: The project uses the transformers library instead of vllm due to CPU constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T01:58:05Z'
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: Local variance clamped to 1e-8
+  claim_id: c_f76b60f0
+  context: 'T012 [P] [US1] Implement code/src/quantization/kvarn.py with KVarNQuantizer
+    class (FR-001, FR-008) Logic: Calculate local variance, clamp to a small positive
+    floor value (1e-8), scale quantization parameters, apply 8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project clamps local variance to a floor value of 1e-8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T01:59:05Z'
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: 8-bit quantization applied
+  claim_id: c_c92ba7b0
+  context: 'T012 [P] [US1] Implement code/src/quantization/kvarn.py with KVarNQuantizer
+    class (FR-001, FR-008) Logic: Calculate local variance, clamp to a small positive
+    floor value (1e-8), scale quantization parameters, apply 8-bit quantization.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: GGUF supports 2-bit to 8-bit quantized integer types, common floating-point
+        data formats such as float32, float16 and bfloat16, and 1.58-bit quantization.
+        Several "K-quant" variants (such as Q4_K, Q5_K and Q6_K) use a block-based
+        scheme with separate scale and minimum values per super-block, generally giving
+        better quality at a given bit-width than the simpler legacy quantizations
+        such as Q4_0 and Q8_0.
+      source_id: GGUF
+      url: https://en.wikipedia.org/wiki/GGUF
+      value: 8-bit
+    filled: true
+  kind: numeric
+  raw_text: The project applies 8-bit quantization.
+  resolved_value: 8-bit
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T01:59:27Z'
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: Llama-2-7B excluded due to RAM constraints
+  claim_id: c_411b2528
+  context: 'T018 [US2] Implement code/src/inference/engine.py logic to load **Phi
+    (2.7B)** model (`microsoft/phi-2`) in FP16 (Plan Deviation: Llama-2-7B excluded
+    due to RAM)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project excludes Llama-2-7B due to RAM constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T02:00:06Z'
+- artifact_path: projects/PROJ-657-https-arxiv-org-abs-2606-03458/specs/001-https-arxiv-org-abs-2606-03458/tasks.md
+  attempts: 1
+  canonical: Project runs on CPU-only environment with limited cores and RAM
+  claim_id: c_ccb10d51
+  context: 'Hardware Constraint: All tasks MUST run on CPU-only (limited cores, limited
+    RAM). No CUDA, no bitsandbytes, no low-precision model loading that requires GPU.
+    Use Phi-2 (2.7B) FP16.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_runs_on_CPU-only_environment_with_limited_cores_and
+  kind: entity_fact
+  raw_text: The project runs on a CPU-only environment with limited cores and limited
+    RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T02:01:07Z'
