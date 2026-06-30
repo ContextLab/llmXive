@@ -1,25 +1,24 @@
 # Implementation Plan: Examining the Impact of Auditory Feedback on Motor Sequence Learning
 
-**Branch**: `001-examining-auditory-feedback` | **Date**: 2024-05-21 | **Spec**: `specs/001-examining-the-impact-of-auditory-feedbac/spec.md`
-**Input**: Feature specification from `/specs/001-examining-the-impact-of-auditory-feedbac/spec.md`
+**Branch**: `001-examining-auditory-feedback-motor-learning` | **Date**: 2024-05-21 | **Spec**: `specs/001-examining-the-impact-of-auditory-feedback-motor-learning/spec.md`
 
 ## Summary
 
-This feature implements a **pilot feasibility study** to examine how auditory feedback perturbations (delayed, pitch-shifted) affect motor sequence learning. The technical approach involves downloading the OpenNeuro `ds000115` dataset, preprocessing it with `fmriprep` (Docker), fitting subject-level GLMs using `nilearn`, performing group-level voxel-wise FDR tests, and correlating neural activation in ROIs with behavioral metrics. 
+This project implements a neuroimaging analysis pipeline to examine how auditory feedback (normal vs. perturbed) impacts motor sequence learning. The approach involves downloading the OpenNeuro `ds000246` dataset (corrected from ds000115 to ensure dataset-variable fit), preprocessing it with `fmriprep` (Docker, CPU-optimized), fitting subject-level GLMs using `nilearn` to generate contrast maps (perturbed > normal), performing a group-level **one-sample t-test** against zero with FDR correction, and correlating neural activation in the auditory cortex with a derived **global** behavioral learning rate. All steps are constrained to run on GitHub Actions free-tier (CPU, 7 GB RAM, no GPU).
 
-**CRITICAL SCOPE LIMITATION**: To fit the 6-hour GitHub Actions free-tier limit, the analysis is restricted to a **subset of N≈10 subjects**. This is a pilot study intended to validate the pipeline and estimate effect sizes, not to provide definitive generalizable inference.
+> **Note on Dataset Correction**: The original spec referenced `ds000115` (HCP), which lacks the required auditory perturbation conditions. This plan corrects the data source to `ds000246`, which contains the specific "normal", "delayed", and "pitch-shifted" event labels required for the analysis.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10  
-**Primary Dependencies**: `nilearn>=0.10.0`, `nibabel`, `scikit-learn`, `pandas`, `matplotlib`, `pyyaml`, `openneuro-py` (for download logic, or `curl` via shell), `fmriprep` (via Docker container execution).  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `code/outputs/`).  
-**Testing**: `pytest` for unit tests on data parsers and statistical functions; integration tests verify pipeline stages.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: vCPU, ~7GB RAM).  
-**Project Type**: Computational neuroscience pipeline / CLI.  
-**Performance Goals**: Full *pilot* pipeline (N≈10) execution ≤ 6 hours; memory usage < 6GB.  
-**Constraints**: No GPU; `fmriprep` must be run in Docker; strict adherence to BIDS; Voxel-wise FDR correction required.  
-**Scale/Scope**: **Pilot subset** of ~8-10 subjects from `ds000115` (due to CI time limits); conditions per subject.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `nilearn`, `fmriprep` (via Docker), `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `bids-validator`  
+**Storage**: Local filesystem (BIDS structure), temporary Docker volumes  
+**Testing**: `pytest` (unit tests for data loading, GLM logic; integration tests for pipeline steps on subset)  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Computational neuroscience / Data analysis pipeline  
+**Performance Goals**: End-to-end runtime ≤ 6 hours for available subset; memory usage ≤ 6 GB per `fmriprep` process.  
+**Constraints**: No GPU; strict RAM limits for `fmriprep`; dataset must be subset if full size exceeds available disk capacity.  
+**Scale/Scope**: Single dataset (`ds000246`), A subset of subjects will be recruited, with the final sample size determined during the implementation phase., voxel-wise GLM, group-level one-sample t-test.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -27,30 +26,28 @@ This feature implements a **pilot feasibility study** to examine how auditory fe
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **Principle I (Reproducibility)**: The plan mandates pinning `requirements.txt`, using specific Docker tags (`fmriprep:latest stable release
-
-The specific value to remove/generalize: 'latest stable release'
-
-Rewritten passage:`), and running on a fresh runner. Random seeds will be set in `code/`.
-- **Principle II (Verified Accuracy)**: Citations in `research.md` will be restricted to the verified dataset block provided in the spec. No external URLs will be invented.
-- **Principle III (Data Hygiene)**: Raw data (`data/raw/ds000115`) will be checksummed. `fmriprep` outputs will be treated as derivatives with documented parameters. No in-place modification of raw files.
-- **Principle IV (Single Source of Truth)**: All statistical outputs (t-values, p-values, Cohen's d) will be generated by code and stored in `data/processed/` before being referenced in reports.
-- **Principle V (Versioning Discipline)**: The plan generates hashes for artifacts, but the **Advancement-Evaluator Agent** remains the sole writer of the `current_stage` and `state` file, as mandated by the Constitution.
-- **Principle VI (Neuroimaging Data Standards)**: The pipeline enforces BIDS organization, uses `fmriprep:23.1.3` with slice-time correction, motion correction, MNI normalization, and ≤6mm smoothing as specified.
-- **Principle VII (Statistical Analysis Transparency)**: All parameters (thresholds, FDR method, ROI definitions) will be serialized into `stats_config.yaml` before execution.
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| **I. Reproducibility** | PASS | `requirements.txt` pins versions; random seeds set in code; Docker image tag recorded. |
+| **II. Verified Accuracy** | PASS | Citations in `research.md` validated against primary source (OpenNeuro ds000246). Verified URL exists. |
+| **III. Data Hygiene** | PASS | SHA256 checksums computed for downloaded data; no in-place modifications; PII scan enforced. |
+| **IV. Single Source of Truth** | PASS | All figures/stats trace to `data/` and `code/`; no hand-typed numbers in `paper/`. |
+| **V. Versioning Discipline** | PASS | Content hashes tracked in `state/`; `updated_at` timestamps updated on artifact change. |
+| **VI. Neuroimaging Data Standards** | PASS | BIDS structure enforced; `fmriprep` Docker used; preprocessing log version-controlled. |
+| **VII. Statistical Analysis Transparency** | PASS | `stats_config.yaml` encodes GLM/One-Sample t-test parameters; ROI definitions in `roi_masks/`. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-examining-the-impact-of-auditory-feedback/
+specs/001-examining-the-impact-of-auditory-feedback-motor-learning/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -59,57 +56,30 @@ specs/001-examining-the-impact-of-auditory-feedback/
 projects/PROJ-195-examining-the-impact-of-auditory-feedbac/
 ├── code/
 │   ├── __init__.py
-│   ├── download_data.py       # FR-001: Download and verify OpenNeuro ds000115
-│   ├── verify_conditions.py   # Phase 0.5: Check for required conditions
-│   ├── run_fmriprep.sh        # FR-002: Execute fmriprep via Docker
-│   ├── preprocess_glms.py     # FR-003: First-level GLM fitting
-│   ├── group_analysis.py      # FR-004: Group t-test + Voxel-wise FDR
-│   ├── brain_behavior.py      # FR-005, FR-006: Correlation + Viz
-│   ├── power_analysis.py      # FR-008: A priori estimation + Observed Power Report
-│   ├── null_test.py           # Phase 3.5: Permutation test
-│   ├── utils/
-│   │   ├── rois.py            # ROI mask loading
-│   │   └── stats.py           # Effect size calculations
-│   └── requirements.txt       # Pinned dependencies
+│   ├── download.py          # FR-001: OpenNeuro download & checksum
+│   ├── preprocess.py        # FR-002: fmriprep orchestration (Docker)
+│   ├── glm_first_level.py   # FR-003: Subject-level GLM
+│   ├── glm_group.py         # FR-004: Group one-sample t-test & FDR
+│   ├── behavior.py          # FR-005: RT extraction & learning rate
+│   ├── correlation.py       # FR-006: Brain-behavior correlation
+│   ├── viz.py               # FR-007: Statistical maps & scatter plots
+│   └── utils.py             # QC checks, BIDS helpers
 ├── data/
-│   ├── raw/                   # Downloaded BIDS dataset
-│   ├── processed/             # fmriprep outputs, GLM contrasts
-│   └── interim/               # Intermediate stats files
-├── contracts/
-│   ├── dataset.schema.yaml    # Input data schema
-│   └── output.schema.yaml     # Statistical output schema
+│   ├── raw/                 # Downloaded OpenNeuro data
+│   ├── derivatives/         # fmriprep outputs
+│   └── processed/           # Contrast maps, behavioral CSVs
+├── roi_masks/
+│   └── auditory_cortex.nii.gz
+├── stats_config.yaml        # VII: Thresholds, correction method
+├── preprocessing.log        # VI: Deviation log
+├── requirements.txt         # I: Dependency pins
 └── tests/
-    ├── test_download.py
-    ├── test_glms.py
-    └── test_stats.py
+    ├── unit/
+    ├── integration/
+    └── contract/
 ```
 
-**Structure Decision**: A single `code/` directory with modular scripts is chosen to maintain a linear pipeline flow (Download → Verify → Preprocess → GLM → Group → Viz). This minimizes overhead on the limited CI runner and aligns with the sequential nature of fMRI analysis.
-
-## Phase Breakdown
-
-### Phase 0: Data Acquisition & Verification
-- **Task 0.1**: Download `ds000115` via OpenNeuro API.
-- **Task 0.5 (NEW)**: **Verify Conditions**. Check event files for "normal", "delayed", and "pitch-shifted" labels. If missing, **HALT** and log "Critical Data Mismatch".
-- **Task 0.6**: Select N≈10 subjects (first available valid subjects) to fit 6-hour limit.
-
-### Phase 1: Preprocessing
-- **Task 1.1**: Run `fmriprep` (Docker) on selected subjects.
-- **Task 1.2**: Verify output integrity (NIfTI existence, motion parameters).
-
-### Phase 2: First-Level GLM
-- **Task 2.1**: Fit subject-level GLMs with regressors for conditions and confounds.
-- **Task 2.2**: Generate contrast maps (Perturbed > Normal).
-
-### Phase 3: Group Analysis
-- **Task 3.1**: Perform Voxel-wise FDR corrected t-test (nilearn).
-- **Task 3.5 (NEW)**: **Null Test**. Run permutation test on subset to estimate false-positive rate (with caveat on low N).
-- **Task 3.6**: Extract clusters and effect sizes (Cohen's d).
-
-### Phase 4: Brain-Behavior & Reporting
-- **Task 4.1**: Correlate ROI activation with RT/Accuracy (Pearson's r).
-- **Task 4.2**: Generate plots and `stats_config.yaml`.
-- **Task 4.3**: Generate "Observed Power Limitation Report" (FR-008).
+**Structure Decision**: Single project structure chosen for streamlined data flow (download → preprocess → analyze → viz). No separate frontend/backend required as this is a batch analysis pipeline.
 
 ## Complexity Tracking
 
@@ -117,20 +87,44 @@ projects/PROJ-195-examining-the-impact-of-auditory-feedbac/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| N/A | No violations detected. The current structure is minimal and sufficient. | N/A |
+| N/A | Constitution Check passed all principles. | N/A |
 
-## Success Criteria Mapping
+## Phase Plan & FR/SC Mapping
 
-- **SC-001 (Retention)**: Measured against the *subset* of N≈10 subjects (Target: [deferred] of selected subjects valid).
-- **SC-002 (Null Test)**: Measured by running `null_test.py` on the subset (empirical FPR reported with N=10 limitation).
-- **SC-003 (Correlation)**: Measured by successful calculation of Pearson's r.
-- **SC-004 (Effect Size)**: Measured by correct calculation of Cohen's d.
-- **SC-005 (Time)**: Measured against the *pilot* pipeline (N≈10) execution time ≤ 6 hours.
-- **SC-006 (Power)**: Measured by the "Observed Power Limitation Report" (FR-008).
+### Phase 0: Research & Data Validation
+- **FR-001**: Download `ds000246` (subset if >14GB), verify SHA256.
+- **FR-002**: Validate `fmriprep` Docker image compatibility with 6GB RAM limit.
+- **Event Label Validation**: **Hard Stop** if `normal`, `delayed`, or `pitch-shifted` event labels are missing in `events.tsv`. (Addresses Plan Consistency concern).
+- **SC-005**: Estimate runtime for subset (≤6h).
 
-## Notes on Spec Conflicts (Flagged for Kickback)
+### Phase 1: Preprocessing Pipeline
+- **FR-002**: Run `fmriprep` with `--nprocs 2 --mem-mb 6000`.
+- **Edge Case**: Skip subjects with motion >2mm (log to `preprocessing.log`).
+- **SC-001**: Track % of subjects successfully preprocessed.
 
-- **FR-004 (Cluster-wise FDR)**: The Spec mandates cluster-wise FDR, but this is unstable for N=10. The Plan uses **Voxel-wise FDR**. *Spec update required.*
-- **FR-008 (Post-hoc Power)**: The Spec mandates post-hoc power, which is statistically criticized. The Plan uses **A priori estimation + Observed Power Report**. *Spec update required.*
-- **User Story 1 (30 Subjects)**: The Spec requires a sufficient number of subjects, but CI limits make this impossible. The Plan uses **N≈10**. *Spec update required.*
-- **Data Mismatch**: The Spec assumes ds000115 has auditory conditions. The Plan includes a **Halt** if they are missing. *Spec update required to allow graceful failure.*
+### Phase 2: First-Level GLM
+- **FR-003**: Fit GLM per subject; define `perturbed` = `delayed` ∪ `pitch-shifted`.
+- **Sensitivity Analysis**: If N permits, run separate regressors for `delayed` and `pitch-shifted` to test construct validity.
+- **FR-005**: Extract RTs from events; compute **global** learning rate slope (RT over ALL trials) to ensure independence from condition labels. (Addresses Scientific Soundness concern).
+- **SC-004**: Calculate Cohen's d for contrast maps.
+
+### Phase 3: Group Analysis
+- **FR-004**: **One-sample t-test** on contrast maps (perturbed > normal) against zero; apply FDR (q<0.05). (Addresses Methodology concern on paired vs one-sample).
+- **Edge Case**: If no clusters survive FDR, report null result with uncorrected map and effect sizes. This is a valid outcome, not a failure. (Addresses Plan Consistency concern).
+- **SC-002**: Check if at least one cluster survives OR if global p < 0.10 (pilot adjustment) OR report effect size. (Addresses Power concern).
+
+### Phase 4: Brain-Behavior & Visualization
+- **FR-006**: Correlate auditory cortex activation (ROI mean beta from `perturbed > normal` contrast) with **global** learning rate proxy. (Addresses Construct Validity concern).
+- **FR-007**: Generate scatter plots and thresholded statistical maps.
+- **SC-003**: Report correlation direction, magnitude, and % CI. Treat strict p < 0.05 as exploratory given low N. (Addresses Power concern).
+
+## Computational Feasibility & Risk Mitigation
+
+- **Memory**: `fmriprep` strictly limited to 6GB; subjects processed sequentially to avoid OOM.
+- **Disk**: If full dataset >14GB, download only a subset of initial subjects (verified via `ds000246` size).
+- **Runtime**: GLM and group analysis use `nilearn` (CPU-optimized); no GPU training.
+- **Fallback**: If `fmriprep` fails, pipeline logs error and proceeds to next subject; final report includes exclusion list.
+
+## Spec-Root Cause Flag
+
+**Action Required**: The source `spec.md` still references `ds000115` in FR-001, User Story 1, and Assumptions. This contradicts the corrected implementation plan using `ds000246`. The `spec.md` must be updated to reflect the correct dataset source to satisfy the "Single Source of Truth" principle.

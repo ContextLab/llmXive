@@ -1,0 +1,94 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema for ds000246"
+description: "Schema for OpenNeuro ds000246 BIDS structure and derived artifacts."
+type: object
+properties:
+  raw_data:
+    type: object
+    description: "Raw BIDS directory structure"
+    properties:
+      participants:
+        type: string
+        description: "Path to participants.tsv"
+      sub:
+        type: object
+        description: "Subject-level data"
+        additionalProperties:
+          type: object
+          properties:
+            func:
+              type: array
+              description: "List of fMRI NIfTI files"
+              items:
+                type: string
+            events:
+              type: array
+              description: "List of event.tsv files"
+              items:
+                type: string
+  derivatives:
+    type: object
+    description: "fmriprep derivatives"
+    properties:
+      sub:
+        type: object
+        additionalProperties:
+          type: object
+          properties:
+            func:
+              type: array
+              description: "Preprocessed NIfTI files"
+              items:
+                type: string
+            confounds:
+              type: array
+              description: "Confounds TSV files"
+              items:
+                type: string
+  processed:
+    type: object
+    description: "Derived analysis artifacts"
+    properties:
+      contrast_maps:
+        type: array
+        description: "Subject-level contrast maps (perturbed > normal)"
+        items:
+          type: object
+          properties:
+            subject_id:
+              type: string
+            contrast_name:
+              type: string
+            nifti_path:
+              type: string
+      behavioral:
+        type: array
+        description: "Behavioral metrics (Global learning rate)"
+        items:
+          type: object
+          properties:
+            subject_id:
+              type: string
+            learning_rate_proxy:
+              number
+            mean_rt:
+              number
+            accuracy:
+              number
+      roi_activation:
+        type: array
+        description: "ROI activation values"
+        items:
+          type: object
+          properties:
+            subject_id:
+              type: string
+            roi_name:
+              type: string
+            mean_beta:
+              number
+required:
+  - raw_data
+  - derivatives
+  - processed
+additionalProperties: false

@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proj-195-auditory-feedback"
+version = "0.1.0"
+description = "Examining the impact of auditory feedback on motor sequence learning"
+requires-python = ">=3.11"
+dependencies = [
+    "nilearn",
+    "pandas",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "bids-validator",
+    "pytest"
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "black",
+    "isort",
+    "mypy"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]

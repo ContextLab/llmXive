@@ -1,0 +1,108 @@
+# Statistical Analysis Configuration for Auditory Feedback Motor Learning Study
+# Project: PROJ-195-examining-the-impact-of-auditory-feedback
+# Defines parameters for GLM, FDR correction, and ROI definitions
+
+glm:
+  # First-level GLM parameters
+  model_type: "fir"
+  fir_delays: [0, 1, 2, 3, 4, 5, 6, 7]
+  drift_model: "cosine"
+  high_pass_cutoff: 128.0  # seconds
+  smoothing_fwhm: 6.0  # mm
+  
+  # Contrast definitions
+  contrasts:
+    # Perturbed condition (union of delayed and pitch-shifted) vs normal
+    perturbed_vs_normal:
+      name: "Perturbed > Normal"
+      type: "t"
+      conditions:
+        - "delayed"
+        - "pitch-shifted"
+      reference: "normal"
+      
+    # Individual condition contrasts for exploratory analysis
+    delayed_vs_normal:
+      name: "Delayed > Normal"
+      type: "t"
+      conditions: ["delayed"]
+      reference: "normal"
+      
+    pitch_shifted_vs_normal:
+      name: "Pitch-Shifted > Normal"
+      type: "t"
+      conditions: ["pitch-shifted"]
+      reference: "normal"
+
+group_analysis:
+  # Group-level analysis parameters
+  test_type: "one_sample_t_test"
+  null_hypothesis: 0.0  # Test against zero activation
+  
+  # Multiple comparison correction
+  correction_method: "fdr"
+  fdr_threshold: 0.05  # q < 0.05
+  cluster_forming_threshold: 0.001  # Uncorrected p-value for cluster formation
+  
+  # Minimum cluster size (in voxels)
+  min_cluster_size: 10
+
+roi_definitions:
+  # Region of Interest masks in MNI standard space
+  primary_rois:
+    auditory_cortex:
+      name: "Auditory Cortex"
+      source: "Harvard-Oxford Cortical Structural Atlas"
+      file: "roi_masks/auditory_cortex.nii.gz"
+      description: "Bilateral auditory cortex including Heschl's gyrus and planum temporale"
+      threshold: 25  # Probability threshold for atlas-based mask
+      
+    motor_cortex:
+      name: "Motor Cortex"
+      source: "Harvard-Oxford Cortical Structural Atlas"
+      file: "roi_masks/motor_cortex.nii.gz"
+      description: "Primary motor cortex (M1) and premotor areas"
+      threshold: 25
+      
+    supplementary_motor_area:
+      name: "Supplementary Motor Area"
+      source: "Harvard-Oxford Cortical Structural Atlas"
+      file: "roi_masks/sma.nii.gz"
+      description: "Supplementary motor area and pre-SMA"
+      threshold: 25
+
+  # Behavioral correlation ROIs
+  correlation_rois:
+    auditory_motor_integration:
+      name: "Auditory-Motor Integration"
+      description: "Regions for correlating auditory activation with behavioral learning rates"
+      components: ["auditory_cortex", "motor_cortex"]
+
+output:
+  # Output file naming and locations
+  first_level_dir: "data/processed/first_level"
+  group_level_dir: "data/processed/group_level"
+  contrast_maps_dir: "data/processed/contrast_maps"
+  statistical_maps_dir: "data/processed/statistical_maps"
+  results_dir: "data/processed/results"
+  
+  # File naming conventions
+  contrast_map_pattern: "sub-{subject}_contrast-{contrast}.nii.gz"
+  group_stat_pattern: "group_{contrast}_stat-{stat_type}.nii.gz"
+  results_csv: "data/processed/correlation_results.csv"
+  report_summary: "docs/report_summary.csv"
+
+logging:
+  level: "INFO"
+  file: "logs/statistical_analysis.log"
+  include_timestamps: true
+  log_clusters: true
+  log_effect_sizes: true
+
+quality_control:
+  # QC thresholds for statistical outputs
+  min_voxels_in_roi: 50
+  max_outlier_percent: 5.0
+  require_effect_size: true  # Require Cohen's d calculation
+  require_confidence_interval: true
+  ci_level: 0.95  # 95% confidence intervals
