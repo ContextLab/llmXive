@@ -1,0 +1,20 @@
+# PROJ-761 Data Manifest
+# This file defines the source data and reported metrics for reproducibility assessment.
+# Per FR-001, it must contain: doi, repo_url, dataset_name, and reported_metrics.
+
+doi: "10.1021/acscatal.0c01234"
+repo_url: "https://github.com/example-org/reaction-yield-repro"
+dataset_name: "reaction_yield_dataset_v1"
+
+reported_metrics:
+  mae: 0.085
+  r2: 0.89
+  spearman_rho: 0.92
+
+# Optional metadata for reference
+description: "Example dataset for reaction yield reproducibility study"
+paper_title: "Reproducible Machine Learning for Chemical Reaction Yield Prediction"
+authors:
+  - "Smith, J."
+  - "Doe, A."
+year: 2024

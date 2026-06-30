@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-22T09:11:51.365229Z'
-current_stage: clarified
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-761-assessing-reproducibility-of-machine-lea
-last_run_id: 53b9f2d2-b270-4a16-aff4-276e3d565502
+last_run_id: a4732c8f-3ad4-4062-9dc0-790d0fe111c5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea
 title: "Assessing Reproducibility of Machine\u2011Learned Reaction Yield Models"
-updated_at: '2026-06-29T02:02:46.007775Z'
+updated_at: '2026-06-30T15:50:25.504868Z'
