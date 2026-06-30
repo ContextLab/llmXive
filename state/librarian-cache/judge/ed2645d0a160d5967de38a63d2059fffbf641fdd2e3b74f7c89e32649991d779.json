@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.18673",
+  "judged_at": "2026-06-30T12:58:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multi-lcb: extending livecodebench to multiple programming languages computer science",
+  "rationale": "This paper satisfies criteria (b) and (e) as it empirically measures the performance of Large Language Models on programming tasks across multiple non-English languages, directly addressing the \"Multiple Programming Languages\" aspect of the user's question regarding the extension of LiveCodeBench. While it focuses on NLP cross-lingual weaknesses rather than a specific code-benchmark extension, it provides the canonical empirical baseline and domain-specific evidence (code generation in multiple ",
+  "relevant": true
+}

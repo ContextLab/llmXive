@@ -1,0 +1,538 @@
+{
+  "fetched_at": "2026-06-30T12:58:22Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages",
+      "target_n": 5
+    },
+    "duration_seconds": 64.926,
+    "ended_at": "2026-06-30T12:58:22Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "cross-lingual code generation benchmarks"
+        ],
+        [
+          2,
+          "multilingual code evaluation datasets"
+        ],
+        [
+          3,
+          "LiveCodeBench extension to non-Python languages"
+        ],
+        [
+          4,
+          "programming language agnostic coding benchmarks"
+        ],
+        [
+          5,
+          "comparative analysis of LLMs across multiple programming languages"
+        ],
+        [
+          6,
+          "code generation performance in diverse syntax environments"
+        ],
+        [
+          7,
+          "multilingual software engineering datasets for large language models"
+        ],
+        [
+          8,
+          "cross-language code synthesis evaluation"
+        ],
+        [
+          9,
+          "benchmarking LLMs on Java, C++, and JavaScript code generation"
+        ],
+        [
+          10,
+          "generalization of code benchmarks beyond Python"
+        ],
+        [
+          11,
+          "multilingual code understanding and generation metrics"
+        ],
+        [
+          12,
+          "heterogeneous programming language code datasets"
+        ],
+        [
+          13,
+          "evaluating LLMs on polyglot coding tasks"
+        ],
+        [
+          14,
+          "LiveCodeBench multi-language adaptation"
+        ],
+        [
+          15,
+          "code generation benchmarks for low-resource programming languages"
+        ],
+        [
+          16,
+          "cross-lingual transfer in code generation models"
+        ],
+        [
+          17,
+          "standardized evaluation for multilingual code assistants"
+        ],
+        [
+          18,
+          "dataset construction for multilingual code generation"
+        ],
+        [
+          19,
+          "performance variance of code LLMs across language families"
+        ],
+        [
+          20,
+          "expanding code benchmarks to include C++ and Java"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer science": 0,
+        "cross-lingual code generation benchmarks": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "code contamination memorization data leakage benchmark",
+      "LiveCodeBench multi-language LLM evaluation Python Java C++",
+      "cross-lingual code generation transfer learning",
+      "held-out test suite code language model perplexity",
+      "training data deduplication code clone detection"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.20517"
+      ]
+    },
+    "per_query_hit_count": {
+      "LiveCodeBench multi-language LLM evaluation Python Java C++": 3,
+      "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer science": 3,
+      "code contamination memorization data leakage benchmark": 3,
+      "cross-lingual code generation transfer learning": 3,
+      "held-out test suite code language model perplexity": 3,
+      "training data deduplication code clone detection": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2007.02699",
+          "rationale": "The paper discusses the theoretical evolution and feature inheritance of programming languages in a general sense, but it does not address the specific mechanism of extending the LiveCodeBench benchmark to multiple languages, nor does it provide empirical data on benchmarking, evaluation metrics, or the specific multi-language dataset construction required by the user's question. It fails to meet criteria (a) or (b) as it lacks the specific benchmarking context and measurable variables (LiveCode",
+          "title": "On the Evolution of Programming Languages"
+        },
+        {
+          "primary_pointer": "2108.09753",
+          "rationale": "The paper focuses on \"clone detection\" and \"clone-and-own\" practices in industrial PLC programming (IEC 61131-3), which is a distinct domain and mechanism from the user's question about extending a specific benchmark (LiveCodeBench) to support multiple general-purpose programming languages for evaluation. While both involve \"programming languages,\" the paper does not address the benchmarking, evaluation, or extension of LiveCodeBench, nor does it study the same mechanism (benchmark performance a",
+          "title": "Custom-Tailored Clone Detection for IEC 61131-3 Programming Languages"
+        },
+        {
+          "primary_pointer": "2303.12869",
+          "rationale": "The paper focuses on a specific model architecture (JaCoText) for Java code generation, which is a distinct methodological contribution rather than a study of the LiveCodeBench benchmark, its extension to multiple languages, or the empirical evaluation of multi-language capabilities. It does not measure the same mechanism, establish a baseline for the specific benchmark extension, or serve as a foundational reference for the \"Multi-LCB\" concept, failing to meet any of the inclusion criteria (a-f",
+          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation"
+        },
+        {
+          "primary_pointer": "2310.10378",
+          "rationale": "The paper focuses on \"factual knowledge\" consistency across natural languages in multilingual models, whereas the user's question concerns extending a coding benchmark (LiveCodeBench) to multiple \"programming languages.\" These are distinct domains (natural language facts vs. code generation/execution) with no overlap in the specific mechanism, variables, or empirical population required for the user's research on programming language benchmarks.",
+          "title": "Cross-Lingual Consistency of Factual Knowledge in Multilingual Language Models"
+        },
+        {
+          "primary_pointer": "1911.12091",
+          "rationale": "The paper focuses on cross-lingual pronoun prediction in natural language processing (NLP) using neural networks, which is a distinct construct from the user's question about extending a programming language benchmark (LiveCodeBench) to multiple programming languages. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the word \"language\" referring to human languages vs. programming languages) and is \"Off-domain entirely\" as it addresses NLP t",
+          "title": "Findings of the 2016 WMT Shared Task on Cross-lingual Pronoun Prediction"
+        },
+        {
+          "primary_pointer": "2306.12916",
+          "rationale": "The paper focuses on cross-lingual summarization of natural language (historical fiction and Wikipedia) and does not address the user's specific question regarding the extension of the LiveCodeBench benchmark to multiple programming languages. While both fields involve \"languages\" and \"models,\" the constructs (natural language summarization vs. code generation benchmarking) and domains (NLP vs. software engineering) are distinct, failing the criteria for same-mechanism evidence or shared empiric",
+          "title": "Cross-lingual Cross-temporal Summarization: Dataset, Models, Evaluation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-30T12:57:17Z",
+    "term_input": {
+      "normalized": "multi-lcb: extending livecodebench to multiple programming languages computer science",
+      "raw": "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In programmers point of view, Datatypes in programming language level have a simple description but inside hardware, huge machine codes are responsible to describe type features. Datatype architecture design is a novel approach to match programming features along with hardware design. In this paper a novel Data type-Based Code Reducer (TYPELINE) architecture is proposed and implemented according to significant data types (SDT) of programming languages. TYPELINE uses TEUs for processing various SDT operations. This architecture design leads to reducing the number of machine codes, and increases execution speed, and also improves some parallelism level. This is because this architecture supports some operation for the execution of Abstract Data Types in parallel. Also it ensures to maintain data type features and entire application level specifications using the proposed type conversion unit. This framework includes compiler level identifying execution modes and memory management unit for decreasing object read/write in heap memory by ISA support. This energy-efficient architecture is completely compatible with object oriented programming languages and in combination mode it can process complex C++ data structures with respect to parallel TYPELINE architecture support.",
+          "claimed_authors": [
+            "Mehran Alidoost Nia",
+            "Reza Ebrahimi Atani"
+          ],
+          "claimed_title": "A novel datatype architecture support for programming languages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.0087"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='A novel datatype architecture support for programming languages')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CDD, or Contamination Detection via output Distribution, identifies data contamination by measuring the peakedness of a model's sampled outputs. We study the conditions under which this approach succeeds and fails on small language models ranging from 70M to 410M parameters. Using controlled contamination experiments on GSM8K, HumanEval, and MATH, we find that CDD's effectiveness depends critically on whether fine-tuning produces verbatim memorization. In the majority of conditions we test, CDD performs at chance level even when the data is verifiably contaminated and detectable by simpler methods. We show that probability-based methods, specifically perplexity and Min-k\\% Prob, outperform CDD in all conditions where any method exceeds chance, suggesting that CDD's peakedness-based approach is insufficient for contamination detection in small language models. Our code is available at https://github.com/Sela-Omer/Contamination-Detection-Small-LM",
+          "claimed_authors": [
+            "Omer Sela"
+          ],
+          "claimed_title": "No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03203"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The growing dependence on Large Language Models (LLMs) for finishing user instructions necessitates a comprehensive understanding of their robustness to complex task completion in real-world situations. To address this critical need, we propose the PowerPoint Task Completion Robustness benchmark (PPTC-R) to measure LLMs' robustness to the user PPT task instruction and software version. Specifically, we construct adversarial user instructions by attacking user instructions at sentence, semantic, and multi-language levels. To assess the robustness of Language Models to software versions, we vary the number of provided APIs to simulate both the newest version and earlier version settings. Subsequently, we test 3 closed-source and 4 open-source LLMs using a benchmark that incorporates these robustness settings, aiming to evaluate how deviations impact LLMs' API calls for task completion. We find that GPT-4 exhibits the highest performance and strong robustness in our benchmark, particularly in the version update and the multilingual settings. However, we find that all LLMs lose their robustness when confronted with multiple challenges (e.g., multi-turn) simultaneously, leading to significant performance drops. We further analyze the robustness behavior and error reasons of LLMs in our benchmark, which provide valuable insights for researchers to understand the LLM's robustness in task completion and develop more robust LLMs and agents. We release the code and data at \\url{https://github.com/ZekaiGalaxy/PPTCR}.",
+          "claimed_authors": [
+            "Zekai Zhang",
+            "Yiduo Guo",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.03788"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Epiphany is a many-core, low power, low on-chip memory architecture and one can very cheaply gain access to a number of parallel cores which is beneficial for HPC education and prototyping. The very low power nature of these architectures also means that there is potential for their use in future HPC machines, however there is a high barrier to entry in programming them due to the associated complexities and immaturity of supporting tools.\n  In this paper we present our work on ePython, a subset of Python for the Epiphany and similar many-core co-processors. Due to the limited on-chip memory per core we have developed a new Python interpreter and this, combined with additional support for parallelism, has meant that novices can take advantage of Python to very quickly write parallel codes on the Epiphany and explore concepts of HPC using a smaller scale parallel machine. The high level nature of Python opens up new possibilities on the Epiphany, we examine a computationally intensive Gauss-Seidel code from the programmability and performance perspective, discuss running Python hybrid on both the host CPU and Epiphany, and interoperability between a full Python interpreter on the CPU and ePython on the Epiphany. The result of this work is support for developing Python on the Epiphany, which can be applied to other similar architectures, that the community have already started to adopt and use to explore concepts of parallelism and HPC.",
+          "claimed_authors": [
+            "Nick Brown"
+          ],
+          "claimed_title": "ePython: An implementation of Python for the many-core Epiphany coprocessor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14827"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='ePython: An implementation of Python for the many-core Epiphany coprocessor')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Social network analysis is the process of investigating social structures through the use of networks and graph theory. It combines a variety of techniques for analyzing the structure of social networks as well as theories that aim at explaining the underlying dynamics and patterns observed in these structures. It is an inherently interdisciplinary field which originally emerged from the fields of social psychology, statistics and graph theory. This talk will covers the theory of social network analysis, with a short introduction to graph theory and information spread. Then we will deep dive into Python code with NetworkX to get a better understanding of the network components, followed-up by constructing and implying social networks from real Pandas and textual datasets. Finally we will go over code examples of practical use-cases such as visualization with matplotlib, social-centrality analysis and influence maximization for information spread.",
+          "claimed_authors": [
+            "Dmitri Goldenberg"
+          ],
+          "claimed_title": "Social Network Analysis: From Graph Theory to Applications with Python",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.10014"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='Social Network Analysis: From Graph Theory to Applications with Python')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have achieved remarkable success in Natural Language Processing (NLP), yet their cross-lingual performance consistency remains a significant challenge. This paper introduces a novel methodology for efficiently identifying inherent cross-lingual weaknesses in LLMs. Our approach leverages beam search and LLM-based simulation to generate bilingual question pairs that expose performance discrepancies between English and target languages. We construct a new dataset of over 6,000 bilingual pairs across 16 languages using this methodology, demonstrating its effectiveness in revealing weaknesses even in state-of-the-art models. The extensive experiments demonstrate that our method precisely and cost-effectively pinpoints cross-lingual weaknesses, consistently revealing over 50\\% accuracy drops in target languages across a wide range of models. Moreover, further experiments investigate the relationship between linguistic similarity and cross-lingual weaknesses, revealing that linguistically related languages share similar performance patterns and benefit from targeted post-training. Code is available at https://github.com/xzx34/Cross-Lingual-Pitfalls.",
+          "claimed_authors": [
+            "Zixiang Xu",
+            "Yanbo Wang",
+            "Yue Huang",
+            "Xiuying Chen",
+            "Jieyu Zhao",
+            "Meng Jiang",
+            "Xiangliang Zhang"
+          ],
+          "claimed_title": "Cross-Lingual Pitfalls: Automatic Probing Cross-Lingual Weakness of Multilingual Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.18673"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='Cross-Lingual Pitfalls: Automatic Probing Cross-Lingual Weakness of Multilingual Large Language Models')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Zero-shot cross-lingual knowledge transfer enables the multilingual pretrained language model (mPLM), finetuned on a task in one language, make predictions for this task in other languages. While being broadly studied for natural language understanding tasks, the described setting is understudied for generation. Previous works notice a frequent problem of generation in a wrong language and propose approaches to address it, usually using mT5 as a backbone model. In this work, we test alternative mPLMs, such as mBART and NLLB-200, considering full finetuning and parameter-efficient finetuning with adapters. We find that mBART with adapters performs similarly to mT5 of the same size, and NLLB-200 can be competitive in some cases. We also underline the importance of tuning learning rate used for finetuning, which helps to alleviate the problem of generation in the wrong language.",
+          "claimed_authors": [
+            "Nadezhda Chirkova",
+            "Sheng Liang",
+            "Vassilina Nikoulina"
+          ],
+          "claimed_title": "Empirical study of pretrained multilingual language models for zero-shot cross-lingual knowledge transfer in generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.09917"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='Empirical study of pretrained multilingual language models for zero-shot cross-lingual knowledge transfer in generation')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Code Large Language Models (Code LLMs), such as StarCoder, have demonstrated exceptional performance in code-related tasks. However, most existing models are solely pre-trained on extensive raw code data without instruction fine-tuning. In this paper, we introduce WizardCoder, which empowers Code LLMs with complex instruction fine-tuning, by adapting the Evol-Instruct method to the domain of code. Through comprehensive experiments on four prominent code generation benchmarks, namely HumanEval, HumanEval+, MBPP, and DS-1000, we unveil the exceptional capabilities of our model. It surpasses all other open-source Code LLMs by a substantial margin. Moreover, our model even outperforms the largest closed LLMs, Anthropic's Claude and Google's Bard, on HumanEval and HumanEval+. Our code, model weights, and data are public at https://github.com/nlpxucan/WizardLM",
+          "claimed_authors": [
+            "Ziyang Luo",
+            "Can Xu",
+            "Pu Zhao",
+            "Qingfeng Sun",
+            "Xiubo Geng",
+            "Wenxiang Hu",
+            "Chongyang Tao",
+            "Jing Ma",
+            "Qingwei Lin",
+            "Daxin Jiang"
+          ],
+          "claimed_title": "WizardCoder: Empowering Code Large Language Models with Evol-Instruct",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.08568"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='WizardCoder: Empowering Code Large Language Models with Evol-Instruct')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a new benchmark corpus to be used for measuring progress in statistical language modeling. With almost one billion words of training data, we hope this benchmark will be useful to quickly evaluate novel language modeling techniques, and to compare their contribution when combined with other advanced techniques. We show performance of several well-known types of language models, with the best results achieved with a recurrent neural network based language model. The baseline unpruned Kneser-Ney 5-gram model achieves perplexity 67.6; a combination of techniques leads to 35% reduction in perplexity, or 10% reduction in cross-entropy (bits), over that baseline.\n  The benchmark is available as a code.google.com project; besides the scripts needed to rebuild the training/held-out data, it also makes available log-probability values for each word in each of ten held-out data sets, for each of the baseline n-gram models.",
+          "claimed_authors": [
+            "Ciprian Chelba",
+            "Tomas Mikolov",
+            "Mike Schuster",
+            "Qi Ge",
+            "Thorsten Brants",
+            "Phillipp Koehn",
+            "Tony Robinson"
+          ],
+          "claimed_title": "One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.3005"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.06371"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
+        "failed_at": "2026-06-30T12:57:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There are a great many clone detection tools proposed in the literature. In this paper, we investigate the state of clone detection tool evaluation. We begin by surveying the clone detection benchmarks, and performing a multi-faceted evaluation and comparison of their features and capabilities. We then survey the existing clone detection tool and technique publications, and evaluate how the authors of these works evaluate their own tools/techniques. We rank the individual works by how well they measure recall, precision, execution time and scalability. We select the works the best evaluate all four metrics as exemplars that should be considered by future researchers publishing clone detection tools/techniques when designing the empirical evaluation of their tool/technique. We measure statistics on tool evaluation by the authors, and find that evaluation is poor amongst the authors. We finish our investigation into clone detection evaluation by surveying the existing tool comparison studies, including both the qualitative and quantitative studies.",
+          "claimed_authors": [
+            "Jeffrey Svajlenko",
+            "Chanchal K. Roy"
+          ],
+          "claimed_title": "A Survey on the Evaluation of Clone Detection Performance and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.15682"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='A Survey on the Evaluation of Clone Detection Performance and Benchmarking')",
+        "failed_at": "2026-06-30T12:57:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote sensing image object detection (RSIOD) aims to identify and locate specific objects within satellite or aerial imagery. However, there is a scarcity of labeled data in current RSIOD datasets, which significantly limits the performance of current detection algorithms. Although existing techniques, e.g., data augmentation and semi-supervised learning, can mitigate this scarcity issue to some extent, they are heavily dependent on high-quality labeled data and perform worse in rare object classes. To address this issue, this paper proposes a layout-controllable diffusion generative model (i.e. AeroGen) tailored for RSIOD. To our knowledge, AeroGen is the first model to simultaneously support horizontal and rotated bounding box condition generation, thus enabling the generation of high-quality synthetic images that meet specific layout and object category requirements. Additionally, we propose an end-to-end data augmentation framework that integrates a diversity-conditioned generator and a filtering mechanism to enhance both the diversity and quality of generated data. Experimental results demonstrate that the synthetic data produced by our method are of high quality and diversity. Furthermore, the synthetic RSIOD data can significantly improve the detection performance of existing RSIOD models, i.e., the mAP metrics on DIOR, DIOR-R, and HRSC datasets are improved by 3.7%, 4.3%, and 2.43%, respectively. The code is available at https://github.com/Sonettoo/AeroGen.",
+          "claimed_authors": [
+            "Datao Tang",
+            "Xiangyong Cao",
+            "Xuan Wu",
+            "Jialin Li",
+            "Jing Yao",
+            "Xueru Bai",
+            "Dongsheng Jiang",
+            "Yin Li",
+            "Deyu Meng"
+          ],
+          "claimed_title": "AeroGen: Enhancing Remote Sensing Object Detection with Diffusion-Driven Data Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.15497"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages computer sc', candidate_title='AeroGen: Enhancing Remote Sensing Object Detection with Diffusion-Driven Data Generation')",
+        "failed_at": "2026-06-30T12:57:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Maria Ivanova",
+            "Pavel Zadorozhny",
+            "Rodion Levichev",
+            "Ivan Petrov",
+            "Adamenko Pavel",
+            "Ivan Lopatin",
+            "Alexey Kutalev",
+            "Dmitrii Babaev"
+          ],
+          "title": "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.20517",
+        "summary": "LiveCodeBench (LCB) has recently become a widely adopted benchmark for evaluating large language models (LLMs) on code-generation tasks. By curating competitive programming problems, constantly adding fresh problems to the set, and filtering them by release dates, LCB provides contamination-aware evaluation and offers a holistic view of coding capability. However, LCB remains restricted to Python, leaving open the question of whether LLMs can generalize across the diverse programming languages required in real-world software engineering.\n  We introduce Multi-LCB, a benchmark for evaluating LLMs across twelve programming languages, including Python. Multi-LCB transforms Python tasks from the LCB dataset into equivalent tasks in other languages while preserving LCB's contamination controls and evaluation protocol. Because it is fully compatible with the original LCB format, Multi-LCB will automatically track future LCB updates, enabling systematic assessment of cross-language code generation competence and requiring models to sustain performance well beyond Python.\n  We evaluated 24 LLMs for instruction and reasoning on Multi-LCB, uncovering evidence of Python overfitting, language-specific contamination, and substantial disparities in multilingual performance. Our results establish Multi-LCB as a rigorous new benchmark for multi-programming-language code evaluation, directly addressing LCB's primary limitation and exposing critical gaps in current LLM capabilities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.20517",
+          "http_status": 200,
+          "pdf_sample_score": 0.2718,
+          "query_relevance_score": 0.7778,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T12:57:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zixiang Xu",
+            "Yanbo Wang",
+            "Yue Huang",
+            "Xiuying Chen",
+            "Jieyu Zhao",
+            "Meng Jiang",
+            "Xiangliang Zhang"
+          ],
+          "title": "Cross-Lingual Pitfalls: Automatic Probing Cross-Lingual Weakness of Multilingual Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.18673",
+        "summary": "Large Language Models (LLMs) have achieved remarkable success in Natural Language Processing (NLP), yet their cross-lingual performance consistency remains a significant challenge. This paper introduces a novel methodology for efficiently identifying inherent cross-lingual weaknesses in LLMs. Our approach leverages beam search and LLM-based simulation to generate bilingual question pairs that expose performance discrepancies between English and target languages. We construct a new dataset of over 6,000 bilingual pairs across 16 languages using this methodology, demonstrating its effectiveness in revealing weaknesses even in state-of-the-art models. The extensive experiments demonstrate that our method precisely and cost-effectively pinpoints cross-lingual weaknesses, consistently revealing over 50\\% accuracy drops in target languages across a wide range of models. Moreover, further experiments investigate the relationship between linguistic similarity and cross-lingual weaknesses, revealing that linguistically related languages share similar performance patterns and benefit from targeted post-training. Code is available at https://github.com/xzx34/Cross-Lingual-Pitfalls.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.18673",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T12:57:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "multi-lcb: extending livecodebench to multiple programming languages computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

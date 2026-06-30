@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.12869",
+  "judged_at": "2026-06-30T12:58:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multi-lcb: extending livecodebench to multiple programming languages computer science",
+  "rationale": "The paper focuses on a specific model architecture (JaCoText) for Java code generation, which is a distinct methodological contribution rather than a study of the LiveCodeBench benchmark, its extension to multiple languages, or the empirical evaluation of multi-language capabilities. It does not measure the same mechanism, establish a baseline for the specific benchmark extension, or serve as a foundational reference for the \"Multi-LCB\" concept, failing to meet any of the inclusion criteria (a-f",
+  "relevant": false
+}
