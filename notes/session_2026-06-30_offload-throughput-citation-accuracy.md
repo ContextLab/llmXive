@@ -87,3 +87,51 @@ pipeline every 3h). Local session cannot compress this.
   workflows/), never per-project code/data edits; `PRE_COMMIT_ALLOW_NO_CONFIG=1`;
   push via `git merge -X ours origin/main` loop; discard driver byproducts
   (`git checkout -- state/ projects/`); human input only for DOI sign-off.
+
+## Update — deep Kaggle-offload repair + local-driving CI-bound proof
+
+After wiring local Kaggle creds (user provided a `KGAT_…` token at ~/Desktop;
+username `jeremy9`), driving the offload locally surfaced that it was THOROUGHLY
+broken — NINE distinct bugs, all fixed + pushed (suite green 4560):
+
+1. KAGGLE_API_TOKEN not passed to llmxive-pipeline.yml (the execution lane).
+2. code_adapter stripped GPU code (→ CPU fabrication, no offload trigger).
+3. fabrication feedback steered GPU metrics to a CPU proxy.
+4. creds resolved only from env, not credentials.toml (`load_kaggle_creds`).
+5. **kgat_ tokens use BEARER auth, not Basic** — Kaggle's "Create New API Token"
+   now issues `KGAT_…` personal-access tokens; the kaggle>=1.7 client consumes
+   them via `KAGGLE_API_TOKEN` (Bearer). `_ensure_kaggle_auth` now detects a
+   kgat_ key (case-insensitive) + exports KAGGLE_API_TOKEN; `load_kaggle_creds`
+   pairs a bare kgat_ token with KAGGLE_USERNAME.
+6. **broken wheel**: bare `pip install kaggle` pulls kaggle 2.2.3 + kagglesdk
+   0.1.32, whose wheel drops `competitions.legacy` → `import kaggle` raises →
+   is_available False. PINNED `kaggle==2.2.3` + `kagglesdk==0.1.31` in advance.yml
+   + reprocess.yml + ADDED the install to llmxive-pipeline.yml.
+7. title!=slug for long names → kaggle>=2 rejects push 400. Title now derives
+   from the (truncated) slug so it round-trips.
+8. poll() false-ERROR on a transient `404 Client Error` (substring "error"). Now
+   parses only the reported `has status "<X>"` token (incl. 2.x enum form).
+9. kernel cloned the whole repo INTO /kaggle/working (the output) → retrieve
+   downloads the entire repo + times out. Now clones to /tmp/llmxive-clone.
+
+PROVEN on real Kaggle GPU: dispatched 657 → kernel ran clone+install+run+retrieve
+end-to-end. The clean retrieve (just the log) confirmed fix #9. The run FAILED on
+657's OWN code (circular import `src/inference/hooks.py ↔ logging_hooks.py`),
+producing no artifacts — i.e. GPU papers need the fix-loop to repair THEIR code
+before offload yields results.
+
+Local driving of a GPU paper is **CI-bound by design**: the offload clones the
+repo from origin, so each fix-loop repair must be committed+pushed before the
+offload can use it. Pushing intermediate per-project state locally risks corrupting
+origin (which the crons + the offload build on), so only CI's controlled
+commit-push step can stage fixes safely. Confirmed: a local drive of 657 sat in the
+implement phase, 0% CPU, WAITING on the slow free reasoning model (Dartmouth qwen
+ignores BOTH `enable_thinking=False` AND `/no_think` — ~15s/call even for a 1-word
+answer; tested live). Killed the drive; nothing broken pushed.
+
+NET: the GPU-offload path (the user's insight) went from 9-ways-broken to
+proven-working. Count stayed 3 at paper_drafting_init — crossings are multi-day CI
+runtime (fix-loop rounds × ~15s reasoning × ~15-min async Kaggle × 3-round review
+× ~16 GPU papers). ACTION to unlock at scale: set CI secret KAGGLE_API_TOKEN =
+the kgat_ token + add KAGGLE_USERNAME=jeremy9 (the new client needs Bearer + a
+username for the kernel ref).
