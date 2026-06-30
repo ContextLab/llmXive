@@ -55,7 +55,10 @@ jobs:
       - uses: actions/setup-python@v6
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
-      - run: pip install kaggle
+      # GPU-offload lane (#367): pin the working Kaggle combo — a bare
+      # `pip install kaggle` pulls kagglesdk 0.1.32 whose wheel drops
+      # `competitions.legacy`, breaking `import kaggle` (offload then no-ops).
+      - run: pip install "kaggle==2.2.3" "kagglesdk==0.1.31"
       - run: python -m llmxive preflight
       - name: Migrate a batch of code papers -> paper_ingested
         env:

@@ -299,8 +299,17 @@ def load_kaggle_creds() -> tuple[str, str] | None:
     if user and key:
         return (user.strip(), key.strip())
     tok = os.environ.get("KAGGLE_API_TOKEN")
-    if tok and (pair := _from_token(tok)):
-        return pair
+    if tok:
+        tok = tok.strip()
+        if pair := _from_token(tok):
+            return pair
+        # A bare ``kgat_``/``KGAT_`` personal-access token (the CURRENT Kaggle
+        # default — used as a Bearer token, NOT the legacy username+key pair) carries
+        # no username of its own; pair it with KAGGLE_USERNAME when present (CI sets
+        # both as secrets). The offload exports it back to KAGGLE_API_TOKEN so the
+        # kaggle>=1.7 Bearer client authenticates.
+        if tok.lower().startswith("kgat_") and user:
+            return (user.strip(), tok)
 
     chk = check_permissions()
     if chk.ok and chk.exists:

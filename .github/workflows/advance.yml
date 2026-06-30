@@ -69,8 +69,12 @@ jobs:
       - uses: actions/setup-python@v6
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
-      # GPU-offload lane (issue #367): the Kaggle CLI. Inert unless the secret is set.
-      - run: pip install kaggle
+      # GPU-offload lane (issue #367): the Kaggle CLI. Inert unless the secret is
+      # set. PIN the working combo: a bare `pip install kaggle` pulls kaggle 2.2.3
+      # WITH kagglesdk 0.1.32, whose wheel is missing `competitions.legacy` so
+      # `import kaggle` raises ModuleNotFoundError -> offload.is_available() is
+      # False -> the lane silently never offloads. 0.1.31 is the last good sdk.
+      - run: pip install "kaggle==2.2.3" "kagglesdk==0.1.31"
       - run: python -m llmxive preflight
       - name: Advance pass (deterministic worker ${{ matrix.worker }})
         run: |

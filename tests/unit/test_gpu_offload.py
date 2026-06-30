@@ -36,9 +36,18 @@ def _bootstrap_project(tmp_path: Path, project_id: str, tasks_md: str,
 # --- is_available() gating --------------------------------------------------
 
 
-def test_is_available_false_without_creds(monkeypatch) -> None:
-    monkeypatch.delenv("KAGGLE_USERNAME", raising=False)
-    monkeypatch.delenv("KAGGLE_KEY", raising=False)
+def test_is_available_false_without_creds(monkeypatch, tmp_path) -> None:
+    # Hermetic: clear env AND redirect HOME + neutralize the credentials file, so a
+    # host with a real ~/.kaggle/kaggle.json or ~/.config/llmxive/credentials.toml
+    # (e.g. a dev who configured the offload) can't flip this result.
+    for var in ("KAGGLE_USERNAME", "KAGGLE_KEY", "KAGGLE_API_TOKEN"):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))          # Path.home() -> empty tmp
+    from llmxive import credentials as _c
+    monkeypatch.setattr(
+        _c, "check_permissions",
+        lambda: _c.CredentialsCheck(ok=True, reason=None, path=tmp_path / "none.toml", exists=False),
+    )
     assert offload.is_available() is False
 
 

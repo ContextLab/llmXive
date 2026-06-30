@@ -96,9 +96,19 @@ def _ensure_kaggle_auth() -> tuple[str, str] | None:
     if pair is None:
         return None
     user, key = pair
+    # NEW Kaggle personal-access tokens (``kgat_`` prefix — the current default
+    # "Create New API Token" issues these, NOT the legacy 32-hex key) are BEARER
+    # tokens consumed via ``KAGGLE_API_TOKEN`` by the kaggle>=1.7 client; the old
+    # Basic username:key path 401s with them. Export it so the CLI authenticates.
+    # The username is still needed for the kernel ref (``<username>/<slug>``), so we
+    # keep resolving + exporting it too. (Pin kaggle==2.2.3 + kagglesdk==0.1.31 in
+    # pyproject — the latest kagglesdk 0.1.32 wheel is missing
+    # ``competitions.legacy`` and breaks ``import kaggle`` outright.)
+    if key.lower().startswith("kgat_"):
+        os.environ["KAGGLE_API_TOKEN"] = key
     # Export the env pair (``dispatch`` reads KAGGLE_USERNAME for the kernel ref)
     # AND ensure ~/.kaggle/kaggle.json exists (chmod 600) so the kaggle CLI itself
-    # authenticates.
+    # authenticates (legacy key path).
     os.environ.setdefault("KAGGLE_USERNAME", user)
     os.environ.setdefault("KAGGLE_KEY", key)
     try:

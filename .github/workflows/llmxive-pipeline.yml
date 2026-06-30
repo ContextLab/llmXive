@@ -60,6 +60,13 @@ jobs:
           cache: pip
       - name: Install package
         run: pip install -e .
+      # GPU-offload lane (#367): the execution gate runs HERE too (this lane runs
+      # `llmxive run` over all stages incl. in_progress), so the Kaggle CLI must be
+      # installed or offload.is_available() is False and GPU papers fall back to a
+      # doomed CPU run. Pin the working combo (kagglesdk 0.1.32 breaks `import
+      # kaggle`). Inert unless KAGGLE_API_TOKEN is set.
+      - name: Install Kaggle CLI (GPU offload)
+        run: pip install "kaggle==2.2.3" "kagglesdk==0.1.31"
       - name: Preflight (FR-024 fail-fast preconditions)
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}

@@ -53,3 +53,23 @@ def test_none_when_absent(tmp_path, monkeypatch):
     _toml(tmp_path, 'dartmouth_chat_api_key = "sk-x"\n', monkeypatch)
     monkeypatch.setattr(C.Path, "home", lambda: tmp_path / "nohome")
     assert C.load_kaggle_creds() is None
+
+
+def test_bare_kgat_token_with_username(monkeypatch):
+    """A bare 'kgat_'/'KGAT_' personal-access token (Bearer) + KAGGLE_USERNAME
+    resolves to (username, token) — the CI secret pairing for the new token format."""
+    monkeypatch.setenv("KAGGLE_USERNAME", "jeremy9")
+    monkeypatch.setenv("KAGGLE_API_TOKEN", "KGAT_abc123def456")
+    monkeypatch.delenv("KAGGLE_KEY", raising=False)
+    assert C.load_kaggle_creds() == ("jeremy9", "KGAT_abc123def456")
+
+
+def test_bare_kgat_token_without_username_is_none(tmp_path, monkeypatch):
+    """A bare kgat_ token with NO username can't form a kernel ref -> None
+    (the offload then no-ops rather than dispatching a malformed kernel)."""
+    monkeypatch.delenv("KAGGLE_USERNAME", raising=False)
+    monkeypatch.delenv("KAGGLE_KEY", raising=False)
+    monkeypatch.setenv("KAGGLE_API_TOKEN", "kgat_only_no_user")
+    _toml(tmp_path, 'dartmouth_chat_api_key = "sk-x"\n', monkeypatch)
+    monkeypatch.setattr(C.Path, "home", lambda: tmp_path / "nohome")
+    assert C.load_kaggle_creds() is None
