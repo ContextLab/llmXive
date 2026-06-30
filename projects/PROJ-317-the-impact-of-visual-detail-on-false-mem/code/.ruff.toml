@@ -1,14 +1,21 @@
 [lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E501", "B008", "UP031"]
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-unfixable = []
-flake8-implicit-str-concat = { allow-multiline = true }
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line-too-long (handled by black)
+    "B008", # do-not-perform-function-calls-in-argument-defaults (often needed for dataclasses)
+]
 
 [format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-docstring-code-format = false
-docstring-code-line-length = "dynamic"
+line-length = 88
+indent-width = 4
+
+[target]
+target-version = "py311"

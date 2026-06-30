@@ -1,0 +1,116 @@
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 'power analysis parameters: alpha 0.05, power 0.80, effect size Cohen''s
+    f 0.25'
+  claim_id: c_51df58df
+  context: 'T012 [P] Implement Power Analysis in code/analysis/stats.py: Calculate
+    required sample size for alpha=0.05, power=0.80, effect_size=medium (Cohen''s
+    f=0.25) using statsmodels.stats.power.FTestAnovaPower.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate required sample size for alpha=0.05, power=0.80, effect_size=medium
+    (Cohen's f=0.25) using statsmodels.stats.power.FTestAnovaPower.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T16:45:05Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 'synthetic image complexity scores: mean 0.5, std 0.15, Q1-Q3 range 0.3'
+  claim_id: c_37844cc4
+  context: 'T006 [P] Implement Mock Visual Genome Generator in code/data/loader.py:
+    Create a script that generates synthetic images with calibrated complexity scores
+    (mean=0.5, std=0.15, ensuring Q1-Q3 range >= 0.3) using PIL.'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Generate synthetic images with calibrated complexity scores (mean=0.5,
+    std=0.15, ensuring Q1-Q3 range >= 0.3) using PIL.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T16:45:05Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Gaussian blur radius 5 for image reduction
+  claim_id: c_002afe57
+  context: 'T016 [P] [US1] Implement reduced detail manipulation in code/stimuli/manipulator.py:
+    Use Gaussian blur (radius=5) or masking to remove minor elements from baseline
+    images.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Gaussian blur (radius=5) or masking to remove minor elements from
+    baseline images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T16:45:11Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: image shape height width 3 and object count 5
+  claim_id: c_9c15b5f2
+  context: 'T011 [P] [US1] Unit test for image enhancement logic in tests/unit/test_stimuli_manipulator.py:
+    Implement test_add_minor_objects(). Assert that output_image.shape == (height,
+    width, 3) and object_count == 5 after calling add_minor_objects().'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that output_image.shape == (height, width, 3) and object_count
+    == 5 after calling add_minor_objects().
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T16:45:18Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 'false detail inversion mapping: red car to blue car, chair to table'
+  claim_id: c_8cccf5df
+  context: 'T027 [US2] Implement recognition question generator in code/participants/interface.py:
+    Extract true details from data/stimuli_metadata/{id}.yaml. Generate false/lure
+    details by inverting true details using a predefined mock object pool (e.g., map
+    ''red car'' -> ''blue car'', ''chair'' -> ''table'') or selecting random objects
+    from the pool.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/False_detail_inversion_mapping:_red_car_to_blue_car,_chair_t
+  kind: entity_fact
+  raw_text: Generate false/lure details by inverting true details using a predefined
+    mock object pool (e.g., map 'red car' -> 'blue car', 'chair' -> 'table').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T16:45:32Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: image manipulation performance under 30 seconds per image
+  claim_id: c_588457aa
+  context: T042 Performance optimization for image manipulation (ensure < 30s/image)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure performance optimization for image manipulation is under 30s/image.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T16:45:38Z'

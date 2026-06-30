@@ -1,16 +1,16 @@
-? 'T001 Create project structure per implementation plan in `projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/`
-  by running: `mkdir -p data/stimuli data/stimuli_metadata data/responses data/processed
-  data/ethics code/data code/stimuli code/participants code/analysis tests/unit tests/integration
-  tests/contract docs/ethics`.'
+T009 [P] Setup environment configuration management in `code/config.py`: 2
+? 'T011 [P] [US1] Unit test for image enhancement logic in `tests/unit/test_stimuli_manipulator.py`:
+  Implement `test_add_minor_objects()`. Assert that `output_image.shape == (height,
+  width, 3)` and `object_count == 5` after calling `add_minor_objects()`. <!-- FAILED:
+  unspecified -->'
 : 1
-T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`: 1
-T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`: 1
-? 'T004 Setup data directory structure: `data/stimuli/`, `data/responses/`, `data/processed/`,
-  `data/stimuli_metadata/`, `data/ethics/`'
+? 'T012 [P] [US1] Unit test for image reduction logic in `tests/unit/test_stimuli_manipulator.py`:
+  Implement `test_remove_minor_elements()`. Assert that `output_image` has reduced
+  texture variance compared to input in the masked region. <!-- FAILED: unspecified
+  -->'
 : 1
-T005 [P] Implement data checksum utilities in `code/data/checksum.py`: 1
-? 'T006 [P] Implement Mock Visual Genome Generator in `code/data/loader.py`: Create
-  a script that generates synthetic images with calibrated complexity scores (mean=0.5,
-  std=0.15, ensuring Q1-Q3 range >= 0.3) using PIL. Default to mock as per plan.md;
-  do NOT implement runtime URL checks for verified sources.'
+? "T013 [P] [US1] Integration test for full pipeline (generate \u2192 manipulate \u2192\
+  \ metadata) in `tests/integration/test_stimuli_pipeline.py`: Implement `test_full_pipeline()`.\
+  \ Assert that multiple manipulated images and 1 metadata file are created for each\
+  \ input. <!-- FAILED: unspecified -->"
 : 1

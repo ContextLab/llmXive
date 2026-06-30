@@ -1,235 +1,129 @@
-"""
-Environment configuration management for the Visual Detail and False Memory project.
-
-This module provides centralized configuration loading from environment variables
-and a default configuration dictionary. It ensures all required paths and settings
-are available throughout the application.
-"""
-
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
-
+from typing import Optional, Dict, Any
 
 class Config:
-    """
-    Centralized configuration manager.
-
-    Loads settings from environment variables with sensible defaults.
-    All paths are resolved relative to the project root.
-    """
-
     def __init__(self, project_root: Optional[Path] = None):
-        """
-        Initialize configuration.
+        if project_root is None:
+            # Default to current working directory if no root provided
+            self.project_root = Path.cwd()
+        else:
+            self.project_root = project_root
+        
+        # Define base directories relative to project root
+        self.data_dir = self.project_root / "data"
+        self.code_dir = self.project_root / "code"
+        self.tests_dir = self.project_root / "tests"
+        self.docs_dir = self.project_root / "docs"
+        
+        # Sub-directories
+        self.stimuli_dir = self.data_dir / "stimuli"
+        self.stimuli_metadata_dir = self.data_dir / "stimuli_metadata"
+        self.responses_dir = self.data_dir / "responses"
+        self.processed_dir = self.data_dir / "processed"
+        self.ethics_dir = self.data_dir / "ethics"
+        self.logs_dir = self.data_dir / "logs"
+        self.figures_dir = self.project_root / "figures"
+        
+        # Code sub-directories
+        self.code_data_dir = self.code_dir / "data"
+        self.code_stimuli_dir = self.code_dir / "stimuli"
+        self.code_participants_dir = self.code_dir / "participants"
+        self.code_analysis_dir = self.code_dir / "analysis"
+        
+        # Test sub-directories
+        self.tests_unit_dir = self.tests_dir / "unit"
+        self.tests_integration_dir = self.tests_dir / "integration"
+        self.tests_contract_dir = self.tests_dir / "contract"
+        
+        # Docs sub-directories
+        self.docs_ethics_dir = self.docs_dir / "ethics"
 
-        Args:
-            project_root: Path to project root. If None, defaults to the
-                         directory containing this module's parent (code/).
-        """
-        self._project_root = project_root or Path(__file__).resolve().parent.parent
-        self._config: Dict[str, Any] = self._load_config()
+# Global config instance (lazy initialization)
+_config: Optional[Config] = None
 
-    @property
-    def project_root(self) -> Path:
-        """Return the project root directory."""
-        return self._project_root
+def get_config() -> Config:
+    global _config
+    if _config is None:
+        _config = Config()
+    return _config
 
-    @property
-    def data_dir(self) -> Path:
-        """Return the base data directory."""
-        return self.project_root / "data"
+def get_project_root() -> Path:
+    return get_config().project_root
 
-    @property
-    def stimuli_dir(self) -> Path:
-        """Return the stimuli directory."""
-        return self.data_dir / "stimuli"
+def get_data_dir() -> Path:
+    return get_config().data_dir
 
-    @property
-    def stimuli_metadata_dir(self) -> Path:
-        """Return the stimuli metadata directory."""
-        return self.data_dir / "stimuli_metadata"
+def get_stimuli_dir() -> Path:
+    return get_config().stimuli_dir
 
-    @property
-    def responses_dir(self) -> Path:
-        """Return the responses directory."""
-        return self.data_dir / "responses"
+def get_stimuli_metadata_dir() -> Path:
+    return get_config().stimuli_metadata_dir
 
-    @property
-    def processed_dir(self) -> Path:
-        """Return the processed data directory."""
-        return self.data_dir / "processed"
+def get_responses_dir() -> Path:
+    return get_config().responses_dir
 
-    @property
-    def ethics_dir(self) -> Path:
-        """Return the ethics directory."""
-        return self.data_dir / "ethics"
+def get_processed_dir() -> Path:
+    return get_config().processed_dir
 
-    @property
-    def logs_dir(self) -> Path:
-        """Return the logs directory (within data)."""
-        return self.data_dir / "logs"
+def get_ethics_dir() -> Path:
+    return get_config().ethics_dir
 
-    @property
-    def figures_dir(self) -> Path:
-        """Return the figures directory."""
-        return self.data_dir / "figures"
+def get_logs_dir() -> Path:
+    return get_config().logs_dir
 
-    @property
-    def code_dir(self) -> Path:
-        """Return the code directory."""
-        return self.project_root / "code"
+def get_figures_dir() -> Path:
+    return get_config().figures_dir
 
-    @property
-    def test_dir(self) -> Path:
-        """Return the tests directory."""
-        return self.project_root / "tests"
+def get_code_dir() -> Path:
+    return get_config().code_dir
 
-    # Environment-based settings
-    @property
-    def log_level(self) -> str:
-        """Return the logging level (default: INFO)."""
-        return os.getenv("LOG_LEVEL", "INFO").upper()
+def get_tests_dir() -> Path:
+    return get_config().tests_dir
 
-    @property
-    def debug_mode(self) -> bool:
-        """Return whether debug mode is enabled."""
-        return os.getenv("DEBUG_MODE", "false").lower() == "true"
+def get_log_level() -> str:
+    return os.getenv("LOG_LEVEL", "INFO")
 
-    @property
-    def mock_mode(self) -> bool:
-        """
-        Return whether to use mock/synthetic data generation.
-        Defaults to True as per plan.md instructions.
-        """
-        return os.getenv("MOCK_MODE", "true").lower() == "true"
+def get_log_file_path() -> Path:
+    return get_logs_dir() / "app.log"
 
-    @property
-    def visual_genome_url(self) -> Optional[str]:
-        """Return the Visual Genome dataset URL if set, else None."""
-        url = os.getenv("VISUAL_GENOME_URL")
-        return url if url else None
+def get_error_log_file_path() -> Path:
+    return get_logs_dir() / "error.log"
 
-    @property
-    def output_format(self) -> str:
-        """Return the output format for processed data (default: json)."""
-        return os.getenv("OUTPUT_FORMAT", "json").lower()
+def get_manipulation_error_log_path() -> Path:
+    return get_logs_dir() / "manipulation_errors.log"
 
-    @property
-    def random_seed(self) -> int:
-        """Return the random seed for reproducibility (default: 42)."""
-        return int(os.getenv("RANDOM_SEED", "42"))
-
-    def get(self, key: str, default: Any = None) -> Any:
-        """
-        Get a configuration value by key.
-
-        Args:
-            key: The configuration key.
-            default: Default value if key not found.
-
-        Returns:
-            The configuration value or default.
-        """
-        return self._config.get(key, default)
-
-    def _load_config(self) -> Dict[str, Any]:
-        """
-        Load configuration from environment variables.
-
-        Returns:
-            Dictionary of configuration values.
-        """
-        return {
-            "project_root": str(self.project_root),
-            "data_dir": str(self.data_dir),
-            "stimuli_dir": str(self.stimuli_dir),
-            "stimuli_metadata_dir": str(self.stimuli_metadata_dir),
-            "responses_dir": str(self.responses_dir),
-            "processed_dir": str(self.processed_dir),
-            "ethics_dir": str(self.ethics_dir),
-            "logs_dir": str(self.logs_dir),
-            "figures_dir": str(self.figures_dir),
-            "code_dir": str(self.code_dir),
-            "test_dir": str(self.test_dir),
-            "log_level": self.log_level,
-            "debug_mode": self.debug_mode,
-            "mock_mode": self.mock_mode,
-            "visual_genome_url": self.visual_genome_url,
-            "output_format": self.output_format,
-            "random_seed": self.random_seed,
-        }
-
-    def ensure_dirs_exist(self) -> None:
-        """
-        Ensure all required data directories exist.
-
-        Creates directories if they don't exist.
-        """
-        dirs = [
-            self.stimuli_dir,
-            self.stimuli_metadata_dir,
-            self.responses_dir,
-            self.processed_dir,
-            self.ethics_dir,
-            self.logs_dir,
-            self.figures_dir,
-        ]
-        for dir_path in dirs:
-            dir_path.mkdir(parents=True, exist_ok=True)
-
-
-# Singleton instance for easy access
-_config_instance: Optional[Config] = None
-
-
-def get_config(project_root: Optional[Path] = None) -> Config:
-    """
-    Get the singleton configuration instance.
-
-    Args:
-        project_root: Optional project root override.
-
-    Returns:
-        The Config instance.
-    """
-    global _config_instance
-    if _config_instance is None or (
-        project_root and _config_instance.project_root != project_root
-    ):
-        _config_instance = Config(project_root)
-    return _config_instance
-
-
-def main() -> None:
-    """
-    CLI entry point to display current configuration.
-
-    Useful for debugging environment setup.
-    """
+def ensure_directories():
+    """Ensure all required directories exist."""
     config = get_config()
+    dirs_to_create = [
+        config.stimuli_dir,
+        config.stimuli_metadata_dir,
+        config.responses_dir,
+        config.processed_dir,
+        config.ethics_dir,
+        config.logs_dir,
+        config.figures_dir,
+        config.code_data_dir,
+        config.code_stimuli_dir,
+        config.code_participants_dir,
+        config.code_analysis_dir,
+        config.tests_unit_dir,
+        config.tests_integration_dir,
+        config.tests_contract_dir,
+        config.docs_ethics_dir
+    ]
+    for d in dirs_to_create:
+        d.mkdir(parents=True, exist_ok=True)
 
-    print("=== Project Configuration ===")
-    print(f"Project Root: {config.project_root}")
-    print(f"Data Directory: {config.data_dir}")
-    print(f"Stimuli Directory: {config.stimuli_dir}")
-    print(f"Stimuli Metadata: {config.stimuli_metadata_dir}")
-    print(f"Responses Directory: {config.responses_dir}")
-    print(f"Processed Directory: {config.processed_dir}")
-    print(f"Ethics Directory: {config.ethics_dir}")
-    print(f"Logs Directory: {config.logs_dir}")
-    print(f"Figures Directory: {config.figures_dir}")
-    print(f"Log Level: {config.log_level}")
-    print(f"Debug Mode: {config.debug_mode}")
-    print(f"Mock Mode: {config.mock_mode}")
-    print(f"Random Seed: {config.random_seed}")
-    print(f"Visual Genome URL: {config.visual_genome_url or 'Not set (using mock)'}")
-    print(f"Output Format: {config.output_format}")
+def get_dataset_source() -> str:
+    return os.getenv("DATASET_SOURCE", "mock")
 
-    print("\n=== Ensuring directories exist... ===")
-    config.ensure_dirs_exist()
-    print("All directories ready.")
+def get_alpha_level() -> float:
+    return float(os.getenv("ALPHA_LEVEL", 0.05))
 
+def get_power_target() -> float:
+    return float(os.getenv("POWER_TARGET", 0.80))
 
-if __name__ == "__main__":
-    main()
+def get_effect_size() -> float:
+    return float(os.getenv("EFFECT_SIZE", 0.25))

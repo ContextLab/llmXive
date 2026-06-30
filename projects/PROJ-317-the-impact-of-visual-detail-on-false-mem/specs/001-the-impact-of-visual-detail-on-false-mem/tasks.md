@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/` by running: `mkdir -p data/stimuli data/stimuli_metadata data/responses data/processed data/ethics code/data code/stimuli code/participants code/analysis tests/unit tests/integration tests/contract docs/ethics`.
+- [X] T001 Create project structure per implementation plan in `projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/` by running: `mkdir -p data/stimuli data/stimuli_metadata data/responses data/processed data/ethics code/data code/stimuli code/participants code/analysis tests/unit tests/integration tests/contract docs/ethics`.
 
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`
 
 ---
 
@@ -58,15 +58,15 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup data directory structure: `data/stimuli/`, `data/responses/`, `data/processed/`, `data/stimuli_metadata/`, `data/ethics/`
-- [ ] T005 [P] Implement data checksum utilities in `code/data/checksum.py`
-- [ ] T006 [P] Implement Mock Visual Genome Generator in `code/data/loader.py`: Create a script that generates synthetic images with calibrated complexity scores (mean=0.5, std=0.15, ensuring Q1-Q3 range >= 0.3) using PIL. Default to mock as per plan.md; do NOT implement runtime URL checks for verified sources.
-- [~] T012 [P] Implement Power Analysis in `code/analysis/stats.py`: Calculate required sample size for alpha=0.05, power=0.80, effect_size=medium (Cohen's f=0.25) using `statsmodels.stats.power.FTestAnovaPower`. Output result as JSON to `data/processed/power_analysis.json`. This MUST run before Phase 4.
-- [~] T013 [P] Implement Image Entity class in `code/data/image.py`: Define `Image` class with attributes `id`, `path`, `complexity_score`, `metadata_path`.
-- [~] T014 [P] Implement Participant and Response Entity classes in `code/data/participant.py`: Define `Participant` (id, condition, timestamp) and `Response` (id, question_id, value, timestamp) classes.
-- [~] T008 Configure logging infrastructure in `code/utils/logging.py`
-- [~] T009 [P] Setup environment configuration management in `code/config.py`
-- [~] T010 [P] Generate ethics artifacts: Create `data/ethics/informed_consent.md` and `data/ethics/irb_placeholder.md` with GDPR-compliant templates and placeholders for IRB approval as required by Constitution VI.
+- [X] T004 Setup data directory structure: `data/stimuli/`, `data/responses/`, `data/processed/`, `data/stimuli_metadata/`, `data/ethics/`
+- [X] T005 [P] Implement data checksum utilities in `code/data/checksum.py`
+- [X] T006 [P] Implement Mock Visual Genome Generator in `code/data/loader.py`: Create a script that generates synthetic images with calibrated complexity scores (mean=0.5, std=0.15, ensuring Q1-Q3 range >= 0.3) using PIL. Default to mock as per plan.md; do NOT implement runtime URL checks for verified sources.
+- [X] T012 [P] Implement Power Analysis in `code/analysis/stats.py`: Calculate required sample size for alpha=0.05, power=0.80, effect_size=medium (Cohen's f=0.25) using `statsmodels.stats.power.FTestAnovaPower`. Output result as JSON to `data/processed/power_analysis.json`. This MUST run before Phase 4.
+- [X] T013 [P] Implement Image Entity class in `code/data/image.py`: Define `Image` class with attributes `id`, `path`, `complexity_score`, `metadata_path`.
+- [X] T014 [P] Implement Participant and Response Entity classes in `code/data/participant.py`: Define `Participant` (id, condition, timestamp) and `Response` (id, question_id, value, timestamp) classes.
+- [X] T008 Configure logging infrastructure in `code/utils/logging.py`
+- [ ] T009 [P] Setup environment configuration management in `code/config.py`
+- [X] T010 [P] Generate ethics artifacts: Create `data/ethics/informed_consent.md` and `data/ethics/irb_placeholder.md` with GDPR-compliant templates and placeholders for IRB approval as required by Constitution VI.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,19 +82,19 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Unit test for image enhancement logic in `tests/unit/test_stimuli_manipulator.py`: Implement `test_add_minor_objects()`. Assert that `output_image.shape == (height, width, 3)` and `object_count == 5` after calling `add_minor_objects()`.
-- [ ] T012 [P] [US1] Unit test for image reduction logic in `tests/unit/test_stimuli_manipulator.py`: Implement `test_remove_minor_elements()`. Assert that `output_image` has reduced texture variance compared to input in the masked region.
-- [ ] T013 [P] [US1] Integration test for full pipeline (generate → manipulate → metadata) in `tests/integration/test_stimuli_pipeline.py`: Implement `test_full_pipeline()`. Assert that multiple manipulated images and 1 metadata file are created for each input.
+- [ ] T011 [P] [US1] Unit test for image enhancement logic in `tests/unit/test_stimuli_manipulator.py`: Implement `test_add_minor_objects()`. Assert that `output_image.shape == (height, width, 3)` and `object_count == 5` after calling `add_minor_objects()`. <!-- FAILED: unspecified -->
+- [ ] T012 [P] [US1] Unit test for image reduction logic in `tests/unit/test_stimuli_manipulator.py`: Implement `test_remove_minor_elements()`. Assert that `output_image` has reduced texture variance compared to input in the masked region. <!-- FAILED: unspecified -->
+- [ ] T013 [P] [US1] Integration test for full pipeline (generate → manipulate → metadata) in `tests/integration/test_stimuli_pipeline.py`: Implement `test_full_pipeline()`. Assert that multiple manipulated images and 1 metadata file are created for each input. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement enhanced detail compositing in `code/stimuli/manipulator.py`: Use PIL/Pillow to overlay a small number of minor object PNG assets onto baseline images.
-- [ ] T016 [P] [US1] Implement reduced detail manipulation in `code/stimuli/manipulator.py`: Use Gaussian blur (radius=5) or masking to remove minor elements from baseline images.
-- [ ] T017 [US1] Implement stimulus metadata generation (YAML) per Constitution VII in `code/stimuli/metadata.py`.
-- [ ] T018 [US1] Implement 'skip and log' logic for manipulation failures in `code/stimuli/manipulator.py`: If manipulation fails for an image, skip the image entirely (do not attempt metadata generation) and log the error to `data/logs/manipulation_errors.log` as required by Edge Cases.
-- [ ] T019 [US1] Add error handling for missing metadata and failed fetches in `code/data/loader.py`: If a real dataset fetch (if implemented) fails or metadata is missing, skip the image and log the error.
-- [ ] T020 [US1] Add CLI entry point for running the manipulation pipeline in `code/cli.py`
-- [ ] T021 [P] [US1] Implement Real Dataset Fetcher (Optional) in `code/data/loader.py`: If a verified Visual Genome URL is provided in config, fetch real images. Handle 'missing metadata' edge case by skipping and logging.
+- [~] T015 [P] [US1] Implement enhanced detail compositing in `code/stimuli/manipulator.py`: Use PIL/Pillow to overlay a small number of minor object PNG assets onto baseline images. <!-- FAILED: unspecified -->
+- [~] T016 [P] [US1] Implement reduced detail manipulation in `code/stimuli/manipulator.py`: Use Gaussian blur (radius=5) or masking to remove minor elements from baseline images.
+- [~] T017 [US1] Implement stimulus metadata generation (YAML) per Constitution VII in `code/stimuli/metadata.py`.
+- [~] T018 [US1] Implement 'skip and log' logic for manipulation failures in `code/stimuli/manipulator.py`: If manipulation fails for an image, skip the image entirely (do not attempt metadata generation) and log the error to `data/logs/manipulation_errors.log` as required by Edge Cases.
+- [~] T019 [US1] Add error handling for missing metadata and failed fetches in `code/data/loader.py`: If a real dataset fetch (if implemented) fails or metadata is missing, skip the image and log the error.
+- [~] T020 [US1] Add CLI entry point for running the manipulation pipeline in `code/cli.py`
+- [~] T021 [P] [US1] Implement Real Dataset Fetcher (Optional) in `code/data/loader.py`: If a verified Visual Genome URL is provided in config, fetch real images. Handle 'missing metadata' edge case by skipping and logging.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,19 +108,19 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T022 [P] [US2] Unit test for session state management in `tests/unit/test_session.py`
-- [ ] T023 [P] [US2] Unit test for response generation logic in `tests/unit/test_interface.py`
-- [ ] T024 [P] [US2] Integration test for simulated session flow in `tests/integration/test_session_flow.py`
+- [~] T022 [P] [US2] Unit test for session state management in `tests/unit/test_session.py`
+- [~] T023 [P] [US2] Unit test for response generation logic in `tests/unit/test_interface.py`
+- [~] T024 [P] [US2] Integration test for simulated session flow in `tests/integration/test_session_flow.py`
 
 ### Implementation for User Story 2
 
-- [ ] T025 [P] [US2] Implement simulated participant interface logic (image display, timing) in `code/participants/interface.py`
-- [ ] T026 [US2] Implement distractor task logic (arithmetic questions) in `code/participants/interface.py`
-- [ ] T027 [US2] Implement recognition question generator in `code/participants/interface.py`: Extract true details from `data/stimuli_metadata/{id}.yaml`. Generate false/lure details by inverting true details using a predefined mock object pool (e.g., map 'red car' -> 'blue car', 'chair' -> 'table') or selecting random objects from the pool.
-- [ ] T028 [US2] Implement response capture and timestamp logging in `code/participants/session.py`
-- [ ] T029 [US2] Implement local caching and retry logic for network timeouts in `code/participants/session.py`
-- [ ] T030 [US2] Implement partial session recording and flagging for dropouts in `code/participants/session.py`
-- [ ] T031 [US2] Add CLI entry point for running simulated participant sessions in `code/cli.py`
+- [~] T025 [P] [US2] Implement simulated participant interface logic (image display, timing) in `code/participants/interface.py`
+- [~] T026 [US2] Implement distractor task logic (arithmetic questions) in `code/participants/interface.py`
+- [~] T027 [US2] Implement recognition question generator in `code/participants/interface.py`: Extract true details from `data/stimuli_metadata/{id}.yaml`. Generate false/lure details by inverting true details using a predefined mock object pool (e.g., map 'red car' -> 'blue car', 'chair' -> 'table') or selecting random objects from the pool.
+- [~] T028 [US2] Implement response capture and timestamp logging in `code/participants/session.py`
+- [~] T029 [US2] Implement local caching and retry logic for network timeouts in `code/participants/session.py`
+- [~] T030 [US2] Implement partial session recording and flagging for dropouts in `code/participants/session.py`
+- [~] T031 [US2] Add CLI entry point for running simulated participant sessions in `code/cli.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,17 +134,17 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [P] [US3] Unit test for ANOVA calculation in `tests/unit/test_stats.py`
-- [ ] T033 [P] [US3] Unit test for multiple-comparison correction in `tests/unit/test_stats.py`
-- [ ] T034 [P] [US3] Integration test for full analysis pipeline on mock data in `tests/integration/test_analysis_pipeline.py`
+- [~] T032 [P] [US3] Unit test for ANOVA calculation in `tests/unit/test_stats.py`
+- [~] T033 [P] [US3] Unit test for multiple-comparison correction in `tests/unit/test_stats.py`
+- [~] T034 [P] [US3] Integration test for full analysis pipeline on mock data in `tests/integration/test_analysis_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] Implement repeated-measures ANOVA using scipy.stats in `code/analysis/stats.py`
-- [ ] T036 [US3] Implement multiple-comparison correction (Bonferroni) in `code/analysis/stats.py`
-- [ ] T037 [US3] Implement visualization generation (mean false memory rates with confidence intervals) in `code/analysis/viz.py`
-- [ ] T038 [US3] Implement dataset-variable fit check (compare mock distribution to target) in `code/analysis/stats.py`
-- [ ] T039 [US3] Add CLI entry point for running analysis in `code/cli.py`
+- [~] T035 [US3] Implement repeated-measures ANOVA using scipy.stats in `code/analysis/stats.py`
+- [~] T036 [US3] Implement multiple-comparison correction (Bonferroni) in `code/analysis/stats.py`
+- [~] T037 [US3] Implement visualization generation (mean false memory rates with confidence intervals) in `code/analysis/viz.py`
+- [~] T038 [US3] Implement dataset-variable fit check (compare mock distribution to target) in `code/analysis/stats.py`
+- [~] T039 [US3] Add CLI entry point for running analysis in `code/cli.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,9 +154,9 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Documentation updates in `docs/` (including ethics placeholders)
-- [ ] T041 Code cleanup and refactoring across `code/`
-- [ ] T042 Performance optimization for image manipulation (ensure < 30s/image)
+- [~] T040 [P] Documentation updates in `docs/` (including ethics placeholders)
+- [~] T041 Code cleanup and refactoring across `code/` <!-- FAILED: unspecified -->
+- [~] T042 Performance optimization for image manipulation (ensure < 30s/image)
 - [ ] T043 [P] Additional unit tests for edge cases (dropout, network timeout) in `tests/unit/`
 - [ ] T044 Security hardening (ensure no PII leakage in logs)
 - [ ] T045 Run quickstart.md validation

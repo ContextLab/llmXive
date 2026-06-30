@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SpeciesRecord"
+description: "Schema for the merged, cleaned analysis dataset (SpeciesRecord entity). Unit of analysis is Species."
+type: "object"
+properties:
+  species_id:
+    type: "string"
+    description: "Unique species identifier (Genus_species)."
+  telomere_length_kb:
+    type: "number"
+    description: "Species-mean telomere length in kilobases. Must be positive."
+    minimum: 0.0
+  lifespan_years:
+    type: "number"
+    description: "Maximum lifespan in years."
+    minimum: 0.0
+  migration_status:
+    type: "string"
+    description: "Migration status of the species."
+    enum:
+      - "Migratory"
+      - "Resident"
+      - "Unknown"
+  body_mass_g:
+    type: "number"
+    description: "Body mass in grams."
+    minimum: 0.0
+  study_id:
+    type: "string"
+    description: "Source study identifier from Dryad."
+  measurement_method:
+    type: "string"
+    description: "Method used to measure telomeres (TRF, qPCR, etc.)."
+  age_category:
+    type: "string"
+    description: "Age category of the individual (Juvenile, Adult, Unknown). Filtered to Juvenile."
+  tissue_type:
+    type: "string"
+    description: "Tissue type used for measurement (Blood, Feather, etc.)."
+  provenance_source:
+    type: "string"
+    description: "Source of the record (Dryad, AnAge)."
+required:
+  - species_id
+  - telomere_length_kb
+  - lifespan_years
+  - migration_status
+  - body_mass_g
+  - age_category
+  - tissue_type
+additionalProperties: false
