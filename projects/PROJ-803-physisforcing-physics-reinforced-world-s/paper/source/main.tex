@@ -1,0 +1,72 @@
+\documentclass[]{style}
+
+\usepackage[toc,page,header]{appendix}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\input{resources/packages}
+\setlength{\cftbeforesubsecskip}{1.5pt}
+
+%%%%%%%%%%%%%%%%%%%%
+\title{PhysisForcing: Physics Reinforced World Simulator for Robotic Manipulation}
+
+
+\author[*]{Peiwen Zhang}
+\author[*]{Yufan Deng}
+\author[*]{Shangkun Sun}
+\author{Juncheng Ma}
+\author[\dagger]{Duomin Wang}
+\author{Jonas Du}
+\author{Zilin Pan}
+\author{Ye Huang}
+\author{Hao Liang}
+\author{Songyan Huang}
+\author{Ruihua Zhang}
+\author[\dagger]{Enze Xie}
+\author{Ming-Yu Liu}
+\author[\ddagger]{Daquan Zhou}
+
+
+\affiliation{Peking University}
+\affiliation{NVIDIA}
+
+\contribution[*]{Equal Contribution}
+\contribution[\dagger]{Co-Project Lead}
+\contribution[\ddagger]{Corresponding Author}
+
+\newcommand{\placeholder}[2]{%
+  \fbox{\parbox[c][#1][c]{0.96\linewidth}{\centering\textit{#2}}}}
+
+\definecolor{PekingRed}{RGB}{178,31,45}
+
+
+
+\input{sections/0_abstract}
+
+\begin{document}
+\maketitle
+
+% Teaser figure - placed immediately after title, before abstract
+\begin{figure*}[!h]
+\centering
+\includegraphics[width=\textwidth]{figs/Fig1_Teaser.png}
+\caption{\textbf{Impacts of PhysisForcing on video generation and robotics policy learning.} Our method introduces hierarchical physics alignment during video generation training, enforcing both pixel-level motion consistency and semantic-level relational coherence. This dual-level supervision enables generation of robotic manipulation videos that are not only visually realistic but also physically plausible and useful for downstream robot action modeling. In the generation benchmarks (R-Bench, PAI-Bench, EZS-Bench), \textbf{PF-Cosmos} denotes Cosmos3-Nano trained with PhysisForcing; the WorldArena results use the Wan2.2-TI2V-5B world model trained with PhysisForcing.}
+\label{fig:teaser}
+\end{figure*}
+
+\input{sections/1_introduction}
+\input{sections/2_related_work}
+\input{sections/3_method}
+\input{sections/4_experiments}
+\input{sections/5_conclusion}
+
+\clearpage
+
+\bibliographystyle{plainnat}
+\setlength{\bibhang}{0pt}
+\setlength\bibindent{0pt}
+\bibliography{main}
+
+\input{sections/6_appendix}
+
+\end{document}

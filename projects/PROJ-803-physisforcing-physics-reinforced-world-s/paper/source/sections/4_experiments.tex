@@ -1,0 +1,270 @@
+\section{Experiments}
+
+\subsection{Experimental Setup}
+
+\paragraph{Training data.}
+We train on a filtered subset of the large-scale RoVid-X dataset~\cite{deng2026rethinking}: from its
+4M robotic video clips spanning diverse embodiments, tasks, and environments, stricter motion-score,
+task-level de-duplication, and clip-text alignment filtering yields about 500K high-quality clips.
+
+\paragraph{Implementation details.} We apply PhysisForcing to three backbones spanning different
+scales and families: Wan2.2-I2V-A14B, Wan2.2-TI2V-5B, and Cosmos3-Nano. For the two Wan backbones,
+input videos are resized to $640\times480$ with a maximum length of 81 frames, and both are trained
+for 20K steps with a global batch size of 128 using the AdamW optimizer with a learning rate of
+$1\times10^{-5}$; for Wan2.2-I2V-A14B, we initialize from its high-noise expert and adapt it to
+later denoising stages during training. To test the generality of PhysisForcing across model
+families and higher-fidelity regimes, we additionally train the Cosmos3-Nano backbone with LoRA,
+following its official image-to-video post-training setting, directly at $720$p resolution with up
+to $189$ frames. More details can be found in Appendix~\ref{appx:impl}. For brevity, we refer to the
+PhysisForcing-trained Cosmos3-Nano and Wan2.2-I2V-A14B as \textbf{PF-Cosmos} and \textbf{PF-Wan},
+respectively; in the policy-learning experiments, where only the Wan2.2-TI2V-5B world model is
+involved, we simply write \mbox{+\,PhysisForcing}.
+
+\paragraph{Benchmarks.} We evaluate on three embodied video generation benchmarks (details in
+Appendix~\ref{appx:benchmarks}): R-Bench~\cite{deng2026rethinking} (650 image-text pairs across
+task-oriented and embodiment-specific dimensions), the \emph{robot domain} of the
+PAI-Bench~\cite{zhou2025paibench} generation track (PAI-Bench-G, 174 real-world image-prompt
+pairs), and EZS-Bench~\cite{ali2025abot}, a training-independent zero-shot benchmark of 196 unseen
+robot-task-scene combinations probing out-of-distribution generalization.
+
+\paragraph{Baselines.} We compare with representative models from three families:
+general-domain open-source video models (e.g., HunyuanVideo~\cite{wu2025hunyuanvideo}, LTX-Video~\cite{HaCohen2024LTXVideo}, Wan~\cite{wan2025wan}), commercial
+models (e.g., Wan2.6~\cite{wan2025wan}, Seedance~\cite{chen2025seedance}, Hailuo~\cite{hailuo2024}, Veo~\cite{GoogleDeepMind2025Veo3}, Kling~\cite{kling2025}, Sora~\cite{openai2025sora2}), and robotics-specific models (e.g., Cosmos~\cite{nvidia2026worldsimulationvideofoundation},
+DreamGen~\cite{jang2025dreamgen}, Vidar~\cite{feng2025vidar}, UnifoLM-WMA-0~\cite{unifolm-wma-0}, WoW~\cite{chi2025wow}, Abot-PhysWorld~\cite{ali2025abot}).
+
+\subsection{Evaluation results on Embodied Video Generation}
+
+\input{tabs/rbench}
+
+\paragraph{R-Bench Evaluation.}
+As shown in Table~\ref{tab:RBench_compare}, PhysisForcing improves every backbone.
+PF-Cosmos attains the best overall score (63.8, $+9.2\%$ over base),
+surpassing all baselines including the strongest commercial model Wan2.6 (60.7), while
+PF-Wan reaches 62.0 ($+22.3\%$ over base), the second best overall, with consistent gains
+holding on Wan2.2-TI2V-5B as well.
+
+\paragraph{PAI-Bench Evaluation.}
+\begin{figure}[t]
+\centering
+\begin{minipage}[t]{0.49\linewidth}
+\centering
+\includegraphics[width=\linewidth,keepaspectratio]{figs/Fig3_PAIBench.png}
+\caption{Overall average score (mean of Quality and Domain scores) on the robot domain of PAI-Bench. Baseline scores are taken from the official leaderboard.}
+\label{fig:paibench}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\linewidth}
+\centering
+\includegraphics[width=\linewidth,keepaspectratio]{figs/Fig_EZSBench.png}
+\caption{Overall average score on EZS-Bench~\cite{ali2025abot}, a training-independent zero-shot benchmark of 196 unseen robot-task-scene combinations.}
+\label{fig:ezsbench}
+\end{minipage}
+\end{figure}
+
+On the robot domain of PAI-Bench (Figure~\ref{fig:paibench}), PhysisForcing improves both
+backbones over vanilla finetuning (Wan2.2-I2V-A14B: $79.9\!\rightarrow\!81.7$;
+Cosmos3-Nano: $84.0\!\rightarrow\!85.2$). PF-Cosmos attains the best
+overall average (85.2), surpassing the strongest commercial model Wan2.5 (81.0) and
+robotics-specific baseline Abot-PhysWorld (84.9). Full per-metric results are in
+Appendix~\ref{appx:bench_results} (Table~\ref{tab:paibench_full}).
+
+\paragraph{EZS-Bench Evaluation.}
+On the training-independent zero-shot EZS-Bench~\cite{ali2025abot} (Figure~\ref{fig:ezsbench}),
+which probes out-of-distribution generalization, PhysisForcing again improves both backbones
+over vanilla finetuning (Wan2.2-I2V-A14B: $79.0\!\rightarrow\!80.5$;
+Cosmos3-Nano: $80.3\!\rightarrow\!81.1$), with PF-Cosmos achieving the
+best overall average (81.1), outperforming Abot-PhysWorld (80.3) and all other baselines.
+Full per-metric results are in Appendix~\ref{appx:bench_results} (Table~\ref{tab:ezsbench_full}).
+
+\paragraph{Qualitative Analysis.}
+As shown in Figure~\ref{fig:qualitative}, baselines often produce visually plausible but
+physically inconsistent videos (e.g., unstable grasping, object drifting, incorrect contact),
+whereas PhysisForcing better preserves robot-object contact and state transitions. More
+qualitative results are in Appendix~\ref{appx:qualitative}.
+
+\begin{figure*}[!h]
+\centering
+\includegraphics[width=\textwidth]{figs/Qual_Main.jpg}
+\caption{\textbf{Qualitative comparison with state-of-the-art models.} Compared with strong commercial and robotics-specific models (Wan2.6, Seedance~1.5~Pro, Veo~3.1, Cosmos3-Super, Abot-PhysWorld), PhysisForcing (PF-Cosmos, last row in green) produces more physically plausible robot-object interactions. Prompt: moving the red apple onto the second-level wooden platform.}
+\label{fig:qualitative}
+\end{figure*}
+
+
+\subsection{Evaluation results on Policy Learning}
+\label{sec:wam}
+
+We further evaluate PhysisForcing as the video backbone for world action modeling, plugging
+the PhysisForcing-trained Wan2.2-TI2V-5B into Fast-WAM~\cite{yuan2026fastwam} as a drop-in
+replacement for its video DiT on contact-rich RoboTwin~2.0 tasks~\cite{chen2025robotwin}.
+We jointly train a single policy on the six tasks and evaluate each with 200 rollouts.
+As shown in Table~\ref{tab:robotwin_results}, it improves the average success rate from
+$68.2\%$ to $72.8\%$, with the largest gains on contact-rich placing and pressing
+(\textit{place\_empty\_cup} $41.5\%\!\rightarrow\!63.0\%$, \textit{press\_stapler}
+$49.0\%\!\rightarrow\!60.0\%$).
+
+\paragraph{World model as an action planner.}
+Under the action-planner protocol of WorldArena~\cite{shang2026worldarena}, the world model
+is paired with a shared inverse dynamics model that decodes its predicted rollout into
+actions executed in the RoboTwin~2.0 simulator. As shown in Table~\ref{tab:worldarena},
+PhysisForcing lifts the average closed-loop success rate from $16.0\%$ to $24.0\%$,
+surpassing all world-model planners including the strongest baseline WoW~\cite{chi2025wow}
+($20.5\%$).
+
+\begin{figure}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+% Left: downstream policy success (RoboTwin). Right: WorldArena action planner.
+\begin{minipage}[t]{0.49\linewidth}
+\vspace{0pt}
+\centering
+\begin{minipage}[t][2.6\baselineskip][t]{\linewidth}
+\captionof{table}{\textbf{Downstream policy success rate} (\%, 200 rollouts/task) on RoboTwin~2.0 (Fast-WAM backbone).}
+\label{tab:robotwin_results}
+\end{minipage}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Task} & \textbf{Baseline} & \textbf{PhysisForcing} & $\Delta$ \\
+\midrule
+\textit{place\_empty\_cup}  & 41.5 & \textbf{63.0} & \textcolor{teal}{$+21.5$} \\
+\textit{press\_stapler}     & 49.0 & \textbf{60.0} & \textcolor{teal}{$+11.0$} \\
+\textit{grab\_roller}       & 58.5 & \textbf{63.0} & \textcolor{teal}{$+4.5$} \\
+\textit{shake\_bottle}      & \textbf{97.5} & 94.5 & $-3.0$ \\
+\textit{adjust\_bottle}     & 93.0 & 93.0 & $\phantom{+}0.0$ \\
+\textit{stack\_bowls\_two}  & \textbf{69.5} & 63.0 & $-6.5$ \\
+\midrule
+\textbf{Average}            & 68.2 & \textbf{72.8} & \textcolor{teal}{$+4.6$} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\linewidth}
+\vspace{0pt}
+\centering
+\begin{minipage}[t][2.6\baselineskip][t]{\linewidth}
+\captionof{table}{\textbf{WorldArena action planner} closed-loop success rate (\%); best world model in \textbf{bold}.}
+\label{tab:worldarena}
+\end{minipage}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Task 1} & \textbf{Task 2} & \textbf{Avg.} \\
+\midrule
+Genie Envisioner~\cite{liao2025genie} & 10.0 & 20.0 & 15.0 \\
+TesserAct~\cite{zhen2025tesseract} & \phantom{0}1.0 & \textbf{35.0} & 18.0 \\
+RoboMaster & \phantom{0}8.0 & 20.0 & 14.0 \\
+Vidar~\cite{feng2025vidar} & \phantom{0}2.0 & 19.0 & 10.5 \\
+WoW~\cite{chi2025wow} & 20.0 & 21.0 & 20.5 \\
+\midrule
+Wan2.2-TI2V-5B & 12.0 & 20.0 & 16.0 \\
+\quad + \textbf{PhysisForcing} & \textbf{22.0} & 26.0 & \textbf{24.0} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{figure}
+
+
+\subsection{Ablation Study}
+\label{sec:ablation}
+
+\begin{figure}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.0}
+% Left column: component, region-focus, and layer ablations stacked.
+\begin{minipage}[t]{0.47\linewidth}
+\vspace{0pt}
+\centering
+\captionof{table}{Per-component ablation on R-Bench.}
+\label{tab:ablation_R-Bench}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Emb.} & \textbf{Tasks} & \textbf{Avg.} \\
+\midrule
+Wan2.2-TI2V-5B (ft) & 56.5 & 35.4 & 44.8 \\
+\quad + $\mathcal{L}^{\mathrm{phy}}_{\mathrm{pix}}$ & 59.0 & 37.8 & 47.2 \\
+\quad + $\mathcal{L}^{\mathrm{phy}}_{\mathrm{sem}}$ & 58.4 & 36.5 & 46.2 \\
+\quad + PhysisForcing & \textbf{58.2} & \textbf{38.9} & \textbf{47.5} \\
+\midrule
+Wan2.2-I2V-A14B (ft) & 64.7 & 52.5 & 57.9 \\
+\quad + $\mathcal{L}^{\mathrm{phy}}_{\mathrm{pix}}$ & 67.5 & 55.2 & 60.7 \\
+\quad + $\mathcal{L}^{\mathrm{phy}}_{\mathrm{sem}}$ & 66.8 & 54.6 & 60.0 \\
+\quad + PhysisForcing & \textbf{69.0} & \textbf{56.3} & \textbf{62.0} \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.25em}
+
+\captionof{table}{Physics region focus ablation on R-Bench.}
+\label{tab:ablation_region}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Emb.} & \textbf{Tasks} & \textbf{Avg.} \\
+\midrule
+Wan2.2-TI2V-5B (ft) & 56.5 & 35.4 & 44.8 \\
+w/o Physics region focus & 57.0  & 37.2  & 46.0  \\
+w/ Physics region focus & 58.2 & 38.9 & 47.5 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.25em}
+
+\captionof{table}{Alignment-block (layer index) ablation (Wan2.2-TI2V-5B, PAI-Bench robot domain).}
+\label{tab:ablation_layer}
+\begin{tabular}{l cccc}
+\toprule
+\textbf{Layer} & 10 & \textbf{15} & 20 & 25 \\
+\midrule
+\textbf{Robot Domain Score} & 83.9 & \textbf{85.2} & 84.1 & 83.2 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+% Right column: training curve figure.
+\begin{minipage}[t]{0.50\linewidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{figs/Fig4_TrainingCurve.png}
+\captionof{figure}{Robot domain score (PAI-Bench) across training steps. The two physics losses are complementary throughout training.}
+\label{fig:training_curve}
+\end{minipage}
+\end{figure}
+
+\paragraph{Component ablation.}
+Table~\ref{tab:ablation_R-Bench} isolates each objective on R-Bench, and the two losses prove
+complementary. On Wan2.2-TI2V-5B, the pixel-level trajectory loss
+$\mathcal{L}^{\mathrm{phy}}_{\mathrm{pix}}$ and the semantic-level relational loss
+$\mathcal{L}^{\mathrm{phy}}_{\mathrm{sem}}$ each improve the finetuned baseline ($44.8$) to
+$47.2$ and $46.2$, and combining them is best ($47.5$).
+$\mathcal{L}^{\mathrm{phy}}_{\mathrm{pix}}$ gives the larger single-loss gain because it
+directly suppresses trajectory discontinuity, the most common local failure, whereas
+$\mathcal{L}^{\mathrm{phy}}_{\mathrm{sem}}$ mainly repairs global relational errors such as
+broken contact, so the two target different error modes and stack. The same pattern holds on
+the larger Wan2.2-I2V-A14B ($57.9\!\rightarrow\!62.0$), confirming the benefit is not tied to
+backbone scale.
+
+\paragraph{Physics region focus.}
+Table~\ref{tab:ablation_region} verifies the value of concentrating supervision on
+interaction-critical regions. Applying the same two losses uniformly over all tokens already
+helps ($44.8\!\rightarrow\!46.0$), but restricting them to physics-informative regions further
+lifts the average to $47.5$, with the largest gain on the task-oriented dimensions
+(\textit{Tasks} $35.4\!\rightarrow\!38.9$). This shows that background and near-static regions
+dilute the physical signal, so focusing where robot-object interactions occur is what drives
+task-level correctness.
+
+\paragraph{Training dynamics.}
+Figure~\ref{fig:training_curve} tracks the PAI-Bench robot domain score over training. Both
+losses outperform vanilla finetuning at every checkpoint and the full model leads throughout,
+indicating a persistent rather than transient learning signal. The score peaks at $85.2$ at
+20k ($+4.1$); all variants then decline slightly from mild overfitting, yet PhysisForcing
+still leads by $+3.7$ at 30k.
+
+\paragraph{Alignment layer.}
+Because the alignment is imposed on a single DiT block, its depth matters. Sweeping the block
+index on Wan2.2-TI2V-5B (Table~\ref{tab:ablation_layer}), a middle block (layer $15$) is best
+($85.2$), beating shallower (layer $10$, $83.9$) and deeper (layer $25$, $83.2$) choices: early
+blocks still carry mostly shallow appearance features and lack the semantic structure needed
+for relational alignment, while late blocks are already specialized for the final noise prediction and
+are harder to steer. The intermediate block thus offers the best trade-off, and performance
+stays stable across nearby layers.

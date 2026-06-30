@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{10pt}
+\caption{\textbf{Full results on the robot domain of PAI-Bench.} We report the Quality Score, the Domain Score, and their average (overall Avg.). \textbf{(ft)} denotes vanilla finetuning of the corresponding backbone. The best value in each column is in \textbf{bold}.}
+\label{tab:paibench_full}
+\begin{tabular}{l ccc}
+\toprule
+\textbf{Model} & \textbf{Quality} & \textbf{Domain} & \textbf{Avg.} \\
+\midrule
+Wan2.5~\cite{wan2025wan}            & 75.48 & 86.44 & 80.96 \\
+GigaWorld-0~\cite{team2025gigaworld} & 75.91 & 85.83 & 80.87 \\
+Veo 3.1~\cite{GoogleDeepMind2025Veo3} & \textbf{77.40} & 83.50 & 80.45 \\
+WoW-Wan 14B~\cite{chi2025wow}        & 76.05 & 83.01 & 79.53 \\
+Sora v2 Pro~\cite{openai2025sora2}   & 76.79 & 76.26 & 76.52 \\
+Abot-PhysWorld~\cite{ali2025abot}    & 76.76 & 93.06 & 84.91 \\
+Wan2.2-I2V-A14B~\cite{wan2025wan}        & 76.15 & 81.70 & 78.93 \\
+\midrule
+Wan2.2-I2V-A14B (ft)~\cite{wan2025wan}   & 75.38 & 84.42 & 79.90 \\
+\quad \textbf{PF-Wan}                & 76.26 & 88.20 & 81.73 \\
+Cosmos3-Nano (ft)                    & 76.52 & 91.54 & 84.03 \\
+\quad \textbf{PF-Cosmos}             & 77.08 & \textbf{93.26} & \textbf{85.17} \\
+\bottomrule
+\end{tabular}
+\end{table}

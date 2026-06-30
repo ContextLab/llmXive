@@ -1,0 +1,42 @@
+\section{Related Works}
+
+\myparagraph{Learning from human.}
+% 
+Along with the growing number and size of ego-centric datasets~\cite{zhou2018towards,goyal2017something,miech2019howto100m,damen2018scaling,grauman2022ego4d,grauman2024ego,hoque2025egodex}, researchers have explored diverse approaches to harness physical knowledge from large-scale human data.
+% 
+Some works~\cite{cheang2024gr,wu2023unleashing,hu2024video,li2026causal} learn generative visual representations from human videos.
+% 
+Another line of work learns intermediate representations from human videos, \textit{e.g.}, affordance~\cite{bahl2023affordances,bahl2022human}, keypoints~\cite{wang2023mimicplay,wen2023any,bharadhwaj2024track2act}, and latent actions~\cite{bruce2024genie,ye2024latent,bu2025agibot,chen2025moto,fan2025xr,bjorck2025gr00t}.
+% 
+There are also works that collect explicit human actions directly with gloves~\cite{xu2025dexumi,tao2025dexwild} or extract human actions from videos using hand pose estimation~\cite{kareer2025emergence,kareer2025egomimic,punamiya2025egobridge,zhu2026emma,luo2026being,luo2025being}.
+% 
+Human data, a cost-effective manipulation data source, is not only regarded as the pretraining data source~\cite{zheng2026egoscale,cheang2024gr,bjorck2025gr00t}, but is also widely adopted during human-robot alignment~\cite{kareer2025egomimic,punamiya2025egobridge,zhu2026emma,shi2026egohumanoid} and even post-training~\cite{ye2026world,cheang2025gr3,kareer2025emergence} to improve robot foundation models~\cite{black2024pi_0,intelligence2025pi_0.5,ye2026world}.
+% 
+In our project, we learn explicit human actions and argue that wrist rotations are unreliable on noisy human data and semantically misaligned with parallel grippers.
+% 
+Instead, we establish a translation-based bridging action representation shared between humans and robots to enable effective human to robot manipulation knowledge transfer.
+
+
+
+
+\myparagraph{Cross embodiment learning} aims to learn the shared knowledge across different robot configurations within a unified model to control a diverse collection of robots~\cite{o2024open,team2024octo,black2024pi_0,intelligence2025pi_0.5,yang2024pushing}.
+% 
+Learning from explicit human actions can also be considered a type of cross embodiment learning~\cite{kareer2025egomimic,punamiya2025egobridge,zheng2026egoscale,zhu2026emma}.
+% 
+However, the differences among action representations pose significant challenges.
+% 
+Some works define a unified action space by concatenating~\cite{liu2024rdt,cheang2025gr3,kareer2025egomimic}, padding missing dimensions~\cite{black2024pi_0,pertsch2025fast,intelligence2025pi_0.5}, or simply building different projectors~\cite{wang2024scaling,bjorck2025gr00t} for different action representations.
+% 
+In this project, we co-train human and robot actions via a shared bridging action representation and adopt an interleaved action sequence to handle the potential missing action components within different data sources.
+% 
+We show that our proposed action representation and training strategy enable effective human to robot manipulation knowledge transfer.
+
+
+
+\myparagraph{Data pyramid and co-training} are widely discussed when developing robust and generalizable robot learning systems~\cite{bjorck2025gr00t,barreiros2025careful,lin2026systematic,generalist2026gen1,cheang2025gr3}.
+% 
+Instead of resorting to the costly practice of collecting real robot data, cross-embodiment data~\cite{o2024open,kim2024openvla,liu2024rdt,black2024pi_0,intelligence2025pi_0.5}, human data~\cite{kareer2025egomimic,zheng2026egoscale,cheang2025gr3}, vision-language corpora~\cite{goyal2017making,chen2015microsoft,li2024llava,zitkovich2023rt2,wu2026pragmatic}, and videos~\cite{bu2025agibot,bjorck2025gr00t,cheang2024gr,wu2023unleashing,hu2024video,ye2026world,li2026causal} serve as more cost-effective alternatives for scaling up robot learning.
+% 
+By exposing the model to a more diverse data source and supervision, the robot is more robust to environmental distortions~\cite{cheang2025gr3,intelligence2025pi_0.5,lin2026systematic} and can follow more generalized instructions~\cite{zitkovich2023rt2,cheang2025gr3}.
+% 
+In this paper, our work focuses specifically on how to transfer human manipulation skills to robots and whether it can benefit from large-scale human action pre-training.

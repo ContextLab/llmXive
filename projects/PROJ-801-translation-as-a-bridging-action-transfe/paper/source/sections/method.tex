@@ -1,0 +1,298 @@
+\section{Hardware and Platform}
+\label{sec:hardware}
+
+\myparagraph{Robot platform.}
+%
+We experiment with the ByteMini robot~\cite{cheang2025gr3} (Fig.~\ref{exp:fig:eval_setup}.b), which is a bi-manual mobile manipulation platform with two 7-DoF arms, parallel grippers, and three RGB-D cameras mounted on the head and two wrists.
+%
+During data collection, we ask the tele-operators to randomly adjust the robot's height, position, and rotation for diversity.
+%
+While during rollout, the robot base is kept static, and the arms are controlled with 6DoF end-effector poses and discrete gripper signals.
+
+
+\myparagraph{Human data platform.}
+%
+We collect our in-lab human action data with PICO 4 Ultra Enterprise.
+%
+Since we are mainly interested in learning transferable robotic manipulation behaviors from human data, we ask the operators to imitate the robot gripper with their hand postures and to keep their hands within the top camera's field of view during human action data collection.
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/methods/pipelinev5.pdf}
+    \caption{
+        \textbf{Architecture Overview.}
+        % 
+        We train our model on a) the mixture of human and robot action data.
+        % 
+        As shown in b), learning from 6DoF human action is challenging and suboptimal because of the difference in contact patterns and noisy hand pose estimations.
+        % 
+        We adopt c) a $\pi_0$-like~\cite{black2024pi_0} vision-language-action model as our base policy and adopt interleaved action sequences to handle potential missing action components and enable manipulation behavior transfer.
+    }
+    \label{method:fig:pipeline}
+\end{figure}
+
+
+
+\section{Method}
+\label{sec:method}
+
+We propose a framework that can transfer manipulation skills from human actions to a bi-manual robot.
+% 
+Instead of directly using 6DoF wrist actions, we propose to adopt a bridging action representation based on wrist translations.
+% 
+Such bridging action can be extracted from both human and robot actions.
+% 
+To handle the potential missing action components for different action data sources, we build an interleaved action sequence for flow matching.
+
+
+\subsection{Motion Bridging Action Representation}
+\label{sec:method:action_repr}
+
+
+\myparagraph{Why not just 6DoF wrist actions for human actions?}
+% 
+The mainstream practice treats humans as another embodiment by extracting relative 6DoF wrist actions from hand-pose estimators~\cite{kareer2025egomimic,kareer2025emergence,cheang2025gr3,yuan2025motiontrans,zheng2026egoscale}.
+% 
+However, we argue this is sub-optimal: 1) the wrist rotations for human data are noisy due to predictor errors~\cite{wei2026one}, and 2) the distinct contact patterns between fingers and parallel grippers decouple wrist rotation from the semantic manipulation behavior. 
+% 
+Empirically, we find that directly replaying the extracted human 6DoF wrist actions on robots often leads to distorted behaviors.
+
+
+\myparagraph{From wrist poses to a shared bridging signal $\mathbf{a}^{\text{3D-wrist}}$.}
+%
+Our key insight is that both humans and robots act upon what they perceive, therefore, we treat \emph{the relative wrist translation observed from the head camera} as the bridging action.
+% 
+We first project the wrist pose into the head-camera frame.
+% 
+Let $\mathbf{W}^{t}_{w}\!\in\!\mathbb{SE}(3)$ denote the wrist pose in the world frame at time $t$, and $\mathbf{T}^{t}_{w\leftarrow c}\!\in\!\mathbb{SE}(3)$ the head-camera pose at time $t$, whose camera frame we abbreviate as $\mathrm{c}_t$.
+%
+Applying $(\mathbf{T}^{t}_{w\leftarrow c})^{-1}$ maps the wrist pose into $\mathrm{c}_t$, yielding $\mathbf{W}^{t+i}_{\mathrm{c}_t} = (\mathbf{T}^{t}_{w\leftarrow c})^{-1}\,\mathbf{W}^{t+i}_{w}$. 
+% 
+We take the translation component as the relative wrist translation over a $k$-step future window:
+%
+\begin{equation}
+\boldsymbol{a}^{\text{3D-wrist}}_{t+i}
+= \Delta \mathbf{W}^{\text{3D}}
+= \boldsymbol{t}\!\left( \mathbf{W}^{t+i}_{\mathrm{c}_t} \right)
+- \boldsymbol{t}\!\left( \mathbf{W}_{\mathrm{c}_t}^{t} \right), \qquad i = 1, \dots, k,
+\end{equation}
+%
+where $\boldsymbol{t}(\cdot)$ extracts the $3\!\times\!1$ translation components in $\mathbb{SE}(3)$. 
+% 
+In practice, we concatenate wrist translations for both arms, yielding $\mathbf{a}_{t}^{\text{3D-wrist}}\!\in\!\mathbb{R}^{k\times 6}$  for both bi-manual robots and humans.
+% 
+Such translation-only bridging action $\mathbf{a}_{t}$ serves as the bridge between the two embodiments.
+% 
+To sum up, $\mathbf{a}_{t}^{\text{3D-wrist}}$ is 1) physically meaningful for describing motion under a shared observation perspective, 2) robust to noisy rotation estimates, and 3) embodiment-agnostic by construction.
+
+
+
+
+\myparagraph{Robot end-effector action $\mathbf{a}^{\text{6D-eef}}$.}
+% 
+The robot 6DoF end-effector action is defined as the relative wrist motion with respect to the initial end-effector pose: 
+%
+\begin{equation}
+\boldsymbol{a}^{\text{6D-eef}}_{t+i}
+= \Delta \mathbf{W}^{\text{6D}} =  \left( \mathbf{W}^{t}_{w} \right)^{-1} \mathbf{W}^{t+i}_{w},
+\qquad i = 1, \dots, k.
+\end{equation}
+%
+Being a relative pose between two $\mathbb{SE}(3)$ elements, this action representation is invariant to the absolute camera pose and is physically meaningful for describing arm motions~\cite{zheng2026egoscale}.
+% 
+We further transform $\mathbb{SE}(3)$ into Cartesian coordinates and Euler angles for robot actions, resulting in $\mathbf{a}_{t}^{\text{6D-eef}}\!\in\!\mathbb{R}^{k\times 12}$ by concatenating the end-effector actions for both arms.
+
+
+
+
+\myparagraph{Gripper action $\mathbf{a}^{\text{gripper}}$}
+%
+is defined as a chunk of binary signal $a^{\text{gripper}}_i \in \{0, 1\}$ per gripper, where we use $1$ for close and $0$ for open.
+% 
+We can also annotate hand closure as gripper signal for our in-lab human data.
+% 
+The gripper action is defined as $\mathbf{a}^{\text{gripper}}_t\!\in \!\mathbb{R}^{k\times 2}$ for humans and bi-manual robots.
+
+
+
+
+\myparagraph{Unified action and per-embodiment supervision.}
+%
+We define a unified action space via the concatenation of different action components 
+$\mathbf{a}_t = (\mathbf{a}^{\text{3D-wrist}}_t, \mathbf{a}^{\text{6D-eef}}_t, \mathbf{a}^{\text{gripper}}_t)$. 
+% 
+Different data sources contain different subsets of the action components, and we only supervise the corresponding components that are reliably available.
+% 
+As shown in Table~\ref{method:tab:supervision}, we learn the shared $\mathbf{a}^{\text{3D-wrist}}$ for human actions while additionally grounding $\mathbf{a}^{\text{3D-wrist}}$ into the executable $\mathbf{a}^{\text{6D-eef}}$ for robot actions.
+
+
+
+
+\begin{table}[htbp]
+\caption{
+    \textbf{Per-embodiment action supervision.}
+    %
+    Based on reliably extractable action components, we learn distinct action representations for various embodiments under a unified action space.
+}
+\label{method:tab:supervision}
+\centering
+\small
+\begin{tabular}{l|ccc}
+\toprule
+Data source & $\mathbf{a}^{\text{3D-wrist}}$ & $\mathbf{a}^{\text{6D-eef}}$ & $\mathbf{a}^{\text{gripper}}$ \\
+\midrule
+In-the-wild human action data (EgoDex~\cite{hoque2025egodex} + out-sourced) & $\checkmark$ & --           & --           \\
+In-lab human action data & $\checkmark$ & --           & $\checkmark$ \\
+Robot tele-operation                     & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+
+\subsection{VLA Model with Interleaved Action Sequence}
+\label{sec:model:model}
+
+
+\myparagraph{Architecture.}
+%
+Our model is a $\pi_0$-like~\cite{black2024pi_0,cheang2025gr3} end-to-end VLA, $\pi_\theta(l, o_t)$, which generates an action chunk $\mathbf{a}_t = a_{t:t+k}$ conditioned on the language instruction $l$ and the observations $o_t$ from the head and two wrist cameras.
+% 
+We pad blank images for the missing wrist views in human action data.
+
+
+
+The VLA model formulates vision, language, and action tokens within a sequence, sharing the self-attention layer, but with two separate sets of parameters to balance different training objectives.
+% 
+The vision and language tokens ($o_t$, $l$) are processed via a pre-trained VLM~\cite{bai2025qwen25vltechnicalreport}, and the resulting vision-language KV-cache serves as the context condition for the Action Transformer to generate the action chunk via flow matching~\cite{liu2022flow,lipman2022flow}.
+
+
+
+
+
+
+\myparagraph{Interleaved action tokens.}
+%
+Given previous analysis on action definitions in Sec.~\ref{sec:method:action_repr}, an action chunk can be represented with a subset of $\{\mathbf{a}^{\text{3D-wrist}},\mathbf{a}^{\text{6D-eef}},\mathbf{a}^{\text{gripper}}\}$ depending on the data source. 
+% 
+We exploit the Transformer's ability to handle variable-length inputs via attention masks and position ids~\cite{vaswani2017attention}, and organize the action tokens in the
+$\mathbf{a}^{\text{3D-wrist}} \rightarrow \mathbf{a}^{\text{6D-eef}} \rightarrow \mathbf{a}^{\text{gripper}}$ order to handle possible absence of certain action types.
+% 
+We build corresponding input/output layers for different action tokens, while sharing the action transformer.
+
+
+
+The ordering of action components is established based on two priors: 
+% 
+1) the shared bridging signal should be attended to by the 6DoF action tokens, enabling explicit manipulation knowledge transfer from human to robot within the attention pattern itself; 
+% 
+and 2) the gripper signal is typically triggered after the end-effector reaches its target.
+% 
+When handling missing action components, it is natural to mask certain action tokens in attention layers and omit the loss calculation, \textit{e.g.}, the 6DoF end-effector actions for human data.
+
+
+
+
+\myparagraph{Flow-matching action objective.}
+%
+The action generation is trained with flow matching~\cite{lipman2022flow,liu2022flow}. 
+% 
+Given $\tau\!\in\!(0,1)$ and $\epsilon\!\sim\!\mathcal{N}(\mathbf{0}, \mathbf{I})$, the model is required to denoise the noisy action chunk $\mathbf{a}^{\tau}_{t} = \tau\,\epsilon + (1-\tau)\,\mathbf{a}_{t}$ based on observation $o_t$ and language $l$ inputs, by predicting the velocity $\hat v(\mathbf{a}^{\tau}_t, o_t, l, \tau)$ from the noise $\epsilon$ towards the ground-truth action $\mathbf{a}_{t}$.
+% 
+The ground-truth velocity is defined as $v^* = \epsilon - \mathbf{a}_{t}$, and the action flow matching loss is defined as:
+%
+\begin{equation}
+    \mathcal{L}_{\text{FM}} = \left\|\hat v(\mathbf{a}^{\tau}_{t}, o_t, l, \tau) - v^*\right\|_2^2.
+\end{equation}
+%
+For each training sample, $\mathcal{L}_{\text{FM}}$ is computed on the provided action components. 
+% 
+During inference, we generate only $\mathbf{a}^{\text{6D-eef}}$ and $\mathbf{a}^{\text{gripper}}$ for robot control by integrating the velocity from $\tau\!=\!0$ to $1$ with $\Delta \tau = 0.2$ using the Euler method, \textit{i.e.}, $\mathbf{a}^{\tau + \Delta \tau}_{t} = \mathbf{a}^{\tau}_{t} + \Delta\tau \cdot \hat v(\mathbf{a}^{\tau}_{t}, o_t, l, \tau)$, across all the experiments.
+% 
+
+
+
+
+
+\myparagraph{Vision-language co-training.}
+%
+To prevent over-fitting on action data, we co-train the VLA model with a collection of vision-language data~\cite{cheang2025gr3,intelligence2025pi_0.5,zitkovich2023rt2} using the standard next-token prediction (NTP) objective, \textit{i.e.}, 
+%
+$\mathcal{L}_{\text{NTP}} = - \frac{1}{|s|}\sum\nolimits_{i=1}^{|s|} \log P\!\left(s^{i} \,\middle\vert\, s^{[1, \dots, i-1]};\, o_{t}, l\right)$,
+% 
+where $s$ is the response sequence, and $|s|$ is the length of $s$.
+%
+Each training sample adopts either $\mathcal{L}_{\text{FM}}$ or $\mathcal{L}_{\text{NTP}}$ for action data or vision-language data, respectively.
+% 
+Therefore, the total loss can also be represented as a weighted sum over the batch.
+
+
+
+\subsection{Training Strategies}
+% 
+\label{sec:method:strategy}
+
+
+\myparagraph{Stage I: Pre-training on human actions.}
+%
+Human data offers unmatched skill and scene diversity, is independent of robot hardware, and is one of the most scalable manipulation data sources~\cite{hoque2025egodex,grauman2022ego4d,zheng2026egoscale}.
+%
+Accordingly, we pre-train our VLA model on approximately 600 hours of human actions: covering $\sim$70 hours from selected tasks in EgoDex~\cite{hoque2025egodex}, $\sim$500 hours of out-sourced free-form household manipulation, and $\sim$45 hours of in-lab human actions.
+% 
+The out-sourced and in-lab human actions are both collected with PICO 4 Ultra Enterprise~\cite{cheang2025gr3}.
+% 
+Because the contact pattern and the rotation estimation cannot be reliably standardized at this scale, we supervise only the bridging signal $\mathcal{L}_{\text{FM}}^{\text{3D-wrist}}$ for pre-training.
+
+
+
+
+\myparagraph{Stage II: Human-robot co-training.}
+% 
+We now need the model to learn to generate executable robot actions by exposing the model to real robot trajectories.
+% 
+We adopt an aggressive data strategy by using only \textbf{generalized robot pick-and-place data} ($\sim$72 hours) over 100 objects, annotated with the fixed prompting format ``\texttt{put \{object\} into \{container\}}''~\cite{cheang2025gr3} to distinguish the robot actions from the skills in human actions.
+% 
+Paired with robot data, we collect $\sim$3 hours per task of task-specific \textbf{in-lab human actions} across 15 tasks, e.g., ``\texttt{open the microwave door}'', \textit{etc.}
+% 
+To minimize contact-pattern mismatch, we ask in-lab operators to mimic the gripper with their hand posture, and we annotate hand closure as the gripper control signal.
+% 
+All three losses, $\mathcal{L}_{\text{FM}}^{\text{3D-wrist}}$, $\mathcal{L}_{\text{FM}}^{\text{6D-eef}}$, and $\mathcal{L}_{\text{FM}}^{\text{gripper}}$ are active on robot data.
+% 
+In practice, we randomly include $\mathbf{a}_t^{\text{3D-wrist}}$ or substitute $\mathbf{a}_t^{\text{3D-wrist}}$ for $\mathbf{a}_t^{\text{6D-eef}}$ as the prediction target to explicitly bind the bridging representation to the executable robot actions. 
+% 
+We show that this binding strategy is essential for learning transferable manipulation skills in Sec.~\ref{sec:exp:bridging_tasks}.
+
+
+
+
+
+\myparagraph{Stage III: Few-shot robot post-training.}
+%
+We collect an additional set of robot data, containing 100 tele-operated robot actions per task in our in-lab human data.
+% 
+For post-training, we only use 10 trajectories per task at this stage to study the data efficiency (Sec.~\ref{exp:sec:few-shot}).
+
+
+
+\myparagraph{Implementation.}
+%
+Our VLA model adopts the Mixture-of-Transformer~\cite{liang2024mixture,black2024pi_0} architecture with approximately 4B parameters.
+% 
+In \textbf{Stage I} (human-only pre-training), we initialize the VLA model from a pre-trained VLM~\cite{bai2025qwen25vltechnicalreport} and train all parameters with a global batch size of 1024 for 400k iterations.
+% 
+In \textbf{Stage II} (human--robot co-training), we continue to co-train all the parameters on both robot and human trajectories with a global batch size of 256 for another 120k iterations.
+% 
+In \textbf{Stage III} (few-shot robot post-training), we further fine-tune the model by co-training on additional few-shot robot trajectories, also with a global batch size of 256 for another 25k iterations.
+% 
+Additionally, we follow prior practice~\cite{li2024autoregressive,cheang2025gr3} to increase the action transformer's effective batch size by repeating the VLM's KV-cache by $4\times$ for each training batch to accelerate convergence.
+
+
+
+
+
+
+

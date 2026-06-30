@@ -1,0 +1,315 @@
+\clearpage
+\appendix
+
+{
+  \centering 
+  \textbf{\Large PhysisForcing: Physics Reinforced World Simulator for Robotic Manipulation}
+  
+  \vspace{5pt}
+  {\Large Appendix}
+  \par
+}
+
+\section{More implementation details}
+\label{appx:impl}
+
+This section complements the main paper with the concrete configuration of the
+auxiliary perception models that produce our physics targets, and of the three video
+diffusion backbones that we fine-tune with PhysisForcing.
+
+\paragraph{Auxiliary perception models.}
+All three auxiliary models are frozen and used only to extract physics targets;
+they are run on the ground-truth clip on the fly during each training step, and
+the tracker/depth outputs are shared between the two physics losses. For the
+semantic-level teacher $\mathcal{E}_\phi$ in $\mathcal{L}^{\mathrm{phy}}_{\mathrm{sem}}$
+we adopt \textbf{V-JEPA\,2}~\cite{bardes2024revisiting} in its public
+\emph{ViT-L/16} variant (the \texttt{vitl-fpc64-256} checkpoint, hidden width
+$1024$), a self-supervised video encoder trained by predicting masked
+spatio-temporal feature targets rather than pixels. Its tokens are known to
+capture object- and interaction-centric structure, which makes its token
+relation matrix a natural semantic-level target. The clip is mapped to $[0,1]$,
+trilinearly resampled to $64{\times}256{\times}256$ and ImageNet-normalized, and
+the encoder returns a $32{\times}16{\times}16$ spatio-temporal token grid
+(tubelet $2$, patch $16$). Taking the implementation on Wan2.2-I2V-A14B as a reference, we take the
+hidden feature of a single DiT block (block $20$, width $5120$), map it into
+V-JEPA\,2's feature space with a lightweight MLP, and trilinearly resample it from its native DiT patch grid to
+the same $32{\times}16{\times}16$ grid, so that student and teacher tokens are
+index-aligned; the semantic-level loss then compares the $K{\times}K$ pairwise-cosine
+relation matrices over the (up to $K{=}512$) mask-selected tokens, rather than
+the absolute features. For the reference trajectories in
+$\mathcal{L}^{\mathrm{phy}}_{\mathrm{pix}}$ we use \textbf{CoTracker3}~\cite{karaev24cotracker3}
+in its \emph{offline} variant, a transformer point tracker with factorized
+spatio-temporal attention. We initialize a regular $25{\times}25$ query grid
+($625$ points) on the first frame and run it on the same clip fed to the
+diffusion model, yielding per-point 2D trajectories and visibilities. To favor
+foreground motion under scene-scale ambiguity, we additionally run
+\textbf{Depth-Anything-V2}~\cite{yang2024depth} (the ViT-L variant,
+$\sim$335M parameters) as a frozen monocular depth estimator \emph{on the first
+frame}; the resulting relative depth map, normalized to $[0,1]$, weights each
+track's motion magnitude so that the top-$K$ most active foreground tracks are
+retained. These selected trajectories serve both as the pixel-level supervision
+and, after rasterization, as the physics-informative mask $M$ used by the
+semantic-level loss.
+
+\paragraph{Wan2.2-I2V-A14B backbone.}
+The first backbone is \textbf{Wan2.2-I2V-A14B}~\cite{wan2025wan}, a Mixture-of-Experts image-to-video
+diffusion transformer with two $\sim$14B-parameter denoiser experts (27B total, 14B
+active per step) operating on top of the original Wan2.1 3D causal VAE with a
+$T{\times}H{\times}W = 4{\times}8{\times}8$ spatio-temporal compression ratio. The two
+experts are split along the diffusion trajectory by an SNR-based boundary $t_{\mathrm{moe}}$:
+the \emph{high-noise} expert covers timesteps $t \geq t_{\mathrm{moe}}$ and is responsible
+for laying down global layout, motion, and object configuration, while the
+\emph{low-noise} expert covers $t < t_{\mathrm{moe}}$ and refines high-frequency
+appearance. PhysisForcing targets the dynamics-forming stage, where physical structure
+is committed; we therefore fine-tune only the \emph{high-noise} expert. This is also
+well-aligned with our data setup: our robot manipulation training videos are at
+$480{\rm p}$, where directly fine-tuning the high-noise expert is sufficient to
+specialize the model to the target distribution. We deviate
+from the original MoE routing during training and apply the high-noise expert across the
+full $t \in [0, T]$ range: each training step samples $t$ uniformly from the entire
+diffusion schedule and feeds the noisy latent through the high-noise expert regardless of
+whether $t$ falls above or below $t_{\mathrm{moe}}$. The two physics losses
+$\mathcal{L}^{\mathrm{phy}}_{\mathrm{pix}}$ and $\mathcal{L}^{\mathrm{phy}}_{\mathrm{sem}}$
+are added to the standard flow-matching objective on these jointly sampled timesteps, so
+the fine-tuned expert learns to obey the trajectory and relational constraints uniformly
+across the denoising trajectory while the low-noise expert is left untouched.
+
+\paragraph{Wan2.2-TI2V-5B backbone.}
+Our smaller backbone is \textbf{Wan2.2-TI2V-5B}~\cite{wan2025wan}, a unified text/image-to-video diffusion
+transformer with a single $\sim$5B-parameter denoiser. Unlike the A14B model, TI2V-5B is
+paired with the new \textbf{Wan2.2-VAE}, whose $T{\times}H{\times}W = 4{\times}16{\times}16$
+compression ratio yields an overall $64{\times}$ reduction of the input volume; together
+with the patchify layer of the diffusion transformer, the effective compression seen by
+the denoiser becomes $4{\times}32{\times}32$. Because TI2V-5B is a single-expert model, no MoE routing is needed: we
+directly fine-tune the full denoiser with the standard flow-matching loss together with
+$\mathcal{L}^{\mathrm{phy}}_{\mathrm{pix}}$ and $\mathcal{L}^{\mathrm{phy}}_{\mathrm{sem}}$,
+with $t$ sampled uniformly across the full diffusion schedule. All other training
+hyper-parameters are kept identical between the two backbones to isolate the effect of the backbone itself.
+
+\paragraph{Cosmos3-Nano backbone.}
+The third backbone is \textbf{Cosmos3-Nano}~\cite{nvidia2026worldsimulationvideofoundation}, a $\sim$16B-parameter
+\emph{Mixture-of-Transformers} (MoT) video model built on the Qwen3-VL-8B
+backbone (hidden width $4096$, $36$ transformer blocks). We operate
+the model in its image-to-video setting and fine-tune it on the same
+robot-manipulation clips at $720{\rm p}$. The latent space is produced by the same
+\textbf{Wan2.2-VAE} as Wan2.2-TI2V-5B ($T{\times}H{\times}W = 4{\times}16{\times}16$),
+which together with the diffusion transformer's patchify layer yields an effective
+$4{\times}32{\times}32$ compression seen by the denoiser. Following the same recipe as the Wan backbones, we read the hidden
+feature of a single mid-depth MoT block and add the two physics losses to conduct the physics supervision.
+
+\section{Evaluation benchmark details}
+\label{appx:benchmarks}
+
+We provide further details on the embodied video generation benchmarks used in the main
+text: R-Bench~\cite{deng2026rethinking}, the robot domain of
+PAI-Bench~\cite{zhou2025paibench}, and EZS-Bench~\cite{ali2025abot}.
+
+\paragraph{R-Bench.}
+R-Bench consists of 650 image-text prompt pairs that cover diverse robotic manipulation and
+locomotion scenarios, with each pair annotated along two orthogonal axes. The
+\emph{task} axis contains five categories, namely Manipulation, Spatial Relationship,
+Multi-Entity Collaboration, Long-Horizon Planning, and Visual Reasoning, ranging from
+single-step pick-and-place to multi-agent and reasoning-heavy scenarios. The
+\emph{embodiment} axis contains four categories, namely Single-Arm, Dual-Arm, Quadruped,
+and Humanoid robots, testing whether the model can consistently render robot morphologies
+and their motion patterns. The per-dimension scores reported in the main text correspond
+exactly to these nine sub-categories, and the overall score is their unweighted average.
+For each generated video, R-Bench computes five fine-grained sub-metrics that jointly
+cover task-level correctness and visual fidelity. \emph{Physical-Semantic Plausibility}
+and \emph{Task-Adherence Consistency} are evaluated through an MLLM-as-Judge VQA pipeline:
+uniformly sampled key frames are arranged into temporal grids and inspected by Qwen3-VL,
+which is prompted to detect physical violations such as floating components, object
+penetration, spontaneous appearance/disappearance, and non-contact attachment, and to
+verify that prompt-specified key actions occur in the correct order. \emph{Robot-Subject
+Stability} uses a contrastive VQA protocol that compares a reference frame against a
+generated frame to detect gripper or object morphology drift, link-topology changes, and
+attribute drift over time. \emph{Motion Smoothness} and \emph{Motion Amplitude} are
+computed from pixel- and tracking-based statistics rather than from MLLM prompting,
+penalizing temporal jitter as well as degenerate near-static outputs. The five sub-metrics
+are normalized and aggregated into a single per-prompt score in $[0, 1]$. The benchmark
+has been validated to correlate strongly with human judgement, reporting a Spearman rank
+correlation of $0.96$ between R-Bench scores and crowd-sourced preferences across
+$25$ representative video generators. We use the official evaluation scripts and report
+results on all 650 prompts.
+
+\paragraph{PAI-Bench (robot domain).}
+PAI-Bench is a comprehensive Physical AI benchmark spanning six domains (autonomous
+vehicles, robotics, industry, common sense, human, physics) and three tracks (PAI-Bench-G
+for video generation, PAI-Bench-C for conditional generation, PAI-Bench-U for video
+understanding). In this paper we evaluate exclusively on the \emph{robot subset of the
+PAI-Bench-G generation track}, which is the subset most directly aligned with our embodied
+manipulation setting. It contains 174 image-prompt pairs sourced from real-world robotic
+captures, each accompanied by 5-6 QA pairs that encode the expected physical and
+semantic content. Each prompt is produced by a two-stage curation pipeline in which an
+MLLM (Qwen2.5-VL-72B-Instruct) generates an initial caption that is then manually
+refined, and domain-grounded QA pairs are generated and manually curated from the same
+source video. In this work we report both the \emph{Domain Score} and the \emph{Quality Score} of
+PAI-Bench-G on the robot subset. The Domain Score directly measures the physical and
+semantic plausibility of generated robotic interactions: it adopts the MLLM-as-Judge
+paradigm with Qwen3-VL-235B-A22B-Instruct, where each curated QA pair is posed to the MLLM
+against the generated video and the score is the MLLM's response accuracy across the QA
+set. The benchmark validates this metric with an arena-based human study and reports an
+overall Pearson correlation of $0.918$ with human ELO ratings. The Quality Score
+aggregates the benchmark's multidimensional perceptual metrics (subject/background
+consistency, overall consistency, aesthetic and imaging quality, and motion smoothness).
+The overall average reported in Figure~\ref{fig:paibench} and Table~\ref{tab:paibench_full}
+is the mean of the Quality and Domain scores, averaged over the 174 robot prompts of
+PAI-Bench-G.
+
+\paragraph{EZS-Bench.}
+EZS-Bench~\cite{ali2025abot} is a training-independent embodied zero-shot benchmark
+designed to evaluate physical fidelity and cross-embodiment generalization under fully
+out-of-distribution conditions, where diverse robot morphologies, environments, and tasks
+are composed into previously unseen combinations with no overlap with training data. The
+evaluation set is built with a dual-branch strategy: one branch synthesizes initial frames
+with a text-to-image model by varying robots, scenes, tasks, and viewpoints, while the
+other applies VLM-guided background editing to real robot images while preserving the
+foreground interaction. Each initial image is paired with a physics-grounded dense
+description that integrates the initial state, action trajectory, and final state, yielding
+196 evaluation samples. EZS-Bench adopts a decoupled dual-model protocol that separately
+scores visual quality and physical-semantic plausibility: a Qwen3-VL-32B-Thinking model
+generates a physical checklist from the initial state and instruction, and a separate
+Qwen2.5-VL-72B-Instruct model answers the checklist against the generated video, which
+avoids the self-evaluation bias of using a single model as both question generator and
+judge. Following the PAI-Bench convention, we report the Quality Score, the Domain Score,
+and their average as the overall score.
+
+\section{Detailed benchmark results}
+\label{appx:bench_results}
+
+We report the Quality Score and Domain Score behind the average scores shown in
+Figure~\ref{fig:paibench} and Figure~\ref{fig:ezsbench} of the main text in more detail.
+Table~\ref{tab:paibench_full} reports the full PAI-Bench (robot domain) results and
+Table~\ref{tab:ezsbench_full} reports the full EZS-Bench results. On both benchmarks, PhysisForcing improves the Domain Score and the
+overall average of both backbones over their vanilla-finetuned counterparts, and
+PF-Cosmos achieves the best overall average, surpassing the
+strongest robotics-specific baseline Abot-PhysWorld~\cite{ali2025abot}. The gains are most
+pronounced on the Domain Score, which measures physical-semantic plausibility, while the
+Quality Score stays competitive, indicating that hierarchical physics alignment improves
+physical fidelity while keeping visual quality on par with vanilla finetuning.
+
+\input{tabs/paibench_full}
+\input{tabs/ezsbench_full}
+
+\section{More qualitative results}
+\label{appx:qualitative}
+
+\paragraph{Comparison with the state-of-the-art models.}
+Figures~\ref{fig:appx_qual_sota1}--\ref{fig:appx_qual_sota5} compare PhysisForcing
+(PF-Cosmos) with strong commercial and robotics-specific models---Wan2.6, Seedance~1.5~Pro,
+Veo~3.1, Cosmos3-Super, and Abot-PhysWorld---on shared prompts. Across diverse single-arm,
+dual-arm, and humanoid tasks, the competing models frequently drift to wrong states, break
+robot-object contact, or deform objects, while PhysisForcing produces more continuous motion
+and more consistent interactions.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/Qual_Appx_2.jpg}
+\caption{Comparison with the state-of-the-art models.}
+\label{fig:appx_qual_sota1}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/Qual_Appx_3.jpg}
+\caption{Comparison with the state-of-the-art models.}
+\label{fig:appx_qual_sota2}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/Qual_Appx_4.jpg}
+\caption{Comparison with the state-of-the-art models.}
+\label{fig:appx_qual_sota3}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/Qual_Appx_5.jpg}
+\caption{Comparison with the state-of-the-art models.}
+\label{fig:appx_qual_sota4}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/Qual_Appx_6.jpg}
+\caption{Comparison with the state-of-the-art models.}
+\label{fig:appx_qual_sota5}
+\end{figure}
+
+\paragraph{Improving physical plausibility with PhysisForcing.}
+Figures~\ref{fig:appx_ablation_wan} and~\ref{fig:appx_ablation_cosmos} present qualitative
+ablations that isolate the effect of PhysisForcing from vanilla finetuning on the two backbones.
+For each prompt, the top row is the finetuned baseline and the bottom row (green) is the same
+backbone trained with PhysisForcing. On Wan2.2-I2V-A14B (Figure~\ref{fig:appx_ablation_wan}), the
+finetuned baseline often deforms the manipulated object or loses robot-object contact, whereas
+PF-Wan keeps object shape stable and produces continuous grasp-and-place trajectories. The same
+trend holds on Cosmos3-Nano (Figure~\ref{fig:appx_ablation_cosmos}), where PF-Cosmos better
+maintains contact dynamics and inter-object relations across single-arm, dual-arm, and humanoid
+tasks. These comparisons show that the gains stem from the hierarchical physics alignment rather
+than from additional in-domain finetuning.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/Ablation_1.jpg}
+\caption{Effect of PhysisForcing on the Wan2.2-I2V-A14B backbone: finetuned baseline (top) vs.
+PF-Wan (bottom, green).}
+\label{fig:appx_ablation_wan}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/Ablation_2.jpg}
+\caption{Effect of PhysisForcing on the Cosmos3-Nano backbone: finetuned baseline (top) vs.
+PF-Cosmos (bottom, green).}
+\label{fig:appx_ablation_cosmos}
+\end{figure}
+
+\paragraph{Generalization across scenes and instructions.}
+Figures~\ref{fig:appx_qual_gen1} and~\ref{fig:appx_qual_gen2} show additional generation
+results produced by PhysisForcing (PF-Cosmos) across diverse embodiments, scenes, and
+instructions. PhysisForcing consistently follows the prompt while respecting basic physical
+regularities, indicating that the learned physical priors generalize beyond the comparison
+prompts above.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/More_1.jpg}
+\caption{More generation results of PhysisForcing (PF-Cosmos).}
+\label{fig:appx_qual_gen1}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/More_2.jpg}
+\caption{More generation results of PhysisForcing (PF-Cosmos).}
+\label{fig:appx_qual_gen2}
+\end{figure}
+
+
+
+
+\section{Broader impacts}
+\label{appx:impact}
+
+PhysisForcing improves the physical plausibility of generated robotic manipulation
+videos. On the positive side, this lowers the barrier to embodied AI research by
+providing a cheap simulator for data augmentation and pre-deployment policy evaluation,
+and yields more reliable training signals for downstream world models. On the negative
+side, more realistic robot videos may be misused to fabricate deceptive footage,
+overstate hardware capabilities, or seed policies trained on synthetic demonstrations
+without real-world grounding. We mitigate these risks via a research-only release, and
+recommend that downstream users combine the model with provenance tools and validate
+any synthetic-data-derived policy on real hardware before deployment.
+
+\section{Limitations and future work}
+\label{appx:limitations}
+
+PhysisForcing is a fine-tuning recipe and inherits the capability ceiling of its
+underlying backbone: current open-source video generators, including the Wan2.2 and Cosmos3 families
+we build on, still exhibit limited world knowledge and long-horizon temporal reasoning,
+which bounds the physical plausibility any fine-tuning method can reach. As stronger
+video and world-model foundation models become available, we expect PhysisForcing
+to compound with their capabilities, since its trajectory-level and relational physics
+constraints are model-agnostic and only grow more informative as the backbone's
+representational capacity increases.

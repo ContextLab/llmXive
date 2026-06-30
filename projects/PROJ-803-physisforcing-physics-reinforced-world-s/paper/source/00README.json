@@ -1,0 +1,33 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/Medium.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/sans.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "resources/sansmedium.tfm"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

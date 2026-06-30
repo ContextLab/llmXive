@@ -1,0 +1,20 @@
+\section{Conclusions}
+
+\myparagraph{Limitations and Future Work.} 
+% 
+To leverage in-the-wild human actions, we adopt only wrist translation as the bridging action, which limits transfer on tasks that require fine rotational adjustments (Sec.~\ref{exp:sec:failure}). 
+% 
+We also find the robot struggles to pick up thin objects after co-training, which we attribute mainly to 1) the observation and embodiment gap and 2) the inevitable noise in human actions.
+% 
+In future work, with larger-scale and more diverse robot actions, we can further narrow the gap between human and robot actions.
+
+
+\myparagraph{Conclusions.}
+% 
+In this work, we investigate the feasibility of learning task-specific bi-manual robot skills from human motion data.
+% 
+We propose a translation-based bridging action representation that is compatible with both robot and human action data. 
+% 
+To address the potentially missing action components in different data sources, we further introduce an interleaved action sequence representation.
+% 
+Experimental results show that the proposed translation-only actions can efficiently transfer human manipulation knowledge to robot skill learning and effectively benefit from large-scale pretraining.

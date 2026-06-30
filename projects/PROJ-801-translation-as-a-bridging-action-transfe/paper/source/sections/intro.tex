@@ -1,0 +1,73 @@
+\section{Introduction}
+
+In this paper, we study whether we can learn novel manipulation skills from human data on a bi-manual robotic platform.
+% 
+Benefiting from the robot-free setting, the collection of human manipulation data can be conducted at a much lower cost and almost anywhere~\cite{generalist2025gen0,grauman2022ego4d}.
+% 
+Therefore, in terms of environmental and skill diversity, human data is considered one of the most scalable, economical, and promising ways to scale up robot learning~\cite{hoque2025egodex,generalist2025gen0,zheng2026egoscale}.
+% 
+Along with the growing popularity of ego-centric human data collection~\cite{grauman2022ego4d,hoque2025egodex,grauman2024ego}, researchers have flocked to the exploration of how human data can improve embodied policies.
+
+
+Prior research has proposed various types of human action representations for ego-centric human data.
+% 
+A large proportion of work adopts wrist poses~\cite{kareer2025egomimic,zhu2026emma,punamiya2025egobridge,cheang2025gr3,kareer2025emergence} with optional fingertip positions~\cite{cai2025n,qiu2025humanoid}, parameterized hands~\cite{romero2022embodied,luo2025being,luo2026being,yang2025egovla}, or finger joints~\cite{zheng2026egoscale} as human actions.
+% 
+In addition to explicit action representation, there are also attempts to learn latent action representations from ego-centric human videos~\cite{chen2025moto,fan2025xr,bruce2024genie,ye2024latent}.
+% 
+Incorporating human actions when building robot policies has shown great potential for improving generalization~\cite{kareer2025egomimic,punamiya2025egobridge,cai2025n}, reducing the reliance on robot data~\cite{zheng2026egoscale,bi2026h}, and steering pre-trained policies to manipulate novel objects and follow new instructions~\cite{cheang2025gr3,kareer2025emergence,yuan2025motiontrans} via human-robot co-training.
+
+
+
+
+Different from cross-embodiment robot data~\cite{o2024open,wu2024robomind,hou2025robomind,wu2025robocoin}, learning from human data encounters unique challenges. 
+% 
+Human actions are typically derived from hand pose estimators~\cite{kareer2025emergence,cheang2025gr3,kareer2025egomimic,yang2025egovla}.
+% 
+Though human hands can be constrained by parameterization~\cite{luo2025being,luo2026being,pavlakos2024reconstructing,romero2022embodied,yang2025egovla} or re-targeting~\cite{zheng2026egoscale}, the extracted actions are inevitably noisy.
+% 
+Additionally, contact patterns differ greatly between human hands and robot grippers~\cite{wei2026one}: the additional degrees of freedom in fingers make wrist rotations less meaningful when reflecting manipulation behaviors.
+% 
+Therefore, we argue that \emph{learning rotation-inclusive robotic manipulation signals from human data is highly challenging and sub-optimal}.
+% 
+Instead, we propose to learn only the wrist translations as a shared action space between humans and robots.
+% 
+Since humans and robots both act on what they perceive, we extract the relative wrist translations under the head camera frame.
+% 
+To this end, we end up with two different action spaces: 1) the rotation-inclusive end-effector action to control the robot~\cite{zheng2026egoscale,cheang2025gr3,kareer2025emergence} and 2) the wrist-translation action that can be shared between humans and robots.
+
+
+
+To enable efficient manipulation knowledge transfer from human to robot, we are required to design a unified training objective for a multi-embodiment model.
+% 
+We build our method upon a $\pi_0$-like~\cite{black2024pi_0} vision-language-action model, which processes the observation and instruction inputs with pre-trained vision-language priors and generates actions via flow matching~\cite{liu2022flow,lipman2022flow}.
+% 
+Since we are required to handle the potential missing action components across different embodiments, we propose to adopt interleaved action tokens to model wrist translation, 6DoF end-effector action, and gripper signals.
+% 
+By masking the missing action components within the attention layers, we can handle actions from different embodiments via variable length inputs.
+% 
+Critically, we find that randomly adding and substituting wrist translations for 6DoF end-effector actions on robot action data is essential for transferring wrist translation knowledge to executable robot end-effector actions.
+
+
+
+We adopt a three-stage training strategy by first pre-training the model on a large-scale collection of human action data with only wrist translation actions.
+% 
+Then, we co-train the model by incorporating generalized pick-and-place robot actions~\cite{cheang2025gr3} with task-specific human actions (\textit{e.g.}, opening microwaves, wiping, stacking, \textit{etc.}).
+% 
+Empirically, we find that the robot is able to complete certain tasks without task-specific robot demonstrations.
+% 
+We can also improve the overall performance of the model by post-training on an additional set of few-shot real-robot data.
+% 
+To conclude, our contributions include:
+
+\begin{itemize}
+    \item We propose a bridging action representation based on wrist translations, which is shared between robots and humans and is robust to noisy human actions.
+    % 
+    We show that the bridging action facilitates superior manipulation skill transfer from human to robot than simply adopting noisy 6DoF human actions.
+
+    \item To cope with the heterogeneous action components across data sources, we design a unified, interleaved action representation that handles missing action components through attention masks.
+    % 
+    This interleaved design also enables the model to benefit from large-scale human action pre-training.
+
+    \item We further characterize the upper bound of our bridging representation in robotic skill transfer, suggesting its potential to scale up to broader cross-embodiment learning settings.
+\end{itemize}

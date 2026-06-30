@@ -1,0 +1,481 @@
+\section{Experiments}
+\label{sec:exp}
+
+We conduct real-world experiments to study how the bridging action representation helps transfer manipulation skills from human actions to robots.
+% 
+Concretely, we aim to answer the following questions:
+
+\begin{itemize}[leftmargin=1.5em,itemsep=0.1em]
+    % 
+    \item \textbf{Q1.} Does the bridging action transfer manipulation skills beyond generic pick-and-place, and does it scale with large-scale human-only pre-training? (Sec.~\ref{exp:sec:principle})
+    % 
+    \item \textbf{Q2.} How is the bridging action when comparing to 6DoF human actions? (Sec.~\ref{exp:sec:vs6dof})
+    % 
+    \item \textbf{Q3.} Does human-only pre-training improve the data efficiency of few-shot robot post-training? (Sec.~\ref{exp:sec:few-shot})
+    % 
+    \item \textbf{Q4.} What training objective is essential during human-robot co-training? (Sec.~\ref{sec:exp:bridging_tasks})
+    % 
+    \item \textbf{Q5.} Does human-only pre-training objective align with the executable robot action space? (Sec.~\ref{exp:sec:alignment})
+    % 
+    \item \textbf{Q6.} What is the performance upper bound of the bridging action? (Sec.~\ref{exp:sec:upperbound})
+\end{itemize}
+
+
+\subsection{Evaluation Setups}
+\label{exp:sec:eval_setup}
+
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{1\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figs/exp/sec5.1_task_1.pdf}
+        \label{fig:sub1}
+    \end{subfigure}
+    \begin{subfigure}[b]{1\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figs/exp/sec5.1_task_2.pdf}
+        \label{fig:sub2}
+    \end{subfigure}
+    % 
+    \caption{
+        \textbf{Evaluation setups.} 
+        % 
+        We show one of the initialized setups for each task (top), and the objects used throughout policy evaluations (bottom).
+    }
+    \label{exp:fig:eval_setup}
+\end{figure}
+
+
+\myparagraph{Tasks.}
+%
+We evaluate our policy on 15 manipulation tasks as shown in Fig.~\ref{exp:fig:eval_setup}, which is grouped by their manipulation objects (microwave, drawer, mug/cup, and others).
+% 
+We also provide the task progress evaluation criteria in Fig.~\ref{exp:fig:appdxB_test}.
+% 
+For each of listed tasks, we collect 1) three hours of task-specific in-lab human actions, and 2) 100 task-specific in-lab robot trajectories.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/exp/appdxB_test.pdf}
+    \caption{
+        \textbf{Overview of real-world evaluation tasks.} 
+        % 
+        We experiment with 15 manipulation tasks, categorized with respect to their manipulation objects.
+        % 
+        For each task, we adopt two distinct testing layouts and a detailed progress scoring criterion.
+    }
+    \label{exp:fig:appdxB_test}
+\end{figure}
+
+
+\begin{enumerate}[leftmargin=1.6em,itemsep=0.1em]
+    \item \textbf{Open the microwave door.} The robot reaches for the microwave door handle, grasps it, and pulls it outward till the door is opened.
+    \item \textbf{Close the microwave door.} The robot pushes the microwave door until it is fully closed.
+    \item \textbf{Take the bowl out of the microwave.} The robot reaches inside the open microwave, picks the bowl up, and places it on the table while avoiding collisions.
+    \item \textbf{Place the bowl into the microwave.} The robot picks up the bowl from the table and places it inside the open microwave while avoiding collisions.
+    \item \textbf{Wipe the microwave top from left to right.} The robot grasps the towel on the left top of the microwave and pushes it towards the right top.
+    \item \textbf{Wipe the microwave top from right to left.} The robot grasps the towel on the right top of the microwave and pushes it towards the left top.
+    \item \textbf{Open the drawer.} The robot reaches for the drawer handle, grasps it, and pulls it outward.
+    \item \textbf{Close the drawer.} The robot pushes the drawer until it is fully closed.
+    \item \textbf{Hang the left mug on the mug holder.} The robot picks up the left mug on the table and hangs it onto the corresponding side of the mug holder.
+    \item \textbf{Hang the right mug on the mug holder.} The robot picks up the right mug on the table and hangs it onto the corresponding side of the mug holder.
+    \item \textbf{Stack the left cup onto the other cup.} The robot picks up the left cup from the table and stacks it onto the right cup.
+    \item \textbf{Stack the right cup onto the other cup.} The robot picks up the right cup from the table and stacks it onto the left cup.
+    \item \textbf{Insert the straw into the cup.} The robot picks up a straw from the table and inserts it vertically into a cup.
+    \item \textbf{Take the toast from the toaster and set it on a plate.} The robot picks the toast from the toaster and places it on a plate.
+    \item \textbf{Unplug the charger.} The robot grasps the charger from the power strip, pulls out, and places on table.
+\end{enumerate}
+
+
+\myparagraph{Protocol and metrics.}
+%
+For each task, we design two distinct evaluation scenes with various distractors (Fig.~\ref{exp:fig:appdxB_test}), and evaluate each scene four times, resulting in eight trials per task.
+% 
+Before each rollout, we reset the robot's initial pose and the object layout according to a pre-recorded mask to ensure a relatively fair comparison, and all evaluation scenes are different from the training data.
+% 
+Since robot configurations differ physically from humans, achieving non-zero success on novel tasks with no real-robot data is challenging; we therefore report both the success rate and the average progress, where the latter follows the fine-grained, per-task scoring criteria in Fig.~\ref{exp:fig:appdxB_test} to quantify partial task completion.
+
+% % 
+% To illustrate the intended behavior, Fig.~\ref{exp:fig:appdxB_demonstration} visualizes keyframes of the expected execution trajectories, omitting functionally identical left--right symmetric variants for conciseness.
+
+
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=0.8\linewidth]{figs/exp/appdxB_demonstration.pdf}
+%     \caption{
+%         \textbf{Keyframe visualizations of expected execution trajectories.}
+%         Each row details the execution progression of a distinct task, excluding functionally identical left--right symmetric variants to avoid redundancy.
+%     }
+%     \label{exp:fig:appdxB_demonstration}
+% \end{figure}
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figs/exp/sec5.2_results.pdf}
+    \caption{
+        \textbf{Main results.}
+        % 
+        Training only on robot pick-and-place data (\textcolor[RGB]{140, 180, 150}{green}) is not enough for our downstream evaluation tasks.
+        % 
+        However, the co-training of human and robot actions (\textcolor[RGB]{232, 168, 143}{orange}) can efficiently transfer manipulation knowledge from human data to robot actions.
+        % 
+        The bridging action can also benefit from large-scale human-only pre-training (\textcolor[RGB]{129, 157, 195}{blue}), and from additional few-shot robot demonstrations (\textcolor[RGB]{200, 160, 220}{purple}).
+    }
+    \label{exp:fig:sec5.2-main}
+\end{figure}
+
+
+
+\subsection{The bridging action is scalable and essential for manipulation skill transfer}
+\label{exp:sec:principle}
+
+
+
+
+
+\myparagraph{Finding 1: The bridging representation transfers skills beyond pick-and-place.}
+%
+An alternative hypothesis is that the robot could already solve the evaluation tasks simply by generalizing from large-scale pick-and-place data.
+%
+To rule this out, we compare two checkpoints trained on generalized robot pick-and-place data with (\textcolor[RGB]{232, 168, 143}{orange}) and without (\textcolor[RGB]{140, 180, 150}{green}) human data in Fig.~\ref{exp:fig:sec5.2-main}.
+% 
+We also provide per-task performance in Fig.~\ref{exp:fig:appdxB_main_results}.
+% 
+For better generalization, we co-trained both models on the same vision-language data.
+% 
+The results show that training on pick-and-place data alone (\textcolor[RGB]{140, 180, 150}{green}) achieves very low performance on all tasks, showing that the robot is not able to solve the evaluation tasks only with the pick-and-place data.
+% 
+We also observe that when co-training the model with human actions, there are substantial improvements on both task progress and success rate.
+% 
+Such improvement also validates that our proposed bridging actions help to learn the human-to-robot motion transfer on manipulation tasks exceeding simple pick-and-place.
+
+
+
+
+\myparagraph{Finding 2: The bridging representation scales with large-scale human-only pre-training.}
+% 
+Human data is widely regarded as a highly scalable data source. 
+% 
+After our preliminary verification that human data enables skill transfer via the bridging action, we aim to leverage large-scale human-only pre-training to further validate the scalability of this representation.
+%
+We compare human-robot co-training with (\textcolor[RGB]{129, 157, 195}{blue}) and without (\textcolor[RGB]{232, 168, 143}{orange}) human-only pre-training (Stage I).
+% 
+As is shown in Fig.~\ref{exp:fig:appdxB_main_results}, though the policy is pre-trained with only the bridging action $\mathbf{a}^{\text{3D-wrist}}_{t}$, such large-scale human-only pre-training substantially improves the performance, confirming that the bridging action representation is scalable and effective.
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/exp/appdxB_main_results.pdf}
+    \caption{
+        \textbf{Per-task comparison across training settings.}
+        % 
+        Training only on robot pick-and-place data (\textcolor[RGB]{140, 180, 150}{green}) is not enough for our downstream evaluation tasks.
+        % 
+        However, the co-training of human and robot actions (\textcolor[RGB]{232, 168, 143}{orange}) can efficiently transfer manipulation knowledge from human data to robot actions.
+        % 
+        The bridging action can also benefit from large-scale human-only pre-training (\textcolor[RGB]{129, 157, 195}{blue}), and from additional few-shot robot demonstrations (\textcolor[RGB]{200, 160, 220}{purple}).
+    }
+    \label{exp:fig:appdxB_main_results}
+\end{figure}
+
+
+
+
+\subsection{Why translation-only instead of 6DoF human wrist actions?}
+\label{exp:sec:vs6dof}
+
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figs/exp/sec5.3.pdf}
+    \caption{
+        \textbf{Qualitative comparison on co-training with different human actions.}
+        % 
+        We show that when co-training on 6DoF human actions (left), the robot yields a distorted, off-target wrist pose; while our bridging actions (right) yield a natural pose that aligns with the microwave door handle.
+    }
+    \label{exp:fig:sec5.3_traj_frame}
+\end{figure}
+
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/exp/appdxA_6DoF.pdf}
+    \caption{
+        \textbf{Qualitative comparisons on co-training with different human actions.}
+        % 
+        Co-training with bridging actions (\textcolor[RGB]{152, 180, 134}{green}) enables more stable manipulation behaviors than the 6DoF baseline (\textcolor[RGB]{199, 159, 129}{orange}).
+    }
+    \label{exp:fig:appdxA_6DoF}
+\end{figure}
+
+
+The mainstream practice for human-robot co-training treats the human hand as another robotic embodiment by extracting relative 6DoF wrist actions~\cite{kareer2025egomimic,punamiya2025egobridge,zheng2026egoscale,cheang2025gr3}.
+%
+We compare this baseline against our bridging action $\mathbf{a}^{\text{3D-wrist}}_{t}$ in Tab.~\ref{exp:tab:sec5.3} by co-training the two models from scratch.
+% 
+We also provide the qualitative analysis for the two models in Fig.~\ref{exp:fig:sec5.3_traj_frame} and Fig.~\ref{exp:fig:appdxA_6DoF}.
+%
+We observe that co-training with 6DoF human actions will lead to noisy and twisted behaviors, while co-training with our proposed bridging actions lead to more stable behaviors.
+% 
+We also provide the qualitative comparisons in Tab.~\ref{exp:tab:sec5.3}, which also shows the superiority of the translation-only bridging action.
+
+
+
+\begin{table}[htbp]
+\centering
+\caption{
+    \textbf{Comparison on human action representation.}
+    % 
+    We compare 6DoF and translation-only (3DoF) human actions for human--robot co-training (from scratch).
+    % 
+    Our bridging action achieves better quantitative results on evaluation tasks.
+}
+\resizebox{\textwidth}{!}{
+    \begin{tabular}{ccccccccccc}
+    \toprule
+    \multirow{2}{*}{Human Actions} & \multicolumn{2}{c}{Microwave Tasks} & \multicolumn{2}{c}{Drawer Tasks} & \multicolumn{2}{c}{Mug / Cup Tasks} & \multicolumn{2}{c}{Other Tasks} & \multicolumn{2}{c}{Overall} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+     & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) \\
+    \midrule $\mathbf{a}^{\text{6D-eef}}$ & 25.00 & 4.17 & \textbf{55.00} & 31.25 & 28.13 & 0.00 & 49.17 & 33.33 & 34.67 & 12.50 \\
+    $\mathbf{a}^{\text{3D-wrist}}$ & \textbf{38.02} & \textbf{25.00} & 49.06 & 31.25 & \textbf{48.13} & \textbf{3.13} & \textbf{50.00} & \textbf{37.50} & \textbf{44.58} & \textbf{22.50} \\\bottomrule
+    \end{tabular}
+}
+\label{exp:tab:sec5.3}
+\end{table}
+
+
+
+
+
+
+\subsection{Human-only pre-training improves post-training data efficiency}
+\label{exp:sec:few-shot}
+
+
+From the above comparisons, we mainly put emphasis on the comparisons where no robot trajectories is involved for downstream evaluation tasks.
+% 
+In this section, we show that the bridging actions can improve post-training efficiency on few-shot robot trajectories.
+
+
+We compare the few-shot post-training (10 robot trajectories per task) with and without human-only pre-training in Tab.~\ref{exp:tab:sec5.4}.
+% 
+During human-only pre-training (Stage I), we only supervise the model to predict the bridging signal $\mathcal{L}_{\text{FM}}^{\text{3D-wrist}}$, while including all action components for post-training (Stage III).
+% 
+We show that though the model is not exposed to executable actions during human-only pre-training, it still substantially improves the average progress and success rate during post-training.
+% 
+This suggests that our model can benefit from the pre-training knowledge and achieve higher post-training efficiency.
+
+
+\begin{table}[htbp]
+\centering
+\caption{
+    \textbf{Post-training data efficiency comparison after human-only pre-training.}
+    % 
+    Though the model is only exposed to non-executable human actions $\mathbf{a}_{t}^{\text{3D-wrist}}$ during pre-training, we can efficiently improve the data efficiency for few-shot robot post-training.
+}
+\resizebox{\textwidth}{!}{
+    \begin{tabular}{ccccccccccc}
+    \toprule
+    \multirow{2}{*}{Model} & \multicolumn{2}{c}{Microwave Tasks} & \multicolumn{2}{c}{Drawer Tasks} & \multicolumn{2}{c}{Mug / Cup Tasks} & \multicolumn{2}{c}{Other Tasks} & \multicolumn{2}{c}{Overall} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+     & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) \\
+    \midrule
+    Stage III & 71.77 & 58.33 & \textbf{56.88} & \textbf{43.75} & 37.50 &  6.25 & 37.50 & 25.00 & 53.79 & 35.83 \\
+    Stage I + III & \textbf{80.73} & \textbf{68.75} & 44.38 & 25.00 & \textbf{71.25} & \textbf{46.88} & \textbf{70.00} & \textbf{58.33} & \textbf{71.21} & \textbf{55.00} \\
+    \bottomrule
+    \end{tabular}
+}
+\label{exp:tab:sec5.4}
+\end{table}
+
+
+
+
+
+
+
+
+\subsection{Training bridging actions for robot data is essential for manipulation transfer}
+\label{sec:exp:bridging_tasks}
+
+%
+During human-robot co-training, we randomly add the bridging action $\mathbf{a}^{\text{3D-wrist}}$ to, or substitute it for, $\mathbf{a}^{\text{6D-eef}}$ as the prediction objective for robot data (Sec.~\ref{sec:method:strategy}).
+% 
+To validate this design, we compare two checkpoints co-trained on human and robot actions with and without this augmentation, both built upon the large-scale human-only pre-training.
+% 
+As shown in Tab.~\ref{exp:tab:sec5.5}, removing the bridging training objective greatly degrades the performance across all task groups, dropping the overall success rate from $38.33\%$ to $12.50\%$.
+
+
+
+\begin{table}[htbp]
+\centering
+\caption{
+    \textbf{Ablation of the bridging objective on robot data.}
+    % 
+    During co-training, it is essential to also supervise the bridging action on robot data for manipulation skill transfer.
+}
+\resizebox{\textwidth}{!}{
+    \begin{tabular}{ccccccccccc}
+    \toprule
+    \multirow{2}{*}{Robot Actions} & \multicolumn{2}{c}{Microwave Tasks} & \multicolumn{2}{c}{Drawer Tasks} & \multicolumn{2}{c}{Mug / Cup Tasks} & \multicolumn{2}{c}{Other Tasks} & \multicolumn{2}{c}{Overall} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+     & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) \\
+    \midrule
+    w/o $\mathbf{a}^{\text{3D-wrist}}$  & 35.73 & 10.42 & 39.38 & 12.50 & 39.38 & 0.00 & 48.13 & 33.33 & 39.67 & 12.50 \\
+    w/ $\mathbf{a}^{\text{3D-wrist}}$ & \textbf{64.58} & \textbf{45.83} & \textbf{56.88} & \textbf{43.75} & \textbf{52.50} & \textbf{15.63} & \textbf{61.67} & \textbf{50.00} & \textbf{59.75} & \textbf{38.33} \\
+    \bottomrule
+    \end{tabular}
+}
+\label{exp:tab:sec5.5}
+\end{table}
+
+
+
+
+
+
+\subsection{Human-only pre-training aligns with the executable robot action space}
+\label{exp:sec:alignment}
+
+Previously, we investigated whether human-only pre-training improves model performance on real-world robotic evaluation tasks in Sec.~\ref{exp:sec:principle}.
+% 
+As a complementary analysis, we further present the training loss of each action component during co-training in Fig.~\ref{exp:fig:pretraining_curve}. 
+% 
+This allows us to examine whether the training objective for our bridging actions aligns with that of 6DoF end-effector actions.
+% 
+Specifically, we compare two experiments, one initialized from scratch (\textcolor[RGB]{224, 102, 102}{red}), and another initialized from human-only pre-training (\textcolor[RGB]{74, 134, 232}{blue}).
+% 
+We find that though human-only pre-training supervises only the non-executable wrist-translation action, it yields a lower training loss for both the 6DoF end-effector action and the gripper action during co-training.
+% 
+This implies that optimizing the bridging signal $\mathbf{a}^{\text{3D-wrist}}$ shares a similar objective landscape with the executable $\mathbf{a}^{\text{6D-eef}}$, explaining why the translation-only pre-training transfers to the full robot action space.
+% 
+This loss-level alignment is also consistent with the held-out gains reported earlier: human-only pre-training improves downstream task success and progress both in human-robot co-training in Sec.~\ref{exp:sec:principle}.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figs/exp/loss_comparison.pdf}
+    \caption{
+        \textbf{Training loss comparison during human-robot co-training.}
+        % 
+        Although human-only pre-training supervises only wrist translations, it accelerates the convergence of the other action components, \textit{i.e.}, the 6DoF end-effector action and the gripper action.
+    }
+    \label{exp:fig:pretraining_curve}
+\end{figure}
+
+
+
+
+
+
+\subsection{The bridging action aligns with the executable robot actions}
+\label{exp:sec:alignment2}
+
+
+Another critical question is whether the predicted bridging action $\mathbf{a}^{\text{3D-wrist}}$ is consistent with the 6DoF end-effector action $\mathbf{a}^{\text{6D-eef}}$ for the robot.
+% 
+To answer this question, we ask the model to produce bridging actions and end-effector actions base on the same vision and language input, and then project both actions onto the head camera based on the robot's state in Fig.~\ref{exp:fig:wrist_eef_alignment}.
+% 
+The generated $\mathbf{a}^{\text{3D-wrist}}$ is shown in \textcolor[RGB]{207, 200, 92}{yellow} and $\mathbf{a}^{\text{6D-eef}}$ in \textcolor[RGB]{191, 88, 36}{orange}.
+%
+We observe that the two types of actions align closely across diverse tasks for both arms, indicating that $\mathbf{a}^{\text{3D-wrist}}$ can serve as a reliable alternative for real-robot actions when learning transferable manipulation knowledge.
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/exp/sec5.6_wrist_eef_alignment.pdf}
+    \caption{
+        \textbf{Visualization of the bridging action and 6DoF end-effector action prediction.}
+        % 
+        Base on the same vision and language input, we ask the model to produce bridging actions and end-effector actions, and then project both actions onto the head camera.
+        % 
+        The two types of actions align closely across diverse tasks.
+    }
+    \label{exp:fig:wrist_eef_alignment}
+\end{figure}
+
+
+
+
+
+
+
+\subsection{The upper bound of the bridging objective}
+\label{exp:sec:upperbound}
+% 
+To probe the performance upper bound of the bridging representation, we remove the human-robot gap by treating \textbf{task-specific robot demonstrations} (100 traj/task) as if they were human action data.
+% 
+Specifically, we transform them into translation-only wrist actions $\mathbf{a}^{\text{3D-wrist}}$ and apply the same training objective as for human actions, but with no observation gap (wrist cameras are available) and far less action noise.
+% 
+As reported in Tab.~\ref{exp:tab:sec5.6} and detailed per-task in Fig.~\ref{exp:fig:appdxB_upper_bound}, this upper-bound variant (\textcolor[RGB]{216, 178, 178}{brown}) substantially outperforms the default co-training with human data (\textcolor[RGB]{129, 157, 195}{blue}).
+% 
+This confirms that 1) the bridging representation itself is an effective medium for skill transfer, and 2) the transfer becomes increasingly efficient as the visual gap and action noise diminish, suggesting a promising direction for broader multi-embodiment learning.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/exp/appdxB_upper_bound.pdf}
+    \caption{
+        \textbf{Per-task comparison for the upper-bound analysis.}
+        % 
+        Applying the same training objective as human actions to task-specific in-lab robot actions, the manipulation knowledge transfer becomes increasingly efficient as the visual gap and action noise diminish.
+    }
+    \label{exp:fig:appdxB_upper_bound}
+\end{figure}
+
+
+
+\begin{table}[htbp]
+\centering
+\caption{
+    \textbf{Upper bound of the bridging objective.}
+    % 
+    Applying the same training objective as human actions to task-specific in-lab robot actions, the bridging action itself enables even stronger skill transfer when there is no embodiment gap.
+}
+\resizebox{\textwidth}{!}{
+    \begin{tabular}{ccccccccccc}
+    \toprule
+    \multirow{2}{*}{Model} & \multicolumn{2}{c}{Microwave Tasks} & \multicolumn{2}{c}{Drawer Tasks} & \multicolumn{2}{c}{Mug / Cup Tasks} & \multicolumn{2}{c}{Other Tasks} & \multicolumn{2}{c}{Overall} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+     & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) & Prog.(\%) & Succ.(\%) \\
+    \midrule
+    Default (Ours) & 64.58 & 45.83 & 56.88 & 43.75 & 52.50 & 15.63 & 61.67 & 50.00 & 59.75 & 38.33 \\
+    \textbf{Upper Bound} & \textbf{68.75} & \textbf{54.17} & \textbf{75.94} & \textbf{62.50} & \textbf{81.25} & \textbf{53.13} & \textbf{71.25} & \textbf{58.33} & \textbf{73.54} & \textbf{55.83} \\
+    \bottomrule
+    \end{tabular}
+}
+\label{exp:tab:sec5.6}
+\end{table}
+
+
+
+
+
+\subsection{Failure Case Analysis}
+\label{exp:sec:failure}
+
+Failure cases mainly arise in tasks where success depends not only on reaching the correct interaction region, but also on a precise end-effector configuration during contact-rich manipulation.
+% 
+The most representative examples are ``\texttt{insert the straw into the cup}'' and ``\texttt{open the drawer}'', where the policy often demonstrates clear task intent yet fails at critical steps, such as grasping the straw securely or rotating the wrist to establish a valid pulling contact, as shown in Fig.~\ref{exp:fig:appdxB_case}.
+% 
+These failures are consistent with our design choice of discarding rotational supervision from human data, and point to incorporating limited, reliable rotation cues as a promising direction for future work.
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/exp/appdxB_case.pdf}
+    \caption{
+        \textbf{Failure case analysis.}
+        We visualize representative failure trajectories for ``\texttt{insert the straw into the cup}'' and ``\texttt{open the drawer}''.
+        % 
+        Although the robot demonstrates clear task intent, it often fails at critical moments, such as grasping the straw securely or rotating the wrist appropriately to establish a valid pulling contact.
+    }
+    \label{exp:fig:appdxB_case}
+\end{figure}
+
+
+

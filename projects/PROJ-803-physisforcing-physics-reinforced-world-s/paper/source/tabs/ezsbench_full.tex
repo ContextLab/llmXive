@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{10pt}
+\caption{\textbf{Full results on EZS-Bench.} EZS-Bench~\cite{ali2025abot} is a training-independent embodied zero-shot benchmark of 196 unseen robot-task-scene combinations. We report the Quality Score, the Domain Score, and their average (overall Avg.). \textbf{(ft)} denotes vanilla finetuning of the corresponding backbone. The best value in each column is in \textbf{bold}.}
+\label{tab:ezsbench_full}
+\begin{tabular}{l ccc}
+\toprule
+\textbf{Model} & \textbf{Quality} & \textbf{Domain} & \textbf{Avg.} \\
+\midrule
+WoW-Wan 14B~\cite{chi2025wow}        & 76.09 & 79.51 & 77.80 \\
+GigaWorld-0~\cite{team2025gigaworld} & 72.72 & 78.26 & 75.49 \\
+Cosmos-Predict 2.5~\cite{ali2025world} & 70.89 & 76.98 & 73.94 \\
+UnifoLM-WMA-0~\cite{unifolm-wma-0}   & 73.55 & 52.32 & 62.94 \\
+Kling 2.6 Pro~\cite{kling2025}       & \textbf{78.05} & 80.72 & 79.39 \\
+Abot-PhysWorld~\cite{ali2025abot}    & 76.94 & 83.66 & 80.30 \\
+Wan2.2-I2V-A14B~\cite{wan2025wan}        & 76.89 & 77.42 & 77.16 \\
+\midrule
+Wan2.2-I2V-A14B (ft)~\cite{wan2025wan}   & 76.12 & 81.95 & 79.04 \\
+\quad \textbf{PF-Wan}                & 76.58 & 84.49 & 80.54 \\
+Cosmos3-Nano (ft)                    & 77.42 & 83.16 & 80.29 \\
+\quad \textbf{PF-Cosmos}             & 76.95 & \textbf{85.20} & \textbf{81.08} \\
+\bottomrule
+\end{tabular}
+\end{table}

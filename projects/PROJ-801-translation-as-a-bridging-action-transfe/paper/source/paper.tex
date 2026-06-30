@@ -1,0 +1,98 @@
+\documentclass[]{bytedance_seed}
+
+
+\input{macros}
+
+\usepackage{marvosym}
+
+\newcommand{\myparagraph}[1]{\vspace{0.1em}\noindent\textbf{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\title{
+    Translation as a Bridging Action: Transferring Manipulation Skills from Humans to Robots
+}
+
+
+% \author[]{ByteDance Seed}
+
+\author[1,2,*]{Sijin Chen}
+\author[2,*]{Kaixuan Jiang}
+\author[2,\dagger,\text{\Letter}]{Haixin Shi}
+\author[2]{Yanhui Wang}
+\author[2]{Weiheng Zhong}
+\author[2]{Haosheng Li}
+\author[2]{Bo Jiang}
+\author[2]{Yuxiao Liu}
+\author[1,\text{\Letter}]{Xihui Liu}
+
+\affiliation[1]{HKU-MMLab}
+\affiliation[2]{ByteDance Seed}
+
+\contribution[]{$^*$Equal Contribution, $^\dagger$Project Lead, \textsuperscript{\Letter}Corresponding Author}
+
+
+\abstract{
+    % 
+    We study whether we can learn novel manipulation skills from human actions to a bi-manual robot with parallel grippers.
+    % 
+    Human action data is cheap, abundant, and diverse, making it one of the most promising resources for scaling up robot learning.
+    %
+    Yet transferring skills from humans to robots remains hard: most prior work treats humans as just another bi-manual 6DoF embodiment, where hand-pose estimates are noisy and the contact patterns of human fingers differ fundamentally from those of a parallel gripper.
+    %
+    We argue that learning rotation-inclusive action signals from human data is therefore sub-optimal, and instead propose a bridging action representation: the relative wrist translation within the initial head-camera frame, an action space shared by humans and robots.
+    %
+    To handle the potential absence of certain action components in different embodiments, we build a $\pi_0$-like vision-language-action model with interleaved action tokens and attention masking.
+    %
+    On a suite of novel bi-manual manipulation tasks, our bridging action transfers human manipulation knowledge to robots far more effectively than noisy 6DoF human actions and scales with the amount of human data.
+}
+
+\date{\today}
+\correspondence{
+    Xihui Liu at \email{xihuiliu@eee.hku.hk}, 
+    and
+    Haixin Shi at \email{shihaixin@bytedance.com}
+}
+
+\checkdata[Project Page]{\url{https://translation-as-a-bridging-action.github.io/}}
+
+\begin{document}
+\maketitle
+
+\begin{figure}[h]
+    \centering
+    \makebox[\textwidth][c]{
+        \includegraphics[width=\textwidth]{figs/teaser.pdf}
+    }
+    \caption{
+        \textbf{Overview.}
+        % 
+        We study whether we can transfer human manipulation skills to bi-manual robots with grippers by learning relative wrist translation as the bridging action representations.
+        % 
+        We show that such bridging action not only enables robust and efficient manipulation knowledge transfer, but can benefit from large-scale pre-training.
+    }
+    \label{fig:teaser}
+\end{figure}
+
+
+\input{sections/intro}
+\input{sections/related}
+\input{sections/method}
+\input{sections/exp}
+\input{sections/conclusion}
+
+
+\clearpage
+
+\bibliographystyle{plainnat}
+\bibliography{citation}
+
+
+
+
+\end{document}

@@ -1,0 +1,214 @@
+\section{Method}
+
+\begin{figure*}[!h]
+\centering
+\includegraphics[width=\textwidth]{figs/Fig2_Method.png}
+\caption{\textbf{Overall architecture of PhysisForcing} Our method introduces hierarchical physics alignment during video generation training, enforcing both pixel-level motion consistency (trajectory continuity, contact dynamics) and semantic-level relational consistency (spatio-temporal relations among the robot, object, and scene).}
+\label{fig:method_overview}
+\end{figure*}
+
+As shown in Figure~\ref{fig:method_overview}, PhysisForcing injects physics supervision into
+video generation through a region-focused hierarchical alignment framework. We first identify physics-informative regions where robot-object interactions occur, and then apply
+two complementary training signals: pixel-level trajectory alignment for local motion consistency and
+semantic-level relational alignment for interaction outcome consistency.
+
+\subsection{Physics-informative Region Extraction}
+
+Embodied video generation errors often occur in contact-rich regions, where robot-object interactions
+manifest as large local motion in foreground areas. Therefore, PhysisForcing first identifies such
+physics-informative regions from the reference video before applying physics supervision.
+
+Given an input video $V\in\mathbb{R}^{T\times C\times H\times W}$, an off-the-shelf point
+tracker~\cite{karaev24cotracker3} is used to obtain dense temporal trajectories
+$\mathcal{P}=\{\mathbf{p}_i^{1:T}\}_{i=1}^{N}$, where $N=H\times W$ and
+$\mathbf{p}_i^t\in\mathbb{R}^2$ denotes the tracked 2D location of point $i$ at frame $t$:
+\begin{equation}
+a_i=\sum_{t=1}^{T-1}\left\|\mathbf{p}_i^{t+1}-\mathbf{p}_i^{t}\right\|_2 ,
+\end{equation}
+where a larger $a_i$ indicates stronger local motion. However, motion magnitude alone may also
+highlight background jitter or irrelevant moving regions. Since robot-object interactions are usually
+distributed in foreground areas, we introduce a depth-aware foreground weight based on the first
+frame. Let $D_0\in\mathbb{R}^{H\times W}$ denote the estimated depth map of the first frame. For each
+query point $\mathbf{p}_i^0$, we compute its foreground weight $r_i$ and physics-informative score $q_i$ as:
+\begin{equation}
+r_i=\frac{1}{D_0(\mathbf{p}_i^0)+\epsilon},
+\quad
+q_i=a_i\cdot r_i ,
+\end{equation}
+where $\epsilon$ is a small constant for numerical stability. A larger $q_i$ indicates a trajectory with
+both strong local motion and high foreground relevance. We use the mean score as an adaptive threshold to obtain the trajectory-level motion mask:
+\begin{equation}
+\mathbf{M}^{\mathrm{phy}}_i=\mathbb{I}\left(q_i \geq \frac{1}{N}\sum_{j=1}^{N}q_j\right).
+\end{equation}
+Finally, we project the selected trajectories onto each frame to form a spatiotemporal physics mask
+$\mathbf{M}^{\mathrm{phy}}\in\{0,1\}^{T\times H\times W}$. Specifically, we initialize $\mathbf{M}^{\mathrm{phy}}$ as zeros and set
+the pixels visited by selected trajectories to one:
+\begin{equation}
+\mathbf{M}^{\mathrm{phy}}_t\left(\left\lfloor \mathbf{p}_i^t \right\rceil\right)=1,
+\quad \text{if } \mathbf{M}^{\mathrm{phy}}_i=1,\quad t=1,\dots,T .
+\end{equation}
+Here, $\lfloor \cdot \rceil$ denotes rounding to the nearest pixel.
+
+This mask localizes physics-informative regions where robot-object interactions are likely to occur,
+providing spatial guidance for semantic-level physics supervision and pixel-level trajectory alignment.
+
+\subsection{Pixel-level Physics Alignment}
+
+While the physics mask identifies interaction-relevant regions, it does not explicitly constrain
+fine-grained point motion. We therefore introduce a pixel-level trajectory alignment loss that
+operates at the level of individual tracked points, directly enforcing per-point trajectory
+continuity on the manipulator and the manipulated object.
+
+Given the predicted video representation inside the denoising transformer, we extract the hidden
+feature $\mathbf{H}^{l}$ from an intermediate DiT block (i.e., $l$ is a middle layer of the DiT, which
+we empirically find to carry the most informative motion and structure cues) and refine it with a
+lightweight MLP $\phi(\cdot)$, obtaining the DiT feature $\phi(\mathbf{H}^{l})$. Then the refined DiT feature is reshaped into frame-wise feature maps $\hat{\mathbf{F}} \in \mathbb{R}^{T\times C\times H\times W}$. Since all trajectories are queried
+from the first frame, we use the first-frame feature as the query feature and the features of the
+remaining frames as key features:
+\begin{equation}
+\mathbf{Q}
+=
+\hat{\mathbf{F}}_{0},
+\quad
+\mathbf{K}_{t}
+=
+\hat{\mathbf{F}}_{t},
+\quad
+t=1,\dots,T-1 .
+\end{equation}
+For each query point $\mathbf{p}_i^0$, we sample its query feature $\mathbf{Q}(\mathbf{p}_i^0)$ and
+compare it with every spatial location in frame $t$. This gives a similarity map
+$\mathbf{s}_i^t\in\mathbb{R}^{H\times W}$:
+\begin{equation}
+\mathbf{s}_i^t(\mathbf{x})=
+\frac{
+\mathbf{Q}(\mathbf{p}_i^0)^\top \mathbf{K}_t(\mathbf{x})
+}{
+\sqrt{C}
+},
+\quad \mathbf{x}\in\Omega ,
+\end{equation}
+where $\Omega$ denotes the spatial grid of size $H\times W$. We then normalize the similarity map over the spatial dimension and compute the predicted point
+location by coordinate expectation:
+\begin{equation}
+\hat{\mathbf{p}}_i^t
+=
+\sum_{\mathbf{x}\in\Omega}
+\operatorname{Softmax}_{\mathbf{x}}\left(\mathbf{s}_i^t(\mathbf{x})\right)\mathbf{x},
+\end{equation}
+where $\hat{\mathbf{p}}_i^t\in\mathbb{R}^2$ is the predicted location of point $i$ at frame $t$. Finally, the predicted trajectories are supervised by the reference trajectories extracted from the
+reference video using CoTracker3~\cite{karaev24cotracker3}. Let
+$\mathcal{P}_{\mathrm{pred}}=\{\mathbf{p}_{i,\mathrm{pred}}^t\}_{i,t}$ denote the trajectories inferred from the predicted
+video, and let $\mathcal{P}_{\mathrm{gt}}=\{\mathbf{p}_{i,\mathrm{gt}}^t\}_{i,t}$ denote the corresponding
+reference trajectories. We compute their coordinate discrepancy with a masked mean squared error:
+\begin{equation}
+\mathcal{L}^{\mathrm{phy}}_{\mathrm{pix}}
+=
+\frac{1}{|\mathbf{M}^{\mathrm{phy}}|}
+\left\|
+\mathbf{M}^{\mathrm{phy}}\odot
+\left(
+\mathcal{P}_{\mathrm{pred}}-\mathcal{P}_{\mathrm{gt}}
+\right)
+\right\|_2^2 .
+\end{equation}
+where $\mathbf{M}^{\mathrm{phy}}$ is the physics-informative mask obtained in Sec.~3.1, which restricts trajectory
+supervision to interaction-relevant regions.
+
+\subsection{Semantic-level Physics Alignment}
+
+Pixel-level trajectory alignment constrains point-wise motion, but manipulation plausibility also
+depends on how different regions relate to each other as the interaction unfolds. For instance,
+the gripper and the grasped object should stay tightly coupled, and a pushed object should move
+jointly with the contact region. Such inter-region coupling is naturally captured by the pairwise
+token similarities of frozen self-supervised video understanding
+encoders~\cite{bardes2024revisiting}. We therefore use such an encoder as a measurement space and
+align the token-to-token similarity matrix of physics-informative tokens between the DiT side and
+the encoder side, so that the encoder's relational structure is transferred into the DiT~\cite{zhang2025videorepa, simeoni2025dinov3}.
+
+Given the input video $\mathcal{V}$, we first extract its target representation with a frozen video
+understanding encoder. Meanwhile, we take the hidden feature $\mathbf{H}^{l}$ from the same intermediate (middle-layer) DiT
+block and project it into the same representation space with a lightweight MLP $\psi(\cdot)$. The
+projected DiT feature is then resized to match the spatio-temporal token layout of the encoder feature:
+\begin{equation}
+\mathbf{F}^{u}
+=
+\Phi_{u}(\mathcal{V}),
+\quad
+\hat{\mathbf{F}}^{u}
+=
+\operatorname{Resize}\left(\psi(\mathbf{H}^{l})\right),
+\end{equation}
+where $\Phi_{u}(\cdot)$ denotes the video understanding encoder, and
+$\hat{\mathbf{F}}^{u}$ is dimensionally aligned with $\mathbf{F}^{u}$ by interpolation and padding.
+
+We resize the physics-informative mask to the common token resolution and use it to select
+spatio-temporal tokens from both representations:
+\begin{equation}
+\hat{\mathbf{F}}^{\mathcal{M}}
+=
+\{\hat{\mathbf{F}}^{u}_{t,n}\mid (t,n)\in\mathcal{M}\}
+\in\mathbb{R}^{K\times C},
+\quad
+\mathbf{F}^{\mathcal{M}}
+=
+\{\mathbf{F}^{u}_{t,n}\mid (t,n)\in\mathcal{M}\}
+\in\mathbb{R}^{K\times C},
+\end{equation}
+where $\mathcal{M}$ is the mask-induced token index set, $K$ is the number of selected tokens, and
+$C$ is the aligned feature dimension.
+
+For $i,j\in\{1,\ldots,K\}$, we compute the DiT-side and encoder-side relational matrices as:
+\begin{equation}
+\hat{\mathbf{R}}(i,j)
+=
+\frac{
+\hat{\mathbf{F}}^{\mathcal{M}}_{i}\cdot \hat{\mathbf{F}}^{\mathcal{M}}_{j}
+}{
+\left\|\hat{\mathbf{F}}^{\mathcal{M}}_{i}\right\|_2
+\left\|\hat{\mathbf{F}}^{\mathcal{M}}_{j}\right\|_2
+},
+\quad
+\mathbf{R}(i,j)
+=
+\frac{
+\mathbf{F}^{\mathcal{M}}_{i}\cdot \mathbf{F}^{\mathcal{M}}_{j}
+}{
+\left\|\mathbf{F}^{\mathcal{M}}_{i}\right\|
+\left\|\mathbf{F}^{\mathcal{M}}_{j}\right\|
+}.
+\end{equation}
+Here, $\hat{\mathbf{R}},\mathbf{R}\in\mathbb{R}^{K\times K}$ capture pairwise spatio-temporal relations
+among the selected physics-informative tokens. Finally, the semantic-level physics alignment loss is defined as:
+\begin{equation}
+\mathcal{L}^{\mathrm{phy}}_{\mathrm{sem}}
+=
+\frac{1}{K^2}
+\sum_{i=1}^{K}
+\sum_{j=1}^{K}
+\left|
+\hat{\mathbf{R}}(i,j)-\mathbf{R}(i,j)
+\right|.
+\end{equation}
+
+
+\subsection{Training and Inference}
+
+PhysisForcing is applied during the fine-tuning of a pre-trained DiT-based video generation
+backbone~\cite{wan2025wan}. We impose both pixel-level trajectory alignment and semantic-level relational alignment on the
+intermediate (middle-layer) feature of the DiT, so that the supervision directly regularizes the
+representation used for video prediction; we ablate this layer choice in
+Sec.~\ref{sec:ablation} (Table~\ref{tab:ablation_layer}). The overall training objective is:
+
+\begin{equation}
+\mathcal{L}
+=
+\mathcal{L}_{\mathrm{FM}}
++
+\lambda_{\mathrm{pix}}\mathcal{L}^{\mathrm{phy}}_{\mathrm{pix}}
++
+\lambda_{\mathrm{sem}}\mathcal{L}^{\mathrm{phy}}_{\mathrm{sem}},
+\end{equation}
+where $\mathcal{L}_{\mathrm{FM}}$ is the standard flow matching loss, and
+$\lambda_{\mathrm{pix}},\lambda_{\mathrm{sem}}$ balance the two physics losses. All auxiliary models are used
+only during training and are discarded at inference. Thus, PhysisForcing introduces no extra inference cost.
