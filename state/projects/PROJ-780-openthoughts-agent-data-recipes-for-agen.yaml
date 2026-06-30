@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-780-openthoughts-agent-data-recipes-for-agen
-last_run_id: null
+last_run_id: ef2303a9-36a2-4074-be1e-01ecc55f9854
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-780-openthoughts-agent-data-recipes-for-agen/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'OpenThoughts-Agent: Data Recipes for Agentic Models'
-updated_at: '2026-06-25T09:08:39.411622Z'
+updated_at: '2026-06-30T18:25:43.059120Z'
