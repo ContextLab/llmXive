@@ -261,3 +261,6 @@ ready:
 - project_id: PROJ-700-spatialclaw-rethinking-action-interface
   revision_spec_path: specs/auto-revisions/PROJ-700-spatialclaw-rethinking-action-interface/round-1
   queued_at: '2026-06-29T21:13:33.918868+00:00'
+- project_id: PROJ-706-memory-is-reconstructed-not-retrieved-gr
+  revision_spec_path: specs/auto-revisions/PROJ-706-memory-is-reconstructed-not-retrieved-gr/round-1
+  queued_at: '2026-06-30T02:30:05.169054+00:00'

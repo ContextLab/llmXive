@@ -1,0 +1,242 @@
+project_id: PROJ-706-memory-is-reconstructed-not-retrieved-gr
+arxiv_id: '2606.06036'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-30T02:30:05.138527+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 00e52dcdfc76
+    text: Table 5 claims MRAgent uses 118k tokens vs A-Mem's 632k including construction.
+      However, MRAgent's construction is described as lightweight while baselines
+      perform intricate analysis. The paper fails to clarify if baseline construction
+      costs are amortized or per-query, making the direct comparison potentially unfair.
+    severity: science
+  - id: 3570583523bf
+    text: Theorem 1 claims active retrieval is strictly more expressive, proven via
+      a synthetic "Binary-Tree Needle" task. The paper does not show real-world tasks
+      (LoCoMo/LongMemEval) share the specific structural properties (hidden path bits)
+      required for this separation, overgeneralizing from a synthetic worst-case.
+    severity: science
+  - id: d1ef95ac4397
+    text: The claim that cues propagate through intermediate representations (Section
+      1) cites rugg2025cognitive and frankland2019neurobiological. The text should
+      verify these specific sources explicitly support the "intermediate representation"
+      mechanism proposed, rather than just general memory theory, to avoid conflation.
+    severity: writing
+  - id: 9eb0c42935a1
+    text: The LaTeX source contains duplicate package imports (e.g., `amsmath`, `booktabs`,
+      `graphicx`, `enumitem` listed twice in main.tex lines 14-35). This indicates
+      poor dependency hygiene and should be cleaned to ensure reproducibility and
+      reduce compilation warnings.
+    severity: writing
+  - id: 725bcaeae1b2
+    text: "The file `Section-7-Appendix.tex` contains a large block of commented-out\
+      \ Chinese text (lines 1050-1080) and mixed-language comments (e.g., '\u7626\u4E86\
+      \u51E0', '\u6D41\u7A0B'). These artifacts must be removed to ensure the codebase\
+      \ is clean, reproducible, and professional."
+    severity: writing
+  - id: b1ccced81a1a
+    text: The `references.bib` file contains duplicate entries for `pan2025secom`
+      and `tan2025prospect`. This dependency hygiene issue should be resolved to prevent
+      potential compilation errors or inconsistent citation rendering.
+    severity: writing
+  - id: 76c577e3f26a
+    text: The abstract and Section 5 claim the code is available at https://github.com/Ji-shuo/MRAgent.
+      As this is an arXiv submission, verify this URL is active and points to a public
+      repository containing the exact code used for the reported experiments. If the
+      repo is private or empty, the claim of reproducibility is unsupported.
+    severity: writing
+  - id: 208a4d4fd619
+    text: Section 5 and Appendix A.2 cite benchmarks LoCoMo and LongMemEval. The paper
+      does not specify the exact dataset version, commit hash, or download date for
+      these benchmarks. Given the rapid evolution of these datasets, this omission
+      prevents exact replication of the data ingestion and preprocessing pipeline.
+    severity: writing
+  - id: 76e0afe95280
+    text: The memory construction pipeline (Section 3.3, Appendix A.1) relies on LLM-based
+      extraction (F_LLM). The specific model version, temperature, and system prompts
+      used for generating the 'Cue-Tag-Content' graph are not fully detailed in the
+      main text or appendix. Without these hyperparameters, the data quality of the
+      constructed memory graph cannot be audited or reproduced.
+    severity: writing
+  - id: c2fbf76feb8d
+    text: "Table 1 and Table 2 report standard deviations (e.g., 75.17 \xB1 0.33)\
+      \ but do not explicitly state the random seeds or the exact number of independent\
+      \ runs used to generate these statistics in the main text. While Appendix A.3\
+      \ mentions 'three independent times', the lack of seed transparency in the main\
+      \ experimental setup section hinders data quality verification."
+    severity: writing
+  - id: 53197fc80314
+    text: The paper relies heavily on visual aids to explain the transition from passive
+      to active memory reconstruction and the architecture of MRAgent. However, several
+      figures suffer from legibility and self-containment issues that hinder immediate
+      comprehension. In Figure 1 (Introduction) and Figure 2 (Motivation), the visual
+      comparison between passive and active retrieval is clear in concept, but the
+      specific visual encoding is ambiguous. The captions describe the *outcome* of
+      the comparison but do n
+    severity: writing
+  - id: 6542b1c4c130
+    text: 'Section 3.1: ''heterogeneous graph'' should be ''graph containing different
+      types of nodes''; ''combinatorial explosion'' should be ''exponential growth
+      in search space''.'
+    severity: writing
+  - id: fbcea298f1e0
+    text: 'Section 4.3: ''approximation-theoretic view'' should be ''theoretical perspective
+      based on function approximation''; ''hypothesis classes'' should be ''sets of
+      possible input-output mappings''.'
+    severity: writing
+  - id: be5fa6a752cc
+    text: 'Appendix C.1: ''payload'' should be ''content''; ''branching bound'' should
+      be ''maximum number of neighbors''.'
+    severity: writing
+  - id: 888f148b67d2
+    text: "Appendix C.2: '0\u20131 loss' should be 'binary loss function'; 'population\
+      \ risk' should be 'expected error over all possible data points'."
+    severity: writing
+  - id: fe65007336d7
+    text: "Appendix C.3: 'active policy' should be 'policy that adapts based on observations';\
+      \ 'passive policy' should be 'policy that selects actions based only on the\
+      \ query'. Additionally, acronyms like 'CTC' (Cue\u2013Tag\u2013Content) and\
+      \ 'MRAgent' are not defined at first use. The term 'engrams' in Section 8.2\
+      \ is used without definition. The phrase 'needle-in-a-haystack' in Appendix\
+      \ C.4 is an idiomatic expression that should be replaced with 'finding a specific\
+      \ item in a large dataset'. These issues collectivel"
+    severity: writing
+  - id: 384ca4bae8f2
+    text: Theorem 1 proof assumes the query x reveals no path info. If x can encode
+      the path, passive policies could win. The separation requires stricter query
+      space constraints to be logically sound.
+    severity: science
+  - id: 817ca9208217
+    text: Table 1 shows MRAgent has lower Multi-hop F1 (43.69) than Mem0 (45.17) despite
+      claiming active reconstruction solves multi-hop issues. The text fails to reconcile
+      this contradiction or explain the metric divergence.
+    severity: writing
+  - id: a7a8c1de84a1
+    text: Section 3.1 defines the graph M=(C,V,R) but Section 3.2 introduces Topic
+      nodes and edges not present in the formal definition of V or R. The architecture
+      description exceeds the formal model.
+    severity: writing
+  - id: 12fd305b2693
+    text: The claim of "substantial" cost reduction is unsupported. Table 2 shows
+      MRAgent runtime (586s) exceeds Mem0 (533s). The paper fails to isolate construction
+      vs. retrieval token costs to justify the efficiency claim.
+    severity: science
+  - id: 3818acd09e27
+    text: Theorem 1's claim that active retrieval is "strictly more powerful" overreaches.
+      The proof relies on a synthetic "Binary-Tree" distribution not shown to exist
+      in real benchmarks (LoCoMo/LongMemEval).
+    severity: science
+  - id: 1ce2fa790f1c
+    text: The abstract claims "substantially reducing token and runtime cost," but
+      Table 2 shows MRAgent is slower than Mem0. This overstatement contradicts the
+      data and must be toned down.
+    severity: writing
+  - id: 3dad0ac2a7be
+    text: The paper lacks explicit IRB or ethical approval statements regarding the
+      use of human conversation data in the LoCoMo and LongMemEval benchmarks. Section
+      5.1 mentions these datasets but does not clarify if the data was anonymized,
+      if consent was obtained for secondary research use, or if the data contains
+      PII. A statement confirming compliance with data privacy standards and the removal
+      of sensitive personal information is required.
+    severity: writing
+  - id: 75043a90d906
+    text: The 'Impact Statement' (Section 1) dismisses privacy concerns as generic.
+      However, MRAgent's active reconstruction may infer sensitive user details (e.g.,
+      health, finance) not explicitly queried. The authors must expand this section
+      to discuss specific mitigation strategies for privacy leakage and the risks
+      of 'over-reconstruction' of sensitive user profiles.
+    severity: writing
+  - id: b81d2b1cfa18
+    text: The system prompt in the Appendix (Section 7) instructs extracting 'personal_sentences'
+      and 'personal_information' without mentioning safeguards against sensitive attributes
+      (e.g., medical history) or user opt-out mechanisms. The paper should address
+      how the system handles sensitive data categories and implements data minimization
+      or user-controlled deletion.
+    severity: writing
+  - id: fa7d2e8e12a1
+    text: The scientific evidence supporting the central claims of MRAgent is currently
+      insufficient to warrant acceptance. While the experimental results on LoCoMo
+      and LongMemEval are promising, the theoretical and methodological foundations
+      contain significant gaps that undermine the robustness of the conclusions. First,
+      the theoretical claim that "active retrieval is strictly more powerful than
+      passive retrieval" (Theorem 1, Section 4.3) is not proven for the general case.
+      The proof in Appendix C relie
+    severity: science
+  - id: f0c4fde4a601
+    text: "The statistical reporting in Table 1 (Section 5.2) is inconsistent. While\
+      \ the LLM-Judge (J) scores include standard deviations (e.g., 75.17 \xB1 0.33),\
+      \ the F1 scores are reported as single point estimates without any measure of\
+      \ variance or confidence intervals. Given that the experiments are run three\
+      \ times (Appendix A.4), F1 standard deviations must be reported to allow for\
+      \ statistical significance testing between MRAgent and baselines."
+    severity: science
+  - id: 946f0586fffc
+    text: The claim of 'significant improvements' (Abstract, Section 5.2) lacks statistical
+      validation. No hypothesis tests (e.g., paired t-tests, Wilcoxon signed-rank
+      tests) or confidence intervals are provided to demonstrate that the observed
+      performance gaps (e.g., 23% relative gain) are statistically significant rather
+      than due to random variance in the LLM judge or sampling.
+    severity: science
+  - id: a3dfa645219a
+    text: The ablation study (Figure 3, Section 5.4) and multi-turn analysis (Figure
+      4, Section 5.5) present performance trends but omit error bars or confidence
+      intervals. Without these, it is impossible to determine if the observed differences
+      between structural variants (CE vs. CTE vs. CTC) or across reasoning turns are
+      statistically distinguishable.
+    severity: science
+  - id: 8132aaac2d50
+    text: The cost analysis in Table 2 (Section 5.3) reports single values for token
+      consumption and runtime. Given the iterative nature of the active reconstruction
+      process, these metrics likely have high variance depending on the specific query
+      complexity and the number of turns taken. Reporting mean and standard deviation
+      (or at least min/max) is necessary to validate the claim of 'substantially reducing'
+      cost.
+    severity: science
+  - id: e7a916b6caa3
+    text: In main.tex, the package 'booktabs' is loaded twice (lines 13 and 24). Remove
+      the duplicate to ensure clean compilation and avoid potential warnings.
+    severity: writing
+  - id: 126f99bd8eff
+    text: In Section-5-Experiments.tex, the caption for Table 1 (tab:token-consumption)
+      is missing a closing period, and the table environment lacks a 'vskip' or spacing
+      command after the bottom rule, causing tight spacing with the following text.
+    severity: writing
+  - id: d620fae9807a
+    text: In Section-7-Appendix.tex, the 'algorithm' environment in Figure 2 (fig:detailed_reconstruction)
+      uses the '[H]' placement specifier without ensuring the 'float' package is loaded
+      (though 'algorithm' often implies it, explicit inclusion is safer). Additionally,
+      the algorithm caption is placed outside the minipage but the figure caption
+      is inside, creating inconsistent caption placement relative to the float.
+    severity: writing
+  - id: d6bbec723b55
+    text: In Section 3 (Memory Construction), the sentence 'the tag encode aspect-level
+      associations' contains a subject-verb agreement error. It should be 'the tags
+      encode' or 'the tag encodes'.
+    severity: writing
+  - id: 21e1b3fadc9d
+    text: In Section 4 (MRAgent Construction), the phrase 'Forward traversal actions
+      expands' has a subject-verb agreement error. It should be 'Forward traversal
+      actions expand'.
+    severity: writing
+  - id: c2502b20b358
+    text: 'In Section 5 (Experiments), the caption for Table 1 contains a typo: ''an
+      23.3% relative gain'' should be ''a 23.3% relative gain''.'
+    severity: writing
+  - id: f652a52bde73
+    text: In Section 5 (Experiments), the sentence 'MRAgent reduces prompt tokens
+      to 118k, a significant decrease from baselines like A-Mem (632k)' is slightly
+      ambiguous. Consider clarifying if the comparison is to the specific A-Mem value
+      or the range of baselines.
+    severity: writing
+  - id: 7fc007f4d53b
+    text: 'In Section 8 (Motivation), the phrase ''three weaknesses: (i) an inability
+      to revise strategies based on intermediate state, such as identifying `July''
+      as a temporal anchor; (ii) the accumulation of noise due to fixed aggregation
+      ; and (iii) heavy reliance on pre-constructed structures, limiting flexibility
+      and scalability.'' has inconsistent punctuation (space before semicolon in item
+      ii) and slightly awkward phrasing in item iii. Consider rephrasing for better
+      flow.'
+    severity: writing
