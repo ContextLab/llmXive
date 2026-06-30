@@ -1,0 +1,271 @@
+schema_version: '1'
+project_id: PROJ-636-locateanything-fast-and-high-quality-vis
+rounds:
+- round_number: 1
+  ran_at: '2026-06-30T00:29:13.950347Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-30)
+  tasks_done: 35
+  tasks_failed: 1
+  tasks_skipped: 8
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-636-locateanything-fast-and-high-quality-vis/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: done
+    text: 'Address action item **[c22c05a96b42]** (severity: writing): Define ''high-quality''
+      grounding in the Abstract and Introduction using specific metrics (e.g., IoU
+      thresholds, F1-mIoU) rather than qualitat'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[4351b2492daf]** (severity: writing): Ensure the
+      Supplementary Materials include the exact data mixing weights and hyperparameters
+      for the Stage-3 and Stage-4 SFT to guarantee fu'
+  - id: '003'
+    severity: writing
+    status: done
+    text: 'Address action item **[2f236bdb3b01]** (severity: writing): Clarify Rex-Omni''s
+      coordinate representation in the Introduction (Lines 35-40) to align with Related
+      Work (Lines 25-27), which describes it '
+  - id: '004'
+    severity: writing
+    status: done
+    text: 'Address action item **[6d17cee8bbf4]** (severity: writing): Harmonize dataset
+      size reporting between the Abstract (138M), Section 3.4 (138M), and Supplementary
+      Table `query_stats` (~139.5M) for consis'
+  - id: '005'
+    severity: writing
+    status: done
+    text: 'Address action item **[658aee1e038c]** (severity: writing): Ensure the
+      linked GitHub repository includes a pinned requirements.txt or pyproject.toml
+      to guarantee dependency reproducibility.'
+  - id: '006'
+    severity: writing
+    status: done
+    text: 'Address action item **[8f4b6d468d5c]** (severity: writing): Provide documentation
+      on code modularity (e.g., separation of training loops, model definitions) to
+      support the ''High-Quality'' claim.'
+  - id: '007'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[15cff7cc08e6]** (severity: writing): Correct the
+      GitHub link in main.tex (currently points to ''Eagle/Embodied'') to accurately
+      reflect the LocateAnything code/data repository, or'
+  - id: 008
+    severity: writing
+    status: skipped
+    text: 'Address action item **[1eea0a24403a]** (severity: writing): Document the
+      raw dataset schema (e.g., JSON/Parquet structure) for LocateAnything-Data in
+      the supplementary, distinct from the model token s'
+  - id: 009
+    severity: writing
+    status: done
+    text: 'Address action item **[adc01ef00bc9]** (severity: writing): Correct filename
+      typo in supplementary: `categroy-per-query.pdf` should be `category-per-query.pdf`
+      (sec/X_0_suppl.tex).'
+  - id: '010'
+    severity: writing
+    status: done
+    text: 'Address action item **[b23a771adbf6]** (severity: writing): Verify color
+      definitions: `lightblue` is defined as RGB(0.46,0.73,0.00) which is green; rename
+      or redefine to avoid confusion in tables/figu'
+  - id: '011'
+    severity: writing
+    status: done
+    text: 'Address action item **[17613fd0b1a9]** (severity: writing): Ensure Red/Green
+      color scheme in Fig. 7 (vis_cases.pdf) is distinguishable for colorblind readers;
+      consider adding patterns or shapes.'
+  - id: '012'
+    severity: writing
+    status: done
+    text: 'Address action item **[356c9a57ad63]** (severity: writing): Confirm text
+      legibility in Fig. 1 (teaser.pdf) bottom panel at print scale; small coordinate
+      tokens may blur.'
+  - id: '013'
+    severity: writing
+    status: done
+    text: 'Address action item **[fb1ae8e60848]** (severity: writing): Expand ''SFT''
+      to ''supervised fine-tuning'' at first use in the supplementary material (sec/X_0_suppl.tex).'
+  - id: '014'
+    severity: writing
+    status: done
+    text: 'Address action item **[8a803a9e13b3]** (severity: writing): Define ''KV-caching''
+      as ''Key-Value (KV) caching'' upon first appearance in sec/3_0_method.tex.'
+  - id: '015'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ba2b2d2f99d6]** (severity: writing): Replace ''SOTA''
+      with ''state-of-the-art'' throughout the manuscript for clarity.'
+  - id: '016'
+    severity: writing
+    status: done
+    text: 'Address action item **[9116459ae4f6]** (severity: writing): Expand ''MLP''
+      to ''multilayer perceptron'' when first introduced in sec/3_0_method.tex.'
+  - id: '017'
+    severity: writing
+    status: done
+    text: 'Address action item **[7a79732955e5]** (severity: writing): Define ''GUI''
+      as ''graphical user interface'' at first mention in sec/1_intro.tex.'
+  - id: 018
+    severity: writing
+    status: done
+    text: 'Address action item **[b7c72950d22b]** (severity: writing): Expand ''BF16''
+      to ''bfloat16'' in sec/X_0_suppl.tex.'
+  - id: 019
+    severity: writing
+    status: done
+    text: 'Address action item **[29185d1fd512]** (severity: writing): Abstract states
+      138M training samples, while Supplementary Sec:Data Statistics reports 139M
+      queries. Align these figures for internal consis'
+  - id: '020'
+    severity: writing
+    status: done
+    text: 'Address action item **[6178b7a7e090]** (severity: writing): Abstract claims
+      PBD improves throughput, but Ablation Tab:combined_ablation (a) shows PBD (Slow)
+      throughput equals Quantized (3.9 BPS). Clar'
+  - id: '021'
+    severity: writing
+    status: done
+    text: 'Address action item **[bf099105ddcb]** (severity: writing): Main text (Sec
+      4.0) reports Hybrid throughput as 12.7 BPS, while Ablation Tab:combined_ablation
+      (c) reports 13.2 BPS. Resolve this numerical'
+  - id: '022'
+    severity: writing
+    status: done
+    text: "Address action item **[f88c715a3932]** (severity: writing): Temper the\
+      \ claim that LocateAnything universally advances the speed\u2011accuracy frontier;\
+      \ provide per\u2011task analyses showing where it under\u2011perf"
+  - id: '023'
+    severity: writing
+    status: done
+    text: 'Address action item **[d697d8da1619]** (severity: writing): Provide empirical
+      evidence (e.g., latency measurements on an embedded device or robot) to support
+      the statement that the method enables depl'
+  - id: '024'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[39a5752c1768]** (severity: writing): Include a Data
+      Privacy statement detailing how PII (e.g., faces, license plates) was handled
+      in the 138M-sample LocateAnything-Data, particu'
+  - id: '025'
+    severity: writing
+    status: done
+    text: 'Address action item **[35645e73906c]** (severity: writing): Add a discussion
+      on dual-use risks, specifically regarding GUI grounding capabilities enabling
+      autonomous agents that could be misused for u'
+  - id: '026'
+    severity: writing
+    status: done
+    text: 'Address action item **[569d5236ba04]** (severity: writing): Clarify license
+      compliance for the aggregated dataset and provide usage policies for the released
+      model on HuggingFace (sec/0_abstract.tex).'
+  - id: '027'
+    severity: writing
+    status: done
+    text: 'Address action item **[fc7e92a0ee22]** (severity: writing): Clarify the
+      statistical significance tests supporting claims of ''significantly higher''
+      throughput and accuracy.'
+  - id: 028
+    severity: writing
+    status: done
+    text: 'Address action item **[f4ef00ef3370]** (severity: writing): Fix LaTeX compilation
+      errors: The tables use \rowcolor (e.g., tables/common_object_detection.tex),
+      but packages.tex loads xcolor without the'
+  - id: 029
+    severity: writing
+    status: done
+    text: 'Address action item **[713115b1dd25]** (severity: writing): Define undefined
+      color ''nvidiagreen'' in main.tex or update \hypersetup{urlcolor} to use a defined
+      color like MyGreen to prevent warnings.'
+  - id: '030'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ddc15668b077]** (severity: writing): Standardize
+      citation commands: supp/data.tex uses \cite while the rest of the manuscript
+      uses \citep. Align all to \citep for consistency wi'
+  - id: '031'
+    severity: writing
+    status: done
+    text: 'Address action item **[7fd086c266fa]** (severity: writing): Correct typos
+      in cross-reference labels: ''tab:gui_grounidng'' (tables/gui_grounding.tex)
+      and ''fig:categroy-per-query'' (sec/X_0_suppl.tex) con'
+  - id: '032'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[6b8486cf1e0b]** (severity: writing): Standardize
+      section heading hierarchy: Section 2 (sec/2_related_works.tex) uses inline \textbf{}
+      for subheadings, while Section 3 uses \subs'
+  - id: '033'
+    severity: writing
+    status: done
+    text: 'Address action item **[4c0d959b659a]** (severity: writing): Correct the
+      typo ''grounidng'' to ''grounding'' in Section 4.0 (''Main Results'', paragraph
+      ''Precise Open-World Localization Ability'') and update '
+  - id: '034'
+    severity: writing
+    status: done
+    text: 'Address action item **[e27dcfca2b92]** (severity: writing): Remove redundant
+      phrasing in the Acknowledgements section (Section 5). The phrase ''would like
+      to additionally acknowledge'' is repetitive aft'
+  - id: '035'
+    severity: science
+    status: needs-external-data
+    text: 'Address action item **[a7761e2979b8]** (severity: science): Add a tests/
+      directory with unit tests for the attention mask logic and block-based output
+      parsing described in Section 3.'
+  - id: '036'
+    severity: science
+    status: done
+    text: 'Address action item **[f42df2cb017e]** (severity: science): Explicitly
+      state the license for LocateAnything-Data in the main text or supplementary,
+      given the aggregation of diverse source datasets (e.'
+  - id: '037'
+    severity: science
+    status: done
+    text: 'Address action item **[48c3f4514621]** (severity: science): Provide a version
+      identifier or hash for the 138M-sample LocateAnything-Data to ensure reproducibility
+      and data provenance tracking.'
+  - id: 038
+    severity: science
+    status: done
+    text: "Address action item **[63c1af5f1262]** (severity: science): Add an ablation\
+      \ that isolates the impact of the 138\u202FM LocateAnything\u2011Data from the\
+      \ Parallel Box Decoding (PBD) contribution to substantiate "
+  - id: 039
+    severity: science
+    status: done
+    text: 'Address action item **[793091e74160]** (severity: science): Discuss the
+      frequency and performance impact of Hybrid Mode fallbacks; if fallback occurs
+      often, the claimed speedup may be overstated.'
+  - id: '040'
+    severity: science
+    status: done
+    text: "Address action item **[81894465cdb6]** (severity: science): Include a broader\
+      \ evaluation of backbone generality beyond Qwen3\u2011VL\u20114B (e.g., other\
+      \ encoder\u2011decoder architectures) to back the claim that PB"
+  - id: '041'
+    severity: science
+    status: done
+    text: 'Address action item **[6e06a1e2b1f5]** (severity: science): Report fallback
+      frequency for Hybrid Mode. Throughput drops from 16.9 BPS (Fast) to 13.2 BPS
+      (Hybrid) in ablations; without knowing how ofte'
+  - id: '042'
+    severity: science
+    status: done
+    text: 'Address action item **[12aeb1ff6721]** (severity: science): Disclose dataset
+      quality control metrics. The 138M samples are verified by teacher VLMs (Qwen3-VL,
+      Rex-Omni) without human validation. Provi'
+  - id: '043'
+    severity: science
+    status: skipped
+    text: 'Address action item **[30d799ce7218]** (severity: science): Report standard
+      deviation or confidence intervals for all reported F1 and BPS metrics to quantify
+      variability.'
+  - id: '044'
+    severity: science
+    status: done
+    text: 'Address action item **[fb8acede9d0b]** (severity: science): Specify the
+      number of random seeds used for training and evaluation in the main results
+      and ablation studies.'

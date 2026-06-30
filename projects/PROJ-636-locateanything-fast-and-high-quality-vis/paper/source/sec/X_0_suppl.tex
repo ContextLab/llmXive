@@ -14,7 +14,7 @@ To establish a robust foundational understanding of world knowledge before intro
 \input{supp/data}
 
 \subsubsection{LocateAnything Fine-Tuning (Detection and Grounding Enhancement)}
-Following the initial world-knowledge alignment, we then train the LocateAnything model using a carefully designed two-stage SFT strategy tailored for fine-grained detection and grounding. This constitutes the final two stages of our pipeline (leveraging the data presented in Fig. 5 of the main text). 
+Following the initial world-knowledge alignment, we then train the LocateAnything model using a carefully designed two-stage supervised fine-tuning (SFT) strategy tailored for fine-grained detection and grounding. This constitutes the final two stages of our pipeline (leveraging the data presented in Fig. 5 of the main text). 
 (1) \textbf{Stage 3 (Comprehensive Detection and Grounding):} We incorporate a massive mixture of 138M queries into the overall training data to equip the model with comprehensive grounding and detection capabilities. During this stage, all model components are fully unfrozen and trained. We set the maximum sequence length to 25,600 and employ a learning rate of $4 \times 10^{-5}$ with a Cosine schedule. 
 (2) \textbf{Stage 4 (Dense Detection Enhancement):} To further boost the model's recall in dense scenes, we reduce the proportion of general training data to 20\% while significantly increasing the proportion of data containing many objects per image (\eg, MOT20Det, SKU110K). All components remain trainable, and the maximum sequence length is maintained at 25,600. The learning rate is decayed to $1 \times 10^{-5}$.
 
@@ -33,7 +33,7 @@ To efficiently handle this, we leverage \textbf{MagiAttention}~\citep{magiattent
 We provide a detailed description of the inference pipeline, including the generation modes, the semi-autoregressive generation loop, the box-aware decoding strategies, and the hyperparameter configurations used across all evaluations.
 
 \subsubsection{Generation Hyperparameters}
-We employ nucleus sampling with a temperature of $0.7$ and top-$p$ of $0.9$ to balance diversity and precision. A repetition penalty of $1.1$ is applied to discourage duplicate predictions. KV cache is enabled throughout inference to avoid redundant computation. The block size for MTP generation is set to $6$ (\ie, $n_{\text{future}} = 6$), meaning each parallel decoding step predicts up to $6$ tokens simultaneously. The maximum number of newly generated tokens is set to $8{,}192$. All models are evaluated in BF16 precision with a batch size of $1$.
+We employ nucleus sampling with a temperature of $0.7$ and top-$p$ of $0.9$ to balance diversity and precision. A repetition penalty of $1.1$ is applied to discourage duplicate predictions. KV cache is enabled throughout inference to avoid redundant computation. The block size for MTP generation is set to $6$ (\ie, $n_{\text{future}} = 6$), meaning each parallel decoding step predicts up to $6$ tokens simultaneously. The maximum number of newly generated tokens is set to $8{,}192$. All models are evaluated in bfloat16 precision with a batch size of $1$.
 
 
 \subsubsection{KV Cache Management} 
@@ -106,7 +106,7 @@ Overall, these statistics highlight the scale, diversity, and multi-target natur
 \begin{figure*}[!htbp]
     \vspace{+2mm}
     \centering
-    \includegraphics[width=\textwidth]{figures/categroy-per-query.pdf}
+    \includegraphics[width=\textwidth]{figures/category-per-query.pdf}
     \caption{Distribution of query length across domains. The x-axis represents the number of words in the target description (excluding template text), and the y-axis (log scale) shows the number of queries.}
     \label{fig:categroy-per-query}
 \end{figure*}

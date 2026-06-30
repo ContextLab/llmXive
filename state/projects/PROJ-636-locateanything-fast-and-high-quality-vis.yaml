@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-636-locateanything-fast-and-high-quality-vis/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel
   Box Decoding'
-updated_at: '2026-06-14T15:36:55.957526Z'
+updated_at: '2026-06-30T00:29:13.950347Z'
