@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OpenNeuro ds003386 Trial-Level Schema (Hypothetical)"
+type: object
+properties:
+  trial_id:
+    type: string
+    description: "Unique identifier for the trial"
+  participant_id:
+    type: string
+    description: "Participant identifier"
+  stimulus_modality:
+    type: string
+    enum: ["visual", "auditory"]
+    description: "Modality of the stimulus"
+  source_label:
+    type: string
+    enum: ["imagined", "perceived"]
+    description: "True source of the stimulus"
+  participant_response:
+    type: string
+    enum: ["imagined", "perceived"]
+    description: "Participant's response"
+  confidence_rating:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Confidence rating (0-100%)"
+  reaction_time:
+    type: number
+    minimum: 0
+    description: "Reaction time in milliseconds (optional)"
+required:
+  - trial_id
+  - participant_id
+  - stimulus_modality
+  - source_label
+  - participant_response
+  - confidence_rating
+additionalProperties: false

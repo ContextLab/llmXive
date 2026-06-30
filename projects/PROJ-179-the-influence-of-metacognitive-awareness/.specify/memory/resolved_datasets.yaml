@@ -1,0 +1,84 @@
+resolved_at: '2026-06-30T10:47:14.240946+00:00'
+datasets:
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://researchdata.up.ac.za/articles/figure/Investigation_of_post-transcriptional_regulatory_mechanisms_influencing_receptor_expression_in_cancer_cell_models/32778687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/VEBrant_a_multicenter_phase_II_study_of_MET_inhibitor_vebreltinib_combined_with_PD-1-based_immunotherapy_in_advanced_clear_cell_sarcoma/32835343
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Flounder_i_Platichthys_flesus_i_in_subdivisions_22_and_23_Kattegat_Belt_Seas_and_the_Sound_/30932045
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Cardiac_markers_for_risk_stratification_and_prognosis_in_elderly_patients_with_HFpEF/32790435
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Cardiac_markers_for_risk_stratification_and_prognosis_in_elderly_patients_with_HFpEF/32790435
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/poster/Atas88my/32835356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.18714143
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20358997
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20635248
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: MUST
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-005
+  status: unresolved
+  candidates: []
+  candidates_tried: []

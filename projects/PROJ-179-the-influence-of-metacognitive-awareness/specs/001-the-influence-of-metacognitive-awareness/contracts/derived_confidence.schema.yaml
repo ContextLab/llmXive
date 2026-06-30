@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Derived Confidence Summary Schema (Type-2 AUC)"
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Participant identifier"
+  metacognitive_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Type-2 AUC (meta-d' sensitivity) on training set"
+  n_trials:
+    type: integer
+    minimum: 1
+    description: "Number of trials used for Type-2 AUC estimation"
+required:
+  - participant_id
+  - metacognitive_score
+  - n_trials
+additionalProperties: false

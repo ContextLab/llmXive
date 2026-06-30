@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+type: object
+properties:
+  analysis_type:
+    type: string
+    enum: ["correlation", "regression", "modality_split"]
+    description: "Type of analysis"
+  correlation_coefficient:
+    type: number
+    description: "Pearson correlation coefficient (r) between Type-2 AUC and d'"
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "p-value (corrected if applicable)"
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95% bootstrap confidence interval [lower, upper]"
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "Number of participants"
+  delta_r_squared:
+    type: number
+    description: "Incremental R² (for regression only)"
+  f_change:
+    type: number
+    description: "F-change statistic (for regression only)"
+required:
+  - analysis_type
+  - p_value
+  - confidence_interval
+  - sample_size
+additionalProperties: false

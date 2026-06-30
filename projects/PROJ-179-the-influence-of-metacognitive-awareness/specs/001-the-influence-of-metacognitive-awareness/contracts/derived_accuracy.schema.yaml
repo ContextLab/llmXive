@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Derived Accuracy Summary Schema (Held-Out Set)"
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Participant identifier"
+  source_monitoring_accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Accuracy (hits + correct rejections) / total trials (on held-out set)"
+  d_prime:
+    type: number
+    description: "Signal detection d' (on held-out set)"
+  criterion:
+    type: number
+    description: "Signal detection criterion (on held-out set)"
+  n_trials:
+    type: integer
+    minimum: 1
+    description: "Number of trials in held-out set"
+required:
+  - participant_id
+  - source_monitoring_accuracy
+  - d_prime
+  - criterion
+  - n_trials
+additionalProperties: false
