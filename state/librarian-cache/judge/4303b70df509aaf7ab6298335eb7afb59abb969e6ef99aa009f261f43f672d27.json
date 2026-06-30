@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.11933",
+  "judged_at": "2026-06-30T00:43:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "automated detection of algorithmic bias in public code repositories computer science",
+  "rationale": "The paper focuses on fairness in natural language processing tasks (toxicity and target-group detection) within online discussion forums, which is a distinct domain and mechanism from the user's question about detecting algorithmic bias in public code repositories. It fails the inclusion criteria because it addresses a different empirical population (social media text vs. source code) and a different type of bias (demographic targeting in NLP vs. algorithmic bias in software systems), constituti",
+  "relevant": false
+}

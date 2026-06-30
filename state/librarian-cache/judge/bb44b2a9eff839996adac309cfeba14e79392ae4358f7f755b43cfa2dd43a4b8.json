@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1707.00093",
+  "judged_at": "2026-06-30T00:43:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "automated detection of algorithmic bias in public code repositories computer science",
+  "rationale": "The paper focuses on fairness in recommendation systems, which is a distinct domain from the automated detection of algorithmic bias in public code repositories. It fails to satisfy any inclusion criteria as it does not measure bias in code, study the specific population of code repositories, or provide foundational methodology for detecting bias in software engineering contexts.",
+  "relevant": false
+}

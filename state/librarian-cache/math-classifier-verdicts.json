@@ -35,6 +35,10 @@
     "classified_at": "2026-06-26T21:36:26Z",
     "verdict": false
   },
+  "PROJ-059-automated-detection-of-algorithmic-bias-::1.6.0": {
+    "classified_at": "2026-06-30T00:43:02Z",
+    "verdict": false
+  },
   "PROJ-060-leveraging-llms-to-generate-unit-tests-f::1.6.0": {
     "classified_at": "2026-06-25T20:32:39Z",
     "verdict": false

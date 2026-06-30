@@ -1,0 +1,483 @@
+{
+  "fetched_at": "2026-06-30T00:43:50Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Automated Detection of Algorithmic Bias in Public Code Repositories",
+      "target_n": 5
+    },
+    "duration_seconds": 78.824,
+    "ended_at": "2026-06-30T00:43:50Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Fairness-aware code analysis"
+        ],
+        [
+          2,
+          "Algorithmic bias detection in open source software"
+        ],
+        [
+          3,
+          "Automated identification of discriminatory patterns in code"
+        ],
+        [
+          4,
+          "Bias auditing tools for public repositories"
+        ],
+        [
+          5,
+          "Fairness in software development lifecycle"
+        ],
+        [
+          6,
+          "Detecting socio-technical bias in GitHub projects"
+        ],
+        [
+          7,
+          "Machine learning bias in source code"
+        ],
+        [
+          8,
+          "Automated fairness testing for software artifacts"
+        ],
+        [
+          9,
+          "Ethical code review automation"
+        ],
+        [
+          10,
+          "Algorithmic accountability in open source"
+        ],
+        [
+          11,
+          "Statistical parity detection in software libraries"
+        ],
+        [
+          12,
+          "Bias propagation in software supply chains"
+        ],
+        [
+          13,
+          "Automated detection of gender and racial bias in code"
+        ],
+        [
+          14,
+          "Fairness metrics for code repositories"
+        ],
+        [
+          15,
+          "Program analysis for ethical compliance"
+        ],
+        [
+          16,
+          "Identifying biased algorithms in public datasets and code"
+        ],
+        [
+          17,
+          "Software fairness verification"
+        ],
+        [
+          18,
+          "Bias in AI model training code"
+        ],
+        [
+          19,
+          "Automated detection of stereotype propagation in software"
+        ],
+        [
+          20,
+          "Open source software bias assessment frameworks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Automated Detection of Algorithmic Bias in Public Code Repositories computer science": 0,
+        "Fairness-aware code analysis": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "fairness metrics software repository",
+      "GitHub code repository bias audit",
+      "demographic parity algorithmic fairness",
+      "bias detection automated software analysis",
+      "disparate impact machine learning pipeline"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2401.05502"
+      ]
+    },
+    "per_query_hit_count": {
+      "Automated Detection of Algorithmic Bias in Public Code Repositories computer science": 3,
+      "GitHub code repository bias audit": 2,
+      "bias detection automated software analysis": 3,
+      "demographic parity algorithmic fairness": 3,
+      "disparate impact machine learning pipeline": 3,
+      "fairness metrics software repository": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2408.05331",
+          "rationale": "The paper focuses on \"flaky tests\" (inconsistent test results) in quantum software, which is a distinct software engineering construct from \"algorithmic bias\" (systematic unfairness in decision-making). While both involve automated detection in code repositories, the underlying mechanism, domain (quantum vs. general public code), and the specific quality attribute being measured are entirely different, failing to meet any of the inclusion criteria (a-f) and falling under the \"Distinct construct\"",
+          "title": "Automated flakiness detection in quantum software bug reports"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on \"changing data sources\" and \"concept drift\" in the context of official statistics, which is a distinct construct from the \"automated detection of algorithmic bias\" in public code repositories. While both mention \"bias,\" the paper addresses data integrity risks in statistical reporting rather than the specific mechanisms, metrics, or tools for detecting bias within software codebases, failing to meet the criteria for same-mechanism evidence or domain overlap.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "1802.05737",
+          "rationale": "The paper focuses on sentiment analysis of code-mixed social media text (Hindi/Bengali-English), which is a distinct construct from the user's question regarding the automated detection of algorithmic bias in public code repositories. The term \"code\" in the candidate paper refers to linguistic code-switching, whereas the user's question concerns software source code, representing a case of distinct constructs sharing only homonym keywords.",
+          "title": "JU_KS@SAIL_CodeMixed-2017: Sentiment Analysis for Indian Code Mixed Social Media Texts"
+        },
+        {
+          "primary_pointer": "2407.11933",
+          "rationale": "The paper focuses on fairness in natural language processing tasks (toxicity and target-group detection) within online discussion forums, which is a distinct domain and mechanism from the user's question about detecting algorithmic bias in public code repositories. It fails the inclusion criteria because it addresses a different empirical population (social media text vs. source code) and a different type of bias (demographic targeting in NLP vs. algorithmic bias in software systems), constituti",
+          "title": "Fairness-Aware Multi-Group Target Detection in Online Discussion"
+        },
+        {
+          "primary_pointer": "1707.00093",
+          "rationale": "The paper focuses on fairness in recommendation systems, which is a distinct domain from the automated detection of algorithmic bias in public code repositories. It fails to satisfy any inclusion criteria as it does not measure bias in code, study the specific population of code repositories, or provide foundational methodology for detecting bias in software engineering contexts.",
+          "title": "Multisided Fairness for Recommendation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-30T00:42:31Z",
+    "term_input": {
+      "normalized": "automated detection of algorithmic bias in public code repositories computer science",
+      "raw": "Automated Detection of Algorithmic Bias in Public Code Repositories computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Object-Oriented (OO) software system evolves over the time to meet the new requirements. Based on the initial release of software, the continuous modification of software code leads to software evolution. Software needs to evolve over the time to meet the new user's requirements. Software companies often develop variant software of the original one depends on customers' needs. The main hypothesis of this paper states that the software when it evolves over the time, its code continues to grow, change and become more complex. This paper proposes an automatic approach (Iris) to examine the proposed hypothesis. Originality of this approach is the exploiting of the software variants to study the impact of software evolution on the software metrics. This paper presents the results of experiments conducted on three releases of drawing shapes software, sixteen releases of rhino software, eight releases of mobile media software and ten releases of ArgoUML software. Based on the extracted software metrics, It has been found that Iris hypothesis is supported by the computed metrics.",
+          "claimed_authors": [
+            "Ra'Fat Al-Msie'deen",
+            "Anas H. Blasi"
+          ],
+          "claimed_title": "The Impact of the Object-Oriented Software Evolution on Software Metrics: The Iris Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.09823"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='The Impact of the Object-Oriented Software Evolution on Software Metrics: The Iris Approach')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning software is increasingly being used to make decisions that affect people's lives. But sometimes, the core part of this software (the learned model), behaves in a biased manner that gives undue advantages to a specific group of people (where those groups are determined by sex, race, etc.). This \"algorithmic discrimination\" in the AI software systems has become a matter of serious concern in the machine learning and software engineering community. There have been works done to find \"algorithmic bias\" or \"ethical bias\" in the software system. Once the bias is detected in the AI software system, the mitigation of bias is extremely important. In this work, we a)explain how ground-truth bias in training data affects machine learning model fairness and how to find that bias in AI software,b)propose a methodFairwaywhich combines pre-processing and in-processing approach to remove ethical bias from training data and trained model. Our results show that we can find bias and mitigate bias in a learned model, without much damaging the predictive performance of that model. We propose that (1) test-ing for bias and (2) bias mitigation should be a routine part of the machine learning software development life cycle. Fairway offers much support for these two purposes.",
+          "claimed_authors": [
+            "Joymallya Chakraborty",
+            "Suvodeep Majumder",
+            "Zhe Yu",
+            "Tim Menzies"
+          ],
+          "claimed_title": "Fairway: A Way to Build Fair ML Software",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.10354"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Fairway: A Way to Build Fair ML Software')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper defines software fairness and discrimination and develops a testing-based method for measuring if and how much software discriminates, focusing on causality in discriminatory behavior. Evidence of software discrimination has been found in modern software systems that recommend criminal sentences, grant access to financial products, and determine who is allowed to participate in promotions. Our approach, Themis, generates efficient test suites to measure discrimination. Given a schema describing valid system inputs, Themis generates discrimination tests automatically and does not require an oracle. We evaluate Themis on 20 software systems, 12 of which come from prior work with explicit focus on avoiding discrimination. We find that (1) Themis is effective at discovering software discrimination, (2) state-of-the-art techniques for removing discrimination from algorithms fail in many situations, at times discriminating against as much as 98% of an input subdomain, (3) Themis optimizations are effective at producing efficient test suites for measuring discrimination, and (4) Themis is more efficient on systems that exhibit more discrimination. We thus demonstrate that fairness testing is a critical aspect of the software development cycle in domains with possible discrimination and provide initial tools for measuring software discrimination.",
+          "claimed_authors": [
+            "Sainyam Galhotra",
+            "Yuriy Brun",
+            "Alexandra Meliou"
+          ],
+          "claimed_title": "Fairness Testing: Testing Software for Discrimination",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.03221"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Fairness Testing: Testing Software for Discrimination')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "GitHub is the largest source code repository in the world. It provides a git-based source code management platform and also many features inspired by social networks. For example, GitHub users can show appreciation to projects by adding stars to them. Therefore, the number of stars of a repository is a direct measure of its popularity. In this paper, we use multiple linear regressions to predict the number of stars of GitHub repositories. These predictions are useful both to repository owners and clients, who usually want to know how their projects are performing in a competitive open source development market. In a large-scale analysis, we show that the proposed models start to provide accurate predictions after being trained with the number of stars received in the last six months. Furthermore, specific models---generated using data from repositories that share the same growth trends---are recommended for repositories with slow growth and/or for repositories with less stars. Finally, we evaluate the ability to predict not the number of stars of a repository but its rank among the GitHub repositories. We found a very strong correlation between predicted and real rankings (Spearman's rho greater than 0.95).",
+          "claimed_authors": [
+            "Hudson Borges",
+            "Andre Hora",
+            "Marco Tulio Valente"
+          ],
+          "claimed_title": "Predicting the Popularity of GitHub Repositories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.04342"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Predicting the Popularity of GitHub Repositories')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Besides a git-based version control system, GitHub integrates several social coding features. Particularly, GitHub users can star a repository, presumably to manifest interest or satisfaction with an open source project. However, the real and practical meaning of starring a project was never the subject of an in-depth and well-founded empirical investigation. Therefore, we provide in this paper a throughout study on the meaning, characteristics, and dynamic growth of GitHub stars. First, by surveying 791 developers, we report that three out of four developers consider the number of stars before using or contributing to a GitHub project. Then, we report a quantitative analysis on the characteristics of the top-5,000 most starred GitHub repositories. We propose four patterns to describe stars growth, which are derived after clustering the time series representing the number of stars of the studied repositories; we also reveal the perception of 115 developers about these growth patterns. To conclude, we provide a list of recommendations to open source project managers (e.g., on the importance of social media promotion) and to GitHub users and Software Engineering researchers (e.g., on the risks faced when selecting projects by GitHub stars).",
+          "claimed_authors": [
+            "Hudson Borges",
+            "Marco Tulio Valente"
+          ],
+          "claimed_title": "What's in a GitHub Star? Understanding Repository Starring Practices in a Social Coding Platform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.07643"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title=\"What's in a GitHub Star? Understanding Repository Starring Practices in a Social Coding Platform\")",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most proposed algorithmic fairness techniques require access to data on a \"sensitive attribute\" or \"protected category\" (such as race, ethnicity, gender, or sexuality) in order to make performance comparisons and standardizations across groups, however this data is largely unavailable in practice, hindering the widespread adoption of algorithmic fairness. Through this paper, we consider calls to collect more data on demographics to enable algorithmic fairness and challenge the notion that discrimination can be overcome with smart enough technical methods and sufficient data alone. We show how these techniques largely ignore broader questions of data governance and systemic oppression when categorizing individuals for the purpose of fairer algorithmic processing. In this work, we explore under what conditions demographic data should be collected and used to enable algorithmic fairness methods by characterizing a range of social risks to individuals and communities. For the risks to individuals we consider the unique privacy risks associated with the sharing of sensitive attributes likely to be the target of fairness analysis, the possible harms stemming from miscategorizing and misrepresenting individuals in the data collection process, and the use of sensitive data beyond data subjects' expectations. Looking more broadly, the risks to entire groups and communities include the expansion of surveillance infrastructure in the name of fairness, misrepresenting and mischaracterizing what it means to be part of a demographic group or to hold a certain identity, and ceding the ability to define for themselves what constitutes biased or unfair treatment. We argue that, by confronting these questions before and during the collection of demographic data, algorithmic fairness methods are more likely to actually mitigate harmful treatment disparities without reinforcing systems of oppression.",
+          "claimed_authors": [
+            "McKane Andrus",
+            "Sarah Villeneuve"
+          ],
+          "claimed_title": "Demographic-Reliant Algorithmic Fairness: Characterizing the Risks of Demographic Data Collection in the Pursuit of Fairness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.01038"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Demographic-Reliant Algorithmic Fairness: Characterizing the Risks of Demographic Data Collection in the Pursuit of Fairness')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An increasing number of decisions regarding the daily lives of human beings are being controlled by artificial intelligence (AI) algorithms in spheres ranging from healthcare, transportation, and education to college admissions, recruitment, provision of loans and many more realms. Since they now touch on many aspects of our lives, it is crucial to develop AI algorithms that are not only accurate but also objective and fair. Recent studies have shown that algorithmic decision-making may be inherently prone to unfairness, even when there is no intention for it. This paper presents an overview of the main concepts of identifying, measuring and improving algorithmic fairness when using AI algorithms. The paper begins by discussing the causes of algorithmic bias and unfairness and the common definitions and measures for fairness. Fairness-enhancing mechanisms are then reviewed and divided into pre-process, in-process and post-process mechanisms. A comprehensive comparison of the mechanisms is then conducted, towards a better understanding of which mechanisms should be used in different scenarios. The paper then describes the most commonly used fairness-related datasets in this field. Finally, the paper ends by reviewing several emerging research sub-fields of algorithmic fairness.",
+          "claimed_authors": [
+            "Dana Pessach",
+            "Erez Shmueli"
+          ],
+          "claimed_title": "Algorithmic Fairness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.09784"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Algorithmic Fairness')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Making fair decisions is crucial to ethically implementing machine learning algorithms in social settings. In this work, we consider the celebrated definition of counterfactual fairness [Kusner et al., NeurIPS, 2017]. We begin by showing that an algorithm which satisfies counterfactual fairness also satisfies demographic parity, a far simpler fairness constraint. Similarly, we show that all algorithms satisfying demographic parity can be trivially modified to satisfy counterfactual fairness. Together, our results indicate that counterfactual fairness is basically equivalent to demographic parity, which has important implications for the growing body of work on counterfactual fairness. We then validate our theoretical findings empirically, analyzing three existing algorithms for counterfactual fairness against three simple benchmarks. We find that two simple benchmark algorithms outperform all three existing algorithms -- in terms of fairness, accuracy, and efficiency -- on several data sets. Our analysis leads us to formalize a concrete fairness goal: to preserve the order of individuals within protected groups. We believe transparency around the ordering of individuals within protected groups makes fair algorithms more trustworthy. By design, the two simple benchmark algorithms satisfy this goal while the existing algorithms for counterfactual fairness do not.",
+          "claimed_authors": [
+            "Lucas Rosenblatt",
+            "R. Teal Witter"
+          ],
+          "claimed_title": "Counterfactual Fairness Is Basically Demographic Parity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.03843"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Counterfactual Fairness Is Basically Demographic Parity')",
+        "failed_at": "2026-06-30T00:43:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper is about understanding the nature of bug fixing by analyzing thousands of bug fix transactions of software repositories. It then places this learned knowledge in the context of automated program repair. We give extensive empirical results on the nature of human bug fixes at a large scale and a fine granularity with abstract syntax tree differencing. We set up mathematical reasoning on the search space of automated repair and the time to navigate through it. By applying our method on 14 repositories of Java software and 89,993 versioning transactions, we show that not all probabilistic repair models are equivalent.",
+          "claimed_authors": [
+            "Matias Martinez",
+            "Martin Monperrus"
+          ],
+          "claimed_title": "Mining Software Repair Models for Reasoning on the Search Space of Automated Program Fixing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.3414"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Mining Software Repair Models for Reasoning on the Search Space of Automated Program Fixing')",
+        "failed_at": "2026-06-30T00:43:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The stakeholders involved in software development are becoming increasingly diverse, with both human contributors from varied backgrounds and AI-powered agents collaborating together in the process. This situation presents unique governance challenges, particularly in Open-Source Software (OSS) projects, where explicit policies are often lacking or unclear. This paper presents the vision and foundational concepts for a novel Domain-Specific Language (DSL) designed to define and enforce rich governance policies in systems involving diverse stakeholders, including agents. This DSL offers a pathway towards more robust, adaptable, and ultimately automated governance, paving the way for more effective collaboration in software projects, especially OSS ones.",
+          "claimed_authors": [
+            "Adem Ait",
+            "Gwendal Jouneaux",
+            "Javier Luis Cánovas Izquierdo",
+            "Jordi Cabot"
+          ],
+          "claimed_title": "Towards Automated Governance: A DSL for Human-Agent Collaboration in Software Projects",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.14465"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Towards Automated Governance: A DSL for Human-Agent Collaboration in Software Projects')",
+        "failed_at": "2026-06-30T00:43:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-30T00:43:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "From medical charts to national census, healthcare has traditionally operated under a paper-based paradigm. However, the past decade has marked a long and arduous transformation bringing healthcare into the digital age. Ranging from electronic health records, to digitized imaging and laboratory reports, to public health datasets, today, healthcare now generates an incredible amount of digital information. Such a wealth of data presents an exciting opportunity for integrated machine learning solutions to address problems across multiple facets of healthcare practice and administration. Unfortunately, the ability to derive accurate and informative insights requires more than the ability to execute machine learning models. Rather, a deeper understanding of the data on which the models are run is imperative for their success. While a significant effort has been undertaken to develop models able to process the volume of data obtained during the analysis of millions of digitalized patient records, it is important to remember that volume represents only one aspect of the data. In fact, drawing on data from an increasingly diverse set of sources, healthcare data presents an incredibly complex set of attributes that must be accounted for throughout the machine learning pipeline. This chapter focuses on highlighting such challenges, and is broken down into three distinct components, each representing a phase of the pipeline. We begin with attributes of the data accounted for during preprocessing, then move to considerations during model building, and end with challenges to the interpretation of model output. For each component, we present a discussion around data as it relates to the healthcare domain and offer insight into the challenges each may impose on the efficiency of machine learning techniques.",
+          "claimed_authors": [
+            "Keith Feldman",
+            "Louis Faust",
+            "Xian Wu",
+            "Chao Huang",
+            "Nitesh V. Chawla"
+          ],
+          "claimed_title": "Beyond Volume: The Impact of Complex Healthcare Data on the Machine Learning Pipeline",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.01513"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Automated Detection of Algorithmic Bias in Public Code Repositories computer sci', candidate_title='Beyond Volume: The Impact of Complex Healthcare Data on the Machine Learning Pipeline')",
+        "failed_at": "2026-06-30T00:43:03Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Suhas Thejaswi",
+            "Ameet Gadekar",
+            "Bruno Ordozgoiti",
+            "Aristides Gionis"
+          ],
+          "title": "Diversity-aware clustering: Computational Complexity and Approximation Algorithms",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.05502",
+        "summary": "In this work, we study diversity-aware clustering problems where the data points are associated with multiple attributes resulting in intersecting groups. A clustering solution needs to ensure that the number of chosen cluster centers from each group should be within the range defined by a lower and upper bound threshold for each group, while simultaneously minimizing the clustering objective, which can be either $k$-median, $k$-means or $k$-supplier. We study the computational complexity of the proposed problems, offering insights into their NP-hardness, polynomial-time inapproximability, and fixed-parameter intractability. We present parameterized approximation algorithms with approximation ratios $1+ \\frac{2}{e} + ε\\approx 1.736$, $1+\\frac{8}{e} + ε\\approx 3.943$, and $5$ for diversity-aware $k$-median, diversity-aware $k$-means and diversity-aware $k$-supplier, respectively. Assuming Gap-ETH, the approximation ratios are tight for the diversity-aware $k$-median and diversity-aware $k$-means problems. Our results imply the same approximation factors for their respective fair variants with disjoint groups -- fair $k$-median, fair $k$-means, and fair $k$-supplier -- with lower bound requirements.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.05502",
+          "http_status": 200,
+          "pdf_sample_score": 0.1824,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T00:43:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "automated detection of algorithmic bias in public code repositories computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

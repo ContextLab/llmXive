@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.05502",
+  "judged_at": "2026-06-30T00:43:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "automated detection of algorithmic bias in public code repositories computer science",
+  "rationale": "This paper belongs in the literature review because it provides the foundational methodology and canonical algorithms for \"fair clustering,\" which is the primary computational mechanism used to detect and mitigate algorithmic bias in data-driven systems (Category d). While it focuses on theoretical complexity rather than an empirical study of public code repositories, it establishes the essential algorithmic framework that any automated bias detection system in computer science would cite as the",
+  "relevant": true
+}

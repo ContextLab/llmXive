@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.05331",
+  "judged_at": "2026-06-30T00:43:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "automated detection of algorithmic bias in public code repositories computer science",
+  "rationale": "The paper focuses on \"flaky tests\" (inconsistent test results) in quantum software, which is a distinct software engineering construct from \"algorithmic bias\" (systematic unfairness in decision-making). While both involve automated detection in code repositories, the underlying mechanism, domain (quantum vs. general public code), and the specific quality attribute being measured are entirely different, failing to meet any of the inclusion criteria (a-f) and falling under the \"Distinct construct\"",
+  "relevant": false
+}
