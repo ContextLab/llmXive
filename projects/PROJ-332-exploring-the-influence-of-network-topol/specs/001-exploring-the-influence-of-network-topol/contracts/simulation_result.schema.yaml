@@ -1,60 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Simulation Result Schema"
-description: "Schema for validating rows in data/processed/simulation_results.csv"
-type: "object"
+description: "Schema defining the structure of the simulation results CSV output."
+type: object
 properties:
-  run_id:
-    type: "integer"
-    description: "Unique identifier for the simulation run"
   seed:
-    type: "integer"
-    description: "Random seed used for reproducibility"
+    type: integer
+    description: "Random seed used for the simulation generation."
   N:
-    type: "integer"
-    description: "Number of nodes in the network"
+    type: integer
+    description: "Number of nodes in the generated network."
   p:
-    type: "number"
-    description: "Connection probability (0.01 to 0.10)"
+    type: number
+    format: float
+    description: "Connection probability used in the network generation."
   avg_degree:
-    type: "number"
-    description: "Measured average degree of the graph"
-  is_connected:
-    type: "boolean"
-    description: "True if source and sink are connected"
-  effective_k:
-    type: "number"
-    description: "Effective thermal conductivity in W/(m·K)"
-  convergence_residual:
-    type: "number"
-    description: "Solver residual norm (must be <= 1e-6 for converged)"
-  solver_status:
-    type: "string"
-    enum: ["Converged", "Failed", "Disconnected"]
-    description: "Status of the linear solver"
-  material:
-    type: "string"
-    description: "Material name (e.g., Si, CNT, Ag, Au)"
-  diameter:
-    type: "number"
-    description: "Wire diameter in nm"
-  length:
-    type: "number"
-    description: "Wire length in nm"
+    type: number
+    format: float
+    description: "Average degree of the generated network."
+  conductivity:
+    type: number
+    format: float
+    description: "Calculated effective thermal conductivity in W/(m·K)."
+  percolation_flag:
+    type: boolean
+    description: "True if the network is percolated (connected component covers >= 80% of nodes), False otherwise."
   scaling_factor:
-    type: "number"
-    description: "Resistance scaling factor (0.9, 1.0, 1.1)"
+    type: number
+    format: float
+    description: "Scaling factor applied during size-correction (Fuchs-Sondheimer) or other normalization steps."
 required:
-  - run_id
   - seed
   - N
   - p
   - avg_degree
-  - is_connected
-  - effective_k
-  - convergence_residual
-  - solver_status
-  - material
-  - diameter
-  - length
+  - conductivity
+  - percolation_flag
   - scaling_factor
 additionalProperties: false
+csv_columns:
+  - seed
+  - N
+  - p
+  - avg_degree
+  - conductivity
+  - percolation_flag
+  - scaling_factor

@@ -1,0 +1,31 @@
+target-version = "py311"
+line-length = 88
+indent-width = 4
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "E402", # module level import not at top of file
+    "F401", # unused imports (allowed for __init__.py and flexibility)
+    "W293", # blank line contains whitespace (handled by black/formatting)
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = []
+force-single-line = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

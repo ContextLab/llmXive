@@ -1,0 +1,5 @@
+'|bulk eff formula lambda':
+  quote: 1.380649e-23 (scipy.constants.k (CODATA 2018, exact by SI definition))
+  source_id: boltzmann
+  url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  value: '1.380649e-23'
