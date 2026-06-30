@@ -1,0 +1,4 @@
+? 'T023 [US1] Create task_runner.py in src/tasks/task_runner.py (FR-001, FR-006);
+  class TaskRunner with methods: run_task(task_id), get_task(task_id), validate_task(task_id);
+  depends on T017 complete'
+: 1

@@ -19,16 +19,18 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 102 fabricated/simulated-result signal(s) — results are not real measurements: code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric — “…outputProfile``, but tries to simulate the result that would be     obtained on…”; code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric — “…outputProfile``, but tries to simulate the result that would be     obtained on…”; code/.venv/lib/python3.11/site-packages/_pytest/subtests.py: self-declared fabricated metric — “…:param kwargs:             Arbitrary values that are also added to the s…”; 6 command(s) failed: python src/benchmark/run_benchmark.py --config default.yaml (rc=1); python src/benchmark/run_task.py --task-id 3 --add-modality image (rc=1); python src/benchmark/run_benchmark.py --config default.yaml --mode unified (rc=1)
+**Summary**: 135 fabricated/simulated-result signal(s) — results are not real measurements: code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric — “…outputProfile``, but tries to simulate the result that would be     obtained on…”; code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric — “…outputProfile``, but tries to simulate the result that would be     obtained on…”; code/.venv/lib/python3.11/site-packages/_pytest/subtests.py: self-declared fabricated metric — “…:param kwargs:             Arbitrary values that are also added to the s…”; 6 command(s) failed: python src/benchmark/run_benchmark.py --config default.yaml (rc=1); python src/benchmark/run_task.py --task-id 3 --add-modality image (rc=1); python src/benchmark/run_benchmark.py --config default.yaml --mode unified (rc=1)
 
 ## Failing / missing run-book commands
 
 - python src/benchmark/run_benchmark.py --config default.yaml -> rc=1
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py", line 73, in run_single_task
-    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
+    tps-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 175, in run_task
+    task = self.get_task(task_id)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 114, in get_task
+    task = self.tasks.get(task_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unhashable type: 'dict'
 - python src/benchmark/run_task.py --task-id 3 --add-modality image -> rc=1
     ", line 155, in main
     task_def = load_task_definition(args.task_id)
@@ -38,11 +40,13 @@ TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
                  ^^^^^^^^^^^^^
 AttributeError: 'list' object has no attribute 'get'
 - python src/benchmark/run_benchmark.py --config default.yaml --mode unified -> rc=1
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py", line 73, in run_single_task
-    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
+    tps-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 175, in run_task
+    task = self.get_task(task_id)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 114, in get_task
+    task = self.tasks.get(task_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unhashable type: 'dict'
 - python src/benchmark/run_task.py --task-id 3 --add-modality image -> rc=1
     ", line 155, in main
     task_def = load_task_definition(args.task_id)
@@ -52,17 +56,21 @@ TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
                  ^^^^^^^^^^^^^
 AttributeError: 'list' object has no attribute 'get'
 - python src/benchmark/run_benchmark.py --seed 42 -> rc=1
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py", line 73, in run_single_task
-    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
+    tps-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 175, in run_task
+    task = self.get_task(task_id)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 114, in get_task
+    task = self.tasks.get(task_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unhashable type: 'dict'
 - python src/benchmark/run_benchmark.py --seed 123 -> rc=1
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py", line 73, in run_single_task
-    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
+    tps-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 175, in run_task
+    task = self.get_task(task_id)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 114, in get_task
+    task = self.tasks.get(task_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unhashable type: 'dict'
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 

@@ -53,7 +53,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmXive-proj-573
   verified_at: '2026-06-30T06:58:50.279484Z'
-- artifact_hash: 5026745b996030de71fa80fd26fbe4dce1be45d54bd8677a0cb1fbbab370ddb2
+- artifact_hash: 7d08986d971e28b2aa3202befd2e9716092c62e9b9ca1996cd6f926b8a6e85d2
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,8 +64,8 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-06-30T14:26:16.226971Z'
-- artifact_hash: 5026745b996030de71fa80fd26fbe4dce1be45d54bd8677a0cb1fbbab370ddb2
+  verified_at: '2026-06-30T15:25:22.775027Z'
+- artifact_hash: 7d08986d971e28b2aa3202befd2e9716092c62e9b9ca1996cd6f926b8a6e85d2
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -75,8 +75,8 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-06-30T14:26:16.226971Z'
-- artifact_hash: 5026745b996030de71fa80fd26fbe4dce1be45d54bd8677a0cb1fbbab370ddb2
+  verified_at: '2026-06-30T15:25:22.775027Z'
+- artifact_hash: 7d08986d971e28b2aa3202befd2e9716092c62e9b9ca1996cd6f926b8a6e85d2
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -86,8 +86,8 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-06-30T14:26:16.226971Z'
-- artifact_hash: 5026745b996030de71fa80fd26fbe4dce1be45d54bd8677a0cb1fbbab370ddb2
+  verified_at: '2026-06-30T15:25:22.775027Z'
+- artifact_hash: 7d08986d971e28b2aa3202befd2e9716092c62e9b9ca1996cd6f926b8a6e85d2
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -97,4 +97,4 @@
   value: https://en.wikipedia.org/wiki/Hutter_Prize
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Hutter_Prize
-  verified_at: '2026-06-30T14:26:16.226971Z'
+  verified_at: '2026-06-30T15:25:22.775027Z'
