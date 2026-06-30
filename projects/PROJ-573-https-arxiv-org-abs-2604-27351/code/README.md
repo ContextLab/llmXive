@@ -1,52 +1,38 @@
 # llmXive: Heterogeneous Scientific Foundation Model Collaboration Benchmark
 
-## Overview
-This project implements a benchmark for evaluating heterogeneous scientific foundation models across time-series, tabular, and text modalities.
-
-## Prerequisites
-- Python 3.11+
-- pip
-- git
+A research benchmark for evaluating heterogeneous scientific foundation models across time-series, tabular, and text modalities.
 
 ## Quick Start
 
-1. **Clone the repository**
- ```bash
- git clone <repo-url>
- cd llmXive
- ```
-
-2. **Setup Virtual Environment**
- ```bash
- python3.11 -m venv.venv
- source.venv/bin/activate
- ```
-
-3. **Install Dependencies**
- ```bash
- pip install -r requirements.txt
- ```
-
-4. **Verify Installation**
- ```bash
- python src/benchmark/run_benchmark.py --help
- ```
-
-## Project Structure
-- `src/`: Source code
-- `data/`: Dataset storage
-- `tests/`: Test suite
-- `state/`: Artifact tracking
-- `contracts/`: Schema definitions
-
-## Running the Benchmark
 ```bash
-# Default heterogeneous mode
-python src/benchmark/run_benchmark.py --config src/benchmark/config/default.yaml
+# Clone and setup
+git clone <repo-url>
+cd llmXive
+python setup_project.py
 
-# Unified text-only mode
-python src/benchmark/run_benchmark.py --config src/benchmark/config/default.yaml --mode unified
+# Activate environment
+source.venv/bin/activate # Linux/Mac
+.venv\\Scripts\\activate # Windows
+
+# Run benchmark
+python src/benchmark/run_benchmark.py --config default.yaml
 ```
 
+## Project Structure
+
+- `src/` - Source code
+- `tests/` - Test suite
+- `data/` - Datasets and processed data
+- `state/` - Runtime state and artifacts
+- `contracts/` - Schema contracts
+- `docs/` - Documentation
+
+## Requirements
+
+- Python 3.11+
+- CPU-tractable models (<1GB weights)
+- No GPU/CUDA dependencies
+
 ## License
+
 MIT

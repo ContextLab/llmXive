@@ -1,184 +1,122 @@
 # Quickstart Guide
 
-This guide provides the necessary instructions to set up the development environment, install dependencies, and verify the installation for the Heterogeneous Scientific Foundation Model Collaboration Benchmark project.
+This guide provides the instructions to set up the **Heterogeneous Scientific Foundation Model Collaboration Benchmark** project and run the benchmark.
 
-## Prerequisites
+## 1. Prerequisites
 
-Ensure the following software is installed on your system before proceeding:
+- **Python**: Version 3.11 or higher is required.
+- **System**: Linux, macOS, or Windows (WSL2 recommended).
+- **Memory**: Minimum 4GB RAM (8GB recommended for full benchmark runs).
+- **Disk**: At least 2GB of free space for dependencies and datasets.
 
-- **Python 3.11** (or higher): Required for compatibility with project dependencies.
-- **pip**: Python package installer (usually included with Python).
-- **git**: Version control system for cloning the repository.
-- **make** (Optional): For running convenience commands if the Makefile is used.
-
-Verify your Python version:
-```bash
-python --version
-# Expected output: Python 3.11.x
-```
-
-## Setup Instructions
+## 2. Setup Commands
 
 Follow these steps to clone the repository, create a virtual environment, and install dependencies.
 
-### 1. Clone the Repository
+### 2.1 Clone the Repository
 
 ```bash
-git clone <repository_url>
+git clone
 cd PROJ-573-https-arxiv-org-abs-2604-27351
 ```
 
-### 2. Create a Virtual Environment
-
-It is recommended to use a virtual environment to isolate dependencies.
+### 2.2 Create Virtual Environment
 
 ```bash
-python -m venv.venv
+python3.11 -m venv.venv
+source.venv/bin/activate # On Windows:.venv\Scripts\activate
 ```
 
-### 3. Activate the Virtual Environment
-
-**On macOS/Linux:**
-```bash
-source.venv/bin/activate
-```
-
-**On Windows:**
-```bash
-.venv\Scripts\activate
-```
-
-### 4. Install Dependencies
-
-Install all required packages listed in `requirements.txt`:
+### 2.3 Install Dependencies
 
 ```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 5. Project Structure Verification
+## 3. Verification Steps
 
-Ensure the directory structure matches the expected layout:
+Ensure the installation was successful by running the following checks.
 
-```bash
-ls -R
-# Should show:
-# src/
-# benchmark/
-# data/
-# evaluation/
-# models/
-# tasks/
-# utils/
-# validators/
-# tests/
-# data/
-# processed/
-# state/
-# contracts/
-# docs/
-# requirements.txt
-# quickstart.md
-```
+### 3.1 Verify CLI Help
 
-## Verification Steps
-
-Perform the following checks to ensure the environment is correctly configured.
-
-### 1. Run CLI Help
-
-Verify that the main benchmark script is executable and responds to help flags:
+Run the main benchmark script with the help flag to ensure the entry point is registered correctly.
 
 ```bash
-python src/benchmark/run_benchmark.py --help
+python code/src/benchmark/run_benchmark.py --help
 ```
 
-**Expected Output:**
-- Usage information
-- List of available arguments: `--config`, `--mode`, `--seeds`
+Expected output should list arguments like `--config`, `--mode`, and `--seeds`.
 
-### 2. Check Data Directory
+### 3.2 Verify Data Directory
 
-Ensure the data directories exist and are writable:
+Ensure the required data directories exist. The project structure expects the following:
 
 ```bash
-ls -ld data/ data/processed/
+ls -la code/data/
+ls -la code/data/processed/
 ```
 
-### 3. Run Unit Tests
-
-Execute the test suite to verify core functionality:
+If directories are missing, the setup script `code/setup_project_structure.py` can be run to create them:
 
 ```bash
-python -m pytest tests/ -v
+python code/setup_project_structure.py
 ```
 
-## Troubleshooting Common Issues
+### 3.3 Verify Configuration Loading
 
-### Issue: `ModuleNotFoundError: No module named 'src'`
+Run a dry-run of the benchmark to verify that the default configuration loads without errors.
 
-**Cause:** The script is being run from the wrong directory or the Python path is not set correctly.
+```bash
+python code/src/benchmark/run_benchmark.py --config code/src/benchmark/config/default.yaml
+```
+
+*Note: This command may fail if datasets are not yet downloaded (see Phase 0 tasks), but it should not fail due to missing configuration files or syntax errors.*
+
+## 4. Troubleshooting Common Issues
+
+### 4.1 `ModuleNotFoundError`
+
+If you see errors like `ModuleNotFoundError: No module named 'src'`, ensure you are running commands from the project root (`code/`) and that the virtual environment is activated.
 
 **Solution:**
-Ensure you are in the project root directory and run:
 ```bash
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-# Or run scripts explicitly with the full path relative to root
-python src/benchmark/run_benchmark.py --help
+cd code
+source.venv/bin/activate
+python -m src.benchmark.run_benchmark --help
 ```
 
-### Issue: `TypeError: __init__() got an unexpected keyword argument`
+### 4.2 `FileNotFoundError` for Config
 
-**Cause:** Mismatch between the `TaskRunner` class definition and how it is being instantiated in the benchmark runner.
+If the benchmark fails to find `default.yaml`:
 
-**Solution:**
-This is a known API contract issue. Ensure `src/tasks/task_runner.py` is updated to accept flexible arguments or the caller is adjusted. See `src/tasks/task_runner.py` for the `__init__` signature.
+1. Verify the file exists at `code/src/benchmark/config/default.yaml`.
+2. Ensure the path passed to `--config` is relative to the `code/` directory.
 
-### Issue: `AttributeError: 'list' object has no attribute 'get'`
+### 4.3 Dataset Download Failures
 
-**Cause:** The task definition YAML file structure does not match the expected dictionary format in `src/benchmark/run_task.py`.
+If the benchmark fails during the dataset download phase:
 
-**Solution:**
-Check `src/tasks/task_definitions.yaml`. The root element should be a dictionary containing a `tasks` key, not a raw list.
-Correct format:
-```yaml
-tasks:
- - task_id: T001
-...
-```
+1. Check your internet connection.
+2. Ensure you have sufficient disk space.
+3. Verify the dataset availability by running the verification scripts in `code/src/research/`.
 
-### Issue: `FileNotFoundError: [Errno 2] No such file or directory: 'data/...'`
+### 4.4 TaskRunner Initialization Errors
 
-**Cause:** The dataset has not been downloaded yet.
+If you encounter `TypeError: TaskRunner.__init__() got an unexpected keyword argument`:
 
-**Solution:**
-Run the dataset download script:
-```bash
-python src/data/download.py
-```
+This indicates a mismatch between the caller and the `TaskRunner` definition. Ensure you are using the latest version of `code/src/tasks/task_runner.py` which includes a tolerant `__init__` signature accepting `**kwargs`.
 
-### Issue: `ImportError: cannot import name '...'`
+### 4.5 YAML Parsing Errors
 
-**Cause:** Circular imports or missing dependencies in `requirements.txt`.
+If you see `yaml.scanner.ScannerError`:
 
-**Solution:**
-1. Verify `requirements.txt` contains all necessary packages (e.g., `numpy`, `pandas`, `scipy`, `pyyaml`, `datasets`).
-2. Re-run `pip install -r requirements.txt`.
-3. Ensure no circular imports exist between modules in `src/`.
+1. Open the failing YAML file (e.g., `task_definitions.yaml`).
+2. Check for indentation inconsistencies or unquoted strings that look like special characters.
+3. Run `python -c "import yaml; yaml.safe_load(open('path/to/file'))"` to validate syntax.
 
-## Next Steps
+## 5. Next Steps
 
-Once verification is complete, you can proceed to:
+Once verification is complete, proceed to **Phase 0: Research & Dataset Verification** to ensure all required datasets and models are available before running the full benchmark.
 
-1. **Run the Benchmark:**
- ```bash
- python src/benchmark/run_benchmark.py --config default.yaml
- ```
-2. **Run a Specific Task:**
- ```bash
- python src/benchmark/run_task.py --task-id T001
- ```
-3. **Read the Research Documentation:**
- Review `research.md` for dataset details and methodology.
-
-For more advanced usage, refer to the `specs/` directory and the `src/benchmark/` documentation.
+For detailed task lists and user stories, refer to `tasks.md`.

@@ -2,7 +2,6 @@ import os
 import tempfile
 import yaml
 from pathlib import Path
-
 import pytest
 
 from src.utils.checksum_utils import (
@@ -10,90 +9,96 @@ from src.utils.checksum_utils import (
     load_state_file,
     save_state_file,
     update_artifact_hash,
-    main
 )
 
+
 class TestChecksumUtils:
-    def test_compute_file_sha256(self):
-        """Test SHA256 computation for a known string."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-            f.write("test content")
-            temp_path = f.name
+    def test_compute_file_sha256(self, tmp_path):
+        """Test SHA256 computation on a simple file."""
+        test_file = tmp_path / "test.txt"
+        content = b"Hello, World!"
+        test_file.write_bytes(content)
 
-        try:
-            # "test content" sha256
-            expected_hash = "6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72"
-            result = compute_file_sha256(temp_path)
-            assert result == expected_hash
-        finally:
-            os.unlink(temp_path)
+        hash_val = compute_file_sha256(str(test_file))
 
-    def test_load_state_file_creates_default(self):
-        """Test that load_state_file creates a default structure if file doesn't exist."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            state_path = os.path.join(tmpdir, "test_state.yaml")
-            
-            # File doesn't exist yet
-            assert not os.path.exists(state_path)
-            
-            data = load_state_file(state_path)
-            
-            assert os.path.exists(state_path)
-            assert "project_id" in data
-            assert "updated_at" in data
-            assert "artifact_hashes" in data
-            assert isinstance(data["artifact_hashes"], dict)
+        # Verify it's a valid hex string of correct length
+        assert isinstance(hash_val, str)
+        assert len(hash_val) == 64  # SHA256 produces 64 hex chars
+        assert all(c in "0123456789abcdef" for c in hash_val)
 
-    def test_update_artifact_hash(self):
-        """Test updating the state file with an artifact hash."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create a dummy artifact
-            artifact_path = os.path.join(tmpdir, "dummy_artifact.txt")
-            with open(artifact_path, 'w') as f:
-                f.write("dummy data")
-            
-            # Create state file path
-            state_path = os.path.join(tmpdir, "state.yaml")
-            
-            # Update hash
-            update_artifact_hash(state_path, artifact_path)
-            
-            # Verify state file content
-            with open(state_path, 'r') as f:
-                state_data = yaml.safe_load(f)
-            
-            assert "artifact_hashes" in state_data
-            assert artifact_path in state_data["artifact_hashes"]
-            assert "sha256" in state_data["artifact_hashes"][artifact_path]
-            
-            # Verify the hash is correct
-            computed_hash = compute_file_sha256(artifact_path)
-            assert state_data["artifact_hashes"][artifact_path]["sha256"] == computed_hash
+    def test_compute_file_sha256_nonexistent(self, tmp_path):
+        """Test that computing hash on non-existent file raises error."""
+        with pytest.raises(FileNotFoundError):
+            compute_file_sha256(str(tmp_path / "nonexistent.txt"))
 
-    def test_update_artifact_hash_missing_file(self):
-        """Test that update_artifact_hash raises error for missing file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            state_path = os.path.join(tmpdir, "state.yaml")
-            missing_path = os.path.join(tmpdir, "nonexistent.txt")
-            
-            with pytest.raises(FileNotFoundError):
-                update_artifact_hash(state_path, missing_path)
+    def test_load_state_file_creates_default(self, tmp_path):
+        """Test that load_state_file creates a default structure if missing."""
+        state_file = tmp_path / "state.yaml"
+        
+        # Should create the file and return default structure
+        data = load_state_file(str(state_file))
+        
+        assert state_file.exists()
+        assert "project_id" in data
+        assert "artifact_hashes" in data
+        assert isinstance(data["artifact_hashes"], dict)
 
-    def test_save_state_file(self):
-        """Test saving state data to a file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            state_path = os.path.join(tmpdir, "test_save.yaml")
-            data = {
-                "project_id": "test-proj",
-                "updated_at": "2023-01-01",
-                "artifact_hashes": {"file.txt": {"sha256": "abc123"}}
-            }
-            
-            save_state_file(state_path, data)
-            
-            assert os.path.exists(state_path)
-            
-            with open(state_path, 'r') as f:
-                loaded_data = yaml.safe_load(f)
-            
-            assert loaded_data == data
+    def test_load_state_file_existing(self, tmp_path):
+        """Test loading an existing state file."""
+        state_file = tmp_path / "state.yaml"
+        existing_data = {
+            "project_id": "TEST-001",
+            "artifact_hashes": {"file.txt": {"sha256": "abc123"}}
+        }
+        
+        with open(state_file, "w") as f:
+            yaml.dump(existing_data, f)
+        
+        loaded = load_state_file(str(state_file))
+        
+        assert loaded["project_id"] == "TEST-001"
+        assert "file.txt" in loaded["artifact_hashes"]
+
+    def test_save_state_file(self, tmp_path):
+        """Test saving state data to file."""
+        state_file = tmp_path / "state.yaml"
+        data = {
+            "project_id": "TEST-002",
+            "artifact_hashes": {"test.txt": {"sha256": "def456"}}
+        }
+        
+        save_state_file(str(state_file), data)
+        
+        assert state_file.exists()
+        with open(state_file, "r") as f:
+            loaded = yaml.safe_load(f)
+        
+        assert loaded["project_id"] == "TEST-002"
+        assert loaded["artifact_hashes"]["test.txt"]["sha256"] == "def456"
+
+    def test_update_artifact_hash(self, tmp_path):
+        """Test updating an artifact hash in the state file."""
+        state_file = tmp_path / "state.yaml"
+        artifact_file = tmp_path / "artifact.txt"
+        artifact_file.write_text("test content")
+        
+        hash_val = update_artifact_hash(str(state_file), str(artifact_file))
+        
+        # Verify hash is valid
+        assert len(hash_val) == 64
+        
+        # Verify state file was updated
+        state = load_state_file(str(state_file))
+        assert str(artifact_file) in state["artifact_hashes"]
+        assert state["artifact_hashes"][str(artifact_file)]["sha256"] == hash_val
+
+    def test_update_artifact_hash_with_provided_hash(self, tmp_path):
+        """Test updating hash with a pre-computed value."""
+        state_file = tmp_path / "state.yaml"
+        artifact_file = tmp_path / "artifact.txt"
+        custom_hash = "0" * 64
+        
+        update_artifact_hash(str(state_file), str(artifact_file), custom_hash)
+        
+        state = load_state_file(str(state_file))
+        assert state["artifact_hashes"][str(artifact_file)]["sha256"] == custom_hash

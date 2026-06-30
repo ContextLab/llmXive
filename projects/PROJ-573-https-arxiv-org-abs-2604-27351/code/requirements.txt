@@ -1,32 +1,21 @@
-# Python 3.11+ Project Dependencies for llmXive
-# Generated for PROJ-573
-
-# Core Data & ML
-numpy>=1.24.0
-pandas>=2.0.0
-scikit-learn>=1.3.0
-scipy>=1.11.0
+# Python 3.11 Project Dependencies
+# Core data and ML
 datasets>=2.14.0
-torch>=2.0.0  # Required for TabPFN/Transformers, CPU-only compatible
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.11.0
 
-# Transformer Models (CPU tractable)
+# Models
 tabpfn>=0.1.0
-transformers>=4.35.0
-accelerate>=0.24.0
 
 # Utilities
 pyyaml>=6.0
-tqdm>=4.65.0
-requests>=2.31.0
-pillow>=10.0.0
-
-# Reporting
 matplotlib>=3.7.0
 reportlab>=4.0.0
+scikit-learn>=1.3.0
 
 # Testing
 pytest>=7.4.0
 
-# Linting (optional but recommended)
+# Linting
 ruff>=0.1.0
-black>=23.0.0

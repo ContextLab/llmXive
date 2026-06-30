@@ -1,41 +1,54 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Virtual environments
+# Virtual Environment
 .venv/
 venv/
 ENV/
-
-# Data files (large datasets)
-data/raw/*.csv
-data/raw/*.zip
-data/raw/*.tar.gz
-data/processed/*.parquet
-data/processed/*.csv
+env/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
-# OS
-.DS_Store
-Thumbs.db
+# Data and State (tracked separately)
+data/raw/
+data/processed/
+state/
+results/
 
 # Logs
 *.log
 logs/
 
-# Test coverage
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
 .coverage
 htmlcov/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Project specific
-state/*.yaml.tmp
-*.tmp
+.hypothesis/
