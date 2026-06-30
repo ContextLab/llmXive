@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Result Metric Schema"
+description: "Schema for the aggregated results of a benchmark evaluation run."
+type: "object"
+required:
+  - "run_id"
+  - "total_questions"
+  - "correct_count"
+  - "accuracy"
+  - "ability_breakdown"
+properties:
+  run_id:
+    type: "string"
+    description: "Reference to the evaluation run ID."
+  total_questions:
+    type: "integer"
+    description: "Total number of questions evaluated."
+  correct_count:
+    type: "integer"
+    description: "Number of correct answers."
+  accuracy:
+    type: "number"
+    description: "Calculated accuracy (correct / total)."
+    minimum: 0.0
+    maximum: 1.0
+  ability_breakdown:
+    type: "object"
+    description: "Performance metrics grouped by memory ability type."
+    additionalProperties:
+      type: "object"
+      properties:
+        count:
+          type: "integer"
+        correct:
+          type: "integer"
+        accuracy:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+  ablation_accuracy:
+    type: "number"
+    description: "Accuracy in ablation mode (if applicable)."
+    minimum: 0.0
+    maximum: 1.0
+    nullable: true

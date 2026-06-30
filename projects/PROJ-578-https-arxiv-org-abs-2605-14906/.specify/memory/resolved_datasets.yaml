@@ -1,0 +1,649 @@
+resolved_at: '2026-06-30T02:55:06.497715+00:00'
+datasets:
+- intent: JSON
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2769
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67109a6b07325c4b0ae03fc7/74c38f03d64fdd1b8116283c3b061c9a44f47759cb058c2a932978d37887b257?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27industrial_design.json%3B+filename%3D%22industrial_design.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&Expires=1782791412&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcxMDlhNmIwNzMyNWM0YjBhZTAzZmM3Lzc0YzM4ZjAzZDY0ZmRkMWI4MTE2MjgzYzNiMDYxYzlhNDRmNDc3NTljYjA1OGMyYTkzMjk3OGQzNzg4N2IyNTdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3aW5kdXN0cmlhbF9kZXNpZ24uanNvbiUzQitmaWxlbmFtZSUzRCUyMmluZHVzdHJpYWxfZGVzaWduLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzkxNDEyfX19XX0_&Signature=MEUCIEV~h1DWJlYVXMhyReU5XIHeM91N7qpi5-u7T0tWBpF6AiEA-YqJlNpTc1~HmmFYOIJo4wGbcd3IeaGUEwdavKcPwXQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/cagliostrolab/1.2m-ordered-tags-json/resolve/main/data/data.json
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682/3162f569ba2d639018f912b3f7692823d3b1148a/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101/3b0d72d19fba40c0727b4c079aa3bda0fec7df73/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Low_dietary_intakes_of_trace_elements_copper_and_selenium_are_associated_with_low_bone_mineral_density/32831219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_Paternal_Age_and_Offspring_Bone_Health_in_Childhood_An_Inverse_Relationship/32831213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PURE_Demo_Stringtie_output_Individual_GTF_files_and_the_master_merge_files/32831204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Patterns_of_bone_mineral_density_loss_at_multiple_skeletal_sites_during_recent_menopause/32831207
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Solvent_and_Ion-Mediated_Behavior_of_a_Thermoresponsive_Brush_Specific_Ion_Effects_in_Methanol-Water_Electrolytes/32831210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482801
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17351756
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3687363
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12574738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21052314
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21053206
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21053206
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/optimum-benchmark/cpu/resolve/main/cpu_inference_diffusers_stable-diffusion_CompVis/stable-diffusion-v1-4/benchmark.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Low_dietary_intakes_of_trace_elements_copper_and_selenium_are_associated_with_low_bone_mineral_density/32831219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_Paternal_Age_and_Offspring_Bone_Health_in_Childhood_An_Inverse_Relationship/32831213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PURE_Demo_Stringtie_output_Individual_GTF_files_and_the_master_merge_files/32831204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Patterns_of_bone_mineral_density_loss_at_multiple_skeletal_sites_during_recent_menopause/32831207
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Solvent_and_Ion-Mediated_Behavior_of_a_Thermoresponsive_Brush_Specific_Ion_Effects_in_Methanol-Water_Electrolytes/32831210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21052709
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21052709
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21052699
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20723007
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20723007
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RAM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 130991
+      parsed: true
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 91560
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1782791487&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzkxNDg3fX19XX0_&Signature=MEUCIQC-DLvlukIe7aLFUAIf3cod3n5Ha4BIhYkVShh8mBKKRAIgL~~3XY-kfiKJDrPFg-sw2sHXvGMpKAEKxBNgJjLuJCM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Cardiovascular_disease_risk_and_bone_mineral_density_Data_from_the_Geelong_Osteoporosis_Study/32831225
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MirGP/32830973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Low_dietary_intakes_of_trace_elements_copper_and_selenium_are_associated_with_low_bone_mineral_density/32831219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_Paternal_Age_and_Offspring_Bone_Health_in_Childhood_An_Inverse_Relationship/32831213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PURE_Demo_Stringtie_output_Individual_GTF_files_and_the_master_merge_files/32831204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10272639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20065754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10353767
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7951034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5150655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21051785
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21051785
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21050959
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21050959
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21047588
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OOM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/quocanh34/test_result_large_data_oom/resolve/main/data/train-00000-of-00001-fc17ec437033d174.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 108838
+      parsed: true
+  - url: https://huggingface.co/datasets/rtreacy/dv_keywords_desc_full-oom/resolve/main/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ejschwartz/oo-method-test/resolve/main/data/combined-00000-of-00001-03155245a07e9f83.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ejschwartz/oo-method-test/resolve/main/data/combined-00000-of-00001-03155245a07e9f83.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/quocanh34/test_result_large_data_oom/resolve/main/data/train-00000-of-00001-fc17ec437033d174.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rtreacy/dv_keywords_desc_full-oom/resolve/main/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Cardiovascular_disease_risk_and_bone_mineral_density_Data_from_the_Geelong_Osteoporosis_Study/32831225
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MirGP/32830973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Low_dietary_intakes_of_trace_elements_copper_and_selenium_are_associated_with_low_bone_mineral_density/32831219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_Paternal_Age_and_Offspring_Bone_Health_in_Childhood_An_Inverse_Relationship/32831213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PURE_Demo_Stringtie_output_Individual_GTF_files_and_the_master_merge_files/32831204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19041651302
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18740832002
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19212142518
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19141981601
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18610551604
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21048847
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048847
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.20224
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Cardiovascular_disease_risk_and_bone_mineral_density_Data_from_the_Geelong_Osteoporosis_Study/32831225
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MirGP/32830973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Low_dietary_intakes_of_trace_elements_copper_and_selenium_are_associated_with_low_bone_mineral_density/32831219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_Paternal_Age_and_Offspring_Bone_Health_in_Childhood_An_Inverse_Relationship/32831213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PURE_Demo_Stringtie_output_Individual_GTF_files_and_the_master_merge_files/32831204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qhyzj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/f4zpv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21053206
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21053206
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032583
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: JSONL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/albertvillanova/tests-public-raw-jsonl/resolve/main/wikiann-en-train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 411
+      parsed: true
+  - url: https://huggingface.co/datasets/albertvillanova/tests-raw-jsonl/resolve/main/wikiann-bn-train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/anzorq/kbd-ru-jsonl-tmp/resolve/main/kbd-ru-translation-pairs.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/albertvillanova/tests-public-raw-jsonl/resolve/main/wikiann-en-train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/albertvillanova/tests-raw-jsonl/resolve/main/wikiann-bn-train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/anzorq/kbd-ru-jsonl-tmp/resolve/main/kbd-ru-translation-pairs.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/paws-jsonl/resolve/main/positives_negatives.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_math_jsonl/resolve/main/title_answer.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Bounce_into_healthy_ageing_physical_activity_and_intrinsic_capacity_in_women/32831234
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Cardiovascular_disease_risk_and_bone_mineral_density_Data_from_the_Geelong_Osteoporosis_Study/32831225
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MirGP/32830973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Low_dietary_intakes_of_trace_elements_copper_and_selenium_are_associated_with_low_bone_mineral_density/32831219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Advanced_Paternal_Age_and_Offspring_Bone_Health_in_Childhood_An_Inverse_Relationship/32831213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14850390
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20115267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20187597
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8124992
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17876776
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048996
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048996
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20825250
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21036686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21036686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-006
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_Biodiversity_patterns_and_soil_drivers_in_Hindukush_forests_A_multivariate_approach_to_guiding_conservation_practices_b_/30590672
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PURE_DEMO_DESeq2_output_files_This_folder_also_contains_the_HTSeq-Count_output_count_file_that_is_the_input_to_DESeq2/32831222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Bounce_into_healthy_ageing_physical_activity_and_intrinsic_capacity_in_women/32831234
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Cardiovascular_disease_risk_and_bone_mineral_density_Data_from_the_Geelong_Osteoporosis_Study/32831225
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MirGP/32830973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3595524
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10302607
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962134
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10122421
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20750798
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

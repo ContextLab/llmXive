@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Causal Forcing++ Validation Report"
+description: "Schema for the validation report generated after running inference and training tests."
+type: object
+properties:
+  inference_status:
+    type: string
+    enum:
+      - "SUCCESS"
+      - "FAIL"
+      - "SKIP"
+    description: "Status of the inference pipeline execution."
+  inference_artifact_path:
+    type: ["string", "null"]
+    description: "Relative path to the generated video file (e.g., outputs/video.mp4). Null if failed."
+  inference_file_size_bytes:
+    type: ["integer", "null"]
+    description: "Size of the video file in bytes. Must be > 1024 if SUCCESS."
+  training_status:
+    type: string
+    enum:
+      - "SUCCESS"
+      - "FAIL"
+      - "SKIP"
+    description: "Status of the training loop execution."
+  training_checkpoint_path:
+    type: ["string", "null"]
+    description: "Relative path to the saved checkpoint. Null if failed."
+  training_checkpoint_size_bytes:
+    type: ["integer", "null"]
+    description: "Size of the checkpoint file in bytes. Must be > 102400 if SUCCESS."
+  loss_values:
+    type: array
+    items:
+      type: number
+    description: "List of loss values from the first 5 training steps."
+  peak_memory_mb:
+    type: ["integer", "null"]
+    description: "Peak memory usage in MB during the run."
+  total_runtime_seconds:
+    type: number
+    description: "Total runtime of the validation suite in seconds."
+  errors:
+    type: array
+    items:
+      type: string
+    description: "List of error messages if any step failed."
+required:
+  - inference_status
+  - training_status
+  - total_runtime_seconds
+  - errors
+additionalProperties: false

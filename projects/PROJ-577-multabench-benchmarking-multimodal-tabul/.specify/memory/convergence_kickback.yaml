@@ -1,0 +1,256 @@
+artifact_links:
+- projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+- specs/*/tasks.md
+reason: 23 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst
+  unresolved severity = 'requirement'. Routing to 'clarified' with full provenance
+  so the next worker can address the root cause.
+stage: tasks
+to_stage: clarified
+unresolved_concerns:
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: coverage-12a9e906
+  location: tasks.md:Phase 2, T004-T009
+  reviewer: coverage
+  round: 1
+  severity: requirement
+  text: 'Tasks T004-T009 (Foundational utilities: registry verification, device/memory
+    utils, config schema, error handling) have no corresponding User Story or Functional
+    Requirement in spec.md. The spec assumes the vendored code is ''functionally complete''
+    (Assumptions) and only defines US1-US3 for execution/validation. These tasks imply
+    creating new infrastructure not mandated by the spec, risking scope creep or implementation
+    of non-existent features.'
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: coverage-bfca0651
+  location: tasks.md:T023
+  reviewer: coverage
+  round: 1
+  severity: requirement
+  text: Task T023 specifies dataset 'MUL_IMAGE_CIFAR10' for the subset run. The spec.md
+    (US2 Acceptance Scenario 1) explicitly mandates 'MUL_IMAGE_CBIS_DDSM'. This is
+    a missing match for the required FR/SC element, as the task implements a different
+    dataset than the one required for validation.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: coverage-ba834f59
+  location: tasks.md:T027
+  reviewer: coverage
+  round: 1
+  severity: requirement
+  text: Task T027 requires asserting 'requires_grad' on backbone weights. The spec.md
+    (US3, SC-004) only defines 'tuned' vs 'frozen' as a high-level comparison. It
+    does not mandate a specific implementation mechanism (like `requires_grad` flags)
+    which may not exist in the vendored code. There is no FR/SC requiring this specific
+    internal assertion, making the task unanchored to the spec's requirements.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: coverage-30d3acec
+  location: tasks.md:T039
+  reviewer: coverage
+  round: 1
+  severity: requirement
+  text: Task T039 mandates 'Security hardening (validate all external URLs)'. The
+    spec.md (Edge Cases, FR-004) only requires graceful skipping on download failure.
+    There is no FR/SC requiring proactive URL validation or security hardening. This
+    task has no matching spec element.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: coverage-8a841b35
+  location: tasks.md:Phase 2, T007/T023
+  reviewer: coverage
+  round: 1
+  severity: writing
+  text: Tasks T007 and T023 reference creating 'config_subset.yaml' with specific
+    dataset IDs. While a config file is implied by the plan, the specific IDs in T023
+    ('MUL_IMAGE_CIFAR10') contradict the spec's required ID ('MUL_IMAGE_CBIS_DDSM').
+    This is a stale/incorrect tag reference to a non-existent or incorrect spec requirement.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: ordering-f266e5e1
+  location: tasks.md:Phase 2 (T004-T009)
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: 'Foundational tasks T004-T009 define new utility modules (device_utils, memory_profiler,
+    error_handler) and config schemas that are consumed by User Story tasks (T020,
+    T021, T022). However, the plan.md explicitly states ''No new source code structure
+    is created'' and relies on the ''existing structure of the vendored external/MulTaBench
+    repository''. This creates a semantic dependency violation: the tasks assume the
+    creation of artifacts (new files) that the plan forbids, breaking the producer-consumer
+    flow. The tasks must be reordered or redefined to either modify existing vendored
+    files or the plan must be updated to allow new structure.'
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: ordering-b1d01ad7
+  location: tasks.md:T023
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: 'Task T023 (Producer) creates `config_subset.yaml` with dataset `MUL_IMAGE_CIFAR10`.
+    However, the spec.md (US2 Acceptance Scenario 1) mandates `MUL_IMAGE_CBIS_DDSM`.
+    This is a semantic data-flow violation: the consumer tasks (T024-T027) expect
+    to run on the spec-defined dataset, but the producer task generates a config for
+    a different dataset. The artifact produced by T023 does not satisfy the input
+    requirements of the downstream consumer tasks.'
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: ordering-4da8f151
+  location: tasks.md:T027
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: Task T027 (Consumer) asserts `requires_grad` status on backbone weights. This
+    task depends on the existence of a specific 'tuned' training loop implementation
+    in the vendored code. The spec.md and plan.md do not guarantee this implementation
+    exists (they only define the *goal* of comparing tuned vs. frozen). If the vendored
+    code lacks this specific hook, T027 has no producer to consume, creating a broken
+    dependency chain. The task order assumes an artifact (the hook) that may not be
+    produced by the foundational phase.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: ordering-fcb1c76a
+  location: tasks.md:Phase 3 (T010-T016)
+  reviewer: ordering
+  round: 1
+  severity: writing
+  text: User Story 1 tasks (T012-T016) are listed after the 'Foundational' phase,
+    which is correct. However, T010 and T011 (Tests) are marked [P] (parallel) with
+    T012-T016. While tests can be written in parallel, the 'Independent Test' requirement
+    for US1 states tests must 'FAIL before implementation'. If T010/T011 are executed
+    in parallel with T012-T016, they might pass prematurely if the implementation
+    is already running, or fail to catch the 'fail-first' state. The ordering should
+    explicitly sequence 'Write Tests' -> 'Verify Fail' -> 'Implement' to respect the
+    TDD flow implied by the spec.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: executability-a46d3c4a
+  location: tasks.md:T004
+  reviewer: executability
+  round: 1
+  severity: requirement
+  text: Task T004 'Setup dataset registry verification script' lacks a concrete deliverable.
+    It does not specify the exact output format (e.g., JSON schema, exit codes) or
+    the specific command to run to verify success. An implementer cannot deterministically
+    execute this without knowing what 'verification' entails.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: executability-7e74a71c
+  location: tasks.md:T009
+  reviewer: executability
+  round: 1
+  severity: requirement
+  text: Task T009 'Setup environment configuration management' is too vague. It does
+    not name the specific file path (e.g., `configs/env.yaml`), the schema to be used,
+    or the specific variables to be managed. It fails the 'Concrete deliverable' test.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: executability-6a37ef91
+  location: tasks.md:T014
+  reviewer: executability
+  round: 1
+  severity: requirement
+  text: Task T014 requires integrating a query to verify specific dataset IDs, but
+    the task description does not define the success condition (e.g., 'exit code 0',
+    'log message X'). Without a verifiable success state, the task is not executable.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: executability-6dd46fef
+  location: tasks.md:T023
+  reviewer: executability
+  round: 1
+  severity: requirement
+  text: Task T023 defines a configuration file `config_subset.yaml` but lists `MUL_IMAGE_CIFAR10`
+    as a dataset. The `spec.md` (US2 Acceptance Scenario 1) explicitly mandates `MUL_IMAGE_CBIS_DDSM`.
+    This contradiction makes the task unexecutable as written because the implementer
+    cannot satisfy both the task and the spec simultaneously.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: executability-d3c7d741
+  location: tasks.md:T027
+  reviewer: executability
+  round: 1
+  severity: requirement
+  text: Task T027 requires asserting `requires_grad` status on backbone weights. The
+    `spec.md` and `plan.md` do not define the specific attribute path or the expected
+    boolean value for the 'tuned' configuration in the vendored code. This assumes
+    context not present in the spec, making the task non-self-contained.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: executability-5c2379f6
+  location: tasks.md:T033
+  reviewer: executability
+  round: 1
+  severity: requirement
+  text: Task T033 'Implement logic to flag results as inconclusive' lacks a concrete
+    definition of 'insufficient sample size'. The task does not specify the threshold
+    (e.g., n < 30) or the statistical test to be used, leaving the implementer unable
+    to determine when to trigger the flag.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: executability-4848073e
+  location: tasks.md:T036
+  reviewer: executability
+  round: 1
+  severity: writing
+  text: Task T036 'Code cleanup and refactoring' is too coarse and lacks a concrete
+    deliverable. It does not specify which files, what metrics (e.g., cyclomatic complexity),
+    or what criteria define 'cleanup'. This triggers the atomizer to split it, but
+    should be flagged here as non-executable in current form.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: executability-013ba8a7
+  location: tasks.md:T037
+  reviewer: executability
+  round: 1
+  severity: writing
+  text: Task T037 'Performance optimization' is too coarse. It does not name the target
+    metric (e.g., 'reduce load time by 20%'), the specific module to optimize, or
+    the method (e.g., 'implement caching'). It is not self-contained.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: executability-5a3d6706
+  location: tasks.md:T039
+  reviewer: executability
+  round: 1
+  severity: writing
+  text: Task T039 'Security hardening' is too coarse and vague. It does not specify
+    the validation mechanism (e.g., 'whitelist domains', 'check SSL certs') or the
+    specific files to modify. It lacks a concrete deliverable.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: constraint_preservation-10acf044
+  location: tasks.md:T023
+  reviewer: constraint_preservation
+  round: 1
+  severity: requirement
+  text: Task T023 specifies dataset 'MUL_IMAGE_CIFAR10' in config_subset.yaml, directly
+    contradicting spec.md US2 Acceptance Scenario 1 which mandates 'MUL_IMAGE_CBIS_DDSM'.
+    This is a silent weakening of the specific validation target defined in the spec.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: constraint_preservation-146c7ae0
+  location: tasks.md:T004, T005, T006, T008, T009, T020, T021, T022, T025, T027, T030,
+    T031, T032, T033, T034
+  reviewer: constraint_preservation
+  round: 1
+  severity: requirement
+  text: 'Multiple tasks require creating new utility modules (device_utils, memory_profiler,
+    error_handler, validators, claim_validator, etc.) inside external/MulTaBench/src/multabench/.
+    The plan.md explicitly states: ''The plan relies on the existing structure...
+    No new source code structure is created.'' Tasks that invent new files/modules
+    not present in the plan violate the SSoT and introduce silent scope creep.'
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: constraint_preservation-3c2721ee
+  location: tasks.md:T027
+  reviewer: constraint_preservation
+  round: 1
+  severity: requirement
+  text: Task T027 requires asserting 'requires_grad' status on backbone weights. The
+    spec.md and plan.md define 'tuned' vs 'frozen' as high-level baselines but do
+    not mandate this specific implementation mechanism. If the vendored code uses
+    a different tuning mechanism, this task becomes impossible to fulfill as written,
+    weakening the requirement to a specific (unverified) implementation detail.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: constraint_preservation-bf20b5e6
+  location: tasks.md:T039
+  reviewer: constraint_preservation
+  round: 1
+  severity: requirement
+  text: Task T039 mandates 'Security hardening (validate all external URLs before
+    download).' The spec.md only requires graceful skipping on download failure (FR-004).
+    Pre-validating URLs is a new constraint not present in the spec, constituting
+    a silent addition of scope that may not be feasible or required by the reproduction
+    mandate.
+- artifact: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul/tasks.md
+  id: constraint_preservation-e2fdddbe
+  location: tasks.md:T007, T023
+  reviewer: constraint_preservation
+  round: 1
+  severity: requirement
+  text: Tasks T007 and T023 define a specific config file 'config_subset.yaml' with
+    hardcoded dataset IDs. The plan.md Phase 1 mentions creating a config but the
+    tasks hardcode specific IDs that conflict with the spec (CIFAR10 vs CBIS_DDSM).
+    This creates a rigid dependency that violates the flexibility required for the
+    'reduced-scale' approach if the specific dataset is unavailable.
+worst_severity: requirement

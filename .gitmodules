@@ -4,3 +4,12 @@
 [submodule "projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/external/dlbook_notation"]
 	path = projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/external/dlbook_notation
 	url = https://github.com/goodfeli/dlbook_notation
+[submodule "projects/PROJ-578-https-arxiv-org-abs-2605-14906/external/MEMLENS"]
+	path = projects/PROJ-578-https-arxiv-org-abs-2605-14906/external/MEMLENS
+	url = https://github.com/xrenaf/MEMLENS
+[submodule "projects/PROJ-580-https-arxiv-org-abs-2605-15141/external/Causal-Forcing"]
+	path = projects/PROJ-580-https-arxiv-org-abs-2605-15141/external/Causal-Forcing
+	url = https://github.com/thu-ml/Causal-Forcing
+[submodule "projects/PROJ-577-multabench-benchmarking-multimodal-tabul/external/MulTaBench"]
+	path = projects/PROJ-577-multabench-benchmarking-multimodal-tabul/external/MulTaBench
+	url = https://github.com/alanarazi7/MulTaBench

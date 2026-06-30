@@ -1,0 +1,22 @@
+- artifact_hash: 69f4a17ae142a362908461a70b6be59db891bcea42ee6a7aa55ec2234d7c7c17
+  artifact_path: projects/PROJ-580-https-arxiv-org-abs-2605-15141/specs/001-https-arxiv-org-abs-2605-15141/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: GitHub Actions documentation
+  fetched_title: GitHub-hosted runners - GitHub Docs
+  kind: url
+  value: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
+  verification_status: mismatch
+  verified_against_url: https://docs.github.com/en/actions/concepts/runners/github-hosted-runners
+  verified_at: '2026-06-30T03:23:29.608964Z'
+- artifact_hash: 5c895e5610e6a3437f090591f1fe2cf6b85dedb6484c187b3b69cd8aaa39f9fc
+  artifact_path: projects/PROJ-580-https-arxiv-org-abs-2605-15141/specs/001-https-arxiv-org-abs-2605-15141/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: verified
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-06-30T03:23:56.153261Z'

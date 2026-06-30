@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Artifact Manifest"
+description: "Schema for the manifest of artifacts produced by the validation process."
+type: object
+properties:
+  artifacts:
+    type: array
+    items:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - "video"
+            - "checkpoint"
+            - "report"
+          description: "Type of the artifact."
+        path:
+          type: string
+          description: "Relative path to the artifact."
+        size_bytes:
+          type: integer
+          description: "File size in bytes."
+        created_at:
+          type: string
+          format: date-time
+          description: "ISO 8601 timestamp of creation."
+        status:
+          type: string
+          enum:
+            - "valid"
+            - "invalid"
+            - "missing"
+          description: "Validation status of the artifact."
+      required:
+        - type
+        - path
+        - size_bytes
+        - status
+    description: "List of generated artifacts."
+  summary:
+    type: object
+    properties:
+      total_artifacts:
+        type: integer
+      valid_artifacts:
+        type: integer
+      invalid_artifacts:
+        type: integer
+    required:
+      - total_artifacts
+      - valid_artifacts
+      - invalid_artifacts
+required:
+  - artifacts
+  - summary
+additionalProperties: false

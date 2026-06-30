@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Run Schema"
+description: "Schema for a single evaluation run configuration and summary metadata."
+type: "object"
+required:
+  - "run_id"
+  - "model_name"
+  - "context_length"
+  - "ablation_mode"
+  - "cpu_only"
+  - "timestamp"
+  - "status"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run (UUID)."
+  model_name:
+    type: "string"
+    description: "Name of the model used."
+  context_length:
+    type: "integer"
+    description: "Context window size in tokens."
+    enum:
+      - 32000
+      - 64000
+      - 128000
+      - 256000
+  ablation_mode:
+    type: "boolean"
+    description: "Whether image-ablation was enabled."
+  cpu_only:
+    type: "boolean"
+    description: "Whether the run was executed in CPU-only mode."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run start."
+  status:
+    type: "string"
+    description: "Status of the run."
+    enum:
+      - "completed"
+      - "oom"
+      - "rate_limited"
+      - "failed"
+      - "truncated"
+  error_code:
+    type: "string"
+    description: "Specific error code if status is not 'completed'."
+    nullable: true
