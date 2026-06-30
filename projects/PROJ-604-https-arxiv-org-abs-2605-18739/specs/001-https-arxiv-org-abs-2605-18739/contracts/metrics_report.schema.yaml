@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Report Schema"
+description: "Schema for the structured metrics report generated after inference."
+type: "object"
+properties:
+  start_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the start."
+  end_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the end."
+  duration_seconds:
+    type: "number"
+    description: "Total runtime in seconds."
+    minimum: 0
+  peak_ram_gb:
+    type: "number"
+    description: "Peak RAM usage in GB. Must be <= 7.0 for CI compliance."
+    maximum: 7.0
+  quantization_mode_used:
+    type: "string"
+    description: "The quantization mode actually used (e.g., 'NVFP4', 'FP16')."
+  status:
+    type: "string"
+    description: "Final status of the run."
+    enum:
+      - "SUCCESS"
+      - "OOM"
+      - "ERROR"
+      - "TIMEOUT"
+  checkpoint_status:
+    type: "string"
+    description: "Status of the checkpoint load."
+    enum:
+      - "FOUND"
+      - "MISSING"
+  error_code:
+    type: "string"
+    description: "Specific error code if status is ERROR. e.g., 'CHECKPOINT_NOT_FOUND', 'OOM', 'IMPORT_ERROR'."
+    enum:
+      - "CHECKPOINT_NOT_FOUND"
+      - "OOM"
+      - "IMPORT_ERROR"
+      - "TIMEOUT"
+      - "OTHER"
+  has_nan:
+    type: "boolean"
+    description: "True if NaN or Inf values were detected in the output."
+  artifact_path:
+    type: "string"
+    description: "Path to the generated video artifact."
+  hardware_context:
+    type: "string"
+    description: "Description of the hardware used (e.g., 'CPU-only, 2 vCPU')."
+  random_seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+required:
+  - start_time
+  - end_time
+  - duration_seconds
+  - peak_ram_gb
+  - quantization_mode_used
+  - status
+  - has_nan
+  - artifact_path
+  - hardware_context
+  - checkpoint_status
+  - error_code
+  - random_seed
+additionalProperties: false

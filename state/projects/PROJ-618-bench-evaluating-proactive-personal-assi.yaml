@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-23T08:43:40.149563Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-618-bench-evaluating-proactive-personal-assi
-last_run_id: a29f6772-768f-4b96-a93a-0ec452e99ea0
+last_run_id: 3b271841-26bf-42e4-ac3d-210e84e46c60
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-618-bench-evaluating-proactive-personal-assi/specs/001-bench-evaluating-proactive-personal-assi
 title: "$\u03C0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon\
   \ Workflows"
-updated_at: '2026-06-30T07:38:45.431093Z'
+updated_at: '2026-06-30T09:00:45.155124Z'

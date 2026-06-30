@@ -1,0 +1,165 @@
+artifact_links:
+- projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+- specs/*/contracts/*
+- specs/*/data-model.md
+- specs/*/plan.md
+- specs/*/quickstart.md
+- specs/*/research.md
+reason: 11 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst
+  unresolved severity = 'science'. Routing to 'specified' with full provenance so
+  the next worker can address the root cause.
+stage: plan
+to_stage: specified
+unresolved_concerns:
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: methodology-7e0599bd
+  location: plan.md:Phase 1
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: 'Plan states: ''Mock the video generation step... or use pre-generated sample
+    videos''. If video frames are mocked (e.g., solid colors), metrics relying on
+    visual content (Quality, Adherence, Physics) will return deterministic or null
+    values, failing to validate the metric logic against the intended construct (video
+    world model performance). The plan must specify using *real* video samples from
+    the dataset for metric calculation, even if the generation step is skipped.'
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: methodology-5ea062d4
+  location: research.md:3. Technical Approach & Constraints
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: Plan proposes substituting heavy VLMs with 'smaller CPU-friendly alternatives
+    (e.g., distilbert instead of bert-large)'. This changes the measurement instrument
+    for 'Quality' and 'Adherence' metrics. Using a different model architecture invalidates
+    the comparison to the paper's results (Construct Validity failure). The plan must
+    either use the original models (if feasible) or explicitly frame the output as
+    a 'proxy evaluation' with distinct validity bounds, not a direct reproduction.
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: methodology-15339508
+  location: plan.md:Phase 2
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: Plan assumes processing 289 cases in 6 hours on a 2-core CPU runner. If the
+    metrics involve optical flow (Farneback) or VLM inference on video frames, this
+    is computationally infeasible on CPU within the time limit. The plan lacks a power/scale
+    analysis confirming that the chosen CPU-only metrics can actually process the
+    full dataset in the allotted time, risking a failure to produce the required 'full
+    dataset' results.
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: data_resources-45c9111c
+  location: research.md:2. Dataset Strategy
+  reviewer: data_resources
+  round: 1
+  severity: methodology
+  text: The plan cites 'WBench (Parquet)' from HuggingFace as the source for 'interaction_sequence'
+    and 'ground_truth' to calculate adherence metrics. However, the WBench dataset
+    (meituan-longcat/WBench) is primarily a video generation benchmark containing
+    prompts and generated videos, not necessarily structured 'interaction_sequence'
+    lists or explicit 'ground_truth' outcome annotations required for the specific
+    'setting adherence' and 'interaction adherence' metrics described in the spec.
+    If the dataset lacks these specific columns, the plan's assumption that the parquet
+    file 'contains the necessary variables' is incorrect, rendering the metric calculation
+    logic infeasible without a different data source or a complete redefinition of
+    the metrics.
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: data_resources-a1c92bf8
+  location: 'plan.md:Phase 1: Sample Data Execution'
+  reviewer: data_resources
+  round: 1
+  severity: methodology
+  text: The plan assumes 'pre-generated sample videos if available in the repo' or
+    a 'mock generator' for video data. However, the 'consistency' and 'physics compliance'
+    metrics (FR-006) explicitly require analyzing temporal dynamics (optical flow,
+    frame differences) of *actual* video content. Mocking video generation with 'solid
+    colors or random noise' (as suggested in research.md) will result in zero or nonsensical
+    scores for these specific metrics, making it impossible to 'reproduce the paper's
+    structure' or validate the benchmark logic as intended. The dataset/resource strategy
+    must provide actual video frames, not mocks, for these specific metrics to be
+    valid.
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: plan_consistency-8dbc6bc1
+  location: plan.md:Constitution Check
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: 'The ''Constitution Check'' section lists ''Principle 1: Reproducibility'',
+    ''Principle 2: Resource Constraints'', etc., which do not match the actual per-project
+    constitution (FR-030). The plan must explicitly reference the specific principles
+    from `constitution.md` (e.g., Principle I: SSoT, Principle II: No Silent Fallbacks,
+    Principle V: Real-Call Testing) and demonstrate how the plan adheres to them.
+    Generic headers violate the requirement for explicit constitutional alignment.'
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: plan_consistency-077040db
+  location: plan.md:Phase Breakdown
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: Phase 1 and Phase 2 rely on 'mocking' video generation and using 'dummy frames'.
+    This potentially violates Principle V (Real-Call Testing) if the constitution
+    mandates that the benchmark must evaluate actual model outputs rather than mocked
+    data. The plan must explicitly justify how this approach satisfies the constitutional
+    requirement for valid empirical evidence or define the 'mock' as a specific, constitutionally-approved
+    fallback (Principle II) with clear documentation of the variance.
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: plan_consistency-1e4ee36d
+  location: plan.md:Phase Breakdown
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: Phase 2 Step 2 mentions 'Implement retry logic for API timeouts (if external
+    models are used)'. The data-model.md and spec.md define the input as a local Parquet
+    file with `video_path`. If the plan assumes external API calls for video generation,
+    it contradicts the data model's assumption of local/mock data. Clarify if the
+    'API' refers to the local metric calculation or an external dependency not defined
+    in the data model.
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: scientific_soundness-abe7ca5d
+  location: plan.md:Phase 1 & research.md:Section 2
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: 'The plan validates the benchmark by comparing aggregated scores against the
+    paper''s values (SC-004, Phase 3) while simultaneously mocking the video generation
+    step with ''dummy frames'' or ''solid colors'' (Phase 1, Step 2). This creates
+    a circular/invalid validation: the metric scores (dependent variable) are mathematically
+    determined by the input video frames (predictor). If the input is mocked/dummy,
+    the resulting scores will be trivially low or nonsensical, making a comparison
+    to the paper''s real-video scores a comparison of ''dummy vs. real'' rather than
+    a validation of the *metric logic*. The plan conflates ''pipeline execution''
+    (does the code run?) with ''metric validity'' (does the score reflect reality?).
+    To validate the metric logic, one must use real video data (even if pre-computed)
+    or a known ground-truth synthetic dataset, not arbitrary dummy data.'
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: scientific_soundness-c4dcfe94
+  location: research.md:Section 3
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The plan proposes substituting heavy Vision-Language Models (VLMs) with smaller
+    CPU-friendly alternatives (e.g., 'distilbert' or 'llava-phi') to calculate 'Adherence'
+    and 'Quality' metrics. This violates the independence of the validation target.
+    The 'ground truth' or 'paper values' were generated using specific, heavy VLMs.
+    Replacing the predictor (the VLM) changes the definition of the metric itself.
+    The resulting scores are not measuring the same quantity as the paper's scores;
+    they are measuring a different model's interpretation. Comparing these scores
+    to the paper's values to claim 'reproducibility' is scientifically unsound because
+    the underlying function being evaluated has changed. The plan must either use
+    the original models (if feasible) or explicitly state that it is validating a
+    *proxy* metric, not reproducing the original benchmark's results.
+- artifact: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/plan.md
+  id: scientific_soundness-b773a982
+  location: plan.md:Phase 3, Step 2
+  reviewer: scientific_soundness
+  round: 1
+  severity: methodology
+  text: "The plan sets a tolerance of '\xB10.05' for comparing aggregated scores against\
+    \ paper values. Without a statistical power analysis or an understanding of the\
+    \ variance inherent in the metric calculation (especially with mocked data or\
+    \ model substitution), this tolerance is arbitrary. If the metric is sensitive\
+    \ to minor frame differences (which it should be for video), a 0.05 tolerance\
+    \ might be too loose to detect a broken pipeline, or too tight for a valid proxy.\
+    \ The methodology lacks a justification for this threshold based on the expected\
+    \ noise floor of the metrics."
+worst_severity: science

@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-26T09:11:48.459110Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-624-lens-rethinking-training-effic
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models'
-updated_at: '2026-06-29T04:53:55.764593Z'
+updated_at: '2026-06-30T08:51:32.632233Z'

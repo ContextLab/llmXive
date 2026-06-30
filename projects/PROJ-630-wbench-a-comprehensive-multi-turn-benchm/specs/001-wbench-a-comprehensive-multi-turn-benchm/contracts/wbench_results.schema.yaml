@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "WBench Evaluation Results Schema"
+description: "Schema for the final_results.csv output of the WBench evaluation pipeline."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model or 'reproduction' for this run."
+  video_quality:
+    type: "number"
+    description: "Mean score for video quality dimension (0.0 to 1.0)."
+  setting_adherence:
+    type: "number"
+    description: "Mean score for setting adherence dimension (0.0 to 1.0)."
+  interaction_adherence:
+    type: "number"
+    description: "Mean score for interaction adherence dimension (0.0 to 1.0)."
+  consistency:
+    type: "number"
+    description: "Mean score for consistency dimension (0.0 to 1.0)."
+  physics_compliance:
+    type: "number"
+    description: "Mean score for physics compliance dimension (0.0 to 1.0)."
+  total_cases:
+    type: "integer"
+    description: "Total number of test cases processed."
+  success_rate:
+    type: "number"
+    description: "Percentage of cases with successful metric calculation (0.0 to 1.0)."
+  variance_notes:
+    type: "string"
+    description: "Optional notes on deviations from the original paper's results (e.g., 'Frame sampling used', 'Subset evaluation')."
+required:
+  - model_name
+  - video_quality
+  - setting_adherence
+  - interaction_adherence
+  - consistency
+  - physics_compliance
+  - total_cases
+  - success_rate
+additionalProperties: true

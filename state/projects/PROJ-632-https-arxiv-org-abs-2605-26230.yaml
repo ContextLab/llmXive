@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-28T09:16:46.195177Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-632-https-arxiv-org-abs-2605-26230
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Geometry-Aware Representation Denoising for Robust Multi-view 3D Reconstruction
-updated_at: '2026-06-26T01:51:56.686835Z'
+updated_at: '2026-06-30T08:51:32.640228Z'

@@ -1,0 +1,11 @@
+- artifact_hash: e2567c740d1c370138b8d6e6149f3bfe397a97a0ecec224babfcc2b3bc39f4b9
+  artifact_path: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: unreachable
+  verified_against_url: https://download.pytorch.org/whl/cpu%60
+  verified_at: '2026-06-30T09:36:12.991609Z'

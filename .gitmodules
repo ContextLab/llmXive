@@ -40,3 +40,12 @@
 [submodule "projects/PROJ-608-autoresearchclaw-self-reinforcing-autono/external/AutoResearchClaw"]
 	path = projects/PROJ-608-autoresearchclaw-self-reinforcing-autono/external/AutoResearchClaw
 	url = https://github.com/aiming-lab/AutoResearchClaw
+[submodule "projects/PROJ-618-bench-evaluating-proactive-personal-assi/external/Pi-Bench"]
+	path = projects/PROJ-618-bench-evaluating-proactive-personal-assi/external/Pi-Bench
+	url = https://github.com/Simplified-Reasoning/Pi-Bench
+[submodule "projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/external/WBench"]
+	path = projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/external/WBench
+	url = https://github.com/meituan-longcat/WBench
+[submodule "projects/PROJ-604-https-arxiv-org-abs-2605-18739/external/LongLive"]
+	path = projects/PROJ-604-https-arxiv-org-abs-2605-18739/external/LongLive
+	url = https://github.com/NVlabs/LongLive

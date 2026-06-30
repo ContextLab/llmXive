@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Inference Output Validation"
+description: "Schema for validating the generated video artifact and its metadata."
+type: "object"
+properties:
+  artifact_path:
+    type: "string"
+    description: "Relative path to the generated video file."
+  file_exists:
+    type: "boolean"
+    description: "True if the file exists at the specified path."
+  is_valid_video:
+    type: "boolean"
+    description: "True if the file header indicates a valid video container (MP4/WebM)."
+  duration_seconds:
+    type: "number"
+    description: "Duration of the video in seconds. Must be > 0."
+    minimum: 0.1
+  format:
+    type: "string"
+    description: "Video format (e.g., 'mp4', 'webm')."
+    enum:
+      - "mp4"
+      - "webm"
+required:
+  - artifact_path
+  - file_exists
+  - is_valid_video
+  - duration_seconds
+  - format
+additionalProperties: false
