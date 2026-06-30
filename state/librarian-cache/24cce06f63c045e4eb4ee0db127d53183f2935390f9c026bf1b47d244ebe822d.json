@@ -1,0 +1,580 @@
+{
+  "fetched_at": "2026-06-30T20:49:53Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?",
+      "target_n": 5
+    },
+    "duration_seconds": 58.45,
+    "ended_at": "2026-06-30T20:49:53Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Large language models for natural language processing tasks"
+        ],
+        [
+          2,
+          "AI agent performance on NLP benchmarks"
+        ],
+        [
+          3,
+          "Automated coding agents in computational linguistics"
+        ],
+        [
+          4,
+          "LLM benchmarking against state-of-the-art research"
+        ],
+        [
+          5,
+          "Generative AI capabilities in linguistic analysis"
+        ],
+        [
+          6,
+          "Natural language understanding evaluation metrics"
+        ],
+        [
+          7,
+          "Machine translation and text generation SOTA comparison"
+        ],
+        [
+          8,
+          "Automated reasoning in language model systems"
+        ],
+        [
+          9,
+          "Code generation models applied to linguistic data"
+        ],
+        [
+          10,
+          "Evaluation of AI agents on scientific literature tasks"
+        ],
+        [
+          11,
+          "Performance gaps between AI and human linguistic experts"
+        ],
+        [
+          12,
+          "Large language models in syntax and semantics research"
+        ],
+        [
+          13,
+          "Automated text analysis using deep learning agents"
+        ],
+        [
+          14,
+          "Benchmarking generative AI on NLP datasets"
+        ],
+        [
+          15,
+          "AI-driven linguistic pattern recognition"
+        ],
+        [
+          16,
+          "Comparison of LLM outputs with published linguistic studies"
+        ],
+        [
+          17,
+          "Scalability of coding agents in language tasks"
+        ],
+        [
+          18,
+          "Natural language inference with transformer models"
+        ],
+        [
+          19,
+          "Automated hypothesis generation in computational linguistics"
+        ],
+        [
+          20,
+          "Reproducibility of NLP results using AI agents"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Large language models for natural language processing tasks": 5,
+        "NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers? linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "LLM memorization data contamination natural language",
+      "GLUE SuperGLUE BIG-bench language model evaluation",
+      "emergent abilities in-context learning scaling laws",
+      "benchmark leaderboard performance held-out test set",
+      "synthetic data generation training distribution shift"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.06371"
+      ]
+    },
+    "per_query_hit_count": {
+      "GLUE SuperGLUE BIG-bench language model evaluation": 3,
+      "LLM memorization data contamination natural language": 3,
+      "NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers? linguistics": 3,
+      "benchmark leaderboard performance held-out test set": 3,
+      "emergent abilities in-context learning scaling laws": 3,
+      "synthetic data generation training distribution shift": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2110.10780",
+          "rationale": "The paper focuses on clinical NLP frameworks for electronic health records (EHR) and does not address the user's specific question regarding the performance of coding agents on \"Nature-family\" scientific papers or the benchmarking of agents against published SOTA in that specific domain. While both involve NLP, the paper lacks the specific mechanism (coding agents), domain (Nature-family papers), or empirical population required by the inclusion criteria, falling instead into a distinct applicat",
+          "title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)"
+        },
+        {
+          "primary_pointer": "2408.13040",
+          "rationale": "The paper focuses on prompting techniques for speech language models in speech processing tasks, which is a distinct domain from the user's question regarding coding agents and their performance on Nature-family papers in the field of linguistics. It does not measure the same mechanism, variables, or empirical population, nor does it serve as a foundational reference for evaluating coding agents against scientific benchmarks.",
+          "title": "SpeechPrompt: Prompting Speech Language Models for Speech Processing Tasks"
+        },
+        {
+          "primary_pointer": "2006.16212",
+          "rationale": "The paper focuses on morphological processing of a specific low-resource language (Tangkhul) using unsupervised methods, which does not address the user's question about evaluating the performance of coding agents against SOTA in scientific (Nature-family) papers. There is no overlap in the mechanism (coding agents vs. morphological analysis), domain (software engineering/LLM benchmarks vs. linguistics corpus creation), or variables being measured.",
+          "title": "Towards the Study of Morphological Processing of the Tangkhul Language"
+        },
+        {
+          "primary_pointer": "2103.14757",
+          "rationale": "The paper focuses on a specific NLP application (automatic multiple-choice question generation) and does not address the user's core question regarding the performance of coding agents against SOTA benchmarks in the \"Nature\" family of papers or the specific domain of linguistics. It fails to meet any inclusion criteria (a-f) as it studies a different task, different agents, and a different evaluation context without establishing a baseline or mechanism relevant to coding agent capabilities.",
+          "title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-30T20:48:54Z",
+    "term_input": {
+      "normalized": "naturebench: can coding agents match the published sota of nature-family papers? linguistics",
+      "raw": "NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers? linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models pretrained on extensive web corpora demonstrate remarkable performance across a wide range of downstream tasks. However, a growing concern is data contamination, where evaluation datasets may be contained in the pretraining corpus, inflating model performance. Decontamination, the process of detecting and removing such data, is a potential solution; yet these contaminants may originate from altered versions of the test set, evading detection during decontamination. How different types of contamination impact the performance of language models on downstream tasks is not fully understood. We present a taxonomy that categorizes the various types of contamination encountered by LLMs during the pretraining phase and identify which types pose the highest risk. We analyze the impact of contamination on two key NLP tasks -- summarization and question answering -- revealing how different types of contamination influence task performance during evaluation.",
+          "claimed_authors": [
+            "Medha Palavalli",
+            "Amanda Bertsch",
+            "Matthew R. Gormley"
+          ],
+          "claimed_title": "A Taxonomy for Data Contamination in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.08716"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='A Taxonomy for Data Contamination in Large Language Models')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.06371"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CDD, or Contamination Detection via output Distribution, identifies data contamination by measuring the peakedness of a model's sampled outputs. We study the conditions under which this approach succeeds and fails on small language models ranging from 70M to 410M parameters. Using controlled contamination experiments on GSM8K, HumanEval, and MATH, we find that CDD's effectiveness depends critically on whether fine-tuning produces verbatim memorization. In the majority of conditions we test, CDD performs at chance level even when the data is verifiably contaminated and detectable by simpler methods. We show that probability-based methods, specifically perplexity and Min-k\\% Prob, outperform CDD in all conditions where any method exceeds chance, suggesting that CDD's peakedness-based approach is insufficient for contamination detection in small language models. Our code is available at https://github.com/Sela-Omer/Contamination-Detection-Small-LM",
+          "claimed_authors": [
+            "Omer Sela"
+          ],
+          "claimed_title": "No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03203"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the predictability of large language model (LLM) capabilities: given records of past experiments using different model families, numbers of parameters, tasks, and numbers of in-context examples, can we accurately predict LLM performance on new experiment configurations? Answering this question has practical implications for LLM users (e.g., deciding which models to try), developers (e.g., prioritizing evaluation on representative tasks), and the research community (e.g., identifying hard-to-predict capabilities that warrant further investigation).\n  We study the performance prediction problem on experiment records from BIG-bench. On a random train-test split, an MLP-based predictor achieves an $R^2$ score greater than 95%, indicating the presence of learnable patterns within the experiment records. We then formulate the problem of searching for \"small-bench,\" an informative subset of BIG-bench tasks from which the performance on the full set can be maximally recovered. We find a subset as informative as BIG-bench Hard for evaluating new model families, while being $3\\times$ smaller. Additionally, we find competitive subsets by clustering task representations learned by our MLP-based predictor and selecting tasks close to cluster centroids, highlighting the importance of task diversity in constructing \"small-bench.\"",
+          "claimed_authors": [
+            "Qinyuan Ye",
+            "Harvey Yiyun Fu",
+            "Xiang Ren",
+            "Robin Jia"
+          ],
+          "claimed_title": "How Predictable Are Large Language Model Capabilities? A Case Study on BIG-bench",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.14947"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='How Predictable Are Large Language Model Capabilities? A Case Study on BIG-bench')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "BIG-Bench (Srivastava et al., 2022) is a diverse evaluation suite that focuses on tasks believed to be beyond the capabilities of current language models. Language models have already made good progress on this benchmark, with the best model in the BIG-Bench paper outperforming average reported human-rater results on 65% of the BIG-Bench tasks via few-shot prompting. But on what tasks do language models fall short of average human-rater performance, and are those tasks actually unsolvable by current language models?\n  In this work, we focus on a suite of 23 challenging BIG-Bench tasks which we call BIG-Bench Hard (BBH). These are the task for which prior language model evaluations did not outperform the average human-rater. We find that applying chain-of-thought (CoT) prompting to BBH tasks enables PaLM to surpass the average human-rater performance on 10 of the 23 tasks, and Codex (code-davinci-002) to surpass the average human-rater performance on 17 of the 23 tasks. Since many tasks in BBH require multi-step reasoning, few-shot prompting without CoT, as done in the BIG-Bench evaluations (Srivastava et al., 2022), substantially underestimates the best performance and capabilities of language models, which is better captured via CoT prompting. As further analysis, we explore the interaction between CoT and model scale on BBH, finding that CoT enables emergent task performance on several BBH tasks with otherwise flat scaling curves.",
+          "claimed_authors": [
+            "Mirac Suzgun",
+            "Nathan Scales",
+            "Nathanael Schärli",
+            "Sebastian Gehrmann",
+            "Yi Tay",
+            "Hyung Won Chung",
+            "Aakanksha Chowdhery",
+            "Quoc V. Le",
+            "Ed H. Chi",
+            "Denny Zhou",
+            "Jason Wei"
+          ],
+          "claimed_title": "Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.09261"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an analysis of the performance of machine learning classifiers on discriminating between similar languages and language varieties. We carried out a number of experiments using the results of the two editions of the Discriminating between Similar Languages (DSL) shared task. We investigate the progress made between the two tasks, estimate an upper bound on possible performance using ensemble and oracle combination, and provide learning curves to help us understand which languages are more challenging. A number of difficult sentences are identified and investigated further with human annotation.",
+          "claimed_authors": [
+            "Cyril Goutte",
+            "Serge Léger",
+            "Shervin Malmasi",
+            "Marcos Zampieri"
+          ],
+          "claimed_title": "Discriminating Similar Languages: Evaluations and Explorations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.00031"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Discriminating Similar Languages: Evaluations and Explorations')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that the cross-entropy loss curves of neural language models empirically adhere to a scaling law with learning rate (LR) annealing over training steps: $$L(s) = L_0 + A\\cdot S_1^{-α} - C\\cdot S_2,$$ where $L(s)$ is the validation loss at step $s$, $S_1$ is the area under the LR curve, $S_2$ is the LR annealing area, and $L_0$, $A$, $C$, $α$ are constant parameters. This formulation takes into account two factors: (1) power-law scaling over data size, and (2) the additional loss reduction during LR annealing. Therefore, this formulation can describe the full loss curve at each step, rather than the single loss point at the end of training. Applying the scaling law with LR annealing and fitting only one or two training curves, we can accurately predict the loss at any given step across any learning rate scheduler (LRS). This approach significantly reduces computational cost in formulating scaling laws while providing more accuracy and expressiveness for training dynamics. Extensive experiments demonstrate that our findings hold across a range of hyper-parameters and model architectures, and our equation can extend to scaling effect of model sizes. Moreover, our formulation provides accurate theoretical verification and explanation for empirical results observed in numerous previous studies, particularly those focusing on LR schedule and annealing. We believe that this work is promising to enhance the understanding of LLM training dynamics while greatly democratizing scaling laws, and it can guide researchers in refining training strategies (e.g. critical LRS) for further LLMs.",
+          "claimed_authors": [
+            "Howe Tissue",
+            "Venus Wang",
+            "Lu Wang"
+          ],
+          "claimed_title": "Scaling Law with Learning Rate Annealing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.11029"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Scaling Law with Learning Rate Annealing')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks exhibit empirical neural scaling laws, with error decreasing as a power law with increasing model or data size, across a wide variety of architectures, tasks, and datasets. This universality suggests that scaling laws may result from general properties of natural learning tasks. We develop a mathematical model intended to describe natural datasets using percolation theory. Two distinct criticality regimes emerge, each yielding optimal power-law neural scaling laws. These regimes, corresponding to power-law-distributed discrete subtasks and a dominant data manifold, can be associated with previously proposed theories of neural scaling, thereby grounding and unifying prior works. We test the theory by training regression models on toy datasets derived from percolation theory simulations. We suggest directions for quantitatively predicting language model scaling.",
+          "claimed_authors": [
+            "Ari Brill"
+          ],
+          "claimed_title": "Neural Scaling Laws Rooted in the Data Distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.07942"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Neural Scaling Laws Rooted in the Data Distribution')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
+          "claimed_authors": [
+            "Berivan Isik",
+            "Natalia Ponomareva",
+            "Hussein Hazimeh",
+            "Dimitris Paparas",
+            "Sergei Vassilvitskii",
+            "Sanmi Koyejo"
+          ],
+          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.04177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Foundation models (FM), such as large language models (LLMs), which are large-scale machine learning (ML) models, have demonstrated remarkable adaptability in various downstream software engineering (SE) tasks, such as code completion, code understanding, and software development. As a result, FM leaderboards have become essential tools for SE teams to compare and select the best third-party FMs for their specific products and purposes. However, the lack of standardized guidelines for FM evaluation and comparison threatens the transparency of FM leaderboards and limits stakeholders' ability to perform effective FM selection. As a first step towards addressing this challenge, our research focuses on understanding how these FM leaderboards operate in real-world scenarios (\"leaderboard operations\") and identifying potential pitfalls and areas for improvement (\"leaderboard smells\"). In this regard, we collect up to 1,045 FM leaderboards from five different sources: GitHub, Hugging Face Spaces, Papers With Code, spreadsheet and independent platform, to examine their documentation and engage in direct communication with leaderboard operators to understand their workflows. Through card sorting and negotiated agreement, we identify five distinct workflow patterns and develop a domain model that captures the key components and their interactions within these workflows. We then identify eight unique types of leaderboard smells in LBOps. By mitigating these smells, SE teams can improve transparency, accountability, and collaboration in current LBOps practices, fostering a more robust and responsible ecosystem for FM comparison and selection.",
+          "claimed_authors": [
+            "Zhimin Zhao",
+            "Abdul Ali Bangash",
+            "Filipe Roseiro Côgo",
+            "Bram Adams",
+            "Ahmed E. Hassan"
+          ],
+          "claimed_title": "On the Workflows and Smells of Leaderboard Operations (LBOps): An Exploratory Study of Foundation Model Leaderboards",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.04065"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='On the Workflows and Smells of Leaderboard Operations (LBOps): An Exploratory Study of Foundation Model Leaderboards')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current evaluation practices in speech-driven gesture generation lack standardisation and focus on aspects that are easy to measure over aspects that actually matter. This leads to a situation where it is impossible to know what is the state of the art, or to know which method works better for which purpose when comparing two publications. In this position paper, we review and give details on issues with existing gesture-generation evaluation, and present a novel proposal for remedying them. Specifically, we announce an upcoming living leaderboard to benchmark progress in conversational motion synthesis. Unlike earlier gesture-generation challenges, the leaderboard will be updated with large-scale user studies of new gesture-generation systems multiple times per year, and systems on the leaderboard can be submitted to any publication venue that their authors prefer. By evolving the leaderboard evaluation data and tasks over time, the effort can keep driving progress towards the most important end goals identified by the community. We actively seek community involvement across the entire evaluation pipeline: from data and tasks for the evaluation, via tooling, to the systems evaluated. In other words, our proposal will not only make it easier for researchers to perform good evaluations, but their collective input and contributions will also help drive the future of gesture-generation research.",
+          "claimed_authors": [
+            "Rajmund Nagy",
+            "Hendric Voss",
+            "Youngwoo Yoon",
+            "Taras Kucherenko",
+            "Teodor Nikolov",
+            "Thanh Hoang-Minh",
+            "Rachel McDonnell",
+            "Stefan Kopp",
+            "Michael Neff",
+            "Gustav Eje Henter"
+          ],
+          "claimed_title": "Towards a GENEA Leaderboard -- an Extended, Living Benchmark for Evaluating and Advancing Conversational Motion Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.06327"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Towards a GENEA Leaderboard -- an Extended, Living Benchmark for Evaluating and Advancing Conversational Motion Synthesis')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
+          "claimed_authors": [
+            "Vittorio Cortellessa",
+            "Daniele Di Pompeo",
+            "Michele Tucci"
+          ],
+          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13875"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative modeling has been used frequently in synthetic data generation. Fairness and privacy are two big concerns for synthetic data. Although Recent GAN [\\cite{goodfellow2014generative}] based methods show good results in preserving privacy, the generated data may be more biased. At the same time, these methods require high computation resources. In this work, we design a fast, fair, flexible and private data generation method. We show the effectiveness of our method theoretically and empirically. We show that models trained on data generated by the proposed method can perform well (in inference stage) on real application scenarios.",
+          "claimed_authors": [
+            "Weijie Xu",
+            "Jinjin Zhao",
+            "Francis Iannacci",
+            "Bo Wang"
+          ],
+          "claimed_title": "FFPDG: Fast, Fair and Private Data Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.00161"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='FFPDG: Fast, Fair and Private Data Generation')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Insufficient training data is a major bottleneck for most deep learning practices, not least in medical imaging where data is difficult to collect and publicly available datasets are scarce due to ethics and privacy. This work investigates the use of synthetic images, created by generative adversarial networks (GANs), as the only source of training data. We demonstrate that for this application, it is of great importance to make use of multiple GANs to improve the diversity of the generated data, i.e. to sufficiently cover the data distribution. While a single GAN can generate seemingly diverse image content, training on this data in most cases lead to severe over-fitting. We test the impact of ensembled GANs on synthetic 2D data as well as common image datasets (SVHN and CIFAR-10), and using both DCGANs and progressively growing GANs. As a specific use case, we focus on synthesizing digital pathology patches to provide anonymized training data.",
+          "claimed_authors": [
+            "Gabriel Eilertsen",
+            "Apostolia Tsirikoglou",
+            "Claes Lundström",
+            "Jonas Unger"
+          ],
+          "claimed_title": "Ensembles of GANs for synthetic training data generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.11797"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?', candidate_title='Ensembles of GANs for synthetic training data generation')",
+        "failed_at": "2026-06-30T20:49:24Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuru Wang",
+            "Lejun Cheng",
+            "Yuxin Zuo",
+            "Sihang Zeng",
+            "Bingxiang He",
+            "Che Jiang",
+            "Junlin Yang",
+            "Yuchong Wang",
+            "Kaikai Zhao",
+            "Weifeng Huang",
+            "Kai Tian",
+            "Zhenzhao Yuan",
+            "Jincheng Zhong",
+            "Weizhi Wang",
+            "Ning Ding",
+            "Bowen Zhou",
+            "Kaiyan Zhang"
+          ],
+          "title": "NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.24530",
+        "summary": "We introduce NatureBench, a cross-discipline benchmark of 90 tasks distilled from peer-reviewed Nature-family publications, designed to evaluate whether AI coding agents can move beyond reproduction toward discovery on real scientific problems. NatureBench is built on NatureGym, an automated pipeline that constructs a standardized, per-task containerized environment from a source paper, addressing the environment-fragmentation problem that has limited the credibility of prior agent-on-research benchmarks. Evaluating ten frontier agent configurations under a strict web-search-disabled protocol, we find that the strongest model surpasses SOTA on only 17.8% of tasks under the g>0.1 criterion. Analysis of method pathways reveals that agents succeed primarily through methodological translation, converting scientific tasks into familiar supervised prediction problems, rather than through genuine scientific invention. Failures are dominated by wrong method choice and insufficient compute budget, not by task misunderstanding. We release the benchmark, the NatureGym pipeline, and a public leaderboard with maintainer-side reproduction. Code: https://github.com/FrontisAI/NatureBench",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.24530",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.9,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T20:49:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.06371",
+        "summary": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.06371",
+          "http_status": 200,
+          "pdf_sample_score": 0.2035,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T20:49:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "naturebench: can coding agents match the published sota of nature-family papers? linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

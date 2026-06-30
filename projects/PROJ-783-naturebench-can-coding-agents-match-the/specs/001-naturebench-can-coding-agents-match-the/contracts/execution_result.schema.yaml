@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ExecutionResult
+description: Outcome of an agent run on a Task.
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Foreign key to Task."
+  agent_name:
+    type: string
+    description: "Name of the agent used."
+  status:
+    type: string
+    enum:
+      - Success
+      - Timeout
+      - Error
+    description: "Execution status."
+  failure_category:
+    type: string
+    enum:
+      - None
+      - Syntax Error
+      - Wrong Method Choice
+      - Data Mismatch
+      - Timeout
+    description: "Failure type based on hierarchy."
+  numerical_output:
+    type: number
+    nullable: true
+    description: "Output value generated."
+  relative_error_gap:
+    type: number
+    nullable: true
+    description: "Relative error against ground truth."
+  log_path:
+    type: string
+    description: "Path to the execution log."
+  methods_used:
+    type: array
+    items:
+      type: string
+    description: "List of function names used by the agent."
+required:
+  - task_id
+  - agent_name
+  - status
+  - failure_category
+  - log_path
+  - methods_used
+additionalProperties: false

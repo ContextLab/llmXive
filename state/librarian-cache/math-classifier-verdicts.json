@@ -739,6 +739,10 @@
     "classified_at": "2026-06-25T09:29:20Z",
     "verdict": false
   },
+  "PROJ-783-naturebench-can-coding-agents-match-the::1.6.0": {
+    "classified_at": "2026-06-30T20:49:24Z",
+    "verdict": false
+  },
   "PROJ-785-cross-dataset-consistency-of-alpha-peak-::1.6.0": {
     "classified_at": "2026-06-27T00:45:37Z",
     "verdict": false
