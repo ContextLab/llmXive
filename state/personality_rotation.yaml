@@ -1,14 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-29T22:30:29.831796+00:00'
+last_used: albert-einstein
+last_used_at: '2026-06-30T01:00:34.537201+00:00'
 last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-20T16:31:55.430984+00:00'
-  ended_at: '2026-06-20T17:07:44.636340+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-746-the-topological-trouble-with-transformer/reviews/research/dan-rockmore-simulated__2026-06-20__research.md
 - slug: daniel-kahneman
   started_at: '2026-06-20T17:07:44.636340+00:00'
   ended_at: '2026-06-20T17:58:52.917120+00:00'
@@ -1200,3 +1193,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/reviews/research/alan-turing-simulated__2026-06-29__research.md
+- slug: albert-einstein
+  started_at: '2026-06-29T22:30:29.831796+00:00'
+  ended_at: '2026-06-30T01:00:34.537201+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-308-quantifying-entanglement-entropy-in-rand/reviews/research/albert-einstein-simulated__2026-06-30__research.md
