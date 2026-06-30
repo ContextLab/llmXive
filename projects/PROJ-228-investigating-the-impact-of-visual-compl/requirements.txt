@@ -1,0 +1,12 @@
+nibabel
+numpy
+scikit-image
+scipy
+pandas
+statsmodels
+nilearn
+matplotlib
+requests
+tqdm
+black
+flake8

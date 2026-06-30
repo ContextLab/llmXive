@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PFC Time-Series"
+description: "Schema for the aggregated BOLD signal for the DLPFC region."
+type: "object"
+properties:
+  timepoint:
+    type: "integer"
+    description: "Index of the timepoint."
+  bold_signal_mean:
+    type: "number"
+    description: "Mean BOLD signal value."
+  subject_id:
+    type: "string"
+    description: "Identifier for the subject."
+required:
+  - "timepoint"
+  - "bold_signal_mean"
+  - "subject_id"
+additionalProperties: false

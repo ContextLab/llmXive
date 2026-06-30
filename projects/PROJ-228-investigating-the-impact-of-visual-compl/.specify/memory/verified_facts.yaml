@@ -1,0 +1,8 @@
+'|6gb limit ram':
+  quote: The regular variant is powered by the Samsung Exynos 9610, while the "s"
+    variant is powered by Samsung Exynos 9611. It is sold in 4GB or 6GB of RAM and
+    64GB or 128GB of internal storage (which both use UFS 2.1) configurations, both
+    of which can be expanded via a microSD card up to 512GB.
+  source_id: Samsung Galaxy A50
+  url: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
+  value: 128GB

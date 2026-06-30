@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Result"
+description: "Schema for the statistical output of the analysis."
+type: "object"
+properties:
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson correlation coefficient."
+  p_value:
+    type: "number"
+    description: "Raw p-value."
+  fdr_corrected_p:
+    type: "number"
+    description: "FDR-corrected p-value."
+  permutation_p:
+    type: "number"
+    description: "p-value from permutation test."
+  is_significant:
+    type: "boolean"
+    description: "Boolean indicating significance."
+required:
+  - "correlation_coefficient"
+  - "p_value"
+  - "fdr_corrected_p"
+  - "permutation_p"
+  - "is_significant"
+additionalProperties: false

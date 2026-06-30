@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stimulus Complexity Record"
+description: "Schema for a single stimulus frame with computed complexity metrics, confounds, and HRF-convolved scores."
+type: "object"
+properties:
+  frame_id:
+    type: "integer"
+    description: "Unique identifier for the frame."
+  timestamp:
+    type: "number"
+    description: "Time of stimulus onset in seconds."
+  entropy_score:
+    type: "number"
+    description: "Shannon entropy of the image."
+  fractal_dimension:
+    type: "number"
+    description: "Fractal dimension of the image."
+  luminance:
+    type: "number"
+    description: "Mean luminance of the image (confound)."
+  contrast:
+    type: "number"
+    description: "RMS contrast of the image (confound)."
+  hrf_convolved_entropy:
+    type: "number"
+    description: "Entropy convolved with HRF."
+  hrf_convolved_fractal:
+    type: "number"
+    description: "Fractal dimension convolved with HRF."
+  hrf_convolved_luminance:
+    type: "number"
+    description: "Luminance convolved with HRF."
+  hrf_convolved_contrast:
+    type: "number"
+    description: "Contrast convolved with HRF."
+required:
+  - "frame_id"
+  - "timestamp"
+  - "entropy_score"
+  - "fractal_dimension"
+  - "luminance"
+  - "contrast"
+  - "hrf_convolved_entropy"
+  - "hrf_convolved_fractal"
+  - "hrf_convolved_luminance"
+  - "hrf_convolved_contrast"
+additionalProperties: false

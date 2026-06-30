@@ -1,0 +1,2 @@
+# This file ensures the data directory is tracked by git even if empty.
+# The actual subdirectories (raw, interim, results) are created by code/setup_dirs.py.
