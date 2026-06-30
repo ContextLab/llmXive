@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -61,12 +61,12 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T004 Setup data directory structure: `data/stimuli/`, `data/responses/`, `data/processed/`, `data/stimuli_metadata/`, `data/ethics/`
 - [ ] T005 [P] Implement data checksum utilities in `code/data/checksum.py`
 - [ ] T006 [P] Implement Mock Visual Genome Generator in `code/data/loader.py`: Create a script that generates synthetic images with calibrated complexity scores (mean=0.5, std=0.15, ensuring Q1-Q3 range >= 0.3) using PIL. Default to mock as per plan.md; do NOT implement runtime URL checks for verified sources.
-- [ ] T012 [P] Implement Power Analysis in `code/analysis/stats.py`: Calculate required sample size for alpha=0.05, power=0.80, effect_size=medium (Cohen's f=0.25) using `statsmodels.stats.power.FTestAnovaPower`. Output result as JSON to `data/processed/power_analysis.json`. This MUST run before Phase 4.
-- [ ] T013 [P] Implement Image Entity class in `code/data/image.py`: Define `Image` class with attributes `id`, `path`, `complexity_score`, `metadata_path`.
-- [ ] T014 [P] Implement Participant and Response Entity classes in `code/data/participant.py`: Define `Participant` (id, condition, timestamp) and `Response` (id, question_id, value, timestamp) classes.
-- [ ] T008 Configure logging infrastructure in `code/utils/logging.py`
-- [ ] T009 [P] Setup environment configuration management in `code/config.py`
-- [ ] T010 [P] Generate ethics artifacts: Create `data/ethics/informed_consent.md` and `data/ethics/irb_placeholder.md` with GDPR-compliant templates and placeholders for IRB approval as required by Constitution VI.
+- [~] T012 [P] Implement Power Analysis in `code/analysis/stats.py`: Calculate required sample size for alpha=0.05, power=0.80, effect_size=medium (Cohen's f=0.25) using `statsmodels.stats.power.FTestAnovaPower`. Output result as JSON to `data/processed/power_analysis.json`. This MUST run before Phase 4.
+- [~] T013 [P] Implement Image Entity class in `code/data/image.py`: Define `Image` class with attributes `id`, `path`, `complexity_score`, `metadata_path`.
+- [~] T014 [P] Implement Participant and Response Entity classes in `code/data/participant.py`: Define `Participant` (id, condition, timestamp) and `Response` (id, question_id, value, timestamp) classes.
+- [~] T008 Configure logging infrastructure in `code/utils/logging.py`
+- [~] T009 [P] Setup environment configuration management in `code/config.py`
+- [~] T010 [P] Generate ethics artifacts: Create `data/ethics/informed_consent.md` and `data/ethics/irb_placeholder.md` with GDPR-compliant templates and placeholders for IRB approval as required by Constitution VI.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -170,8 +170,8 @@ Examples of foundational tasks (adjust based on your project):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -237,9 +237,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Stimuli)
-   - Developer B: User Story 2 (Session)
-   - Developer C: User Story 3 (Analysis)
+ - Developer A: User Story 1 (Stimuli)
+ - Developer B: User Story 2 (Session)
+ - Developer C: User Story 3 (Analysis)
 3. Stories complete and integrate independently
 
 ---
@@ -253,14 +253,14 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Revision Note**: 
-  1. Removed T011 (Cellular hypothesis) to eliminate scope creep.
-  2. Moved Power Analysis to Phase 2 (T012) to satisfy SC-002 (pre-data collection).
-  3. Fixed entity paths to `code/data/` (T013, T014) to match plan.md.
-  4. Added specific calibration parameters to T006 and false-detail logic to T027 for executability.
-  5. Split error handling: T019 for fetch, T018 for manipulation metadata (with explicit skip logic).
-  6. Added T021 for optional real dataset fetcher.
-  7. Refined test tasks (T011, T012, T013) with specific assertions.
-  8. Renamed Phase 5 T034 (Power Analysis) to T039 (Integration test) to avoid ID collision with T012.
-  9. Removed redundant T018.1 and clarified T018 to enforce 'skip entire image' logic.
-  10. Removed ambiguous dependency text from T015.
+- **Revision Note**:
+ 1. Removed T011 (Cellular hypothesis) to eliminate scope creep.
+ 2. Moved Power Analysis to Phase 2 (T012) to satisfy SC-002 (pre-data collection).
+ 3. Fixed entity paths to `code/data/` (T013, T014) to match plan.md.
+ 4. Added specific calibration parameters to T006 and false-detail logic to T027 for executability.
+ 5. Split error handling: T019 for fetch, T018 for manipulation metadata (with explicit skip logic).
+ 6. Added T021 for optional real dataset fetcher.
+ 7. Refined test tasks (T011, T012, T013) with specific assertions.
+ 8. Renamed Phase 5 T034 (Power Analysis) to T039 (Integration test) to avoid ID collision with T012.
+ 9. Removed redundant T018.1 and clarified T018 to enforce 'skip entire image' logic.
+ 10. Removed ambiguous dependency text from T015.

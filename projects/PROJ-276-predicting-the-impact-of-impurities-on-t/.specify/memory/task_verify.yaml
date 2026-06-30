@@ -1,0 +1,14 @@
+? 'T000 [P] **CRITICAL**: Document Spec Contradiction (FR-006 vs Constitution Principle
+  VII). Create `state/contradictions/FR-006-runtime-bug.md` noting the 6-hour spec
+  requirement vs 30-minute Constitution limit. Enforce a time limit in all subsequent
+  tasks.'
+: 1
+? 'T001 Create project structure per implementation plan. Execute: `mkdir -p src/ingestion
+  src/modeling src/visualization src/utils tests/contract tests/integration tests/unit
+  data/raw data/processed docs`.'
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+? T004 [P] Implement `src/utils/constants.py` with atomic weights, unit conversion
+  factors (Kelvin, GPa), and VIF threshold constants (established benchmarks)
+: 1
+T005 [P] Implement `src/utils/logging.py` with standardized loggers for ingestion, modeling, and visualization: 1

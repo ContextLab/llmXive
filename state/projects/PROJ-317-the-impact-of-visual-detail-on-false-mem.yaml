@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T15:44:45.738882Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-317-the-impact-of-visual-detail-on-false-mem
-last_run_id: 7dc90677-2063-476b-8d00-b4e0c8253abc
+last_run_id: a562a7d6-173a-4b08-8f03-f29361a51b51
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem
 title: The Impact of Visual Detail on False Memory Susceptibility
-updated_at: '2026-06-30T12:35:52.275509Z'
+updated_at: '2026-06-30T15:59:59.653434Z'
