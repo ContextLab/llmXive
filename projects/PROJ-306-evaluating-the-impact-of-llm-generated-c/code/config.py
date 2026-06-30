@@ -1,5 +1,5 @@
 """
-Configuration management for the llmXive research pipeline.
+Configuration management for the LLM Code Coverage Evaluation pipeline.
 
 Handles:
 - Seed management for reproducibility
@@ -8,173 +8,185 @@ Handles:
 """
 import os
 import random
-import numpy as np
-from typing import Optional, List, Tuple
-from dotenv import load_dotenv
+import hashlib
+from typing import Optional, List, Dict, Any
+from dataclasses import dataclass
 
-# Load environment variables from .env file if it exists
-load_dotenv()
-
-# Default configuration
+# Constants
 DEFAULT_SEED = 42
-DEFAULT_MODEL_PRIMARY = "gpt-4"
-DEFAULT_MODEL_FALLBACK_1 = "code-llama-7b"
-DEFAULT_MODEL_FALLBACK_2 = "bigcode/starcoderbase-3b"
-
-# Model configuration details
-MODEL_CONFIGS = {
-    DEFAULT_MODEL_PRIMARY: {
-        "type": "api",
-        "provider": "openai",
-        "requires_key": True,
-    },
-    DEFAULT_MODEL_FALLBACK_1: {
-        "type": "local",
-        "provider": "huggingface",
-        "requires_quantization": False,
-        "model_id": "codellama/CodeLlama-7b-Instruct-hf",
-    },
-    DEFAULT_MODEL_FALLBACK_2: {
-        "type": "local",
-        "provider": "huggingface",
-        "requires_quantization": True,  # Mandatory per SC-005 (7GB RAM limit)
-        "model_id": "bigcode/starcoderbase-3b",
-        "quantization_bits": 4,
-    },
-}
-
-# Fallback order
-MODEL_FALLBACK_ORDER: List[str] = [
-    DEFAULT_MODEL_PRIMARY,
-    DEFAULT_MODEL_FALLBACK_1,
-    DEFAULT_MODEL_FALLBACK_2,
+FALLBACK_MODEL_CHAIN = [
+    "gpt-4",
+    "code-llama-7b",
+    "bigcode/starcoderbase-3b"
 ]
 
+@dataclass
+class ModelConfig:
+    """Configuration for a specific model."""
+    name: str
+    is_local: bool = False
+    requires_quantization: bool = False
+    max_tokens: int = 1024
+    temperature: float = 0.7
+    top_p: float = 0.95
 
-def set_seed(seed: int = DEFAULT_SEED) -> None:
+class Config:
     """
-    Set random seeds for reproducibility across Python, NumPy, and PyTorch (if available).
-
-    Args:
-        seed: The integer seed value to use.
+    Centralized configuration manager.
     """
-    random.seed(seed)
-    np.random.seed(seed)
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass  # PyTorch not installed, skip
+    _instance = None
+    _initialized = False
 
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
-def get_api_key(provider: str = "openai") -> Optional[str]:
-    """
-    Retrieve the API key for a given provider from environment variables.
+    def __init__(self):
+        if self._initialized:
+            return
+        self._initialized = True
+        
+        # Initialize seed
+        self.seed = int(os.getenv("LLM_XIVE_SEED", DEFAULT_SEED))
+        self._set_seeds(self.seed)
 
-    Args:
-        provider: The provider name (e.g., 'openai', 'huggingface').
+        # Load API Key
+        self.api_key = os.getenv("LLM_API_KEY")
+        if not self.api_key:
+            # Warn but do not fail immediately; allow fallback to local models
+            print("Warning: LLM_API_KEY not found in environment. Local models will be used if available.")
 
-    Returns:
-        The API key string if found, None otherwise.
-    """
-    key_map = {
-        "openai": "LLM_API_KEY",
-        "huggingface": "HF_TOKEN",
-    }
-    env_var = key_map.get(provider, f"{provider.upper()}_API_KEY")
-    return os.getenv(env_var)
+        # Define model configurations
+        self.models: Dict[str, ModelConfig] = {
+            "gpt-4": ModelConfig(
+                name="gpt-4",
+                is_local=False,
+                max_tokens=2048,
+                temperature=0.0 # Deterministic for evaluation
+            ),
+            "code-llama-7b": ModelConfig(
+                name="code-llama-7b",
+                is_local=True,
+                requires_quantization=True,
+                max_tokens=1024,
+                temperature=0.7
+            ),
+            "bigcode/starcoderbase-3b": ModelConfig(
+                name="bigcode/starcoderbase-3b",
+                is_local=True,
+                requires_quantization=True, # Mandatory for 7GB RAM limit
+                max_tokens=1024,
+                temperature=0.7
+            )
+        }
 
-
-def get_model_config(model_name: str) -> dict:
-    """
-    Retrieve the configuration for a specific model.
-
-    Args:
-        model_name: The name of the model.
-
-    Returns:
-        A dictionary containing the model configuration.
-
-    Raises:
-        ValueError: If the model name is not found in MODEL_CONFIGS.
-    """
-    if model_name not in MODEL_CONFIGS:
-        raise ValueError(f"Model '{model_name}' not found in configuration.")
-    return MODEL_CONFIGS[model_name]
-
-
-def get_fallback_models() -> List[Tuple[str, dict]]:
-    """
-    Get the list of fallback models in order with their configurations.
-
-    Returns:
-        A list of tuples (model_name, config) representing the fallback chain.
-    """
-    result = []
-    for model_name in MODEL_FALLBACK_ORDER:
+    def _set_seeds(self, seed: int):
+        """Set random seeds for reproducibility."""
+        random.seed(seed)
         try:
-            config = get_model_config(model_name)
-            result.append((model_name, config))
-        except ValueError:
-            # Skip models that are not configured
-            continue
-    return result
-
-
-def resolve_model(model_preference: Optional[str] = None) -> Tuple[str, dict]:
-    """
-    Resolve the actual model to use based on preference and availability.
-
-    Args:
-        model_preference: Optional specific model name requested.
-
-    Returns:
-        A tuple (model_name, config) for the selected model.
-
-    Logic:
-        1. If model_preference is provided and valid, use it.
-        2. Otherwise, iterate through MODEL_FALLBACK_ORDER.
-        3. For API models, check if API key exists.
-        4. Return the first valid model found.
-    """
-    # 1. Check explicit preference
-    if model_preference:
+            import numpy as np
+            np.random.seed(seed)
+        except ImportError:
+            pass
+        
+        # Try to set torch seeds if available
         try:
-            config = get_model_config(model_preference)
-            # Validate API key if required
-            if config.get("requires_key"):
-                if not get_api_key(config.get("provider", "openai")):
-                    raise ValueError(f"API key missing for {model_preference}")
-            return model_preference, config
-        except ValueError:
-            # If preference is invalid, fall through to default logic
+            import torch
+            torch.manual_seed(seed)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed_all(seed)
+        except ImportError:
             pass
 
-    # 2. Iterate through fallback order
-    for model_name, config in get_fallback_models():
-        if config.get("requires_key"):
-            if not get_api_key(config.get("provider", "openai")):
-                continue  # Skip if API key missing
+    def set_seed(self, seed: int):
+        """Update the seed and re-seed all libraries."""
+        self.seed = seed
+        self._set_seeds(seed)
+
+    def get_api_key(self) -> Optional[str]:
+        """Retrieve the API key."""
+        return self.api_key
+
+    def get_fallback_chain(self) -> List[str]:
+        """Return the ordered list of model names to try."""
+        return FALLBACK_MODEL_CHAIN.copy()
+
+    def get_model_config(self, model_name: str) -> Optional[ModelConfig]:
+        """Get configuration for a specific model name."""
+        return self.models.get(model_name)
+
+    def resolve_model(self, preferred: Optional[str] = None) -> ModelConfig:
+        """
+        Resolve the best available model based on preference and availability.
         
-        # For local models, we assume they are available unless specified otherwise
-        # (In a real scenario, we might check disk space or GPU availability here)
-        return model_name, config
+        Logic:
+        1. If preferred is provided and valid, use it.
+        2. Otherwise, iterate through the fallback chain.
+        3. If a model is local, we assume it's available (configures loading).
+        4. If a model requires API key and key is missing, skip it.
+        
+        Returns the ModelConfig for the chosen model.
+        """
+        candidates = []
+        if preferred:
+            if preferred in self.models:
+                candidates.append(preferred)
+            else:
+                # If preferred is not in our known list, add it as a generic entry
+                # but mark it as unknown config (caller must handle)
+                candidates.append(preferred)
+        
+        candidates.extend([m for m in FALLBACK_MODEL_CHAIN if m not in candidates])
 
-    # Fallback to nothing if all fail
-    raise RuntimeError("No valid model found in fallback chain. Check API keys and local model availability.")
+        for model_name in candidates:
+            if model_name not in self.models:
+                # Unknown model, assume remote API
+                if not self.api_key:
+                    continue # Cannot use remote model without key
+                # Create a temporary config for unknown models
+                return ModelConfig(name=model_name, is_local=False)
+            
+            config = self.models[model_name]
+            if config.is_local:
+                # Local models are always "available" in terms of config
+                # (actual loading happens in llm_generator)
+                return config
+            else:
+                # Remote model
+                if self.api_key:
+                    return config
+                # Skip if no API key
+                continue
 
+        raise RuntimeError(
+            "No suitable model found. "
+            "Either provide an LLM_API_KEY for remote models or ensure local models are configured."
+        )
 
-# Convenience function for quick access
-def get_primary_model() -> str:
-    """Returns the name of the primary model."""
-    return DEFAULT_MODEL_PRIMARY
+# Global singleton instance
+config = Config()
 
-def get_fallback_model_1() -> str:
-    """Returns the name of the first fallback model."""
-    return DEFAULT_MODEL_FALLBACK_1
+def get_seed() -> int:
+    """Helper to get current seed."""
+    return config.seed
 
-def get_fallback_model_2() -> str:
-    """Returns the name of the second fallback model."""
-    return DEFAULT_MODEL_FALLBACK_2
+def get_api_key() -> Optional[str]:
+    """Helper to get API key."""
+    return config.get_api_key()
+
+def get_model_chain() -> List[str]:
+    """Helper to get model fallback chain."""
+    return config.get_fallback_chain()
+
+def get_model_config(name: str) -> Optional[ModelConfig]:
+    """Helper to get model config."""
+    return config.get_model_config(name)
+
+def resolve_model(preferred: Optional[str] = None) -> ModelConfig:
+    """Helper to resolve the best model."""
+    return config.resolve_model(preferred)
+
+def set_seed(seed: int):
+    """Helper to set seed."""
+    config.set_seed(seed)

@@ -1,3 +1,2 @@
-"""
-llmXive research-implementer agent system code package.
-"""
+# llmXive: Evaluating the Impact of LLM-Generated Code on Code Coverage
+# Package initialization

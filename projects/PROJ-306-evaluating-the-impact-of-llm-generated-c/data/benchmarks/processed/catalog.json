@@ -1,0 +1,32 @@
+[
+  {
+    "task_id": "3",
+    "prompt": "Write a python function to check if a given number is prime or not.",
+    "human_solution": "def is_prime(n):\n    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True",
+    "test_suite_path": "data/benchmarks/processed/tests/mbpp_3.py",
+    "difficulty": "medium",
+    "code_patterns": {
+      "loops": 1,
+      "conditionals": 4,
+      "recursion": 0,
+      "list_comprehension": 0,
+      "lambda": 0
+    },
+    "dataset_source": "mbpp"
+  },
+  {
+    "task_id": "HumanEval/0",
+    "prompt": "def has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, any two numbers are closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for idx, elem in enumerate(numbers):\n        for idx2, elem2 in enumerate(numbers):\n            if idx != idx2:\n                distance = abs(elem - elem2)\n                if distance < threshold:\n                    return True\n    return False",
+    "human_solution": "def has_close_elements(numbers: List[float], threshold: float) -> bool:\n    for idx, elem in enumerate(numbers):\n        for idx2, elem2 in enumerate(numbers):\n            if idx != idx2:\n                distance = abs(elem - elem2)\n                if distance < threshold:\n                    return True\n    return False",
+    "test_suite_path": "data/benchmarks/processed/tests/humaneval_HumanEval/0.py",
+    "difficulty": "medium",
+    "code_patterns": {
+      "loops": 2,
+      "conditionals": 2,
+      "recursion": 0,
+      "list_comprehension": 0,
+      "lambda": 0
+    },
+    "dataset_source": "humaneval"
+  }
+]

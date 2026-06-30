@@ -30,7 +30,7 @@
 - [X] T001b Create `data/benchmarks/`, `data/benchmarks/raw/`, `data/benchmarks/processed/`, `data/generated/`, `data/coverage_reports/`, `data/processed/`, `outputs/` subdirectories
 
 - [X] T002a Create `requirements.txt` with pinned versions (pytest, pytest-cov>=4.0.0, pandas, scipy, statsmodels, transformers, datasets, openai, huggingface_hub, matplotlib, seaborn, bitsandbytes)
-- [X] T002b Create virtualenv and install dependencies from `requirements.txt` <!-- ATOMIZE: requested -->
+- [X] T002b Create virtualenv and install dependencies from `requirements.txt`
 
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
@@ -50,14 +50,7 @@
 - [X] T007 Implement `code/test_transformer.py` to convert MBPP/HumanEval string-based test suites into executable `.py` files in `data/benchmarks/processed/tests/`, handling missing test suites by logging warnings
 - [X] T008 Create `data/` directory structure (`benchmarks/`, `generated/`, `coverage_reports/`, `processed/`, `outputs/`) - *Note: Redundant with T001, but kept for explicit validation step*
 - [X] T009 Implement `code/llm_generator.py` with logic to call LLM API (or local CPU inference for fallback models) and save generated code to `generated/{task_id}.py`. **Constraint**: For the fallback model (`bigcode/starcoderbase-3b`), MUST use 4-bit quantization via `bitsandbytes` with `device_map="cpu"`. **This is mandatory per SC-005 (7GB RAM limit) and Constitution Principle I (Reproducibility)**. The task MUST NOT allow skipping 4-bit quantization.
-- [X] T010 [P] [US1] Contract test for dataset loading in `tests/unit/test_dataset_loader.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
- in "<unicode string>", line 3, column 1:
- **Task**: [P] [US1] Contract tes...
- ^
-expected alphabetic or numeric character, but found '*'
- in "<unicode string>", line 3, column 2:
- **Task**: [P] [US1] Contract test...
- ^) -->
+- [X] T010 [P] [US1] Contract test for dataset loading in `tests/unit/test_dataset_loader.py`
 - [X] T011 [P] [US1] Integration test for end-to-end generation and coverage on multiple tasks in `tests/integration/test_pipeline_us1.py`
 - [X] T012 [P] [US1] Implement `code/coverage_runner.py` to execute `pytest --cov` on generated files and parse output for `line_coverage` and `branch_coverage`. **Validation**: For HumanEval tasks (identified by `task_id` prefix 'HumanEval/' or `dataset_source`='humaneval' in catalog), explicitly validate and log `branch_coverage` as `N/A` before writing to `coverage_reports/{task_id}.json` to ensure artifact compliance at generation.
 - [X] T013 [US1] Implement logic in `code/main.py` to orchestrate generation and coverage execution for a batch of tasks. **Deliverables**:
