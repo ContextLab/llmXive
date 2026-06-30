@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SensitivitySummary"
+description: "Schema for the sensitivity analysis table across different window lengths."
+type: "object"
+properties:
+  window_length:
+    type: "integer"
+    description: "Sliding window length in seconds (20, 30, or 40)."
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson correlation coefficient (r) for this window length."
+  p_value:
+    type: "number"
+    description: "Two-tailed p-value for the correlation."
+  permutation_p_value:
+    type: "number"
+    description: "Empirical p-value from permutation test."
+  n_samples:
+    type: "integer"
+    description: "Number of participants used."
+required:
+  - window_length
+  - correlation_coefficient
+  - p_value
+  - permutation_p_value
+  - n_samples
+additionalProperties: false

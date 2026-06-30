@@ -1,6 +1,6 @@
 # Feature Specification: Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving
 
-**Feature Branch**: `[###-brain-dynamics-creativity]`  
+**Feature Branch**: `518-brain-dynamics-creativity`  
 **Created**: 2026-06-25  
 **Status**: Draft  
 **Input**: User description: "How does the dynamic reconfiguration of functional brain networks during rest predict individual differences in divergent thinking performance?"  
@@ -48,11 +48,11 @@ A researcher wants a robust, family‑wise‑error‑controlled significance tes
 
 ### User Story 4 – Validate Data Availability and Source Proxy (Priority: P1)
 
-A researcher must verify that the selected dataset (HCP) contains a validated creativity proxy before execution begins, preventing fatal runtime errors due to missing data.
+A researcher must verify that the selected dataset contains a validated creativity proxy (specifically the Creative Achievement Questionnaire, CAQ) before execution begins, preventing fatal runtime errors due to missing data.
 
 **Why this priority**: The hypothesis depends entirely on the existence of a creativity measure. If the data is missing, the pipeline must fail fast with a clear error rather than proceeding with null data. This is a critical pre-condition.
 
-**Independent Test**: Run the validation module against the HCP S900/S1200 manifest and behavioral metadata; verify it correctly identifies the presence of the Creative Achievement Questionnaire (CAQ) and halts if neither AUT nor CAQ is found.
+**Independent Test**: Run the validation module against the target HCP manifest and behavioral metadata; verify it correctly identifies the presence of the CAQ and halts if CAQ is missing.
 
 **Acceptance Scenarios**:
 
@@ -82,8 +82,8 @@ A researcher must verify that the selected dataset (HCP) contains a validated cr
 - **FR-008**: System MUST generate the diagnostic visualisations described in US‑2 and save them in a reproducible PNG format. (See US-2)  
 - **FR-009**: System MUST log all data‑inclusion/exclusion decisions, including missing scans, missing behavioral scores, and motion‑exclusion flags. (See US-1)  
 - **FR-010**: System MUST execute a sensitivity analysis sweeping the sliding‑window length over {20 s, 30 s, 40 s} and report how the primary correlation coefficient and permutation p‑value vary. (See US-3)  
-- **FR-011**: System MUST verify that the HCP dataset contains a validated divergent‑thinking measure (e.g., Alternate Uses Task) **OR** an equivalent validated creativity proxy (e.g., Creative Achievement Questionnaire) for each participant by parsing the HCP manifest file and querying the behavioral metadata JSON for the specific field keys. **If** no such score exists in the standard HCP public release, **the system MUST flag this as a critical data gap and halt execution with an error code `DATA_MISSING_CREATIVITY`**. (See US-4)  
-- **FR-012**: System MUST compute `static_connectivity_strength` as the mean of the absolute values of all pairwise correlation coefficients in the full-window static connectivity matrix, averaged across participants. (See US-1)
+- **FR-011**: System MUST verify that the target HCP dataset contains the Creative Achievement Questionnaire (CAQ) for each participant by parsing the HCP manifest file and querying the behavioral metadata JSON for the specific field keys. **If** no CAQ score exists in the target dataset, **the system MUST flag this as a critical data gap and halt execution with an error code `DATA_MISSING_CREATIVITY`**. (See US-4)  
+- **FR-012**: System MUST compute `static_connectivity_strength` as the mean of the absolute values of all pairwise correlation coefficients in the full-window static connectivity matrix, calculated **per participant** (not aggregated across the group). (See US-1)
 
 ### Key Entities
 
@@ -100,15 +100,16 @@ A researcher must verify that the selected dataset (HCP) contains a validated cr
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The system MUST correctly compute and report the Pearson correlation coefficient (r) and the two‑tailed p‑value for the relationship between flexibility and creativity, regardless of the sign or magnitude of r. (See US-1)  
-- **SC-002**: The coefficient of variation (CV) of the empirical p‑value across the sensitivity sweep (window lengths 20s, 30s, 40s) must be ≤ 0.1, indicating stable significance estimation. (See US-3)  
+- **SC-002**: The sensitivity analysis table MUST be generated and contain a row for each window length (20s, 30s, 40s) with the corresponding correlation coefficient (r) and p-value. (See US-3)  
 - **SC-003**: The system MUST correctly calculate and report the ΔR² (difference in R² between the full model and the static‑only baseline) with a precision of at least 4 decimal places. (See US-2)  
 - **SC-004**: All generated plots must be saved without errors and each file size must be ≤ 5 MB to ensure CI storage limits are respected. (See US-2)  
-- **SC-005**: The sensitivity analysis table must list correlation coefficients for each window length and show that the sign of the effect does not flip across the sweep. (See US-3)  
+- **SC-005**: The sensitivity analysis table MUST list correlation coefficients for each window length to allow the researcher to assess effect size stability. (See US-3)  
 
 ## Assumptions
 
+- The study targets a specific HCP subset (e.g., S900/S1200 with behavioral extensions) known to contain the Creative Achievement Questionnaire (CAQ).  
 - The HCP public release (S900/S1200) **does NOT** contain a direct divergent‑thinking task like the Alternate Uses Task (AUT) for the majority of participants.  
-- The HCP public release **DOES** contain the Creative Achievement Questionnaire (CAQ), which serves as the validated proxy for divergent thinking in this study.  
+- The CAQ serves as the validated proxy for divergent thinking in this study.  
 - The HCP‑MMP cortical atlas is appropriate for dynamic functional connectivity analyses; no additional subcortical nodes are required.  
 - A sliding‑window length of **30 s** is a community‑standard compromise between temporal resolution and reliability (see literature on resting‑state dynamics).  
 - The Louvain algorithm's resolution parameter is set to the default **γ = 1.0**, which is commonly used in whole‑brain modularity studies.  
