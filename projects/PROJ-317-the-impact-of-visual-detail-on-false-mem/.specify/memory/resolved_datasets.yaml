@@ -1,0 +1,151 @@
+resolved_at: '2026-06-30T11:48:48.981463+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Advanced_Single-Atom_Catalysts_for_Thermal-Catalytic_C1_Chemistry/32835664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rapid_and_Selective_Fluorescent_Sensing_of_Histidine_Driven_by_Metal-Specific_Displacement_in_AIE-Based_Complexes/32835657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Anion-Induced_Surface_Curvature_for_Modulating_Electronic_Structures_to_Enhance_Aqueous-Phase_C_C_Coupling_toward_Biofuel_Precursors/32835654
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Evaluation_of_a_modified_Bunnell_suture_technique_with_sequential_tensioning_for_tension_offloading_in_Achilles_tendon_rupture_repair_a_case_series_and_description_of_the_surgical_technique/32790474
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Evaluation_of_a_modified_Bunnell_suture_technique_with_sequential_tensioning_for_tension_offloading_in_Achilles_tendon_rupture_repair_a_case_series_and_description_of_the_surgical_technique/32790474
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://acs.figshare.com/articles/media/Impact_Dynamics_and_Heat_Exchange_of_Cold_Droplet_on_Supercooled_Macrotextured_Nonwettable_Surfaces/32835651
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21067459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21067459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aisberg.unibg.it//handle/10446/128736
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aisberg.unibg.it//handle/10446/86199
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aisberg.unibg.it//handle/10446/86196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Integration_of_a_Modified_Synchrotron_Radiation_Photoionization_Time-of-Flight_Mass_Spectrometer_with_a_Residual_Gas_Analyzer_for_Complementary_Detection_of_Catalytic_Products_with_Different_Ionization_Energies/32835670
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Unlocking_a_Chemically_Fertile_Moderate-Pressure_Regime_in_High-Pressure_Borate_Synthesis_Using_Soft-Chemistry_Precursors/32835667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Advanced_Single-Atom_Catalysts_for_Thermal-Catalytic_C1_Chemistry/32835664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rapid_and_Selective_Fluorescent_Sensing_of_Histidine_Driven_by_Metal-Specific_Displacement_in_AIE-Based_Complexes/32835657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Anion-Induced_Surface_Curvature_for_Modulating_Electronic_Structures_to_Enhance_Aqueous-Phase_C_C_Coupling_toward_Biofuel_Precursors/32835654
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: Q1-Q3
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-004
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []

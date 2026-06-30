@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Response Schema"
+description: "Schema for individual response records collected during the simulation (FR-004)."
+type: "object"
+required:
+  - "response_id"
+  - "session_id"
+  - "question_id"
+  - "is_false_detail"
+  - "response_value"
+  - "response_timestamp"
+properties:
+  response_id:
+    type: "string"
+    description: "Unique identifier for the response."
+  session_id:
+    type: "string"
+    description: "Reference to the parent participant session."
+  question_id:
+    type: "string"
+    description: "Identifier for the question (e.g., 'Q_001')."
+  is_false_detail:
+    type: "boolean"
+    description: "True if the question refers to a lure (false detail)."
+  response_value:
+    type: "boolean"
+    description: "True if the participant answered 'Yes, it was there'."
+  response_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the response."
+  latency_ms:
+    type: "integer"
+    minimum: 0
+    description: "Time taken to answer in milliseconds."

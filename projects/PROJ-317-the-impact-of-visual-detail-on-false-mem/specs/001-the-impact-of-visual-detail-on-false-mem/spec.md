@@ -25,7 +25,7 @@ Researcher uploads baseline images from Visual Genome and receives two manipulat
 
 ### User Story 2 - Participant Testing Interface (Priority: P2)
 
-Participant views a BASELINE image for 10 seconds, completes a 2-minute arithmetic distractor task, then answers 20 recognition-style questions about scene details (10 true details from baseline, 10 false/lure details that never appeared in the baseline image).
+Participant views a BASELINE image for a brief period, completes a short arithmetic distractor task, then answers a set of recognition-style questions about scene details (a mix of true details from the baseline and false/lure details that never appeared in the baseline image).
 
 **Why this priority**: This is the core data collection mechanism. Without valid participant responses, no statistical analysis can occur. However, the interface can be tested independently of the manipulation pipeline.
 
@@ -62,19 +62,19 @@ System executes repeated-measures ANOVA comparing false memory rates across deta
 - What happens when Visual Genome image metadata is missing or incomplete? System MUST skip that image and log the error rather than crashing
 - How does system handle participant dropout mid-session? System MUST record partial responses and flag incomplete sessions in the dataset
 - What happens when image manipulation fails for a specific image? System MUST skip that image, log the failure, and continue with remaining images (minimum 30 baseline images required for production analysis; A sufficient number of images for validation testing)
-- How does system handle network timeout during participant testing? System MUST cache responses locally and retry submission with exponential backoff (max 3 attempts, 30-second intervals)
+- How does system handle network timeout during participant testing? System MUST cache responses locally and retry submission with exponential backoff (a limited number of attempts, fixed time intervals)
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download a representative sample of images from Visual Genome dataset with varied baseline complexity scores spanning ≥3 quantile bins (Q1-Q3 range ≥0.3) (See US-1)
-- **FR-002**: System MUST create two manipulated versions per baseline image: (a) enhanced detail adding 3-5 minor objects via compositing, (b) reduced detail blurring/removing minor elements (See US-1)
+- **FR-002**: System MUST create two manipulated versions per baseline image: (a) enhanced detail adding a few minor objects via compositing, (b) reduced detail blurring/removing minor elements (See US-1)
 - **FR-003**: System MUST display each baseline image for 10 seconds (±0.5 seconds) before advancing to distractor task (See US-2)
-- **FR-004**: System MUST administer a set of recognition questions per session: 10 true details (items that appeared in baseline image) and 10 false/lure details (items that never appeared in baseline image) (See US-2)
+- **FR-004**: System MUST administer a set of recognition questions per session: a balanced set of true details (items that appeared in baseline image) and false/lure details (items that never appeared in baseline image) (See US-2)
 - **FR-005**: System MUST execute repeated-measures ANOVA comparing false memory rates across detail conditions using scipy.stats (See US-3)
 - **FR-006**: System MUST apply multiple-comparison correction when >1 hypothesis test is performed (See US-3)
-- **FR-007**: System MUST generate visualization showing mean false memory rates with 95% confidence intervals for each condition (See US-3)
+- **FR-007**: System MUST generate visualization showing mean false memory rates with confidence intervals for each condition (See US-3)
 - **FR-008**: System MUST generate and store stimulus metadata file per baseline image recording manipulation parameters (detail level, object list, texture settings, timestamps) per Constitution VII (See US-1)
 
 ### Key Entities
@@ -107,6 +107,6 @@ System executes repeated-measures ANOVA comparing false memory rates across deta
 - Participant recruitment via crowdsourcing platform yields a sufficient number of complete sessions within the allocated budget
 - Image manipulation via PIL/Pillow compositing is computationally feasible on free-tier CI (no GPU required)
 - Observational design frames findings as associational, not causal (no random assignment to detail conditions at individual level)
-- Sensitivity analysis for any decision cutoffs (e.g., complexity thresholds) will sweep values over {0.01, 0.05, 0.1} and report false-positive/false-negative rate variation
+- Sensitivity analysis for any decision cutoffs (e.g., complexity thresholds) will sweep values over a range of low to moderate magnitudes and report false-positive/false-negative rate variation
 - Predictor collinearity is diagnosed when multiple visual detail metrics are used (e.g., object count, texture resolution, complexity score) and joint relationships are framed descriptively
 - Ethics compliance: IRB approval documentation MUST be obtained before participant recruitment begins; informed consent form with ≥5-minute reading time MUST be displayed and acknowledged before session starts; PII handling follows GDPR-compliant anonymization workflow
