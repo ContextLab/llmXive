@@ -210,3 +210,67 @@ def test_clean_spec_still_advances_to_research_accepted(tmp_path: Path) -> None:
 
     out = advancement.evaluate(project, repo_root=tmp_path)
     assert out.current_stage == Stage.RESEARCH_ACCEPTED
+
+
+def _exhaust_rounds(repo: Path, project_id: str = PROJ_ID) -> None:
+    """Create MAX_REVISION_ROUNDS auto-revisions round dirs so the NEXT
+    evaluation is past the bounded-revision cap (next_round_number > cap)."""
+    from llmxive.agents.advancement import MAX_REVISION_ROUNDS
+    base = repo / "specs" / "auto-revisions" / project_id
+    for n in range(1, MAX_REVISION_ROUNDS + 1):
+        (base / f"round-{n}").mkdir(parents=True, exist_ok=True)
+
+
+def test_writing_only_residue_advances_at_round_cap(tmp_path: Path) -> None:
+    """Two-tier exhaustion (the PROJ-552 doom-loop fix): when every non-accept
+    reviewer voted minor_revision (WRITING-level residue: file org, doc dedup,
+    prose polish — NOT the science) and the revision-round cap is exhausted, a
+    scientifically-sound project ADVANCES to research_accepted (carrying the
+    residue forward) instead of looping back through full_revision forever."""
+    from llmxive.agents.advancement import _revision_rounds_exhausted
+    project = _bootstrap(tmp_path)
+    for name in ("research_reviewer_code_quality_research",
+                 "research_reviewer_filesystem_hygiene"):
+        _make_record(
+            tmp_path, project, reviewer_name=name, verdict="minor_revision",
+            action_items=[ActionItem.from_text(
+                "split code/analysis/model_fitting.py to under 200 lines.", "writing")],
+        )
+    _exhaust_rounds(tmp_path)
+    assert _revision_rounds_exhausted(PROJ_ID, repo_root=tmp_path)
+
+    out = advancement.evaluate(project, repo_root=tmp_path)
+
+    assert out.current_stage == Stage.RESEARCH_ACCEPTED, (
+        f"writing-only residue at the round cap must advance, got {out.current_stage}")
+    assert out.revision_spec_path is None
+    # The residue is carried forward for the paper stage (not silently dropped).
+    note = tmp_path / "projects" / PROJ_ID / "paper_writing_residue.md"
+    assert note.is_file()
+    assert "split code/analysis/model_fitting.py" in note.read_text(encoding="utf-8")
+
+
+def test_science_residue_redoes_analysis_at_round_cap(tmp_path: Path) -> None:
+    """The science gate is NEVER relaxed: a science-severity residue at the round
+    cap still routes to RESEARCH_FULL_REVISION (redo the analysis), even though
+    the writing-only case now advances."""
+    project = _bootstrap(tmp_path)
+    _make_record(
+        tmp_path, project, reviewer_name="research_reviewer_code_quality_research",
+        verdict="minor_revision",
+        action_items=[ActionItem.from_text("tidy the file layout.", "writing")],
+    )
+    _make_record(
+        tmp_path, project, reviewer_name="research_reviewer_data_quality_research",
+        verdict="major_revision_science",
+        action_items=[ActionItem.from_text(
+            "the reported correlation is computed on unvalidated data.", "science")],
+    )
+    _exhaust_rounds(tmp_path)
+
+    out = advancement.evaluate(project, repo_root=tmp_path)
+
+    assert out.current_stage == Stage.RESEARCH_FULL_REVISION, (
+        f"science residue must redo the analysis, got {out.current_stage}")
+    note = tmp_path / "projects" / PROJ_ID / "paper_writing_residue.md"
+    assert not note.is_file(), "science residue must NOT advance/carry-forward"

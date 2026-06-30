@@ -545,6 +545,39 @@ def _winning_recommendation(records: list[ReviewRecord]) -> str | None:
     )[0]
 
 
+def _carry_forward_writing_residue(
+    project_id: str, consolidated: list, *, repo_root: Path
+) -> None:
+    """Persist the residual WRITING-level reviewer action items when a project
+    advances to research_accepted with un-fixed writing nits (the two-tier
+    exhaustion path). The paper-writing stage (and its reviewers) should still
+    address these — they were judged minor (not science-blocking), so they
+    polish the paper rather than gate it. Written to a durable project note;
+    best-effort (never raises — advancement must not fail on a note write)."""
+    try:
+        note = repo_root / "projects" / project_id / "paper_writing_residue.md"
+        lines = [
+            "# Residual reviewer notes carried forward to paper writing",
+            "",
+            "The research review converged on the SCIENCE (no science/fatal "
+            "concerns remained), so the project advanced to research_accepted. The "
+            "writing-level items below were raised by reviewers but judged minor "
+            "(`minor_revision`) and were not fully resolved within the revision-round "
+            "cap. Address them while writing/polishing the paper — they are NOT "
+            "blocking, but the paper should not ship the same nits.",
+            "",
+        ]
+        for it in consolidated:
+            txt = (getattr(it, "text", "") or "").strip()
+            if txt:
+                lines.append(f"- {txt}")
+        note.parent.mkdir(parents=True, exist_ok=True)
+        note.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    except OSError as exc:
+        logger.warning("carry-forward writing-residue note failed for %s: %s",
+                       project_id, exc)
+
+
 def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
     """Decide whether the project transitions; return updated state.
 
@@ -620,10 +653,53 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         consolidated = _consolidate_action_items(records, required=required)
         if consolidated:
             if _revision_rounds_exhausted(project.id, repo_root=repo_root):
+                # TWO-TIER exhaustion (Constitution 1.2.0 — the science gate is
+                # never relaxed; writing-level residue is). Severity is the
+                # reviewers' OWN verdict (minor_revision -> writing; major/full ->
+                # science; reject -> fatal). After MAX_REVISION_ROUNDS the residue
+                # is one of:
+                #   * SCIENCE / FATAL — a reviewer judged the ANALYSIS itself
+                #     unsound; no doc-edit round fixes that, so the honest move is
+                #     to redo it: RESEARCH_FULL_REVISION (-> in_progress).
+                #   * WRITING-ONLY — every non-accept reviewer voted
+                #     minor_revision (file organization, doc dedup, prose polish —
+                #     NOT the science). Trapping a scientifically-sound project
+                #     here forever (the doom loop: full_revision -> redo same
+                #     analysis -> same nits) produces ZERO papers and serves
+                #     quality not at all. ADVANCE to research_accepted, carrying
+                #     the residual writing items forward as a note the paper stage
+                #     addresses (the paper is reviewed again before publication).
+                residue = _max_severity_across_specialists(records)
+                if residue in ("science", "fatal"):
+                    logger.warning(
+                        "%s: %d revision rounds without convergence; "
+                        "%s-severity residue remains — RESEARCH_FULL_REVISION "
+                        "(redo the analysis)",
+                        project.id, MAX_REVISION_ROUNDS, residue,
+                    )
+                    return _transition(
+                        project, Stage.RESEARCH_FULL_REVISION
+                    ).model_copy(update={"revision_spec_path": None})
+                if not _has_blocking_citations(cits) and not _has_unverified_markers(
+                    project, track="research", repo_root=repo_root
+                ):
+                    _carry_forward_writing_residue(
+                        project.id, consolidated, repo_root=repo_root or _repo_root()
+                    )
+                    logger.info(
+                        "%s: %d revision rounds; WRITING-ONLY residue (%d item(s), "
+                        "science gate satisfied) — advancing to RESEARCH_ACCEPTED, "
+                        "residue carried forward to the paper stage",
+                        project.id, MAX_REVISION_ROUNDS, len(consolidated),
+                    )
+                    return _transition(
+                        project, Stage.RESEARCH_ACCEPTED
+                    ).model_copy(update={"revision_spec_path": None})
+                # Writing residue but a citation/unverified-marker still hard-blocks
+                # (a fabricated reference is never "writing-level") — redo.
                 logger.warning(
-                    "%s: %d revision rounds without research-panel "
-                    "convergence — honest terminal RESEARCH_FULL_REVISION "
-                    "(spec 023 bounded-revision cap)",
+                    "%s: %d revision rounds; writing residue but a blocking "
+                    "citation/unverified marker remains — RESEARCH_FULL_REVISION",
                     project.id, MAX_REVISION_ROUNDS,
                 )
                 return _transition(
