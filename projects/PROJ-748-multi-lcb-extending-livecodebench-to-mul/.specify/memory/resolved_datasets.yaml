@@ -1,0 +1,298 @@
+resolved_at: '2026-06-30T13:10:16.827683+00:00'
+datasets:
+- intent: LCB
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/huypn16/LCB-R/resolve/main/data/test-00000-of-00013.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huypn16/LCB-R-F/resolve/main/data/test-00000-of-00006.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sigcp/lcb_ccp_easy/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/huypn16/LCB-R/resolve/main/data/test-00000-of-00013.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/huypn16/LCB-R-F/resolve/main/data/test-00000-of-00006.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sigcp/lcb_ccp_easy/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sigcp/lcb_ccp_hard/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/plaguss/lcb_code_generation_lite/resolve/main/data/test-00000-of-00009.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Prioritising_sewersheds_based_on_groundwater_infiltration_probability_A_geospatial_approach/32833994
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Mazzi_et_al_b_i_Evidence_of_tornadic_phenomena_in_cerebral_aneurysms_i_b_Data_and_analysis_codes/32270130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_i________i_b_/32836076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Pricing_and_product-sharing_strategy_for_quality-differentiated_manufacturers_in_competitive_marketplaces/32836108
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_3_Fostering_regeneration_gap_creation_strategies_in_mature_Monterey_pine_stands_in_coastal_California_pdf/32836100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.7c7q0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mycokeys.pensoft.net/article/39057/element/2/11/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mycokeys.pensoft.net/article/39057/element/2/13/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mycokeys.pensoft.net/article/39057/element/2/15/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10489705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250728/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250728/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://iris.uniupo.it//handle/11579/97185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250698/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250698/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: JSON
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2769
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67109a6b07325c4b0ae03fc7/74c38f03d64fdd1b8116283c3b061c9a44f47759cb058c2a932978d37887b257?response-content-type=application%2Fjson&user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27industrial_design.json%3B+filename%3D%22industrial_design.json%22%3B&Expires=1782828277&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcxMDlhNmIwNzMyNWM0YjBhZTAzZmM3Lzc0YzM4ZjAzZDY0ZmRkMWI4MTE2MjgzYzNiMDYxYzlhNDRmNDc3NTljYjA1OGMyYTkzMjk3OGQzNzg4N2IyNTdcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdpbmR1c3RyaWFsX2Rlc2lnbi5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyaW5kdXN0cmlhbF9kZXNpZ24uanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODI4Mjc3fX19XX0_&Signature=MEUCIH5YQNbJBlrEg19bR~QxzG1LdlQyW4dj5pawElhQnDNgAiEA3V2lVYE8LJQHHajPe6wNBOzmlq4rOOQ6nGRU9XN3WZg_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/cagliostrolab/1.2m-ordered-tags-json/resolve/main/data/data.json
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682/3162f569ba2d639018f912b3f7692823d3b1148a/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101/3b0d72d19fba40c0727b4c079aa3bda0fec7df73/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Programmable_Perfusion_Platform_with_Temperature_Monitoring_Achieves_Multiscale_Cryopreservation/32836118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Prioritising_sewersheds_based_on_groundwater_infiltration_probability_A_geospatial_approach/32833994
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Mazzi_et_al_b_i_Evidence_of_tornadic_phenomena_in_cerebral_aneurysms_i_b_Data_and_analysis_codes/32270130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_i________i_b_/32836076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Pricing_and_product-sharing_strategy_for_quality-differentiated_manufacturers_in_competitive_marketplaces/32836108
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482801
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17351756
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3687363
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12574738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/JIYEKL
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21068684
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21068684
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/TOPOS_Toward_a_Symbolic_Communication_Protocol_for_Efficient_Human_LLM_Interaction_with_a_Vectorial_Extension/32836043
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_i_Using_AlphaFold_to_predict_Drug_Binding_to_Amyloid-b_degrading_enzyme_Neprilysin_in_Alzheimer_s_disease_i_b_/32836115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Programmable_Perfusion_Platform_with_Temperature_Monitoring_Achieves_Multiscale_Cryopreservation/32836118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Prioritising_sewersheds_based_on_groundwater_infiltration_probability_A_geospatial_approach/32833994
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Mazzi_et_al_b_i_Evidence_of_tornadic_phenomena_in_cerebral_aneurysms_i_b_Data_and_analysis_codes/32270130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: ALL
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: LLMs
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-006
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-3
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-005
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []

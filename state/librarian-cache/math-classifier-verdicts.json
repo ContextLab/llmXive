@@ -651,6 +651,10 @@
     "classified_at": "2026-06-20T01:18:55Z",
     "verdict": false
   },
+  "PROJ-748-multi-lcb-extending-livecodebench-to-mul::1.6.0": {
+    "classified_at": "2026-06-30T12:57:47Z",
+    "verdict": false
+  },
   "PROJ-752-testing-the-equivalence-principle-with-s::1.6.0": {
     "classified_at": "2026-06-21T01:26:05Z",
     "verdict": false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2108.09753",
+  "judged_at": "2026-06-30T12:58:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multi-lcb: extending livecodebench to multiple programming languages computer science",
+  "rationale": "The paper focuses on \"clone detection\" and \"clone-and-own\" practices in industrial PLC programming (IEC 61131-3), which is a distinct domain and mechanism from the user's question about extending a specific benchmark (LiveCodeBench) to support multiple general-purpose programming languages for evaluation. While both involve \"programming languages,\" the paper does not address the benchmarking, evaluation, or extension of LiveCodeBench, nor does it study the same mechanism (benchmark performance a",
+  "relevant": false
+}
