@@ -193,10 +193,81 @@ def find_result_fabrication(project_dir: Path) -> list[str]:
     return out
 
 
+# --- Synthetic INPUT data -----------------------------------------------------
+# Generating fake INPUT data is acceptable ONLY when the project EXPLICITLY calls
+# for it (e.g. a simulation study, a synthetic-benchmark paper). For a project
+# meant to produce REAL-WORLD insights, substituting synthetic/fake/dummy data
+# for the real dataset means the "findings" are not real — the analysis must use
+# the real data (download a small real sample) or, if genuinely infeasible on the
+# CPU runner, ESCALATE (GPU offload), never fall back to invented data. Detected
+# by the code's OWN label (the code_adapter is told to label synthetic data
+# clearly), so this is high-precision and never fires on real-data analysis,
+# bootstrap resampling, seeds, or noise injection.
+_SYNTHETIC_DATA_RE = re.compile(
+    # synthetic/fake/… optionally one intervening word, then a data noun:
+    # "synthetic data", "synthetic sampled input data", "fake input samples".
+    r"\b(?:synthetic|fake|dummy|mock|simulated|randomly[\s-]generated)\s+(?:\w+\s+)?"
+    r"(?:data|dataset|datasets|input|inputs|sample|samples|examples?|records?|corpus|table)\b"
+    r"|\bgenerate[ds]?\s+(?:\w+\s+){0,2}synthetic\b",
+    re.IGNORECASE,
+)
+
+
+def _synthetic_data_authorized(project_dir: Path) -> bool:
+    """True iff the project's ORIGINAL research intent explicitly calls for
+    synthetic or simulated data (the research question is about it).
+
+    Scans the ``idea/`` dir ONLY — the genuine, pre-implementation intent.
+    Deliberately NOT the spec/plan/tasks: those are BACK-FILLED from the code for
+    reprocessed papers, so they mention synthetic data merely BECAUSE the code
+    uses it (circular self-authorization). A real-world-insight project's idea
+    never frames itself around synthetic data, so synthetic data in its code is an
+    unauthorized shortcut, not the design."""
+    d = project_dir / "idea"
+    if not d.is_dir():
+        return False
+    for f in d.rglob("*.md"):
+        try:
+            if _SYNTHETIC_DATA_RE.search(f.read_text(encoding="utf-8", errors="ignore")):
+                return True
+        except OSError:
+            continue
+    return False
+
+
+def find_synthetic_data_use(project_dir: Path) -> list[str]:
+    """Findings where the project's code/results use SYNTHETIC input data (by the
+    code's own label). The caller suppresses these when the spec authorizes it."""
+    out: list[str] = []
+    for sub in ("code", "data", "results", "outputs"):
+        d = project_dir / sub
+        if not d.is_dir():
+            continue
+        for f in sorted(d.rglob("*")):
+            if f.suffix.lower() not in (".py", ".json", ".csv", ".md", ".txt", ".yaml", ".yml"):
+                continue
+            try:
+                text = f.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            for m in _SYNTHETIC_DATA_RE.finditer(text[:40000]):
+                snippet = text[max(0, m.start() - 25): m.end() + 25].replace("\n", " ").strip()
+                out.append(
+                    f"{f.relative_to(project_dir).as_posix()}: synthetic/fake INPUT data "
+                    f"not authorized by the spec — “…{snippet}…”"
+                )
+    return out
+
+
 def find_fabrication(project_dir: Path) -> list[str]:
     """All deterministic fabrication findings for a project's analysis + results.
 
     A NON-EMPTY return means the reported results are fabricated/simulated rather
-    than measured — the caller must FAIL the execution gate and kick the project
-    back to implementation rather than let it reach research_complete."""
-    return find_code_fabrication(project_dir) + find_result_fabrication(project_dir)
+    than measured (or rest on unauthorized synthetic data) — the caller must FAIL
+    the execution gate and kick the project back to implementation rather than let
+    it reach research_complete."""
+    findings = find_code_fabrication(project_dir) + find_result_fabrication(project_dir)
+    # Synthetic INPUT data is fabrication UNLESS the project explicitly requires it.
+    if not _synthetic_data_authorized(project_dir):
+        findings += find_synthetic_data_use(project_dir)
+    return findings

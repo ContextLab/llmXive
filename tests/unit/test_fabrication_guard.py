@@ -17,13 +17,17 @@ from llmxive.execution.fabrication_guard import (
 )
 
 
-def _write(p: Path, code: str = "", summary: str | None = None) -> Path:
+def _write(p: Path, code: str = "", summary: str | None = None,
+           idea: str | None = None) -> Path:
     (p / "code").mkdir(parents=True, exist_ok=True)
     (p / "data").mkdir(parents=True, exist_ok=True)
     if code:
         (p / "code" / "run.py").write_text(code, encoding="utf-8")
     if summary is not None:
         (p / "data" / "summary.json").write_text(summary, encoding="utf-8")
+    if idea is not None:
+        (p / "idea").mkdir(parents=True, exist_ok=True)
+        (p / "idea" / "idea.md").write_text(idea, encoding="utf-8")
     return p
 
 
@@ -66,9 +70,12 @@ def test_honest_real_analysis_is_clean(tmp_path: Path) -> None:
     assert find_fabrication(_write(tmp_path / "p", code=code)) == []
 
 
-def test_synthetic_INPUT_data_and_real_computation_is_clean(tmp_path: Path) -> None:
-    """Generating a small synthetic INPUT and then really computing a statistic on
-    it is allowed — only a metric drawn DIRECTLY from RNG is fabrication."""
+def test_unauthorized_synthetic_input_data_is_flagged(tmp_path: Path) -> None:
+    """Synthetic INPUT data is NOT acceptable unless the project EXPLICITLY
+    requires it: a real-world-insight project that substitutes fake data for the
+    real dataset produces results that are not real. The project's idea here says
+    nothing about synthetic data, so it is flagged (even though a real statistic
+    is computed ON the fake data)."""
     code = (
         "import numpy as np, pandas as pd\n"
         "# synthetic sampled input data (real dataset unavailable)\n"
@@ -77,7 +84,24 @@ def test_synthetic_INPUT_data_and_real_computation_is_clean(tmp_path: Path) -> N
         "pd.DataFrame([{'mean_norm': mean_norm}]).to_csv('data/out.csv')\n"
     )
     findings = find_fabrication(_write(tmp_path / "p", code=code))
-    assert findings == [], f"synthetic input + real compute must be clean; got {findings}"
+    assert any("synthetic" in f.lower() for f in findings), (
+        f"unauthorized synthetic input must be flagged; got {findings}"
+    )
+
+
+def test_synthetic_input_data_authorized_by_idea_is_clean(tmp_path: Path) -> None:
+    """When the project's OWN research idea is about synthetic data (a simulation
+    study / synthetic benchmark), synthetic input IS the design — not flagged."""
+    code = (
+        "import numpy as np, pandas as pd\n"
+        "# synthetic data is the subject of this study\n"
+        "X = np.random.randn(200, 3)\n"
+        "mean_norm = float(np.linalg.norm(X, axis=1).mean())\n"
+        "pd.DataFrame([{'mean_norm': mean_norm}]).to_csv('data/out.csv')\n"
+    )
+    idea = "We study estimator behavior on synthetic data generated under a known model.\n"
+    findings = find_fabrication(_write(tmp_path / "p", code=code, idea=idea))
+    assert findings == [], f"idea-authorized synthetic data must be clean; got {findings}"
 
 
 def test_legit_bootstrap_randomness_is_clean(tmp_path: Path) -> None:
