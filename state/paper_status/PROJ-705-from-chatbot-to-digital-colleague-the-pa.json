@@ -10,5 +10,5 @@
     "log_excerpt": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source"
   },
   "paper_id": "PROJ-705-from-chatbot-to-digital-colleague-the-pa",
-  "updated_at": "2026-06-30T12:47:30.470383+00:00"
+  "updated_at": "2026-06-30T13:42:11.823717+00:00"
 }
