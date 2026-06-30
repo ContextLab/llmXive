@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-26T09:09:06.312378Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'DomainShuttle: Freeform Open Domain Subject-driven Text-to-video Generation'
-updated_at: '2026-06-26T11:03:25.934541Z'
+updated_at: '2026-06-30T20:56:39.472861Z'

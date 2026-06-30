@@ -109,3 +109,12 @@
 [submodule "projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/external/claw-swe-bench"]
 	path = projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/external/claw-swe-bench
 	url = https://github.com/opensquilla/claw-swe-bench
+[submodule "projects/PROJ-682-your-unembedding-matrix-is-secretly-a-fe/external/EmbFilter"]
+	path = projects/PROJ-682-your-unembedding-matrix-is-secretly-a-fe/external/EmbFilter
+	url = https://github.com/CentreChen/EmbFilter
+[submodule "projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/external/ResearchClawBench"]
+	path = projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/external/ResearchClawBench
+	url = https://github.com/InternScience/ResearchClawBench
+[submodule "projects/PROJ-668-https-arxiv-org-abs-2606-05622/external/AdaPlanBench"]
+	path = projects/PROJ-668-https-arxiv-org-abs-2606-05622/external/AdaPlanBench
+	url = https://github.com/JiayuJeff/AdaPlanBench

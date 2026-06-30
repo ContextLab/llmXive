@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ResearchClawBench Rubric"
+description: "Schema for tasks/<task_id>/target_study/checklist.json"
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Must match the task_id in task_info.json"
+  criteria:
+    type: array
+    description: "List of scoring criteria"
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Unique ID for the criterion"
+        description:
+          type: string
+          description: "Description of what is being scored"
+        weight:
+          type: number
+          description: "Weight of this criterion (0-100)"
+      required:
+        - id
+        - description
+        - weight
+  total_weight:
+    type: number
+    description: "Expected sum of all weights (100.0)"
+required:
+  - task_id
+  - criteria
+  - total_weight
+additionalProperties: false

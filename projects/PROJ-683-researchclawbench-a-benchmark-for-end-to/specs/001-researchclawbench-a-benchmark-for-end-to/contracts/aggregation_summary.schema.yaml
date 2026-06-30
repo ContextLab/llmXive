@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ResearchClawBench Aggregation Summary"
+description: "Schema for results/summary.json"
+type: object
+properties:
+  task_id:
+    type: string
+  agents:
+    type: array
+    description: "List of agent results"
+    items:
+      type: object
+      properties:
+        agent_id:
+          type: string
+        score:
+          type: number
+        status:
+          type: string
+      required:
+        - agent_id
+        - score
+        - status
+  statistics:
+    type: object
+    properties:
+      mean_score:
+        type: number
+      std_dev:
+        type: number
+      total_runs:
+        type: integer
+      failed_runs:
+        type: integer
+    required:
+      - mean_score
+      - std_dev
+      - total_runs
+      - failed_runs
+required:
+  - task_id
+  - agents
+  - statistics
+additionalProperties: false
