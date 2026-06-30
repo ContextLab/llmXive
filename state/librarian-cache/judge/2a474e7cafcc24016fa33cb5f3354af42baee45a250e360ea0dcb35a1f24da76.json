@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.12202",
+  "judged_at": "2026-06-30T18:43:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the impact of data imputation methods on causal inference statistics",
+  "rationale": "This paper satisfies criterion (a) and (b) because it explicitly investigates the impact of handling missing data (specifically comparing standard imputation pipelines against a rigorous non-ignorable missing data method) on downstream statistical outcomes like differential abundance and GWAS, which directly addresses the user's interest in how data imputation methods affect causal/statistical inference. Although the domain is metabolomics, the core mechanism of evaluating imputation-induced bia",
+  "relevant": true
+}

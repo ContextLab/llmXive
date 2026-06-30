@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2103.06261",
+  "judged_at": "2026-06-30T18:43:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the impact of data imputation methods on causal inference statistics",
+  "rationale": "The paper focuses on a specific methodology (tree-based model averaging) for improving treatment effect estimation in distributed data settings, but it does not address the user's specific variable of interest: the impact of **data imputation methods** on causal inference statistics. While both fall under the broad domain of causal inference, the paper does not measure, analyze, or provide a baseline for imputation techniques, nor does it belong to the canonical alternative-vocabulary cluster fo",
+  "relevant": false
+}

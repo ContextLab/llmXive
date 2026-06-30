@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+  "ok": false,
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026. 2.  **Data Proxy**: We generate synthetic token-gradient vectors.\u2026\u201d; code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026**Scale**:     *   5,000 synthetic samples (tokens).     *   1,000\u2026\u201d; code/delta_proxy.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026scrim=2000):     \"\"\"     Generates synthetic token-gradient vectors m\u2026\u201d",
+  "artifacts": [
+    "data/centroids_comparison.csv",
+    "figures/separation_analysis.png"
+  ],
+  "failures": [],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T18:40:11Z"
+}

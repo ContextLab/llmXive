@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2001.09180",
+  "judged_at": "2026-06-30T18:43:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the impact of data imputation methods on causal inference statistics",
+  "rationale": "This paper satisfies criterion (a) and (b) as it empirically and theoretically investigates the impact of a specific data imputation method (conditional mean imputation) on statistical estimation properties (minimax rates, pivotality) in high-dimensional regression, which is a core component of the causal inference pipeline. Although it focuses on regression rather than explicitly labeled \"causal inference,\" it establishes the necessary baseline for how imputation affects statistical validity, a",
+  "relevant": true
+}

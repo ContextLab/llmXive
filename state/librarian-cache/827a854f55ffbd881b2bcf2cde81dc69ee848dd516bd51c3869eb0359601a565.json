@@ -1,0 +1,423 @@
+{
+  "fetched_at": "2026-06-30T18:43:42Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Exploring the Impact of Data Imputation Methods on Causal Inference",
+      "target_n": 5
+    },
+    "duration_seconds": 141.113,
+    "ended_at": "2026-06-30T18:43:42Z",
+    "expansion": null,
+    "extracted_queries": [
+      "missing data mechanism multiple imputation",
+      "MNAR MCAR MAR causal effect estimation",
+      "doubly robust estimation inverse probability weighting",
+      "bias variance tradeoff treatment effect heterogeneity",
+      "structural causal model unobserved confounding imputation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2601.01259"
+      ]
+    },
+    "per_query_hit_count": {
+      "Exploring the Impact of Data Imputation Methods on Causal Inference statistics": 3,
+      "MNAR MCAR MAR causal effect estimation": 2,
+      "bias variance tradeoff treatment effect heterogeneity": 3,
+      "doubly robust estimation inverse probability weighting": 3,
+      "missing data mechanism multiple imputation": 3,
+      "structural causal model unobserved confounding imputation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 10,
+      "rejections": [
+        {
+          "primary_pointer": "1506.03880",
+          "rationale": "The paper focuses on the theoretical feasibility of inferring causal structures from uncontrolled data using algebraic geometry, but it does not address the specific mechanism of \"data imputation\" or evaluate how missing data handling methods impact causal inference statistics. It fails to meet criteria (a) or (b) as it studies a different methodological domain (algebraic constraints vs. imputation algorithms) and does not provide an empirical baseline or canonical reference for the specific pro",
+          "title": "Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables"
+        },
+        {
+          "primary_pointer": "2309.13103",
+          "rationale": "The paper focuses on a software framework for automating causal inference workflows and algorithm selection, but it does not measure, analyze, or provide empirical evidence regarding the specific impact of data imputation methods on causal inference statistics. It fails to satisfy any inclusion criteria (a-f) as it does not address the \"data imputation\" variable or the mechanism of how missing data handling affects causal estimates.",
+          "title": "OpportunityFinder: A Framework for Automated Causal Inference"
+        },
+        {
+          "primary_pointer": "2305.09126",
+          "rationale": "The paper focuses on transfer learning to improve causal effect estimation in limited data settings, which is a distinct methodological approach from data imputation. It does not measure the impact of imputation methods on causal inference statistics, nor does it establish a baseline for imputation or study the specific mechanism of missing data handling required by the user's question.",
+          "title": "Transfer Learning for Causal Effect Estimation"
+        },
+        {
+          "primary_pointer": "2109.07542",
+          "rationale": "The paper focuses on a specific causal research design for estimating mediation effects using language as a mediator, but it does not address the user's core question regarding the impact of *data imputation methods* on causal inference statistics. While both topics fall under the broad umbrella of causal inference, the paper lacks any connection to the mechanism of missing data handling, imputation algorithms, or the specific biases introduced by imputation, failing to meet criteria (a) through",
+          "title": "Text as Causal Mediators: Research Design for Causal Estimates of Differential Treatment of Social Groups via Language Aspects"
+        },
+        {
+          "primary_pointer": "2309.05531",
+          "rationale": "The paper focuses on the mechanics and misconceptions of doubly robust estimation (specifically IPTW GLM) for causal inference but does not address the user's specific variable of interest: the impact of **data imputation methods** on these statistics. While both fall under the broad domain of causal inference, the paper lacks any measurable connection to missing data handling or imputation techniques, failing to satisfy the criteria for same-mechanism evidence, shared variables, or foundational",
+          "title": "Inverse probability of treatment weighting with generalized linear outcome models for doubly robust estimation"
+        },
+        {
+          "primary_pointer": "2310.20182",
+          "rationale": "The paper focuses on the properties of variance estimators (sandwich estimators) for Inverse Probability Weighting (IPW) in causal inference, but it does not address the user's specific variable of interest: \"data imputation methods.\" While both topics fall under the broad domain of causal inference, the paper does not measure the impact of imputation on causal statistics, nor does it establish a baseline for imputation-related mechanisms, failing to meet criteria (a) or (b).",
+          "title": "Evaluating the Conservativeness of Robust Sandwich Variance Estimator in Weighted Average Treatment Effects"
+        },
+        {
+          "primary_pointer": "2107.07967",
+          "rationale": "The paper addresses selection bias and causal estimands in cluster randomized trials but does not measure, model, or discuss data imputation methods or their specific impact on causal inference statistics. While both topics fall under the broad umbrella of causal inference, the paper fails to satisfy any inclusion criteria (a-f) as it lacks the specific mechanism (imputation) or variables required by the user's question, representing a distinct construct within the same general domain rather tha",
+          "title": "Clarifying Selection Bias in Cluster Randomized Trials: Estimands and Estimation"
+        },
+        {
+          "primary_pointer": "2103.06261",
+          "rationale": "The paper focuses on a specific methodology (tree-based model averaging) for improving treatment effect estimation in distributed data settings, but it does not address the user's specific variable of interest: the impact of **data imputation methods** on causal inference statistics. While both fall under the broad domain of causal inference, the paper does not measure, analyze, or provide a baseline for imputation techniques, nor does it belong to the canonical alternative-vocabulary cluster fo",
+          "title": "A Tree-based Model Averaging Approach for Personalized Treatment Effect Estimation from Heterogeneous Data Sources"
+        },
+        {
+          "primary_pointer": "2106.02234",
+          "rationale": "The paper focuses on causal discovery in the presence of unobserved variables (latent confounders), which is a distinct methodological challenge from data imputation (handling missing values). While both issues affect causal inference, the paper does not measure, model, or provide a baseline for the impact of specific imputation methods, nor does it address the mechanism of missing data itself, failing to meet criteria (a) or (b).",
+          "title": "Discovery of Causal Additive Models in the Presence of Unobserved Variables"
+        },
+        {
+          "primary_pointer": "2401.06564",
+          "rationale": "The paper focuses on handling unobserved confounding in high-dimensional causal inference, which is a distinct methodological challenge from the user's specific question about the impact of *data imputation methods* (handling missing values) on causal statistics. While both topics fall under the broad umbrella of causal inference, the paper does not measure, model, or discuss the mechanism of imputation or its specific effects on causal estimates, failing to meet the criteria for same-mechanism ",
+          "title": "Valid causal inference with unobserved confounding in high-dimensional settings"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-30T18:41:21Z",
+    "term_input": {
+      "normalized": "exploring the impact of data imputation methods on causal inference statistics",
+      "raw": "Exploring the Impact of Data Imputation Methods on Causal Inference statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed as an analogue of the train/test split in correlation-based machine learning and as an enhancement of current causal validation strategies that are consistent with the logic of scientific discovery. The effectiveness of the method is illustrated using Pearl's sprinkler example, before a thorough simulation-based investigation is conducted. Limits of the technique are identified by studying exemplary failing scenarios, which are furthermore used to propose a list of topics for future research and improvements of the presented version of quantitative probing. The code for integrating quantitative probing into causal analysis, as well as the code for the presented simulation-based studies of the effectiveness of quantitative probing is provided in two separate open-source Python packages.",
+          "claimed_authors": [
+            "Daniel Grünbaum",
+            "Maike L. Stern",
+            "Elmar W. Lang"
+          ],
+          "claimed_title": "Quantitative probing: Validating causal models using quantitative domain knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.03013"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Exploring the Impact of Data Imputation Methods on Causal Inference statistics', candidate_title='Quantitative probing: Validating causal models using quantitative domain knowledge')",
+        "failed_at": "2026-06-30T18:42:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Exploring the Impact of Data Imputation Methods on Causal Inference statistics', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-30T18:42:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper builds upon the work of Pfau (2013), which generalized the bias variance tradeoff to any Bregman divergence loss function. Pfau (2013) showed that for Bregman divergences, the bias and variances are defined with respect to a central label, defined as the mean of the label variable, and a central prediction, of a more complex form. We show that, similarly to the label, the central prediction can be interpreted as the mean of a random variable, where the mean operates in a dual space defined by the loss function itself. Viewing the bias-variance tradeoff through operations taken in dual space, we subsequently derive several results of interest. In particular, (a) the variance terms satisfy a generalized law of total variance; (b) if a source of randomness cannot be controlled, its contribution to the bias and variance has a closed form; (c) there exist natural ensembling operations in the label and prediction spaces which reduce the variance and do not affect the bias.",
+          "claimed_authors": [
+            "Ben Adlam",
+            "Neha Gupta",
+            "Zelda Mariet",
+            "Jamie Smith"
+          ],
+          "claimed_title": "Understanding the bias-variance tradeoff of Bregman divergences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.04167"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Impact of Data Imputation Methods on Causal Inference statistics', candidate_title='Understanding the bias-variance tradeoff of Bregman divergences')",
+        "failed_at": "2026-06-30T18:42:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fairness for machine learning predictions is widely required in practice for legal, ethical, and societal reasons. Existing work typically focuses on settings without unobserved confounding, even though unobserved confounding can lead to severe violations of causal fairness and, thus, unfair predictions. In this work, we analyze the sensitivity of causal fairness to unobserved confounding. Our contributions are three-fold. First, we derive bounds for causal fairness metrics under different sources of unobserved confounding. This enables practitioners to examine the sensitivity of their machine learning models to unobserved confounding in fairness-critical applications. Second, we propose a novel neural framework for learning fair predictions, which allows us to offer worst-case guarantees of the extent to which causal fairness can be violated due to unobserved confounding. Third, we demonstrate the effectiveness of our framework in a series of experiments, including a real-world case study about predicting prison sentences. To the best of our knowledge, ours is the first work to study causal fairness under unobserved confounding. To this end, our work is of direct practical value as a refutation strategy to ensure the fairness of predictions in high-stakes applications.",
+          "claimed_authors": [
+            "Maresa Schröder",
+            "Dennis Frauen",
+            "Stefan Feuerriegel"
+          ],
+          "claimed_title": "Causal Fairness under Unobserved Confounding: A Neural Sensitivity Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.18460"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Exploring the Impact of Data Imputation Methods on Causal Inference statistics', candidate_title='Causal Fairness under Unobserved Confounding: A Neural Sensitivity Framework')",
+        "failed_at": "2026-06-30T18:42:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Predictive uncertainty quantification is crucial in decision-making problems. We investigate how to adequately quantify predictive uncertainty with missing covariates. A bottleneck is that missing values induce heteroskedasticity on the response's predictive distribution given the observed covariates. Thus, we focus on building predictive sets for the response that are valid conditionally to the missing values pattern. We show that this goal is impossible to achieve informatively in a distribution-free fashion, and we propose useful restrictions on the distribution class. Motivated by these hardness results, we characterize how missing values and predictive uncertainty intertwine. Particularly, we rigorously formalize the idea that the more missing values, the higher the predictive uncertainty. Then, we introduce a generalized framework, coined CP-MDA-Nested*, outputting predictive sets in both regression and classification. Under independence between the missing value pattern and both the features and the response (an assumption justified by our hardness results), these predictive sets are valid conditionally to any pattern of missing values. Moreover, it provides great flexibility in the trade-off between statistical variability and efficiency. Finally, we experimentally assess the performances of CP-MDA-Nested* beyond its scope of theoretical validity, demonstrating promising outcomes in more challenging configurations than independence.",
+          "claimed_authors": [
+            "Margaux Zaffran",
+            "Julie Josse",
+            "Yaniv Romano",
+            "Aymeric Dieuleveut"
+          ],
+          "claimed_title": "Predictive Uncertainty Quantification with Missing Covariates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.15641"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Impact of Data Imputation Methods on Causal Inference statistics', candidate_title='Predictive Uncertainty Quantification with Missing Covariates')",
+        "failed_at": "2026-06-30T18:42:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Survey sampling theory and methods are introduced. Sampling designs and estimation methods are carefully discussed as a textbook for survey sampling. Topics includes Horvitz-Thompson estimation, simple random sampling, stratified sampling, cluster sampling, ratio estimation, regression estimation, variance estimation, two-phase sampling, and nonresponse adjustment methods.",
+          "claimed_authors": [
+            "Jae Kwang Kim"
+          ],
+          "claimed_title": "Statistics in Survey Sampling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.07625"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Exploring the Impact of Data Imputation Methods on Causal Inference statistics', candidate_title='Statistics in Survey Sampling')",
+        "failed_at": "2026-06-30T18:42:51Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Juha Karvanen",
+            "Santtu Tikka"
+          ],
+          "title": "Multiple Imputation Guided by Full Law and Target Law Identifiability",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.18688",
+        "summary": "The central challenges in missing data models concern the identifiability of two distributions: the target law and the full law. The target law refers to the joint distribution of the data variables, whereas the full law refers to the joint distribution of the data variables and their corresponding response indicators. However, the relationship between the identifiability of these two distributions and the feasibility of multiple imputation has not been clearly established. We present a procedure where the choice of the imputation method is guided by identifiability considerations. We show that imputations can be drawn from the correct conditional distributions for all possible missing data patterns if and only if the full law is identifiable. This result implies that standard multiple imputation methods -- which keep observed values unchanged and replace missing values with imputed values -- are invalid when the target law is identifiable but the full law is not. We demonstrate that alternative imputation strategies can sometimes enable the estimation of the target law in such cases. Specifically, we introduce factorizable imputation where certain observed values are also imputed and the imputed data are weighted in the analysis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.18688",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T18:42:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guilherme Pumi",
+            "Taiane Schaedler Prass",
+            "Douglas Krauthein Verdum"
+          ],
+          "title": "A Novel Multiple Imputation Approach For Parameter Estimation in Observation-Driven Time Series Models With Missing Data",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.01259",
+        "summary": "Handling missing data in time series is a complex problem due to the presence of temporal dependence. General-purpose imputation methods, while widely used, often distort key statistical properties of the data, such as variance and dependence structure, leading to biased estimation and misleading inference. These issues become more pronounced in models that explicitly rely on capturing serial dependence, as standard imputation techniques fail to preserve the underlying dynamics. This paper proposes a novel multiple imputation method specifically designed for parameter estimation in observation-driven models (ODM). The approach takes advantage of the iterative nature of the systematic component in ODM to propagate the dependence structure through missing data, minimizing its impact on estimation. Unlike traditional imputation techniques, the proposed method accommodates continuous, discrete, and mixed-type data while preserving key distributional and dependence properties. We evaluate its performance through Monte Carlo simulations in the context of GARMA models, considering time series with up to 70\\% missing data. An application to the proportion of stocked energy stored in South Brazil further demonstrates its practical utility.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.01259",
+          "http_status": 200,
+          "pdf_sample_score": 0.2025,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T18:42:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shaun R Seaman",
+            "Tommy Nyberg",
+            "Anne M Presanis"
+          ],
+          "title": "Doubly robust integration of nonprobability and probability survey data",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.05859",
+        "summary": "Doubly robust estimators for estimating the population mean (or prevalence) of an outcome have been proposed for integrating outcome and covariate data from a nonprobability sample with covariate data from a probability survey. These estimators combine inverse probability weighting estimation with mass imputation. However, the question of how to combine these doubly robust estimators with a Horvitz-Thompson or Hajek estimator that uses only outcome data from the probability survey has received only limited attention. In this paper, we first review previously proposed doubly robust estimators that use outcome data from only the nonprobability sample. We extend these estimators to enable estimation of domain (subpopulation) means (or prevalences), possibly using data from individuals outside the domain to improve estimation when the domain is small. We then consider how to combine this doubly robust estimator with a Horvitz-Thompson or Hajek estimator that uses only the probability survey data. We describe efficient combined estimators, and provide formulae for their repeated-sampling variances and for estimators of these variances. We also investigate the asymptotic relative efficiencies of the combined estimators compared to their two component estimators, and carry out a simulation study to assess their relative efficiencies in finite samples. These relative efficiencies depend on the ratio of the variances of the two component estimators and on how predictive the covariates are of the outcome.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.05859",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T18:42:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shangshu Zhao",
+            "Kedir Turi",
+            "Tina Hartert",
+            "Carole Ober",
+            "Klaus Bonnelykke",
+            "Bo Chawes",
+            "Hans Bisgaard",
+            "Chris McKennan"
+          ],
+          "title": "From differential abundance to mtGWAS: accurate and scalable methodology for metabolomics data with non-ignorable missing observations and latent factors",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.12202",
+        "summary": "Metabolomics is the high-throughput study of small molecule metabolites. Besides offering novel biological insights, these data contain unique statistical challenges, the most glaring of which is the many non-ignorable missing metabolite observations. To address this issue, nearly all analysis pipelines first impute missing observations, and subsequently perform analyses with methods designed for complete data. While clearly erroneous, these pipelines provide key practical advantages not present in existing statistically rigorous methods, including using both observed and missing data to increase power, fast computation to support phenome- and genome-wide analyses, and streamlined estimates for factor models. To bridge this gap between statistical fidelity and practical utility, we developed MS-NIMBLE, a statistically rigorous and powerful suite of methods that offers all the practical benefits of imputation pipelines to perform phenome-wide differential abundance analyses, metabolite genome-wide association studies (mtGWAS), and factor analysis with non-ignorable missing data. Critically, we tailor MS-NIMBLE to perform differential abundance and mtGWAS in the presence of latent factors, which reduces biases and improves power. In addition to proving its statistical and computational efficiency, we demonstrate its superior performance using three real metabolomic datasets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2205.12202",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T18:42:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hao Yang",
+            "Haoxuan Li",
+            "Luyu Chen",
+            "Haoxiang Wang",
+            "Xu Chen",
+            "Mingming Gong"
+          ],
+          "title": "Mitigating Hidden Confounding by Progressive Confounder Imputation via Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.02928",
+        "summary": "Hidden confounding remains a central challenge in estimating treatment effects from observational data, as unobserved variables can lead to biased causal estimates. While recent work has explored the use of large language models (LLMs) for causal inference, most approaches still rely on the unconfoundedness assumption. In this paper, we make the first attempt to mitigate hidden confounding using LLMs. We propose ProCI (Progressive Confounder Imputation), a framework that elicits the semantic and world knowledge of LLMs to iteratively generate, impute, and validate hidden confounders. ProCI leverages two key capabilities of LLMs: their strong semantic reasoning ability, which enables the discovery of plausible confounders from both structured and unstructured inputs, and their embedded world knowledge, which supports counterfactual reasoning under latent confounding. To improve robustness, ProCI adopts a distributional reasoning strategy instead of direct value imputation to prevent the collapsed outputs. Extensive experiments demonstrate that ProCI uncovers meaningful confounders and significantly improves treatment effect estimation across various datasets and LLMs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2507.02928",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T18:42:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kabir Aladin Chandrasekher",
+            "Ahmed El Alaoui",
+            "Andrea Montanari"
+          ],
+          "title": "Imputation for High-Dimensional Linear Regression",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2001.09180",
+        "summary": "We study high-dimensional regression with missing entries in the covariates. A common strategy in practice is to \\emph{impute} the missing entries with an appropriate substitute and then implement a standard statistical procedure acting as if the covariates were fully observed. Recent literature on this subject proposes instead to design a specific, often complicated or non-convex, algorithm tailored to the case of missing covariates. We investigate a simpler approach where we fill-in the missing entries with their conditional mean given the observed covariates. We show that this imputation scheme coupled with standard off-the-shelf procedures such as the LASSO and square-root LASSO retains the minimax estimation rate in the random-design setting where the covariates are i.i.d.\\ sub-Gaussian. We further show that the square-root LASSO remains \\emph{pivotal} in this setting.\n  It is often the case that the conditional expectation cannot be computed exactly and must be approximated from data. We study two cases where the covariates either follow an autoregressive (AR) process, or are jointly Gaussian with sparse precision matrix. We propose tractable estimators for the conditional expectation and then perform linear regression via LASSO, and show similar estimation rates in both cases. We complement our theoretical results with simulations on synthetic and semi-synthetic examples, illustrating not only the sharpness of our bounds, but also the broader utility of this strategy beyond our theoretical assumptions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2001.09180",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T18:42:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anish Agarwal",
+            "Rahul Singh"
+          ],
+          "title": "Causal Inference with Corrupted Data: Measurement Error, Missing Values, Discretization, and Differential Privacy",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2107.02780",
+        "summary": "The US Census Bureau will deliberately corrupt data sets derived from the 2020 US Census, enhancing the privacy of respondents while potentially reducing the precision of economic analysis. To investigate whether this trade-off is inevitable, we formulate a semiparametric model of causal inference with high dimensional corrupted data. We propose a procedure for data cleaning, estimation, and inference with data cleaning-adjusted confidence intervals. We prove consistency and Gaussian approximation by finite sample arguments, with a rate of $n^{ 1/2}$ for semiparametric estimands that degrades gracefully for nonparametric estimands. Our key assumption is that the true covariates are approximately low rank, which we interpret as approximate repeated measurements and empirically validate. Our analysis provides nonasymptotic theoretical contributions to matrix completion, statistical learning, and semiparametric statistics. Calibrated simulations verify the coverage of our data cleaning adjusted confidence intervals and demonstrate the relevance of our results for Census-derived data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2107.02780",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T18:42:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "exploring the impact of data imputation methods on causal inference statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

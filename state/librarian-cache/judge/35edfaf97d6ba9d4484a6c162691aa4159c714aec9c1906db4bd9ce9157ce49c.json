@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.05531",
+  "judged_at": "2026-06-30T18:43:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the impact of data imputation methods on causal inference statistics",
+  "rationale": "The paper focuses on the mechanics and misconceptions of doubly robust estimation (specifically IPTW GLM) for causal inference but does not address the user's specific variable of interest: the impact of **data imputation methods** on these statistics. While both fall under the broad domain of causal inference, the paper lacks any measurable connection to missing data handling or imputation techniques, failing to satisfy the criteria for same-mechanism evidence, shared variables, or foundational",
+  "relevant": false
+}
