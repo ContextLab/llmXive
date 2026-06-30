@@ -1,0 +1,168 @@
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: filter Open X-Embodiment dataset to approximately 50,000 demonstrations
+    across 3 or more platforms
+  claim_id: c_968f1ffb
+  context: "Implement src/data/dataset_loader.py to fetch Open X\u2011Embodiment via\
+    \ HF Datasets API and filter to ~50k demos across \u22653 platforms."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter to ~50k demos across \u22653 platforms"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:05:40Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: verify dataset row count is at least 45,000
+  claim_id: c_c52cf7fb
+  context: 'Implement src/data/verify_dataset.py to verify T012/T012b outputs: check
+    row count (>= 45000), compute SHA256 checksum, and update data/metadata.yaml.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_dataset_row_count_is_at_least_45,000
+  kind: magnitude
+  raw_text: check row count (>= 45000)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:09:56Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: implement DiT action head with memory footprint under 7GB
+  claim_id: c_4e277d32
+  context: Implement a DiT action head that fits within 7GB RAM (FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_DiT_action_head_with_memory_footprint_under_7GB
+  kind: entity_fact
+  raw_text: DiT action head that fits within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:10:53Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: enforce 6-hour wall-time limit for training
+  claim_id: c_10e42012
+  context: CPU-only training loop with batch size auto-adjustment if RAM >6.5GB; enforce
+    a 6-hour (21600s) wall-time limit using time.time() checks every batch.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce a 6-hour (21600s) wall-time limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:11:43Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: peak RAM usage under 7GB during training
+  claim_id: c_d49ca704
+  context: 'Verify: Run with 50k samples completes in <6h and logs peak RAM <7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_under_7GB_during_training
+  kind: entity_fact
+  raw_text: peak RAM <7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:13:22Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: serialize model weights with size less than or equal to 2GB
+  claim_id: c_715a2cd7
+  context: "Implement src/utils/checkpoint_saver.py: Serialize model weights ensuring\
+    \ size \u22642GB; save to data/checkpoints/"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Serialize_model_weights_with_size_less_than_or_equal_to_2GB
+  kind: magnitude
+  raw_text: "serialize model weights ensuring size \u22642GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:14:30Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: use 5 random seeds for experiments
+  claim_id: c_935fc57f
+  context: Write deterministic data/seeds.json with the 5 random seeds used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5 random seeds used
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:15:11Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: compute 95% confidence intervals using bootstrapping
+  claim_id: c_d55807cf
+  context: Compute 95% confidence intervals using bootstrapping (non-parametric) from
+    the 5 seeds for each ratio to align with non-normal distribution assumptions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: compute 95% confidence intervals using bootstrapping
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:15:11Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: configure torch.set_num_threads to restrict parallelism
+  claim_id: c_3220368d
+  context: 'Performance optimization: Verify that torch.set_num_threads is configured
+    to restrict parallelism in all scripts.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_torch.set_num_threads_to_restrict_parallelism
+  kind: entity_fact
+  raw_text: Verify that torch.set_num_threads is configured to restrict parallelism
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:16:24Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: set torch.num_threads to 2
+  claim_id: c_5b111039
+  context: All training tasks must enforce torch.set_num_threads(2) and monitor RAM
+    via psutil to stay within 7GB limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch.set_num_threads(2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:17:04Z'
