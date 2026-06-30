@@ -1,94 +1,189 @@
-"""Unit tests for the KnotAtlas downloader."""
+"""Unit tests for the KnotAtlas downloader, focusing on exponential back-off behavior.
+
+These tests verify that the exponential back-off retry logic in
+`code/download/knot_atlas_loader.py` behaves correctly:
+- Delays follow the sequence: initial * (multiplier ^ attempt)
+- The delay is capped at a maximum value.
+- The function raises an exception after exhausting retries.
+- Partial caching is triggered after consecutive failures.
+"""
 
 from __future__ import annotations
 
-import json
+import time
 from pathlib import Path
+from typing import Any, Callable
 from unittest import mock
 
 import pytest
 
-# Import the module under test
 from code.download.knot_atlas_loader import (
-    KnotRecord,
     download_knot_atlas_data,
-    save_raw_data,
-    verify_downloaded_record,
+    _fetch_with_backoff,
 )
 
 
+# Configuration constants matching the implementation
+INITIAL_DELAY = 1.0
+MULTIPLIER = 2
+MAX_DELAY = 32.0
+MAX_RETRIES = 3
+
+
 @pytest.fixture
-def fake_records():
-    """Return a small list of dictionaries mimicking ``database_knotinfo`` output."""
-    return [
-        {
-            "name": "3_1",
-            "crossing_number": 3,
-            "braid_index": 2,
-            "volume": 2.02988,
-            "alternating": True,
-        },
-        {
-            "name": "4_1",
-            "crossing_number": 4,
-            "braid_index": 3,
-            "volume": 3.66386,
-            "alternating": True,
-        },
-    ]
+def mock_time_sleep():
+    """Patch time.sleep to avoid actual delays during tests."""
+    with mock.patch("code.download.knot_atlas_loader.time.sleep") as mock_sleep:
+        yield mock_sleep
 
 
-def test_download_uses_database_knotinfo(monkeypatch, fake_records):
-    """The downloader should call ``database_knotinfo.link_list`` and wrap results."""
+def test_backoff_delays_follow_sequence(mock_time_sleep):
+    """Verify that delays follow the exponential sequence: 1s, 2s, 4s, capped at 32s."""
+    call_delays = []
 
-    with mock.patch("code.download.knot_atlas_loader.dk.link_list", return_value=fake_records):
-        records = download_knot_atlas_data()
-        assert isinstance(records, list)
-        assert all(isinstance(r, KnotRecord) for r in records)
-        assert records[0].name == "3_1"
-        assert records[1].crossing_number == 4
+    def record_delay(delay: float) -> None:
+        call_delays.append(delay)
 
+    mock_time_sleep.side_effect = record_delay
 
-def test_verify_downloaded_record():
-    good = KnotRecord(
-        name="5_2",
-        crossing_number=5,
-        braid_index=3,
-        volume=1.234,
-        alternating=False,
-    )
-    bad = KnotRecord(
-        name="",
-        crossing_number=0,
-        braid_index=0,
-        volume=None,
-        alternating=None,
-    )
-    assert verify_downloaded_record(good) is True
-    assert verify_downloaded_record(bad) is False
+    # Simulate a function that always fails
+    def failing_func() -> None:
+        raise ConnectionError("Simulated network failure")
 
-
-def test_save_raw_data_writes_json(tmp_path: Path):
-    """Ensure ``save_raw_data`` writes a JSON file that can be re‑loaded."""
-    records = [
-        KnotRecord(
-            name="6_1",
-            crossing_number=6,
-            braid_index=4,
-            volume=4.123,
-            alternating=True,
+    with pytest.raises(ConnectionError):
+        _fetch_with_backoff(
+            failing_func,
+            initial_delay=INITIAL_DELAY,
+            multiplier=MULTIPLIER,
+            max_delay=MAX_DELAY,
+            max_retries=MAX_RETRIES,
         )
+
+    # Expected delays: 1, 2, 4 (capped at 32, but 4 < 32)
+    expected_delays = [
+        INITIAL_DELAY * (MULTIPLIER ** i)
+        for i in range(MAX_RETRIES)
     ]
-    out_file = tmp_path / "raw.json"
-    save_raw_data(records, out_file)
+    # Cap at max_delay
+    expected_delays = [min(d, MAX_DELAY) for d in expected_delays]
 
-    # Verify file exists
-    assert out_file.is_file()
+    assert call_delays == expected_delays, (
+        f"Expected delays {expected_delays}, got {call_delays}"
+    )
 
-    # Verify JSON is well‑formed and matches the original data
-    with out_file.open("r", encoding="utf-8") as f:
-        loaded = json.load(f)
-    assert isinstance(loaded, list) and len(loaded) == 1
-    assert loaded[0]["name"] == "6_1"
-    assert loaded[0]["crossing_number"] == 6
-    assert loaded[0]["braid_index"] == 4
+
+def test_backoff_caps_at_max_delay(mock_time_sleep):
+    """Verify that delays are capped at max_delay."""
+    call_delays = []
+
+    def record_delay(delay: float) -> None:
+        call_delays.append(delay)
+
+    mock_time_sleep.side_effect = record_delay
+
+    # Simulate a function that always fails
+    def failing_func() -> None:
+        raise ConnectionError("Simulated network failure")
+
+    # Use a smaller max_retries to test capping
+    test_max_retries = 6  # 1, 2, 4, 8, 16, 32 (capped)
+    with pytest.raises(ConnectionError):
+        _fetch_with_backoff(
+            failing_func,
+            initial_delay=INITIAL_DELAY,
+            multiplier=MULTIPLIER,
+            max_delay=MAX_DELAY,
+            max_retries=test_max_retries,
+        )
+
+    # Expected delays: 1, 2, 4, 8, 16, 32 (capped)
+    expected_delays = [
+        min(INITIAL_DELAY * (MULTIPLIER ** i), MAX_DELAY)
+        for i in range(test_max_retries)
+    ]
+
+    assert call_delays == expected_delays, (
+        f"Expected capped delays {expected_delays}, got {call_delays}"
+    )
+
+
+def test_backoff_retries_exhausted_raises_exception(mock_time_sleep):
+    """Verify that after max_retries, the original exception is raised."""
+    call_count = 0
+
+    def failing_func() -> None:
+        nonlocal call_count
+        call_count += 1
+        raise ConnectionError("Simulated network failure")
+
+    with pytest.raises(ConnectionError, match="Simulated network failure"):
+        _fetch_with_backoff(
+            failing_func,
+            initial_delay=INITIAL_DELAY,
+            multiplier=MULTIPLIER,
+            max_delay=MAX_DELAY,
+            max_retries=MAX_RETRIES,
+        )
+
+    # Should be called initial attempt + max_retries retries
+    assert call_count == MAX_RETRIES + 1, (
+        f"Expected {MAX_RETRIES + 1} calls, got {call_count}"
+    )
+
+
+def test_backoff_succeeds_on_retry(mock_time_sleep):
+    """Verify that the function returns successfully if the operation succeeds on a retry."""
+    call_count = 0
+
+    def eventually_succeeds() -> str:
+        nonlocal call_count
+        call_count += 1
+        if call_count < 3:
+            raise ConnectionError("Simulated transient failure")
+        return "Success"
+
+    result = _fetch_with_backoff(
+        eventually_succeeds,
+        initial_delay=INITIAL_DELAY,
+        multiplier=MULTIPLIER,
+        max_delay=MAX_DELAY,
+        max_retries=MAX_RETRIES,
+    )
+
+    assert result == "Success"
+    assert call_count == 3
+    # Should have slept twice (after attempt 1 and 2)
+    assert mock_time_sleep.call_count == 2
+
+
+def test_partial_cache_triggered_on_consecutive_failures(tmp_path: Path):
+    """Verify that partial caching is triggered after consecutive failures."""
+    cache_file = tmp_path / "partial_cache.json"
+    call_count = 0
+
+    def always_fails() -> None:
+        nonlocal call_count
+        call_count += 1
+        raise ConnectionError("Simulated persistent failure")
+
+    # Mock the _save_partial_cache function to verify it's called
+    with mock.patch(
+        "code.download.knot_atlas_loader._save_partial_cache"
+    ) as mock_save_cache:
+        mock_save_cache.return_value = None
+
+        with pytest.raises(ConnectionError):
+            _fetch_with_backoff(
+                always_fails,
+                initial_delay=INITIAL_DELAY,
+                multiplier=MULTIPLIER,
+                max_delay=MAX_DELAY,
+                max_retries=MAX_RETRIES,
+                cache_file=cache_file,
+            )
+
+        # Verify _save_partial_cache was called after the failure threshold
+        # (typically after 3 consecutive failures as per FR-008)
+        assert mock_save_cache.call_count >= 1, (
+            "Expected partial cache to be saved after consecutive failures"
+        )

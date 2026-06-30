@@ -1,9 +1,9 @@
-'|a002863 against dataset oei size verify':
+002863|a002863 knot oei:
   quote: 13 9988
   source_id: A002863
   url: https://oeis.org/A002863
   value: '9988'
-'|count crossing dataset doc generate knot md prime report reproducibility size stating':
+'|oei':
   quote: 13 9988
   source_id: A002863
   url: https://oeis.org/A002863

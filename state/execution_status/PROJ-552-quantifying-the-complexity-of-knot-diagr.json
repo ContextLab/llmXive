@@ -1,16 +1,18 @@
 {
   "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
-  "ok": true,
-  "reason": "ok",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/reproducibility/checksum_generator.py",
   "artifacts": [
-    "data/checksums.json",
     "data/plots/crossing_vs_braid.png",
     "data/processed/knots_cleaned.csv",
     "data/processed/knots_validated.csv",
     "data/processed/outlier_knots.json",
     "data/raw/knot_atlas_raw.json"
   ],
-  "failures": [],
-  "fix_rounds": 0,
-  "updated_at": "2026-06-24T14:03:07Z"
+  "failures": [
+    "python code/reproducibility/checksum_generator.py -> rc=2\n    /opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/checksum_generator.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T04:57:07Z"
 }

@@ -24184,3 +24184,220 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T22:13:39Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: "9988 prime knots with crossing number \u2264 13"
+  claim_id: c_37951acb
+  context: "Goal: Download knot data from Knot Atlas including crossing numbers, braid\
+    \ indices, hyperbolic volume, and alternating/non\u2011alternating classification\
+    \ for all prime knots with crossing number \u2264 13 (\u2248 9988 knots, OEIS\
+    \ A002863)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset includes all prime knots with crossing number \u2264 13,\
+    \ which amounts to approximately 9988 knots (OEIS A002863)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:44:14Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: 9988 prime knots with crossing number less than or equal to 13
+  claim_id: c_33e76b30
+  context: "Phase 3: User Story 1 - Download and Parse Knot Data from Knot Atlas for\
+    \ all prime knots with crossing number \u2264 13 (Priority: P1) MVP. Goal: Download\
+    \ knot data from Knot Atlas including crossing numbers, braid indices, hyperbolic\
+    \ volume, and alternating/non\u2011alternating classification for all prime knots\
+    \ with crossing number \u2264 13 (\u2248 9988 knots, OEIS A002863)."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: magnitude
+  raw_text: "The goal is to download knot data from Knot Atlas for all prime knots\
+    \ with crossing number \u2264 13 (\u2248 9988 knots, OEIS A002863)."
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T04:46:08Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Total prime knots with crossing number less than or equal to 13 is 9988
+    according to OEIS A002863
+  claim_id: c_aad1ea99
+  context: "T017 [US1] Generate dataset size report in docs/reproducibility/dataset_counts.md\
+    \ stating the total number of prime knots with crossing number \u2264 13 (\u2248\
+    \ 9988, OEIS A002863) and per\u2011crossing\u2011number counts."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: magnitude
+  raw_text: "The dataset size report should state the total number of prime knots\
+    \ with crossing number \u2264 13 is approximately 9988, referencing OEIS A002863."
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T04:46:28Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: 9988 prime knots with crossing number <= 13
+  claim_id: c_200d58b7
+  context: "Download knot data from Knot Atlas including crossing numbers, braid indices,\
+    \ hyperbolic volume, and alternating/non\u2011alternating classification for all\
+    \ prime knots with crossing number \u2264 13 (\u2248 9988 knots, OEIS A002863)."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Traditionally, knots have been catalogued in terms of crossing number.  Knot
+        tables generally include only prime knots, and only one entry for a knot and
+        its mirror image (even if they are different) (Hoste, Thistlethwaite & Weeks
+        1998). The number of nontrivial knots of a given crossing number increases
+        rapidly, making tabulation computationally difficult (Hoste 2005, p. 20).
+        Tabulation efforts have succeeded in enumerating over 6 billion knots and
+        links (Hoste 2005, p. 28). The sequence of the number of prime knots of a
+        given crossing number, up to crossing number 16, is 0, 0, 1, 1, 2, 3, 7, 21,
+        49, 165, 552, 2176, 9988, 46972, 253293, 1388705... (sequence A002863 in the
+        OEIS). While exponential upper and lower bounds for this sequence are known,
+        it has not been proven that this sequence is strictly increasing (Adams 2004).
+      source_id: Knot theory
+      url: https://en.wikipedia.org/wiki/Knot_theory
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: "approximately 9988 prime knots with crossing number \u2264 13"
+  resolved_value: '9988'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T04:47:00Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: 9988 prime knots with crossing number <= 13
+  claim_id: c_4895bf8a
+  context: "Verify dataset size against OEIS A002863 (9988 prime knots \u2264 13 crossings).\
+    \ Document method and result in docs/reproducibility/validation_scope.md"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Traditionally, knots have been catalogued in terms of crossing number.  Knot
+        tables generally include only prime knots, and only one entry for a knot and
+        its mirror image (even if they are different) (Hoste, Thistlethwaite & Weeks
+        1998). The number of nontrivial knots of a given crossing number increases
+        rapidly, making tabulation computationally difficult (Hoste 2005, p. 20).
+        Tabulation efforts have succeeded in enumerating over 6 billion knots and
+        links (Hoste 2005, p. 28). The sequence of the number of prime knots of a
+        given crossing number, up to crossing number 16, is 0, 0, 1, 1, 2, 3, 7, 21,
+        49, 165, 552, 2176, 9988, 46972, 253293, 1388705... (sequence A002863 in the
+        OEIS). While exponential upper and lower bounds for this sequence are known,
+        it has not been proven that this sequence is strictly increasing (Adams 2004).
+      source_id: Knot theory
+      url: https://en.wikipedia.org/wiki/Knot_theory
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: "9988 prime knots with crossing number \u2264 13"
+  resolved_value: '9988'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T04:47:02Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: OEIS A002863 contains 9988 prime knots with crossing number less than
+    or equal to 13
+  claim_id: c_d4105a48
+  context: "T020 [US1] Verify dataset size against OEIS A002863 (9988 prime knots\
+    \ \u2264 13 crossings). Document method and result in docs/reproducibility/validation_scope.md\
+    \ (per SC\u2011001)."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: magnitude
+  raw_text: "Verify dataset size against OEIS A002863 (9988 prime knots \u2264 13\
+    \ crossings)."
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T04:47:59Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: 9988 prime knots with crossing number less than or equal to 13
+  claim_id: c_4694e097
+  context: "Goal: Download knot data from Knot Atlas including crossing numbers, braid\
+    \ indices, hyperbolic volume, and alternating/non\u2011alternating classification\
+    \ for all prime knots with crossing number \u2264 13 (\u2248 9988 (Wikipedia:\
+    \ Knot theory, https://en.wikipedia.org/wiki/Knot_theory) knots, OEIS A002863)."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: magnitude
+  raw_text: "\u2248 9988 (Wikipedia: Knot theory, https://en.wikipedia.org/wiki/Knot_theory)\
+    \ knots, OEIS A002863"
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T04:48:30Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: OEIS A002863 count of prime knots with crossing number less than or equal
+    to 13 is 9988
+  claim_id: c_6283b0df
+  context: "T017 [US1] Generate dataset size report in `docs/reproducibility/dataset_counts.md`\
+    \ stating the total number of prime knots with crossing number \u2264 13 (\u2248\
+    \ 9988, OEIS A002863) and per\u2011crossing\u2011number counts."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: magnitude
+  raw_text: "OEIS sequence A002863 lists 9988 prime knots with crossing number \u2264\
+    \ 13."
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T04:49:37Z'

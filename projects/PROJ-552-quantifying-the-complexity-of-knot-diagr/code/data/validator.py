@@ -119,15 +119,21 @@ def apply_missing_and_quality_flags(
         for row in reader:
             vr = ValidationResult(record=row)
 
-            # ---- Missing invariant checks ----
-            if _is_missing(row.get("crossing_number")):
-                vr.missing_flags.append(MissingInvariantFlag.MISSING_CROSSING_NUMBER)
-            if _is_missing(row.get("braid_index")):
-                vr.missing_flags.append(MissingInvariantFlag.MISSING_BRAID_INDEX)
+            # ---- Missing invariant checks (Phase 2+ algorithmic invariants only) ----
+            # Crossing Number and Braid Index are tabulated core invariants; missing values
+            # are recorded as data quality issues, not missing algorithmic invariants.
+            # Hyperbolic Volume and Alternating Class are algorithmically computed (Phase 2+).
             if _is_missing(row.get("hyperbolic_volume")):
                 vr.missing_flags.append(MissingInvariantFlag.MISSING_HYPERBOLIC_VOLUME)
             if _is_missing(row.get("alternating")):
                 vr.missing_flags.append(MissingInvariantFlag.MISSING_ALTERNATING_CLASS)
+
+            # ---- Tabulated invariant data quality checks ----
+            # Missing tabulated invariants trigger data_quality_flags, not missing_invariant_flags.
+            if _is_missing(row.get("crossing_number")):
+                vr.quality_flags.append(DataQualityFlag.UNEXPECTED_NULL)
+            if _is_missing(row.get("braid_index")):
+                vr.quality_flags.append(DataQualityFlag.UNEXPECTED_NULL)
 
             # ---- Data‑quality checks (only if present) ----
             for field_name in ["crossing_number", "braid_index", "hyperbolic_volume"]:

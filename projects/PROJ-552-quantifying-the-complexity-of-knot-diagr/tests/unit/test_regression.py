@@ -5,69 +5,90 @@ from pathlib import Path
 
 import pandas as pd
 
-from analysis.regression import run_regression_analysis, compute_descriptive_comparison
+from analysis.regression import compute_correlations_and_effect_sizes, write_correlation_effects_report, CorrelationResult, EffectSizeResult
 
 def _sample_dataframe() -> pd.DataFrame:
     # Minimal synthetic dataset covering required columns.
+    # Based on the actual API surface: analysis.regression uses these columns.
     data = {
-        "crossing_number": [3, 4, 5, 6],
-        "braid_index": [2, 2, 3, 3],
-        "hyperbolic_volume": [1.2, 2.5, 3.1, 4.0],
-        "alternating": [True, True, False, False],
+        "crossing_number": [3.0, 4.0, 5.0, 6.0, 7.0],
+        "braid_index": [2.0, 2.0, 3.0, 3.0, 4.0],
+        "hyperbolic_volume": [0.9, 2.0, 2.8, 3.5, 4.2],
+        "alternating": [True, True, False, False, False],
     }
     return pd.DataFrame(data)
 
-def test_run_regression_analysis(tmp_path: Path) -> None:
+def test_compute_correlations_and_effect_sizes():
     df = _sample_dataframe()
-    results = run_regression_analysis(df)
-    # Expect three models
-    assert len(results) == 3
-    names = {r.name for r in results}
-    assert {"linear", "polynomial_degree_2", "logarithmic"} == names
-    # Verify that each result contains numeric metrics
-    for r in results:
-        assert isinstance(r.r2, float)
-        assert isinstance(r.mae, float)
-        assert isinstance(r.aic, float)
-        assert isinstance(r.bic, float)
+    # The function expects specific columns as per the implementation in analysis.regression
+    # It computes Pearson/Spearman for (crossing, braid), (crossing, volume), (braid, volume)
+    # and returns a list of CorrelationResult and EffectSizeResult
+    try:
+        results = compute_correlations_and_effect_sizes(df)
+        # We expect results to be non-empty if the function runs correctly
+        assert len(results) > 0, "Expected correlation results"
+        
+        # Verify structure of CorrelationResult
+        for res in results:
+            assert isinstance(res, CorrelationResult)
+            assert res.metric_name is not None
+            assert isinstance(res.value, (float, int))
+            # p-value is N/A per project constraints (census data)
+            assert res.p_value == "N/A"
+    except Exception as e:
+        # If the function signature or logic has changed, we fail explicitly
+        raise AssertionError(f"compute_correlations_and_effect_sizes failed: {e}")
 
-def test_compute_descriptive_comparison():
+def test_write_correlation_effects_report(tmp_path: Path):
     df = _sample_dataframe()
-    comps = compute_descriptive_comparison(df)
-    assert len(comps) == 2
-    groups = {c.group for c in comps}
-    assert groups == {"alternating", "non_alternating"}
-    for c in comps:
-        assert isinstance(c.mean_crossing, float)
-        assert isinstance(c.mean_braid, float)
-        assert isinstance(c.mean_volume, float)
-        assert isinstance(c.count, int)
+    out_dir = tmp_path / "data" / "processed"
+    out_dir.mkdir(parents=True)
+    
+    report_path = out_dir / "correlation_effects_report.json"
+    
+    try:
+        write_correlation_effects_report(df, report_path)
+        assert report_path.exists(), "Report file was not created"
+        
+        with report_path.open() as f:
+            data = json.load(f)
+        
+        assert isinstance(data, list), "Report should be a list of results"
+        assert len(data) > 0, "Report should contain entries"
+        
+        # Check that p-values are marked as N/A in the output
+        for entry in data:
+            if "p_value" in entry:
+                assert entry["p_value"] == "N/A", "p-value must be N/A for census data"
+    except Exception as e:
+        raise AssertionError(f"write_correlation_effects_report failed: {e}")
 
 def test_main_writes_outputs(tmp_path: Path, monkeypatch):
     # Redirect data output directory to a temporary location
     out_dir = tmp_path / "data" / "processed"
     out_dir.mkdir(parents=True)
-    monkeypatch.setattr("analysis._utils._PROCESSED_PATH", out_dir / "knots_cleaned.csv")
-
+    
     # Create a minimal cleaned knots CSV that the main function will read
     df = _sample_dataframe()
-    df.to_csv(out_dir / "knots_cleaned.csv", index=False)
-
-    # Run the main entry point
-    from analysis.regression import main
-
-    main()
-
-    # Verify output files exist and are valid JSON
-    regression_file = out_dir / "regression_results.json"
-    comp_file = out_dir / "descriptive_comparison.json"
-    assert regression_file.is_file()
-    assert comp_file.is_file()
-
-    # Load and check JSON structure
-    with regression_file.open() as f:
-        reg_data = json.load(f)
-    with comp_file.open() as f:
-        comp_data = json.load(f)
-    assert isinstance(reg_data, list) and len(reg_data) == 3
-    assert isinstance(comp_data, list) and len(comp_data) == 2
+    csv_path = out_dir / "knots_cleaned.csv"
+    df.to_csv(csv_path, index=False)
+    
+    # Monkeypatch the path used by analysis._utils
+    import analysis._utils
+    original_path = analysis._utils._PROCESSED_PATH
+    analysis._utils._PROCESSED_PATH = csv_path
+    
+    try:
+        from analysis.regression import main
+        main()
+        
+        # Verify output files exist
+        report_file = out_dir / "correlation_effects_report.json"
+        assert report_file.is_file(), "correlation_effects_report.json not found"
+        
+        with report_file.open() as f:
+            content = json.load(f)
+        assert isinstance(content, list)
+    finally:
+        # Restore original path
+        analysis._utils._PROCESSED_PATH = original_path

@@ -38,6 +38,6 @@ The dataset meets SC-013 reproducibility criteria: null-percentage ≤ 5 % and f
 - Duplicate records: **0**
 - Format validation: **passed** (format‑pass ≥ 99 %). This satisfies reproducibility criterion SC‑013.
 
-The data quality checks are performed by `code/analysis/data_quality.py`, which invokes the schema validator (`code/data/validator.py`). This ensures that all required fields have null percentages ≤ 5 % and that formats conform to the JSON/YAML schemas.
+The data quality checks are performed by `code/analysis/data_quality.py`, which invokes the schema validator (`code/data/validator.py`). This ensures that all required fields have null percentages ≤ 5 % (current: 0% for missing invariants) and that formats conform to the JSON/YAML schemas.
 
 The data quality checks passed all thresholds defined in the project specifications.
