@@ -1,0 +1,9 @@
+You are a medical expert assistant. Answer the following multiple-choice question based strictly on the provided medical context and your knowledge.
+
+Question:
+{stem}
+
+Options:
+{options}
+
+Answer:

@@ -1,0 +1,72 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: QuestionItem
+description: >
+  Represents a single medical question item, either in its original clean state
+  or with an injected misleading claim. Used for inference and validation.
+type: object
+required:
+  - item_id
+  - stem
+  - options
+  - correct_answer_key
+  - validation_status
+properties:
+  item_id:
+    type: string
+    description: Unique identifier for the question item (e.g., from MedQA/MedMCQA).
+    pattern: "^[a-zA-Z0-9_-]+$"
+  stem:
+    type: string
+    description: The clinical vignette or question text.
+    minLength: 1
+  options:
+    type: array
+    description: List of possible answer choices.
+    items:
+      type: string
+    minItems: 4
+    maxItems: 4
+  correct_answer_key:
+    type: string
+    description: The correct answer key (e.g., 'A', 'B', 'C', 'D').
+    pattern: "^[A-D]$"
+  injected_claim:
+    type:
+      - string
+      - "null"
+    description: >
+      The false medical claim injected into the stem, if applicable.
+      Null for clean (original) questions.
+    default: null
+  injection_method:
+    type:
+      - string
+      - "null"
+    description: Method used to inject the claim (e.g., 'negation', 'fabrication').
+    default: null
+  validation_status:
+    type: string
+    description: >
+      Status of the item validation. Must be one of:
+      'valid', 'invalid', 'excluded'.
+    enum:
+      - valid
+      - invalid
+      - excluded
+  validation_notes:
+    type:
+      - string
+      - "null"
+    description: Optional notes explaining validation status or anomalies.
+    default: null
+  source_dataset:
+    type: string
+    description: Name of the source dataset (e.g., 'medmcqa').
+    default: "medmcqa"
+  original_stem_hash:
+    type:
+      - string
+      - "null"
+    description: SHA256 hash of the original stem for integrity checking.
+    default: null
+additionalProperties: false

@@ -1,0 +1,133 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ResilienceMetric
+description: >
+  Aggregated resilience metrics and statistical test results for a specific
+  model configuration (model, strategy, scale).
+type: object
+required:
+  - model_name
+  - strategy
+  - model_scale
+  - clean_accuracy
+  - mislead_accuracy
+  - resilience_score
+  - statistical_tests
+properties:
+  model_name:
+    type: string
+    description: Identifier of the model used (e.g., 'llama-2-7b').
+  strategy:
+    type: string
+    description: Inference strategy used (e.g., 'baseline', 'cot', 'self_critique').
+    enum:
+      - baseline
+      - cot
+      - self_critique
+  model_scale:
+    type: string
+    description: Parameter scale of the model.
+    enum:
+      - 7B
+      - 13B
+      - 70B
+  sample_size:
+    type: integer
+    description: Number of items included in this metric calculation.
+    minimum: 1
+  clean_accuracy:
+    type: number
+    description: Accuracy on the clean dataset (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
+  mislead_accuracy:
+    type: number
+    description: Accuracy on the misleading dataset (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
+  resilience_score:
+    type: number
+    description: >
+      Calculated resilience score: 1 - (clean_acc - mislead_acc) / clean_acc.
+      If clean_acc is 0, score is 0.
+    minimum: 0.0
+    maximum: 1.0
+  statistical_tests:
+    type: object
+    description: Results of statistical significance tests.
+    required:
+      - wilcoxon
+      - kruskal_wallis
+    properties:
+      wilcoxon:
+        type: object
+        description: Wilcoxon signed-rank test results (clean vs mislead per-item).
+        required:
+          - statistic
+          - p_value
+        properties:
+          statistic:
+            type: number
+            description: Wilcoxon test statistic.
+          p_value:
+            type: number
+            description: Two-sided p-value.
+          correction_applied:
+            type: boolean
+            description: Whether Bonferroni or other correction was applied.
+          corrected_p_value:
+            type:
+              - number
+              - "null"
+            description: P-value after correction, if applicable.
+      kruskal_wallis:
+        type: object
+        description: Kruskal-Wallis test results (across model scales).
+        required:
+          - h_statistic
+          - p_value
+        properties:
+          h_statistic:
+            type: number
+            description: Kruskal-Wallis H statistic.
+          p_value:
+            type: number
+            description: Two-sided p-value.
+          correction_applied:
+            type: boolean
+            description: Whether Bonferroni or other correction was applied.
+          corrected_p_value:
+            type:
+              - number
+              - "null"
+            description: P-value after correction, if applicable.
+      post_hoc:
+        type:
+          - object
+          - "null"
+        description: Dunn's test results for pairwise comparisons following Kruskal-Wallis.
+        properties:
+          method:
+            type: string
+            description: Post-hoc method used (e.g., 'dunn_bonferroni').
+          pairwise_comparisons:
+            type: array
+            items:
+              type: object
+              properties:
+                group1:
+                  type: string
+                group2:
+                  type: string
+                p_value:
+                  type: number
+                corrected_p_value:
+                  type: number
+    additionalProperties: false
+  fwer_controlled:
+    type: boolean
+    description: Flag indicating if Family-Wise Error Rate is controlled.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when metrics were computed.
+additionalProperties: false

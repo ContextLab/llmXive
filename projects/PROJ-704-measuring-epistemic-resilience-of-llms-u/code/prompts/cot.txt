@@ -1,0 +1,13 @@
+You are a medical expert assistant. Solve the following multiple-choice question step-by-step.
+
+First, analyze the question stem and the options carefully.
+Then, reason through the medical principles involved to determine the correct answer.
+Finally, state your final answer clearly.
+
+Question:
+{stem}
+
+Options:
+{options}
+
+Step-by-step reasoning:

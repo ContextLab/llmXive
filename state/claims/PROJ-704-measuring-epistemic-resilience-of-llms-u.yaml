@@ -1,0 +1,1605 @@
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/code/data/analysis/power_analysis_report.md
+  attempts: 1
+  canonical: Theoretical minimum sample size per group is 64
+  claim_id: c_a5d7fa95
+  context: 'Based on the parameters above, the theoretical minimum sample size per
+    group is: - **Calculated N**: 64'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical minimum sample size per group is 64.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:44:43Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/code/data/analysis/power_analysis_report.md
+  attempts: 1
+  canonical: Total sample size is 128 with 64 per group
+  claim_id: c_a0e632e4
+  context: '- **Total Sample Size**: 128 (64 per group: Clean vs. Mislead)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The total sample size is 128 (64 per group: Clean vs. Mislead).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:45:20Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/code/data/analysis/power_analysis_report.md
+  attempts: 1
+  canonical: MedMCQA dataset has 183376 total available items
+  claim_id: c_cd15df11
+  context: '- **Total Available Items**: 183,376'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MedMCQA dataset contains 183,376 total available items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:45:35Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/code/data/analysis/power_analysis_report.md
+  attempts: 1
+  canonical: MedMCQA dataset size 183376 exceeds theoretical requirement 128
+  claim_id: c_9ea3e161
+  context: '*Note: The calculation uses `statsmodels.stats.power.zt_ind_solve_power`...
+    Constraint Check: The available dataset (183,376) significantly exceeds the theoretical
+    requirement (128).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The available dataset (183,376) significantly exceeds the theoretical
+    requirement (128).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:45:55Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: theoretical minimum sample size N for Cohen's h=0.5, alpha=0.05, power=0.80
+  claim_id: c_af3a0c96
+  context: Implement code/scripts/power_analysis.py to calculate theoretical minimum
+    sample size (N) for Cohen's h=0.5, alpha=0.05, power=0.80 using statsmodels
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: theoretical minimum sample size (N) for Cohen's h=0.5, alpha=0.05, power=0.80
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T10:46:20Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: two board-certified clinicians independently verify the sample
+  claim_id: c_af6e4fb5
+  context: Create code/data/clinical_review_instructions.md detailing the workflow
+    for two board-certified clinicians to independently verify the sample
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two_board-certified_clinicians_independently_verify_the_samp
+  kind: entity_fact
+  raw_text: two board-certified clinicians to independently verify the sample
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:46:58Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: asserting latency reduction of at least 10% on a 1000-item batch
+  claim_id: c_2b9ba836
+  context: Implement code/tests/unit/test_io_performance.py to benchmark the buffered
+    write mechanism (T047) against a direct-write baseline, asserting a latency reduction
+    of at least 10% on a 1000-item batch
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Asserting_latency_reduction_of_at_least_10%25_on_a_1000-item_b
+  kind: magnitude
+  raw_text: asserting a latency reduction of at least 10% on a 1000-item batch
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:47:43Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: model scales 7B, 13B, and 70B
+  claim_id: c_1148b7ab
+  context: Implement Kruskal-Wallis test on the distribution of per-item resilience
+    scores across model scales (7B, 13B, 70B) as per FR-004
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_scales_7B,_13B,_and_70B
+  kind: entity_fact
+  raw_text: model scales (7B, 13B, 70B)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:48:11Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Project uses medqa/medmcqa dataset from HuggingFace
+  claim_id: c_572ec592
+  context: T001 [P] Fetch `medqa` (also known as `medmcqa` in plan) dataset from HuggingFace
+    using `code/scripts/fetch_medmcqa.py` and verify checksum against manifest.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_medqa/medmcqa_dataset_from_HuggingFace
+  kind: entity_fact
+  raw_text: The project uses the medqa (also known as medmcqa) dataset from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:49:07Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: Cohen''s h=0.5, alpha=0.05, power=0.80'
+  claim_id: c_fffd6a00
+  context: T002 [P] Implement `code/scripts/power_analysis.py` to calculate *theoretical*
+    minimum sample size (N) for Cohen's h=0.5, alpha=0.05, power=0.80 using `statsmodels`
+    (does not require fetched data).
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Theoretical minimum sample size (N) is calculated for Cohen's h=0.5, alpha=0.05,
+    and power=0.80.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T10:49:07Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Phase block condition: theoretical N < 200 or actual dataset size <
+    200'
+  claim_id: c_e2615a3e
+  context: T003 [P] Execute `power_analysis.py` and generate `code/data/analysis/power_analysis_report.md`;
+    block subsequent phases if theoretical N (T002) < 200 OR actual dataset size (T001)
+    < 200.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Phase_block_condition:_theoretical_N_%3C_200_or_actual_dataset
+  kind: magnitude
+  raw_text: Subsequent phases are blocked if theoretical N is less than 200 or actual
+    dataset size is less than 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:49:55Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_86f51880
+  context: T005 [P] Initialize Python 3.11 project with `requirements.txt` including
+    `datasets`, `transformers`, `torch`, `scikit-learn`, `scipy`, `pandas`, `pyyaml`,
+    `pytest`, `statsmodels`, `bitsandbytes`, `timeout-decorator`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:50:11Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Inference parameters: temperature=0.0, seed=42'
+  claim_id: c_a617a765
+  context: 'Independent Test: Run `run_inference.py` on a representative set of questions;
+    verify output logs contain expected model/strategy combinations with `temperature=0.0`
+    and `seed=42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inference is executed with temperature=0.0 and seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:50:34Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Low-bit quantization applied to 13B models
+  claim_id: c_114abb1d
+  context: T025 [US2] Implement model loader in `code/scripts/run_inference.py` with
+    Low-bit quantization for 13B models
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Low-bit_quantization_applied_to_13B_models
+  kind: entity_fact
+  raw_text: Low-bit quantization is used for 13B models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:50:59Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Malformed outputs marked incorrect with accuracy=0
+  claim_id: c_5c1c750f
+  context: T028 [US2] Handle malformed outputs (e.g., "A, B") by marking as incorrect
+    (accuracy=0) and logging anomaly
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Malformed outputs such as 'A, B' are marked as incorrect with accuracy=0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:51:17Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Resilience formula: 1 - (clean - mislead)/clean'
+  claim_id: c_a178ebd2
+  context: 'T033 [US3] Implement resilience calculation in `code/scripts/analyze_resilience.py`
+    using formula $1 - (clean - mislead)/clean$ (Prereq: T029, T020)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Resilience is calculated using the formula 1 - (clean - mislead)/clean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:51:35Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Kruskal-Wallis test on resilience scores across 7B, 13B, 70B models
+  claim_id: c_a1178375
+  context: 'T036 [US3] Implement Kruskal-Wallis test on the distribution of per-item
+    resilience scores across model scales (7B, 13B, 70B) as per FR-004 (Spec overrides
+    Plan''s ''accuracy drop'' instruction), outputting H-statistic and p-value (Prereq:
+    T033)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kruskal-Wallis_test_on_resilience_scores_across_7B,_13B,_70B
+  kind: entity_fact
+  raw_text: Kruskal-Wallis test is implemented on the distribution of per-item resilience
+    scores across model scales 7B, 13B, and 70B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:52:19Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to pairwise and post-hoc tests
+  claim_id: c_835d87cc
+  context: 'T037 [US3] Apply Bonferroni correction for pairwise comparisons and Dunn''s
+    test with Bonferroni for post-hoc following Kruskal-Wallis to all p-values for
+    FWER control (Prereq: T035, T036)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_pairwise_and_post-hoc_tests
+  kind: entity_fact
+  raw_text: Bonferroni correction is applied for pairwise comparisons and Dunn's test
+    with Bonferroni for post-hoc analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:52:41Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Two board-certified clinicians perform independent verification
+  claim_id: c_03d8e0af
+  context: 'T041c [Const VII] Generate Manual Review Instructions: Create `code/data/clinical_review_instructions.md`
+    detailing the workflow for **two board-certified clinicians** to independently
+    verify the sample'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two_board-certified_clinicians_perform_independent_verificat
+  kind: entity_fact
+  raw_text: Two board-certified clinicians independently verify the sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:52:43Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Cohen's kappa calculated from two independent clinician IDs
+  claim_id: c_148d6a59
+  context: "T042 [Const VII] Create `code/scripts/validate_clinical.py` to ingest\
+    \ the completed `clinical_review_form.csv` (matching schema T041b) and calculate\
+    \ Cohen's \u03BA from the **two independent clinician IDs**"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_kappa_calculated_from_two_independent_clinician_IDs
+  kind: entity_fact
+  raw_text: "Cohen's \u03BA is calculated from the two independent clinician IDs."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:53:01Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Buffered write targets 10% I/O latency reduction on 1000-item batch
+  claim_id: c_adbcba0b
+  context: T047b [P] Implement `code/tests/unit/test_io_performance.py` to benchmark
+    the buffered write mechanism (T047) against a direct-write baseline, asserting
+    a latency reduction of at least 10% on a 1000-item batch.
+  evidence:
+    candidates:
+    - - O latency reduction on
+      - 1000.0
+    - - Buffered write targets
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Buffered_write_targets_10%25_I/O_latency_reduction_on_1000-ite
+  kind: magnitude
+  raw_text: The buffered write mechanism targets a reduction in I/O latency of at
+    least 10% on a 1000-item batch.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-30T10:53:42Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: minimum sample size for Cohen's h=0.5 alpha=0.05 power=0.80
+  claim_id: c_32e2af50
+  context: Implement code/scripts/power_analysis.py to calculate theoretical minimum
+    sample size (N) for Cohen's h=0.5, alpha=0.05, power=0.80 using statsmodels
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: calculate theoretical minimum sample size (N) for Cohen's h=0.5, alpha=0.05,
+    power=0.80
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T10:54:21Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: block phases if theoretical N < 200 or actual dataset size < 200
+  claim_id: c_abd136f3
+  context: Execute power_analysis.py and generate code/data/analysis/power_analysis_report.md;
+    block subsequent phases if theoretical N (T002) < 200 OR actual dataset size (T001)
+    < 200
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: block subsequent phases if theoretical N < 200 OR actual dataset size
+    < 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:54:22Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: skip 70B model on CPU-only runners
+  claim_id: c_44a5da1c
+  context: Implement pre-execution check to skip 70B model on CPU-only runners (FR-002)
+    before loading models
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Skip_70B_model_on_CPU-only_runners
+  kind: entity_fact
+  raw_text: skip 70B model on CPU-only runners
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:54:43Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: use Low-bit quantization for 13B models
+  claim_id: c_2d0f3e2c
+  context: Implement model loader in code/scripts/run_inference.py with Low-bit quantization
+    for 13B models
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Low-bit_quantization_for_13B_models
+  kind: entity_fact
+  raw_text: use Low-bit quantization for 13B models
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:55:11Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: mark malformed outputs as incorrect accuracy=0
+  claim_id: c_0fda94e7
+  context: Handle malformed outputs (e.g., 'A, B') by marking as incorrect (accuracy=0)
+    and logging anomaly
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mark malformed outputs as incorrect with accuracy=0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:55:36Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: set resilience=0 exclude from tests if clean accuracy zero
+  claim_id: c_5df62537
+  context: 'Handle zero clean accuracy edge case: set resilience=0 and exclude from
+    statistical tests'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: set resilience=0 and exclude from statistical tests if clean accuracy
+    is zero
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:55:56Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction and Dunn's test for post-hoc Kruskal-Wallis
+  claim_id: c_37a54b0c
+  context: Apply Bonferroni correction for pairwise comparisons and Dunn's test with
+    Bonferroni for post-hoc following Kruskal-Wallis to all p-values for FWER control
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_and_Dunn%27s_test_for_post-hoc_Kru
+  kind: entity_fact
+  raw_text: apply Bonferroni correction for pairwise comparisons and Dunn's test with
+    Bonferroni for post-hoc following Kruskal-Wallis
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:56:22Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: two board-certified clinicians independently verify sample
+  claim_id: c_2aa3bb5d
+  context: Create code/data/clinical_review_instructions.md detailing the workflow
+    for two board-certified clinicians to independently verify the sample
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two_board-certified_clinicians_independently_verify_sample
+  kind: entity_fact
+  raw_text: two board-certified clinicians independently verify the sample
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:56:24Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: assert latency reduction at least 10% on 1000-item batch
+  claim_id: c_2891cce7
+  context: Implement code/tests/unit/test_io_performance.py to benchmark the buffered
+    write mechanism (T047) against a direct-write baseline, asserting a latency reduction
+    of at least 10% on a 1000-item batch
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_latency_reduction_at_least_10%25_on_1000-item_batch
+  kind: magnitude
+  raw_text: assert a latency reduction of at least 10% on a 1000-item batch
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:57:07Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 0
+  canonical: minimum sample size calculation for Cohen's h=0.5 alpha=0.05 power=0.80
+  claim_id: c_25db212b
+  context: T002 [P] Implement `code/scripts/power_analysis.py` to calculate *theoretical*
+    minimum sample size (N) for Cohen's h=0.5, alpha=0.05, power=0.80 using `statsmodels`
+    (does not require fetched data).
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: The theoretical minimum sample size (N) is calculated for Cohen's h=0.5,
+    alpha=0.05, power=0.80.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T10:57:34Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: block subsequent phases if theoretical N or actual dataset size is less
+    than 200
+  claim_id: c_e7f61352
+  context: T003 [P] Execute `power_analysis.py` and generate `code/data/analysis/power_analysis_report.md`;
+    block subsequent phases if theoretical N (T002) < 200 OR actual dataset size (T001)
+    < 200.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Block_subsequent_phases_if_theoretical_N_or_actual_dataset_s
+  kind: magnitude
+  raw_text: The project blocks subsequent phases if theoretical N is less than 200
+    or actual dataset size is less than 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:58:22Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: project initializes with Python 3.11
+  claim_id: c_f554162b
+  context: T005 [P] Initialize Python 3.11 project with `requirements.txt` including
+    `datasets`, `transformers`, `torch`, `scikit-learn`, `scipy`, `pandas`, `pyyaml`,
+    `pytest`, `statsmodels`, `bitsandbytes`, `timeout-decorator`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:58:22Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: resilience formula 1 minus clean minus mislead over clean
+  claim_id: c_aaff9d12
+  context: 'T033 [US3] Implement resilience calculation in `code/scripts/analyze_resilience.py`
+    using formula $1 - (clean - mislead)/clean$ (Prereq: T029, T020)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resilience_formula_1_minus_clean_minus_mislead_over_clean
+  kind: entity_fact
+  raw_text: The resilience formula is defined as 1 - (clean - mislead)/clean.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:58:50Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 2
+  canonical: Wilcoxon signed-rank test on per-item correctness vectors
+  claim_id: c_9083140d
+  context: 'T035 [US3] Implement Wilcoxon signed-rank test on per-item correctness
+    vectors (clean vs mislead) as per FR-004, outputting p-value to `resilience_metrics.json`
+    (Prereq: T033)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_on_per-item_correctness_vectors
+  kind: entity_fact
+  raw_text: Wilcoxon signed-rank test is implemented on per-item correctness vectors
+    (clean vs mislead).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:58:51Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Kruskal-Wallis test on per-item resilience scores across 7B 13B and 70B
+    model scales
+  claim_id: c_c88e75e8
+  context: 'T036 [US3] Implement Kruskal-Wallis test on the distribution of per-item
+    resilience scores across model scales (7B, 13B, 70B) as per FR-004 (Spec overrides
+    Plan''s ''accuracy drop'' instruction), outputting H-statistic and p-value (Prereq:
+    T033)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kruskal-Wallis_test_on_per-item_resilience_scores_across_7B
+  kind: entity_fact
+  raw_text: Statistical tests use Kruskal-Wallis test on the distribution of per-item
+    resilience scores across model scales 7B, 13B, and 70B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:59:13Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: two board-certified clinicians independently verify the sample
+  claim_id: c_9284ed40
+  context: 'T041c [Const VII] Generate Manual Review Instructions: Create `code/data/clinical_review_instructions.md`
+    detailing the workflow for **two board-certified clinicians** to independently
+    verify the sample'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two_board-certified_clinicians_independently_verify_the_samp
+  kind: entity_fact
+  raw_text: Two board-certified clinicians independently verify the sample for clinical
+    ground-truth validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:59:53Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: buffered write mechanism targets 10 percent latency reduction on 1000-item
+    batch
+  claim_id: c_81e944b7
+  context: T047b [P] Implement `code/tests/unit/test_io_performance.py` to benchmark
+    the buffered write mechanism (T047) against a direct-write baseline, asserting
+    a latency reduction of at least 10% on a 1000-item batch.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Buffered_write_mechanism_targets_10_percent_latency_reductio
+  kind: magnitude
+  raw_text: The buffered write mechanism targets a latency reduction of at least 10%
+    on a 1000-item batch.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:59:56Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 0
+  canonical: minimum sample size calculation for Cohen's h=0.5 alpha=0.05 power=0.80
+  claim_id: c_d7aaa12b
+  context: T002 [P] Implement code/scripts/power_analysis.py to calculate theoretical
+    minimum sample size (N) for Cohen's h=0.5, alpha=0.05, power=0.80 using statsmodels
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Calculate theoretical minimum sample size (N) for Cohen's h=0.5, alpha=0.05,
+    power=0.80
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T11:02:27Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: block phases if sample size N is less than 200
+  claim_id: c_eb8ee823
+  context: T003 [P] Execute power_analysis.py and generate code/data/analysis/power_analysis_report.md;
+    block subsequent phases if theoretical N (T002) < 200 OR actual dataset size (T001)
+    < 200
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Block_phases_if_sample_size_N_is_less_than_200
+  kind: magnitude
+  raw_text: Block subsequent phases if theoretical N < 200 OR actual dataset size
+    < 200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:03:21Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: initialize Python 3.11 project
+  claim_id: c_f4269459
+  context: T005 [P] Initialize Python 3.11 project with requirements.txt including
+    datasets, transformers, torch, scikit-learn, scipy, pandas, pyyaml, pytest, statsmodels,
+    bitsandbytes, timeout-decorator
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:03:21Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: skip 70B model on CPU-only runners
+  claim_id: c_1fe618f8
+  context: T024 [US2] Implement pre-execution check to skip 70B model on CPU-only
+    runners (FR-002) before loading models
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Skip_70B_model_on_CPU-only_runners
+  kind: entity_fact
+  raw_text: Skip 70B model on CPU-only runners
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:03:23Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: use low-bit quantization for 13B models
+  claim_id: c_52e9938c
+  context: T025 [US2] Implement model loader in code/scripts/run_inference.py with
+    Low-bit quantization for 13B models
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_low-bit_quantization_for_13B_models
+  kind: entity_fact
+  raw_text: Use Low-bit quantization for 13B models
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:03:26Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: mark malformed multi-choice outputs as incorrect with accuracy zero
+  claim_id: c_aa933529
+  context: T028 [US2] Handle malformed outputs (e.g., 'A, B') by marking as incorrect
+    (accuracy=0) and logging anomaly
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mark malformed outputs like 'A, B' as incorrect with accuracy=0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:03:45Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: calculate resilience using formula one minus clean minus mislead over
+    clean
+  claim_id: c_2b7f8c57
+  context: 'T033 [US3] Implement resilience calculation in code/scripts/analyze_resilience.py
+    using formula $1 - (clean - mislead)/clean$ (Prereq: T029, T020)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use formula 1 - (clean - mislead)/clean for resilience calculation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:04:03Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: set resilience to zero and exclude from statistical tests when clean
+    accuracy is zero
+  claim_id: c_ecb6c8b5
+  context: 'T034 [US3] Handle zero clean accuracy edge case: set resilience=0 and
+    exclude from statistical tests'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set resilience=0 and exclude from statistical tests if clean accuracy
+    is zero
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:04:03Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: implement Wilcoxon signed-rank test on per-item correctness vectors
+  claim_id: c_81421161
+  context: 'T035 [US3] Implement Wilcoxon signed-rank test on per-item correctness
+    vectors (clean vs mislead) as per FR-004, outputting p-value to resilience_metrics.json
+    (Prereq: T033)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_Wilcoxon_signed-rank_test_on_per-item_correctness
+  kind: entity_fact
+  raw_text: Implement Wilcoxon signed-rank test on per-item correctness vectors
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:04:27Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: implement Kruskal-Wallis test on resilience scores across 7B 13B and
+    70B models
+  claim_id: c_a320633c
+  context: 'T036 [US3] Implement Kruskal-Wallis test on the distribution of per-item
+    resilience scores across model scales (7B, 13B, 70B) as per FR-004 (Spec overrides
+    Plan''s ''accuracy drop'' instruction), outputting H-statistic and p-value (Prereq:
+    T033)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_Kruskal-Wallis_test_on_resilience_scores_across_7B
+  kind: entity_fact
+  raw_text: Implement Kruskal-Wallis test on distribution of per-item resilience scores
+    across model scales 7B, 13B, 70B
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:04:46Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction for pairwise comparisons
+  claim_id: c_d20b2302
+  context: 'T037 [US3] Apply Bonferroni correction for pairwise comparisons and Dunn''s
+    test with Bonferroni for post-hoc following Kruskal-Wallis to all p-values for
+    FWER control (Prereq: T035, T036)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_for_pairwise_comparisons
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction for pairwise comparisons
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:05:03Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: require two board-certified clinicians for independent verification
+  claim_id: c_0b29551e
+  context: 'T041c [Const VII] Generate Manual Review Instructions: Create code/data/clinical_review_instructions.md
+    detailing the workflow for two board-certified clinicians to independently verify
+    the sample'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Require_two_board-certified_clinicians_for_independent_verif
+  kind: entity_fact
+  raw_text: Require two board-certified clinicians to independently verify the sample
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:05:39Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: calculate Cohen's kappa from two independent clinician IDs
+  claim_id: c_1d8b1456
+  context: "T042 [Const VII] Create code/scripts/validate_clinical.py to ingest the\
+    \ completed clinical_review_form.csv (matching schema T041b) and calculate Cohen's\
+    \ \u03BA from the two independent clinician IDs"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Cohen%27s_kappa_from_two_independent_clinician_IDs
+  kind: entity_fact
+  raw_text: "Calculate Cohen's \u03BA from two independent clinician IDs"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:06:05Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: assert at least 10 percent latency reduction on 1000 item batch
+  claim_id: c_b2923f84
+  context: T047b [P] Implement code/tests/unit/test_io_performance.py to benchmark
+    the buffered write mechanism (T047) against a direct-write baseline, asserting
+    a latency reduction of at least 10% on a 1000-item batch.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_at_least_10_percent_latency_reduction_on_1000_item_ba
+  kind: magnitude
+  raw_text: Assert a latency reduction of at least 10% on a 1000-item batch
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:06:06Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 0
+  canonical: minimum sample size N for Cohen's h=0.5 alpha=0.05 power=0.80
+  claim_id: c_c9c753cf
+  context: Implement code/scripts/power_analysis.py to calculate theoretical minimum
+    sample size (N) for Cohen's h=0.5, alpha=0.05, power=0.80 using statsmodels.
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Calculate theoretical minimum sample size (N) for Cohen's h=0.5, alpha=0.05,
+    power=0.80.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T11:07:45Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: initialize Python 3.11 project
+  claim_id: c_30226ad4
+  context: Initialize Python 3.11 project with requirements.txt including datasets,
+    transformers, torch, scikit-learn, scipy, pandas, pyyaml, pytest, statsmodels,
+    bitsandbytes, timeout-decorator.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:07:47Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: skip 70B model on CPU-only runners
+  claim_id: c_31a8acb5
+  context: Implement pre-execution check to skip 70B model on CPU-only runners (FR-002)
+    before loading models.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Skip_70B_model_on_CPU-only_runners
+  kind: entity_fact
+  raw_text: Skip 70B model on CPU-only runners.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:07:49Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: low-bit quantization for 13B models
+  claim_id: c_82223075
+  context: Implement model loader in code/scripts/run_inference.py with Low-bit quantization
+    for 13B models.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Low-bit_quantization_for_13B_models
+  kind: entity_fact
+  raw_text: Implement Low-bit quantization for 13B models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:08:20Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: mark malformed outputs as incorrect accuracy=0
+  claim_id: c_ed83fa74
+  context: Handle malformed outputs (e.g., 'A, B') by marking as incorrect (accuracy=0)
+    and logging anomaly.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mark malformed outputs (e.g., 'A, B') as incorrect (accuracy=0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:08:38Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: resilience score formula 1 - (clean - mislead)/clean
+  claim_id: c_9fa9f0cb
+  context: 'Implement resilience calculation in code/scripts/analyze_resilience.py
+    using formula $1 - (clean - mislead)/clean$ (Prereq: T029, T020).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate resilience scores using formula 1 - (clean - mislead)/clean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:08:56Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: set resilience=0 if clean accuracy is zero
+  claim_id: c_836963d3
+  context: 'Handle zero clean accuracy edge case: set resilience=0 and exclude from
+    statistical tests.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set resilience=0 and exclude from statistical tests if clean accuracy
+    is zero.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:08:56Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test on per-item correctness vectors clean vs mislead
+  claim_id: c_94407b35
+  context: 'Implement Wilcoxon signed-rank test on per-item correctness vectors (clean
+    vs mislead) as per FR-004, outputting p-value to resilience_metrics.json (Prereq:
+    T033).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_on_per-item_correctness_vectors_cl
+  kind: entity_fact
+  raw_text: Implement Wilcoxon signed-rank test on per-item correctness vectors (clean
+    vs mislead).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:08:58Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Kruskal-Wallis test on per-item resilience scores across model scales
+    7B 13B 70B
+  claim_id: c_4835f9d5
+  context: 'Implement Kruskal-Wallis test on the distribution of per-item resilience
+    scores across model scales (7B, 13B, 70B) as per FR-004 (Spec overrides Plan''s
+    ''accuracy drop'' instruction), outputting H-statistic and p-value (Prereq: T033).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kruskal-Wallis_test_on_per-item_resilience_scores_across_mod
+  kind: entity_fact
+  raw_text: Implement Kruskal-Wallis test on the distribution of per-item resilience
+    scores across model scales (7B, 13B, 70B).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:09:18Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for pairwise comparisons and Dunn's test with Bonferroni
+    post-hoc
+  claim_id: c_c67abce4
+  context: 'Apply Bonferroni correction for pairwise comparisons and Dunn''s test
+    with Bonferroni for post-hoc following Kruskal-Wallis to all p-values for FWER
+    control (Prereq: T035, T036).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_for_pairwise_comparisons_and_Dunn's_te
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction for pairwise comparisons and Dunn's test with
+    Bonferroni for post-hoc following Kruskal-Wallis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:09:19Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: verify statistical power is sufficient
+  claim_id: c_4dfc9b16
+  context: Validate that statistical power is sufficient; if N is too small, flag
+    in report.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "For each scenario, we determined the total sample size (\U0001D441=\U0001D45A\
+        +\U0001D45B) required to achieve 85% nominal power at two-sided"
+      source_id: '2605.17240'
+      url: https://arxiv.org/abs/2605.17240
+      value: 85%
+    filled: true
+  kind: entity_fact
+  raw_text: Verify statistical power is sufficient.
+  resolved_value: 85%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T11:09:51Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: two board-certified clinicians independently verify sample
+  claim_id: c_db16a060
+  context: 'Generate Manual Review Instructions: Create code/data/clinical_review_instructions.md
+    detailing the workflow for two board-certified clinicians to independently verify
+    the sample.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two_board-certified_clinicians_independently_verify_sample
+  kind: entity_fact
+  raw_text: Two board-certified clinicians independently verify the sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:09:53Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: calculate Cohen's kappa from two independent clinician IDs
+  claim_id: c_952e3af3
+  context: "Create code/scripts/validate_clinical.py to ingest the completed clinical_review_form.csv\
+    \ (matching schema T041b) and calculate Cohen's \u03BA from the two independent\
+    \ clinician IDs."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Cohen%27s_kappa_from_two_independent_clinician_IDs
+  kind: entity_fact
+  raw_text: "Calculate Cohen's \u03BA from the two independent clinician IDs."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:09:55Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: assert latency reduction of at least 10% on 1000-item batch
+  claim_id: c_aad9ed97
+  context: Implement code/tests/unit/test_io_performance.py to benchmark the buffered
+    write mechanism (T047) against a direct-write baseline, asserting a latency reduction
+    of at least 10% on a 1000-item batch.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_latency_reduction_of_at_least_10%25_on_1000-item_batch
+  kind: magnitude
+  raw_text: Assert a latency reduction of at least 10% on a 1000-item batch.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:09:56Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 0
+  canonical: 'minimum sample size calculation parameters: Cohen''s h=0.5, alpha=0.05,
+    power=0.80'
+  claim_id: c_3a24f7e2
+  context: T002 [P] Implement code/scripts/power_analysis.py to calculate theoretical
+    minimum sample size (N) for Cohen's h=0.5, alpha=0.05, power=0.80 using statsmodels
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Calculate theoretical minimum sample size (N) for Cohen's h=0.5, alpha=0.05,
+    power=0.80
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T11:17:40Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: dataset size threshold for phase continuation is 200
+  claim_id: c_8897acee
+  context: T003 [P] Execute power_analysis.py and generate code/data/analysis/power_analysis_report.md;
+    block subsequent phases if theoretical N (T002) < 200 OR actual dataset size (T001)
+    < 200
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Block subsequent phases if theoretical N < 200 OR actual dataset size
+    < 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:17:41Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_84ab208b
+  context: T005 [P] Initialize Python 3.11 project with requirements.txt including
+    datasets, transformers, torch, scikit-learn, scipy, pandas, pyyaml, pytest, statsmodels,
+    bitsandbytes, timeout-decorator
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:17:41Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: clinical validation calculates Cohen's kappa from two independent clinician
+    IDs
+  claim_id: c_04d1aa0e
+  context: "T042 [Const VII] Create code/scripts/validate_clinical.py to ingest the\
+    \ completed clinical_review_form.csv (matching schema T041b) and calculate Cohen's\
+    \ \u03BA from the two independent clinician IDs"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Clinical_validation_calculates_Cohen%27s_kappa_from_two_indepe
+  kind: entity_fact
+  raw_text: Calculate Cohen's kappa from two independent clinician IDs
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:18:00Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: buffered write mechanism targets 10% latency reduction on 1000-item batch
+  claim_id: c_54e00910
+  context: T047b [P] Implement code/tests/unit/test_io_performance.py to benchmark
+    the buffered write mechanism (T047) against a direct-write baseline, asserting
+    a latency reduction of at least 10% on a 1000-item batch
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Buffered_write_mechanism_targets_10%25_latency_reduction_on_10
+  kind: magnitude
+  raw_text: Assert a latency reduction of at least 10% on a 1000-item batch
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:18:02Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 0
+  canonical: 'Sample size calculation parameters: Cohen''s h=0.5, alpha=0.05, power=0.80'
+  claim_id: c_dc9c8e85
+  context: T002 [P] Implement code/scripts/power_analysis.py to calculate theoretical
+    minimum sample size (N) for Cohen's h=0.5, alpha=0.05, power=0.80 using statsmodels
+    (does not require fetched data).
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Theoretical minimum sample size (N) is calculated for Cohen's h=0.5, alpha=0.05,
+    power=0.80.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T11:22:27Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Phase blocking threshold: theoretical N or actual dataset size < 200'
+  claim_id: c_ece9671c
+  context: T003 [P] Execute power_analysis.py and generate code/data/analysis/power_analysis_report.md;
+    block subsequent phases if theoretical N (T002) < 200 OR actual dataset size (T001)
+    < 200.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Phase_blocking_threshold:_theoretical_N_or_actual_dataset_si
+  kind: magnitude
+  raw_text: The project blocks subsequent phases if the theoretical sample size (N)
+    is less than 200 or the actual dataset size is less than 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:23:20Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Project initialization: Python 3.11'
+  claim_id: c_bc1fadb6
+  context: T005 [P] Initialize Python 3.11 project with requirements.txt including
+    datasets, transformers, torch, scikit-learn, scipy, pandas, pyyaml, pytest, statsmodels,
+    bitsandbytes, timeout-decorator
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:23:20Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Inference parameters: temperature=0.0, seed=42'
+  claim_id: c_64313bc2
+  context: 'Independent Test: Run run_inference.py on a representative set of questions;
+    verify output logs contain expected model/strategy combinations with temperature=0.0
+    and seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference strategy uses temperature=0.0 and seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:23:46Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Resource constraint: Skip 70B model on CPU-only runners'
+  claim_id: c_2e1f27d4
+  context: T024 [US2] Implement pre-execution check to skip 70B model on CPU-only
+    runners (FR-002) before loading models
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_constraint:_Skip_70B_model_on_CPU-only_runners
+  kind: entity_fact
+  raw_text: The system skips the 70B model on CPU-only runners.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:24:06Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Quantization application: 13B models'
+  claim_id: c_62cc7a00
+  context: T025 [US2] Implement model loader in code/scripts/run_inference.py with
+    Low-bit quantization for 13B models
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Serving large models [36, 1, 37, 2] in industry is budget-
+      source_id: '2404.12759'
+      url: https://arxiv.org/abs/2404.12759
+      value: '13'
+    filled: true
+  kind: entity_fact
+  raw_text: Low-bit quantization is applied to 13B models.
+  resolved_value: '13'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T11:24:38Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Resilience formula: 1 - (clean - mislead)/clean'
+  claim_id: c_6f4b6506
+  context: 'T033 [US3] Implement resilience calculation in code/scripts/analyze_resilience.py
+    using formula $1 - (clean - mislead)/clean$ (Prereq: T029, T020)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Resilience is calculated using the formula 1 - (clean - mislead)/clean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:24:38Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Statistical test: Wilcoxon signed-rank on per-item correctness vectors'
+  claim_id: c_4e0e3b49
+  context: 'T035 [US3] Implement Wilcoxon signed-rank test on per-item correctness
+    vectors (clean vs mislead) as per FR-004, outputting p-value to resilience_metrics.json
+    (Prereq: T033)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_test:_Wilcoxon_signed-rank_on_per-item_correctne
+  kind: entity_fact
+  raw_text: Wilcoxon signed-rank test is implemented on per-item correctness vectors
+    (clean vs mislead).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:24:40Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Statistical test: Kruskal-Wallis on resilience scores across 7B, 13B,
+    70B models'
+  claim_id: c_abfcca3d
+  context: 'T036 [US3] Implement Kruskal-Wallis test on the distribution of per-item
+    resilience scores across model scales (7B, 13B, 70B) as per FR-004 (Spec overrides
+    Plan''s ''accuracy drop'' instruction), outputting H-statistic and p-value (Prereq:
+    T033)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_test:_Kruskal-Wallis_on_resilience_scores_across
+  kind: entity_fact
+  raw_text: Kruskal-Wallis test is implemented on the distribution of per-item resilience
+    scores across model scales of 7B, 13B, and 70B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:24:42Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Post-hoc correction: Bonferroni and Dunn''s test after Kruskal-Wallis'
+  claim_id: c_594dfe25
+  context: 'T037 [US3] Apply Bonferroni correction for pairwise comparisons and Dunn''s
+    test with Bonferroni for post-hoc following Kruskal-Wallis to all p-values for
+    FWER control (Prereq: T035, T036)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Post-hoc_correction:_Bonferroni_and_Dunn's_test_after_Kruska
+  kind: entity_fact
+  raw_text: Bonferroni correction and Dunn's test are applied for post-hoc analysis
+    following the Kruskal-Wallis test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:25:04Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Clinical review: Two board-certified clinicians'
+  claim_id: c_00142e58
+  context: 'T041c [Const VII] Generate Manual Review Instructions: Create code/data/clinical_review_instructions.md
+    detailing the workflow for two board-certified clinicians to independently verify
+    the sample'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Clinical_review:_Two_board-certified_clinicians
+  kind: entity_fact
+  raw_text: Two board-certified clinicians independently verify the sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:25:06Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Metric: Cohen''s kappa from two independent clinicians'
+  claim_id: c_43dbae29
+  context: "T042 [Const VII] Create code/scripts/validate_clinical.py to ingest the\
+    \ completed clinical_review_form.csv (matching schema T041b) and calculate Cohen's\
+    \ \u03BA from the two independent clinician IDs"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metric:_Cohen's_kappa_from_two_independent_clinicians
+  kind: entity_fact
+  raw_text: Cohen's kappa is calculated from the two independent clinician IDs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:25:28Z'
+- artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/tasks.md
+  attempts: 1
+  canonical: 'Performance target: 10% latency reduction on 1000-item batch'
+  claim_id: c_92e19ba5
+  context: T047b [P] Implement code/tests/unit/test_io_performance.py to benchmark
+    the buffered write mechanism (T047) against a direct-write baseline, asserting
+    a latency reduction of at least 10% on a 1000-item batch.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_target:_10%25_latency_reduction_on_1000-item_batch
+  kind: magnitude
+  raw_text: The buffered write mechanism targets a latency reduction of at least 10%
+    on a 1000-item batch.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T11:25:30Z'

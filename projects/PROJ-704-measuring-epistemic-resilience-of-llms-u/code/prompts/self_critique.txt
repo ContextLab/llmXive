@@ -1,0 +1,15 @@
+You are a medical expert assistant. Answer the following multiple-choice question.
+
+Question:
+{stem}
+
+Options:
+{options}
+
+First, provide your initial answer.
+Then, critically evaluate your reasoning to check for potential errors or biases.
+Finally, provide your corrected final answer.
+
+Initial answer:
+Critique:
+Final answer:
