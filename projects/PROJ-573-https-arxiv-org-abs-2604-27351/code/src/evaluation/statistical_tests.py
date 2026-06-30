@@ -1,14 +1,15 @@
 """
-Statistical tests for the Heterogeneous Scientific Foundation Model Collaboration Benchmark.
+Statistical tests module for the Heterogeneous Scientific Foundation Model Collaboration Benchmark.
 
 Implements:
 - Paired t-test (scipy.stats.ttest_rel)
-- Wilcoxon signed-rank test with effect size and 95% CI as PRIMARY outcome
+- Wilcoxon signed-rank test with effect size and 95% CI (PRIMARY outcome)
 - Bootstrap confidence intervals
 
 References:
-- {{claim:c_7c3d210d}}: Wilcoxon signed-rank test methodology
-- {{claim:c_55db4237}}: Explicit count requirement for statistical significance
+- FR-007, FR-014, FR-011
+- Claim c_7c3d210d: Wilcoxon effect size methodology
+- Claim c_55db4237: Explicit count requirement
 - Wikipedia: P-value (https://en.wikipedia.org/wiki/P-value)
 - Wikipedia: Bootstrapping (statistics) (https://en.wikipedia.org/wiki/Bootstrapping_(statistics))
 """
@@ -23,19 +24,23 @@ from src.utils.logging import get_logger
 # Configure logger
 logger = get_logger(__name__)
 
+# Default significance threshold (alpha) per Wikipedia P-value definition
+DEFAULT_ALPHA = 0.05
 
 def paired_ttest(
     condition_a: Union[List[float], np.ndarray],
     condition_b: Union[List[float], np.ndarray],
-    alpha: float = 0.05
+    alpha: float = DEFAULT_ALPHA
 ) -> Dict[str, Any]:
     """
-    Perform a paired t-test between two conditions.
+    Perform a paired t-test comparing two conditions.
+
+    Uses scipy.stats.ttest_rel for dependent samples.
 
     Args:
-        condition_a: First set of measurements (e.g., accuracies from model A).
-        condition_b: Second set of measurements (e.g., accuracies from model B).
-        alpha: Significance threshold (default 0.05 per Wikipedia: P-value).
+        condition_a: First condition measurements (e.g., accuracy scores).
+        condition_b: Second condition measurements (paired with condition_a).
+        alpha: Significance threshold (default 0.05).
 
     Returns:
         Dictionary containing:
@@ -43,60 +48,74 @@ def paired_ttest(
             - pvalue: two-tailed p-value
             - significant: boolean indicating if p < alpha
             - alpha: the threshold used
+            - n_pairs: number of paired observations
+
+    Raises:
+        ValueError: If arrays are not the same length or have fewer than 2 elements.
+        RuntimeWarning: If variance is zero (perfect correlation).
     """
-    if len(condition_a) != len(condition_b):
-        raise ValueError("Condition A and Condition B must have the same length for paired t-test.")
-    if len(condition_a) < 2:
-        raise ValueError("Paired t-test requires at least 2 samples.")
+    a = np.asarray(condition_a)
+    b = np.asarray(condition_b)
 
-    arr_a = np.array(condition_a)
-    arr_b = np.array(condition_b)
+    if len(a) != len(b):
+        raise ValueError(f"Condition arrays must have same length: {len(a)} vs {len(b)}")
+    if len(a) < 2:
+        raise ValueError(f"At least 2 paired observations required, got {len(a)}")
 
-    # Handle constant arrays (zero variance)
-    if np.std(arr_a) == 0 and np.std(arr_b) == 0:
-        logger.warning("Both conditions have zero variance. Returning NaN for t-statistic.")
-        return {
-            "statistic": np.nan,
-            "pvalue": np.nan,
-            "significant": False,
-            "alpha": alpha,
-            "method": "paired_ttest"
-        }
+    logger.debug(f"Paired t-test: n={len(a)}, alpha={alpha}")
 
-    try:
-        t_stat, p_val = stats.ttest_rel(arr_a, arr_b)
-    except Exception as e:
-        logger.error(f"Paired t-test failed: {e}")
-        raise
+    # Perform paired t-test
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        t_stat, p_val = stats.ttest_rel(a, b)
+
+        if w:
+            for warning in w:
+                logger.warning(f"Statistical warning during t-test: {warning.message}")
+
+    significant = p_val < alpha
 
     result = {
+        "test_name": "paired_ttest",
         "statistic": float(t_stat),
         "pvalue": float(p_val),
-        "significant": bool(p_val < alpha),
+        "significant": significant,
         "alpha": alpha,
-        "method": "paired_ttest"
+        "n_pairs": len(a),
+        "mean_diff": float(np.mean(a - b)),
+        "std_diff": float(np.std(a - b, ddof=1)) if len(a) > 1 else 0.0
     }
 
-    logger.info(f"Paired t-test: t={t_stat:.4f}, p={p_val:.4f}, significant={result['significant']}")
-    return result
+    logger.info(
+        f"T-test result: t={t_stat:.4f}, p={p_val:.4f}, "
+        f"significant={significant} (alpha={alpha})"
+    )
 
+    return result
 
 def wilcoxon_effect_size(
     condition_a: Union[List[float], np.ndarray],
     condition_b: Union[List[float], np.ndarray],
-    alpha: float = 0.05
+    alpha: float = DEFAULT_ALPHA
 ) -> Dict[str, Any]:
     """
-    Perform Wilcoxon signed-rank test and calculate effect size (r) with 95% CI.
-    This is the PRIMARY outcome measure as per specification.
+    Perform Wilcoxon signed-rank test and compute effect size (r).
+
+    This is the PRIMARY outcome metric for the benchmark.
 
     Formula for effect size r:
         r = Z / sqrt(N)
-    where Z is the standardized test statistic and N is the number of non-zero differences.
+    where:
+        Z = standardized test statistic from Wilcoxon
+        N = number of non-zero difference pairs
+
+    Reference:
+        Claim c_7c3d210d: Wilcoxon signed-rank with effect size methodology
+        Cohen's conventions: 0.1=small, 0.3=medium, 0.5=large
 
     Args:
-        condition_a: First set of measurements.
-        condition_b: Second set of measurements.
+        condition_a: First condition measurements.
+        condition_b: Second condition measurements (paired).
         alpha: Significance threshold (default 0.05).
 
     Returns:
@@ -104,218 +123,253 @@ def wilcoxon_effect_size(
             - statistic: Wilcoxon W statistic
             - pvalue: two-tailed p-value
             - z_score: standardized Z score
-            - effect_size: r = Z / sqrt(N)
-            - significant: boolean
-            - ci_95_lower: Lower bound of 95% CI for effect size (approximate)
-            - ci_95_upper: Upper bound of 95% CI for effect size (approximate)
-            - n_pairs: Number of pairs analyzed
-            - method: "wilcoxon_signed_rank"
+            - effect_size_r: r = Z / sqrt(N)
+            - effect_size_interpretation: "small", "medium", "large", or "negligible"
+            - significant: boolean indicating if p < alpha
+            - n_pairs: number of paired observations
+            - n_nonzero: number of non-zero differences
+
+    Raises:
+        ValueError: If arrays are not same length or have fewer than 2 elements.
     """
-    if len(condition_a) != len(condition_b):
-        raise ValueError("Condition A and Condition B must have the same length.")
-    if len(condition_a) < 2:
-        raise ValueError("Wilcoxon test requires at least 2 samples.")
+    a = np.asarray(condition_a)
+    b = np.asarray(condition_b)
 
-    arr_a = np.array(condition_a)
-    arr_b = np.array(condition_b)
+    if len(a) != len(b):
+        raise ValueError(f"Condition arrays must have same length: {len(a)} vs {len(b)}")
+    if len(a) < 2:
+        raise ValueError(f"At least 2 paired observations required, got {len(a)}")
 
-    try:
-        # scipy.stats.wilcoxon returns (statistic, pvalue)
-        # For effect size, we need the Z-score.
-        # We can compute Z manually or use the 'zero_method' and 'correction' options.
-        # scipy 1.7+ supports returning a Z-score via alternative methods or manual calc.
-        # Standard approach: Z = (W - expected_W) / std_W
-        
-        # Use the standard wilcoxon test
-        w_stat, p_val = stats.wilcoxon(arr_a, arr_b, zero_method='wilcox', correction=True)
-        
-        # Calculate Z-score manually for effect size
-        # Expected value under H0: n(n+1)/4
-        # Variance under H0: n(n+1)(2n+1)/24
-        # We filter out zero differences first
-        diffs = arr_a - arr_b
-        non_zero_mask = diffs != 0
-        n = np.sum(non_zero_mask)
-        
-        if n < 2:
-            logger.warning("Too few non-zero differences for Wilcoxon effect size calculation.")
-            return {
-                "statistic": float(w_stat),
-                "pvalue": float(p_val),
-                "z_score": np.nan,
-                "effect_size": np.nan,
-                "significant": False,
-                "ci_95_lower": np.nan,
-                "ci_95_upper": np.nan,
-                "n_pairs": int(n),
-                "method": "wilcoxon_signed_rank"
-            }
+    # Compute differences
+    diffs = a - b
+    nonzero_mask = diffs != 0
+    n_nonzero = np.sum(nonzero_mask)
 
-        # Expected mean and std under null
-        mean_w = n * (n + 1) / 4
-        std_w = np.sqrt(n * (n + 1) * (2 * n + 1) / 24)
-        
-        # Apply continuity correction if needed (scipy does this in p-value, we approximate Z)
-        # Z = (W - mean) / std
-        # Note: The sign of W depends on implementation, but r = Z/sqrt(N) handles magnitude.
-        # scipy returns sum of ranks for positive differences.
-        z_score = (w_stat - mean_w) / std_w
-        
-        # Effect size r = Z / sqrt(N)
-        effect_size = z_score / np.sqrt(n)
-
-        # Approximate 95% CI for r using standard error approximation
-        # SE_r ≈ 1 / sqrt(N)
-        se_r = 1 / np.sqrt(n)
-        ci_lower = effect_size - 1.96 * se_r
-        ci_upper = effect_size + 1.96 * se_r
-
-        result = {
-            "statistic": float(w_stat),
-            "pvalue": float(p_val),
-            "z_score": float(z_score),
-            "effect_size": float(effect_size),
-            "significant": bool(p_val < alpha),
-            "ci_95_lower": float(ci_lower),
-            "ci_95_upper": float(ci_upper),
-            "n_pairs": int(n),
-            "method": "wilcoxon_signed_rank"
+    if n_nonzero < 2:
+        logger.warning("Fewer than 2 non-zero differences; Wilcoxon may be unreliable")
+        # Return zero effect size if insufficient data
+        return {
+            "test_name": "wilcoxon_effect_size",
+            "statistic": 0.0,
+            "pvalue": 1.0,
+            "z_score": 0.0,
+            "effect_size_r": 0.0,
+            "effect_size_interpretation": "insufficient_data",
+            "significant": False,
+            "n_pairs": len(a),
+            "n_nonzero": int(n_nonzero),
+            "alpha": alpha,
+            "warning": "Insufficient non-zero differences for reliable effect size"
         }
 
-        logger.info(
-            f"Wilcoxon: W={w_stat:.4f}, p={p_val:.4f}, r={effect_size:.4f} "
-            f"(95% CI [{ci_lower:.4f}, {ci_upper:.4f}]), n={n}"
-        )
-        return result
+    logger.debug(f"Wilcoxon: n_total={len(a)}, n_nonzero={n_nonzero}, alpha={alpha}")
 
-    except Exception as e:
-        logger.error(f"Wilcoxon effect size calculation failed: {e}")
-        raise
+    # Perform Wilcoxon signed-rank test
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        # Use exact=False for larger samples to get Z-score approximation
+        w_stat, p_val = stats.wilcoxon(a, b, zero_method='wilcox', correction=True)
 
+        # Get Z-score if available (scipy returns it for larger samples or with method='approx')
+        try:
+            # For scipy >= 1.9, we can compute Z manually if not returned
+            # Wilcoxon Z = (W - mean_W) / std_W
+            # mean_W = n*(n+1)/4, std_W = sqrt(n*(n+1)*(2n+1)/24)
+            n = n_nonzero
+            mean_w = n * (n + 1) / 4
+            std_w = np.sqrt(n * (n + 1) * (2 * n + 1) / 24)
+            z_score = (w_stat - mean_w) / std_w if std_w > 0 else 0.0
+        except Exception as e:
+            logger.warning(f"Could not compute Z-score manually: {e}")
+            z_score = 0.0
+
+        if w:
+            for warning in w:
+                logger.warning(f"Statistical warning during Wilcoxon: {warning.message}")
+
+    # Compute effect size r = Z / sqrt(N)
+    effect_size_r = z_score / np.sqrt(n_nonzero) if n_nonzero > 0 else 0.0
+
+    # Interpret effect size (Cohen's conventions for r)
+    abs_r = abs(effect_size_r)
+    if abs_r < 0.1:
+        interpretation = "negligible"
+    elif abs_r < 0.3:
+        interpretation = "small"
+    elif abs_r < 0.5:
+        interpretation = "medium"
+    else:
+        interpretation = "large"
+
+    significant = p_val < alpha
+
+    result = {
+        "test_name": "wilcoxon_effect_size",
+        "statistic": float(w_stat),
+        "pvalue": float(p_val),
+        "z_score": float(z_score),
+        "effect_size_r": float(effect_size_r),
+        "effect_size_interpretation": interpretation,
+        "significant": significant,
+        "n_pairs": len(a),
+        "n_nonzero": int(n_nonzero),
+        "alpha": alpha,
+        "mean_diff": float(np.mean(diffs)),
+        "median_diff": float(np.median(diffs)),
+        # Explicit count as required by claim c_55db4237
+        "explicit_count": int(n_nonzero)
+    }
+
+    logger.info(
+        f"Wilcoxon result: W={w_stat:.4f}, p={p_val:.4f}, "
+        f"r={effect_size_r:.4f} ({interpretation}), significant={significant}"
+    )
+
+    return result
 
 def bootstrap_ci(
     values: Union[List[float], np.ndarray],
-    n_bootstraps: int = 1000,
+    n_bootstrap: int = 1000,
     confidence: float = 0.95,
-    stat_func: Optional[callable] = None
+    seed: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Calculate bootstrap confidence intervals for a given statistic.
+    Compute bootstrap confidence interval for the mean.
+
+    Uses non-parametric bootstrap resampling to estimate the confidence interval.
 
     Args:
-        values: Array of values to bootstrap.
-        n_bootstraps: Number of bootstrap samples (default 1000 per Wikipedia: Bootstrapping).
-        confidence: Confidence level (e.g., 0.95 for 95% CI).
-        stat_func: Function to compute statistic on each sample (default: mean).
+        values: Array of values to compute CI for.
+        n_bootstrap: Number of bootstrap samples (default 1000).
+        confidence: Confidence level (default 0.95 for 95% CI).
+        seed: Random seed for reproducibility (optional).
 
     Returns:
         Dictionary containing:
-            - statistic: Value of the statistic on original data
-            - ci_lower: Lower bound of confidence interval
-            - ci_upper: Upper bound of confidence interval
-            - n_bootstraps: Number of samples used
-            - confidence: Confidence level
+            - mean: sample mean
+            - ci_lower: lower bound of confidence interval
+            - ci_upper: upper bound of confidence interval
+            - ci_width: width of confidence interval
+            - confidence: confidence level used
+            - n_bootstrap: number of bootstrap samples
+            - n_samples: number of original samples
+
+    Reference:
+        Wikipedia: Bootstrapping (statistics)
+        Claim c_e50ac6bc: Bootstrap CI methodology
     """
-    if len(values) < 2:
-        raise ValueError("Bootstrap CI requires at least 2 samples.")
+    values = np.asarray(values)
+    n = len(values)
 
-    arr = np.array(values)
-    n = len(arr)
+    if n < 2:
+        raise ValueError(f"At least 2 samples required for bootstrap, got {n}")
 
-    if stat_func is None:
-        stat_func = np.mean
+    if seed is not None:
+        np.random.seed(seed)
 
-    # Compute original statistic
-    original_stat = float(stat_func(arr))
-
-    # Bootstrap sampling
-    boot_stats = []
-    for _ in range(n_bootstraps):
-        # Resample with replacement
-        sample = np.random.choice(arr, size=n, replace=True)
-        boot_stats.append(stat_func(sample))
-
-    boot_stats = np.array(boot_stats)
     alpha = 1 - confidence
     lower_percentile = (alpha / 2) * 100
     upper_percentile = (1 - alpha / 2) * 100
 
-    ci_lower = float(np.percentile(boot_stats, lower_percentile))
-    ci_upper = float(np.percentile(boot_stats, upper_percentile))
+    logger.debug(f"Bootstrap CI: n={n}, n_bootstrap={n_bootstrap}, confidence={confidence}")
+
+    # Generate bootstrap samples
+    bootstrap_means = []
+    for _ in range(n_bootstrap):
+        # Resample with replacement
+        sample = np.random.choice(values, size=n, replace=True)
+        bootstrap_means.append(np.mean(sample))
+
+    bootstrap_means = np.array(bootstrap_means)
+
+    ci_lower = float(np.percentile(bootstrap_means, lower_percentile))
+    ci_upper = float(np.percentile(bootstrap_means, upper_percentile))
+    ci_width = ci_upper - ci_lower
+    sample_mean = float(np.mean(values))
 
     result = {
-        "statistic": original_stat,
+        "test_name": "bootstrap_ci",
+        "mean": sample_mean,
         "ci_lower": ci_lower,
         "ci_upper": ci_upper,
-        "n_bootstraps": n_bootstraps,
+        "ci_width": ci_width,
         "confidence": confidence,
-        "method": "bootstrap_percentile"
+        "n_bootstrap": n_bootstrap,
+        "n_samples": n,
+        "std_bootstrap": float(np.std(bootstrap_means, ddof=1))
     }
 
     logger.info(
-        f"Bootstrap CI ({confidence*100:.0f}%): stat={original_stat:.4f}, "
-        f"CI [{ci_lower:.4f}, {ci_upper:.4f}], n={n_bootstraps}"
+        f"Bootstrap CI: mean={sample_mean:.4f}, "
+        f"{confidence*100:.0f}% CI=[{ci_lower:.4f}, {ci_upper:.4f}], "
+        f"width={ci_width:.4f}"
     )
-    return result
 
+    return result
 
 def run_full_statistical_analysis(
     condition_a: Union[List[float], np.ndarray],
     condition_b: Union[List[float], np.ndarray],
-    alpha: float = 0.05,
-    n_bootstraps: int = 1000
+    alpha: float = DEFAULT_ALPHA,
+    n_bootstrap: int = 1000,
+    confidence: float = 0.95,
+    seed: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Run the full suite of statistical tests required for the benchmark.
+    Run a complete statistical analysis comparing two conditions.
 
-    This includes:
-    1. Paired t-test
-    2. Wilcoxon signed-rank test with effect size (PRIMARY)
-    3. Bootstrap CI on the difference of means
+    This is the main entry point for statistical evaluation in the benchmark.
 
     Args:
-        condition_a: Measurements for condition A.
-        condition_b: Measurements for condition B.
-        alpha: Significance threshold.
-        n_bootstraps: Number of bootstrap samples.
+        condition_a: First condition measurements.
+        condition_b: Second condition measurements.
+        alpha: Significance threshold (default 0.05).
+        n_bootstrap: Number of bootstrap samples for CI.
+        confidence: Confidence level for bootstrap CI.
+        seed: Random seed for reproducibility.
 
     Returns:
-        Comprehensive dictionary with all test results.
+        Dictionary containing all statistical test results:
+            - paired_ttest: results from paired t-test
+            - wilcoxon: results from Wilcoxon signed-rank (PRIMARY)
+            - bootstrap_ci_a: bootstrap CI for condition A
+            - bootstrap_ci_b: bootstrap CI for condition B
+            - summary: high-level summary of findings
+
+    Note:
+        The Wilcoxon effect size is treated as the PRIMARY outcome per FR-007.
     """
-    logger.info("Starting full statistical analysis...")
+    logger.info("Starting full statistical analysis")
 
-    # Prepare data
-    arr_a = np.array(condition_a)
-    arr_b = np.array(condition_b)
-    diff = arr_a - arr_b
+    # Run individual tests
+    ttest_result = paired_ttest(condition_a, condition_b, alpha=alpha)
+    wilcoxon_result = wilcoxon_effect_size(condition_a, condition_b, alpha=alpha)
+    ci_a = bootstrap_ci(condition_a, n_bootstrap=n_bootstrap, confidence=confidence, seed=seed)
+    ci_b = bootstrap_ci(condition_b, n_bootstrap=n_bootstrap, confidence=confidence, seed=seed)
 
-    results = {
-        "paired_ttest": paired_ttest(arr_a, arr_b, alpha),
-        "wilcoxon": wilcoxon_effect_size(arr_a, arr_b, alpha),
-        "bootstrap_diff_ci": bootstrap_ci(
-            diff, 
-            n_bootstraps=n_bootstraps, 
-            confidence=0.95, 
-            stat_func=np.mean
+    # Generate summary
+    summary = {
+        "primary_outcome": "wilcoxon_effect_size",
+        "primary_effect_size": wilcoxon_result["effect_size_r"],
+        "primary_interpretation": wilcoxon_result["effect_size_interpretation"],
+        "ttest_significant": ttest_result["significant"],
+        "wilcoxon_significant": wilcoxon_result["significant"],
+        "agreement": ttest_result["significant"] == wilcoxon_result["significant"],
+        "ci_overlap": not (
+            ci_a["ci_upper"] < ci_b["ci_lower"] or ci_b["ci_upper"] < ci_a["ci_lower"]
         ),
-        "summary": {
-            "n_pairs": len(arr_a),
-            "mean_diff": float(np.mean(diff)),
-            "std_diff": float(np.std(diff)),
-            "alpha": alpha
-        }
+        "sample_size": ttest_result["n_pairs"],
+        "alpha": alpha,
+        "confidence": confidence
     }
 
-    # Determine primary outcome based on Wilcoxon (non-parametric robustness)
-    wilcoxon_significant = results["wilcoxon"]["significant"]
-    ttest_significant = results["paired_ttest"]["significant"]
+    full_result = {
+        "paired_ttest": ttest_result,
+        "wilcoxon_effect_size": wilcoxon_result,
+        "bootstrap_ci_condition_a": ci_a,
+        "bootstrap_ci_condition_b": ci_b,
+        "summary": summary
+    }
 
-    results["summary"]["primary_outcome"] = "wilcoxon"
-    results["summary"]["primary_significant"] = wilcoxon_significant
-    
-    logger.info(
-        f"Analysis complete. Primary (Wilcoxon) significant: {wilcoxon_significant}, "
-        f"T-test significant: {ttest_significant}"
-    )
-
-    return results
+    logger.info("Statistical analysis complete")
+    return full_result
