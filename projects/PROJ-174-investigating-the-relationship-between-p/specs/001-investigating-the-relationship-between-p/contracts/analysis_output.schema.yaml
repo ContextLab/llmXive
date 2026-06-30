@@ -1,0 +1,121 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Analysis Output Schema"
+description: "Schema for correlation and classifier output files"
+type: object
+properties:
+  correlations:
+    type: array
+    items:
+      type: object
+      properties:
+        pupil_metric:
+          type: string
+          description: "Name of the pupil metric (e.g., peak, mean)"
+        load_proxy:
+          type: string
+          description: "Name of the load proxy (e.g., search_time, stimulus_salience, fixation_count)"
+        pearson_r:
+          type: number
+          description: "Pearson correlation coefficient"
+        p_value_raw:
+          type: number
+          description: "Raw p-value from t-test"
+        p_value_adjusted:
+          type: number
+          description: "Bonferroni-adjusted p-value"
+        significant:
+          type: boolean
+          description: "True if p_value_adjusted < 0.05"
+      required:
+        - pupil_metric
+        - load_proxy
+        - pearson_r
+        - p_value_raw
+        - p_value_adjusted
+        - significant
+  lme_results:
+    type: object
+    properties:
+      predictors:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            estimate:
+              type: number
+            std_error:
+              type: number
+            p_value:
+              type: number
+          required:
+            - name
+            - estimate
+            - std_error
+            - p_value
+      likelihood_ratio_test:
+        type: object
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+        required:
+          - statistic
+          - p_value
+    required:
+      - predictors
+      - likelihood_ratio_test
+  classifier_results:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+          description: "Decision threshold used"
+        accuracy:
+          type: number
+          description: "Classification accuracy"
+        precision:
+          type: number
+          description: "Precision score"
+        recall:
+          type: number
+          description: "Recall score"
+        roc_auc:
+          type: number
+          description: "ROC-AUC score"
+        validation_type:
+          type: string
+          description: "Either 'Independent' or 'Internal Consistency'"
+      required:
+        - threshold
+        - accuracy
+        - precision
+        - recall
+        - roc_auc
+        - validation_type
+  quality_report:
+    type: object
+    properties:
+      total_trials:
+        type: integer
+      excluded_trials:
+        type: integer
+      exclusion_reasons:
+        type: object
+        additionalProperties:
+          type: integer
+        description: "Count of exclusions per reason"
+    required:
+      - total_trials
+      - excluded_trials
+      - exclusion_reasons
+required:
+  - correlations
+  - lme_results
+  - classifier_results
+  - quality_report
+additionalProperties: false

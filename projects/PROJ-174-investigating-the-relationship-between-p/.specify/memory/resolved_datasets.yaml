@@ -1,0 +1,260 @@
+resolved_at: '2026-06-30T05:20:30.343168+00:00'
+datasets:
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&Expires=1782800312&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODAwMzEyfX19XX0_&Signature=MEQCIFgbFYeJo51bY3NHz~Jk0lNzqPnENEjMrU1FUdNjsT6RAiBZ49SKaxu4D80BlwNPcmmwrwH-D4HMLKDrv8xnNEJQzA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/thesis/Developing_evidence-informed_best_practice_policy_and_practice_recommendations_that_support_the_return_of_elite_female_athletes_to_high-performance_sport_postpartum_and_as_parents/32833097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_physical_education_improve_insulin_resistance_in_healthy_boys_and_girls_The_LOOK_study/32833130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Measuring_moir_superstructures_in_twisted_two-dimensional_semiconductors_with_scanning_tunneling_microscopy/32833115
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Measuring_moir_superstructures_in_twisted_two-dimensional_semiconductors_with_scanning_tunneling_microscopy/32833115
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/High_velocity_power_training_with_weight-bearing_and_balance_exercises_improves_bone_density_and_function_in_high_risk_older_adults_A_12-month_RCT/32833124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6557219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20927853
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/w36vkn66yw/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/w36vkn66yw
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: WARNING
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RubyIntelligence/fda-warning-letter-escalation/resolve/main/sample.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29576
+      parsed: true
+  - url: https://huggingface.co/datasets/marin-community/ar5iv-warning-markdown/resolve/main/0001.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/EphraimChuahLeePing/Distortus_Rex_AI_Warning_by_Chuah.zip/resolve/main/Distortus_Rex_AI_Warning_by_Chuah.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1643
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RubyIntelligence/fda-warning-letter-escalation/resolve/main/sample.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/marin-community/ar5iv-warning-markdown/resolve/main/0001.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/EphraimChuahLeePing/Distortus_Rex_AI_Warning_by_Chuah.zip/resolve/main/Distortus_Rex_AI_Warning_by_Chuah.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/PratikGautam/WARNING_CRITICAL_AI_AWARENESS_DENIAL/resolve/main/ai_awakens_no_denial.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/nuuuwan/lk-dmc-river-water-level-and-flood-warnings-docs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/thesis/Developing_evidence-informed_best_practice_policy_and_practice_recommendations_that_support_the_return_of_elite_female_athletes_to_high-performance_sport_postpartum_and_as_parents/32833097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_physical_education_improve_insulin_resistance_in_healthy_boys_and_girls_The_LOOK_study/32833130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Measuring_moir_superstructures_in_twisted_two-dimensional_semiconductors_with_scanning_tunneling_microscopy/32833115
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Measuring_moir_superstructures_in_twisted_two-dimensional_semiconductors_with_scanning_tunneling_microscopy/32833115
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/High_velocity_power_training_with_weight-bearing_and_balance_exercises_improves_bone_density_and_function_in_high_risk_older_adults_A_12-month_RCT/32833124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.453v0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5945495
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6308075
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10672472
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7085164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055721
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055721
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20792480
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/thesis/Developing_evidence-informed_best_practice_policy_and_practice_recommendations_that_support_the_return_of_elite_female_athletes_to_high-performance_sport_postpartum_and_as_parents/32833097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_physical_education_improve_insulin_resistance_in_healthy_boys_and_girls_The_LOOK_study/32833130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Measuring_moir_superstructures_in_twisted_two-dimensional_semiconductors_with_scanning_tunneling_microscopy/32833115
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Measuring_moir_superstructures_in_twisted_two-dimensional_semiconductors_with_scanning_tunneling_microscopy/32833115
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/High_velocity_power_training_with_weight-bearing_and_balance_exercises_improves_bone_density_and_function_in_high_risk_older_adults_A_12-month_RCT/32833124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10364827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3841160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13843104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10123574
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963358
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20857147
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
