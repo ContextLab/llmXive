@@ -51,7 +51,24 @@ On reject, NOTES are updated and the NEXT implementer captures them as context.
   loads the task + evidence and calls the model via the same backend router.
 - Tests: `[~]`-aware gate; verifier accept→[X]/reject→[ ]+notes (stub the LLM).
 
-### STATUS (built + tested + committed; NOT yet wired)
+### STATUS — WIRED + TESTED (commit 09405e7fa = foundation; integration follows)
+The verification pass is now LIVE in run_one_step:
+- graph.`_run_task_verification` runs after the research implement batch; snapshots
+  pre-batch `[X]` keys (`_verify_already_done`) so only THIS-tick claims are judged.
+- `task_verifier.run_verification_pass` rewrites marks: COMPLETE→`[X]`,
+  INCOMPLETE→`[ ]`+note (+reject-count; ≥REJECT_CAP=3 accept to break redo loops),
+  DEFER/over-cap(>6/tick)→`[~]`. State in `.specify/memory/task_verify.yaml`.
+- Notes → `.specify/memory/task_verifier_notes.md`, injected by
+  `_comments_context._render_task_verifier_notes_block` (the next implementer reads it).
+- Offline tests: `tests/conftest.py` autouse-stubs `task_verifier.chat_with_fallback`
+  → COMPLETE (the verifier runs a REAL call in prod; offline it would DEFER-all and
+  stall every in_progress test). real_call suite hits the genuine model.
+- Tests: test_task_verifier.py (unit) + test_task_verifier_integration.py (real
+  run_one_step: accept→[X], reject→[ ]+notes, defer→[~]+blocked, settled-not-rejudged).
+- NOT a registry agent: uses the free default model (openai.gpt-oss-120b) directly,
+  same precedent as librarian.relevance_judge. Future: promote to a registry entry.
+
+### (historical) STATUS (built + tested + committed; NOT yet wired)
 - `src/llmxive/agents/task_verifier.py` — `verify_task()` (separate LLM judge via
   `chat_with_fallback`, temp 0, COMPLETE/INCOMPLETE, DEFERS on failure — fail
   CLOSED), `gather_evidence()` (reads the task's referenced code/data/figures

@@ -178,4 +178,163 @@ def _parse(text: str) -> TaskVerdict:
     return TaskVerdict(complete=None, reason=f"(unparseable verifier response) {cleaned[:200]}")
 
 
-__all__ = ["TaskVerdict", "gather_evidence", "verify_task", "VERIFIER_TEMPERATURE"]
+# A task line in tasks.md: ``- [ ] T001 [P?] [US1?] desc with path``. group(1) is
+# the bullet+space prefix, group(2) the mark, group(3) the rest (id + desc).
+_TASK_LINE_RE = re.compile(r"^(\s*-\s*)\[([ xX~])\](\s.*)$")
+#: A task the implementer keeps failing verification is, after this many
+#: consecutive rejections, ACCEPTED with a logged warning — the downstream LLM
+#: review panel is the final backstop, and an unbreakable redo loop would
+#: otherwise wedge the project forever at in_progress.
+REJECT_CAP = 3
+#: Max verifier LLM calls per tick (bounds cost; the rest verify on later ticks).
+DEFAULT_VERIFY_CAP = 6
+
+
+def _task_key(rest: str) -> str:
+    """Stable identity of a task line = its id+description (mark-independent)."""
+    return rest.strip()
+
+
+def claimed_done_keys(tasks_text: str) -> set[str]:
+    """Keys of tasks currently marked ``[X]`` (already verified-accepted)."""
+    out: set[str] = set()
+    for line in tasks_text.splitlines():
+        m = _TASK_LINE_RE.match(line)
+        if m and m.group(2) in ("x", "X"):
+            out.add(_task_key(m.group(3)))
+    return out
+
+
+def run_verification_pass(
+    project_dir: Path,
+    tasks_path: Path,
+    *,
+    already_verified: set[str],
+    spec_context: str = "",
+    model: str = "openai.gpt-oss-120b",
+    default_backend: str = "dartmouth",
+    fallback_backends: tuple[str, ...] = ("local",),
+    notes_path: Path,
+    state_path: Path,
+    cap: int = DEFAULT_VERIFY_CAP,
+) -> dict:
+    """Independently verify each newly-claimed (``[X]`` not in ``already_verified``)
+    or previously-deferred (``[~]``) task in ``tasks_path``, rewriting its mark:
+
+      - COMPLETE   → ``[X]`` (truly done),
+      - INCOMPLETE → ``[ ]`` (implementer REDOES it) + a note in ``notes_path``;
+        after ``REJECT_CAP`` rejections the task is accepted (``[X]``) with a log,
+      - DEFER      → ``[~]`` (under review; re-verified next tick, NOT redone).
+
+    Returns a summary dict ``{accepted, rejected:[(key,reason)], deferred:[key]}``.
+    Bounded to ``cap`` LLM calls per tick. Pure file IO + the injected
+    :func:`verify_task`; safe to call once per implement-batch."""
+    import yaml
+
+    text = tasks_path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    try:
+        reject_counts = yaml.safe_load(state_path.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        reject_counts = {}
+    if not isinstance(reject_counts, dict):
+        reject_counts = {}
+
+    accepted = 0
+    rejected: list[tuple[str, str]] = []
+    deferred: list[str] = []
+    budget = cap
+    for i, line in enumerate(lines):
+        m = _TASK_LINE_RE.match(line)
+        if not m:
+            continue
+        mark, rest = m.group(2), m.group(3)
+        key = _task_key(rest)
+        newly_claimed = mark in ("x", "X") and key not in already_verified
+        under_review = mark == "~"
+        if not (newly_claimed or under_review):
+            continue
+        if budget <= 0:
+            # Over the per-tick LLM cap → DEFER to a later tick. Mark ``[~]`` so an
+            # unverified ``[X]`` does not silently escape verification (next tick's
+            # snapshot would otherwise treat it as already-accepted).
+            if mark != "~":
+                lines[i] = f"{m.group(1)}[~]{rest}"
+            deferred.append(key)
+            continue
+        budget -= 1
+        verdict = verify_task(
+            task_text=rest.strip(),
+            evidence=gather_evidence(project_dir, rest),
+            spec_context=spec_context,
+            model=model,
+            default_backend=default_backend,
+            fallback_backends=fallback_backends,
+        )
+        if verdict.complete is True:
+            lines[i] = f"{m.group(1)}[X]{rest}"
+            accepted += 1
+            reject_counts.pop(key, None)
+        elif verdict.complete is False:
+            count = int(reject_counts.get(key, 0)) + 1
+            reject_counts[key] = count
+            if count >= REJECT_CAP:
+                lines[i] = f"{m.group(1)}[X]{rest}"
+                reject_counts.pop(key, None)
+                LOGGER.warning(
+                    "[task-verifier] %r rejected %d× — accepting to avoid an "
+                    "unbreakable redo loop (review panel is the final backstop)",
+                    key, count,
+                )
+            else:
+                lines[i] = f"{m.group(1)}[ ]{rest}"
+                rejected.append((key, verdict.reason))
+        else:  # deferred (backend outage / unparseable)
+            lines[i] = f"{m.group(1)}[~]{rest}"
+            deferred.append(key)
+
+    new_text = "\n".join(lines) + ("\n" if text.endswith("\n") else "")
+    if new_text != text:
+        tasks_path.write_text(new_text, encoding="utf-8")
+
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    if reject_counts:
+        state_path.write_text(yaml.safe_dump(reject_counts, sort_keys=True), encoding="utf-8")
+    else:
+        state_path.unlink(missing_ok=True)
+
+    _write_notes(notes_path, rejected)
+    return {"accepted": accepted, "rejected": rejected, "deferred": deferred}
+
+
+def _write_notes(notes_path: Path, rejected: list[tuple[str, str]]) -> None:
+    """Rewrite the implementer-facing rejection note (or remove it when empty)."""
+    if not rejected:
+        notes_path.unlink(missing_ok=True)
+        return
+    notes_path.parent.mkdir(parents=True, exist_ok=True)
+    out = [
+        "# Tasks an independent verifier REJECTED (redo these)",
+        "",
+        "A separate model checked the artifacts you produced for the tasks below "
+        "and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the "
+        "evidence genuinely satisfies the requirement (produce the real artifact, "
+        "fix the content, remove any placeholder/fabricated stand-in). Do NOT just "
+        "re-check the box without changing the work.",
+        "",
+    ]
+    for key, reason in rejected:
+        out.append(f"- **{key}** — {reason.strip()}")
+    notes_path.write_text("\n".join(out) + "\n", encoding="utf-8")
+
+
+__all__ = [
+    "DEFAULT_VERIFY_CAP",
+    "REJECT_CAP",
+    "TaskVerdict",
+    "VERIFIER_TEMPERATURE",
+    "claimed_done_keys",
+    "gather_evidence",
+    "run_verification_pass",
+    "verify_task",
+]

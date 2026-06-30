@@ -50,6 +50,11 @@ def render_recent_comments_block(
     prompt that injects this block sees exactly what must be fixed.
     """
     kickback_block = _render_kickback_feedback_block(project_dir)
+    verifier_block = _render_task_verifier_notes_block(project_dir)
+    if verifier_block:
+        kickback_block = (
+            kickback_block + "\n" + verifier_block if kickback_block else verifier_block
+        )
 
     reviews_dir = project_dir / "reviews" / "research"
     if not reviews_dir.is_dir():
@@ -109,4 +114,33 @@ def _render_kickback_feedback_block(project_dir: Path) -> str:
     return (body + "\n") if body else ""
 
 
-__all__ = ["DEFAULT_LIMIT", "PER_COMMENT_MAX_CHARS", "render_recent_comments_block"]
+#: Name of the note the independent task-completion verifier writes when it
+#: REJECTS a task the implementer claimed done. The next implement-batch dispatch
+#: injects it (below) so the implementer sees exactly which tasks failed
+#: verification and why — and redoes them rather than re-claiming blindly.
+TASK_VERIFIER_NOTES_FILENAME = "task_verifier_notes.md"
+
+
+def _render_task_verifier_notes_block(project_dir: Path) -> str:
+    """Return the independent task-verifier's rejection notes verbatim, or ``""``.
+
+    Written by ``agents.task_verifier.run_verification_pass`` when a separate LLM
+    judges a claimed-done task's artifacts as not satisfying its requirements; the
+    pass rewrites the file each tick (and removes it when nothing is rejected), so
+    it reflects only the CURRENT outstanding rejections. Injected as-is (already a
+    clearly-headed Markdown note).
+    """
+    note = project_dir / ".specify" / "memory" / TASK_VERIFIER_NOTES_FILENAME
+    try:
+        body = note.read_text(encoding="utf-8", errors="replace").strip()
+    except OSError:
+        return ""
+    return (body + "\n") if body else ""
+
+
+__all__ = [
+    "DEFAULT_LIMIT",
+    "PER_COMMENT_MAX_CHARS",
+    "TASK_VERIFIER_NOTES_FILENAME",
+    "render_recent_comments_block",
+]

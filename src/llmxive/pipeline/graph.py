@@ -280,6 +280,50 @@ def _incomplete_task_count(project_dir: Path, *, paper: bool) -> int:
     return text.count("- [ ]") + text.count(UNDER_REVIEW_MARK)
 
 
+def _run_task_verification(
+    project_dir: Path, already_verified: set[str], *, repo_root: Path | None = None
+) -> None:
+    """Independently verify (separate-LLM) the research tasks the implementer just
+    claimed done THIS tick — the spec-contract consistency gate.
+
+    Rewrites each claimed task's mark in the active tasks.md: COMPLETE → ``[X]``
+    (truly done), INCOMPLETE → ``[ ]`` + a note the NEXT implementer reads (redo),
+    transient failure / over-cap → ``[~]`` (under review, re-verified next tick).
+    Because ``_all_tasks_done`` requires no ``[ ]`` AND no ``[~]``, a project cannot
+    advance to research_complete on tasks an independent model has not accepted.
+
+    Research-track only (paper tasks have their own finalize gates). Never raises —
+    a verifier hiccup must not abort the pipeline; the work simply re-verifies next
+    tick. The verifier runs OUTSIDE the implementer's prompt/session (a distinct
+    ``chat_with_fallback`` call), per the user-directed design."""
+    from llmxive.agents import task_verifier as _tv
+    from llmxive.speckit._comments_context import TASK_VERIFIER_NOTES_FILENAME
+
+    tasks_path = _active_tasks_md(project_dir, track="research")
+    if tasks_path is None:
+        return
+    spec_context = ""
+    try:
+        spec_context = (tasks_path.parent / "spec.md").read_text(encoding="utf-8")
+    except OSError:
+        pass
+    memory_dir = project_dir / ".specify" / "memory"
+    result = _tv.run_verification_pass(
+        project_dir,
+        tasks_path,
+        already_verified=already_verified,
+        spec_context=spec_context,
+        notes_path=memory_dir / TASK_VERIFIER_NOTES_FILENAME,
+        state_path=memory_dir / "task_verify.yaml",
+    )
+    if result["accepted"] or result["rejected"] or result["deferred"]:
+        logger.info(
+            "task-verifier %s: accepted=%d rejected=%d deferred=%d",
+            project_dir.name, result["accepted"],
+            len(result["rejected"]), len(result["deferred"]),
+        )
+
+
 def _human_escalation_reason_from_markers(project_dir: Path) -> str | None:
     """Read the ``reason`` from whichever ``human_input_needed.yaml`` marker
     exists (research- or paper-side), for surfacing onto the Project."""
@@ -657,6 +701,21 @@ def run_one_step(
         _batch_cap = IMPLEMENT_TASK_BATCH if _is_implement_batch else 1
         _deadline = time.monotonic() + IMPLEMENT_BATCH_BUDGET_SECONDS
         _processed = 0
+        # TASK-VERIFIER snapshot (spec-contract consistency): the implement batch
+        # below marks tasks ``[X]`` on the implementer's OWN say-so. Snapshot which
+        # tasks are ALREADY verifier-accepted (``[X]`` before this tick) so the
+        # post-batch verify pass independently judges ONLY the tasks claimed THIS
+        # tick (plus any prior-tick ``[~]`` deferrals) — never re-judging settled work.
+        _verify_already_done: set[str] = set()
+        if _is_implement_batch:
+            from llmxive.agents.task_verifier import claimed_done_keys
+            _vt_tasks = _active_tasks_md(
+                project_dir, track="paper" if _paper_track else "research"
+            )
+            if _vt_tasks is not None:
+                _verify_already_done = claimed_done_keys(
+                    _vt_tasks.read_text(encoding="utf-8")
+                )
         # MODEL-TIER OVERRIDE (autonomous exhaustion handling — SHARED ladder).
         # The per-project ``model_tier`` (execution_status) is the SSoT model
         # ladder for BOTH autonomous loops:
@@ -762,6 +821,22 @@ def run_one_step(
                 "implement batch: processed %d task(s) for %s this tick",
                 _processed, project.id,
             )
+            # INDEPENDENT TASK VERIFICATION (spec-contract consistency): a SEPARATE
+            # model (outside the implementer's session) judges whether the tasks the
+            # implementer just claimed done are GENUINELY satisfied by the artifacts
+            # — accept → stays [X]; reject → [ ] + a note the next implementer reads;
+            # transient/over-cap → [~] (under review). This is what stops a
+            # self-reported-but-undone task from advancing the project (research
+            # track only; paper tasks have their own finalize gates).
+            if not _paper_track:
+                try:
+                    _run_task_verification(
+                        project_dir, _verify_already_done, repo_root=repo
+                    )
+                except Exception as exc:  # must never abort the pipeline
+                    logger.warning(
+                        "task verification pass failed for %s: %s", project.id, exc
+                    )
     else:
         raise RuntimeError(f"no implementation registered for agent {agent_name!r}")
 
