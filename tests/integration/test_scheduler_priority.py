@@ -76,28 +76,35 @@ def _picked_distribution(repo: Path, *, n_samples: int = 400) -> dict[str, int]:
     return counts
 
 
-def test_in_progress_preempts_analyzed_at_equal_staleness(tmp_path: Path) -> None:
-    """IN_PROGRESS is one rank deeper than ANALYZED in STAGE_PROGRESSION;
-    with equal queue depth and staleness its stage weight is
-    STAGE_GROWTH_BASE^1 ~= 1.5x higher, so it wins the majority of picks.
+def test_equal_depth_stages_split_evenly(tmp_path: Path) -> None:
+    """At equal queue depth and equal staleness, two adjacent stages split
+    picks ~evenly — `pick_next` selects a STAGE via `_stage_weights_with_floor`
+    (the load-balancer that drives the population toward uniformity across
+    columns), which is RANK-NEUTRAL, NOT the rank-capped `stage_weight`.
 
-    Spec 023 / FR-006 note: the original form of this test gave ANALYZED a
-    10-day-old project vs a 1-day-old IN_PROGRESS one and still demanded an
-    IN_PROGRESS majority — under the counterweighted scheduler, neglect
-    deliberately boosts the stale queue (that is the FR-006 point), so the
-    ages are now equal to isolate the rank preference."""
+    Earlier revisions of this test asserted IN_PROGRESS "preempts" ANALYZED
+    (old uncapped 1.5^rank model). The load-balanced scheduler superseded that:
+    one project at ANALYZED and one at IN_PROGRESS each contribute the same
+    `count - equal_share_target` over-target weight, so neither stage's depth
+    buys it a majority. Derivation: total=2, base_target=2/21≈0.095, each
+    over=1-0.095≈0.905 → exactly 0.50 each before sampling noise."""
     _bootstrap_state(tmp_path)
     _make(tmp_path, "PROJ-001-fresh", Stage.ANALYZED, age_days=1)
     _make(tmp_path, "PROJ-002-active", Stage.IN_PROGRESS, age_days=1)
 
     counts = _picked_distribution(tmp_path)
     total = sum(counts.values())
-    # IN_PROGRESS / (IN_PROGRESS + ANALYZED) = 1.5 / 2.5 = 60%. Allow 50% floor.
-    assert counts.get("PROJ-002-active", 0) / total > 0.5, (
-        f"in_progress should win majority of picks; got {counts}"
+    # Expected 0.50/0.50; measured 0.477/0.522 over 400 seeded samples.
+    # Band ±0.10 around 0.50 is robust to sampling noise yet still pins the
+    # "neither stage's depth grants a majority" contract (rules out the old
+    # >0.6 IN_PROGRESS dominance and a starved-ANALYZED outcome alike).
+    in_progress_share = counts.get("PROJ-002-active", 0) / total
+    assert 0.40 < in_progress_share < 0.60, (
+        f"equal-depth/equal-staleness stages must split ~evenly; got {counts}"
     )
-    # ANALYZED still gets non-zero share — the queue keeps draining.
+    # Neither queue is starved — both keep draining.
     assert counts.get("PROJ-001-fresh", 0) > 0
+    assert counts.get("PROJ-002-active", 0) > 0
 
 
 def test_stale_neglected_stage_gains_share(tmp_path: Path) -> None:
@@ -142,21 +149,45 @@ def test_locked_projects_skipped(tmp_path: Path) -> None:
     assert counts.get("PROJ-201-free", 0) > 0, "free project should be pickable"
 
 
-@pytest.mark.parametrize("stage", [Stage.HUMAN_INPUT_NEEDED, Stage.BLOCKED, Stage.POSTED])
+@pytest.mark.parametrize("stage", [Stage.BLOCKED, Stage.POSTED])
 def test_excluded_stages_never_picked(tmp_path: Path, stage: Stage) -> None:
     _bootstrap_state(tmp_path)
     _make(tmp_path, "PROJ-300-stuck", stage, age_days=1)
     _make(tmp_path, "PROJ-301-ready", Stage.IN_PROGRESS, age_days=10)
 
     counts = _picked_distribution(tmp_path)
-    assert "PROJ-300-stuck" not in counts, "terminal/human-input must never be picked"
+    assert "PROJ-300-stuck" not in counts, "terminal stage must never be picked"
     assert counts.get("PROJ-301-ready", 0) > 0
 
 
-def test_deepest_stage_dominates_picks(tmp_path: Path) -> None:
-    """With projects at BRAINSTORMED, CLARIFIED, and PAPER_IN_PROGRESS,
-    the paper-stage project should win the majority of picks — it's
-    further along the pipeline so closer to publication."""
+def test_human_input_needed_is_auto_recovered(tmp_path: Path) -> None:
+    """HUMAN_INPUT_NEEDED is a RETIRED parking stage (commit 404a05f43): it is
+    deliberately NOT excluded, so a project stranded there IS eligible to be
+    picked and auto-recovered (run_one_step routes it back to PLANNED). When
+    it's the only runnable project it must appear in the picked distribution."""
+    _bootstrap_state(tmp_path)
+    _make(tmp_path, "PROJ-310-stranded", Stage.HUMAN_INPUT_NEEDED, age_days=1)
+
+    counts = _picked_distribution(tmp_path)
+    assert counts.get("PROJ-310-stranded", 0) > 0, (
+        f"stranded human_input_needed project must be pickable (auto-recovery); got {counts}"
+    )
+
+
+def test_equal_depth_stages_balance_not_dominate(tmp_path: Path) -> None:
+    """With one project each at BRAINSTORMED, CLARIFIED, and PAPER_IN_PROGRESS
+    (equal queue depth + equal staleness), the load-balanced `pick_next` gives
+    all three a ROUGHLY-EQUAL share — pipeline depth does NOT grant the deepest
+    stage dominance.
+
+    Earlier revisions asserted PAPER_IN_PROGRESS "dominates" (>85%) under the
+    old uncapped 1.5^rank model. `pick_next` now selects a stage via
+    `_stage_weights_with_floor`, whose weight is `count - equal_share_target`
+    (rank-NEUTRAL). Derivation: total=3, base_target=3/21≈0.143; CLARIFIED and
+    PAPER_IN_PROGRESS over=1-0.143≈0.857, while BRAINSTORMED's target carries
+    the +25% funnel-mouth headroom (0.143*1.25≈0.179) so its over≈0.821 is
+    slightly lower → shares ≈ {clarified 0.338, paper 0.338, brainstormed
+    0.324}. Measured 0.343/0.312/0.345 over 400 seeded samples."""
     _bootstrap_state(tmp_path)
     _make(tmp_path, "PROJ-401-clarified", Stage.CLARIFIED, age_days=1)
     _make(tmp_path, "PROJ-402-brainstormed", Stage.BRAINSTORMED, age_days=1)
@@ -164,12 +195,22 @@ def test_deepest_stage_dominates_picks(tmp_path: Path) -> None:
 
     counts = _picked_distribution(tmp_path)
     total = sum(counts.values())
-    # PAPER_IN_PROGRESS has the deepest rank (16 in STAGE_PROGRESSION),
-    # so its weight (1.5^16 ≈ 657) dwarfs CLARIFIED (1.5^4 ≈ 5) and
-    # BRAINSTORMED (1.5^0 = 1). Should win >85%.
-    paper_share = counts.get("PROJ-403-paper-progress", 0) / total
-    assert paper_share > 0.85, (
-        f"deepest-stage project should dominate picks; got {counts}"
+    shares = {pid: counts.get(pid, 0) / total for pid in (
+        "PROJ-401-clarified", "PROJ-402-brainstormed", "PROJ-403-paper-progress")}
+    # Each near 1/3; band [0.25, 0.42] is noise-robust yet still pins the
+    # contract: the deepest stage does NOT dominate (rules out the old >0.85),
+    # and every eligible stage clears the MIN_STAGE_SHARE=0.05 floor (none
+    # starved). All three must clear the floor.
+    for pid, share in shares.items():
+        assert scheduler.MIN_STAGE_SHARE < share, (
+            f"{pid} share {share:.2%} below MIN_STAGE_SHARE floor; counts={counts}"
+        )
+        assert 0.25 < share < 0.42, (
+            f"{pid} share {share:.2%} outside balanced band; counts={counts}"
+        )
+    # The deepest stage must NOT dominate (the superseded behavior).
+    assert shares["PROJ-403-paper-progress"] < 0.50, (
+        f"deepest stage must not dominate under the load-balancer; got {counts}"
     )
 
 

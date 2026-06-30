@@ -41,7 +41,11 @@ class TestSchedulerIdempotency:
         items before the scheduler re-picks the project."""
         assert Stage.AGENT_BLOCKED in _NEVER_PICK
         assert Stage.PUBLISH_BLOCKED in _NEVER_PICK
-        assert Stage.HUMAN_INPUT_NEEDED in _NEVER_PICK
+        # HUMAN_INPUT_NEEDED is deliberately NOT excluded (commit 404a05f43):
+        # it is a RETIRED parking stage, so a project stranded there must be
+        # PICKED and auto-recovered into the pipeline (run_one_step routes
+        # HUMAN_INPUT_NEEDED -> PLANNED) rather than parked forever.
+        assert Stage.HUMAN_INPUT_NEEDED not in _NEVER_PICK
         assert Stage.BLOCKED in _NEVER_PICK
         # PAPER_REVIEW + RESEARCH_REVIEW MUST be pickable (the
         # implementer + reviewer agents consume them).
