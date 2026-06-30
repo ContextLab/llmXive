@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model used (e.g., 'Lasso', 'Ridge')"
+  cv_strategy:
+    type: string
+    description: "Cross-validation strategy used (e.g., '5-fold', 'LOOCV')"
+  n_populations:
+    type: integer
+    description: "Number of populations used in training"
+  r_squared:
+    type: number
+    description: "R-squared value from cross-validation"
+  mae:
+    type: number
+    description: "Mean Absolute Error"
+  permutation_p_value:
+    type: number
+    description: "P-value from permutation test (comparing observed R² vs null)"
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        coefficient:
+          type: number
+        p_value_raw:
+          type: number
+        p_value_adjusted:
+          type: number
+      required:
+        - feature_name
+        - coefficient
+  sensitivity_analysis:
+    type: object
+    properties:
+      alphas_tested:
+        type: array
+        items:
+          type: number
+      jaccard_median:
+        type: number
+        description: "Median Jaccard index of top 10 features across alpha sweep"
+    required:
+      - alphas_tested
+      - jaccard_median
+required:
+  - model_type
+  - r_squared
+  - permutation_p_value
+  - feature_importance
+  - sensitivity_analysis
+additionalProperties: false

@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Plant Defense Compound Data Manifest"
+description: "Schema for validating the project's data manifest file containing dataset metadata and checksums."
+type: object
+required:
+  - version
+  - datasets
+  - created_at
+  - updated_at
+properties:
+  version:
+    type: string
+    description: "Schema version string (e.g., '1.0.0')"
+  created_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of manifest creation"
+  updated_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of last manifest update"
+  datasets:
+    type: array
+    description: "List of dataset entries included in the manifest"
+    items:
+      type: object
+      required:
+        - name
+        - path
+        - checksum
+        - checksum_algorithm
+        - size_bytes
+        - description
+      properties:
+        name:
+          type: string
+          description: "Human-readable name of the dataset"
+        path:
+          type: string
+          description: "Relative path to the dataset file from project root"
+        checksum:
+          type: string
+          description: "Hexadecimal checksum hash of the file content"
+        checksum_algorithm:
+          type: string
+          enum:
+            - sha256
+            - md5
+          description: "Algorithm used to generate the checksum"
+        size_bytes:
+          type: integer
+          minimum: 0
+          description: "File size in bytes"
+        description:
+          type: string
+          description: "Brief description of the dataset content"
+        source_url:
+          type: string
+          format: uri
+          description: "Optional URL where the data was originally fetched from"
+        generated_at:
+          type: string
+          format: date-time
+          description: "Timestamp when this specific dataset file was generated"
+additionalProperties: false

@@ -1,0 +1,11 @@
+- artifact_hash: 1090f3701005f6823ce566bff2520a2f00999501b3790e9ccbdf2d7a689d0f24
+  artifact_path: projects/PROJ-475-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/boettiger-lab/gbif/resolve/main/gbif_ca_h3.parquet`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/boettiger-lab/gbif/resolve/main/gbif_ca_h3.parquet%60
+  verified_at: '2026-06-30T14:31:03.097027Z'

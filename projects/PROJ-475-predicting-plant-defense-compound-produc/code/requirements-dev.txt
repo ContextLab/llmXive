@@ -1,0 +1,14 @@
+# Development dependencies for llmXive project
+# Core dependencies (from T002)
+scikit-learn
+pandas
+numpy
+cyvcf2
+requests
+pyyaml
+scipy
+pytest
+
+# Linting and Formatting tools (T003)
+ruff>=0.1.0
+black>=23.0.0
