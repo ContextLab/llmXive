@@ -1,0 +1,17 @@
+[
+  {
+    "Layer": "Interface",
+    "Keyword_Count": 8,
+    "Coverage_Score": 32.79
+  },
+  {
+    "Layer": "Mechanisms",
+    "Keyword_Count": 10,
+    "Coverage_Score": 40.98
+  },
+  {
+    "Layer": "Scaling",
+    "Keyword_Count": 11,
+    "Coverage_Score": 45.08
+  }
+]

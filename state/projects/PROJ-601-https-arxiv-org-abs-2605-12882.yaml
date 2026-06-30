@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-19T09:11:54.831609Z'
-current_stage: paper_specified
+current_stage: paper_analyzed
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-601-https-arxiv-org-abs-2605-12882
-last_run_id: 02ed43bc-b63a-4b3d-b2f9-b673ebf74cfd
+last_run_id: 410bb6ee-ab60-492c-8fc5-935cb11d2758
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/specs/001-paper
 speckit_research_dir: projects/PROJ-601-https-arxiv-org-abs-2605-12882/specs/001-https-arxiv-org-abs-2605-12882
 title: 'CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence'
-updated_at: '2026-06-30T18:45:56.082053Z'
+updated_at: '2026-06-30T20:20:04.352417Z'

@@ -1,0 +1,197 @@
+project_id: PROJ-782-mobileforge-annotation-free-adaptation-f
+arxiv_id: '2606.19930'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-30T20:16:24.470391+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 96cc783aa476
+    text: The paper presents strong quantitative claims, but several specific data
+      points and citations require verification to ensure strict accuracy. First,
+      in Table 2 (MobileWorld GUI-only results), the paper reports ForgeQwen3-8B achieving
+      a 10.3% success rate. This is significantly lower than the base Qwen3-VL-8B
+      (37.6%) and GUI-Owl-1.5-8B (37.6%). The text claims the method improves agents,
+      yet this specific entry suggests a degradation. The authors must clarify if
+      this is a typo (e.g., should it be
+    severity: writing
+  - id: 05d2596848a9
+    text: The LaTeX source is truncated mid-sentence in the Related Work table (e002),
+      cutting off the 'ZeroGUI' row and the table closing tags. This prevents compilation
+      and full review of the methodology comparison. The file must be completed or
+      split if it exceeds token limits.
+    severity: writing
+  - id: 582797f4cea2
+    text: The training configuration table (e001) is missing its opening \begin{table*}
+      tag and caption, appearing as a fragment. Ensure all tabular environments are
+      properly wrapped in table floats with complete captions and labels.
+    severity: writing
+  - id: 5ae3195803f5
+    text: The bibliography contains multiple entries with placeholder authors (e.g.,
+      'FirstName LastName', 'Alpher') and generic titles ('Frobnication'). These must
+      be replaced with actual citations or removed to ensure reproducibility and professional
+      quality.
+    severity: writing
+  - id: 049561fdcd68
+    text: Data provenance and licensing are insufficiently documented. The paper claims
+      to generate 3,249 tasks from 20 apps (Table 2) but does not specify the license
+      of the source apps or the generated dataset. Explicitly state the license (e.g.,
+      CC-BY, MIT) for the MobileForge dataset and model weights hosted on HuggingFace
+      to ensure reproducibility and legal compliance.
+    severity: writing
+  - id: faa7b27c8aa9
+    text: External source link rot risk is high. The paper relies on arXiv preprints
+      for nearly all baselines (e.g., '2026' dated papers like gao2026ui, xu2026mobile).
+      These links are unstable. Add DOIs or permanent repository URLs (e.g., Zenodo,
+      GitHub releases) for all cited works and the project's own code/data to prevent
+      future link rot.
+    severity: writing
+  - id: 3bdbbf00cab3
+    text: Schema and versioning for the generated curriculum are missing. While Table
+      2 lists task counts per app, there is no schema definition for the task format
+      (JSON/YAML) or version control information (e.g., git commit hash) for the 3,249-task
+      corpus. Include a data card or schema appendix detailing the structure of the
+      generated tasks and the exact version of the exploration code used.
+    severity: writing
+  - id: 7d07ac906216
+    text: "Figure~\ref{fig:training_curves} lacks visible axis labels and units. The\
+      \ x-axis (training steps/epochs) and y-axis (reward score) are not explicitly\
+      \ labeled in the subplots, making the curves ambiguous without reading the caption.\
+      \ Add 'Steps' and 'Reward' labels to all six subplots."
+    severity: writing
+  - id: 202c3c7aa90a
+    text: "The track-completion figures (Figs.~\ref{fig:track_completion_androidworld_qwen},\
+      \ \ref{fig:track_completion_mobileworld_qwen}, \ref{fig:track_completion_mobileworld_guiowl})\
+      \ are high-resolution PNGs but lack visual annotations (e.g., bounding boxes,\
+      \ arrows, or text overlays) to highlight the specific UI elements where the\
+      \ base model failed and the adapted model succeeded. The captions describe the\
+      \ failure, but the visual evidence is not self-explanatory at print scale."
+    severity: writing
+  - id: fdd8458db28b
+    text: "The teaser figure (Fig.~\ref{fig:mobileforge-teaser}) is referenced in\
+      \ the Introduction but its content is not visible in the provided LaTeX chunks.\
+      \ Ensure the final PDF includes a high-contrast, legible diagram that clearly\
+      \ distinguishes the 'Existing' vs. 'MobileForge' pipelines, as this is the primary\
+      \ visual hook for the paper."
+    severity: writing
+  - id: d37f565e2e88
+    text: 'The manuscript suffers from excessive reliance on undefined acronyms and
+      custom LaTeX macros that act as jargon barriers for non-specialist readers.
+      In Section 1 (Introduction), the term "rollouts" is used without definition.
+      While standard in reinforcement learning, a generalist reader may not immediately
+      grasp its specific meaning in this context (multiple attempts at a task). Section
+      2 introduces a cascade of undefined macros: \\mobilegym, \\hifpo, \\ourmethod,
+      \\critic, and \\curriculum. The'
+    severity: writing
+  - id: c558d88456df
+    text: The logical consistency of the paper is generally high, with the proposed
+      method (MobileForge) clearly mapping to the experimental setup. However, there
+      are three specific areas where the conclusions do not strictly follow from the
+      presented data or where definitions create internal tension. First, in Table
+      1 (AndroidWorld results), the "Overall Avg." column presents a summary statistic
+      (e.g., 54.9% for GUI-Owl-1.5-8B) that is not mathematically derivable from the
+      visible "Easy/Medium/Hard" brea
+    severity: writing
+  - id: dae5e4bf88dd
+    text: The paper makes several claims that extend beyond the immediate evidence
+      provided in the text, specifically regarding the scope of its "strongest" performance
+      claims and the definition of "annotation-free." First, the Conclusion states
+      that \llmname{ForgeOwl-8B} is the "strongest open-data mobile GUI agent evaluated."
+      This is factually contradicted by Table 2 (MobileWorld GUI-only results), where
+      \llmname{GUI-Owl-1.5-32B} achieves a 43.9% success rate compared to \llmname{ForgeOwl-8B}'s
+      41.0%. W
+    severity: writing
+  - id: 367db60d8286
+    text: The paper presents a method for annotation-free adaptation of mobile GUI
+      agents, involving autonomous exploration and interaction with real-world mobile
+      applications. From a safety and ethics perspective, several critical gaps in
+      disclosure and mitigation strategies must be addressed before publication. First,
+      the methodology section (Sec 2, e000) and Table 2 (e002) indicate that the system
+      explores 20 distinct mobile apps to mine executable tasks. The paper does not
+      state whether this interacti
+    severity: writing
+  - id: b38b55be6b01
+    text: The 'annotation-free' claim relies on a critic model (Gemini 2.5 Pro) to
+      generate hierarchical feedback. The paper does not quantify the critic's accuracy
+      or error rate. If the critic hallucinates feedback, the policy optimization
+      could degrade. Please include an ablation or analysis of critic reliability
+      (e.g., human evaluation of a subset of generated hints).
+    severity: science
+  - id: b432c0b5f4b0
+    text: The out-of-domain results on MobileWorld (Table 2) show a large performance
+      gap between the 32B baseline (43.9%) and the adapted 8B model (41.0%), but the
+      adapted 8B model (ForgeQwen3-8B) scores only 10.3%. The paper does not explain
+      why the 8B base model fails so drastically on OOD tasks compared to the 32B
+      baseline, nor does it provide a variance analysis across the 117 tasks.
+    severity: science
+  - id: 62d2b3477005
+    text: The task generation process creates 3,249 tasks from 527 trajectories. The
+      paper does not report the diversity or overlap of these generated tasks. If
+      the curriculum is dominated by a few easy patterns, the reported gains may not
+      reflect true generalization. Please provide a distribution analysis of task
+      difficulty or functional coverage in the generated set.
+    severity: science
+  - id: 340dd9792975
+    text: Table 1 (AndroidWorld) and Table 2 (MobileWorld) report point estimates
+      (e.g., 67.2%, 41.0%) without confidence intervals or standard deviations. Given
+      the finite test sets (116 and 117 tasks), statistical significance of the improvements
+      (e.g., +8.2% Pass@3) is unverified. Please report 95% CIs or p-values from appropriate
+      tests (e.g., McNemar's test for paired binary outcomes) to substantiate claims
+      of superiority.
+    severity: science
+  - id: 2070070323c6
+    text: The ablation study in Table 3 (Hint ablation) compares 'No Hint' vs 'With
+      Hints' on a 200-task subset. The sample size and lack of variance metrics make
+      it impossible to assess if the 25% jump in success rate is statistically significant
+      or due to random seed variance. Please include standard deviations over multiple
+      seeds or a significance test.
+    severity: science
+  - id: 51d66a449733
+    text: "The training curves in Figure 4 show reward progression but lack error\
+      \ bands (e.g., \xB11 std dev) across random seeds. Without this, the stability\
+      \ of the GRPO optimization and the robustness of the reported gains cannot be\
+      \ statistically evaluated."
+    severity: science
+  - id: 7bb3a10d5d14
+    text: 'Table structure integrity failure: In chunk e001, a table caption and label
+      appear without a preceding \begin{table} environment. The text starts directly
+      with ''KL regularization...'' inside a raw tabular block, followed by \caption
+      and \label, then closes with \end{table*}. This will cause LaTeX compilation
+      errors. The table environment wrapper is missing or malformed.'
+    severity: writing
+  - id: eadb4a661493
+    text: 'Undefined custom commands: The manuscript relies on custom macros (\obsbox,
+      \ourmethod, \mobilegym, \hifpo, \llmname, \curriculum, \critic, \paperCompactTable,
+      \paperTable, \paperFit, \rise, \pmark, \xmark, \cmark) that are not defined
+      in the provided source or standard packages. These must be defined in the preamble
+      or the paper will fail to compile.'
+    severity: writing
+  - id: 39ac51252c5c
+    text: 'Inconsistent table placement and environment usage: Table~\ref{tab:curriculum_functional_coverage_main}
+      appears in e002 with [h] placement, but a similar table with the same label
+      appears in e000 with [!t]. Additionally, e002 uses \paperCompactTable and \paperFit
+      which are undefined. Ensure consistent environment usage and defined custom
+      commands across all chunks.'
+    severity: writing
+  - id: 977dcae585af
+    text: 'In Section 2.1 (MobileGym), the sentence ''The hierarchy yields: [Eq 2]''
+      is abrupt. Introduce the equation with a complete clause explaining what the
+      hierarchy produces before presenting the formula.'
+    severity: writing
+  - id: 875a16b6e829
+    text: Table 1 caption states 'Bold = best, underline = second-best,' but the table
+      body uses bold for the proposed method's results even when they are not the
+      absolute best (e.g., Pass@1 for GUI-Owl). Ensure formatting strictly matches
+      the caption definition.
+    severity: writing
+  - id: 7d3ae82fa483
+    text: "Section 3 (Experiments) contains inconsistent spacing around mathematical\
+      \ operators and text (e.g., 'SR(x)=1' vs 'SR \u2208 [0.0,0.9]'). Standardize\
+      \ spacing around equals signs and set delimiters for consistency."
+    severity: writing
+  - id: 834f9306b017
+    text: The phrase 'near GUI-Owl-1.5-8B' in the Conclusion is ambiguous. Specify
+      whether the performance is statistically comparable or numerically close, and
+      ensure the comparison target is clearly defined.
+    severity: writing

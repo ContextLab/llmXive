@@ -1,0 +1,50 @@
+# Bibliography Schema Contract
+
+This file defines the verification status requirement for all citations in the paper. No citation with `verification_status` other than `verified` is permitted in the final PDF.
+
+## Schema Definition
+
+```yaml
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+description: "Schema for the bibliography verification state"
+properties:
+  citations:
+    type: array
+    items:
+      type: object
+      required:
+        - key
+        - verification_status
+        - url
+      properties:
+        key:
+          type: string
+          description: "The BibTeX key used in the LaTeX source"
+        verification_status:
+          type: string
+          enum:
+            - verified
+            - unreachable
+            - mismatch
+            - pending
+          description: "Status determined by the Reference-Validator Agent"
+        url:
+          type: string
+          format: uri
+          description: "The source URL for the citation"
+        title:
+          type: string
+        authors:
+          type: array
+          items:
+            type: string
+        year:
+          type: integer
+```
+
+## Enforcement Rules
+
+1. **Gate Condition**: The paper cannot transition to `paper_review` if any citation in `state/citations/PROJ-601-https-arxiv-org-abs-2605-12882.yaml` has `verification_status` of `unreachable` or `mismatch`.
+2. **No New Citations**: The `bibliography.schema.yaml` implies that the set of citations is fixed at the research stage. The paper-planning stage does not add new entries.
+3. **Source**: The `references.bib` file must be generated from the verified list in `state/citations/`.

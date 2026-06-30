@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
   "ok": false,
-  "reason": "1 command(s) failed: python code/run_memlens_demo.py (rc=1)",
+  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/run_memlens_demo.py: self-declared fabricated metric \u2014 \u201c\u2026a 2-core CPU with  no GPU, we simulate the benchmark logic using: 1. A tiny synthe\u2026\u201d; code/run_memlens_demo.py: function `simulate_visual_ablation` returns a bare RNG draw (line 100) \u2014 a reported value computed from no real input; code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026question dataset with 50 synthetic samples across the 5 core memory\u2026\u201d; 1 command(s) failed: python code/run_memlens_demo.py (rc=1)",
   "artifacts": [
     "data/simulation_results.csv"
   ],
   "failures": [
-    "python code/run_memlens_demo.py -> rc=1\n    eturn self.writer.writerows(map(self._dict_to_list, rowdicts))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/lib/python3.11/csv.py\", line 149, in _dict_to_list\n    raise ValueError(\"dict contains fields not in fieldnames: \"\nValueError: dict contains fields not in fieldnames: 'condition'"
+    "python code/run_memlens_demo.py -> rc=1\n    Starting MemLens CPU Adaptation Simulation...\nSimulating 50 samples across 4 context lengths...\nSimulating Visual Ablation Study...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-578-https-arxiv-org-abs-2605-14906/code/run_memlens_demo.py\", line 257, in <module>\n    run_simulation()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-578-https-arxiv-org-abs-2605-14906/code/run_memlens_demo.py\", line 165, in run_simulation\n    writer.writerows(results)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 8,
   "model_tier": 0,
-  "updated_at": "2026-06-30T12:14:02Z"
+  "updated_at": "2026-06-30T20:15:39Z"
 }
