@@ -12,31 +12,19 @@ on:
         required: false
         type: string
       stage:
-        description: "Run only this stage."
+        # FR-002: `--stage` filters projects by their CURRENT pipeline Stage (a
+        # project STATE), which is what the CLI's `_Stage(value)` accepts — NOT a
+        # step/agent name. The old dropdown listed step names (brainstorm,
+        # speckit_implement, …) that are NOT Stage values, so picking any of them
+        # made `python -m llmxive run --stage <name>` hard-fail with exit 2. Use a
+        # free-text Stage value instead; an invalid value now prints the full list.
+        description: >-
+          Restrict the run to projects currently at this pipeline Stage (a project
+          STATE, e.g. in_progress, research_review, research_complete, paper_review,
+          paper_drafting_init — NOT a step name). Leave blank to let the scheduler
+          choose. An invalid value lists every accepted Stage.
         required: false
-        type: choice
-        options:
-          - ""
-          - brainstorm
-          - flesh_out
-          - idea_select
-          - project_initialize
-          - speckit_specify
-          - speckit_clarify
-          - speckit_plan
-          - speckit_tasks
-          - speckit_analyze
-          - speckit_implement
-          - research_review
-          - paper_initialize
-          - paper_speckit_specify
-          - paper_speckit_clarify
-          - paper_speckit_plan
-          - paper_speckit_tasks
-          - paper_speckit_analyze
-          - paper_speckit_implement
-          - paper_review
-          - status_report
+        type: string
 
 permissions:
   contents: write

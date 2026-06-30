@@ -60,6 +60,35 @@ def _disable_convergence_cache_by_default(
     monkeypatch.setenv("LLMXIVE_CONVERGENCE_CACHE", "0")
 
 
+@pytest.fixture(autouse=True)
+def _isolate_run_side_effect_flags() -> object:
+    """Snapshot + restore the run-only feature flags that ``cli._cmd_run`` enables.
+
+    For a REAL ``python -m llmxive run`` process, ``_cmd_run`` flips on the
+    grounding-guard / claim-layer / claim-fill via ``os.environ.setdefault`` (so
+    the deep reviser chokepoint sees them); the process then exits, so the global
+    mutation is harmless there. But an in-process test that calls ``_cmd_run``
+    (e.g. the ``run``-loop budget tests, or the ``--stage`` validation test) would
+    LEAK those flags into whatever network-free test runs next — and the reviser
+    suites assert EXACT backend call counts that those flags change, so the leak
+    surfaces as an order-dependent failure (cli test before flesh_out reviser
+    test). Restoring the three keys to their pre-test value makes a ``_cmd_run``
+    call in one test never perturb another's environment. Real-call runs are
+    exempt (they WANT the flags on).
+    """
+    if os.environ.get("LLMXIVE_REAL_TESTS") == "1":
+        yield
+        return
+    keys = ("LLMXIVE_GROUNDING_GUARD", "LLMXIVE_CLAIM_LAYER", "LLMXIVE_CLAIM_FILL")
+    before = {k: os.environ.get(k) for k in keys}
+    yield
+    for k, v in before.items():
+        if v is None:
+            os.environ.pop(k, None)
+        elif os.environ.get(k) != v:
+            os.environ[k] = v
+
+
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     if os.environ.get("LLMXIVE_REAL_TESTS") == "1":
         return

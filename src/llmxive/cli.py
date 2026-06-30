@@ -98,7 +98,16 @@ def _cmd_run(args: argparse.Namespace) -> int:
         try:
             stage_filter = _Stage(args.stage)
         except ValueError:
-            print(f"[run] invalid --stage {args.stage!r}", file=sys.stderr)
+            # --stage filters projects by their CURRENT pipeline Stage (project
+            # state), NOT by step/agent name. A cryptic "invalid --stage" with no
+            # hint sent a manual workflow_dispatch picking a step name (e.g.
+            # "speckit_implement") to a bare exit 2; list the real accepted values.
+            valid = ", ".join(s.value for s in _Stage)
+            print(
+                f"[run] invalid --stage {args.stage!r}; expected a pipeline Stage "
+                f"value (the project's current state), one of: {valid}",
+                file=sys.stderr,
+            )
             return 2
 
     # Per-run WALL-CLOCK budget: stop starting new steps once the run nears the
