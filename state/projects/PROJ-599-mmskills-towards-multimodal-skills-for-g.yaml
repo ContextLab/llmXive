@@ -13,6 +13,6 @@ points_research: {}
 revision_round: 0
 revision_spec_path: specs/auto-revisions/PROJ-599-mmskills-towards-multimodal-skills-for-g/round-1
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g
 title: 'MMSkills: Towards Multimodal Skills for General Visual Agents'
 updated_at: '2026-06-30T04:20:06.180514Z'

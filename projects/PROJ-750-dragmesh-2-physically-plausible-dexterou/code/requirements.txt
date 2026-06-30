@@ -1,0 +1,4 @@
+matplotlib  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+pybullet  # auto-added: imported by run-book but missing from venv
+pybullet_data  # auto-added: imported by run-book but missing from venv

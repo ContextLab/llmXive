@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-19T11:34:41.585022Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-738-efficientrollout-system-aware-
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'EfficientRollout: System-Aware Self-Speculative Decoding for RL Rollouts'
-updated_at: '2026-06-30T10:48:26.949284Z'
+updated_at: '2026-06-30T18:41:00.875120Z'
