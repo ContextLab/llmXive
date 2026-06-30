@@ -75,3 +75,41 @@ def test_pending_does_not_block_the_gate():
     unreachable = SimpleNamespace(verification_status=VerificationStatus.UNREACHABLE)
     assert _has_blocking_citations([pending]) is False
     assert _has_blocking_citations([pending, unreachable]) is True
+
+
+def test_is_real_title_rejects_urls_dois_ids():
+    assert cf._is_real_title("DynaCode: A Dynamic Complexity-Aware Code Benchmark") is True
+    assert cf._is_real_title("https://doi.org/10.48550/arXiv.2503.10452") is False
+    assert cf._is_real_title("10.48550/arXiv.2503.10452") is False
+    assert cf._is_real_title("2503.10452") is False
+    assert cf._is_real_title("") is False
+
+
+def test_url_as_cited_title_does_not_false_mismatch():
+    """The reference resolved to the REAL paper (fetched_title) but the citation
+    stored a URL in cited_title — must be VERIFIED on existence, not MISMATCH."""
+    out = cf._classify_match(
+        "https://doi.org/10.48550/arXiv.2503.10452",        # cited_title is a URL
+        "[2503.10452] DynaCode: A Dynamic Complexity-Aware Code Benchmark",  # real title
+    )
+    assert out == VerificationStatus.VERIFIED
+
+
+def test_real_title_still_mismatches_when_unrelated():
+    """A genuine cited title that doesn't match the fetched title still MISMATCHES
+    (anti-fabrication intact)."""
+    out = cf._classify_match("Attention Is All You Need", "Just a moment... | Cloudflare")
+    assert out == VerificationStatus.MISMATCH
+
+
+def test_arxiv_doi_routes_to_arxiv_not_crossref(monkeypatch):
+    """An arXiv DOI (DataCite, not in CrossRef) must route to the arXiv API instead
+    of 404-ing on CrossRef."""
+    called = {}
+    def _fake_arxiv(value, *, cited_title, timeout):
+        called["arxiv_id"] = value
+        return cf.FetchResult(status=VerificationStatus.VERIFIED, fetched_url="x")
+    monkeypatch.setattr(cf, "_fetch_arxiv", _fake_arxiv)
+    out = cf._fetch_doi("10.48550/arXiv.2503.10452", cited_title="t", timeout=5.0)
+    assert called.get("arxiv_id") == "2503.10452"
+    assert out.status == VerificationStatus.VERIFIED

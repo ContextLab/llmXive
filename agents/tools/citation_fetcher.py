@@ -76,8 +76,42 @@ class FetchResult:
     error: str = ""
 
 
+def _is_real_title(s: str) -> bool:
+    """True iff ``s`` looks like an actual paper title (not a URL / DOI / bare id).
+
+    Citation extraction sometimes stores the URL or DOI in the ``cited_title``
+    field (or leaves it empty); comparing that against the fetched page title then
+    yields ~0 overlap and a FALSE ``mismatch`` — even though the reference resolved
+    to the REAL paper (``fetched_title`` is the genuine title). When there is no
+    real title to cross-check, existence (a resolved page WITH a title) is the best
+    signal we have, so the caller treats it as verified rather than fabricated."""
+    s = (s or "").strip()
+    if not s:
+        return False
+    if s.lower().startswith(("http://", "https://", "doi:", "arxiv:")):
+        return False
+    if re.match(r"^10\.\d{4,9}/", s):          # bare DOI
+        return False
+    if re.match(r"^\d{4}\.\d{4,5}(v\d+)?$", s):  # bare arXiv id
+        return False
+    if " " not in s and len(s) < 30:           # a single token / id, not a title
+        return False
+    return True
+
+
 def _classify_match(cited_title: str, fetched_title: str) -> VerificationStatus:
     """Decide verified vs mismatch by title-token-overlap threshold."""
+    if not _is_real_title(cited_title):
+        # No real cited title to cross-check (the citation stored a URL/DOI/id).
+        # If the reference RESOLVED to a real page WITH a title, existence is
+        # confirmed -> verified; otherwise we cannot confirm it -> mismatch. A
+        # fabricated reference does not resolve (404/DNS -> unreachable/mismatch
+        # upstream), so this does not weaken the anti-fabrication gate.
+        return (
+            VerificationStatus.VERIFIED
+            if (fetched_title or "").strip()
+            else VerificationStatus.MISMATCH
+        )
     overlap = title_overlap(cited_title, fetched_title)
     if overlap >= CITATION_TITLE_OVERLAP_THRESHOLD:
         return VerificationStatus.VERIFIED
@@ -140,11 +174,9 @@ def _fetch_url(value: str, *, cited_title: str, timeout: float) -> FetchResult:
     fetched_title = title_match.group("title").strip() if title_match else ""
     if not fetched_title and value:
         fetched_title = value.rsplit("/", 1)[-1]
-    if not cited_title:
-        # No claim to match against; reachability + non-empty title only.
-        status = VerificationStatus.VERIFIED if fetched_title else VerificationStatus.MISMATCH
-    else:
-        status = _classify_match(cited_title, fetched_title)
+    # _classify_match handles the no-real-title case (empty, or a URL/DOI stored in
+    # cited_title): reachability + a non-empty fetched title -> verified.
+    status = _classify_match(cited_title, fetched_title)
     return FetchResult(
         status=status,
         fetched_url=str(resp.url),
@@ -193,6 +225,12 @@ def _fetch_doi(value: str, *, cited_title: str, timeout: float) -> FetchResult:
     m = _DOI_RE.search(doi)
     if m:
         doi = m.group(0)
+    # arXiv DOIs (10.48550/arXiv.XXXX) are DataCite-minted and NOT in CrossRef, so
+    # the CrossRef lookup below 404s -> a FALSE "DOI not found" mismatch on a real
+    # paper. Route them to the arXiv API (which has them) instead.
+    ax = re.match(r"10\.48550/arxiv\.(.+)$", doi, re.IGNORECASE)
+    if ax:
+        return _fetch_arxiv(ax.group(1), cited_title=cited_title, timeout=timeout)
     url = f"https://api.crossref.org/works/{doi}"
     headers = {"User-Agent": DEFAULT_USER_AGENT, "Accept": "application/json"}
     try:
