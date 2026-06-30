@@ -1,0 +1,39 @@
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py10', 'py11']
+exclude = '''
+    (
+      /.git
+      | /__pycache__
+      | /build
+      | /dist
+      | /.eggs
+      | \.egg-info
+      | /data
+      | /venv
+      | /\.venv
+    )/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code"]
+skip = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    "data",
+    "venv",
+    ".venv"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

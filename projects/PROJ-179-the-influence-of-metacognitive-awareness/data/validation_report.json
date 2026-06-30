@@ -1,0 +1,8 @@
+{
+  "status": "FAIL",
+  "message": "Dataset not found at data/ds003386_behavioral.csv. Ensure T005 (download.py) has successfully executed.",
+  "timestamp": "2026-06-30T13:03:18.854218",
+  "details": {
+    "error_type": "FileNotFoundError"
+  }
+}

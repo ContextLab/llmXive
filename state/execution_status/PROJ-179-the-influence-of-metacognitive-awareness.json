@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-179-the-influence-of-metacognitive-awareness",
+  "ok": false,
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/download.py; python code/analysis.py; 2 command(s) failed: python code/data/validate_data.py (rc=1); python code/data/preprocess.py (rc=1); 5 declared deliverable(s) absent: data/derived/trial_data.csv; data/results/bootstrap_config.json; data/results/primary_analysis.json",
+  "artifacts": [
+    "data/validation_report.json"
+  ],
+  "failures": [
+    "python code/download.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/download.py': [Errno 2] No such file or directory",
+    "python code/data/validate_data.py -> rc=1\n    2026-06-30 13:03:18,853 - INFO - Starting data validation (T006)...\n2026-06-30 13:03:18,854 - INFO - Loading dataset from data/ds003386_behavioral.csv...\n2026-06-30 13:03:18,854 - ERROR - Dataset not found at data/ds003386_behavioral.csv. Ensure T005 (download.py) has successfully executed.\n2026-06-30 13:03:18,854 - INFO - Validation report written to data/validation_report.json",
+    "python code/data/preprocess.py -> rc=1\n    ognitive-awareness/code/data/preprocess.py\", line 196, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/preprocess.py\", line 147, in main\n    log_level = config.get('logging', {}).get('level', 'INFO')\n                ^^^^^^^^^^\nAttributeError: 'AppConfig' object has no attribute 'get'",
+    "python code/analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/analysis.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T13:03:20Z"
+}
