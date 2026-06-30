@@ -1,0 +1,193 @@
+resolved_at: '2026-06-30T02:25:44.795349+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Limitable_Claims_and_Vienna_Convention_It_is_what_it_is_/32825738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Ingliz_va_o_zbek_tillarida_affiksal_va_kompozitsion_usulda_yasalgan_individual_yasalmalar/32831072
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/MANAGEMENT_COMPETENCE_OF_HEADS_OF_PRESCHOOL_EDUCATIONAL_ORGANIZATIONS_THEORY_PRACTICE_AND_DEVELOPMENT_PROSPECTS/32831063
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/GENERAL_ECONOMIC_ANALYSIS_OF_THE_ACTIVITIES_OF_INDUSTRIAL_ENTERPRISES_IN_THE_NAVOI_REGION_AND_DEVELOPMENT_PROSPECTS_IN_THE_CONDITIONS_OF_A_GRIN_ECONOMY/32831057
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/REALIZATION_OF_THE_PRAGMATIC_CONCEPT_IN_A_LITERARY_TEXT/32831054
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19057552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://works.hcommons.org/doi/10.17613/g0m0c-hfs35
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21006241
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21006241
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21052449
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+- intent: LLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard/resolve/main/BFCL_v3_chatable.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 24980
+      parsed: true
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard/resolve/main/BFCL_v3_chatable.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Necent/llm-jailbreak-prompt-injection-dataset/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64e77c453e1237c874d34ffe/7c51ebbeb4c96943eccc2e20ae58d53c23958b3e2e096222ac23b46a7cd5297c?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Bitext_Sample_Customer_Support_Training_Dataset_27K_responses-v11.csv%3B+filename%3D%22Bitext_Sample_Customer_Support_Training_Dataset_27K_responses-v11.csv%22%3B&response-content-type=text%2Fcsv&user_id=public&Expires=1782789923&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlNzdjNDUzZTEyMzdjODc0ZDM0ZmZlLzdjNTFlYmJlYjRjOTY5NDNlY2NjMmUyMGFlNThkNTNjMjM5NThiM2UyZTA5NjIyMmFjMjNiNDZhN2NkNTI5N2NcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Qml0ZXh0X1NhbXBsZV9DdXN0b21lcl9TdXBwb3J0X1RyYWluaW5nX0RhdGFzZXRfMjdLX3Jlc3BvbnNlcy12MTEuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyQml0ZXh0X1NhbXBsZV9DdXN0b21lcl9TdXBwb3J0X1RyYWluaW5nX0RhdGFzZXRfMjdLX3Jlc3BvbnNlcy12MTEuY3N2JTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGY3N2JnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3ODk5MjN9fX1dfQ__&Signature=MEYCIQDR6d0oT0la6PGGJFoAaaiQVxdOqb0utugKNeTZ1QFdwwIhAJrelm0Agtp6P2baf~SOcQxFsifGtIB9v4KU5Boob3u6&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/MAKTABGACHA_YOSHDAGI_BOLALARDA_LIDERLIK_SIFATLARINI_RIVOJLANTIRISH_BO_YICHA_PEDAGOGIK_TAJRIBA_SINOV_ISHLARINI_TASHKIL_QILISH_METODIKASI/32831087
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Limitable_Claims_and_Vienna_Convention_It_is_what_it_is_/32825738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Ingliz_va_o_zbek_tillarida_affiksal_va_kompozitsion_usulda_yasalgan_individual_yasalmalar/32831072
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/MANAGEMENT_COMPETENCE_OF_HEADS_OF_PRESCHOOL_EDUCATIONAL_ORGANIZATIONS_THEORY_PRACTICE_AND_DEVELOPMENT_PROSPECTS/32831063
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/GENERAL_ECONOMIC_ANALYSIS_OF_THE_ACTIVITIES_OF_INDUSTRIAL_ENTERPRISES_IN_THE_NAVOI_REGION_AND_DEVELOPMENT_PROSPECTS_IN_THE_CONDITIONS_OF_A_GRIN_ECONOMY/32831057
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6447108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10899290
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13959137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14912851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18981672
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21052839
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21052839
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039136
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039136
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repositories.lib.utexas.edu/handle/2152/136765
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

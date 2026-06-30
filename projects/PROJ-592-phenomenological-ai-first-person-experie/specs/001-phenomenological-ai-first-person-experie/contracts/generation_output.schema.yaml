@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Generation Output Schema"
+description: "Schema for raw LLM generation outputs"
+type: "object"
+properties:
+  generation_id:
+    type: "string"
+    description: "Unique UUID for the generation"
+  prompt_id:
+    type: "string"
+    description: "Identifier for the prompt used"
+  model_id:
+    type: "string"
+    description: "HuggingFace model ID used"
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility"
+  text:
+    type: "string"
+    description: "The generated phenomenological report"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of generation"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "oom"
+    description: "Status of the generation attempt"
+required:
+  - generation_id
+  - prompt_id
+  - model_id
+  - seed
+  - text
+  - timestamp
+  - status
+additionalProperties: false

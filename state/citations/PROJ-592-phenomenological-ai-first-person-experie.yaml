@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 23ba83a25c8078ca718ec9c2081e7bb5108d909a274433f502e408df6b001912
+  artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/phenomenological-ai.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/phenomenological-ai
+  verified_at: '2026-06-30T02:43:37.373188Z'

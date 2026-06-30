@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validity Scores Schema"
+description: "Schema for composite and component validity scores"
+type: "object"
+properties:
+  generation_id:
+    type: "string"
+    description: "FK to generation output"
+  consistency_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Internal consistency score from NLI model"
+  stability_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Semantic stability score from embeddings"
+  marker_density:
+    type: "number"
+    minimum: 0.0
+    description: "Phenomenological marker density"
+  validity_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Composite validity score"
+  weights:
+    type: "object"
+    properties:
+      consistency:
+        type: "number"
+      stability:
+        type: "number"
+      markers:
+        type: "number"
+    description: "Weights used for aggregation"
+required:
+  - generation_id
+  - consistency_score
+  - stability_score
+  - marker_density
+  - validity_score
+  - weights
+additionalProperties: false

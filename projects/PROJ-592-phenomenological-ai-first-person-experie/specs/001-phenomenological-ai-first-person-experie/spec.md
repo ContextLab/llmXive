@@ -28,7 +28,7 @@ The system MUST compute three validity criteria (Internal Consistency, Semantic 
 
 **Why this priority**: This translates raw text into quantifiable data required for the ANOVA and Chi-square statistical tests described in the methodology.
 
-**Independent Test**: Can be fully tested by running the analysis script on a small subset of 10 known reports and verifying the output CSV contains non-null consistency scores, stability scores, and marker counts.
+**Independent Test**: Can be fully tested by running the analysis script on a small subset of known reports and verifying the output CSV contains non-null consistency scores, stability scores, and marker counts.
 
 **Acceptance Scenarios**:
 
@@ -57,7 +57,7 @@ The system MUST facilitate human evaluation by two philosophy graduate students 
 
 - What happens when the NLI model fails on a specific sentence pair due to length limits? The system MUST skip the pair and log a warning without halting the batch.
 - How does the system handle model generation timeouts on the free-tier runner? The system MUST retry the specific generation up to 3 times before marking the sample as missing.
-- What happens if inter-rater reliability (Cohen's κ) falls below 0.5? The system MUST flag the condition for re-evaluation in the final report.
+- What happens if inter-rater reliability (Cohen's κ) falls below an acceptable threshold? The system MUST flag the condition for re-evaluation in the final report.
 
 ## Requirements *(mandatory)*
 
@@ -68,12 +68,12 @@ The system MUST facilitate human evaluation by two philosophy graduate students 
 - **FR-003**: System MUST compute internal consistency using a pretrained Natural Language Inference (NLI) model on pairwise sentences (See US-2).
 - **FR-004**: System MUST compute semantic stability using cosine similarity between embeddings of repeated generations (See US-2).
 - **FR-005**: System MUST apply Benjamini-Hochberg FDR correction (α≤0.05) and Tukey HSD post-hoc tests for all ANOVA comparisons (See US-2).
-- **FR-006**: System MUST perform sensitivity analysis on validity score weights over range {0.25, 0.5, 0.75} (See US-2).
+- **FR-006**: System MUST perform sensitivity analysis on validity score weights over a representative range of values. (See US-2).
 - **FR-007**: System MUST archive all prompts, model checkpoints (via HuggingFace IDs), generation seeds, and analysis scripts (See US-3).
 - **FR-008**: System MUST compute phenomenological marker presence using rule-based keyword dictionary for sensory, temporal, and intentional markers (See US-2).
-- **FR-009**: System MUST provide construct validity justification for computational metrics: cite phenomenology literature establishing marker definitions, or perform sensitivity analysis across alternative metric definitions (e.g., absolute diff ∈ {0.01, 0.05, 0.1}) (See US-2).
+- **FR-009**: System MUST provide construct validity justification for computational metrics: cite phenomenology literature establishing marker definitions, or perform sensitivity analysis across alternative metric definitions (e.g., absolute diff across a range of small magnitudes) (See US-2).
 - **FR-010**: System MUST use independent validation rubric for human raters (separate from automated metric definitions) and report correlation between human coherence ratings and automated validity scores (See US-3).
-- **FR-011**: System MUST perform sensitivity analysis on Cohen's κ threshold across {0.5, 0.6, 0.7} to assess robustness of inter-rater reliability conclusions (See US-3).
+- **FR-011**: System MUST perform sensitivity analysis on Cohen's κ threshold across a range of moderate to substantial agreement levels. to assess robustness of inter-rater reliability conclusions (See US-3).
 - **FR-012**: System MUST test ANOVA assumptions (Shapiro-Wilk normality p≥0.05, Levene's homogeneity p≥0.05); if violated, use Kruskal-Wallis non-parametric alternative (See US-2).
 
 ### Key Entities
@@ -91,7 +91,7 @@ The system MUST facilitate human evaluation by two philosophy graduate students 
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: All three validity metrics (Internal Consistency, Semantic Stability, Marker Presence) MUST be computed for ≥95% of generated reports (See US-2).
-- **SC-002**: Inter-rater reliability (Cohen's κ) for qualitative validation MUST be ≥0.6 on stratified random sample of 10 reports per condition, justified against phenomenological qualitative research convention (Cohen 1960; Landis & Koch 1977) (See US-3).
+- **SC-002**: Inter-rater reliability (Cohen's κ) for qualitative validation MUST be ≥0.6 on stratified random sample of 10 reports per condition, justified against phenomenological qualitative research convention (Cohen; Landis & Koch 1977) (See US-3).
 - **SC-003**: Statistical significance threshold MUST be p < 0.05 with family-wise error rate controlled via Benjamini-Hochberg FDR (See US-2).
 
 ## Assumptions

@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Qualitative Ratings Schema"
+description: "Schema for human rater inputs"
+type: "object"
+properties:
+  rating_id:
+    type: "string"
+    description: "Unique identifier for the rating"
+  generation_id:
+    type: "string"
+    description: "FK to generation output"
+  sample_id:
+    type: "string"
+    description: "FK to the stratified sampling selection (SC-002)"
+  rater_id:
+    type: "string"
+    description: "Anonymized rater identifier"
+  coherence_score:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "Likert scale coherence rating (Phenomenological Depth)"
+  comments:
+    type: "string"
+    description: "Optional qualitative comments"
+required:
+  - rating_id
+  - generation_id
+  - sample_id
+  - rater_id
+  - coherence_score
+additionalProperties: false
