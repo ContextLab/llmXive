@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-05T09:10:46.133821Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement
   Learning
-updated_at: '2026-06-27T04:54:31.257340Z'
+updated_at: '2026-06-30T14:12:42.154969Z'

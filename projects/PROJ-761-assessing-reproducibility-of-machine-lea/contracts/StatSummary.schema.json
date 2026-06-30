@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/StatSummary.json",
+  "title": "StatSummary",
+  "description": "Schema for aggregated statistical analysis across multiple reproducibility studies.",
+  "type": "object",
+  "required": ["n_papers", "paired_t_tests", "bland_altman_refs"],
+  "properties": {
+    "n_papers": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of papers analyzed."
+    },
+    "n_successful": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of successful reproductions."
+    },
+    "paired_t_tests": {
+      "type": "object",
+      "description": "Results of paired t-tests between reported and reproduced metrics.",
+      "properties": {
+        "mae": {
+          "type": "object",
+          "properties": {
+            "t_statistic": { "type": "number" },
+            "p_value": { "type": "number" },
+            "p_value_corrected": { "type": "number" }
+          }
+        },
+        "r2": {
+          "type": "object",
+          "properties": {
+            "t_statistic": { "type": "number" },
+            "p_value": { "type": "number" },
+            "p_value_corrected": { "type": "number" }
+          }
+        },
+        "spearman_rho": {
+          "type": "object",
+          "properties": {
+            "t_statistic": { "type": "number" },
+            "p_value": { "type": "number" },
+            "p_value_corrected": { "type": "number" }
+          }
+        }
+      }
+    },
+    "mixed_effects_model": {
+      "type": "object",
+      "description": "Variance components from Linear Mixed-Effects Model.",
+      "properties": {
+        "variance_paper_intercept": { "type": "number" },
+        "variance_residual": { "type": "number" },
+        "icc": { "type": "number" }
+      }
+    },
+    "heterogeneity": {
+      "type": "object",
+      "description": "I-squared and pooled effect size.",
+      "properties": {
+        "i_squared": { "type": "number" },
+        "pooled_effect": { "type": "number" }
+      }
+    },
+    "bland_altman_refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of paths to generated Bland-Altman plot PNGs."
+    },
+    "failure_log_summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "doi": { "type": "string" },
+          "reason": { "type": "string" },
+          "category": { "type": "string" }
+        }
+      },
+      "description": "Summary of excluded papers and failure modes."
+    }
+  }
+}

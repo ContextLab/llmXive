@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PaperRecord"
+description: "Schema for a single academic paper record in the SciAtlas knowledge graph."
+type: "object"
+required:
+  - "title"
+  - "abstract"
+  - "source_id"
+properties:
+  title:
+    type: "string"
+    minLength: 5
+    description: "Title of the paper. Must be at least 5 characters."
+  abstract:
+    type: "string"
+    minLength: 20
+    description: "Abstract of the paper. Must be at least 20 characters."
+  authors:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of author names."
+  year:
+    type: "integer"
+    description: "Publication year."
+  source_id:
+    type: "string"
+    description: "Unique identifier (DOI or ArXiv ID)."
+  entities:
+    type: "array"
+    items:
+      type: "string"
+    description: "Extracted entities (e.g., methods, materials)."
+  experimental_evidence:
+    type: "boolean"
+    description: "Flag indicating if the paper contains experimental evidence (derived from Gold Standard NLP classifier)."
+  doi:
+    type: "string"
+    description: "Digital Object Identifier."
+  arxiv_id:
+    type: "string"
+    description: "ArXiv identifier."
+additionalProperties: false

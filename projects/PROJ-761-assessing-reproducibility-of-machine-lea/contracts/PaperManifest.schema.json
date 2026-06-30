@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/PaperManifest.json",
+  "title": "PaperManifest",
+  "description": "Schema for validating paper metadata and dataset references for reproducibility studies.",
+  "type": "object",
+  "required": ["doi", "repo_url", "dataset_name", "reported_metrics"],
+  "properties": {
+    "doi": {
+      "type": "string",
+      "description": "Digital Object Identifier of the paper.",
+      "pattern": "^10\\.[0-9]{4,}/[^\\s]+$"
+    },
+    "repo_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to the code repository."
+    },
+    "dataset_name": {
+      "type": "string",
+      "description": "Name of the dataset used in the study."
+    },
+    "dataset_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Direct URL to the dataset if available."
+    },
+    "supplementary_files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Patterns or names of supplementary files to extract (e.g., '*_supp.csv')."
+      },
+      "minItems": 0
+    },
+    "reported_metrics": {
+      "type": "object",
+      "required": ["mae", "r2"],
+      "properties": {
+        "mae": {
+          "type": "number",
+          "description": "Reported Mean Absolute Error."
+        },
+        "r2": {
+          "type": "number",
+          "description": "Reported R-squared value."
+        },
+        "spearman_rho": {
+          "type": "number",
+          "description": "Reported Spearman's rank correlation coefficient."
+        },
+        "n_replicates": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of experimental replicates (per reviewer feedback)."
+        }
+      }
+    },
+    "model_params": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of parameters in the reported model."
+    },
+    "random_seed": {
+      "type": ["integer", "null"],
+      "description": "Reported random seed, or null if not specified."
+    },
+    "preprocessing_version": {
+      "type": "string",
+      "description": "Version of the preprocessing script used."
+    },
+    "library_versions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Key versions of critical libraries (e.g., 'torch': '2.2.0')."
+    }
+  }
+}

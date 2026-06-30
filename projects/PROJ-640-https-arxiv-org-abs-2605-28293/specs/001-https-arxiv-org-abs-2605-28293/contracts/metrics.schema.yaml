@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProRL Metrics Schema"
+description: "Schema for the output metrics log (FR-004). Includes baseline comparisons and variance fields."
+type: "object"
+properties:
+  hit_rate_10:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "HitRate@10 metric for ProRL"
+  ndcg_10:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "NDCG@10 metric for ProRL"
+  epochs_completed:
+    type: "integer"
+    minimum: 100
+    description: "Number of epochs run (must be >= 100 per spec)"
+  runtime_seconds:
+    type: "number"
+    minimum: 0
+    description: "Total runtime in seconds"
+  std_dev_hit_rate:
+    type: "number"
+    minimum: 0.0
+    nullable: true
+    description: "Standard deviation of HitRate across runs (if multiple runs performed)"
+  std_dev_ndcg:
+    type: "number"
+    minimum: 0.0
+    nullable: true
+    description: "Standard deviation of NDCG across runs (if multiple runs performed)"
+  paper_baseline_hit_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    nullable: true
+    description: "HitRate@10 reported in the paper (if available)"
+  paper_baseline_ndcg:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    nullable: true
+    description: "NDCG@10 reported in the paper (if available)"
+  random_baseline_hit_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "HitRate@10 for a Random Baseline (uniform sampling)"
+  random_baseline_ndcg:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "NDCG@10 for a Random Baseline (uniform sampling)"
+  environment:
+    type: "object"
+    properties:
+      cpu_cores:
+        type: "integer"
+        const: 2
+      ram_gb:
+        type: "integer"
+        const: 7
+      gpu_used:
+        type: "boolean"
+        const: false
+        description: "Must be false"
+required:
+  - "hit_rate_10"
+  - "ndcg_10"
+  - "epochs_completed"
+  - "runtime_seconds"
+  - "random_baseline_hit_rate"
+  - "random_baseline_ndcg"
+  - "environment"
+additionalProperties: false
+description: "All values must be numeric and non-null. HitRate and NDCG must be > 0.0 for a valid run. Baseline fields are required for scientific validation."

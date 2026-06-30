@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-03T09:39:30.418835Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative
   Decoding'
-updated_at: '2026-06-23T13:04:10.040651Z'
+updated_at: '2026-06-30T14:12:42.149381Z'

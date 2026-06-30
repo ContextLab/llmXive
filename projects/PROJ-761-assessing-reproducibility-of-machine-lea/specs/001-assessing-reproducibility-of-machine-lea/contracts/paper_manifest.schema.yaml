@@ -1,0 +1,50 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PaperManifest
+description: Schema for the input manifest of target papers.
+type: object
+properties:
+  doi:
+    type: string
+    description: "Digital Object Identifier of the paper."
+  repo_url:
+    type: string
+    description: "URL to the code repository."
+  dataset_name:
+    type: string
+    description: "Name of the dataset used in the paper."
+  dataset_version:
+    type: string
+    description: "Version of the dataset (e.g., v1.0)."
+  reported_metrics:
+    type: object
+    properties:
+      mae:
+        type: number
+        description: "Mean Absolute Error reported in the paper."
+      r2:
+        type: number
+        description: "R-squared value reported in the paper."
+      spearman_rho:
+        type: number
+        description: "Spearman correlation coefficient reported."
+    required:
+      - mae
+      - r2
+      - spearman_rho
+  hyperparameters:
+    type: object
+    description: "Key-value pairs of model hyperparameters."
+  seed:
+    type: integer
+    description: "Random seed used (optional, defaults to 42)."
+  covariates_required:
+    type: array
+    items:
+      type: string
+    description: "List of required covariates (e.g., temperature, solvent)."
+required:
+  - doi
+  - repo_url
+  - dataset_name
+  - dataset_version
+  - reported_metrics

@@ -1,0 +1,90 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Results Schema"
+description: "Schema for statistical analysis results including t-tests, cluster permutation, and mixed-effects models."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    description: "Type of statistical test performed."
+  comparisons:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        electrode:
+          type: "string"
+          enum: ["Fz", "FCz"]
+          description: "Electrode location."
+        metric:
+          type: "string"
+          enum: ["amplitude", "latency"]
+          description: "Metric being compared."
+        p_value_raw:
+          type: "number"
+          description: "Uncorrected p-value."
+        p_value_fdr:
+          type: "number"
+          description: "FDR-corrected p-value."
+        cohen_d:
+          type: "number"
+          description: "Effect size (Cohen's d)."
+        ci_95_lower:
+          type: "number"
+          description: "Lower bound of 95% confidence interval."
+        ci_95_upper:
+          type: "number"
+          description: "Upper bound of 95% confidence interval."
+        significant:
+          type: "boolean"
+          description: "Whether the result is significant after FDR correction."
+      required:
+        - electrode
+        - metric
+        - p_value_raw
+        - p_value_fdr
+        - cohen_d
+        - ci_95_lower
+        - ci_95_upper
+        - significant
+  cluster_permutation:
+    type: "object"
+    properties:
+      p_value:
+        type: "number"
+        description: "P-value from cluster-based permutation test."
+      cluster_size:
+        type: "integer"
+        description: "Number of time points/channels in the significant cluster."
+      n_permutations:
+        type: "integer"
+        description: "Number of permutations run."
+    required:
+      - p_value
+      - cluster_size
+      - n_permutations
+  mixed_effects:
+    type: "object"
+    properties:
+      model_formula:
+        type: "string"
+        description: "R-style formula for the mixed-effects model."
+      p_value:
+        type: "number"
+        description: "p-value for the fixed effect of condition."
+      effect_size:
+        type: "string"
+        description: "Description of effect size metric."
+      random_effect:
+        type: "string"
+        description: "Description of random effect (e.g., 'subject')."
+    required:
+      - model_formula
+      - p_value
+      - effect_size
+      - random_effect
+required:
+  - test_type
+  - comparisons
+  - cluster_permutation
+  - mixed_effects
+additionalProperties: false

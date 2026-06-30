@@ -1,0 +1,5 @@
+seed: 42
+permutations: 1000
+window_size: 12
+stride: 1
+alpha: 0.01

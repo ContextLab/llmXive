@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Dataset Schema"
+description: "Schema for the preprocessed EEG epochs derived from OpenNeuro ds003645."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  condition:
+    type: "string"
+    enum:
+      - "standard"
+      - "deviant"
+    description: "Type of auditory stimulus."
+  channels:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of EEG channel names (e.g., Fz, FCz, Cz)."
+  time_window:
+    type: "object"
+    properties:
+      start:
+        type: "number"
+        description: "Start time in ms relative to stimulus."
+      end:
+        type: "number"
+        description: "End time in ms relative to stimulus."
+    required:
+      - start
+      - end
+  sampling_rate:
+    type: "number"
+    description: "Sampling rate in Hz."
+  data_shape:
+    type: "object"
+    properties:
+      n_epochs:
+        type: "integer"
+      n_channels:
+        type: "integer"
+      n_times:
+        type: "integer"
+    required:
+      - n_epochs
+      - n_channels
+      - n_times
+required:
+  - subject_id
+  - condition
+  - channels
+  - time_window
+  - sampling_rate
+  - data_shape

@@ -1,0 +1,132 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatSummary
+description: Schema for the aggregated statistical analysis results.
+type: object
+properties:
+  equivalence_test:
+    type: object
+    description: "TOST results for equivalence testing."
+    properties:
+      mae:
+        type: object
+        properties:
+          t_statistic_lower:
+            type: number
+          t_statistic_upper:
+            type: number
+          p_value:
+            type: number
+          p_corrected:
+            type: number
+            description: "Bonferroni-corrected p-value."
+          tolerance_delta:
+            type: number
+            description: "Pre-defined tolerance margin."
+        required:
+          - t_statistic_lower
+          - t_statistic_upper
+          - p_value
+          - p_corrected
+          - tolerance_delta
+      r2:
+        type: object
+        properties:
+          t_statistic_lower:
+            type: number
+          t_statistic_upper:
+            type: number
+          p_value:
+            type: number
+          p_corrected:
+            type: number
+          tolerance_delta:
+            type: number
+        required:
+          - t_statistic_lower
+          - t_statistic_upper
+          - p_value
+          - p_corrected
+          - tolerance_delta
+      spearman_rho:
+        type: object
+        properties:
+          t_statistic_lower:
+            type: number
+          t_statistic_upper:
+            type: number
+          p_value:
+            type: number
+          p_corrected:
+            type: number
+          tolerance_delta:
+            type: number
+        required:
+          - t_statistic_lower
+          - t_statistic_upper
+          - p_value
+          - p_corrected
+          - tolerance_delta
+    required:
+      - mae
+      - r2
+      - spearman_rho
+  meta_analysis:
+    type: object
+    description: "Fixed-Effects Meta-Analysis results using inverse-variance weighting."
+    properties:
+      pooled_effect:
+        type: number
+        description: "Weighted mean deviation."
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        description: "[lower, upper] confidence interval."
+      heterogeneity_i2:
+        type: number
+        description: "I-squared statistic for heterogeneity."
+      weights:
+        type: object
+        description: "Weights used in the analysis (derived from metric_std)."
+    required:
+      - pooled_effect
+      - confidence_interval
+      - heterogeneity_i2
+  bland_altman:
+    type: object
+    description: "Summary statistics for Bland-Altman plots."
+    properties:
+      mae:
+        type: object
+        properties:
+          mean_diff:
+            type: number
+          std_diff:
+            type: number
+          limits_of_agreement:
+            type: array
+            items:
+              type: number
+            description: "[lower, upper] limits."
+        required:
+          - mean_diff
+          - std_diff
+          - limits_of_agreement
+  sensitivity_analysis:
+    type: object
+    properties:
+      max_std_mae:
+        type: number
+      max_std_r2:
+        type: number
+      max_std_spearman_rho:
+        type: number
+    required:
+      - max_std_mae
+      - max_std_r2
+      - max_std_spearman_rho
+required:
+  - equivalence_test
+  - meta_analysis
+  - bland_altman
+  - sensitivity_analysis
