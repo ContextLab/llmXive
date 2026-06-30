@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  project_id:
+    type: string
+  timestamp:
+    type: string
+    format: date-time
+  config:
+    type: object
+    properties:
+      sample_sizes:
+        type: array
+        items:
+          type: integer
+      effect_sizes:
+        type: array
+        items:
+          type: number
+      iterations_per_condition:
+        type: integer
+      seed:
+        type: integer
+      tests:
+        type: array
+        items:
+          type: string
+  checksums:
+    type: object
+    additionalProperties:
+      type: string
+required:
+  - project_id
+  - timestamp
+  - config
+  - checksums

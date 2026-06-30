@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  type:
+    type: string
+    const: "FeatureCollection"
+  features:
+    type: array
+    items:
+      type: object
+      properties:
+        test_type:
+          type: string
+          enum: ["t-test", "anova", "chi-squared"]
+        sample_size:
+          type: integer
+        effect_size:
+          type: number
+        hypothesis_state:
+          type: string
+          enum: ["null", "alternative"]
+        empirical_error_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+        iteration_count:
+          type: integer
+      required:
+        - test_type
+        - sample_size
+        - effect_size
+        - hypothesis_state
+        - empirical_error_rate
+        - ci_lower
+        - ci_upper
+        - iteration_count
+required:
+  - type
+  - features

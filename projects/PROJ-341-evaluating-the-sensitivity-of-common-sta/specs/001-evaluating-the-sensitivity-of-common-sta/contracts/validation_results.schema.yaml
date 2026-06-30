@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  dataset_name:
+    type: string
+  test_type:
+    type: string
+  sample_size:
+    type: integer
+  observed_p_value:
+    type: number
+  simulated_power:
+    type: number
+  ks_distance:
+    type: number
+  alignment_status:
+    type: string
+    enum: ["aligned", "deviated", "inconclusive"]
+  fallback_method_used:
+    type: string
+    enum: ["none", "yates_correction", "fisher_exact"]
+required:
+  - dataset_name
+  - test_type
+  - sample_size
+  - observed_p_value
+  - simulated_power
+  - ks_distance
+  - alignment_status
+  - fallback_method_used

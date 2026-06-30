@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  threshold_type:
+    type: string
+    enum: ["type_i_reliability", "power_reliability"]
+  test_type:
+    type: string
+  effect_size:
+    type: number
+  threshold_sample_size:
+    type: integer
+  confidence_interval:
+    type: object
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+    required:
+      - lower
+      - upper
+  description:
+    type: string
+required:
+  - threshold_type
+  - test_type
+  - effect_size
+  - threshold_sample_size
+  - confidence_interval
