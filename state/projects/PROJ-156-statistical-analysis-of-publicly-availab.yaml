@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T16:23:59.604269Z'
-current_stage: clarified
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-156-statistical-analysis-of-publicly-availab
-last_run_id: 49b2c1cb-19e2-4404-9223-4d4c42c2508c
+last_run_id: e3935cae-7934-47ad-989d-747d371ab83a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-156-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Video Game Speedrun Data
-updated_at: '2026-06-28T23:24:30.460883Z'
+updated_at: '2026-06-30T10:13:12.137062Z'

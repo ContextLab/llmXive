@@ -1,0 +1,41 @@
+# Project Configuration for Statistical Analysis of Speedrun Data
+# This file contains global parameters for the analysis pipeline.
+
+games:
+  - "super-mario-64"
+  - "zelda-oot"
+  - "metroid-zero-mission"
+  - "donkey-kong-64"
+  - "crash-team-racing"
+  - "sonic-adventure-2"
+  - "half-life-2"
+  - "portal"
+  - "skyrim"
+  - "doom-3"
+  - "mario-cart-64"
+  - "star-wars-jedi-knight-2"
+  - "halo-2"
+  - "goldeneye-007"
+  - "banjo-kazooie"
+
+min_sample_size: 100
+
+# Salt for deterministic anonymization of runner IDs (SHA-256)
+# Change this value only if re-anonymizing all historical data is intended.
+salt: "llmxive-speedrun-salt-2023-v1"
+
+# Cohen's d assumption for power analysis (US3)
+# Used to estimate required sample sizes or interpret effect sizes
+effect_size_assumptions: 0.5
+
+# Logging configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "data/logs/pipeline.log"
+
+# API Rate Limiting (requests per minute)
+api_limits:
+  speedrun_com: 100
+  retry_delay_seconds: 2
+  max_retries: 5

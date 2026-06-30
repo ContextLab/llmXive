@@ -1,0 +1,51 @@
+%YAML 1.1
+---
+title: RunRecord Entity Schema
+description: >
+  Schema defining the structure of a speedrun record used in the statistical analysis pipeline.
+  This schema validates the output of the data preprocessing step (T013a) and ensures
+  consistency for downstream modeling (T027).
+type: object
+required:
+  - run_time_seconds
+  - runner_id
+  - attempt_number
+  - category
+  - submission_date
+  - game_id
+properties:
+  run_time_seconds:
+    type: number
+    description: The duration of the run in seconds.
+    minimum: 0
+    exclusiveMinimum: false
+    example: 345.67
+  runner_id:
+    type: string
+    description: >
+      Anonymized identifier for the runner, computed as a SHA-256 hash
+      of the original username concatenated with a project-specific salt.
+      This preserves unique grouping for mixed-effects models while protecting privacy.
+    pattern: '^[a-f0-9]{64}$'
+    example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  attempt_number:
+    type: integer
+    description: The sequential attempt number for this runner in this specific game/category.
+    minimum: 1
+    example: 15
+  category:
+    type: string
+    description: The speedrun category (e.g., 'Any%', '100%').
+    minLength: 1
+    example: "Any%"
+  submission_date:
+    type: string
+    format: date-time
+    description: ISO 8601 formatted date and time of the run submission.
+    example: "2023-10-27T14:30:00Z"
+  game_id:
+    type: string
+    description: Unique identifier for the game, matching the IDs in config.yaml.
+    minLength: 1
+    example: "super-mario-64"
+additionalProperties: false

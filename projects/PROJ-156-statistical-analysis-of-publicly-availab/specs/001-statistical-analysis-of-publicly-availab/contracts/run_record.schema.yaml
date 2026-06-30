@@ -1,0 +1,57 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RunRecord
+description: Schema for a single speedrun attempt record.
+type: object
+required:
+  - run_id
+  - game_id
+  - runner_id
+  - attempt_number
+  - run_time_seconds
+  - submission_date
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier (hash of game_id + runner_id + attempt)"
+  game_id:
+    type: string
+    description: "Unique game identifier from speedrun.com"
+  runner_id:
+    type: string
+    description: "Unique runner identifier from speedrun.com"
+  attempt_number:
+    type: integer
+    minimum: 1
+    description: "Sequential attempt number for this runner in this game"
+  run_time_seconds:
+    type: number
+    exclusiveMinimum: 0
+    description: "Run time in seconds"
+  category:
+    type: string
+ description: "Category (e.g., 'any%', '[deferred]')"
+  submission_date:
+    type: string
+    format: date
+    description: "Date of submission"
+  total_prior_runs:
+    type: integer
+    minimum: 0
+    description: "Count of runs by this runner before this attempt"
+  time_since_first_run_days:
+    type: number
+    minimum: 0
+    description: "Days since runner's first run in this game"
+  difficulty_label:
+    type: ["string", "null"]
+    description: "External difficulty rating (optional)"
+  competitive_pressure:
+    type: number
+    minimum: 0
+    description: "Count of active runners in last 30 days"
+  sample_flag:
+    type: string
+    enum:
+      - "low-sample"
+      - "ok"
+    description: "Flag if game has <100 runs"

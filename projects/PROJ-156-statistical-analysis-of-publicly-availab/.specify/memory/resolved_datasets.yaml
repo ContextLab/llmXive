@@ -1,0 +1,204 @@
+resolved_at: '2026-06-30T09:29:19.460110+00:00'
+datasets:
+- intent: AIC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ctu-aic/csfever/resolve/main/data/test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ai-coscientist/researcher-ablation-bench/resolve/main/dev.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 38542
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ai-coscientist/researcher-ablation-bench/resolve/main/dev.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ai-conferences/CVPR2026/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ctu-aic/csfever/resolve/main/data/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://preprints.opticaopen.org/articles/preprint/High-precision_tuning_of_silicon_photonic_devices_by_the_incubation_effect_in_multi-shot_femtosecond_laser_irradiation/32825879
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Quantifying_care_provided_to_children_and_young_people_with_cancer_who_die_Estimating_the_costs_and_key_determining_factors_of_NHS_secondary_care_in_England/32715804
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/dataset/ARCOS_Database_provided_by_the_Washington_Post/32787861
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Multi-Depot_Pharmaceutical_Cold_Chain_Research/32820452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Seabass_i_Dicentrarchus_labrax_i_in_Divisions_4_b_c_7_a_and_7_d_h_central_and_southern_North_Sea_Irish_Sea_English_Channel_Bristol_Channel_and_Celtic_Sea_/30931973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://checklist.pensoft.net/articles.php?id=20205
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7684550
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7806798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.5sj852c
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1244240
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/predicting-postoperative-pain-1-year-after-total-knee-arthroplasty-using-pain
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21050560
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21050560
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2506.00860
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29583
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: IDs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Friday-02-03-2018_TrafficForML_CICFlowMeter.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pcy12345BSU/CIC-IDS-2017/resolve/main/Network-Flows/CICIDS_Flow.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sanchit-gandhi/file-ids/resolve/main/ami-ihm/test-transcription.txt
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Friday-02-03-2018_TrafficForML_CICFlowMeter.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/pcy12345BSU/CIC-IDS-2017/resolve/main/Network-Flows/CICIDS_Flow.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Rifky/ID-SQuAD/resolve/main/data/test-00000-of-00001-8b418c6050385dc1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sanchit-gandhi/file-ids/resolve/main/ami-ihm/test-transcription.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://preprints.opticaopen.org/articles/preprint/High-precision_tuning_of_silicon_photonic_devices_by_the_incubation_effect_in_multi-shot_femtosecond_laser_irradiation/32825879
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Quantifying_care_provided_to_children_and_young_people_with_cancer_who_die_Estimating_the_costs_and_key_determining_factors_of_NHS_secondary_care_in_England/32715804
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/dataset/ARCOS_Database_provided_by_the_Washington_Post/32787861
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Multi-Depot_Pharmaceutical_Cold_Chain_Research/32820452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Seabass_i_Dicentrarchus_labrax_i_in_Divisions_4_b_c_7_a_and_7_d_h_central_and_southern_North_Sea_Irish_Sea_English_Channel_Bristol_Channel_and_Celtic_Sea_/30931973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/xpl/conhome/9109357/proceeding
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 418
+  - url: https://www.earthdoc.org/content/papers/10.3997/2214-4609.201902585
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.18970300261
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/4622437
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10706012
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mostwiedzy.pl/en/open-research-data/raw-data-hotspot-resolved-sers-fingerprinting-of-bioactive-molecules-on-gold-modified-laser-induced-,629060551651933-0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=be312f7baa9d450ba2d8ce43a6ca2c30
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21062503
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21062503
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://danebadawcze.uw.edu.pl/dataset.xhtml?persistentId=doi:10.58132/3Q1QT7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

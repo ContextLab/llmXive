@@ -1,0 +1,8 @@
+# Core dependencies for llmXive speedrun analysis
+# No external heavy libraries required for this task (uses stdlib urllib)
+# Added for completeness if other tasks require them
+pyyaml>=6.0
+pandas>=2.0.0
+scipy>=1.11.0
+statsmodels>=0.14.0
+requests>=2.31.0

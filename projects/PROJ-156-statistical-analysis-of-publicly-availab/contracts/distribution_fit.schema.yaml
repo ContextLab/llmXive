@@ -1,0 +1,47 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DistributionFit
+description: >
+  Schema for the output of distribution fitting analysis.
+  Records the best-fit parametric distribution for speedrun times of a specific game.
+type: object
+required:
+  - game_id
+  - distribution_family
+  - parameters
+  - KS_D
+  - KS_pvalue
+  - AIC
+properties:
+  game_id:
+    type: string
+    description: Unique identifier for the game (e.g., "super-mario-64")
+    minLength: 1
+  distribution_family:
+    type: string
+    description: Name of the fitted distribution family (e.g., "log-normal", "Weibull", "gamma")
+    enum:
+      - log-normal
+      - Weibull
+      - gamma
+  parameters:
+    type: object
+    description: >
+      Maximum Likelihood Estimates (MLE) for the distribution parameters.
+      Structure depends on the distribution family:
+      - log-normal: {"meanlog": float, "sigmalog": float}
+      - Weibull: {"c": float, "scale": float}
+      - gamma: {"a": float, "scale": float}
+    additionalProperties: true
+  KS_D:
+    type: number
+    description: Kolmogorov-Smirnov test statistic (maximum distance between empirical and theoretical CDF)
+    minimum: 0
+  KS_pvalue:
+    type: number
+    description: P-value from the Kolmogorov-Smirnov goodness-of-fit test
+    minimum: 0
+    maximum: 1
+  AIC:
+    type: number
+    description: Akaike Information Criterion for model comparison
+additionalProperties: false

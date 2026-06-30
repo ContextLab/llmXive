@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DistributionFit
+description: Schema for parametric distribution fitting results.
+type: object
+required:
+  - game_id
+  - distribution_family
+  - parameters
+  - KS_D
+  - KS_pvalue
+  - AIC
+  - rejected
+properties:
+  game_id:
+    type: string
+    description: "Unique game identifier"
+  distribution_family:
+    type: string
+    enum:
+      - "log-normal"
+      - "Weibull"
+      - "gamma"
+    description: "Fitted distribution family"
+  parameters:
+    type: object
+    description: "Fitted parameters (e.g., {'mu': 1.2, 'sigma': 0.5})"
+  KS_D:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Kolmogorov-Smirnov statistic"
+  KS_pvalue:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "KS test p-value"
+  AIC:
+    type: number
+    description: "Akaike Information Criterion"
+  rejected:
+    type: boolean
+    description: "True if Bonferroni-corrected p-value < 0.05 (hypothesis test rejection, not selection logic)"

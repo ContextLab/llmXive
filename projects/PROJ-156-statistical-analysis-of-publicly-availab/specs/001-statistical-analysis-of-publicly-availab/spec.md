@@ -77,7 +77,7 @@ As a researcher, I want to fit hierarchical mixed-effects models (log(Time) ~ lo
 - **FR-009**: System MUST include a sample-size/power consideration statement (method specified, number may be `[deferred]`) acknowledging power limitations for small games (See US-3)
 - **FR-010**: System MUST frame all findings as ASSOCIATIONAL (not causal) in the report, given the observational design (See US-3)
 - **FR-011**: System MUST compute variance inflation factors (VIF) for all fixed-effect predictors and flag any pair with VIF > 5 as collinear (See US-3)
-- **FR-012**: System MUST save intermediate results after each game (checkpoint mechanism) to allow resumption if the 6-hour limit is exceeded (See US-1)
+- **FR-012**: System MUST save intermediate results after each game (checkpoint mechanism) to allow resumption if the -hour limit is exceeded (See US-1)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -99,7 +99,7 @@ As a researcher, I want to fit hierarchical mixed-effects models (log(Time) ~ lo
 - **SC-002**: Mixed-effects model convergence is measured against successful parameter estimation (no convergence warnings) and interpretable fixed-effect coefficients (See US-3)
 - **SC-003**: Data completeness is measured against the ≥95% record retention target after duplicate removal and incomplete-run filtering (See US-1)
 - **SC-004**: Multiple-comparison control is measured against the Bonferroni-corrected family-wise error rate (α ≤ 0.05 across all hypothesis tests) (See US-3)
-- **SC-005**: Compute feasibility is measured against successful completion within 6 hours on a GitHub Actions free-tier runner (Multiple CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU) (See US-1)
+- **SC-005**: Compute feasibility is measured against successful completion within 6 hours on a GitHub Actions free-tier runner (Multiple CPU cores, ~7 GB RAM, A substantial disk capacity is required., NO GPU) (See US-1)
 - **SC-006**: Associational framing is measured against the absence of causal language in the final report. Prohibited terms include: causal verbs (causes, affects, impacts, determines, leads to, results in) and causal nouns (effect, impact, cause, consequence). Only associational language (association, correlation, relationship, linked to) is permitted when describing relationships between variables (See US-3)
 
 ## Assumptions
