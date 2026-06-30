@@ -1,0 +1,11 @@
+- artifact_hash: 741b5bc5999048b29714a410d685392d88d0837d086669e734a60f7767907701
+  artifact_path: projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/specs/001-anyflow-any-step-video-diffusion-model-w/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: unreachable
+  verified_against_url: https://download.pytorch.org/whl/cpu%60
+  verified_at: '2026-06-30T05:51:19.450383Z'

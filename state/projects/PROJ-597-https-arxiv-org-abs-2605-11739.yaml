@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-19T09:10:47.666946Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-597-https-arxiv-org-abs-2605-11739
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy Distillation'
-updated_at: '2026-06-29T03:38:28.884978Z'
+updated_at: '2026-06-30T04:20:06.177171Z'

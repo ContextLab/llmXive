@@ -13,3 +13,12 @@
 [submodule "projects/PROJ-577-multabench-benchmarking-multimodal-tabul/external/MulTaBench"]
 	path = projects/PROJ-577-multabench-benchmarking-multimodal-tabul/external/MulTaBench
 	url = https://github.com/alanarazi7/MulTaBench
+[submodule "projects/PROJ-581-https-arxiv-org-abs-2605-13301/external/SU-01"]
+	path = projects/PROJ-581-https-arxiv-org-abs-2605-13301/external/SU-01
+	url = https://github.com/Simplified-Reasoning/SU-01
+[submodule "projects/PROJ-579-https-arxiv-org-abs-2605-15155/external/SDAR"]
+	path = projects/PROJ-579-https-arxiv-org-abs-2605-15155/external/SDAR
+	url = https://github.com/ZJU-REAL/SDAR
+[submodule "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/external/AnyFlow"]
+	path = projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/external/AnyFlow
+	url = https://github.com/NVLabs/AnyFlow

@@ -1,0 +1,95 @@
+# Feature Specification: Self-Distilled Agentic Reinforcement Learning (SDAR) Reproduction
+
+**Feature Branch**: `579-https-arxiv-org-abs-2605-15155-repro`  
+**Created**: 2024-05-22  
+**Status**: Draft  
+**Input**: User description: "Reproduce & validate: Self-Distilled Agentic Reinforcement Learning (SDAR) paper (arXiv:2605.15155) using the vendored SDAR codebase on CPU-only CI."
+
+## User Scenarios & Testing
+
+### User Story 1 - Environment Sanity & Entry Point Execution (Priority: P1)
+
+**Description**: As a researcher, I need to verify that the vendored SDAR repository is correctly cloned, dependencies are resolvable on a standard Linux CPU environment, and the minimal entry point (Ray worker health check) executes without GPU acceleration errors.
+
+**Why this priority**: This is the "smoke test" for the entire project. If the environment cannot launch the Ray cluster or import the core modules without CUDA, the project cannot proceed to actual training or evaluation. It validates the "Compute Feasibility" constraint immediately.
+
+**Independent Test**: Execute the Ray CPU test script `tests/ray_cpu/check_worker_alive/main.py` in a fresh virtual environment. The test must pass if the environment is correctly configured.
+
+**Acceptance Scenarios**:
+
+1. **Given** the submodule `external/SDAR` is cloned and `requirements.txt` is installed in a CPU-only Python environment, **When** the command `python tests/ray_cpu/check_worker_alive/main.py` is executed, **Then** the script must complete successfully with exit code 0 and log "Ray cluster healthy" without any "CUDA not found" or "device_map" errors.
+2. **Given** the environment has no GPU drivers installed, **When** the script attempts to initialize Ray, **Then** it must bind exclusively to CPU resources and report the available CPU count (e.g., "2 CPUs detected") without raising an `ImportError` for `torch.cuda`.
+
+---
+
+### User Story 2 - Minimal Training Run on Subsampled Data (Priority: P2)
+
+**Description**: As a researcher, I need to execute a truncated SDAR training loop on a single ALFWorld task with a small batch size to verify that the core algorithm (Self-Distillation gating + RL) runs end-to-end and produces loss logs and model checkpoints.
+
+**Why this priority**: This validates the mathematical and architectural correctness of the SDAR implementation. It confirms that the "gated auxiliary objective" and "token-level guidance" mechanisms execute without crashing, even if the run is too short to produce statistically significant results.
+
+**Independent Test**: Run the SDAR training script with hardcoded parameters for a limited number of steps. on a single ALFWorld environment instance. The run must produce a loss curve file and a checkpoint file.
+
+**Acceptance Scenarios**:
+
+1. **Given** the training script is configured for `num_steps=10`, `batch_size=1`, and `env=alfworld`, **When** the training loop starts, **Then** the system must log the "SDAR Gate Loss" and "RL Loss" values for at least 5 steps and save a checkpoint file (e.g., `step_5.pt`) to the output directory.
+2. **Given** the training run is limited to 10 steps, **When** the process completes, **Then** the script must exit cleanly with a summary report showing the final average loss, and the output directory must contain at least one non-empty artifact file.
+
+---
+
+### User Story 3 - Evaluation & Metric Reporting (Priority: P3)
+
+**Description**: As a researcher, I need to run the evaluation script on a tiny subset of the ALFWorld test set to confirm that the system can interact with the environment, parse rewards, and output success rate metrics.
+
+**Why this priority**: This validates the "Reproduction" claim by ensuring the evaluation harness works. It confirms that the system can successfully complete a task and report a score, which is necessary to compare against the paper's claims (e.g., "+[deferred] on ALFWorld").
+
+**Independent Test**: Execute the evaluation script on a representative subset of ALFWorld tasks.. The system must output a JSON or text report with a "success_rate" metric.
+
+**Acceptance Scenarios**:
+
+1. **Given** a trained (or randomly initialized) model and the evaluation script configured for `num_tasks=5`, **When** the evaluation loop runs, **Then** the system must attempt to solve each task and output a final success rate (e.g., "Success Rate: [deferred]") to the console and a log file.
+2. **Given** the evaluation encounters a task timeout, **When** the task fails, **Then** the system must record the failure reason (e.g., "Max steps exceeded") in the log and continue to the next task without crashing the entire evaluation suite.
+
+---
+
+### Edge Cases
+
+- **Ray Resource Contention**: What happens if the GitHub Actions runner has limited CPU availability (e.g., < 2 cores)? The system must detect available cores and adjust `ray init` parameters to avoid hanging.
+- **Import Errors in Vendored Code**: What happens if the vendored `SDAR` repository has local dependencies (e.g., specific versions of `alfworld` or `verl`) that conflict with the runner's global packages? The system must isolate dependencies via a virtual environment or container.
+- **Environment Stuck State**: What happens if the ALFWorld environment enters an infinite loop during evaluation? The system must enforce a hard timeout (e.g., a predefined duration per task) and abort the specific task, logging the timeout.
+
+## Requirements
+
+### Functional Requirements
+
+- **FR-001**: System MUST execute the Ray CPU worker health check (`tests/ray_cpu/check_worker_alive/main.py`) and confirm successful initialization on a CPU-only runner (See US-1) (FR-001).
+- **FR-002**: System MUST run the SDAR training loop for a minimum of 10 steps on a single ALFWorld environment instance without raising CUDA-related errors (See US-2) (FR-002).
+- **FR-003**: System MUST generate and persist at least one model checkpoint file (e.g., `.pt` or `.safetensors`) and a training log file containing loss values for the SDAR gate and RL components (See US-2) (FR-003).
+- **FR-004**: System MUST execute the evaluation script on a minimum of 5 ALFWorld tasks and output a structured success rate metric (See US-3) (FR-004).
+- **FR-005**: System MUST enforce a maximum execution time per evaluation task to ensure real-time responsiveness. to prevent infinite loops and ensure CI job completion within 6 hours (See US-3) (FR-005).
+- **FR-006**: System MUST explicitly disable all GPU-related imports and device assignments (e.g., `device_map="cpu"`, no `load_in_8bit`) during the execution of all scripts (See US-1) (FR-006).
+
+### Key Entities
+
+- **SDAR Model**: The LLM agent implementation including the self-distillation gating mechanism and RL backbone.
+- **ALFWorld Environment**: The simulated household task environment used for training and evaluation.
+- **Training Log**: A text or JSON file recording loss values, step counts, and gate activation statistics.
+- **Evaluation Report**: A structured output containing success rates, task completion times, and failure modes.
+
+## Success Criteria
+
+### Measurable Outcomes
+
+- **SC-001**: The Ray health check script MUST complete successfully. and report CPU-only resource allocation, measured against the script's expected success output (See US-1) (SC-001).
+- **SC-002**: The training run MUST produce a log file containing at least 5 recorded loss values for both "SDAR Gate Loss" and "RL Loss", measured against the training script's logging interval (See US-2) (SC-002).
+- **SC-003**: The evaluation run MUST produce a report with a calculated "success_rate" value (0.0 to 1.0) based on 5 completed tasks, measured against the evaluation script's output format (See US-3) (SC-003).
+- **SC-004**: The total wall-clock time for the entire reproduction pipeline (sanity check + training + evaluation) MUST be ≤ 6 hours, measured against the GitHub Actions job timer (See US-2, US-3) (SC-004).
+- **SC-005**: No runtime errors related to CUDA, GPU memory, or missing accelerators MUST occur during execution, measured against the standard error log (See US-1, FR-006) (SC-005).
+
+## Assumptions
+
+- **Assumption about Compute Environment**: The GitHub Actions runner provides at least 2 CPU cores and 7 GB of RAM, which is sufficient for running a small-scale SDAR training loop and ALFWorld evaluation without GPU acceleration.
+- **Assumption about Data Availability**: The ALFWorld environment dependencies and pre-compiled assets (e.g., PDDL files, Thor binaries) are included in the vendored `external/SDAR` submodule or can be downloaded automatically during the first run without requiring external network access beyond the repository.
+- **Assumption about Code Stability**: The vendored `external/SDAR` codebase is in a stable state where the entry points (`tests/ray_cpu/check_worker_alive/main.py`, `agent_system/...`) are functional and do not require immediate patching of syntax errors or missing imports.
+- **Assumption about Training Scope**: The reproduction does not require achieving the exact performance metrics reported in the paper (e.g., significant improvement) within the CI time limit; the goal is to validate that the code *runs* and *produces artifacts*, not to re-train the full model.
+- **Assumption about Dependencies**: The Python environment can be isolated using a virtual environment or `conda` to resolve version conflicts between the SDAR dependencies and the runner's base system packages.

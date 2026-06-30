@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-16T08:36:37.891648Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-579-https-arxiv-org-abs-2605-15155
-last_run_id: f048144c-9e8f-4ffb-bcbe-0cf021b57574
+last_run_id: 36ece5d9-9c2a-472b-bf3e-94742373b6a8
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: specs/auto-revisions/PROJ-579-https-arxiv-org-abs-2605-15155/round-1
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/001-https-arxiv-org-abs-2605-15155
 title: Self-Distilled Agentic Reinforcement Learning
-updated_at: '2026-06-30T02:48:38.453600Z'
+updated_at: '2026-06-30T05:09:07.753189Z'

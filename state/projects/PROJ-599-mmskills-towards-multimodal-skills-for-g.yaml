@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-19T09:11:18.281578Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-599-mmskills-towards-multimodal-sk
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MMSkills: Towards Multimodal Skills for General Visual Agents'
-updated_at: '2026-06-27T14:52:58.720300Z'
+updated_at: '2026-06-30T04:20:06.180514Z'

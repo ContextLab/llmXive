@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: EvaluationReport
+type: object
+properties:
+  video_path:
+    type: string
+    description: "Path to the evaluated video."
+  metrics:
+    type: object
+    description: "CPU-tractable metrics (SSIM for Temporal Consistency, Optical Flow for Motion Activity)."
+    properties:
+      ssim:
+        type: number
+        description: "Structural Similarity Index (0-1) between adjacent frames."
+      optical_flow_magnitude:
+        type: number
+        description: "Average magnitude of optical flow vectors."
+    required:
+      - ssim
+      - optical_flow_magnitude
+  reference_claims:
+    type: object
+    description: "Textual claims from the paper for context. No numeric comparison is performed."
+    additionalProperties:
+      type: string
+  status:
+    type: string
+    description: "Overall validation status."
+    enum:
+      - "PASS"
+      - "FAIL"
+      - "SKIP"
+  notes:
+    type: string
+    description: "Human-readable notes on the validation (e.g., 'Aesthetic Quality: Unmeasurable on CPU')."
+required:
+  - video_path
+  - metrics
+  - status
+  - notes
+additionalProperties: false
