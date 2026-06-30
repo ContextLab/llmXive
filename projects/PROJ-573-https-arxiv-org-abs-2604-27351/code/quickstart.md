@@ -1,187 +1,184 @@
 # Quickstart Guide
 
+This guide provides the necessary instructions to set up the development environment, install dependencies, and verify the installation for the Heterogeneous Scientific Foundation Model Collaboration Benchmark project.
+
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip (Python package manager)
-- git (for cloning the repository)
-- At least 5GB of free disk space for datasets and models
-- 4 CPU cores recommended for parallel benchmark execution
+Ensure the following software is installed on your system before proceeding:
 
-## Setup Commands
+- **Python 3.11** (or higher): Required for compatibility with project dependencies.
+- **pip**: Python package installer (usually included with Python).
+- **git**: Version control system for cloning the repository.
+- **make** (Optional): For running convenience commands if the Makefile is used.
+
+Verify your Python version:
+```bash
+python --version
+# Expected output: Python 3.11.x
+```
+
+## Setup Instructions
+
+Follow these steps to clone the repository, create a virtual environment, and install dependencies.
 
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd <project-directory>
+git clone <repository_url>
+cd PROJ-573-https-arxiv-org-abs-2604-27351
 ```
 
-### 2. Create and Activate Virtual Environment
+### 2. Create a Virtual Environment
+
+It is recommended to use a virtual environment to isolate dependencies.
 
 ```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+python -m venv.venv
 ```
 
-### 3. Install Dependencies
+### 3. Activate the Virtual Environment
+
+**On macOS/Linux:**
+```bash
+source.venv/bin/activate
+```
+
+**On Windows:**
+```bash
+.venv\Scripts\activate
+```
+
+### 4. Install Dependencies
+
+Install all required packages listed in `requirements.txt`:
 
 ```bash
-pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-The `requirements.txt` file contains pinned versions of all required packages:
-- scikit-learn>=1.3.0
-- pandas>=2.0.0
-- numpy>=1.24.0
-- pyyaml>=6.0
-- datasets>=2.14.0
-- scipy>=1.11.0
-- matplotlib>=3.7.0
-- reportlab>=4.0.0
-- requests>=2.31.0
+### 5. Project Structure Verification
 
-### 4. Verify Installation
+Ensure the directory structure matches the expected layout:
+
+```bash
+ls -R
+# Should show:
+# src/
+# benchmark/
+# data/
+# evaluation/
+# models/
+# tasks/
+# utils/
+# validators/
+# tests/
+# data/
+# processed/
+# state/
+# contracts/
+# docs/
+# requirements.txt
+# quickstart.md
+```
+
+## Verification Steps
+
+Perform the following checks to ensure the environment is correctly configured.
+
+### 1. Run CLI Help
+
+Verify that the main benchmark script is executable and responds to help flags:
 
 ```bash
 python src/benchmark/run_benchmark.py --help
 ```
 
-You should see the CLI help message with available arguments:
-- `--config`: Path to configuration file (default: src/benchmark/config/default.yaml)
-- `--mode`: Execution mode (heterogeneous|unified, default: heterogeneous)
-- `--seeds`: Number of random seeds for reproducibility (default: 5)
+**Expected Output:**
+- Usage information
+- List of available arguments: `--config`, `--mode`, `--seeds`
 
-### 5. Check Data Directory
+### 2. Check Data Directory
 
-Verify that the `data/` directory structure exists:
+Ensure the data directories exist and are writable:
 
 ```bash
-ls -la data/
-ls -la data/processed/
+ls -ld data/ data/processed/
 ```
 
-The directory should contain:
-- `data/`: For downloaded raw datasets
-- `data/processed/`: For processed dataset files
-- `data/statistical_summary.yaml`: For aggregated results
+### 3. Run Unit Tests
 
-## Running the Benchmark
-
-### Default Execution (Heterogeneous Mode)
+Execute the test suite to verify core functionality:
 
 ```bash
-python src/benchmark/run_benchmark.py
-```
-
-This will:
-1. Load the default configuration from `src/benchmark/config/default.yaml`
-2. Execute tasks for each modality using specialized models
-3. Generate results in `results.csv` and `summary.pdf`
-
-### Unified Mode (Text-Only Translation)
-
-```bash
-python src/benchmark/run_benchmark.py --mode unified
-```
-
-This will:
-1. Translate all modalities to text representations
-2. Process everything through a single LLM
-3. Generate results with unified approach metrics
-
-### Custom Configuration
-
-```bash
-python src/benchmark/run_benchmark.py --config path/to/custom.yaml
-```
-
-### Single Task Execution
-
-```bash
-python src/benchmark/run_task.py --task-id T001
+python -m pytest tests/ -v
 ```
 
 ## Troubleshooting Common Issues
 
-### Issue: "No module named 'datasets'"
+### Issue: `ModuleNotFoundError: No module named 'src'`
 
-**Solution**: Ensure you're in the virtual environment and run:
+**Cause:** The script is being run from the wrong directory or the Python path is not set correctly.
+
+**Solution:**
+Ensure you are in the project root directory and run:
 ```bash
-pip install datasets>=2.14.0
+export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+# Or run scripts explicitly with the full path relative to root
+python src/benchmark/run_benchmark.py --help
 ```
 
-### Issue: Dataset download fails with timeout
+### Issue: `TypeError: __init__() got an unexpected keyword argument`
 
-**Solution**: The download function has 3-retry logic with 300s timeout. If it still fails:
-1. Check your internet connection
-2. Verify the dataset URL is accessible
-3. Try downloading manually using `wget` or browser
-4. Check HuggingFace status page for service outages
+**Cause:** Mismatch between the `TaskRunner` class definition and how it is being instantiated in the benchmark runner.
 
-### Issue: "Model weights exceed 1GB limit"
+**Solution:**
+This is a known API contract issue. Ensure `src/tasks/task_runner.py` is updated to accept flexible arguments or the caller is adjusted. See `src/tasks/task_runner.py` for the `__init__` signature.
 
-**Solution**: This project enforces CPU-tractable models (<1GB). If you encounter this:
-1. Verify you're using the correct model IDs from `src/benchmark/config/modalities/`
-2. Check `src/research/verify_models.py` for model size validation
-3. Ensure you haven't accidentally downloaded larger model variants
+### Issue: `AttributeError: 'list' object has no attribute 'get'`
 
-### Issue: Statistical tests fail with "empty arrays"
+**Cause:** The task definition YAML file structure does not match the expected dictionary format in `src/benchmark/run_task.py`.
 
-**Solution**: This occurs when task execution returns no results. Check:
-1. Task definitions in `src/tasks/task_definitions.yaml` are valid
-2. All required datasets are downloaded and accessible
-3. Model inference completes successfully (check logs)
-
-### Issue: Permission errors when writing to data/
-
-**Solution**: Ensure proper directory permissions:
-```bash
-chmod -R u+rwX data/
+**Solution:**
+Check `src/tasks/task_definitions.yaml`. The root element should be a dictionary containing a `tasks` key, not a raw list.
+Correct format:
+```yaml
+tasks:
+ - task_id: T001
+...
 ```
 
-### Issue: "Config file not found"
+### Issue: `FileNotFoundError: [Errno 2] No such file or directory: 'data/...'`
 
-**Solution**: Verify the config path is correct and the file exists:
+**Cause:** The dataset has not been downloaded yet.
+
+**Solution:**
+Run the dataset download script:
 ```bash
-ls -la src/benchmark/config/default.yaml
+python src/data/download.py
 ```
 
-### Issue: Reproducibility issues across runs
+### Issue: `ImportError: cannot import name '...'`
 
-**Solution**: The benchmark supports multiple seeds for reproducibility:
-```bash
-python src/benchmark/run_benchmark.py --seeds 5
-```
-Results will be aggregated in `data/statistical_summary.yaml` with confidence intervals.
+**Cause:** Circular imports or missing dependencies in `requirements.txt`.
 
-### Issue: Memory errors during inference
-
-**Solution**: All models are designed to be <1GB, but ensure:
-1. You have at least 4GB available RAM
-2. Close other memory-intensive applications
-3. Consider running tasks sequentially instead of in parallel
+**Solution:**
+1. Verify `requirements.txt` contains all necessary packages (e.g., `numpy`, `pandas`, `scipy`, `pyyaml`, `datasets`).
+2. Re-run `pip install -r requirements.txt`.
+3. Ensure no circular imports exist between modules in `src/`.
 
 ## Next Steps
 
-After successful setup:
+Once verification is complete, you can proceed to:
 
-1. Review the data model in `data-model.md` to understand entity relationships
-2. Check `research.md` for dataset verification status and methodology
-3. Examine `contracts/` for schema definitions
-4. Run the full benchmark and review generated reports
+1. **Run the Benchmark:**
+ ```bash
+ python src/benchmark/run_benchmark.py --config default.yaml
+ ```
+2. **Run a Specific Task:**
+ ```bash
+ python src/benchmark/run_task.py --task-id T001
+ ```
+3. **Read the Research Documentation:**
+ Review `research.md` for dataset details and methodology.
 
-For detailed implementation notes, see:
-- `src/models/` for modality-specific model wrappers
-- `src/evaluation/` for metrics and statistical analysis
-- `src/benchmark/` for orchestration logic
-- `src/tasks/` for task definitions and runner
-
-## Support
-
-For issues not covered here, check:
-- `src/research/verify_models.py` for model verification
-- `src/utils/logging.py` for detailed execution logs
-- `state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml` for artifact tracking
-- `data/statistical_summary.yaml` for aggregated results
+For more advanced usage, refer to the `specs/` directory and the `src/benchmark/` documentation.

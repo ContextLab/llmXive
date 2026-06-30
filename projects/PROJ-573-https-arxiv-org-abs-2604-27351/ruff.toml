@@ -1,22 +1,52 @@
-# Ruff configuration for llmXive project
+# Ruff configuration for PROJ-573-https-arxiv-org-abs-2604-27351
+# Targeting Python 3.11 as per project requirements
+
+# Line length configuration
 line-length = 88
+
+# Target Python version
 target-version = "py311"
 
-[lint]
-select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # Pyflakes
-  "I",  # isort
-  "B",  # flake8-bugbear
-  "C4", # flake8-comprehensions
-  "UP", # pyupgrade
-]
-ignore = [
-  "E501", # line too long (handled by black)
-  "B008", # do not perform function calls in argument defaults
+# Exclude common directories
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
 ]
 
-[lint.isort]
-known-first-party = ["research", "setup_project_structure"]
-force-single-line = true
+# Linting rules
+[lint]
+# Enable common rule sets
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "B008", # Do not perform function calls in argument defaults
+]
+
+# Per-file ignores if needed
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assert in tests
+
+# Formatting configuration
+[format]
+# Use double quotes for strings
+quote-style = "double"
+# Indent with spaces
+indent-style = "space"
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+# Line ending
+line-ending = "auto"

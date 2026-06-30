@@ -1,193 +1,257 @@
+"""
+Runtime Verification Module for Per-Task Inference Checks.
+
+This module implements verification logic to ensure per-task inference
+completes within the 5-minute (300 seconds) limit as specified in SC-002.
+It records pass/fail status and detailed timing metrics to data/runtime_metrics.yaml.
+"""
+
 import os
 import time
 import yaml
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Callable
+import logging
 
 from src.utils.logging import get_logger
-from src.utils.runtime_monitor import measure_per_task_time, get_monitor
+
+# Constants
+PER_TASK_TIMEOUT_SECONDS = 300  # 5 minutes
+METRICS_FILE_PATH = "data/runtime_metrics.yaml"
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 logger = get_logger(__name__)
 
-# Constants
-PER_TASK_TIMEOUT_SECONDS = 300  # 5 minutes as per SC-002
-DATA_DIR = Path("data")
-RUNTIME_METRICS_PATH = DATA_DIR / "runtime_metrics.yaml"
-
 
 def load_runtime_metrics() -> Dict[str, Any]:
-    """Load existing runtime metrics from disk or return an empty structure."""
-    if RUNTIME_METRICS_PATH.exists():
-        with open(RUNTIME_METRICS_PATH, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
-    return {
-        "per_task_verification": [],
-        "total_runtime_verification": {"status": "pending", "timestamp": None},
-        "metadata": {
-            "threshold_per_task_seconds": PER_TASK_TIMEOUT_SECONDS,
-            "last_updated": datetime.now(timezone.utc).isoformat()
+    """
+    Load existing runtime metrics from the YAML file.
+    Creates the file with an empty structure if it doesn't exist.
+    """
+    metrics_path = PROJECT_ROOT / METRICS_FILE_PATH
+    if not metrics_path.exists():
+        # Ensure data directory exists
+        metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        return {
+            "benchmark_start": None,
+            "benchmark_end": None,
+            "total_runtime_seconds": None,
+            "per_task_metrics": [],
+            "verification_summary": {
+                "total_tasks": 0,
+                "passed": 0,
+                "failed": 0,
+                "max_allowed_seconds": PER_TASK_TIMEOUT_SECONDS
+            }
         }
-    }
+
+    try:
+        with open(metrics_path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
+    except (yaml.YAMLError, IOError) as e:
+        logger.error(f"Failed to load runtime metrics: {e}")
+        return {
+            "benchmark_start": None,
+            "benchmark_end": None,
+            "total_runtime_seconds": None,
+            "per_task_metrics": [],
+            "verification_summary": {
+                "total_tasks": 0,
+                "passed": 0,
+                "failed": 0,
+                "max_allowed_seconds": PER_TASK_TIMEOUT_SECONDS
+            }
+        }
 
 
 def save_runtime_metrics(metrics: Dict[str, Any]) -> None:
-    """Save runtime metrics to disk, ensuring the data directory exists."""
-    RUNTIME_METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    metrics["metadata"]["last_updated"] = datetime.now(timezone.utc).isoformat()
-    with open(RUNTIME_METRICS_PATH, "w", encoding="utf-8") as f:
-        yaml.safe_dump(metrics, f, default_flow_style=False, sort_keys=False)
-    logger.info(f"Runtime metrics saved to {RUNTIME_METRICS_PATH}")
-
-
-def verify_total_runtime(total_time: float, threshold: float = 14400.0) -> Dict[str, Any]:
     """
-    Verify total benchmark runtime against the 4-hour threshold (SC-003).
-    Returns a status dictionary.
+    Save runtime metrics to the YAML file.
     """
-    status = "PASS" if total_time <= threshold else "FAIL"
-    result = {
-        "check": "total_runtime",
-        "threshold_seconds": threshold,
-        "actual_seconds": total_time,
-        "status": status,
-        "timestamp": datetime.now(timezone.utc).isoformat()
-    }
-    logger.info(f"Total runtime verification: {status} ({total_time:.2f}s <= {threshold}s)")
-    return result
+    metrics_path = PROJECT_ROOT / METRICS_FILE_PATH
+    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(metrics_path, 'w', encoding='utf-8') as f:
+        yaml.dump(metrics, f, default_flow_style=False, sort_keys=False)
+    logger.info(f"Runtime metrics saved to {metrics_path}")
 
 
-def verify_per_task_inference(task_id: str, execution_time: float) -> Dict[str, Any]:
+def verify_total_runtime(metrics: Dict[str, Any]) -> bool:
     """
-    Verify per-task inference time against the 5-minute threshold (SC-002).
-    
+    Verify that total benchmark runtime does not exceed 4 hours (14400 seconds).
+    Note: This is a soft check for the overall benchmark, distinct from per-task checks.
+    """
+    total_runtime = metrics.get("total_runtime_seconds")
+    if total_runtime is None:
+        logger.warning("Total runtime not recorded yet.")
+        return False
+
+    max_total_seconds = 14400  # 4 hours
+    if total_runtime > max_total_seconds:
+        logger.error(f"Total runtime {total_runtime}s exceeds limit {max_total_seconds}s")
+        return False
+    return True
+
+
+def verify_per_task_inference(task_id: str, duration_seconds: float) -> bool:
+    """
+    Verify that a single task's inference duration is within the 5-minute limit.
+
     Args:
-        task_id: The identifier of the task being verified.
-        execution_time: The time taken to execute the task in seconds.
-        
+        task_id: The unique identifier of the task.
+        duration_seconds: The measured duration in seconds.
+
     Returns:
-        A dictionary containing the verification result.
+        True if within limit, False otherwise.
     """
-    threshold = PER_TASK_TIMEOUT_SECONDS
-    status = "PASS" if execution_time <= threshold else "FAIL"
-    
-    result = {
-        "task_id": task_id,
-        "check": "per_task_inference",
-        "threshold_seconds": threshold,
-        "actual_seconds": execution_time,
-        "status": status,
-        "timestamp": datetime.now(timezone.utc).isoformat()
-    }
-    
-    if status == "FAIL":
-        logger.warning(f"Task {task_id} exceeded time limit: {execution_time:.2f}s > {threshold}s")
+    if duration_seconds <= PER_TASK_TIMEOUT_SECONDS:
+        logger.info(f"Task {task_id}: {duration_seconds:.2f}s <= {PER_TASK_TIMEOUT_SECONDS}s (PASS)")
+        return True
     else:
-        logger.info(f"Task {task_id} runtime verification: {status} ({execution_time:.2f}s <= {threshold}s)")
-        
-    return result
+        logger.error(f"Task {task_id}: {duration_seconds:.2f}s > {PER_TASK_TIMEOUT_SECONDS}s (FAIL)")
+        return False
 
 
-def record_task_verification(task_id: str, execution_time: float) -> Dict[str, Any]:
+def record_task_verification(
+    task_id: str,
+    duration_seconds: float,
+    passed: bool,
+    start_time: float,
+    end_time: float
+) -> None:
     """
-    Verify a single task's runtime and update the persistent metrics file.
-    
-    This function implements the core logic for T055c:
-    1. Verifies the execution time against SC-002 (5 minutes).
-    2. Records the pass/fail status to data/runtime_metrics.yaml.
+    Record the verification result for a single task to the metrics file.
+
+    Args:
+        task_id: The unique identifier of the task.
+        duration_seconds: The measured duration in seconds.
+        passed: Whether the task passed the time limit check.
+        start_time: Start timestamp (float).
+        end_time: End timestamp (float).
     """
-    # Perform verification
-    verification_result = verify_per_task_inference(task_id, execution_time)
-    
-    # Load existing metrics
     metrics = load_runtime_metrics()
-    
-    # Initialize per_task_verification list if missing
-    if "per_task_verification" not in metrics:
-        metrics["per_task_verification"] = []
-        
-    # Append new result
-    metrics["per_task_verification"].append(verification_result)
-    
-    # Save back to disk
+
+    task_record = {
+        "task_id": task_id,
+        "start_time": datetime.fromtimestamp(start_time, tz=timezone.utc).isoformat(),
+        "end_time": datetime.fromtimestamp(end_time, tz=timezone.utc).isoformat(),
+        "duration_seconds": round(duration_seconds, 3),
+        "limit_seconds": PER_TASK_TIMEOUT_SECONDS,
+        "status": "PASS" if passed else "FAIL"
+    }
+
+    metrics["per_task_metrics"].append(task_record)
+
+    # Update summary counts
+    if "verification_summary" not in metrics:
+        metrics["verification_summary"] = {
+            "total_tasks": 0,
+            "passed": 0,
+            "failed": 0,
+            "max_allowed_seconds": PER_TASK_TIMEOUT_SECONDS
+        }
+
+    metrics["verification_summary"]["total_tasks"] += 1
+    if passed:
+        metrics["verification_summary"]["passed"] += 1
+    else:
+        metrics["verification_summary"]["failed"] += 1
+
     save_runtime_metrics(metrics)
-    
-    return verification_result
 
 
 def generate_runtime_summary() -> Dict[str, Any]:
     """
-    Generate a summary of all runtime verifications performed so far.
+    Generate a summary of all runtime verification results.
     """
     metrics = load_runtime_metrics()
-    per_task_results = metrics.get("per_task_verification", [])
-    
-    if not per_task_results:
-        return {
-            "total_tasks_checked": 0,
-            "passed": 0,
-            "failed": 0,
-            "pass_rate": 0.0,
-            "details": []
-        }
-        
-    passed = sum(1 for r in per_task_results if r["status"] == "PASS")
-    failed = sum(1 for r in per_task_results if r["status"] == "FAIL")
-    total = len(per_task_results)
-    
-    return {
-        "total_tasks_checked": total,
-        "passed": passed,
-        "failed": failed,
-        "pass_rate": (passed / total) if total > 0 else 0.0,
-        "threshold_seconds": PER_TASK_TIMEOUT_SECONDS,
-        "details": per_task_results
+    summary = {
+        "total_tasks": metrics["verification_summary"]["total_tasks"],
+        "passed": metrics["verification_summary"]["passed"],
+        "failed": metrics["verification_summary"]["failed"],
+        "pass_rate": 0.0,
+        "max_allowed_seconds": PER_TASK_TIMEOUT_SECONDS,
+        "details": metrics["per_task_metrics"]
     }
+
+    if summary["total_tasks"] > 0:
+        summary["pass_rate"] = round(summary["passed"] / summary["total_tasks"], 4)
+
+    return summary
+
+
+def run_task_with_timing(task_id: str, task_func: Callable, *args, **kwargs) -> tuple:
+    """
+    Execute a task function while measuring its runtime and verifying against the limit.
+
+    This is a wrapper utility to ensure consistent timing and verification.
+
+    Args:
+        task_id: The unique identifier for the task.
+        task_func: The callable function to execute.
+        *args: Arguments to pass to the function.
+        **kwargs: Keyword arguments to pass to the function.
+
+    Returns:
+        A tuple of (result, duration_seconds, passed)
+    """
+    start_time = time.time()
+    try:
+        result = task_func(*args, **kwargs)
+        duration = time.time() - start_time
+        passed = verify_per_task_inference(task_id, duration)
+        record_task_verification(task_id, duration, passed, start_time, time.time())
+        return result, duration, passed
+    except Exception as e:
+        duration = time.time() - start_time
+        # Treat exceptions as failures for timing purposes if they occur within the time limit
+        # or if the timeout caused the exception
+        logger.error(f"Task {task_id} failed with exception after {duration:.2f}s: {e}")
+        # We still record the time, but mark as failed
+        record_task_verification(task_id, duration, False, start_time, time.time())
+        raise
 
 
 def main():
     """
-    CLI entry point for runtime verification.
-    Can be used to:
-    1. Verify a specific task if --task-id and --time are provided.
-    2. Generate a summary of all recorded verifications.
+    Main entry point for standalone verification testing.
+    Simulates a few tasks to demonstrate the verification logic.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Verify runtime constraints (SC-002, SC-003)")
-    parser.add_argument("--task-id", type=str, help="Task ID to verify")
-    parser.add_argument("--time", type=float, help="Execution time in seconds (required with --task-id)")
-    parser.add_argument("--summary", action="store_true", help="Print summary of all verifications")
-    
-    args = parser.parse_args()
-    
-    if args.task_id:
-        if args.time is None:
-            logger.error("--time is required when --task-id is specified")
-            return 1
-        
-        result = record_task_verification(args.task_id, args.time)
-        print(f"Verification Result: {result['status']}")
-        print(f"Task: {result['task_id']}")
-        print(f"Time: {result['actual_seconds']:.2f}s (Limit: {result['threshold_seconds']}s)")
-        
-    elif args.summary:
-        summary = generate_runtime_summary()
-        print(f"Runtime Verification Summary:")
-        print(f"  Total Tasks: {summary['total_tasks_checked']}")
-        print(f"  Passed: {summary['passed']}")
-        print(f"  Failed: {summary['failed']}")
-        print(f"  Pass Rate: {summary['pass_rate']:.2%}")
-        print(f"  Threshold: {summary['threshold_seconds']}s")
-    else:
-        # Default: Show summary if no specific action requested
-        summary = generate_runtime_summary()
-        print(f"Current Runtime Metrics Status:")
-        print(f"  Tasks Recorded: {summary['total_tasks_checked']}")
-        print(f"  Pass Rate: {summary['pass_rate']:.2%}")
-        
-    return 0
+    logger.info("Starting Runtime Verification Demo...")
+
+    # Simulate a few tasks
+    def mock_task_1():
+        time.sleep(0.5)
+        return "Task 1 Result"
+
+    def mock_task_2():
+        time.sleep(1.2)
+        return "Task 2 Result"
+
+    def mock_task_3():
+        time.sleep(0.1)
+        return "Task 3 Result"
+
+    tasks = [
+        ("T022", mock_task_1),
+        ("T023", mock_task_2),
+        ("T024", mock_task_3),
+    ]
+
+    results = []
+    for tid, func in tasks:
+        try:
+            res, dur, passed = run_task_with_timing(tid, func)
+            results.append({"id": tid, "duration": dur, "passed": passed})
+        except Exception as e:
+            results.append({"id": tid, "error": str(e), "passed": False})
+
+    summary = generate_runtime_summary()
+    print(f"\nVerification Summary: {summary['passed']}/{summary['total_tasks']} tasks passed.")
+    print(f"Pass Rate: {summary['pass_rate']*100:.1f}%")
+    logger.info("Runtime Verification Demo Complete.")
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()
