@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.09480",
+  "judged_at": "2026-06-30T17:28:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "perceptiondlm: parallel region perception with multimodal diffusion language models computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides a systematic review and evaluation of Vision-Language Models (VLMs) for object detection and segmentation, which directly measures the \"perception\" capabilities and \"multimodal\" mechanisms central to the user's question about \"Parallel Region Perception with Multimodal Diffusion Language Models.\" Even though the candidate paper focuses on general VLMs rather than the specific \"Diffusion Language Model\" architecture mentioned in the user's ",
+  "relevant": true
+}

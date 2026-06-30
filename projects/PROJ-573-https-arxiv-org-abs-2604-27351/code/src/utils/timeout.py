@@ -1,104 +1,87 @@
 """
-Timeout enforcement utilities for benchmark tasks.
-Implements FR-006 (Task Execution) and FR-013 (Resource Constraints).
+Timeout enforcement utilities for the benchmark pipeline.
+
+Implements FR-006 and FR-013: Timeout enforcement for task execution.
+Provides mechanisms to enforce execution time limits and raise TimeoutError
+when limits are exceeded.
+
+Dependencies: T016 (logging module)
 """
+
 import signal
 import threading
+import time
 from functools import wraps
 from typing import Callable, Any, Optional, Union
+import logging
+
+from src.utils.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 class TimeoutError(Exception):
-    """Custom timeout error for task execution limits."""
+    """Custom timeout error for benchmark tasks."""
     pass
 
 
-def _timeout_handler(signum, frame):
-    """Signal handler for Unix-based timeout enforcement."""
-    raise TimeoutError("Task execution exceeded the allowed timeout limit.")
-
-
-def enforce_timeout(
-    func: Callable,
-    timeout_seconds: int = 300,
-    use_signals: Optional[bool] = None
-) -> Callable:
+def enforce_timeout(func: Callable, timeout_seconds: int = 300) -> Callable:
     """
-    Decorator to enforce a maximum execution time for a function.
-
-    If the function runs longer than `timeout_seconds`, a TimeoutError is raised.
-
-    On Unix-like systems (Linux/macOS), uses `signal.SIGALRM` for precise enforcement.
-    On Windows or in threaded environments where signals are limited, falls back to
-    a daemon thread watchdog approach.
-
+    Decorator to enforce a timeout on a function execution.
+    
     Args:
-        func: The function to wrap.
-        timeout_seconds: Maximum allowed execution time in seconds (default 300).
-        use_signals: Force signal-based timeout (Unix only). If None, auto-detects.
-
+        func: The function to wrap with timeout enforcement.
+        timeout_seconds: Maximum allowed execution time in seconds (default: 300).
+        
     Returns:
-        The wrapped function.
-
+        A wrapped function that raises TimeoutError if execution exceeds timeout.
+        
     Raises:
-        TimeoutError: If the function execution exceeds `timeout_seconds`.
+        TimeoutError: If the function execution exceeds timeout_seconds.
+        
+    Example:
+        @enforce_timeout(timeout_seconds=60)
+        def slow_task():
+            time.sleep(120)
+            
+        # This will raise TimeoutError after 60 seconds
+        slow_task()
     """
-    # Determine if we can use signal-based timeout
-    # Signal-based timeout only works in the main thread on Unix
-    can_use_signals = (
-        use_signals is True or
-        (use_signals is None and hasattr(signal, 'SIGALRM') and threading.current_thread() is threading.main_thread())
-    )
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        result = [None]
+        exception = [None]
+        completed = threading.Event()
+        
+        def target():
+            try:
+                result[0] = func(*args, **kwargs)
+            except Exception as e:
+                exception[0] = e
+            finally:
+                completed.set()
+        
+        thread = threading.Thread(target=target)
+        thread.daemon = True
+        thread.start()
+        
+        if completed.wait(timeout=timeout_seconds):
+            if exception[0] is not None:
+                raise exception[0]
+            return result[0]
+        else:
+            # Thread is still running, but we timeout
+            logger.warning(
+                f"Function {func.__name__} exceeded timeout of {timeout_seconds} seconds. "
+                f"Terminating execution."
+            )
+            raise TimeoutError(
+                f"Function '{func.__name__}' exceeded timeout of {timeout_seconds} seconds"
+            )
+    
+    return wrapper
 
-    if can_use_signals:
-        def signal_decorator(f):
-            @wraps(f)
-            def wrapper(*args, **kwargs):
-                # Set the signal handler
-                old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
-                try:
-                    # Set the alarm
-                    signal.alarm(timeout_seconds)
-                    try:
-                        return f(*args, **kwargs)
-                    finally:
-                        # Cancel the alarm
-                        signal.alarm(0)
-                finally:
-                    # Restore the old handler
-                    signal.signal(signal.SIGALRM, old_handler)
-            return wrapper
-        return signal_decorator(func)
-    else:
-        # Fallback to threading watchdog for Windows or non-main threads
-        def threading_decorator(f):
-            @wraps(f)
-            def wrapper(*args, **kwargs):
-                result_container = {"value": None, "error": None, "done": threading.Event()}
 
-                def target():
-                    try:
-                        result_container["value"] = f(*args, **kwargs)
-                    except Exception as e:
-                        result_container["error"] = e
-                    finally:
-                        result_container["done"].set()
-
-                thread = threading.Thread(target=target, daemon=True)
-                thread.start()
-                
-                if not result_container["done"].wait(timeout=timeout_seconds):
-                    raise TimeoutError(
-                        f"Task execution exceeded the allowed timeout limit of {timeout_seconds} seconds."
-                    )
-                
-                if result_container["error"]:
-                    raise result_container["error"]
-                
-                return result_container["value"]
-            return wrapper
-        return threading_decorator(func)
-
-# Convenience function for one-off execution without decoration
 def run_with_timeout(
     func: Callable,
     timeout_seconds: int = 300,
@@ -107,19 +90,102 @@ def run_with_timeout(
 ) -> Any:
     """
     Execute a function with a timeout constraint.
-
+    
+    This is an alternative to the decorator approach for cases where
+    you need to enforce timeout on the fly.
+    
     Args:
         func: The function to execute.
-        timeout_seconds: Maximum allowed execution time.
-        *args: Positional arguments for the function.
-        **kwargs: Keyword arguments for the function.
-
+        timeout_seconds: Maximum allowed execution time in seconds.
+        *args: Positional arguments to pass to func.
+        **kwargs: Keyword arguments to pass to func.
+        
     Returns:
-        The return value of the function.
-
+        The result of func(*args, **kwargs) if completed within timeout.
+        
     Raises:
-        TimeoutError: If the function execution exceeds `timeout_seconds`.
+        TimeoutError: If execution exceeds timeout_seconds.
+        
+    Example:
+        def compute_something(x, y):
+            time.sleep(10)
+            return x + y
+        
+        result = run_with_timeout(compute_something, timeout_seconds=5, x=1, y=2)
+        # Raises TimeoutError
     """
-    # Apply the decorator temporarily
-    wrapped = enforce_timeout(func, timeout_seconds)
-    return wrapped(*args, **kwargs)
+    result = [None]
+    exception = [None]
+    completed = threading.Event()
+    
+    def target():
+        try:
+            result[0] = func(*args, **kwargs)
+        except Exception as e:
+            exception[0] = e
+        finally:
+            completed.set()
+    
+    thread = threading.Thread(target=target)
+    thread.daemon = True
+    thread.start()
+    
+    if completed.wait(timeout=timeout_seconds):
+        if exception[0] is not None:
+            raise exception[0]
+        return result[0]
+    else:
+        logger.warning(
+            f"Function {func.__name__} exceeded timeout of {timeout_seconds} seconds."
+        )
+        raise TimeoutError(
+            f"Function '{func.__name__}' exceeded timeout of {timeout_seconds} seconds"
+        )
+
+
+def main():
+    """
+    Main function for testing timeout enforcement.
+    Runs a simple test to demonstrate timeout functionality.
+    """
+    logger.info("Testing timeout enforcement...")
+    
+    # Test 1: Function completes within timeout
+    @enforce_timeout(timeout_seconds=5)
+    def quick_task():
+        time.sleep(1)
+        return "success"
+    
+    try:
+        result = quick_task()
+        logger.info(f"Test 1 passed: {result}")
+    except TimeoutError as e:
+        logger.error(f"Test 1 failed: {e}")
+    
+    # Test 2: Function exceeds timeout
+    @enforce_timeout(timeout_seconds=2)
+    def slow_task():
+        time.sleep(5)
+        return "should not reach here"
+    
+    try:
+        result = slow_task()
+        logger.error("Test 2 failed: Expected TimeoutError")
+    except TimeoutError as e:
+        logger.info(f"Test 2 passed: Correctly raised TimeoutError - {e}")
+    
+    # Test 3: run_with_timeout function
+    def task_with_args(x, y):
+        time.sleep(1)
+        return x + y
+    
+    try:
+        result = run_with_timeout(task_with_args, timeout_seconds=5, x=10, y=20)
+        logger.info(f"Test 3 passed: {result}")
+    except TimeoutError as e:
+        logger.error(f"Test 3 failed: {e}")
+    
+    logger.info("All timeout tests completed.")
+
+if __name__ == "__main__":
+    main()

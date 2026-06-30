@@ -1,32 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "MLP Regression Model Checkpoint Schema"
-type: object
-required:
-  - framework
-  - architecture
-  - parameter_count
-  - state_dict_sha256
+title: "Model Checkpoint Schema"
+type: "object"
 properties:
-  framework:
-    type: string
-    description: "Machine learning framework used (e.g., 'torch')."
-    enum: ["torch"]
   architecture:
-    type: string
-    description: "Human‑readable description of the model architecture."
-  parameter_count:
-    type: integer
-    description: "Total number of trainable parameters; must be ≤ 100000."
+    type: "string"
+    description: "Description of the model architecture (e.g., '2-layer MLP')"
+  num_params:
+    type: "integer"
     maximum: 100000
-  state_dict_sha256:
-    type: string
-    description: "SHA‑256 checksum of the saved state_dict file."
-  git_commit:
-    type: string
-    description: "Git commit hash of the code used to produce the checkpoint."
-  trained_on:
-    type: string
-    description: "Path to the training dataset CSV (relative to project root)."
-  notes:
-    type: string
-    description: "Optional free‑form notes; may contain colons and must be quoted."
+    description: "Total number of trainable parameters"
+  frozen_transformer:
+    type: "boolean"
+    description: "Whether the SMILES transformer is frozen"
+  input_dim:
+    type: "integer"
+    description: "Input feature dimension"
+  hidden_dims:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Hidden layer dimensions"
+  output_dim:
+    type: "integer"
+    description: "Output dimension (should be 1)"
+  training_seed:
+    type: "integer"
+    description: "Random seed used for training"
+required:
+  - architecture
+  - num_params
+  - frozen_transformer
+  - input_dim
+  - hidden_dims
+  - output_dim
+  - training_seed
+additionalProperties: false

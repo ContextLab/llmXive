@@ -1,224 +1,281 @@
 """
-Reference Validator Agent for llmXive pipeline.
+Reference Validator Agent for llmXive.
 
-This module implements a blocking gate that validates incoming review contributions
-against the project's Constitution II requirements. It performs a title-token-overlap
-check (>= 0.7) to ensure semantic alignment before allowing a review to be recorded.
+Implements:
+1. Title-token-overlap >= 0.7 check before contributing review points.
+2. Blocking gate for Constitution II compliance.
 """
-
 import re
-import json
-import os
+import logging
+from typing import Dict, Any, List, Optional, Tuple, Set
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-STATE_DIR = PROJECT_ROOT / "state"
-PROJECT_STATE_FILE = STATE_DIR / "projects" / "PROJ-573-https-arxiv-org-abs-2604-27351.yaml"
+from src.utils.logging import get_logger
 
-# Configuration constants
-MIN_TITLE_OVERLAP = 0.7
-CONSTITUTION_II_KEY = "Constitution II Compliance"
-CONSTITUTION_II_STATUS_KEY = "constitution_ii_status"
+# Constants
+MIN_TOKEN_OVERLAP = 0.7
+CONSTITUTION_II_KEY = "constitution_ii_compliant"
+REVIEW_POINTS_KEY = "review_points"
+
+logger = get_logger(__name__)
 
 
-def tokenize_text(text: str) -> List[str]:
+def tokenize_title(title: str) -> List[str]:
     """
-    Simple tokenizer that converts text to a set of lowercase alphanumeric tokens.
-    Removes punctuation and splits on whitespace.
+    Tokenize a title into a set of normalized tokens.
+    Converts to lowercase, removes punctuation, and splits on whitespace.
     """
-    if not text:
+    if not title:
         return []
-    # Normalize: lowercase, remove non-alphanumeric except spaces
-    cleaned = re.sub(r'[^a-z0-9\s]', '', text.lower())
-    return cleaned.split()
+    # Lowercase and remove non-alphanumeric characters except spaces
+    normalized = re.sub(r'[^a-z0-9\s]', '', title.lower())
+    return normalized.split()
 
 
-def calculate_token_overlap(title_a: str, title_b: str) -> float:
+def compute_title_token_overlap(title_a: str, title_b: str) -> float:
     """
-    Calculates the Jaccard similarity (token overlap) between two titles.
-    
-    Args:
-        title_a: First title string
-        title_b: Second title string
-        
-    Returns:
-        Float between 0.0 and 1.0 representing the overlap ratio.
-        Formula: |Intersection| / |Union|
+    Compute the Jaccard similarity (token overlap) between two titles.
+    Returns a float between 0.0 and 1.0.
     """
-    tokens_a = set(tokenize_text(title_a))
-    tokens_b = set(tokenize_text(title_b))
-    
-    if not tokens_a and not tokens_b:
-        return 1.0 if title_a == title_b else 0.0
+    tokens_a = set(tokenize_title(title_a))
+    tokens_b = set(tokenize_title(title_b))
+
     if not tokens_a or not tokens_b:
         return 0.0
-        
-    intersection = tokens_a & tokens_b
-    union = tokens_a | tokens_b
-    
-    return len(intersection) / len(union)
+
+    intersection = tokens_a.intersection(tokens_b)
+    union = tokens_a.union(tokens_b)
+
+    return len(intersection) / len(union) if union else 0.0
 
 
-def load_project_state() -> Dict[str, Any]:
+def validate_reference_title_overlap(
+    candidate_title: str,
+    reference_titles: List[str],
+    threshold: float = MIN_TOKEN_OVERLAP
+) -> Tuple[bool, float, Optional[str]]:
     """
-    Loads the project state YAML file.
-    Returns an empty dict if file doesn't exist (initialization).
-    """
-    if not PROJECT_STATE_FILE.exists():
-        return {
-            "project_id": "PROJ-573-https-arxiv-org-abs-27351",
-            "constitution_ii_status": "pending",
-            "artifact_hashes": {},
-            "updated_at": None
-        }
-    
-    # Simple YAML-like parsing for the expected structure without external deps
-    # Since we cannot import pyyaml without ensuring it's installed, we use a safe read
-    # In a real scenario with pyyaml installed, we would use yaml.safe_load()
-    # For this implementation, we assume a basic structure or return default if parsing fails
-    try:
-        import yaml
-        with open(PROJECT_STATE_FILE, 'r') as f:
-            return yaml.safe_load(f) or {}
-    except ImportError:
-        # Fallback: basic parsing or return default
-        # This assumes the file exists but we can't parse it safely without yaml lib
-        # For the purpose of this task, we return a default state to prevent crash
-        return {
-            "project_id": "PROJ-573-https-arxiv-org-abs-27351",
-            "constitution_ii_status": "pending",
-            "artifact_hashes": {},
-            "updated_at": None
-        }
-    except Exception:
-        return {
-            "project_id": "PROJ-573-https-arxiv-org-abs-27351",
-            "constitution_ii_status": "pending",
-            "artifact_hashes": {},
-            "updated_at": None
-        }
+    Validate if a candidate title has sufficient token overlap with any reference title.
 
-
-def save_project_state(state: Dict[str, Any]) -> bool:
-    """
-    Saves the project state to the YAML file.
-    """
-    try:
-        import yaml
-        PROJECT_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(PROJECT_STATE_FILE, 'w') as f:
-            yaml.safe_dump(state, f, default_flow_style=False)
-        return True
-    except ImportError:
-        # Fallback manual write if yaml not available (unlikely in this project context)
-        return False
-    except Exception as e:
-        print(f"Error saving state: {e}")
-        return False
-
-
-def validate_constitution_ii_compliance(
-    contribution_title: str, 
-    reference_title: str,
-    min_overlap: float = MIN_TITLE_OVERLAP
-) -> Tuple[bool, float, str]:
-    """
-    Validates if a contribution meets Constitution II compliance requirements.
-    
-    Constitution II requires that the contribution's title has a token overlap
-    of at least `min_overlap` with the reference title (e.g., the task or paper title).
-    
     Args:
-        contribution_title: The title of the incoming review/contribution
-        reference_title: The reference title (e.g., from tasks.md or plan.md)
-        min_overlap: Minimum required overlap ratio (default 0.7)
-        
+        candidate_title: The title to validate.
+        reference_titles: List of allowed reference titles.
+        threshold: Minimum overlap required (default 0.7).
+
     Returns:
-        Tuple of (is_compliant, overlap_score, message)
+        Tuple of (is_valid, max_overlap, matched_reference_title).
     """
-    overlap = calculate_token_overlap(contribution_title, reference_title)
-    is_compliant = overlap >= min_overlap
-    
-    if is_compliant:
-        message = f"Constitution II compliance passed (overlap: {overlap:.2f} >= {min_overlap})"
-    else:
-        message = f"Constitution II compliance FAILED (overlap: {overlap:.2f} < {min_overlap})"
-        
-    return is_compliant, overlap, message
+    if not reference_titles:
+        logger.warning("No reference titles provided for validation.")
+        return False, 0.0, None
+
+    max_overlap = 0.0
+    best_match = None
+
+    for ref_title in reference_titles:
+        overlap = compute_title_token_overlap(candidate_title, ref_title)
+        if overlap > max_overlap:
+            max_overlap = overlap
+            best_match = ref_title
+
+    is_valid = max_overlap >= threshold
+    return is_valid, max_overlap, best_match
 
 
-def gate_review_contribution(
-    task_id: str,
-    review_title: str,
-    reference_title: str
-) -> Dict[str, Any]:
+def check_constitution_ii_compliance(
+    metadata: Dict[str, Any],
+    required_fields: Optional[List[str]] = None
+) -> bool:
     """
-    Main entry point for the Reference Validator Agent.
-    Performs the blocking gate check for Constitution II compliance.
-    
+    Check if the provided metadata satisfies Constitution II requirements.
+
+    Constitution II Compliance Rules:
+    1. Must have a valid 'source' field.
+    2. Must have a valid 'timestamp' field.
+    3. Must not be marked as 'fabricated' or 'simulated'.
+    4. Must have 'review_points' if applicable.
+
     Args:
-        task_id: The ID of the task being reviewed (e.g., 'T006a')
-        review_title: The title of the review/contribution being validated
-        reference_title: The expected reference title (from plan/tasks)
-        
+        metadata: Dictionary containing metadata to check.
+        required_fields: Optional list of additional required fields.
+
     Returns:
-        Dictionary with validation result and state update info.
+        True if compliant, False otherwise.
     """
-    is_compliant, overlap, message = validate_constitution_ii_compliance(
-        review_title, reference_title
-    )
-    
-    result = {
-        "task_id": task_id,
-        "validation_passed": is_compliant,
-        "overlap_score": overlap,
-        "message": message,
-        "block_submission": not is_compliant
-    }
-    
-    if is_compliant:
-        # Update state to reflect compliance check passed
-        state = load_project_state()
-        state[CONSTITUTION_II_STATUS_KEY] = "verified"
-        save_project_state(state)
-        
-    return result
+    if required_fields is None:
+        required_fields = []
+
+    # Core Constitution II checks
+    checks = [
+        ("source", metadata.get("source") is not None and metadata.get("source") != ""),
+        ("timestamp", metadata.get("timestamp") is not None),
+        ("not_fabricated", metadata.get("is_fabricated") is False),
+        ("not_simulated", metadata.get("is_simulated") is False),
+    ]
+
+    # Add custom required fields
+    for field in required_fields:
+        checks.append((field, field in metadata and metadata[field] is not None))
+
+    # Check review points if present
+    if REVIEW_POINTS_KEY in metadata:
+        points = metadata[REVIEW_POINTS_KEY]
+        if not isinstance(points, (int, float)) or points < 0:
+            checks.append(("valid_review_points", False))
+        else:
+            checks.append(("valid_review_points", True))
+
+    all_passed = all(passed for _, passed in checks)
+
+    if not all_passed:
+        failed_checks = [name for name, passed in checks if not passed]
+        logger.warning(f"Constitution II compliance failed: {failed_checks}")
+
+    return all_passed
+
+
+class ReferenceValidatorAgent:
+    """
+    Agent responsible for validating references before they contribute to the benchmark.
+
+    This agent enforces:
+    1. Title-token-overlap >= 0.7 check.
+    2. Constitution II compliance blocking gate.
+    """
+
+    def __init__(self, reference_titles: List[str]):
+        """
+        Initialize the agent with a list of allowed reference titles.
+
+        Args:
+            reference_titles: List of titles that are considered valid references.
+        """
+        self.reference_titles = reference_titles
+        self.logger = get_logger(__name__)
+
+    def validate_and_approve(
+        self,
+        candidate_title: str,
+        metadata: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Validate a candidate reference and return approval status.
+
+        This method performs two checks:
+        1. Title token overlap with known references.
+        2. Constitution II compliance of the metadata.
+
+        If either check fails, the candidate is rejected and no review points are added.
+
+        Args:
+            candidate_title: The title of the candidate reference.
+            metadata: Metadata associated with the candidate.
+
+        Returns:
+            Dictionary with validation results:
+            {
+                "approved": bool,
+                "reason": str,
+                "overlap_score": float,
+                "constitution_compliant": bool,
+                "review_points_contributed": float
+            }
+        """
+        result = {
+            "approved": False,
+            "reason": "",
+            "overlap_score": 0.0,
+            "constitution_compliant": False,
+            "review_points_contributed": 0.0
+        }
+
+        # Check 1: Title Token Overlap
+        is_valid_overlap, overlap_score, matched_title = validate_reference_title_overlap(
+            candidate_title,
+            self.reference_titles
+        )
+
+        result["overlap_score"] = overlap_score
+
+        if not is_valid_overlap:
+            result["reason"] = (
+                f"Title token overlap {overlap_score:.2f} < {MIN_TOKEN_OVERLAP}. "
+                f"Matched: {matched_title}"
+            )
+            self.logger.warning(f"Validation failed for '{candidate_title}': {result['reason']}")
+            return result
+
+        # Check 2: Constitution II Compliance
+        is_compliant = check_constitution_ii_compliance(metadata)
+        result["constitution_compliant"] = is_compliant
+
+        if not is_compliant:
+            result["reason"] = "Constitution II compliance check failed."
+            self.logger.warning(f"Validation failed for '{candidate_title}': {result['reason']}")
+            return result
+
+        # Both checks passed
+        result["approved"] = True
+        result["reason"] = "Validation passed."
+
+        # Calculate review points (example logic: 10 points per valid reference)
+        points = 10.0
+        result["review_points_contributed"] = points
+
+        self.logger.info(
+            f"Reference '{candidate_title}' approved. "
+            f"Overlap: {overlap_score:.2f}, Points: {points}"
+        )
+
+        return result
 
 
 def main():
     """
-    CLI entry point for testing the validator.
+    Main entry point for testing the Reference Validator Agent.
     """
-    print("Reference Validator Agent - Constitution II Compliance Check")
-    print("-" * 50)
-    
-    # Example usage with hardcoded values for demonstration
-    # In real usage, these would come from arguments or a config file
-    task_id = "T006a"
-    reference_title = "Implement Reference-Validator Agent with title-token-overlap check"
-    
-    # Test Case 1: Valid title (should pass)
-    valid_review_title = "Implement Reference Validator Agent with token overlap check"
-    result1 = gate_review_contribution(task_id, valid_review_title, reference_title)
-    print(f"Test 1 - Valid Title: {result1['message']}")
-    print(f"  Block Submission: {result1['block_submission']}")
-    
-    # Test Case 2: Invalid title (should fail)
-    invalid_review_title = "Optimize Database Queries"
-    result2 = gate_review_contribution(task_id, invalid_review_title, reference_title)
-    print(f"Test 2 - Invalid Title: {result2['message']}")
-    print(f"  Block Submission: {result2['block_submission']}")
-    
-    # Test Case 3: Exact match
-    exact_title = reference_title
-    result3 = gate_review_contribution(task_id, exact_title, reference_title)
-    print(f"Test 3 - Exact Match: {result3['message']}")
-    print(f"  Overlap Score: {result3['overlap_score']:.2f}")
-    
-    print("-" * 50)
-    print("Validation complete.")
+    # Example usage
+    allowed_titles = [
+        "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
+        "Time-Series Analysis with Transformers",
+        "Tabular Data Processing with TabPFN"
+    ]
+
+    agent = ReferenceValidatorAgent(allowed_titles)
+
+    # Test Case 1: Valid reference
+    test_metadata_1 = {
+        "source": "arxiv.org",
+        "timestamp": "2024-01-01T00:00:00Z",
+        "is_fabricated": False,
+        "is_simulated": False
+    }
+
+    result_1 = agent.validate_and_approve(
+        "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
+        test_metadata_1
+    )
+    print(f"Test 1 (Valid): {result_1}")
+
+    # Test Case 2: Invalid overlap
+    result_2 = agent.validate_and_approve(
+        "Completely Unrelated Topic",
+        test_metadata_1
+    )
+    print(f"Test 2 (Invalid Overlap): {result_2}")
+
+    # Test Case 3: Constitution II failure
+    test_metadata_3 = {
+        "source": "",  # Empty source
+        "timestamp": "2024-01-01T00:00:00Z",
+        "is_fabricated": False,
+        "is_simulated": False
+    }
+    result_3 = agent.validate_and_approve(
+        "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
+        test_metadata_3
+    )
+    print(f"Test 3 (Constitution Fail): {result_3}")
 
 
 if __name__ == "__main__":

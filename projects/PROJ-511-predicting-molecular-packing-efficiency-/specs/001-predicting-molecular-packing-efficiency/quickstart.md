@@ -1,69 +1,69 @@
-# Quickstart: Predicting Molecular Packing Efficiency
-
-This guide shows how to run the full end‑to‑end pipeline on a fresh GitHub Actions runner (or locally) using the provided scripts.
+# Quickstart: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
 
 ## Prerequisites
+
+- Python 3.11+
+- `pip` or `conda`
+- Access to the Crystallography Open Database (internet required for download)
+
+## Installation
+
+1.  **Clone and Setup**:
+    ```bash
+    cd projects/PROJ-511-predicting-molecular-packing-efficiency-/
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r code/requirements.txt
+    ```
+
+2.  **Verify Dependencies**:
+    ```bash
+    python -c "import rdkit; import torch; print('Dependencies OK')"
+    ```
+
+## Running the Pipeline
+
+### Step 1: Data Acquisition & Feature Engineering
+Download COD Organic Subset, generate SMILES, and compute features.
 ```bash
-# Clone the repository
-git clone
-cd PROJ-511-predicting-molecular-packing-efficiency
+python code/data/download_cod.py
+python code/data/generate_smiles.py
+python code/data/compute_features.py
+```
+*Output*: `data/processed/dataset.csv`, `data/data_provenance.json`
 
-# Create a virtual environment
-python -m venv.venv
-source.venv/bin/activate
+### Step 2: Model Training
+Train the Baseline and Upper Bound models on the processed dataset.
+```bash
+python code/models/trainer.py
+```
+*Output*: `models/baseline_checkpoint.pt`, `models/upper_bound_checkpoint.pt`, `results/training_log.json`
 
-# Install exact pinned dependencies
-pip install -r requirements.txt
+### Step 3: Evaluation & Robustness
+Run validation, permutation tests (1,000 shuffles), and threshold sweeps.
+```bash
+python code/analysis/diagnostics.py
+python code/analysis/robustness.py
+```
+*Output*: `results/validation_report.json`
+
+### Step 4: Generate Report
+Create the final HTML report.
+```bash
+python code/report/generate_report.py
+```
+*Output*: `results/report.html`
+
+## Validation
+
+Run the contract tests to ensure data and outputs match schemas:
+```bash
+pytest tests/contract/
 ```
 
-## Step‑by‑Step Execution
-```bash
-# 1. Download and filter COD data (≥500 records expected)
-python code/download_cif.py --max_atoms 50 --min_records 500
+## Troubleshooting
 
-# 2. Parse CIFs, extract/generate SMILES, and compute basic geometry
-python code/parse_cif.py
-
-# 3. Compute packing coefficients, CAPE, and 3‑D descriptors (from molecule conformers)
-python code/compute_features.py
-
-# 4. **Validate** the generated CSV against the schema
-python code/validate_dataset.py data/dataset.csv contracts/dataset.schema.yaml
-
-# 5. Train the lightweight MLP (20% validation split, confounders included)
-python code/train_mlp.py --seed 42
-
-# 6. Evaluate model and run statistical tests (VIF on PCA components, permutation test)
-python code/evaluate.py
-
-# 7. **Optional ablation**: train without 3‑D descriptors to check circularity
-python code/ablation.py --seed 42
-
-# 8. Sensitivity analysis over high‑packing thresholds
-python code/sensitivity.py
-
-# 9. Generate the final HTML report
-python code/generate_report.py
-
-# 10. Validate outputs against schemas
-python -m jsonschema -i results/validation_report.json contracts/validation_report.schema.yaml
-```
-
-## Expected Outputs
-| File | Description |
-|------|-------------|
-| `data/dataset.csv` | Cleaned dataset with ≥ 500 rows, all required columns present. |
-| `models/mlp_regressor.pt` | Trained MLP checkpoint. |
-| `results/validation_report.json` | JSON metrics adhering to `validation_report.schema.yaml`. |
-| `results/report.html` | Reproducible HTML report (view in a browser). |
-| `results/ablation_report.json` *(optional)* | Metrics from the ablation run (no 3‑D descriptors). |
-
-## Runtime & Resource Summary
-- **Total runtime**: ≤ 6 hours on GitHub Actions free tier (2 CPU cores, ~7 GB RAM).
-- **Memory usage**: < 4 GB during feature encoding; < 1 GB during MLP training.
-- **No GPU**: All libraries are CPU‑only.
-
-If any step aborts due to insufficient records (< 500 after filtering), the script will emit a clear warning and stop, satisfying the edge‑case handling described in the spec.
-
----
-
+- **Memory Error**: Ensure `data/processed/dataset.csv` is not loaded entirely into RAM at once if N > 2000. The pipeline uses chunked processing.
+- **CUDA Error**: If `ImportError: No module named 'torch.cuda'` appears, ensure the CPU-only version of PyTorch was installed (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
+- **Missing SMILES**: If the script fails to generate SMILES, check the CIF coordinates for validity. Corrupt CIFs are logged in `data/logs/parsing_errors.log`.
+- **Runtime Error**: If the pipeline exceeds 4 hours, check the `data_provenance.json` to ensure the correct subset was downloaded.

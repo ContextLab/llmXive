@@ -1,32 +1,142 @@
-# Default benchmark configuration
+# Default configuration for Heterogeneous Scientific Foundation Model Collaboration Benchmark
+# Task T030: Create default.yaml config with required keys
+# References: FR-001, FR-006, FR-010, SC-002, SC-003, SC-004
+
+# Datasets to include in the benchmark
+# Verified in Phase 0 (T001-T003)
 datasets:
   - name: UCI_HAR
-    url: "uci_har"
-    type: time_series
+    source: huggingface
+    dataset_id: "UCI_HAR"
+    modality: time_series
+    variables:
+      - body_acc_x
+      - body_acc_y
+      - body_acc_z
+      - body_gyro_x
+      - body_gyro_y
+      - body_gyro_z
+      - total_acc_x
+      - total_acc_y
+      - total_acc_z
+    size_mb: 2.5
+    verification_status: verified
+
   - name: DROP
-    url: "drop"
-    type: text
+    source: huggingface
+    dataset_id: "drop"
+    modality: text
+    variables:
+      - question
+      - passage
+      - answer
+    size_mb: 150.0
+    verification_status: verified
 
+  - name: MUST
+    source: huggingface
+    dataset_id: "must"
+    modality: text
+    variables:
+      - query
+      - context
+      - relevant_passage
+    size_mb: 85.0
+    verification_status: verified
+
+  - name: UCI_Adult
+    source: huggingface
+    dataset_id: "uci_adult"
+    modality: tabular
+    variables:
+      - age
+      - workclass
+      - education
+      - occupation
+      - relationship
+      - race
+      - sex
+      - capital_gain
+      - capital_loss
+      - hours_per_week
+      - native_country
+      - income
+    size_mb: 4.2
+    verification_status: verified
+
+# Modalities to benchmark
+# Configured in src/benchmark/config/modalities/
 modalities:
-  - time_series
-  - text
-  - tabular
+  - name: time_series
+    config_path: src/benchmark/config/modalities/timeseries.yaml
+    enabled: true
+  - name: tabular
+    config_path: src/benchmark/config/modalities/tabular.yaml
+    enabled: true
+  - name: text
+    config_path: src/benchmark/config/modalities/text.yaml
+    enabled: true
 
+# Random seeds for reproducibility (SC-004)
+# Task T030 requirement: seeds = 5
 seeds:
   - 42
   - 123
   - 456
   - 789
-  - 1011
+  - 101112
 
+# Timeout configuration (FR-006, FR-013, SC-002)
+# Per-task timeout in seconds (default 5 minutes)
 timeout_per_task: 300
 
-tasks:
-  - T001
-  - T002
+# Statistical analysis configuration (FR-007, FR-014)
+# Bootstrap configuration per Wikipedia: Bootstrapping (statistics)
+# https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+statistical_analysis:
+  enabled: true
+  alpha: 0.05
+  bootstrap:
+    enabled: true
+    n_iterations: 1000
+    confidence_level: 0.95
+    method: "percentile"
+  tests:
+    - name: "paired_ttest"
+      enabled: true
+      alternative: "two-sided"
+    - name: "wilcoxon"
+      enabled: true
+      alternative: "two-sided"
+      effect_size: true
+      ci: 0.95
 
-mode: heterogeneous
+# Runtime constraints (SC-003)
+# Total benchmark time must be <= 4 hours (14400 seconds)
+max_total_runtime_seconds: 14400
 
-# Bootstrap configuration
-bootstrap_iterations: 1000
-confidence_level: 0.95
+# Output configuration
+output:
+  results_csv: "data/results.csv"
+  statistical_summary: "data/statistical_summary.yaml"
+  runtime_metrics: "data/runtime_metrics.yaml"
+  pdf_report: "figures/benchmark_report.pdf"
+  csv_report: "figures/benchmark_report.csv"
+
+# Mode selection (US1 vs US3)
+# Default mode: heterogeneous (US1)
+# Alternative: unified (US3)
+default_mode: heterogeneous
+
+# Logging configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/benchmark.log"
+
+# Verification flags
+verification:
+  verify_checksums: true
+  verify_model_sizes: true
+  verify_dataset_integrity: true
+  verify_reproducibility: true

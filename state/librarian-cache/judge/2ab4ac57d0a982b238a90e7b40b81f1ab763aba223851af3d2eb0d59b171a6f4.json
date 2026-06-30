@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.19834",
+  "judged_at": "2026-06-30T17:28:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "perceptiondlm: parallel region perception with multimodal diffusion language models computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the core mechanism of multimodal diffusion/generation models (specifically visual generation within unified multimodal models) and their impact on reasoning/perception tasks, which directly aligns with the user's focus on \"Multimodal Diffusion Language Models\" and \"Perception.\" Although the paper does not explicitly mention \"Parallel Region Perception\" or the specific \"PerceptionDLM\" architecture, it provides the foundational empirical",
+  "relevant": true
+}

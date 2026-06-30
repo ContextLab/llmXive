@@ -1,125 +1,157 @@
 # Quickstart Guide
 
-This guide provides instructions to set up and verify the **Heterogeneous Scientific Foundation Model Collaboration Benchmark** project.
+This guide provides instructions for setting up the **Heterogeneous Scientific Foundation Model Collaboration Benchmark** project and running the initial benchmark.
 
-## 1. Prerequisites
+## Prerequisites
 
-Ensure the following software is installed on your system:
+Ensure the following software is installed on your system before proceeding:
 
-- **Python 3.11**: The project requires Python 3.11 or higher. Verify with `python --version`.
-- **pip**: The Python package installer.
-- **git**: Required for cloning the repository.
+- **Python**: Version 3.11 or higher.
+ - Verify: `python --version`
+- **pip**: Package installer for Python.
+ - Verify: `pip --version`
+- **git**: Version control system.
+ - Verify: `git --version`
+- **System Dependencies**:
+ - Ensure `build-essential` (Linux) or Xcode Command Line Tools (macOS) are installed for compiling native extensions if required by dependencies.
 
-## 2. Setup Commands
+## Setup Commands
 
 Follow these steps to clone the repository, create a virtual environment, and install dependencies.
 
-### Step 1: Clone the Repository
+### 1. Clone the Repository
 
 ```bash
 git clone
-cd llmXive-proj-573
+cd PROJ-573-https-arxiv-org-abs-2604-27351
 ```
 
-### Step 2: Create a Virtual Environment
+### 2. Create a Virtual Environment
 
 It is recommended to use a virtual environment to isolate dependencies.
 
 ```bash
-python -m venv venv
+python -m venv.venv
+source.venv/bin/activate # On Windows:.venv\Scripts\activate
 ```
 
-### Step 3: Activate the Virtual Environment
+### 3. Install Dependencies
 
-**On macOS/Linux:**
-```bash
-source venv/bin/activate
-```
-
-**On Windows:**
-```bash
-venv\Scripts\activate
-```
-
-### Step 4: Install Dependencies
-
-Install the required packages listed in `requirements.txt`.
+Install the required Python packages listed in `requirements.txt`.
 
 ```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## 3. Verification Steps
+### 4. Verify Installation
 
-After installation, verify that the setup was successful by running the following checks.
-
-### Check 1: Verify CLI Help
-
-Run the benchmark script with the `--help` flag to ensure the entry point is registered correctly.
+Ensure that the main entry points are accessible and the configuration loads correctly.
 
 ```bash
-python code/benchmark/run_benchmark.py --help
+# Check that the benchmark script responds to help
+python src/benchmark/run_benchmark.py --help
+
+# Check that the task runner script responds to help
+python src/benchmark/run_task.py --help
 ```
 
-You should see usage instructions and available arguments (e.g., `--config`, `--mode`, `--seeds`).
+## Verification Steps
 
-### Check 2: Verify Data Directory
+After setup, perform the following checks to ensure the environment is ready for research execution.
 
-Ensure the project directory structure includes the `data/` folder.
+### 1. Check Directory Structure
+
+Verify that the required data and state directories exist.
 
 ```bash
 ls -la data/
+ls -la state/
+ls -la src/
 ```
 
-The directory should exist. It may be empty until you run the dataset download tasks (Phase 3, T022).
+Expected output should include:
+- `data/` (for datasets)
+- `data/processed/`
+- `state/` (for artifact hashes)
+- `src/benchmark/`
+- `src/models/`
+- `src/evaluation/`
 
-### Check 3: Run a Dry-Run (Optional)
+### 2. Run a Dry-Run Configuration Load
 
-If datasets are available, you can run a dry execution with a minimal configuration to verify imports:
+Attempt to load the default configuration without executing the full benchmark to verify YAML parsing and path resolution.
 
 ```bash
-python code/benchmark/run_benchmark.py --config code/benchmark/config/default.yaml --mode heterogeneous --seeds 1
+python -c "from src.benchmark.run_benchmark import load_config; cfg = load_config('src/benchmark/config/default.yaml'); print('Config loaded successfully:', len(cfg.get('datasets', [])), 'datasets found')"
 ```
 
-*Note: This may take time depending on dataset availability and network speed.*
+### 3. Verify Dataset Availability (Optional)
 
-## 4. Troubleshooting Common Issues
+If you have network access, run the dataset verification script to ensure external datasets are reachable.
 
-### Issue: `ModuleNotFoundError`
+```bash
+python src/research/verify_timeseries.py
+python src/research/verify_tabular.py
+python src/research/verify_text.py
+```
 
-**Symptom**: `ModuleNotFoundError: No module named '...'`
+## Troubleshooting Common Issues
 
-**Cause**: The virtual environment is not activated, or dependencies are missing.
+### Issue: `ModuleNotFoundError: No module named 'src'`
 
-**Solution**:
-1. Ensure the virtual environment is active (check for `(venv)` in your shell prompt).
-2. Re-run `pip install -r requirements.txt`.
+**Cause**: The script is being run from outside the project root, or the `src` directory is not in the Python path.
+**Solution**: Ensure you are in the project root directory and run:
+```bash
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
+# Or run scripts using the module syntax:
+python -m src.benchmark.run_benchmark --help
+```
 
-### Issue: `Python 3.11` Not Found
+### Issue: `PermissionError` when writing to `data/` or `state/`
 
-**Symptom**: `python: command not found` or version is incorrect.
+**Cause**: The user does not have write permissions for the project directories.
+**Solution**: Ensure the directory ownership matches the current user or adjust permissions:
+```bash
+chmod -R u+w data/ state/
+```
 
-**Cause**: The system default Python is not 3.11.
+### Issue: `TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'`
 
-**Solution**:
-1. Install Python 3.11 from [python.org](https://www.python.org/downloads/) or via your package manager (e.g., `brew install python@3.11`).
-2. Use the specific command to create the venv: `python3.11 -m venv venv`.
+**Cause**: The `TaskRunner` class definition does not accept the `config` argument passed by the caller.
+**Solution**: This is a known API contract issue. Ensure the `TaskRunner` class in `src/tasks/task_runner.py` is updated to accept `**kwargs` or explicitly define `config` in `__init__`. If you are running an older version of the code, update the `TaskRunner` implementation to be tolerant of different initialization signatures.
 
-### Issue: Permission Denied on Windows
+### Issue: `AttributeError: 'list' object has no attribute 'get'`
 
-**Symptom**: `PermissionError` when activating the venv.
-
-**Solution**:
-1. Run PowerShell or Command Prompt as Administrator.
-2. Alternatively, adjust execution policy: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`.
+**Cause**: The task definition YAML file is expected to be a dictionary with a "tasks" key, but the loaded object is a list.
+**Solution**: Check `src/tasks/task_definitions.yaml`. The root element should be a dictionary containing a `tasks` list, e.g.:
+```yaml
+tasks:
+ - task_id: T001
+...
+```
+If the file is currently just a list, wrap it in a `tasks` key.
 
 ### Issue: Dataset Download Fails
 
-**Symptom**: `HTTPError` or `ConnectionError` during dataset download.
-
-**Cause**: Network connectivity issues or rate limiting from HuggingFace/UCI.
-
+**Cause**: Network connectivity issues or changes in HuggingFace dataset availability.
 **Solution**:
 1. Check your internet connection.
-2. Ensure you are not behind a restrictive proxy.
-3. Wait a few minutes and retry (the download script includes retry logic).
+2. Verify the dataset name in `src/research/verify_*.py` matches the HuggingFace Hub ID exactly.
+3. Ensure `datasets` package is up to date: `pip install --upgrade datasets`.
+
+### Issue: `CUDA` or GPU-related Errors
+
+**Cause**: The project is designed for CPU-only inference (<1GB models). Some installed dependencies might default to GPU.
+**Solution**: Ensure you are using the CPU-compatible versions of libraries (e.g., `torch` CPU version) and that no environment variables (like `CUDA_VISIBLE_DEVICES`) are forcing GPU usage if not intended. The benchmark scripts should explicitly handle CPU inference.
+
+## Next Steps
+
+Once verification is complete:
+
+1. Review `research.md` for dataset verification results.
+2. Run the full benchmark:
+ ```bash
+ python src/benchmark/run_benchmark.py --config src/benchmark/config/default.yaml
+ ```
+3. Check the generated `results.csv` and `summary.pdf` in the output directory.

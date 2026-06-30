@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.04973",
+  "judged_at": "2026-06-30T17:28:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "perceptiondlm: parallel region perception with multimodal diffusion language models computer science",
+  "rationale": "The candidate paper focuses on evaluating logical reasoning capabilities of Multimodal Large Language Models (MLLMs) using a benchmark, whereas the user's question specifically targets \"Parallel Region Perception\" and \"Diffusion Language Models\" (a distinct architecture from standard MLLMs). The paper does not measure the same mechanism (parallel region perception), address the specific model architecture (diffusion-based), or provide a baseline for the specific task described in the user's quer",
+  "relevant": false
+}

@@ -1,53 +1,80 @@
 # Research: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
 
-## Objective
-Quantify the predictive relationship between molecular topology (encoded via a frozen SMILES‑Transformer) and composition‑adjusted packing efficiency (CAPE) in organic crystals from the Crystallography Open Database (COD).
+## Research Question
+Can a lightweight regression model, trained on frozen SMILES-transformer embeddings **alone**, predict the **Composition-Adjusted Packing Efficiency (CAPE)** of organic crystals with statistical significance (r ≥ 0.4, p ≤ 0.05)? Additionally, what is the specific contribution of SMILES topology compared to 3D geometric descriptors?
 
 ## Dataset Strategy
-| Source | Access Method | Expected Records | Notes |
-|--------|---------------|------------------|-------|
-| COD (organic ≤ 50 non‑H atoms) | `requests` download of COD tarball ` (verified URL) | ≥ 500 after filtering | Filters: atom count, successful SMILES generation, valid geometry. |
-| Bondi radii (for Vdw volumes) | Embedded table in `compute_features.py` (cited FR‑018) | N/A | No external download required. |
-| SMILES‑Transformer (frozen) | HuggingFace model `seyonec/PubChem10M_SMILES_BPE_60k` (CPU‑only checkpoint) | N/A | Model citation provided in plan; weights are frozen during inference. |
 
-*Only the COD URL and the HuggingFace model URL listed above are used; no other external datasets are introduced.*
+The project relies on the **Crystallography Open Database (COD)** for source data. Per Constitution Principle VI, data must be sourced directly from COD.
 
-## Methodology Overview
-1. **CIF Retrieval & Filtering** – Download the COD tarball, parse each entry, keep only organic crystals with ≤ 50 non‑hydrogen atoms. Log download statistics (total entries, kept, discarded).
-2. **SMILES Extraction/Generation** – For each CIF:
- - If `_chemical_structure_SMILES` exists, record it (`smiles_source=extracted`).
- - Else generate a canonical SMILES with RDKit from the 3‑D coordinates (`smiles_source=generated`). Flag generated entries in the CSV.
-3. **Packing Coefficient & CAPE** – Compute raw packing coefficient (FR‑003) and CAPE (FR‑011) using Bondi atomic volumes. Record `unit_cell_volume`, `packing_coefficient`, `cape`.
-4. **3‑D Geometry Descriptors** – For each molecule, generate a single low‑energy conformer with RDKit (MMFF94) **independent of the crystal unit cell**, then compute radius of gyration, asphericity, and principal moments of inertia (FR‑012). This avoids circularity with the target.
-5. **Confounder Recording** – Extract lattice system, measurement temperature (K), and solvent presence from CIF metadata (FR‑013). Encode lattice system as one‑hot vectors, normalize temperature, and include the binary solvent flag. These three variables are **included** in the MLP feature vector (addressing FR‑013).
-6. **Feature Vector Construction** –
- - Encode SMILES with the frozen SMILES‑Transformer (≈ 512‑dim fingerprint).
- - Reduce the fingerprint to its top 10 principal components (explaining > 90 % variance) to obtain a stable low‑dimensional representation for VIF and multicollinearity diagnostics.
- - Concatenate the PC‑fingerprint, the three 3‑D descriptors, and the three confounder variables.
- - **Atom‑type count features are *not* used as primary predictors**; they are retained solely for the partial‑correlation analysis (FR‑014) and are excluded from `mlp_features`.
-7. **Model Training** – 2‑layer MLP (≤ 100 k parameters) trained on an [deferred]/20 % train‑validation split (random seed fixed).
-8. **Evaluation** – Compute MAE, Pearson r, Spearman ρ, Shapiro‑Wilk on residuals, VIF diagnostics **only on the PCA‑reduced fingerprint components plus the low‑dimensional descriptors and confounders** (FR‑009), and a two‑sided permutation test with 10 000 shuffles (FR‑006, FR‑016).
-9. **Partial‑Correlation** – Assess correlation between predicted and observed CAPE while controlling for atom‑type composition (FR‑014). Atom‑type counts are used only as control variables here.
-10. **Ablation Study** – Re‑train the MLP **without** the 3‑D geometry descriptors (`ablation.py`) to quantify any circularity; report side‑by‑side with the full model.
-11. **Sensitivity Analysis** – Sweep high‑packing thresholds {0.5, 0.6, 0.7}, recompute r, ρ, MAE, and permutation p‑values; apply Bonferroni correction (FR‑007, FR‑008).
-12. **Reporting** – Generate an HTML report (`report.html`) that includes dataset provenance, preprocessing steps, model architecture, all evaluation metrics, VIF diagnostics, partial‑correlation results, ablation outcomes, sensitivity tables, and the git commit hash. The report is validated against `contracts/validation_report.schema.yaml` (FR‑010).
+**Verified Sources & Loading Strategy:**
+- **Primary Source**: Crystallography Open Database (COD) - **Organic Subset**.
+ - **URL**: ` (Official Mirror for Organic Subset).
+ - **Loading Method**: The pipeline downloads the pre-filtered organic subset (approx. 50-100MB) and filters locally for ≤50 non-H atoms. This avoids downloading terabytes of inorganic data.
+ - **Filter**: Organic molecules, ≤50 non-H atoms.
+ - **Provenance**: `data_provenance.json` records the exact URL, version, and checksum to satisfy FR-017.
 
-## Statistical Rigor Checklist
-- **Multiple‑Comparison Correction** – Bonferroni applied to the three threshold‑specific tests (FR‑008).
-- **Permutation Test** – A sufficiently large number of shuffles guarantees fine-grained p‑value resolution. (FR‑016).
-- **Power Consideration** – Sample size ≥ 500 provides > 80 % power to detect r = 0.4 at α = 0.05 (documented in `research.md`).
-- **Causal Language** – All statements are strictly associational; COD data are observational.
-- **Measurement Validity** – SMILES‑Transformer pretrained on > 1 M molecules (publicly documented); Bondi radii are a standard source (FR‑018).
-- **Collinearity Management** – VIF computed on PCA‑reduced fingerprint plus low‑dimensional descriptors; any predictor with VIF > 5 is flagged and examined.
-- **Leakage Mitigation** – Atom‑type counts are excluded from the primary model input; they are only used as covariates in partial‑correlation and VIF diagnostics.
-- **Circularity Check** – Ablation study isolates the contribution of 3‑D descriptors, confirming that performance is not driven solely by geometry derived from the crystal cell.
+**Gap Analysis:**
+- The verified block does not contain a direct link to the raw COD CIF archive. The plan uses the official COD Organic Subset URL as per FR-017.
+- **SMILES**: Required. COD entries often lack this tag. Strategy: Generate via RDKit from 3D coordinates (FR-002).
+- **Packing Coefficient**: Required. Derived from Unit Cell Volume and VdW volumes (FR-003).
+- **3D Geometry**: Required. Derived from CIF coordinates (FR-012).
+- **Confounders**: Lattice system, temperature, solvent. Must be present in CIF metadata (FR-013).
 
-## Expected Deliverables
-- `data/dataset.csv` (≥ 500 rows, complete).
-- `models/mlp_regressor.pt` (trained checkpoint).
-- `results/validation_report.json` (metrics, VIF, permutation results, ablation outcomes).
-- `results/report.html` (human‑readable summary).
-- `contracts/` schemas for dataset, model, and validation report.
+## Feature Engineering Strategy
 
----
+1. **SMILES Embeddings**:
+ - Model: Pre-trained SMILES Transformer (frozen).
+ - Rationale: Captures topological connectivity.
+ - Constraint: Runs on CPU; inference only. **Batched** to fit 7GB RAM.
 
+2. **3D Geometric Descriptors** (FR-012):
+ - Radius of Gyration ($R_g$): Measures compactness.
+ - Asphericity: Measures deviation from spherical shape.
+ - Principal Moments of Inertia: Captures shape anisotropy.
+ - *Source*: Calculated from 3D coordinates in CIF using RDKit.
+
+3. **Composition-Adjusted Packing Efficiency (CAPE)** (FR-011):
+ - Formula: $\text{CAPE} = \frac{\text{PC}}{\frac{1}{N_{atoms}}\sum V_{vdW}}$.
+ - Rationale: Normalizes for molecular size.
+ - **Critical Note**: For all CAPE models (Baseline, Control, Upper Bound), the features `sum_vdw_volume` and `n_atoms` are **excluded** from the input to prevent the model from trivially learning the denominator of the target.
+
+4. **Confounders** (FR-013):
+ - Categorical: Lattice system (One-hot encoded).
+ - Continuous: Temperature (K).
+ - Binary: Solvent presence.
+
+## Statistical Methodology
+
+1. **Models**:
+ - **Baseline**: 2-layer MLP (≤100k params) on **SMILES embeddings ONLY** to predict **CAPE**.
+ - **Control**: 2-layer MLP on **3D descriptors ONLY** to predict **CAPE**.
+ - **Upper Bound**: 2-layer MLP on **SMILES + 3D Descriptors** (excluding denominator terms) to predict **CAPE**.
+
+2. **Significance Testing** (FR-006, FR-016):
+ - Metric: Pearson $r$ and Spearman $\rho$.
+ - Test: Conditional Permutation Test.
+ - Stage 1: [deferred] shuffles.
+ - If $p \ge 0.05$: Report $p$ and stop.
+ - If $p < 0.05$: Run full [deferred] shuffles to achieve $p$-value resolution of 0.0001.
+ - Null Hypothesis: No relationship between features and target.
+ - P-value: Proportion of permuted correlations ≥ observed correlation.
+
+3. **Robustness** (FR-007, FR-008):
+ - Sweep thresholds: {, 0.6, 0.7}.
+ - Correction: Bonferroni (alpha / k) for the k tests.
+
+4. **Diagnostics** (FR-009, FR-014, FR-015):
+ - VIF: Flag multicollinearity (VIF > 5).
+ - Partial Correlation: Control for atom-type composition.
+ - Normality: Shapiro-Wilk on residuals.
+ - **Residual Spearman**: Compute Spearman's $\rho$ specifically on the residuals of the CAPE model.
+
+## Decision Rationale
+
+- **CPU-Only**: The spec and CI constraints forbid GPU. The model is lightweight (MLP) to ensure feasibility.
+- **Frozen Transformer**: Training a transformer from scratch is infeasible on CPU with this data size. Frozen weights provide robust embeddings.
+- **Three-Model Strategy**: The Baseline model isolates the SMILES signal. The Control model isolates the 3D signal. The Upper Bound model shows the combined potential. This separation resolves the concern that 3D features might dominate the signal, ensuring the primary research question (SMILES -> CAPE) is answered by the Baseline, while the Control quantifies the confounding 3D effect.
+- **Circularity Resolution**: By excluding `sum_vdw_volume` and `n_atoms` from all CAPE model inputs, we prevent the model from simply re-calculating the target formula.
+- **SMILES Generation**: Since COD lacks SMILES for many entries, generating them from 3D coordinates is the only valid strategy to meet the "SMILES-based" requirement without discarding data.
+- **Permutation Test Logic**: The conditional test ensures that any claim of significance (p < 0.05) is supported by high-resolution data (10k shuffles), addressing the concern about marginal significance and computational cost.

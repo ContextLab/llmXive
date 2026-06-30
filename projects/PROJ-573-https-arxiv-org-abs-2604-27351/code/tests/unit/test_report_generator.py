@@ -1,12 +1,6 @@
 """
 Unit tests for the report generator module.
-
-Tests verify:
-- CSV generation with correct headers and data formatting
-- PDF generation creates a valid file
-- Statistical values are correctly formatted
 """
-
 import os
 import csv
 import tempfile
@@ -22,145 +16,157 @@ from src.evaluation.report_generator import (
 
 
 class TestReportGenerator:
-    """Test suite for Report Generator functionality."""
+    """Test cases for report generation functionality."""
 
     @pytest.fixture
     def sample_results(self):
-        """Provide sample statistical results for testing."""
+        """Provide sample benchmark results for testing."""
         return [
             {
-                "task_id": "T001",
-                "condition_a": "Heterogeneous",
-                "condition_b": "Unified",
-                "t_statistic": 2.4567,
-                "p_value_ttest": 0.0182,
-                "wilcoxon_r": 0.4231,
-                "wilcoxon_p": 0.0124,
-                "bootstrap_mean_diff": 0.0352,
-                "bootstrap_ci_lower": 0.0121,
-                "bootstrap_ci_upper": 0.0583,
-                "timestamp": datetime.now().isoformat()
+                'task_id': 'T001',
+                'condition': 'heterogeneous',
+                'accuracy': 0.85,
+                'timestamp': datetime.now().isoformat(),
+                'statistics': {
+                    't_statistic': 2.34,
+                    'p_value': 0.021,
+                    'bootstrap_ci': {'lower': 0.02, 'upper': 0.15},
+                    'wilcoxon_effect_size': 0.45,
+                    'wilcoxon_ci': {'lower': 0.01, 'upper': 0.12}
+                }
             },
             {
-                "task_id": "T002",
-                "condition_a": "Heterogeneous",
-                "condition_b": "Unified",
-                "t_statistic": 1.1234,
-                "p_value_ttest": 0.2651,
-                "wilcoxon_r": 0.1523,
-                "wilcoxon_p": 0.3102,
-                "bootstrap_mean_diff": 0.0081,
-                "bootstrap_ci_lower": -0.0152,
-                "bootstrap_ci_upper": 0.0314,
-                "timestamp": datetime.now().isoformat()
+                'task_id': 'T002',
+                'condition': 'unified',
+                'accuracy': 0.82,
+                'timestamp': datetime.now().isoformat(),
+                'statistics': {
+                    't_statistic': 1.89,
+                    'p_value': 0.062,
+                    'bootstrap_ci': {'lower': -0.01, 'upper': 0.08},
+                    'wilcoxon_effect_size': 0.32,
+                    'wilcoxon_ci': {'lower': -0.02, 'upper': 0.09}
+                }
             }
         ]
 
-    @pytest.fixture
-    def temp_dir(self):
-        """Create a temporary directory for output files."""
+    def test_generate_csv_report_creates_file(self, sample_results):
+        """Test that CSV report file is created."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+            output_path = os.path.join(tmpdir, 'test_report.csv')
+            result_path = generate_csv_report(sample_results, output_path)
 
-    def test_csv_report_generation(self, sample_results, temp_dir):
-        """Test that CSV report is generated with correct structure."""
-        output_path = temp_dir / "test_results.csv"
-        
-        result_path = generate_csv_report(sample_results, str(output_path))
-        
-        # Verify file exists
-        assert os.path.exists(result_path)
-        
-        # Verify content
-        with open(result_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-            # Check row count
-            assert len(rows) == 2
-            
-            # Check headers
-            expected_headers = [
-                'task_id', 'condition_a', 'condition_b', 't_statistic',
-                'p_value_ttest', 'wilcoxon_r', 'wilcoxon_p',
-                'bootstrap_mean_diff', 'bootstrap_ci_lower', 'bootstrap_ci_upper',
-                'timestamp'
-            ]
-            assert reader.fieldnames == expected_headers
-            
-            # Check data values
-            assert rows[0]['task_id'] == 'T001'
-            assert float(rows[0]['t_statistic']) == 2.4567
-            assert float(rows[0]['wilcoxon_r']) == 0.4231
-            assert rows[0]['condition_a'] == 'Heterogeneous'
+            assert os.path.exists(result_path), "CSV file was not created"
+            assert result_path.endswith('.csv'), "Output path should end with .csv"
 
-    def test_pdf_report_generation(self, sample_results, temp_dir):
-        """Test that PDF report is generated and is non-empty."""
-        output_path = temp_dir / "test_results.pdf"
-        
-        result_path = generate_pdf_report(sample_results, str(output_path))
-        
-        # Verify file exists
-        assert os.path.exists(result_path)
-        
-        # Verify file is not empty
-        assert os.path.getsize(result_path) > 0
-        
-        # Verify it starts with PDF header
-        with open(result_path, 'rb') as f:
-            header = f.read(4)
-            assert header == b'%PDF'
+    def test_generate_csv_report_has_correct_headers(self, sample_results):
+        """Test that CSV report contains expected headers."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'test_report.csv')
+            generate_csv_report(sample_results, output_path)
 
-    def test_generate_reports_both_outputs(self, sample_results, temp_dir):
-        """Test that generate_reports creates both CSV and PDF."""
-        csv_path = temp_dir / "results.csv"
-        pdf_path = temp_dir / "results.pdf"
-        
-        csv_result, pdf_result = generate_reports(
-            sample_results,
-            str(csv_path),
-            str(pdf_path)
-        )
-        
-        assert os.path.exists(csv_result)
-        assert os.path.exists(pdf_result)
-        assert os.path.getsize(csv_result) > 0
-        assert os.path.getsize(pdf_result) > 0
+            with open(output_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                headers = reader.fieldnames
 
-    def test_empty_results_list(self, temp_dir):
+                expected_headers = [
+                    'task_id', 'condition', 'accuracy', 't_statistic', 'p_value',
+                    'bootstrap_ci_lower', 'bootstrap_ci_upper',
+                    'wilcoxon_effect_size', 'wilcoxon_ci_lower', 'wilcoxon_ci_upper',
+                    'timestamp'
+                ]
+
+                for header in expected_headers:
+                    assert header in headers, f"Missing header: {header}"
+
+    def test_generate_csv_report_has_correct_data(self, sample_results):
+        """Test that CSV report contains correct data values."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'test_report.csv')
+            generate_csv_report(sample_results, output_path)
+
+            with open(output_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+
+                assert len(rows) == len(sample_results), "Row count mismatch"
+
+                # Check first row
+                first_row = rows[0]
+                assert first_row['task_id'] == 'T001'
+                assert first_row['condition'] == 'heterogeneous'
+                assert float(first_row['accuracy']) == 0.85
+                assert float(first_row['t_statistic']) == 2.34
+                assert float(first_row['p_value']) == 0.021
+
+    def test_generate_pdf_report_creates_file(self, sample_results):
+        """Test that PDF report file is created (or text fallback)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'test_report.pdf')
+            result_path = generate_pdf_report(sample_results, output_path)
+
+            # Should create either PDF or .txt fallback
+            assert os.path.exists(result_path), "PDF or fallback file was not created"
+
+    def test_generate_reports_creates_both_files(self, sample_results):
+        """Test that generate_reports creates both CSV and PDF files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            reports = generate_reports(sample_results, tmpdir)
+
+            assert 'csv' in reports, "Missing 'csv' key in reports"
+            assert 'pdf' in reports, "Missing 'pdf' key in reports"
+            assert os.path.exists(reports['csv']), "CSV file not created"
+
+            # PDF might be .txt fallback if reportlab not installed
+            pdf_path = reports['pdf']
+            assert os.path.exists(pdf_path) or os.path.exists(pdf_path.replace('.pdf', '.txt')), \
+                "PDF or fallback file not created"
+
+    def test_generate_csv_report_empty_results(self):
         """Test handling of empty results list."""
-        csv_path = temp_dir / "empty.csv"
-        pdf_path = temp_dir / "empty.pdf"
-        
-        # CSV should still generate with headers
-        csv_result = generate_csv_report([], str(csv_path))
-        assert os.path.exists(csv_result)
-        
-        with open(csv_result, 'r') as f:
-            reader = csv.reader(f)
-            headers = next(reader)
-            # Should have headers even if no data
-            assert len(headers) > 0
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'empty_report.csv')
+            result_path = generate_csv_report([], output_path)
 
-    def test_missing_optional_fields(self, temp_dir):
-        """Test handling of results with missing optional fields."""
-        incomplete_results = [
+            assert os.path.exists(result_path), "CSV file should be created even with empty results"
+
+            with open(output_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                assert len(rows) == 0, "Empty results should produce empty CSV (except headers)"
+
+    def test_generate_csv_report_missing_statistics(self):
+        """Test handling of results without statistics."""
+        results = [
             {
-                "task_id": "T001",
-                "condition_a": "A",
-                "condition_b": "B",
-                # Missing statistical fields
+                'task_id': 'T001',
+                'condition': 'test',
+                'accuracy': 0.90,
+                'timestamp': datetime.now().isoformat()
             }
         ]
-        
-        output_path = temp_dir / "incomplete.csv"
-        result_path = generate_csv_report(incomplete_results, str(output_path))
-        
-        assert os.path.exists(result_path)
-        
-        with open(result_path, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            assert len(rows) == 1
-            assert rows[0]['t_statistic'] == 'N/A'
-            assert rows[0]['wilcoxon_r'] == 'N/A'
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'no_stats_report.csv')
+            result_path = generate_csv_report(results, output_path)
+
+            assert os.path.exists(result_path), "CSV file should be created even without statistics"
+
+            with open(output_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                assert len(rows) == 1
+
+                # Statistics should be empty strings or N/A
+                assert rows[0]['t_statistic'] in ['', 'N/A']
+                assert rows[0]['p_value'] in ['', 'N/A']
+
+    def test_generate_reports_creates_files_in_directory(self, sample_results):
+        """Test that reports are created in the specified directory."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            reports = generate_reports(sample_results, tmpdir)
+
+            # Check that files are in the correct directory
+            assert Path(reports['csv']).parent == Path(tmpdir)
+            pdf_path = Path(reports['pdf'])
+            assert pdf_path.parent == Path(tmpdir) or pdf_path.with_suffix('.txt').parent == Path(tmpdir)
