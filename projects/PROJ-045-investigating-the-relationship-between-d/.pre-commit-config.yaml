@@ -1,0 +1,99 @@
+# Pre-commit configuration for linting and formatting
+# Installed dependencies:
+#   - flake8: linting
+#   - black: code formatting
+#   - isort: import sorting (optional but recommended)
+#   - pyupgrade: modernize Python syntax
+#   - end-of-file-fixer: ensures files end with a newline
+#   - trailing-whitespace: removes trailing whitespace
+
+fail_fast: false
+minimum_pre_commit_version: "2.9.0"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        description: Trims trailing whitespace on all lines.
+        entry: trailing-whitespace-fixer
+        language: python
+        types: [text]
+        stages: [commit]
+
+      - id: end-of-file-fixer
+        name: Fix End of Files
+        description: Ensures that a file is either empty, or ends with one newline.
+        entry: end-of-file-fixer
+        language: python
+        types: [text]
+        stages: [commit]
+
+      - id: check-yaml
+        name: Check YAML
+        description: Checks YAML files for parse errors.
+        entry: check-yaml
+        language: python
+        types: [yaml]
+        stages: [commit]
+
+      - id: check-json
+        name: Check JSON
+        description: Checks JSON files for parse errors.
+        entry: check-json
+        language: python
+        types: [json]
+        stages: [commit]
+
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        name: Black Code Formatter
+        description: Uncompromising Python code formatter.
+        entry: black
+        language: python
+        types: [python]
+        args: [--line-length=88]
+        stages: [commit]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        name: Flake8 Linter
+        description: Wrapper around pyflakes, pycodestyle, and McCabe complexity checker.
+        entry: flake8
+        language: python
+        types: [python]
+        args:
+          - --max-line-length=88
+          - --ignore=E203,W503
+          - --show-source
+          - --statistics
+        stages: [commit]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: Isort Import Sorter
+        description: Sorts imports in alphabetical order and groups them.
+        entry: isort
+        language: python
+        types: [python]
+        args: [--profile=black, --line-length=88]
+        stages: [commit]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
+        name: PyUpgrade
+        description: Automatically upgrades syntax for newer versions of Python.
+        entry: pyupgrade
+        language: python
+        types: [python]
+        args: [--py311-plus]
+        stages: [commit]

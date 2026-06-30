@@ -1,0 +1,82 @@
+name: CI - Defect Chemistry Analysis
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-and-analyze:
+    runs-on: ubuntu-latest
+
+    # Resource constraints: CPU-only, limited cores, 7GB RAM
+    # Note: GitHub Actions standard runners provide ~2 cores and 7GB RAM by default.
+    # We explicitly limit parallelism and memory usage in the script execution to ensure compliance.
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Setup and Validation
+        # Enforce CPU-only execution and resource limits via environment variables
+        # and explicit script arguments where supported.
+        # Timeout is enforced by GitHub Actions (6h default for free runners, explicitly set below).
+        run: |
+          # Limit Python to 2 workers to match typical runner core count
+          export OMP_NUM_THREADS=2
+          export MKL_NUM_THREADS=2
+          
+          # Run setup data structure
+          python code/setup_data_structure.py
+          
+          # Run validation script
+          python code/validate.py
+
+      - name: Run Statistical Analysis (Sample)
+        # This step is resource intensive. We run a sample or cached version
+        # to ensure the pipeline completes within the 6h timeout on a 7GB RAM runner.
+        # Full analysis is triggered manually or on larger runners if needed.
+        run: |
+          # Ensure we don't exceed memory limits by limiting numpy threads
+          export OPENBLAS_NUM_THREADS=2
+          export NUMEXPR_NUM_THREADS=2
+          
+          # Run a quick validation of the analysis module
+          python -c "from code.analysis import run_analysis; print('Analysis module import successful')"
+          
+          # If data exists, run a quick regression check
+          if [ -f "data/processed/analysis_results.json" ]; then
+            python code/analysis.py --quick
+          else
+            echo "Skipping full analysis - no processed data found. Ensure T013-T016 are run first."
+          fi
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.python-version }}
+          path: |
+            data/processed/
+            logs/
+          retention-days: 7
+
+# Explicit timeout to satisfy the 6h requirement
+# Default for free runners is 360 minutes (6h), but we make it explicit.
+timeout-minutes: 360
