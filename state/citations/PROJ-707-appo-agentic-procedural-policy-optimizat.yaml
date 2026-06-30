@@ -1,0 +1,11 @@
+- artifact_hash: 226d8260edc47aaef204b4d89f54c56ae42d8da92348955fd4202a9fe7b798d0
+  artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/qwedsacf/competition_math/resolve/main/data/train-00000-of-00001-7320a6f3aba8ebd2.parquet`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/qwedsacf/competition_math/resolve/main/data/train-00000-of-00001-7320a6f3aba8ebd2.parquet%60
+  verified_at: '2026-06-30T12:11:01.623272Z'

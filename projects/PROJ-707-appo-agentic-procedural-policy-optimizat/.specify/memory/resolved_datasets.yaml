@@ -1,0 +1,220 @@
+resolved_at: '2026-06-30T11:57:00.204495+00:00'
+datasets:
+- intent: MATH
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/uw-math-ai/math-graph/resolve/main/formal_dependency.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-Math-Proofs-v2/resolve/main/data/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/qwedsacf/competition_math/resolve/main/data/train-00000-of-00001-7320a6f3aba8ebd2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MathLLMs/MathVision/resolve/main/data/test-00000-of-00001-3532b8d3f1b4047a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/uw-math-ai/math-graph/resolve/main/formal_dependency.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-Math-Proofs-v2/resolve/main/data/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/qwedsacf/competition_math/resolve/main/data/train-00000-of-00001-7320a6f3aba8ebd2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-web-math/open-web-math/resolve/main/data/train-00000-of-00114-5a023365406cb9c4.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://repository.rcsi.com/articles/journal_contribution/Age_at_type_2_diabetes_diagnosis_and_prevalence_of_obesity_hypertension_anxiety_and_depression_a_retrospective_observational_study/32237607
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Age_at_type_2_diabetes_diagnosis_and_prevalence_of_obesity_hypertension_anxiety_and_depression_a_retrospective_observational_study/32237607
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/conference_contribution/Reevaluating-Detection-of-Equivalent-Mutants-Using-LLM/32835686
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Intracameral_moxifloxacin_for_endophthalmitis_prophylaxis_after_cataract_surgery_a_systematic_review_and_meta-analysis/32325489
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Intracameral_moxifloxacin_for_endophthalmitis_prophylaxis_after_cataract_surgery_a_systematic_review_and_meta-analysis/32325489
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/Matbench_Discovery_-_Model_Predictions_for_Diatomics/28437344
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://smu-za.figshare.com/articles/dataset/Additional_file_2_of_R425_first_year_student_nurses_experience_of_encounters_with_death_of_a_patient_during_clinical_placement/32586762
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01347645
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01462346
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602415553
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18866579
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8093367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.10804.21127
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20993159
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20993159
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/implementation-holistic-admissions-process-increase-diversity
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20364778
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/optimum-benchmark/cpu/resolve/main/cpu_inference_diffusers_stable-diffusion_CompVis/stable-diffusion-v1-4/benchmark.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://rs.figshare.com/articles/journal_contribution/ESM2-Declaration_of_AI_use_from_Crossing_experiments_suggest_a_simple_genetic_basis_of_complex_male_self-sacrifice_phenotypes_in_widow_spiders/32835718
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Age_at_type_2_diabetes_diagnosis_and_prevalence_of_obesity_hypertension_anxiety_and_depression_a_retrospective_observational_study/32237607
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Age_at_type_2_diabetes_diagnosis_and_prevalence_of_obesity_hypertension_anxiety_and_depression_a_retrospective_observational_study/32237607
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/conference_contribution/Reevaluating-Detection-of-Equivalent-Mutants-Using-LLM/32835686
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Intracameral_moxifloxacin_for_endophthalmitis_prophylaxis_after_cataract_surgery_a_systematic_review_and_meta-analysis/32325489
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Intracameral_moxifloxacin_for_endophthalmitis_prophylaxis_after_cataract_surgery_a_systematic_review_and_meta-analysis/32325489
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/Matbench_Discovery_-_Model_Predictions_for_Diatomics/28437344
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155476
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21067428
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21067428
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21064062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
