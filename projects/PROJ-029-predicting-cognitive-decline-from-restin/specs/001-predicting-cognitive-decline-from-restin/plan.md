@@ -138,7 +138,7 @@ tests/
   - Decline = drop in MMSE/MOCA ≥ 3 points (sensitivity analysis in FR-012).
   - Stable = no significant drop.
 - **Step 2.2**: Train Random Forest classifier with **Nested Feature Selection**.
-  - Nested cross-validation: 5-fold outer loop, grid search inner loop (n_estimators ∈ {a range of values}, max_depth ∈ {a shallow bound, 10, None}).
+  - Nested cross-validation: k-fold outer loop, grid search inner loop (n_estimators ∈ {a range of values}, max_depth ∈ {a shallow bound, a moderate bound, None}).
   - **Feature Selection**: Inside the inner loop, apply Variance Thresholding and RFE to reduce features to <20 before model fitting.
   - Random seed = 42.
   - Output: `data/processed/model.pkl`, `data/processed/cv_results.json`.
@@ -150,7 +150,7 @@ tests/
 - **Step 3.1**: Permutation test (FR-005).
   - Shuffle labels multiple times (random seed = 42).
   - Re-train model and compute ROC-AUC for each permutation.
-  - Calculate p-value = (+ count(permuted >= original)) / (+ 100).
+  - Calculate p-value = (+ count(permuted >= original)) / (+ n), where n denotes the total number of permutations.
   - Bounded by 2-hour runtime.
   - Output: `data/processed/permutation_results.json`.
 - **Step 3.2**: Sensitivity analysis (FR-006, FR-012).

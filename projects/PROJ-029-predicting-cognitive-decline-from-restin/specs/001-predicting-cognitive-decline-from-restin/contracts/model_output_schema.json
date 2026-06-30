@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Model Output Schema",
+  "description": "Schema for the final model performance report and predictions (T024, T029).",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "model_type": {
+          "type": "string",
+          "const": "RandomForestClassifier"
+        },
+        "training_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "random_seed": {
+          "type": "integer",
+          "const": 42
+        },
+        "cv_strategy": {
+          "type": "string",
+          "const": "NestedCrossValidation"
+        },
+        "outer_folds": {
+          "type": "integer",
+          "const": 5
+        }
+      },
+      "required": ["model_type", "training_date", "random_seed", "cv_strategy", "outer_folds"]
+    },
+    "performance_metrics": {
+      "type": "object",
+      "properties": {
+        "roc_auc": {
+          "type": "object",
+          "properties": {
+            "mean": { "type": "number" },
+            "std": { "type": "number" },
+            "per_fold": {
+              "type": "array",
+              "items": { "type": "number" }
+            }
+          },
+          "required": ["mean", "std", "per_fold"]
+        },
+        "accuracy": {
+          "type": "object",
+          "properties": {
+            "mean": { "type": "number" },
+            "std": { "type": "number" },
+            "per_fold": {
+              "type": "array",
+              "items": { "type": "number" }
+            }
+          },
+          "required": ["mean", "std", "per_fold"]
+        },
+        "f1_score": {
+          "type": "object",
+          "properties": {
+            "mean": { "type": "number" },
+            "std": { "type": "number" },
+            "per_fold": {
+              "type": "array",
+              "items": { "type": "number" }
+            }
+          },
+          "required": ["mean", "std", "per_fold"]
+        }
+      },
+      "required": ["roc_auc", "accuracy", "f1_score"]
+    },
+    "hyperparameters": {
+      "type": "object",
+      "properties": {
+        "selected": {
+          "type": "object",
+          "properties": {
+            "n_estimators": { "type": "integer" },
+            "max_depth": { "type": ["integer", "null"] }
+          },
+          "required": ["n_estimators", "max_depth"]
+        },
+        "grid_search_space": {
+          "type": "object",
+          "properties": {
+            "n_estimators": {
+              "type": "array",
+              "items": { "type": "integer" }
+            },
+            "max_depth": {
+              "type": "array",
+              "items": { "type": ["integer", "null"] }
+            }
+          }
+        }
+      },
+      "required": ["selected"]
+    },
+    "feature_selection": {
+      "type": "object",
+      "properties": {
+        "n_features_selected": { "type": "integer", "maximum": 20 },
+        "method": {
+          "type": "string",
+          "enum": ["RFE", "VarianceThreshold", "CollinearityFilter"]
+        },
+        "selected_feature_names": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["n_features_selected", "method"]
+    },
+    "permutation_test": {
+      "type": ["object", "null"],
+      "properties": {
+        "n_permutations": { "type": "integer", "const": 500 },
+        "p_value": { "type": "number" },
+        "observed_score": { "type": "number" },
+        "null_distribution": {
+          "type": "array",
+          "items": { "type": "number" }
+        }
+      },
+      "required": ["n_permutations", "p_value", "observed_score"]
+    }
+  },
+  "required": ["metadata", "performance_metrics", "hyperparameters", "feature_selection"]
+}

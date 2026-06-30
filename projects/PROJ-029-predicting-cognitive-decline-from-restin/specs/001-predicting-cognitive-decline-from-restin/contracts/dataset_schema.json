@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Eligible Subjects Dataset Schema",
+  "description": "Schema for the output of data filtering (T017), containing subjects with longitudinal cognitive scores.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "dataset_id": {
+          "type": "string",
+          "const": "ds000246"
+        },
+        "source": {
+          "type": "string",
+          "const": "OpenNeuro"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filter_criteria": {
+          "type": "object",
+          "properties": {
+            "modalities": {
+              "type": "array",
+              "items": { "type": "string" },
+              "const": ["rs-fMRI"]
+            },
+            "required_labels": {
+              "type": "array",
+              "items": { "type": "string" },
+              "const": ["MMSE", "MOCA"]
+            },
+            "longitudinal": {
+              "type": "boolean",
+              "const": true
+            }
+          },
+          "required": ["modalities", "required_labels", "longitudinal"]
+        }
+      },
+      "required": ["dataset_id", "source", "generated_at", "filter_criteria"]
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "subject_id": {
+            "type": "string",
+            "pattern": "^sub-[0-9]+$"
+          },
+          "session_1": {
+            "type": "object",
+            "properties": {
+              "session_id": { "type": "string" },
+              "mmse": { "type": ["number", "null"] },
+              "moca": { "type": ["number", "null"] },
+              "age": { "type": ["number", "null"] },
+              "sex": { "type": ["string", "null"] }
+            },
+            "required": ["session_id"]
+          },
+          "session_2": {
+            "type": "object",
+            "properties": {
+              "session_id": { "type": "string" },
+              "mmse": { "type": ["number", "null"] },
+              "moca": { "type": ["number", "null"] },
+              "age": { "type": ["number", "null"] },
+              "sex": { "type": ["string", "null"] }
+            },
+            "required": ["session_id"]
+          },
+          "cognitive_decline_label": {
+            "type": ["integer", "null"],
+            "description": "1 if drop >= 3 points, 0 otherwise, null if insufficient data"
+          }
+        },
+        "required": ["subject_id", "session_1", "session_2"]
+      }
+    }
+  },
+  "required": ["metadata", "data"]
+}

@@ -1,0 +1,9 @@
+# This directory stores raw data downloaded from external sources (e.g., OpenNeuro).
+# Do not commit large binary files here. Use .gitignore for data patterns.
+.DS_Store
+*.nii
+*.nii.gz
+*.json
+*.tsv
+*.csv
+*~

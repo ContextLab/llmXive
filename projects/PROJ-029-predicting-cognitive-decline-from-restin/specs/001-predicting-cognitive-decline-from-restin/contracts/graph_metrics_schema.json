@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Graph Metrics Schema",
+  "description": "Schema for the output of graph metric calculation (T019), containing topological features derived from rs-fMRI connectivity.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "atlas": {
+          "type": "string",
+          "const": "AAL_90"
+        },
+        "nodes_count": {
+          "type": "integer",
+          "const": 90
+        },
+        "connectivity_type": {
+          "type": "string",
+          "const": "Pearson"
+        },
+        "threshold_method": {
+          "type": "string",
+          "description": "Method used to threshold adjacency matrix (e.g., 'proportional', 'absolute')"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["atlas", "nodes_count", "connectivity_type", "generated_at"]
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "subject_id": {
+            "type": "string",
+            "pattern": "^sub-[0-9]+$"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "degree_centrality": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "global_efficiency": {
+            "type": "number",
+            "minimum": 0
+          },
+          "clustering_coefficient": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "average_path_length": {
+            "type": ["number", "null"]
+          },
+          "local_efficiency": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "subject_id",
+          "session_id",
+          "degree_centrality",
+          "global_efficiency",
+          "clustering_coefficient",
+          "local_efficiency"
+        ]
+      }
+    }
+  },
+  "required": ["metadata", "data"]
+}

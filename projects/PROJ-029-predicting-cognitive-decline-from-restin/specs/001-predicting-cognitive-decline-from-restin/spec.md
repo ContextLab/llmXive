@@ -71,7 +71,7 @@ The researcher performs a permutation test to validate that feature importance i
 - **FR-006**: System MUST execute a sensitivity analysis by sweeping the decision threshold over the set {0.45, 0.50, 0.55} (standard ±0.05 bounds) and reporting the variation in false-positive and false-negative rates. (See US-3)
 - **FR-007**: System MUST explicitly label all reported findings as "associational" and avoid causal language in the final output report, given the observational nature of the data. (See US-3)
 - **FR-008**: System MUST detect and handle predictor collinearity (correlation > 0.95) by excluding the feature with lower variance before model training. (See US-1)
-- **FR-010**: System MUST implement nested cross-validation with an outer loop of folds and an inner loop grid search over n_estimators ∈ {50, 100, 200} and max_depth ∈ {5, 10, None} to prevent overfitting. (See US-2)
+- **FR-010**: System MUST implement nested cross-validation with an outer loop of folds and an inner loop grid search over n_estimators and max_depth ∈ {5, 10, None} to prevent overfitting. The range of values for n_estimators will be explored to optimize performance. (See US-2)
 - **FR-011**: System MUST validate the model against an external clinical outcome (e.g., MCI conversion) where available in the dataset; if unavailable, the system MUST document this limitation in the final report. (See US-2)
 - **FR-012**: System MUST perform a sensitivity analysis on the cognitive decline threshold definition (±1 point variation) to assess the robustness of the label definition. (See US-3)
 
