@@ -195,7 +195,12 @@ RUNBOOK = [
 ]
 ARTIFACT_DIRS = [{art_dirs}]
 WORKDIR = Path("/kaggle/working")
-CLONE = WORKDIR / "llmXive"
+# Clone OUTSIDE /kaggle/working (the persisted, retrievable output): if the whole
+# repo (.git + every project/paper) lands in the output, `kaggle kernels output`
+# downloads the ENTIRE repo on retrieve (observed: timed out pulling .git before it
+# ever reached the artifacts). /tmp is ample scratch on the Kaggle image and is NOT
+# part of the output, so only the artifacts copied to WORKDIR below are retrieved.
+CLONE = Path("/tmp/llmxive-clone")
 
 
 def _sh(args, cwd=None, env=None):

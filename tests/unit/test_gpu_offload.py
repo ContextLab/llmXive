@@ -148,6 +148,10 @@ def test_dispatch_generates_kernel_metadata_with_gpu_and_internet(tmp_path, monk
     assert "abc123def456" in script
     assert "python main.py --sample-size 10" in script
     assert "ContextLab/llmXive" in script
+    # The repo is cloned OUTSIDE /kaggle/working so `kaggle kernels output` retrieves
+    # ONLY the copied artifacts, not the entire repo (which times the retrieve out).
+    assert "/tmp/llmxive-clone" in script
+    assert 'CLONE = WORKDIR' not in script
 
 
 def test_dispatch_long_name_title_resolves_to_truncated_slug(tmp_path, monkeypatch) -> None:
