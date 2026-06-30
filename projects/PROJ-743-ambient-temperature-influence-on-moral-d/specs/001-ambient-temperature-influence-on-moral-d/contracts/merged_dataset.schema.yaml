@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MergedDatasetSchema"
+description: "Schema for the processed dataset used in statistical modeling."
+type: "object"
+properties:
+  response_id:
+    type: "string"
+    description: "Unique identifier for the response."
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  log_response_time:
+    type: "number"
+    description: "Natural log of response time in milliseconds."
+  temperature_celsius:
+    type: "number"
+    description: "Ambient temperature at the time of the response."
+  distance_km:
+    type: "number"
+    description: "Distance to the nearest temperature source in km."
+    minimum: 0
+  dilemma_complexity:
+    type: "number"
+    description: "Derived conflict-based complexity score of the dilemma."
+  time_of_day:
+    type: "string"
+    description: "Categorical time of day."
+    enum:
+      - "morning"
+      - "afternoon"
+      - "evening"
+      - "night"
+  age:
+    type: "integer"
+    description: "Age of the participant."
+  gender:
+    type: "string"
+    description: "Gender of the participant."
+  cultural_region:
+    type: "string"
+    description: "Cultural region of the participant."
+  match_quality:
+    type: "string"
+    description: "Quality of the temperature match."
+    enum:
+      - "high"
+      - "low"
+      - "excluded"
+required:
+  - response_id
+  - participant_id
+  - log_response_time
+  - temperature_celsius
+  - distance_km
+  - dilemma_complexity
+  - time_of_day
+  - age
+  - gender
+  - cultural_region
+  - match_quality
+additionalProperties: false
