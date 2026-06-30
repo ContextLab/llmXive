@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.06886",
+  "judged_at": "2026-06-30T11:55:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kairos: a native world model stack for physical ai computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of \"Physical AI\" and \"World Models,\" which are the core components of the user's research question. Although it is a broad survey rather than a specific implementation of the \"Kairos\" stack, it provides the essential literature review context regarding the alignment of cyber and physical spaces, embodied agents, and world model architectures that a researcher in this specific niche would be ",
+  "relevant": true
+}

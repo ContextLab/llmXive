@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.02900",
+  "judged_at": "2026-06-30T11:55:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kairos: a native world model stack for physical ai computer science",
+  "rationale": "This paper satisfies criteria (b) and (e) as it studies the same empirical domain (Embodied AI/Physical AI) and addresses the core system components (perception, planning, action) that a \"Native World Model Stack\" would operate within, providing the necessary safety and robustness context for any literature review on Physical AI architectures.",
+  "relevant": true
+}

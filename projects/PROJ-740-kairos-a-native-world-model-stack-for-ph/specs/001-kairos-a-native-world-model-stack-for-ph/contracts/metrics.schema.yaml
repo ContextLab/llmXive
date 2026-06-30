@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for the output metrics of the world model evaluation."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the evaluation run"
+  model_type:
+    type: "string"
+    enum:
+      - "baseline_transformer"
+      - "kairos_memory"
+    description: "Type of model evaluated"
+  seed:
+    type: "integer"
+    description: "Random seed for this run"
+  metrics:
+    type: "object"
+    description: "Primary performance metrics"
+    properties:
+      mse:
+        type: "number"
+        description: "Mean Squared Error of state prediction"
+      success_rate:
+        type: "number"
+        description: "Long-Horizon Success Rate (0.0 to 1.0)"
+      pcs:
+        type: "number"
+        description: "Physics Consistency Score (0.0 to 1.0, based on energy/momentum checks for sim, or velocity/state heuristics for real)"
+      latency_p95_ms:
+        type: "number"
+        description: "95th percentile inference latency in milliseconds"
+      peak_ram_gb:
+        type: "number"
+        description: "Peak RAM usage in GB"
+    required:
+      - "mse"
+      - "success_rate"
+      - "pcs"
+      - "latency_p95_ms"
+      - "peak_ram_gb"
+  statistics:
+    type: "object"
+    description: "Statistical test results (if aggregated)"
+    properties:
+      bootstrap_ci_lower:
+        type: "number"
+        description: "Lower bound of 95% Bootstrap CI for success rate difference"
+      bootstrap_ci_upper:
+        type: "number"
+        description: "Upper bound of 95% Bootstrap CI for success rate difference"
+      wilcoxon_p_value:
+        type: "number"
+        description: "P-value from Wilcoxon signed-rank test"
+      effect_size:
+        type: "number"
+        description: "Effect size (r or Cohen's d)"
+    required: []
+required:
+  - "run_id"
+  - "model_type"
+  - "seed"
+  - "metrics"
+additionalProperties: false

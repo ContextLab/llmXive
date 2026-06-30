@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trajectory Dataset Schema"
+description: "Schema for the stratified subset of BridgeData V2 (Kitchen domain) used in the Kairos study."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      version:
+        type: "string"
+        description: "Schema version"
+      source:
+        type: "string"
+        description: "Source dataset name (e.g., 'bridge_data_v2_kitchen')"
+      checksum:
+        type: "string"
+        description: "SHA-256 checksum of the raw data file"
+    required:
+      - "version"
+      - "source"
+      - "checksum"
+  trajectories:
+    type: "array"
+    description: "List of trajectory objects"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "Unique trajectory identifier"
+        seed:
+          type: "integer"
+          description: "Random seed used for generation"
+        steps:
+          type: "array"
+          description: "Sequence of state-action pairs"
+          items:
+            type: "object"
+            properties:
+              t:
+                type: "integer"
+                description: "Time step"
+              state:
+                type: "array"
+                description: "State vector (normalized)"
+                items:
+                  type: "number"
+              action:
+                type: "array"
+                description: "Action vector (normalized)"
+                items:
+                  type: "number"
+              reward:
+                type: "number"
+                description: "Reward signal"
+              physics_violation:
+                type: "boolean"
+                description: "Flag for physics error (collision, explosion)"
+              velocity_deviation:
+                type: "number"
+                description: "Deviation in velocity from expected continuity (for real-world data)"
+              state_jump:
+                type: "number"
+                description: "Magnitude of state discontinuity (teleportation check)"
+            required:
+              - "t"
+              - "state"
+              - "action"
+      required:
+        - "id"
+        - "seed"
+        - "steps"
+required:
+  - "metadata"
+  - "trajectories"
+additionalProperties: false

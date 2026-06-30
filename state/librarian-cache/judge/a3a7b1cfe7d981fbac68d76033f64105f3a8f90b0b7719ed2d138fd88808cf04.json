@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.02419",
+  "judged_at": "2026-06-30T11:55:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kairos: a native world model stack for physical ai computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) by identifying the shared computational mechanism of \"predictive and generative world models\" between biological systems and AI, which is the core theoretical foundation for the \"Native World Model Stack\" mentioned in the user's question. It serves as a canonical reference for the world-model-based computation paradigm that the user's proposed system aims to implement.",
+  "relevant": true
+}
