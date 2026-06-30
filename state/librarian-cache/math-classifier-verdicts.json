@@ -703,6 +703,10 @@
     "classified_at": "2026-06-22T18:32:06Z",
     "verdict": false
   },
+  "PROJ-767-gatemem-benchmarking-memory-governance-i::1.6.0": {
+    "classified_at": "2026-06-30T16:18:20Z",
+    "verdict": false
+  },
   "PROJ-768-memslides-a-hierarchical-memory-driven-a::1.6.0": {
     "classified_at": "2026-06-23T11:24:52Z",
     "verdict": false
