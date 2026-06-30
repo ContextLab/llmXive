@@ -1,12 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-30T15:00:32.820802+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-06-30T16:52:21.348737+00:00'
 last_outcome: committed
 history:
-- slug: linus-pauling
-  started_at: '2026-06-20T22:53:33.503840+00:00'
-  ended_at: '2026-06-20T23:28:12.822176+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-20T23:28:12.822176+00:00'
   ended_at: '2026-06-20T23:54:20.888499+00:00'
@@ -1204,3 +1199,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-748-multi-lcb-extending-livecodebench-to-mul/reviews/research/geoffrey-west-simulated__2026-06-30__research.md
+- slug: john-von-neumann
+  started_at: '2026-06-30T15:00:32.820802+00:00'
+  ended_at: '2026-06-30T16:52:21.348737+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/john-von-neumann-simulated__2026-06-30__research.md
