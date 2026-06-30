@@ -1,0 +1,93 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Output Schema"
+type: object
+properties:
+  group_analysis:
+    type: object
+    properties:
+      test_type:
+        type: string
+        description: "Type of statistical test (e.g., one-sample t-test)"
+      correction_method:
+        type: string
+        description: "Multiple comparison correction method (e.g., Voxel-wise FDR)"
+      clusters:
+        type: array
+        items:
+          type: object
+          properties:
+            cluster_id:
+              type: integer
+            peak_mni:
+              type: array
+              items:
+                type: number
+              description: "MNI coordinates of the peak voxel"
+            t_value:
+              type: number
+            p_value:
+              type: number
+            fdr_p_value:
+              type: number
+            cluster_size:
+              type: integer
+            anatomical_label:
+              type: string
+              description: "Anatomical region name"
+      effect_sizes:
+        type: object
+        properties:
+          cohens_d:
+            type: number
+          ci_95:
+            type: array
+            items:
+              type: number
+            description: "95% Confidence Interval"
+  brain_behavior:
+    type: object
+    properties:
+      roi:
+        type: string
+        description: "Region of Interest name"
+      correlation:
+        type: object
+        properties:
+          pearson_r:
+            type: number
+          p_value:
+            type: number
+          n:
+            type: integer
+  null_test:
+    type: object
+    properties:
+      n_permutations:
+        type: integer
+      empirical_fpr:
+        type: number
+      limitation_note:
+        type: string
+        description: "Note on low N resolution"
+  power_analysis:
+    type: object
+    properties:
+      a_priori_effect_size:
+        type: number
+      observed_power:
+        type: number
+      sample_size:
+        type: integer
+      effect_size:
+        type: number
+      threshold:
+        type: number
+        description: "Target power threshold (e.g., 0.8)"
+      limitation_report:
+        type: string
+        description: "Description of power limitations"
+required:
+  - group_analysis
+  - brain_behavior
+  - power_analysis
+additionalProperties: false

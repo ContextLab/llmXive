@@ -1,0 +1,11 @@
+- artifact_hash: a638b2b627555f2fbbfe3d172821ce5ceb1f61feab07462ed340596088383e5a
+  artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000115/versions`
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds000115/versions%60
+  verified_at: '2026-06-30T02:02:54.618091Z'

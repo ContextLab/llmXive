@@ -1,0 +1,524 @@
+resolved_at: '2026-06-30T01:51:02.306169+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/Investigation_of_methods_for_determining_pit_dimensions_for_ore_bodies_of_various_thicknesses/32830670
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Optimization_of_drilling_and_blasting_operations_in_open-pit_mines_for_controlling_the_granulometric_composition_of_rock_mass/32830664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Technical_and_economic_efficiency_of_converting_electricity_and_gas_meters_into_a_digitally_integrated_system_and_its_impact_on_the_green_economy/32830661
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/STUDY_OF_THE_EFFECT_OF_NANOMODIFICATION_ON_THE_STRUCTURE_AND_PROPERTIES_OF_THE_ARAL_SEA_REGION_BENTONITES/32830652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Improving_aerodynamic_models_of_airflow_control_and_energy-efficient_fan_designs_in_ventilation_systems_of_mining_enterprises/32830646
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015186
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015186
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/GEOTECHNICAL_JUSTIFICATION_FOR_THE_FORMATION_OF_HIGH_MULTI-TIER_AUTOMOTIVE_DUMPS_IN_THE_CONDITIONS_OF_THE_MURUNTAU_OPEN_PIT/32830616
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/GEOTECHNICAL_JUSTIFICATION_FOR_THE_FORMATION_OF_HIGH_MULTI-TIER_AUTOMOTIVE_DUMPS_IN_THE_CONDITIONS_OF_THE_MURUNTAU_OPEN_PIT/32830616/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/16ced119-3bc0-47df-bc03-ff736e5ed993
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BOLD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AmazonScience/bold/resolve/main/gender_prompt_wiki.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lighteval/bold_helm/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 32169
+      parsed: true
+  - url: https://huggingface.co/datasets/LofiAmazon/BOLD-Embeddings/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AmazonScience/bold/resolve/main/gender_prompt_wiki.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/lighteval/bold_helm/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/jashmehta3300/social-injection-bold/21d113bdc6d2e6131b57bbaf8d50a99aaab04c61/bold_dataset.csv?%2Fdatasets%2Fjashmehta3300%2Fsocial-injection-bold%2Fresolve%2Fmain%2Fbold_dataset.csv=&etag=%22ee47c0c64e5cb3c4641608209f069b94cfacc3ca%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/boldvoice/l2_arctic/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/LofiAmazon/BOLD-Embeddings/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830680
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/________________________________/32830676
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Investigation_of_methods_for_determining_pit_dimensions_for_ore_bodies_of_various_thicknesses/32830670
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Optimization_of_drilling_and_blasting_operations_in_open-pit_mines_for_controlling_the_granulometric_composition_of_rock_mass/32830664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/28843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7095520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7105076
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/28835
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6466484
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20810377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20810377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Unveiling_hidden_marine_biodiversity_in_the_southern_Atlantic_Moroccan_ecosystem_integrating_DNA_barcoding_and_morphological_reassessment/32163119/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Unveiling_hidden_marine_biodiversity_in_the_southern_Atlantic_Moroccan_ecosystem_integrating_DNA_barcoding_and_morphological_reassessment/32163119
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/99f1e89e-dade-411d-a067-fce80f43ffbe
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830686
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830683
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830680
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/________________________________/32830676
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.unimelb.edu.au/articles/report/MWRPP_Report_17_3_Seaford_Wetlands_Vegetation_Monitoring_Program_final_report_on_Phragmites_expansion_and_control_/31046071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/The_Role_of_Mass_Media_and_Social_Networks_in_Ensuring_Religious_Tolerance/32830688
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830686
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830683
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830680
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250916/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250916/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250903/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250903/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250888/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.unimelb.edu.au/articles/report/MWRPP_Report_17_3_Seaford_Wetlands_Vegetation_Monitoring_Program_final_report_on_Phragmites_expansion_and_control_/31046071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/The_Role_of_Mass_Media_and_Social_Networks_in_Ensuring_Religious_Tolerance/32830688
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830686
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830683
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830680
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8104865
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6532734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.48565/fjd8-td33
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''bonndoc.ulb.uni-bonn.de'',
+      port=443): Max retries exceeded with url: /xmlui/handle/20.500.11811/14239 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''bonndoc.ulb.uni-bonn.de'', port=443)
+      at 0x7fb2341da450>, ''Connection to bonndoc.ulb.uni-bonn.de timed out. (connect
+      timeout=20.0)''))'
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rgk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sdsr/erp-and-erotica/resolve/main/blackdahlia--group-roleplays.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Bektemir96az96/Uzbek_and_Russian_Phishing_dataset/resolve/main/phishing_legitimate_dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sdsr/erp-and-erotica/resolve/main/blackdahlia--group-roleplays.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64f72b773e89b329daa77f8e/904abf519aa6303bcf0d260cebe69b8ec649a61c8b45baacd18aa6179fe46d03?X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27eclipse_clear.csv%3B+filename%3D%22eclipse_clear.csv%22%3B&Expires=1782787589&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmNzJiNzczZTg5YjMyOWRhYTc3ZjhlLzkwNGFiZjUxOWFhNjMwM2JjZjBkMjYwY2ViZTY5YjhlYzY0OWE2MWM4YjQ1YmFhY2QxOGFhNjE3OWZlNDZkMDNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZWNsaXBzZV9jbGVhci5jc3YlM0IrZmlsZW5hbWUlM0QlMjJlY2xpcHNlX2NsZWFyLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzg3NTg5fX19XX0_&Signature=MEQCIH8LtzVvpd11x-H3UbxTl4uzvmMjLAQDMWprg8rBPAZmAiBIuZPaRa4eJ~0EzcBVup~X54N~Ni1GjIfrLhxl8hBNRQ__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/Roudranil/shakespearean-and-modern-english-conversational-dataset/c6eabff9b121491322f1ad125e975b421e632059/data%2Ftest.csv?%2Fdatasets%2FRoudranil%2Fshakespearean-and-modern-english-conversational-dataset%2Fresolve%2Fmain%2Fdata%2Ftest.csv=&etag=%22c71da2b9406cfd41885cf3dcf941a9fe7bfde84b%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Bektemir96az96/Uzbek_and_Russian_Phishing_dataset/resolve/main/phishing_legitimate_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.mq.edu.au/articles/thesis/Plant_establishment_and_seed_quality_in_climate_adapted_seed_production/31906930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/TA_LIM_XIZMATLARI_BOZORIDA_INSON_KAPITALINI_SHAKLLANTIRISH_MEXANIZMINI_TAKOMILLASHTIRISH/32830694
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/report/MWRPP_Report_17_3_Seaford_Wetlands_Vegetation_Monitoring_Program_final_report_on_Phragmites_expansion_and_control_/31046071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/The_Role_of_Mass_Media_and_Social_Networks_in_Ensuring_Religious_Tolerance/32830688
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Nitric_Oxide-Mediated_Minimally_Invasive_Neuromodulation_through_Gut-Brain_Axis_via_a_Bioelectronic_Microdevice_for_Relieving_Depressive_Symptoms/32830686
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336182
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336216
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIfTI
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-002
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-2
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: GPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried: []

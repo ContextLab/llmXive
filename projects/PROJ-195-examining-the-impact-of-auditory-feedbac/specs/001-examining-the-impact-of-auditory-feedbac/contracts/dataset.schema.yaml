@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OpenNeuro ds000115 Dataset Schema"
+type: object
+properties:
+  dataset_description:
+    type: object
+    properties:
+      Name:
+        type: string
+        description: "Name of the dataset"
+      BIDSVersion:
+        type: string
+        description: "BIDS version"
+  subjects:
+    type: array
+    items:
+      type: object
+      properties:
+        subject_id:
+          type: string
+          description: "Subject label (e.g., sub-01)"
+        conditions:
+          type: array
+          items:
+            type: string
+            enum: ["normal", "delayed", "pitch-shifted"]
+          description: "Feedback conditions available for this subject"
+        files:
+          type: object
+          properties:
+            bold:
+              type: string
+              description: "Path to the BOLD NIfTI file"
+            events:
+              type: string
+              description: "Path to the events TSV file"
+            confounds:
+              type: string
+              description: "Path to the confounds TSV file"
+required:
+  - dataset_description
+  - subjects
+additionalProperties: false
