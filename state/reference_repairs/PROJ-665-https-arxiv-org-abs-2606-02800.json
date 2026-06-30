@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-06-30T05:32:53.413105+00:00",
+    "project": "PROJ-665-https-arxiv-org-abs-2606-02800",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/diyarhamedi/HowTo100M-subtitles-small/resolve/main/data/train-00000-of-00001-c20e90f1c4746400.parquet",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/HuggingFaceM4/howto100m/resolve/main/dataset_infos.json",
+        "intent": "diyarhamedi HowTo100M subtitles small train 00000 of 00001 Video Text datasets.load_dataset via HuggingFace Hub Correction : Using the totuta source as verified. If this"
+      }
+    ]
+  }
+]

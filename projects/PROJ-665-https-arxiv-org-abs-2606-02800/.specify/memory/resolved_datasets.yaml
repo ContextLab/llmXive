@@ -1,0 +1,743 @@
+resolved_at: '2026-06-30T05:28:24.479932+00:00'
+datasets:
+- intent: COCO-Cap
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lmms-lab/COCO-Caption/resolve/main/data/test-00000-of-00014.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/embedding-data/coco_captions_quintets/resolve/main/coco_captions.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Multimodal-Fatima/COCO_captions_train/resolve/main/data/train-00000-of-00038-757e7d149500e41c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lmms-lab/COCO-Caption/resolve/main/data/test-00000-of-00014.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/embedding-data/coco_captions_quintets/resolve/main/coco_captions.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/Multimodal-Fatima/COCO_captions_train/resolve/main/data/train-00000-of-00038-757e7d149500e41c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/CVasNLPExperiments/COCO_captions_validation_google_flan_t5_xxl_mode_T_A_D_PNP_FILTER_C_ns_100/resolve/main/data/validation-00000-of-00001-61eb02130ee0a8a9.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Multimodal-Fatima/COCO_captions_validation/resolve/main/data/validation-00000-of-00003-b3866737fab1a73f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Have_the_wheels_stopped_turning_Prevalence_and_predictors_of_cycling_among_Australia_schoolchildren/32833154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_longitudinal_study_of_associations_between_the_local_road_environment_and_physical_activity_among_youth/32833142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/thesis/Developing_evidence-informed_best_practice_policy_and_practice_recommendations_that_support_the_return_of_elite_female_athletes_to_high-performance_sport_postpartum_and_as_parents/32833097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_physical_education_improve_insulin_resistance_in_healthy_boys_and_girls_The_LOOK_study/32833130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://login.wolterskluwer.com/as/authorization.oauth2?client_id=HLRP.Ovid&redirect_uri=https%3A%2F%2Foce.ovid.com%2Fsignin-oidc&response_type=code&scope=openid%20profile%20email&code_challenge=Gnv3eyFcVs9zXw9BVa6ny36aoIztAJpHqgptFt2tztM&code_challenge_method=S256&response_mode=form_post&nonce=639183936946907273.NjFhZDQ2ZjMtNmZmMS00NDZiLTg3N2EtNmE3YTYzMDVhMGU3YjZjY2QxNTMtYzg0OS00NjYwLWJjZDktNmE1ZGUzNTEwNzc5&validator_id=OCEPasswordValidator&pfidpadapterid=HLRPGenericCompositeAdapter&prompt=none&state=CfDJ8F3KMvDONZ1HvaYIE32Knscy8FNA65qC_Jcz8Ik7pwL0HOun22_75ROOJww0W881WAd9wbprHDPSSNNZcp9JQxWSuKEd06ibV9tpgcO9bloy426djm0_gdChJ8wfy2tAlH7KYuSBAR7d21VPdvYMk55geqgWbi6hyCWmiYFMIVjp1xCio3drDRt7WXJR74DZFM1feI5T_w4faFX_iaHLiIwseJyjooAZi9j-W650Oj1cz6h7SdRfbjm_jRMI4E5W1yqvL8dVODfJYOEhD46mag6w_W6mZfj0qAseZjk-XGWBdoMU2GRjoqMY_6AeP9x3lNVyfhMAi0Z9zjEZs_JvOrOB56YjsQmWZRsRHupizkpUAeDVH8uDlHH2bi77LaPDzbSB2NaBG8Jn-Sh_J5Ty3aI&x-client-SKU=ID_NET8_0&x-client-ver=7.1.2.0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13930108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13132109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/jlac.18370230112
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/ardp.18420800120
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://underline.io/lecture/101994-coco-agent-a-comprehensive-cognitive-mllm-agent-for-smartphone-gui-automation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.82308/7494
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 503'
+  - url: https://zenodo.org/records/20273180
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20273180
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/8n6nr43gk3/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: CPU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/optimum-benchmark/cpu/resolve/main/cpu_inference_diffusers_stable-diffusion_CompVis/stable-diffusion-v1-4/benchmark.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Have_the_wheels_stopped_turning_Prevalence_and_predictors_of_cycling_among_Australia_schoolchildren/32833154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_longitudinal_study_of_associations_between_the_local_road_environment_and_physical_activity_among_youth/32833142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/thesis/Developing_evidence-informed_best_practice_policy_and_practice_recommendations_that_support_the_return_of_elite_female_athletes_to_high-performance_sport_postpartum_and_as_parents/32833097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_physical_education_improve_insulin_resistance_in_healthy_boys_and_girls_The_LOOK_study/32833130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21056517
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21056517
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.21784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Have_the_wheels_stopped_turning_Prevalence_and_predictors_of_cycling_among_Australia_schoolchildren/32833154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_longitudinal_study_of_associations_between_the_local_road_environment_and_physical_activity_among_youth/32833142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/thesis/Developing_evidence-informed_best_practice_policy_and_practice_recommendations_that_support_the_return_of_elite_female_athletes_to_high-performance_sport_postpartum_and_as_parents/32833097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_physical_education_improve_insulin_resistance_in_healthy_boys_and_girls_The_LOOK_study/32833130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Experimental_Dataset_for_Hibiscus_Wine_Fermentation_Using_i_Saccharomyces_cerevisiae_i_/32833037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Have_the_wheels_stopped_turning_Prevalence_and_predictors_of_cycling_among_Australia_schoolchildren/32833154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_longitudinal_study_of_associations_between_the_local_road_environment_and_physical_activity_among_youth/32833142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/thesis/Developing_evidence-informed_best_practice_policy_and_practice_recommendations_that_support_the_return_of_elite_female_athletes_to_high-performance_sport_postpartum_and_as_parents/32833097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17615/q8k0-vb45
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/gh93hf004 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f9d9124c9d0>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+  - url: https://doi.org/10.17615/xq7c-9629
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/jm215519r (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f9d91265b50>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/21055228
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055228
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055879
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LAION-2B-en
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/society-ethics/laion2B-en_continents/resolve/main/laion2B-en_continent.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/laion/relaion2B-en-research-safe/resolve/main/part-00000-339dc23d-0869-4dc0-9390-b4036fcc80c2-c000.snappy.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/laion/laion2B-en-aesthetic/resolve/main/part-00000-cad4a140-cebd-46fa-b874-e8968f93e32e-c000.snappy.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/laion/relaion2B-multi-joined-translated-to-en/resolve/main/part-00000-00478b7a-941e-4176-b569-25f4be656991-c000.snappy.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/society-ethics/laion2B-en_continents/resolve/main/laion2B-en_continent.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Outcomes_of_the_It_s_Your_Move_Project_A_3_year_community-based_obesity_prevention_program_in_Australian_adolescents/32833160
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Experimental_Dataset_for_Hibiscus_Wine_Fermentation_Using_i_Saccharomyces_cerevisiae_i_/32833037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Have_the_wheels_stopped_turning_Prevalence_and_predictors_of_cycling_among_Australia_schoolchildren/32833154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_longitudinal_study_of_associations_between_the_local_road_environment_and_physical_activity_among_youth/32833142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18245636
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18245254
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18245588
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18245555
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17184502
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.23204
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2310.20707
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2306.13141
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HowTo100M
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/HuggingFaceM4/howto100m/resolve/main/dataset_infos.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2552
+      parsed: true
+  - url: https://huggingface.co/datasets/totuta/youtube_subs_howto100M/resolve/main/data/train-00000-of-00003-fe63ca1aa100a745.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/diyarhamedi/HowTo100M-subtitles-small/resolve/main/data/train-00000-of-00001-c20e90f1c4746409.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/HuggingFaceM4/howto100m/resolve/main/dataset_infos.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/totuta/youtube_subs_howto100M/resolve/main/data/train-00000-of-00003-fe63ca1aa100a745.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/diyarhamedi/HowTo100M-subtitles-small/resolve/main/data/train-00000-of-00001-c20e90f1c4746409.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6639bdf7c51668aa7afb4304/24d3f12518038eeb7472563d6ec48d92081c98b2b6bc8c3666c7a475932994f8?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27htm_llama3_refined.json%3B+filename%3D%22htm_llama3_refined.json%22%3B&response-content-type=application%2Fjson&Expires=1782800675&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYzOWJkZjdjNTE2NjhhYTdhZmI0MzA0LzI0ZDNmMTI1MTgwMzhlZWI3NDcyNTYzZDZlYzQ4ZDkyMDgxYzk4YjJiNmJjOGMzNjY2YzdhNDc1OTMyOTk0ZjhcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3aHRtX2xsYW1hM19yZWZpbmVkLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJodG1fbGxhbWEzX3JlZmluZWQuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI4MDA2NzV9fX1dfQ__&Signature=MEUCIEhBvcehhbfNdjQS01~RhJMh~bki7C31LjgYs035UvBtAiEAxYGB321KReotOFfKFhpOmoKItFMTR317~Ax4o8DGQ4w_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6639eb80af1472aef95c6731/6852d8624e71ab8b930b5693703f799a18da76849a2daccda750147aeaf3d13b?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27ego4d_train_pair_howto100m.json%3B+filename%3D%22ego4d_train_pair_howto100m.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&Expires=1782800676&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYzOWViODBhZjE0NzJhZWY5NWM2NzMxLzY4NTJkODYyNGU3MWFiOGI5MzBiNTY5MzcwM2Y3OTlhMThkYTc2ODQ5YTJkYWNjZGE3NTAxNDdhZWFmM2QxM2JcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZWdvNGRfdHJhaW5fcGFpcl9ob3d0bzEwMG0uanNvbiUzQitmaWxlbmFtZSUzRCUyMmVnbzRkX3RyYWluX3BhaXJfaG93dG8xMDBtLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODAwNjc2fX19XX0_&Signature=MEUCIQCSV0OL6aDUZtfwaQ6tSLLIq3BY0KOnJhr1CX6C7BtbhwIgfLPwegZh2zh2iK-lbgpY5FEYMkYFAwScIFX4bwj3Hxg_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Outcomes_of_the_It_s_Your_Move_Project_A_3_year_community-based_obesity_prevention_program_in_Australian_adolescents/32833160
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Experimental_Dataset_for_Hibiscus_Wine_Fermentation_Using_i_Saccharomyces_cerevisiae_i_/32833037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Have_the_wheels_stopped_turning_Prevalence_and_predictors_of_cycling_among_Australia_schoolchildren/32833154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_longitudinal_study_of_associations_between_the_local_road_environment_and_physical_activity_among_youth/32833142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6456781
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2503.10781
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20655658
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20655658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20655658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.04970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2401.07669
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.26565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TFRecord
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SmilingWolf/danbooru-v4-tfrecord/resolve/main/train_progress.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 85
+      parsed: true
+  - url: https://huggingface.co/datasets/CodedotAI/code-clippy-tfrecords/resolve/main/tfrecords/test/checkpoint.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/CodedotAI/code-clippy-tfrecords/resolve/main/tfrecords/test/checkpoint.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/SmilingWolf/danbooru-v4-tfrecord/resolve/main/train_progress.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Outcomes_of_the_It_s_Your_Move_Project_A_3_year_community-based_obesity_prevention_program_in_Australian_adolescents/32833160
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Experimental_Dataset_for_Hibiscus_Wine_Fermentation_Using_i_Saccharomyces_cerevisiae_i_/32833037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Have_the_wheels_stopped_turning_Prevalence_and_predictors_of_cycling_among_Australia_schoolchildren/32833154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_longitudinal_study_of_associations_between_the_local_road_environment_and_physical_activity_among_youth/32833142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Young_and_free_A_study_of_children_s_independent_mobility_in_urban_and_rural_Australia/32833139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15648637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3899425
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7754589
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7520977
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4429045
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20115386
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20115386
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20055087
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20055087
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15648637
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/figure/HPLC_chromatogram_i_Justicia_gendarussa_i_Burm_f_leaf_extract/31928034
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Outcomes_of_the_It_s_Your_Move_Project_A_3_year_community-based_obesity_prevention_program_in_Australian_adolescents/32833160
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Experimental_Dataset_for_Hibiscus_Wine_Fermentation_Using_i_Saccharomyces_cerevisiae_i_/32833037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Have_the_wheels_stopped_turning_Prevalence_and_predictors_of_cycling_among_Australia_schoolchildren/32833154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_longitudinal_study_of_associations_between_the_local_road_environment_and_physical_activity_among_youth/32833142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qj2bf/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/n3rwd/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/psyxg/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17615/fz6z-jn28
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/ng452058g (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f9d9122da90>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+  - url: https://osf.io/4y7br/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-006
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Body_mass_index_and_waist_circumference_as_indicators_of_risk_for_non-communicable_diseases_in_Pacific_Islanders/32833166
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/LesionSight_A_Shiny_application_for_measuring_the_length_of_an_object_in_an_image/31436320
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/HPLC_chromatogram_i_Justicia_gendarussa_i_Burm_f_leaf_extract/31928034
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Outcomes_of_the_It_s_Your_Move_Project_A_3_year_community-based_obesity_prevention_program_in_Australian_adolescents/32833160
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-2
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: URLs
+  status: unresolved
+  candidates: []
+  candidates_tried: []
