@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-738-efficientrollout-system-aware-self-specu
-last_run_id: null
+last_run_id: 79a62ad2-d05a-4c2c-9b37-af494f8e65ae
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-738-efficientrollout-system-aware-self-specu/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'EfficientRollout: System-Aware Self-Speculative Decoding for RL Rollouts'
-updated_at: '2026-06-19T11:34:41.812660Z'
+updated_at: '2026-06-30T10:48:26.949284Z'

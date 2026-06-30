@@ -1,0 +1,58 @@
+# Revision Specification: Paper Science Revision — PROJ-738-efficientrollout-system-aware-self-specu round 1
+
+**Generated**: 2026-06-30T10:48:26.894311+00:00
+**Kind**: paper_science
+**Project**: PROJ-738-efficientrollout-system-aware-self-specu
+**Round**: 1
+
+## Input
+
+Address the following reviewer-raised action items:
+
+- **[a280f3c599e6] (severity: writing)** Appendix 1.5 claims Pearson correlations of -0.96 to -0.99. Clarify if these exact decimals are calculated directly from the plotted points in Fig 2c/3b or represent smoothed averages to ensure verifiability.
+- **[b67f42d8d84b] (severity: writing)** Appendix 1 Table 1 lists specific breakdown percentages (e.g., 75.2%). Clarify that these are results of the authors' own roofline simulation following [kim2025beyond] methodology, not values directly reported in the cited paper, to avoid attribution ambiguity.
+- **[9129156bf554] (severity: writing)** Section 5 claims Llama slowdown 'reflects the practical difficulty' of drafter alignment. While supported by Appendix 4.5 depth data, ensure the causal link is explicitly tied to the depth-dependent block efficiency evidence to justify the strong causal language.
+- **[e5c258ddd17d] (severity: writing)** The LaTeX source contains a duplicate import of the 'wrapfig' package (lines 53 and 55) and an unused 'duckuments' package (line 54). These should be removed to ensure clean compilation and dependency hygiene.
+- **[ae0e2c06ea5a] (severity: writing)** The algorithm pseudocode in 'algorithms/algorithm_full_runtime_policy.tex' uses undefined macros like '\SDToggle' and '\mal' without explicit definitions in the preamble or algorithm context, which may cause compilation errors or readability issues for the implementation team.
+- **[337a7c7187ce] (severity: writing)** The abstract and main text claim code availability at a GitHub URL, but the repository is not provided in the input artifacts. For reproducibility, the specific commit hash or a permanent archive link (e.g., Zenodo) must be cited, and the code must be accessible to reviewers.
+- **[e1884ded1ac6] (severity: writing)** The bibliography includes multiple entries with future dates (e.g., 2026) and arXiv IDs that do not resolve to public papers (e.g., 2606.18967). While this may be a preprint submission artifact, the data provenance of these citations is unclear. Verify that all external links and dataset references (e.g., SimpleRL, DAPO-Math) are stable and accessible.
+- **[0b9db888240a] (severity: writing)** The paper relies on external datasets (SimpleRL, ShareGPT, DAPO-Math) and model checkpoints (RedHatAI, MIT HAN Lab) without specifying exact version tags, commit hashes, or download scripts. To ensure schema and data integrity, the specific dataset versions and model commit hashes used for the experiments must be explicitly listed in the appendix or a data card.
+- **[dc178119b9fe] (severity: writing)** Figures in appendix/0_rollout_tail.tex (Fig. rollout_bottleneck_appendix) and figures/figure_motivation.tex (Fig. rollout_bottleneck) contain subfigures with empty captions (\caption{}). These must be filled with descriptive text explaining the specific data shown in each panel (e.g., 'Step-time decomposition for Llama3.1-8B') to ensure the figures are self-contained and legible without relying solely on the main caption.
+- **[c8f8a7588b6d] (severity: science)** Figure 1 (main_teaser) and Figure 2 (rollout_bottleneck) are referenced as critical visual summaries of the method and motivation. However, the LaTeX source relies on external PDFs (e.g., figures/main_teaser.pdf) without providing the source data or generation scripts in the repository. For reproducibility, the paper should either include the raw data used to generate these plots or provide the plotting code in the supplementary material.
+- **[939500aebee9] (severity: writing)** Several figures (e.g., Fig. app_gamma_elevation, Fig. app_eagle3_mal) use small font sizes for axis labels and legends relative to the plot area. At standard print resolution (300 DPI), these may become illegible. Authors should increase font sizes or line widths to ensure clarity in the camera-ready version.
+- **[58e3e479e733] (severity: writing)** Spell out all acronyms (SD, AR, RTN, TP, FSDP, KV-cache) at their first use in the main text.
+- **[bf41b81f981d] (severity: writing)** Provide a brief, plain-English definition for "block efficiency" when it is first introduced.
+- **[a45f487d70f0] (severity: writing)** Replace "makespan" with a more common term like "total time" or "completion time."
+- **[ddb5bc16003a] (severity: writing)** Ensure "W4" and "W8" are explicitly linked to "4-bit" and "8-bit" weights upon first mention.
+- **[d2213694cd1d] (severity: writing)** Algorithm 1 (algorithms/algorithm_full_runtime_policy.tex) uses mal_{t-1} for the toggle check but updates mal_t after the rollout. The initialization mal_0 and the flow for the first step (t=1) are ambiguous. Clarify if mal_0 is a default or measured value, and ensure the toggle logic consistently uses the most recent completed measurement.
+- **[7a07aa1afe93] (severity: science)** Section 4.2 claims batch size monotonically decreases, justifying a 'monotone toggle' where SD stays on once enabled. However, Algorithm 1 re-evaluates the toggle condition at every step. If monotonicity is guaranteed, this check is redundant. Either remove the redundant check or clarify that the algorithm handles non-monotonic cases, which would contradict the 'monotone' claim.
+- **[d3e24cf2fde6] (severity: writing)** Appendix 1.5 infers a causal mechanism (quantization perturbations become less impactful) from a correlation between entropy and acceptance. This is plausible but not proven; the correlation could simply reflect general policy sharpening. Temper the causal language or provide an ablation isolating the quantization effect.
+- **[a5bf675fbfaf] (severity: writing)** The paper makes several strong claims regarding the universality of its speedup gains and the failure modes of baselines that slightly exceed the granularity of the provided evidence. First, the Abstract and Introduction state that EfficientRollout reduces latency by "up to 19.6% and 12.7%," respectively. While the "up to" qualifier technically allows for variance, the text presents these figures as the primary takeaway without immediately contextualizing that these specific maxima were achieved
+- **[141cbe2079f2] (severity: writing)** The paper focuses on system-level optimization for RL rollouts and does not involve human subjects, animal testing, or the generation of harmful content directly. However, from a data ethics and safety perspective, there are minor gaps in transparency regarding data provenance and model licensing. First, the experimental setup (Section 5.1, Appendix 3.1) relies on the SimpleRL datasets derived from MATH. While MATH is a public benchmark, the specific curation into "SimpleRL-8k-hard" and "SimpleR
+- **[794e72c5ccc7] (severity: science)** The claim of 'up to 19.6% rollout speedup' relies on a single 100-step run per model. The paper lacks statistical significance testing (e.g., standard deviation, confidence intervals) or multiple seeds to rule out variance in RL training dynamics or system noise.
+- **[62e6b0763e6e] (severity: science)** The 'Learned' baseline (EAGLE3) shows a 25.6% slowdown on Llama3.1-8B. The evidence attributes this to drafter quality but does not provide a controlled ablation isolating the specific impact of the 'high-temperature sampling (T=1.0)' vs. the drafter architecture itself, leaving the failure mode partially confounded.
+- **[64b100a5a26f] (severity: science)** The roofline model calibration (Appendix 2.2) fits parameters per model but does not report the goodness-of-fit (e.g., R-squared) or residual error between predicted and measured latencies, making the robustness of the 'SD toggle' boundary uncertain.
+- **[2fe2f9013824] (severity: science)** Report standard deviations or confidence intervals for aggregate metrics (e.g., speedup %) in Table 1. Single-run averages over 100 steps lack statistical significance testing for RL stochasticity.
+- **[1092b689de8d] (severity: writing)** Specify sample size (N) and 95% CIs for Pearson correlations in Appendix 1.5. High r-values without N or error bounds are statistically unstable.
+- **[510f200e4ea4] (severity: science)** Add error bars to time-series plots (Figs 5a, App 4) or report step-time variance. Single-point baseline comparisons ignore rollout stochasticity and tail effects.
+- **[3c3aa4b0ae24] (severity: writing)** Remove duplicate package inclusion: 'wrapfig' is loaded twice in neurips_2026.tex (lines 48 and 50). This is redundant and may cause compilation warnings.
+- **[7375800a474f] (severity: writing)** Fix algorithm parameter formatting: In algorithms/algorithm_full_runtime_policy.tex, the parameter list uses inconsistent spacing and line breaks. The 'Parameter' and 'Input' lines should be formatted consistently with the algorithmic environment standards (e.g., using \State or proper indentation).
+- **[9c0d58caac1d] (severity: writing)** Standardize figure caption labels: In appendix/0_rollout_tail.tex, subfigure captions are empty (\caption{}). While labels are defined, the captions should either contain descriptive text or be removed if the main caption suffices, to avoid empty caption boxes in the PDF.
+- **[a96502851fed] (severity: writing)** Correct citation command usage: In mainbody/2_related_work.tex and other sections, the paper uses \citep and \citet inconsistently with the 'plainnat' bibliography style. Ensure all citations match the style guide (e.g., use \citep for parenthetical, \citet for textual) and that all keys in the .bib file are correctly referenced.
+- **[5b97e43927a4] (severity: writing)** Remove the 'duckuments' package and its usage. The package is a placeholder for dummy text and should not appear in a final submission. It is currently loaded in neurips_2026.tex.
+- **[b5e220b96973] (severity: writing)** Remove all author-specific TODO macros (\tbd, \wj, \mj, \kg) and their content before final submission. Several instances remain in the algorithm file (algorithms/algorithm_full_runtime_policy.tex) and main text.
+- **[bab5cd22721b] (severity: writing)** Standardize the capitalization of 'Speculative Decoding' and 'Reinforcement Learning' when used as proper nouns or defined terms. Currently, usage is inconsistent (e.g., 'speculative decoding' vs 'Speculative Decoding' in the Introduction).
+- **[64daa57224f3] (severity: writing)** Fix the duplicate loading of the 'wrapfig' package in neurips_2026.tex. It is listed twice in the preamble.
+- **[ea7da7f1e4ae] (severity: writing)** Ensure all figure captions in the appendix (e.g., appendix/0_rollout_tail.tex) have descriptive text. Currently, sub-captions (a), (b), (c) are empty in the LaTeX source, relying on the main caption for context, which may be insufficient for standalone viewing.
+
+
+## Success Criterion
+
+After the implementer applies this revision, the project returns to
+``paper_review`` and the per-specialist re-review protocol confirms
+each of the 35 action item(s) above as ADEQUATELY ADDRESSED.
+
+## Out of scope
+
+- New experiments not directly required by a ``science``-severity item above.
+- Refactors / cleanups not required by an action item.
