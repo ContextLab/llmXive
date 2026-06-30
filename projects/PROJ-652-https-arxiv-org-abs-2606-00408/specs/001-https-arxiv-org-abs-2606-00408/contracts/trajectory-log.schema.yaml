@@ -1,0 +1,93 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrajectoryLog"
+description: "Schema for a single agent trajectory log"
+type: "object"
+required:
+  - task_id
+  - run_id
+  - steps
+  - outcome
+  - metrics
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier of the task"
+  run_id:
+    type: "string"
+    description: "Reference to the parent EvaluationRun"
+  steps:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - step_id
+        - action
+        - content
+        - masked
+        - tokens_used
+      properties:
+        step_id:
+          type: "integer"
+          description: "Sequential index of the step"
+        action:
+          type: "string"
+          enum:
+            - "tool_call"
+            - "observation"
+            - "masking_event"
+            - "thought"
+            - "final_answer"
+          description: "Type of action taken"
+        content:
+          type: "string"
+          description: "Text content of the action/observation"
+        masked:
+          type: "boolean"
+          description: "True if the observation was masked"
+        tokens_used:
+          type: "integer"
+          minimum: 0
+          description: "Tokens used in this step"
+        rate_limit_event:
+          type: "boolean"
+          default: false
+          description: "True if a rate limit was hit at this step"
+        truncation_event:
+          type: "boolean"
+          default: false
+          description: "True if context was truncated at this step"
+  outcome:
+    type: "string"
+    enum:
+      - "success"
+      - "failure"
+      - "timeout"
+      - "context_limit"
+      - "error"
+    description: "Final outcome of the task"
+  metrics:
+    type: "object"
+    required:
+      - total_tokens
+      - total_turns
+      - accuracy_score
+      - tokens_saved
+      - turns_added
+    properties:
+      total_tokens:
+        type: "integer"
+        description: "Total tokens used in the trajectory"
+      total_turns:
+        type: "integer"
+        description: "Total turns taken"
+      accuracy_score:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Binary accuracy for this task"
+      tokens_saved:
+        type: "integer"
+        description: "Number of tokens saved due to masking"
+      turns_added:
+        type: "integer"
+        description: "Number of turns added due to masking"

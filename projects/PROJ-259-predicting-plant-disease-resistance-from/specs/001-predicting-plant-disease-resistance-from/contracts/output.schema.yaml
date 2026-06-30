@@ -1,0 +1,99 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PipelineOutput"
+description: "Schema for model performance metrics and biomarker selection results."
+type: "object"
+properties:
+  performance_metrics:
+    type: "object"
+    properties:
+      accuracy:
+        type: "number"
+        description: "Cross-validated accuracy (if categorical)."
+      auc_roc:
+        type: "number"
+        description: "AUC-ROC score."
+      r_squared:
+        type: "number"
+        description: "R² score (if continuous)."
+      null_baseline:
+        type: "number"
+        description: "Performance of null model (random labels)."
+    required:
+      - null_baseline
+  biomarkers:
+    type: "object"
+    properties:
+      top_snps:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            feature_id:
+              type: "string"
+            p_value_bh:
+              type: "number"
+              description: "Benjamini-Hochberg adjusted p-value."
+            effect_size:
+              type: "number"
+            selection_frequency:
+              type: "number"
+              description: "Frequency across thresholds {0.01, 0.05, 0.1}."
+          required:
+            - feature_id
+            - p_value_bh
+            - effect_size
+            - selection_frequency
+        description: "Top 50 SNPs."
+      top_metabolites:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            feature_id:
+              type: "string"
+            p_value_bh:
+              type: "number"
+            effect_size:
+              type: "number"
+            selection_frequency:
+              type: "number"
+          required:
+            - feature_id
+            - p_value_bh
+            - effect_size
+            - selection_frequency
+        description: "Top 50 metabolites."
+    required:
+      - top_snps
+      - top_metabolites
+  validation:
+    type: "object"
+    properties:
+      permutation_p_value:
+        type: "number"
+        description: "Model-level p-value from permutation test (n=1000)."
+      vif_diagnostics:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            feature_id:
+              type: "string"
+            vif_score:
+              type: "number"
+            flagged:
+              type: "boolean"
+              description: "True if VIF > 5."
+          required:
+            - feature_id
+            - vif_score
+            - flagged
+        description: "Collinearity diagnostics for selected features."
+    required:
+      - permutation_p_value
+      - vif_diagnostics
+required:
+  - performance_metrics
+  - biomarkers
+  - validation
+additionalProperties: false

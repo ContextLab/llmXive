@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-06-30T13:54:11.590588+00:00'
+issue_number: 386
+project_id: PROJ-259-predicting-plant-disease-resistance-from

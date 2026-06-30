@@ -1,286 +1,236 @@
 """
-TaskRunner implementation for the benchmark framework.
+Task Runner Module for Heterogeneous Scientific Foundation Model Collaboration Benchmark.
 
-This module provides a tolerant ``TaskRunner`` class that can be instantiated
-with a configuration dictionary (as used by ``run_benchmark.py``) or with a
-custom path to a task‑definition YAML file.  The class offers three core
-methods required by the project:
-
-* ``run_task(task_id)`` – Return the task definition after validation.
-* ``get_task(task_id)`` – Retrieve a task definition without validation.
-* ``validate_task(task_id)`` – Perform a lightweight schema check.
-
-The implementation is deliberately defensive:
-* ``__init__`` accepts arbitrary ``*args`` and ``**kwargs`` and extracts a
-  ``config`` or ``task_def_path`` if supplied.
-* Missing attributes are handled via ``__getattr__`` which returns a no‑op
-  callable, satisfying the “shared‑module contract” that callers may invoke
-  any logger‑style method on a ``TaskRunner`` instance.
-* Errors are raised as ``ValueError`` with clear messages, making debugging
-  easier while keeping the public API stable.
+Implements the TaskRunner class to manage task execution, retrieval, and validation.
 """
-
 import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
 import yaml
+from src.utils.logging import get_logger
 
-LOGGER = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-# --------------------------------------------------------------------------- #
-# Helper utilities
-# --------------------------------------------------------------------------- #
-def _load_yaml_file(file_path: Path) -> Dict[str, Any]:
-    """Load a YAML file and return its contents as a dict.
-
-    Parameters
-    ----------
-    file_path: Path
-        Path to the YAML file.
-
-    Returns
-    -------
-    dict
-        Parsed YAML content.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the file does not exist.
-    yaml.YAMLError
-        If the file cannot be parsed.
-    """
-    if not file_path.is_file():
-        raise FileNotFoundError(f"Task definition file not found: {file_path}")
-    with file_path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
-
-# --------------------------------------------------------------------------- #
-# Core class
-# --------------------------------------------------------------------------- #
 class TaskRunner:
     """
-    Core orchestrator for benchmark tasks.
+    Manages task execution, retrieval, and validation for the benchmark pipeline.
 
-    The class is intentionally permissive in its constructor to accommodate
-    the various ways it is instantiated across the code base (e.g.
-    ``TaskRunner(config=…)`` in ``run_benchmark.py`` and ``TaskRunner()`` in
-    unit tests).
+    This class loads task definitions from YAML files and provides methods to
+    run, retrieve, and validate tasks within the benchmark system.
+
+    Attributes:
+        task_definitions_path (Path): Path to the task definitions YAML file.
+        tasks (Dict[str, Any]): Loaded task definitions.
+        config (Dict[str, Any]): Optional configuration dictionary.
     """
 
-    # Minimal required fields for a task definition (as described in the
-    # contracts/task.schema.yaml).  The validation logic only checks for the
-    # presence of these keys.
-    _REQUIRED_FIELDS = {"task_id", "modalities", "datasets", "label_column"}
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, task_definitions_path: Optional[str] = None, config: Optional[Dict[str, Any]] = None, **kwargs):
         """
-        Initialise the runner.
+        Initialize the TaskRunner.
 
-        Accepts any positional or keyword arguments for backward compatibility.
-        Recognised arguments:
-          * ``config`` – a dictionary (currently unused but retained for API
-            compatibility).
-          * ``task_def_path`` – path to a YAML file containing task definitions.
+        Args:
+            task_definitions_path (Optional[str]): Path to task definitions YAML.
+                Defaults to 'src/tasks/task_definitions.yaml' relative to project root.
+            config (Optional[Dict[str, Any]]): Optional configuration dictionary.
+                Accepted for compatibility with callers passing config kwarg.
+            **kwargs: Additional keyword arguments for compatibility.
         """
-        # Store optional configuration (may be used by future extensions)
-        self.config: Dict[str, Any] = kwargs.get("config", {})
-        # Determine the path to the task definitions file
-        task_def_path = kwargs.get("task_def_path")
-        if task_def_path is None:
-            # Default location: <project_root>/src/tasks/task_definitions.yaml
-            default_path = (
-                Path(__file__).resolve().parent.parent / "tasks" / "task_definitions.yaml"
-            )
-            self.task_def_path = default_path
+        # Handle flexible initialization: accept config as kwarg or explicit param
+        if config is None and 'config' in kwargs:
+            config = kwargs.get('config')
+
+        # Default path relative to project root
+        if task_definitions_path is None:
+            base_path = Path(__file__).parent.parent.parent
+            task_definitions_path = str(base_path / "src" / "tasks" / "task_definitions.yaml")
+
+        self.task_definitions_path = Path(task_definitions_path)
+        self.config = config or {}
+        self.tasks = {}
+
+        # Load task definitions if file exists
+        if self.task_definitions_path.exists():
+            self._load_tasks()
         else:
-            self.task_def_path = Path(task_def_path)
+            logger.warning(f"Task definitions file not found at {self.task_definitions_path}")
 
-        # Load the tasks once during construction
-        self._tasks: Dict[str, Dict[str, Any]] = {}
-        self._load_tasks()
-
-    # ------------------------------------------------------------------- #
-    # Compatibility shim – unknown attribute access becomes a no‑op.
-    # ------------------------------------------------------------------- #
-    def __getattr__(self, name: str):
-        """
-        Return a no‑op callable for any undefined attribute.
-
-        This satisfies the requirement that ``TaskRunner`` can be used like a
-        logger (e.g. ``runner.info(...)``) without raising ``AttributeError``.
-        """
-        def _noop(*args: Any, **kwargs: Any) -> None:
-            LOGGER.debug("Called undefined TaskRunner attribute %s with args=%s kwargs=%s", name, args, kwargs)
-            return None
-        return _noop
-
-    # ------------------------------------------------------------------- #
-    # Private helpers
-    # ------------------------------------------------------------------- #
     def _load_tasks(self) -> None:
-        """
-        Populate ``self._tasks`` from the YAML definition file.
-
-        The YAML file is expected to have a top‑level ``tasks`` key containing a
-        list of task dictionaries.  Each task dictionary must include a unique
-        ``task_id``.
-        """
+        """Load task definitions from YAML file."""
         try:
-            data = _load_yaml_file(self.task_def_path)
-        except Exception as exc:
-            raise RuntimeError(f"Failed to load task definitions: {exc}") from exc
+            with open(self.task_definitions_path, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
 
-        tasks_list = data.get("tasks", [])
-        if not isinstance(tasks_list, list):
-            raise ValueError(
-                f"Invalid format in {self.task_def_path}: 'tasks' should be a list."
-            )
+            # Handle both dict format {"tasks": [...]} and direct list format
+            if isinstance(data, list):
+                self.tasks = {task.get('task_id', f'task_{i}'): task for i, task in enumerate(data)}
+            elif isinstance(data, dict):
+                tasks_list = data.get("tasks", [])
+                if isinstance(tasks_list, list):
+                    self.tasks = {task.get('task_id', f'task_{i}'): task for i, task in enumerate(tasks_list)}
+                else:
+                    logger.warning(f"Expected 'tasks' key to be a list, got {type(tasks_list)}")
+            else:
+                logger.warning(f"Unexpected YAML structure: {type(data)}")
 
-        for task in tasks_list:
-            if not isinstance(task, dict):
-                continue
-            task_id = task.get("task_id")
-            if not task_id:
-                continue
-            self._tasks[task_id] = task
+            logger.info(f"Loaded {len(self.tasks)} task definitions")
+        except Exception as e:
+            logger.error(f"Failed to load task definitions: {e}")
+            self.tasks = {}
 
-    # ------------------------------------------------------------------- #
-    # Public API
-    # ------------------------------------------------------------------- #
-    def get_task(self, task_id: str) -> Dict[str, Any]:
+    def get_task(self, task_id: str) -> Optional[Dict[str, Any]]:
         """
-        Retrieve a task definition by its identifier.
+        Retrieve a task definition by ID.
 
-        Parameters
-        ----------
-        task_id: str
-            Identifier of the desired task.
+        Args:
+            task_id (str): The unique identifier of the task.
 
-        Returns
-        -------
-        dict
-            The task definition.
-
-        Raises
-        ------
-        ValueError
-            If the task identifier is unknown.
+        Returns:
+            Optional[Dict[str, Any]]: The task definition dictionary, or None if not found.
         """
-        task = self._tasks.get(task_id)
-        if task is None:
-            raise ValueError(f"Task '{task_id}' not found in {self.task_def_path}")
-        return task
+        if task_id not in self.tasks:
+            logger.warning(f"Task '{task_id}' not found in definitions")
+            return None
+        return self.tasks[task_id]
 
     def validate_task(self, task_id: str) -> bool:
         """
-        Perform a lightweight validation of a task definition.
+        Validate that a task definition is complete and well-formed.
 
-        The validation checks that all required top‑level fields are present.
-        It does **not** enforce the full JSON‑Schema contract – that is handled
-        elsewhere in the pipeline – but it is sufficient for the unit tests
-        and for early failure detection.
+        Checks for required fields: task_id, modalities, datasets, label_column.
 
-        Parameters
-        ----------
-        task_id: str
-            Identifier of the task to validate.
+        Args:
+            task_id (str): The unique identifier of the task.
 
-        Returns
-        -------
-        bool
-            ``True`` if the task passes validation, ``False`` otherwise.
+        Returns:
+            bool: True if the task is valid, False otherwise.
         """
-        try:
-            task = self.get_task(task_id)
-        except ValueError:
+        task = self.get_task(task_id)
+        if task is None:
             return False
 
-        missing = self._REQUIRED_FIELDS.difference(task.keys())
-        if missing:
-            LOGGER.warning(
-                "Task %s is missing required fields: %s", task_id, ", ".join(sorted(missing))
-            )
+        required_fields = ['task_id', 'modalities', 'datasets', 'label_column']
+        missing_fields = [field for field in required_fields if field not in task]
+
+        if missing_fields:
+            logger.warning(f"Task '{task_id}' missing required fields: {missing_fields}")
             return False
+
+        # Validate modalities is a list
+        if not isinstance(task.get('modalities'), list):
+            logger.warning(f"Task '{task_id}' modalities must be a list")
+            return False
+
+        # Validate datasets is a list
+        if not isinstance(task.get('datasets'), list):
+            logger.warning(f"Task '{task_id}' datasets must be a list")
+            return False
+
+        logger.info(f"Task '{task_id}' validation passed")
         return True
 
-    def run_task(self, task_id: str) -> Dict[str, Any]:
+    def run_task(self, task_id: str, **kwargs) -> Dict[str, Any]:
         """
-        Execute a task and return a result dictionary.
+        Execute a task.
 
-        The current implementation focuses on orchestrating the data flow
-        required by downstream components without performing heavy model
-        inference (which would be out of scope for this task).  It:
+        This is a placeholder for the actual task execution logic.
+        In a full implementation, this would:
+        1. Load the task definition
+        2. Validate inputs
+        3. Route to appropriate modality models
+        4. Execute inference
+        5. Compute metrics
+        6. Return results
 
-          1. Retrieves the task definition.
-          2. Validates the definition.
-          3. Returns a minimal result payload containing the task identifier,
-             a ``status`` flag, and the original definition for downstream
-             consumers.
+        Args:
+            task_id (str): The unique identifier of the task.
+            **kwargs: Additional arguments for task execution.
 
-        Parameters
-        ----------
-        task_id: str
-            Identifier of the task to run.
-
-        Returns
-        -------
-        dict
-            Result payload with keys ``task_id``, ``status``, and ``definition``.
+        Returns:
+            Dict[str, Any]: Execution results including status and metrics.
         """
+        task = self.get_task(task_id)
+        if task is None:
+            return {
+                'task_id': task_id,
+                'status': 'failed',
+                'error': 'Task not found',
+                'metrics': {}
+            }
+
         if not self.validate_task(task_id):
-            raise ValueError(f"Task '{task_id}' failed validation and cannot be run.")
+            return {
+                'task_id': task_id,
+                'status': 'failed',
+                'error': 'Task validation failed',
+                'metrics': {}
+            }
 
-        definition = self.get_task(task_id)
-
-        # In a full implementation this method would:
-        #   * Load modality configurations,
-        #   * Route inputs through the appropriate model wrappers,
-        #   * Collect predictions and performance metrics,
-        #   * Persist intermediate artifacts.
-        # For the purpose of this repository (and to keep the benchmark
-        # runnable within the execution limits) we return a stub result that
-        # downstream reporting utilities can consume.
+        # Placeholder execution logic - returns a structured response
+        # In production, this would call actual model inference
+        logger.info(f"Executing task '{task_id}'")
 
         result = {
-            "task_id": task_id,
-            "status": "completed",
-            "definition": definition,
+            'task_id': task_id,
+            'status': 'completed',
+            'config': self.config,
+            'task_definition': task,
+            'metrics': {
+                'execution_time': 0.0,  # Placeholder
+                'accuracy': None,       # To be computed by actual models
+                'f1_score': None,
+                'mape': None
+            }
         }
-        LOGGER.info("Task %s executed successfully.", task_id)
+
+        logger.info(f"Task '{task_id}' execution completed")
         return result
 
-    # ------------------------------------------------------------------- #
-    # Optional convenience entry point
-    # ------------------------------------------------------------------- #
-    @staticmethod
-    def main() -> None:
+    # Compatibility layer for logger-like usage (tolerant of arbitrary method calls)
+    def __getattr__(self, name: str) -> Any:
         """
-        Simple command‑line interface for manual testing.
+        Provide tolerant fallback for unknown attributes/methods.
 
-        Usage:
-            python -m src.tasks.task_runner --task-id T001
+        This ensures the TaskRunner can be used as a logger or utility
+        without raising AttributeError for unexpected method names.
+
+        Args:
+            name (str): The attribute name being accessed.
+
+        Returns:
+            Any: A no-op callable that returns None.
         """
-        import argparse
+        def _noop(*args, **kwargs):
+            return None
+        return _noop
 
-        parser = argparse.ArgumentParser(description="Run a benchmark task.")
-        parser.add_argument(
-            "--task-id",
-            required=True,
-            help="Identifier of the task to execute (must exist in task_definitions.yaml).",
-        )
-        parser.add_argument(
-            "--task-def-path",
-            default=None,
-            help="Optional path to a custom task definitions YAML file.",
-        )
-        args = parser.parse_args()
+def main():
+    """Main entry point for standalone testing of TaskRunner."""
+    import sys
+    import argparse
 
-        runner = TaskRunner(task_def_path=args.task_def_path)
-        result = runner.run_task(args.task_id)
-        print(json.dumps(result, indent=2))
+    parser = argparse.ArgumentParser(description='Task Runner CLI')
+    parser.add_argument('--task-id', type=str, help='Task ID to execute')
+    parser.add_argument('--config', type=str, help='Path to config file')
+    args = parser.parse_args()
 
-if __name__ == "__main__":
-    TaskRunner.main()
+    runner = TaskRunner()
+
+    if args.task_id:
+        logger.info(f"Testing task: {args.task_id}")
+        task = runner.get_task(args.task_id)
+        if task:
+            logger.info(f"Task found: {task}")
+            valid = runner.validate_task(args.task_id)
+            logger.info(f"Validation: {valid}")
+            result = runner.run_task(args.task_id)
+            logger.info(f"Result: {json.dumps(result, indent=2)}")
+        else:
+            logger.error(f"Task '{args.task_id}' not found")
+    else:
+        logger.info("Available tasks:")
+        for tid in runner.tasks.keys():
+            logger.info(f"  - {tid}")
+
+if __name__ == '__main__':
+    main()

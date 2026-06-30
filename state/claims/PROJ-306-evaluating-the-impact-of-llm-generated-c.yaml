@@ -1,0 +1,229 @@
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: bigcode/starcoderbase-3b requires 4-bit quantization via bitsandbytes
+    with device_map cpu
+  claim_id: c_90b123a8
+  context: 'Implement code/llm_generator.py with logic to call LLM API (or local CPU
+    inference for fallback models) and save generated code to generated/{task_id}.py.
+    **Constraint**: For the fallback model (bigcode/starcoderbase-3b), MUST use 4-bit
+    quantization via bitsandbytes with device_map="cpu".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the fallback model (bigcode/starcoderbase-3b), MUST use 4-bit quantization
+    via bitsandbytes with device_map="cpu".
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:37:57Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: HumanEval tasks with branch_coverage N/A excluded from mean branch-coverage
+    gap calculation
+  claim_id: c_d8a28863
+  context: 'Implement logic to calculate and report mean branch-coverage gaps for
+    specific difficulty tiers (e.g., "hard") in stratified_summary.csv. **Deliverable**:
+    Add a function to code/visualizer.py that filters coverage_pairs.csv for difficulty="hard"
+    AND branch_coverage != "N/A", calculates mean(branch_coverage_gap), and appends
+    the result as a row in outputs/stratified_summary.csv with columns: [pattern,
+    difficulty, mean_gap, count]. **Constraint**: Explicitly exclude tasks where branch_coverage
+    == "N/A" (HumanEval) from this calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_tasks_with_branch_coverage_N/A_excluded_from_mean
+  kind: entity_fact
+  raw_text: Explicitly exclude tasks where branch_coverage == "N/A" (HumanEval) from
+    this calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:38:27Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: HumanEval tasks filtered out from branch coverage mean calculations
+  claim_id: c_f1ac27ac
+  context: 'HumanEval Branch Coverage: Tasks calculating branch coverage means MUST
+    filter out HumanEval tasks (branch_coverage == N/A).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_tasks_filtered_out_from_branch_coverage_mean_calcu
+  kind: entity_fact
+  raw_text: Tasks calculating branch coverage means MUST filter out HumanEval tasks
+    (branch_coverage == N/A).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:38:49Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: pipeline processes 100 tasks within 6 hours on CPU
+  claim_id: c_7c70e9c8
+  context: "Phase N: Polish & Cross-Cutting Concerns - Performance optimization: Verify\
+    \ pipeline can process \u2265100 tasks within 6 hours on CPU-only runner (SC-005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline can process \u2265100 tasks within 6 hours on a CPU-only\
+    \ runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:55:30Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: HumanEval branch coverage is N/A
+  claim_id: c_ae911758
+  context: 'Phase 2: Foundational - Validation: For HumanEval tasks... explicitly
+    validate and log branch_coverage as N/A... Phase 4: User Story 3 - Constraint:
+    Explicitly exclude tasks where branch_coverage == N/A (HumanEval) from this calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_branch_coverage_is_N/A
+  kind: entity_fact
+  raw_text: HumanEval tasks have branch coverage reported as N/A.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:55:47Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: bigcode/starcoderbase-3b uses 4-bit quantization via bitsandbytes
+  claim_id: c_d1590ad1
+  context: 'Phase 2: Foundational - Implement code/llm_generator.py... Constraint:
+    For the fallback model (bigcode/starcoderbase-3b), MUST use 4-bit quantization
+    via bitsandbytes with device_map="cpu".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback model bigcode/starcoderbase-3b uses 4-bit quantization via
+    bitsandbytes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:56:02Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 0.01 0.05 0.10 0.15 0.20 0.25
+  claim_id: c_b493123e
+  context: 'Phase 3: User Story 2 - Implement sensitivity analysis (FR-011) across
+    thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} and output data/processed/sensitivity_report.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis is conducted across thresholds 0.01, 0.05, 0.10,
+    0.15, 0.20, and 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:56:30Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: statistical summary includes mean difference p-value Cohen's d test type
+  claim_id: c_045adfc6
+  context: 'Phase 3: User Story 2 - Implement statistical summary generation (FR-005)
+    to output data/processed/stats_summary.csv with mean difference, p-value, Cohen''s
+    d, and test type.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_summary_includes_mean_difference_p-value_Cohen%27s
+  kind: entity_fact
+  raw_text: Statistical summary output includes mean difference, p-value, Cohen's
+    d, and test type.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:58:29Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: MBPP ingested via datasets.load_dataset mbpp
+  claim_id: c_b10511dc
+  context: 'Phase 2: Foundational - Implement code/dataset_loader.py to ingest MBPP
+    via datasets.load_dataset("mbpp") and save raw canonical files unchanged to data/benchmarks/raw/mbpp/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MBPP_ingested_via_datasets.load_dataset_mbpp
+  kind: entity_fact
+  raw_text: The dataset MBPP is ingested via datasets.load_dataset("mbpp").
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:58:46Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: HumanEval ingested via datasets.load_dataset google-research-datasets/human_eval
+  claim_id: c_dfcd803e
+  context: 'Phase 2: Foundational - Extend code/dataset_loader.py to ingest HumanEval
+    via datasets.load_dataset("google-research-datasets/human_eval") and save raw
+    canonical files unchanged to data/benchmarks/raw/humaneval/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_ingested_via_datasets.load_dataset_google-research
+  kind: entity_fact
+  raw_text: The dataset HumanEval is ingested via datasets.load_dataset("google-research-datasets/human_eval").
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:59:06Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: fallback model bigcode/starcoderbase-3b uses 4-bit quantization via bitsandbytes
+    on CPU
+  claim_id: c_7f94d5c0
+  context: 'Phase 2: Foundational - Task T009 implementation details and constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the fallback model (bigcode/starcoderbase-3b), MUST use 4-bit quantization
+    via bitsandbytes with device_map="cpu".
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T14:05:49Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: HumanEval tasks excluded from mean branch-coverage gap calculation due
+    to N/A values
+  claim_id: c_6e961983
+  context: 'Phase 4: User Story 3 - Task T044 deliverable and constraint regarding
+    HumanEval branch coverage.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_tasks_excluded_from_mean_branch-coverage_gap_calcu
+  kind: entity_fact
+  raw_text: Explicitly exclude tasks where branch_coverage == "N/A" (HumanEval) from
+    the mean branch-coverage gap calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T14:06:17Z'

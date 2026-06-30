@@ -1,0 +1,80 @@
+artifact_links:
+- projects/PROJ-652-https-arxiv-org-abs-2606-00408/specs/001-https-arxiv-org-abs-2606-00408/tasks.md
+- specs/*/tasks.md
+reason: 5 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst
+  unresolved severity = 'requirement'. Routing to 'clarified' with full provenance
+  so the next worker can address the root cause.
+stage: tasks
+to_stage: clarified
+unresolved_concerns:
+- artifact: projects/PROJ-652-https-arxiv-org-abs-2606-00408/specs/001-https-arxiv-org-abs-2606-00408/tasks.md
+  id: coverage-ea17c0f3
+  location: 'tasks.md:Phase 4
+
+    '
+  reviewer: coverage
+  round: 1
+  severity: writing
+  text: 'T022 states: ''Add logic to explicitly mark "Collapse Regime" as "Inconclusive"''.
+    This task references a regime (Collapse) that the implementation cannot test.
+    The task description should be refined to ''Add logic to document the inability
+    to validate the Collapse Regime due to compute constraints'' to align with the
+    plan''s scope boundary.'
+- artifact: projects/PROJ-652-https-arxiv-org-abs-2606-00408/specs/001-https-arxiv-org-abs-2606-00408/tasks.md
+  id: ordering-588bac3e
+  location: tasks.md:Phase 4
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: T020 [US2] implements `regime_analyzer.py` (basic) to aggregate results, but
+    T024 [US3] implements the 'full logic' for the same file. T020 depends on T018/T019
+    (Masking/Baseline runs) to generate data. T024 depends on T020's output? Or is
+    T020 a stub? The dependency chain is unclear. If T020 produces the `RegimeDataPoint`
+    objects, T024 should consume them. However, T024 is in Phase 3 (US3) and T020
+    in Phase 4 (US2). The text says 'US3 depends on US2', so T024 should come after
+    T020. The phase numbering (Phase 4 for US2, Phase 5 for US3) is correct, but the
+    task descriptions imply T020 is 'basic' and T024 is 'full', suggesting T024 might
+    be a refactor of T020 rather than a consumer. This risks a 'Consumer before Producer'
+    violation if T024 expects a schema from T020 that isn't finalized until T024 runs.
+- artifact: projects/PROJ-652-https-arxiv-org-abs-2606-00408/specs/001-https-arxiv-org-abs-2606-00408/tasks.md
+  id: ordering-38812796
+  location: tasks.md:Phase 2
+  reviewer: ordering
+  round: 1
+  severity: writing
+  text: T005 [P] is tagged as parallel-safe, but it implements 'Observation masking
+    logic'. If T005 is the core logic, it must be complete before T012 (Baseline)
+    can run with masking. T012 is in Phase 3. T005 is in Phase 2. This is correct.
+    However, T019 [US2] also implements masking logic. If T005 is the 'logic' and
+    T019 is the 'toggle', the dependency is clear. But if T019 is the 'logic', then
+    T005 is a placeholder. The ambiguity makes the parallel safety of T005 questionable
+    if it relies on T019's specific implementation details not yet defined.
+- artifact: projects/PROJ-652-https-arxiv-org-abs-2606-00408/specs/001-https-arxiv-org-abs-2606-00408/tasks.md
+  id: executability-f795f850
+  location: tasks.md:Phase 3
+  reviewer: executability
+  round: 1
+  severity: writing
+  text: 'T016 ''Implement Insufficient Sample Size flag'' is too fine-grained for
+    a standalone task if it''s just a conditional check in the main loop. However,
+    if it implies a separate validation step, it needs a specific output artifact.
+    Currently, it''s a logic fragment. Merge into T012 or T028, or specify: ''Add
+    metadata field ''sample_size_warning'' to data/artifacts/baseline_run.json if
+    sample-size < 5''.'
+- artifact: projects/PROJ-652-https-arxiv-org-abs-2606-00408/specs/001-https-arxiv-org-abs-2606-00408/tasks.md
+  id: constraint_preservation-c95f2240
+  location: tasks.md:Phase 4, T020
+  reviewer: constraint_preservation
+  round: 1
+  severity: requirement
+  text: T020 implements a 'basic' regime_analyzer to aggregate results into RegimeDataPoint
+    objects. SC-001 requires verifying a 'non-monotonic trend' (inverted-U). The plan
+    explicitly states that with only two models (TinyLlama, Phi-2), a non-monotonic
+    trend is empirically impossible to verify (requires 3+ points). T020 does not
+    include logic to handle this impossibility or to explicitly flag the 'non-monotonic'
+    check as 'Skipped/Inconclusive' in the output. This creates a semantic gap where
+    the task attempts to implement a validation (trend verification) that the plan
+    admits is impossible, potentially leading to a false positive or a crash if the
+    code expects 3+ points. The task must be updated to explicitly handle the 'insufficient
+    data points for trend verification' case.
+worst_severity: requirement

@@ -1,0 +1,218 @@
+resolved_at: '2026-06-30T13:02:34.967042+00:00'
+datasets:
+- intent: JSON
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2769
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67109a6b07325c4b0ae03fc7/74c38f03d64fdd1b8116283c3b061c9a44f47759cb058c2a932978d37887b257?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27industrial_design.json%3B+filename%3D%22industrial_design.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1782827524&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcxMDlhNmIwNzMyNWM0YjBhZTAzZmM3Lzc0YzM4ZjAzZDY0ZmRkMWI4MTE2MjgzYzNiMDYxYzlhNDRmNDc3NTljYjA1OGMyYTkzMjk3OGQzNzg4N2IyNTdcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3aW5kdXN0cmlhbF9kZXNpZ24uanNvbiUzQitmaWxlbmFtZSUzRCUyMmluZHVzdHJpYWxfZGVzaWduLmpzb24lMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODI3NTI0fX19XX0_&Signature=MEQCICraerYnxk-0YbdoIQSoMZ67K-7ltRVaCJ6nfJOOQ-9wAiAnkPYnoGNT3rN1TjjphR-kJW3GR~KupxNh7ZNZuB4wVQ__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/cagliostrolab/1.2m-ordered-tags-json/resolve/main/data/data.json
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682/3162f569ba2d639018f912b3f7692823d3b1148a/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101/3b0d72d19fba40c0727b4c079aa3bda0fec7df73/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/journal_contribution/The_Im_possibility_of_Autonomous_Feminist_Infrastructures/32825387
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Effect_of_processing_steps_on_pesticide_residue_reduction_in_bulgur_wheat_and_rice/32836029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Dataset_for_Short-Range_Laser_Communication_in_Turbid_Liquid_Channels/32835896
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/conference_contribution/On_exact_bit-level_reversible_transformers_without_changing_architecture/30859907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Work/32835929
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21068684
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/21068684
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aisberg.unibg.it//handle/10446/128134
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard/resolve/main/BFCL_v3_chatable.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 24980
+      parsed: true
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard/resolve/main/BFCL_v3_chatable.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/llm-jp/AnswerCarefully/resolve/main/borderline-v1.0/dev-00000-of-00001.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/Necent/llm-jailbreak-prompt-injection-dataset/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Two-photon_dual-comb_LiDAR_imaging_-_7920718_pdf/32508216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/media/New_visualization_mp4/32044428
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_i_Adirova_Zebo_i_b_b_i_U_i_b_b_z_b_b_i_bekistan_Ferghana_Public_school_6_i_b_b_i_Abduraximov_Jamshidbek_i_b_b_i_U_i_b_b_z_b_b_i_bekistan_Almalyk_Public_school_16_i_b_/32836034
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/journal_contribution/The_Im_possibility_of_Autonomous_Feminist_Infrastructures/32825387
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Effect_of_processing_steps_on_pesticide_residue_reduction_in_bulgur_wheat_and_rice/32836029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6447108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.10899290
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: SQL
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SELECT
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FROM
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: WHERE
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: LC-QuAD
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SPARQL
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: PREFIX
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: BEIR
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: IDs
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: GPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-006
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: MUST
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: APIs
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []

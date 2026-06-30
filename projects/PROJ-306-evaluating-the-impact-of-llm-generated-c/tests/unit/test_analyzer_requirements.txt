@@ -1,0 +1,6 @@
+# Test dependencies for analyzer unit tests
+pytest>=7.0.0
+numpy>=1.20.0
+scipy>=1.7.0
+# Note: These are already in the main requirements.txt but listed here for clarity
+# in case this test file is run in isolation.

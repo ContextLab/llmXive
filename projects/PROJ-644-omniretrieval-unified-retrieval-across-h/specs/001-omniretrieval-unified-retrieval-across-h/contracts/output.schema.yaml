@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OmniRetrieval Output Schema"
+description: "Schema for validating the results.json output file."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of the run."
+  total_queries:
+    type: "integer"
+    minimum: 0
+    description: "Total number of queries processed."
+  successful_queries:
+    type: "integer"
+    minimum: 0
+    description: "Number of successful queries."
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        query_id:
+          type: "string"
+          description: "ID of the processed query."
+        source_type:
+          type: "string"
+          enum:
+            - "TEXT"
+            - "SQL"
+            - "SPARQL"
+          description: "Type of source."
+        engine:
+          type: "string"
+          description: "Name of the engine used (e.g., 'duckdb', 'rdflib')."
+        answer:
+          type: "string"
+          nullable: true
+          description: "The retrieved or generated answer."
+        latency_ms:
+          type: "number"
+          minimum: 0
+          description: "Execution time in milliseconds."
+        status:
+          type: "string"
+          enum:
+            - "SUCCESS"
+            - "SKIPPED"
+            - "ERROR"
+          description: "Status of the execution."
+        error_message:
+          type: "string"
+          nullable: true
+          description: "Error message if status is ERROR."
+        validation_status:
+          type: "string"
+          enum:
+            - "PASS"
+            - "FAIL"
+            - "N/A"
+          description: "Result of the syntax validation check (FR-004)."
+        syntax_error_details:
+          type: "string"
+          nullable: true
+          description: "Details of the syntax error if validation_status is FAIL."
+      required:
+        - query_id
+        - source_type
+        - engine
+        - answer
+        - latency_ms
+        - status
+        - validation_status
+required:
+  - run_id
+  - timestamp
+  - total_queries
+  - successful_queries
+  - results

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T10:41:01.052345Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-306-evaluating-the-impact-of-llm-generated-c
-last_run_id: fdfd9e61-cfdb-42e9-936f-be11a91d9d1f
+last_run_id: 82abcac0-d409-4903-9fb6-92b40699af88
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c
 title: Evaluating the Impact of LLM-Generated Code on Code Coverage
-updated_at: '2026-06-30T12:30:35.516695Z'
+updated_at: '2026-06-30T13:27:13.894521Z'
