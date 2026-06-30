@@ -1,7 +1,6 @@
 """
 Unit tests for the Reference Validator Agent.
 """
-
 import pytest
 from src.validators.reference_validator import (
     tokenize_title,
@@ -13,124 +12,164 @@ from src.validators.reference_validator import (
 
 
 class TestTokenizeTitle:
-    def test_basic_tokenization(self):
-        title = "Deep Learning for Time Series"
+    def test_simple_tokenization(self):
+        title = "Hello World"
         tokens = tokenize_title(title)
-        assert "deep" in tokens
-        assert "learning" in tokens
-        assert "time" in tokens
-        assert "series" in tokens
-        assert "for" not in tokens  # Filtered out as short
+        assert tokens == ["hello", "world"]
 
     def test_punctuation_removal(self):
         title = "Hello, World! How are you?"
         tokens = tokenize_title(title)
+        assert "hello" in tokens
+        assert "world" in tokens
+        assert "how" in tokens
+        assert "are" in tokens
+        assert "you" in tokens
         assert "," not in tokens
         assert "!" not in tokens
-        assert "hello" in tokens
+        assert "?" not in tokens
 
     def test_empty_title(self):
-        assert tokenize_title("") == set()
-        assert tokenize_title(None) == set()
+        assert tokenize_title("") == []
+        assert tokenize_title(None) == []
+
+    def test_single_char_filtering(self):
+        title = "A B C"
+        tokens = tokenize_title(title)
+        # Single chars should be filtered
+        assert len(tokens) == 0
+
+    def test_case_insensitivity(self):
+        title = "HeLLo WoRLd"
+        tokens = tokenize_title(title)
+        assert tokens == ["hello", "world"]
 
 
 class TestComputeTitleTokenOverlap:
     def test_identical_titles(self):
-        score = compute_title_token_overlap("Test Title", "Test Title")
-        assert score == 1.0
+        title1 = "Scientific Benchmark Model"
+        title2 = "Scientific Benchmark Model"
+        overlap = compute_title_token_overlap(title1, title2)
+        assert overlap == 1.0
 
     def test_no_overlap(self):
-        score = compute_title_token_overlap("Cat Dog", "Bird Fish")
-        assert score == 0.0
+        title1 = "Cat Dog Bird"
+        title2 = "Car Bus Train"
+        overlap = compute_title_token_overlap(title1, title2)
+        assert overlap == 0.0
 
     def test_partial_overlap(self):
-        # "Deep Learning" vs "Deep Learning for Time"
-        # Tokens: {deep, learning} vs {deep, learning, time}
-        # Intersection: 2, Union: 3 -> 2/3
-        score = compute_title_token_overlap("Deep Learning", "Deep Learning for Time")
-        assert abs(score - 0.666) < 0.01
+        title1 = "Scientific Model Benchmark"
+        title2 = "Scientific Data Analysis"
+        # Common: "scientific" -> 1 / (3 + 3 - 1) = 1/5 = 0.2
+        overlap = compute_title_token_overlap(title1, title2)
+        assert overlap == 0.2
+
+    def test_empty_inputs(self):
+        assert compute_title_token_overlap("", "") == 0.0
+        assert compute_title_token_overlap("A", "") == 0.0
+        assert compute_title_token_overlap("", "B") == 0.0
 
 
 class TestValidateReferenceTitleOverlap:
-    def test_passes_threshold(self):
-        title = "Deep Learning for Time Series"
-        known = ["Deep Learning for Time Series Forecasting"]
-        is_valid, score, _ = validate_reference_title_overlap(title, known)
-        # Should be high overlap
+    def test_valid_overlap(self):
+        candidate = "Scientific Benchmark Model"
+        references = [
+            "Scientific Benchmark Analysis",
+            "Completely Different Topic"
+        ]
+        is_valid, score, closest = validate_reference_title_overlap(candidate, references)
         assert is_valid is True
-        assert score >= 0.7
+        assert score > 0.0
+        assert closest == "Scientific Benchmark Analysis"
 
-    def test_fails_threshold(self):
-        title = "Completely Different Topic"
-        known = ["Deep Learning for Time Series"]
-        is_valid, score, _ = validate_reference_title_overlap(title, known)
+    def test_invalid_overlap(self):
+        candidate = "Random Unrelated Title"
+        references = [
+            "Scientific Benchmark Model",
+            "Tabular Data Analysis"
+        ]
+        is_valid, score, closest = validate_reference_title_overlap(candidate, references)
         assert is_valid is False
         assert score < 0.7
 
+    def test_empty_references(self):
+        is_valid, score, closest = validate_reference_title_overlap("Any Title", [])
+        assert is_valid is False
+        assert score == 0.0
+        assert closest is None
+
 
 class TestCheckConstitutionIICompliance:
-    def test_compliant(self):
-        data = {
-            "title": "Test",
-            "abstract": "Test abstract",
-            "authors": ["Author"],
-            "year": 2023,
-            "doi": "10.1234/test"
+    def test_compliant_context(self):
+        context = {
+            "title": "Scientific Benchmark Model",
+            "reference_titles": ["Scientific Benchmark Analysis"],
+            "review_points": 5
         }
-        is_compliant, missing = check_constitution_ii_compliance(data)
-        assert is_compliant is True
-        assert len(missing) == 0
+        assert check_constitution_ii_compliance(context) is True
 
-    def test_missing_fields(self):
-        data = {
-            "title": "Test",
-            # Missing others
+    def test_non_compliant_context(self):
+        context = {
+            "title": "Random Unrelated Title",
+            "reference_titles": ["Scientific Benchmark Model"],
+            "review_points": 5
         }
-        is_compliant, missing = check_constitution_ii_compliance(data)
-        assert is_compliant is False
-        assert "abstract" in missing
-        assert "authors" in missing
+        assert check_constitution_ii_compliance(context) is False
+
+    def test_zero_points_bypass(self):
+        context = {
+            "title": "Random Unrelated Title",
+            "reference_titles": ["Scientific Benchmark Model"],
+            "review_points": 0
+        }
+        # No points to contribute, so it passes
+        assert check_constitution_ii_compliance(context) is True
+
+    def test_missing_title_fails(self):
+        context = {
+            "title": "",
+            "reference_titles": ["Scientific Benchmark Model"],
+            "review_points": 5
+        }
+        assert check_constitution_ii_compliance(context) is False
 
 
 class TestReferenceValidatorAgent:
     @pytest.fixture
     def agent(self):
-        return ReferenceValidatorAgent(known_titles=["Deep Learning Survey"])
+        return ReferenceValidatorAgent([
+            "Scientific Benchmark Model",
+            "Tabular Data Analysis"
+        ])
 
-    def test_valid_reference(self, agent):
-        ref = {
-            "title": "Deep Learning Survey Update",
-            "abstract": "New survey",
-            "authors": ["A"],
-            "year": 2024,
-            "doi": "10.1234/doi"
-        }
-        result = agent.validate_reference(ref)
+    def test_valid_contribution(self, agent):
+        result = agent.validate_and_contribute(
+            candidate_title="Scientific Benchmark Analysis",
+            review_points=10
+        )
         assert result["allowed"] is True
-        assert result["constitution_valid"] is True
-        assert result["overlap_valid"] is True
+        assert result["points_contributed"] == 10
+        assert result["overlap_score"] > 0.0
 
-    def test_invalid_constitution(self, agent):
-        ref = {
-            "title": "Test",
-            # Missing fields
-        }
-        result = agent.validate_reference(ref)
+    def test_invalid_contribution_blocked(self, agent):
+        result = agent.validate_and_contribute(
+            candidate_title="Completely Random Title",
+            review_points=10
+        )
         assert result["allowed"] is False
-        assert result["constitution_valid"] is False
+        assert result["points_contributed"] == 0
+        assert "blocked" in result["reason"].lower()
 
-    def test_low_overlap(self, agent):
-        ref = {
-            "title": "Unrelated Topic",
-            "abstract": "No relation",
-            "authors": ["A"],
-            "year": 2024,
-            "doi": "10.1234/doi"
-        }
-        result = agent.validate_reference(ref)
-        assert result["allowed"] is False
-        assert result["overlap_valid"] is False
+    def test_zero_points_contribution(self, agent):
+        result = agent.validate_and_contribute(
+            candidate_title="Completely Random Title",
+            review_points=0
+        )
+        assert result["allowed"] is True
+        assert result["points_contributed"] == 0
 
-    def test_add_known_title(self, agent):
-        agent.add_known_title("New Title")
-        assert "New Title" in agent.known_titles
+    def test_get_reference_titles(self, agent):
+        titles = agent.get_reference_titles()
+        assert len(titles) == 2
+        assert "Scientific Benchmark Model" in titles

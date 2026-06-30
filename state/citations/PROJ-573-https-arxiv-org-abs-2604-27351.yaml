@@ -86,7 +86,52 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/MUST/datasets
   verified_at: '2026-06-30T22:03:33.335549Z'
-- artifact_hash: a2b6defcb5af16086a97cf801fdc74530a36283ea59e93f529053d0d1d3a6673
+- artifact_hash: 3edc380152d0acc07c824fbe18f37fe062fb1a6f9f14fc7eb163a08416b3547b
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/UCI_HAR
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/UCI_HAR/datasets
+  verified_at: '2026-06-30T22:36:32.776403Z'
+- artifact_hash: 3edc380152d0acc07c824fbe18f37fe062fb1a6f9f14fc7eb163a08416b3547b
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Uci (Ucibuci)
+  kind: url
+  value: https://huggingface.co/datasets/uci
+  verification_status: verified
+  verified_against_url: https://huggingface.co/Uci/datasets
+  verified_at: '2026-06-30T22:36:32.776403Z'
+- artifact_hash: 3edc380152d0acc07c824fbe18f37fe062fb1a6f9f14fc7eb163a08416b3547b
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: drop (droppy)
+  kind: url
+  value: https://huggingface.co/datasets/drop
+  verification_status: verified
+  verified_against_url: https://huggingface.co/drop/datasets
+  verified_at: '2026-06-30T22:36:32.776403Z'
+- artifact_hash: 3edc380152d0acc07c824fbe18f37fe062fb1a6f9f14fc7eb163a08416b3547b
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1311.5354] Another Argument in Favour of Wilcoxon&#39;s Signed
+    Rank Test'
+  kind: url
+  value: https://arxiv.org/abs/1311.5354
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/1311.5354
+  verified_at: '2026-06-30T22:36:32.776403Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -97,8 +142,8 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-06-30T23:45:39.418843Z'
-- artifact_hash: a2b6defcb5af16086a97cf801fdc74530a36283ea59e93f529053d0d1d3a6673
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -108,8 +153,8 @@
   value: https://arxiv.org/abs/1809.01635
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1809.01635
-  verified_at: '2026-06-30T23:45:39.418843Z'
-- artifact_hash: a2b6defcb5af16086a97cf801fdc74530a36283ea59e93f529053d0d1d3a6673
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -119,8 +164,8 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-06-30T23:45:39.418843Z'
-- artifact_hash: a2b6defcb5af16086a97cf801fdc74530a36283ea59e93f529053d0d1d3a6673
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -131,8 +176,8 @@
   value: https://arxiv.org/abs/1710.08708
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1710.08708
-  verified_at: '2026-06-30T23:45:39.418843Z'
-- artifact_hash: a2b6defcb5af16086a97cf801fdc74530a36283ea59e93f529053d0d1d3a6673
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -142,16 +187,26 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-06-30T23:45:39.418843Z'
-- artifact_hash: a2b6defcb5af16086a97cf801fdc74530a36283ea59e93f529053d0d1d3a6673
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-006
   cited_authors: []
   cited_title: null
-  fetched_title: GPU Cuda JSEG Segmentation Algorithm associated with Deep Learning
-    Classifier for Electrical Network Images Identification - Wikidata
+  fetched_title: SHA-2 - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/SHA-2
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/SHA-2
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  cite_id: c-007
+  cited_authors: []
+  cited_title: null
+  fetched_title: Hutter Prize - Wikipedia
   kind: url
   value: https://www.wikidata.org/wiki/Q129317410
   verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q129317410
-  verified_at: '2026-06-30T23:45:39.418843Z'
+  verified_against_url: https://en.wikipedia.org/wiki/Hutter_Prize
+  verified_at: '2026-06-30T23:53:57.119695Z'

@@ -1,0 +1,20 @@
+[
+  {
+    "model_name": "TabPFN",
+    "hf_id": "tabpfn/tabpfn-v2-400k",
+    "size_mb": 1120.5,
+    "cpu_tractable": false
+  },
+  {
+    "model_name": "Distilled LLM",
+    "hf_id": "distilbert-base-uncased",
+    "size_mb": 267.9,
+    "cpu_tractable": true
+  },
+  {
+    "model_name": "TimeSeries-Transformer",
+    "hf_id": "google/t5-small",
+    "size_mb": 240.3,
+    "cpu_tractable": true
+  }
+]
