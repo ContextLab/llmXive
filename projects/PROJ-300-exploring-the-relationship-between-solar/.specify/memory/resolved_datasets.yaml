@@ -1,0 +1,208 @@
+resolved_at: '2026-06-30T03:53:23.333008+00:00'
+datasets:
+- intent: THEMIS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/project-themis/git-commits/resolve/main/Assembly/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 68747
+      parsed: true
+  - url: https://huggingface.co/datasets/cassandra-themis/QR-AN/resolve/main/qran_answer/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/project-themis/git-commits-merged/resolve/main/Assembly/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/project-themis/git-commits/resolve/main/Assembly/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/cassandra-themis/QR-AN/resolve/main/qran_answer/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/project-themis/git-commits-merged/resolve/main/Assembly/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/konstantgr/themisto/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/QQHE_Black_soils_field_experiment/32831402
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_Aplikasi_DANA_Menggunakan_Model/32831381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/ChemInform_Abstract_Structure_Inducing_Ionic_Liquids-Enhancement_of_Alpha_Helicity_in_the_Abeta_1-40_Peptide_from_Alzheimer_s_Disease/32831432
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Bone_mineral_density_and_sedentary_ageing_a_cross-sectional_analysis/32831429
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/ChemInform_Abstract_Domino_Heck-Aza-Michael_Reactions_Efficient_Access_to_1-Substituted_Tetrahydro-_-carbolines_/32831420
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13329123
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17203865
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/article/3919/element/2/14/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4902383
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18594248
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://search.vivli.org/doiLanding/dataRequests/PR00012868
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20997269
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20997269
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://disscover.dissco.eu/ds/10.3535/HVP-KFL-GWB
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18473804
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EFI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CyberHarem/efi_fireemblem/resolve/main/meta.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 3891
+      parsed: true
+  - url: https://huggingface.co/datasets/Efimov6886/autotrain-data-test_row2/resolve/main/processed/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 30
+      parsed: true
+  - url: https://huggingface.co/datasets/Arodrigo/dataset_eficiente_llamadas01/resolve/main/metadata.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 9910
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Efimov6886/autotrain-data-test_row2/resolve/main/processed/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/CyberHarem/efi_fireemblem/resolve/main/meta.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Arodrigo/dataset_eficiente_llamadas01/resolve/main/metadata.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Arodrigo/dataset_eficiente_llamadas02/resolve/main/metadata.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/efiop/stalker-dataset/resolve/main/requirements.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/ChemInform_Abstract_Rapid_Formation_of_Diphenylmethyl_Ethers_and_Thioethers_Using_Microwave_Irradiation_and_Protic_Ionic_Liquids_/32831435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/QQHE_Black_soils_field_experiment/32831402
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_Aplikasi_DANA_Menggunakan_Model/32831381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/ChemInform_Abstract_Structure_Inducing_Ionic_Liquids-Enhancement_of_Alpha_Helicity_in_the_Abeta_1-40_Peptide_from_Alzheimer_s_Disease/32831432
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Bone_mineral_density_and_sedentary_ageing_a_cross-sectional_analysis/32831429
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7433135
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5160131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4120625
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4677508
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8337839
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mdsoar.org/handle/11603/43293
+    source: datacite
+    status: wrong_format
+    reason: HTTP 400
+  - url: https://zenodo.org/records/20835923
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20835923
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/15343
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/25872
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
