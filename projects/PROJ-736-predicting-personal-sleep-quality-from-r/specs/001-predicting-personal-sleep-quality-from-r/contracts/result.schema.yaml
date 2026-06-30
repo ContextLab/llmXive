@@ -1,0 +1,91 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ResultReport"
+description: "Schema for the final experiment results and metrics."
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: "Content hash of code and data for reproducibility."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of completion."
+  metrics:
+    type: object
+    properties:
+      pearson_r:
+        type: number
+        description: "Aggregated out-of-sample Pearson correlation."
+      r2:
+        type: number
+        description: "Aggregated out-of-sample R-squared."
+      n_subjects:
+        type: integer
+        description: "Number of subjects included in the final model."
+      hyperparameters:
+        type: object
+        properties:
+          alpha:
+            type: number
+          l1_ratio:
+            type: number
+        required:
+          - alpha
+          - l1_ratio
+    required:
+      - pearson_r
+      - r2
+      - n_subjects
+      - hyperparameters
+  permutation_test:
+    type: object
+    properties:
+      n_permutations:
+        type: integer
+      p_value:
+        type: number
+        description: "Family-wise error corrected p-value."
+      null_distribution_path:
+        type: string
+        description: "Path to saved null distribution if requested."
+    required:
+      - n_permutations
+      - p_value
+  bootstrap:
+    type: object
+    properties:
+      n_resamples:
+        type: integer
+      ci_95:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+        description: "95% Confidence Interval [lower, upper] for R2."
+    required:
+      - n_resamples
+      - ci_95
+  visualization:
+    type: object
+    properties:
+      top_n_edges:
+        type: integer
+      plot_path:
+        type: string
+        description: "Path to the generated brain surface plot."
+    required:
+      - top_n_edges
+      - plot_path
+  logs_path:
+    type: string
+    description: "Path to the structured JSON log file."
+required:
+  - experiment_id
+  - timestamp
+  - metrics
+  - permutation_test
+  - bootstrap
+  - visualization
+  - logs_path
+additionalProperties: false

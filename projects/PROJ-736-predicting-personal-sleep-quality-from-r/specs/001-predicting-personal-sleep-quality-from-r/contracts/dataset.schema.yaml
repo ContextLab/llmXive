@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ConnectivityVector"
+description: "Schema for a single subject's connectivity vector and metadata."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "HCP subject identifier."
+  sleep_score:
+    type: number
+    description: "Composite sleep score derived from behavioral data."
+  motion_fd:
+    type: number
+    description: "Mean Framewise Displacement."
+  vector_path:
+    type: string
+    description: "Relative path to the .npy file containing the Fisher-z transformed vector."
+  dimensionality:
+    type: integer
+    description: "Number of features in the vector (post-variance threshold)."
+  status:
+    type: string
+    enum:
+      - "valid"
+      - "excluded_motion"
+      - "excluded_missing_sleep"
+    description: "Processing status of the subject."
+required:
+  - subject_id
+  - sleep_score
+  - motion_fd
+  - vector_path
+  - dimensionality
+  - status
+additionalProperties: false
