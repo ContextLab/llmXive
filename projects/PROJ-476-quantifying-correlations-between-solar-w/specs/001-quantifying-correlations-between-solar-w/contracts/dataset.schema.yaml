@@ -1,0 +1,41 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Synchronized Solar Wind and Geomagnetic Dataset
+description: "Schema for the aligned hourly dataset used in correlation analysis."
+type: object
+properties:
+  timestamp:
+    type: string
+    format: date-time
+    description: "UTC timestamp of the observation."
+  proton_density:
+    type: number
+    description: "Proton number density (cm⁻³)."
+    minimum: 0
+  temperature:
+    type: number
+    description: "Proton temperature (K)."
+    minimum: 0
+  helium_abundance:
+    type: number
+    description: "Helium abundance ratio (dimensionless or %)."
+    minimum: 0
+  kp_index:
+    type: number
+    description: "Planetary K index (0-9)."
+    minimum: 0
+    maximum: 9
+  dst_index:
+    type: number
+    description: "Disturbance Storm Time index (nT)."
+  interpolated:
+    type: boolean
+    description: "True if any value was filled by linear interpolation."
+required:
+  - timestamp
+  - proton_density
+  - temperature
+  - helium_abundance
+  - kp_index
+  - dst_index
+  - interpolated
+additionalProperties: false

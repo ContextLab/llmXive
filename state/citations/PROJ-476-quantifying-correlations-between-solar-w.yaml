@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 088e6aee845981d57867233c8c848e312073db140cd142a6c9c66723e2fbd897
+  artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/nasa/omni2/resolve/main/omni2_1h.csv`
+  verification_status: unreachable
+  verified_against_url: https://huggingface.co/datasets/nasa/omni2/resolve/main/omni2_1h.csv%60
+  verified_at: '2026-06-30T01:35:04.801296Z'
+- artifact_hash: b961c02aecbebbdf945be10faf7c2380571c53b91e98a3f74f46a2ab680ac394
+  artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/nasa/omni2/resolve/main/omni2_1h.csv
+  verification_status: unreachable
+  verified_against_url: https://huggingface.co/datasets/nasa/omni2/resolve/main/omni2_1h.csv
+  verified_at: '2026-06-30T01:35:26.939060Z'

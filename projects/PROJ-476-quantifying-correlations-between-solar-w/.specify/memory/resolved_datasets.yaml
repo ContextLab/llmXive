@@ -1,0 +1,560 @@
+resolved_at: '2026-06-30T01:28:13.334644+00:00'
+datasets:
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&user_id=public&response-content-type=text%2Fcsv&Expires=1782786193&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzg2MTkzfX19XX0_&Signature=MEUCICNVHEf9NcA6ZdOnSkVYC-Pam6ltmtDJvacTEBGwAvNxAiEAnLlmqcYghx0d5BN35Huo9RaTWIcjM68XT-AFq1EToYA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/conference_contribution/The_use_of_folk_proverbs_and_expressions_in_the_works_of_Gafur_Ghulam/32830541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/The_Socio-Philosophical_Interpretation_of_Ibn_Khaldun_s_Scientific_Legacy_and_Its_Role_in_World_Science/32830496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19566985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6334972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3681161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6557219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250903/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250902/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21051813
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21051813
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21051800
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ACE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ij5/ace/resolve/main/assets.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nikitam/ACES/resolve/main/challenge_set.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ErickP/ace1/resolve/main/test.tsv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 106390
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nikitam/ACES/resolve/main/challenge_set.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66c582fe30010c0f2bba4176/90560d1c894c276dbcf2b20d168091b12da9d0a4922715c5861981b1ac12415c?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.json%3B+filename%3D%22data.json%22%3B&user_id=public&response-content-type=application%2Fjson&Expires=1782786217&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZjNTgyZmUzMDAxMGMwZjJiYmE0MTc2LzkwNTYwZDFjODk0YzI3NmRiY2YyYjIwZDE2ODA5MWIxMmRhOWQwYTQ5MjI3MTVjNTg2MTk4MWIxYWMxMjQxNWNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YS5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjc4NjIxN319fV19&Signature=MEQCICtiKykqVDUXbLW1MkUFuy2Z3velYsYnggGY6OJrTJz4AiA~yKrD1UxQazwIr7iVIf4wp~e81qCFSplNtKmxSpJwnw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ErickP/ace1/resolve/main/test.tsv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ij5/ace/resolve/main/assets.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/conference_contribution/Thematic_groups_of_the_Uzbek_language_lexicon_in_literary_texts_Based_on_the_works_of_Gafur_Ghulam_/32830550
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/The_use_of_folk_proverbs_and_expressions_in_the_works_of_Gafur_Ghulam/32830541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.frontiersin.org/journals/digital-health/articles/10.3389/fdgth.2025.1633507/full
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17317599
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17339916
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2537980
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17338034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21033647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21033647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250581/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250581/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cyberleninka.ru/article/n/vliyanie-proizvodstvennyh-faktorov-na-riski-razvitiya-serdechno-sosudistyh-zabolevaniy-obzor-literatury
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/conference_contribution/Thematic_groups_of_the_Uzbek_language_lexicon_in_literary_texts_Based_on_the_works_of_Gafur_Ghulam_/32830550
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/The_use_of_folk_proverbs_and_expressions_in_the_works_of_Gafur_Ghulam/32830541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10358914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5603470
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/RECYCLING_OPPORTUNITIES_OF_BIOPLASTICS_AND_THE_PROBLEMS_OF_THEIR_MIXING_WITH_TRADITIONAL_PLASTICS/32830559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/The_Interestingness_Value_of_Including_African_Stories_in_Marketing_and_Public_Policy_Research/32746530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Risk_assessment_of_driver_performance_in_the_oil_and_gas_transportation_industry_Analyzing_the_relationship_between_driver_vigilance_attention_reaction_time_and_safe_driving_practices/32830553
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INTEGRATION_OF_THE_FUTURE_OF_COMPUTER_NETWORKS_AND_ARTIFICIAL_INTELLIGENCE/32830556
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Thematic_groups_of_the_Uzbek_language_lexicon_in_literary_texts_Based_on_the_works_of_Gafur_Ghulam_/32830550
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21051800
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.857302
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250885/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250885/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21051027
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UTC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/claritylab/utcd/resolve/main/_utcd_info.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 59613
+      parsed: true
+  - url: https://huggingface.co/datasets/sam1120/terrain-jackal-utcustom-data-47-v1.0/resolve/main/data/train-00000-of-00001-9b22f5bfc1731617.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/645c48ee0f9f526e8d0342f2/b3c198fd72c53cbd08513511117b86b4a48e93ae93606f530ab723af0cf27507?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27ag_news.json%3B+filename%3D%22ag_news.json%22%3B&response-content-type=application%2Fjson&Expires=1782786354&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ1YzQ4ZWUwZjlmNTI2ZThkMDM0MmYyL2IzYzE5OGZkNzJjNTNjYmQwODUxMzUxMTExN2I4NmI0YTQ4ZTkzYWU5MzYwNmY1MzBhYjcyM2FmMGNmMjc1MDdcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWdfbmV3cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyYWdfbmV3cy5qc29uJTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjc4NjM1NH19fV19&Signature=MEUCIGw4RmjUAXjg88S0OPPDG4e2u20xhstopTGrs7JidAEnAiEA8kFLFxndR10j9YyMVk4wY7qku7vTf7cFHkao19j3Jfc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/claritylab/utcd/resolve/main/_utcd_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/hjf-utc/expert_law_dataset/resolve/main/data_conversations_30k.jsonl
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/sam1120/terrain-jackal-utcustom-data-47-v1.0/resolve/main/data/train-00000-of-00001-9b22f5bfc1731617.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/RECYCLING_OPPORTUNITIES_OF_BIOPLASTICS_AND_THE_PROBLEMS_OF_THEIR_MIXING_WITH_TRADITIONAL_PLASTICS/32830559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/The_Interestingness_Value_of_Including_African_Stories_in_Marketing_and_Public_Policy_Research/32746530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Risk_assessment_of_driver_performance_in_the_oil_and_gas_transportation_industry_Analyzing_the_relationship_between_driver_vigilance_attention_reaction_time_and_safe_driving_practices/32830553
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INTEGRATION_OF_THE_FUTURE_OF_COMPUTER_NETWORKS_AND_ARTIFICIAL_INTELLIGENCE/32830556
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Thematic_groups_of_the_Uzbek_language_lexicon_in_literary_texts_Based_on_the_works_of_Gafur_Ghulam_/32830550
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13838143
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17642731
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13842030
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11075267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12582246
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9p8cz8wwv
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21049066
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21049066
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048460
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048460
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/conference_contribution/GLOBAL_IMPACT_OF_PLASTIC_WASTE_AND_SUSTAINABLE_SOLUTIONS/32830562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Anonymous_Artifacts_/32765754
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/RECYCLING_OPPORTUNITIES_OF_BIOPLASTICS_AND_THE_PROBLEMS_OF_THEIR_MIXING_WITH_TRADITIONAL_PLASTICS/32830559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/The_Interestingness_Value_of_Including_African_Stories_in_Marketing_and_Public_Policy_Research/32746530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Risk_assessment_of_driver_performance_in_the_oil_and_gas_transportation_industry_Analyzing_the_relationship_between_driver_vigilance_attention_reaction_time_and_safe_driving_practices/32830553
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10364827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3841160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13843104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13213336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10384626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20857147
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/conference_contribution/GLOBAL_IMPACT_OF_PLASTIC_WASTE_AND_SUSTAINABLE_SOLUTIONS/32830562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Anonymous_Artifacts_/32765754
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/RECYCLING_OPPORTUNITIES_OF_BIOPLASTICS_AND_THE_PROBLEMS_OF_THEIR_MIXING_WITH_TRADITIONAL_PLASTICS/32830559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/The_Interestingness_Value_of_Including_African_Stories_in_Marketing_and_Public_Policy_Research/32746530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Risk_assessment_of_driver_performance_in_the_oil_and_gas_transportation_industry_Analyzing_the_relationship_between_driver_vigilance_attention_reaction_time_and_safe_driving_practices/32830553
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8104865
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6532734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.48565/fjd8-td33
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''bonndoc.ulb.uni-bonn.de'',
+      port=443): Max retries exceeded with url: /xmlui/handle/20.500.11811/14239 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''bonndoc.ulb.uni-bonn.de'', port=443)
+      at 0x7f4faf48ef50>, ''Connection to bonndoc.ulb.uni-bonn.de timed out. (connect
+      timeout=20.0)''))'
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rgk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []

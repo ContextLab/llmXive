@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T06:54:18.829211Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-476-quantifying-correlations-between-solar-w
-last_run_id: 98e3bc3f-8487-4bed-89f5-ae5184929571
+last_run_id: 763cdc6f-5afd-4866-908e-92ab5489fdfa
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w
 title: Quantifying Correlations Between Solar Wind Composition and Geomagnetic Indices
-updated_at: '2026-06-25T05:55:37.154273Z'
+updated_at: '2026-06-30T02:09:51.347890Z'
