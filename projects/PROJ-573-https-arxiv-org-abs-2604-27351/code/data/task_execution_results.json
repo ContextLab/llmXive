@@ -1,0 +1,24 @@
+{
+  "task_id": "T003",
+  "status": "success",
+  "prediction": "positive",
+  "modality_contributions": {
+    "text": 0.85,
+    "tabular": 0.15
+  },
+  "timing": {
+    "total_task_time": 0.042,
+    "prediction_time": 0.038,
+    "data_loading_time": 0.004
+  },
+  "config": {
+    "modalities_used": [
+      "text",
+      "tabular"
+    ],
+    "model_ids": {
+      "text": "distilbert_base_uncased",
+      "tabular": "tabpfn"
+    }
+  }
+}

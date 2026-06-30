@@ -1,11 +1,3 @@
-"""
-Single task execution script for the Heterogeneous Scientific Foundation Model Collaboration Benchmark.
-
-Implements T043: Run a single task execution with optional modality addition.
-CLI arguments: --task-id (required), --add-modality (optional)
-Output format: JSON with prediction, modality_contributions, timing
-"""
-
 import argparse
 import json
 import time
@@ -13,280 +5,218 @@ import sys
 import logging
 import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional, List, Tuple
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
+# Import from existing API surface
 from src.utils.logging import get_logger, setup_logger
 from src.tasks.task_runner import TaskRunner
 from src.models.routing import ModalityRouter
-from src.utils.missing_handler import handle_missing_modality
+from src.utils.missing_handler import handle_missing_modality, build_input_payload
 
-# Initialize logger
+# Configure logger for this module
 logger = setup_logger("run_task", level=logging.INFO)
 
-def load_task_definition(task_id: str, task_definitions_path: Optional[Path] = None) -> Dict[str, Any]:
+def load_task_definition(task_id: str, task_file: str = "src/tasks/task_definitions.yaml") -> Optional[Dict[str, Any]]:
     """
-    Load a specific task definition from the task_definitions.yaml file.
-    
-    Args:
-        task_id: The ID of the task to load (e.g., "T001", "3")
-        task_definitions_path: Path to the task definitions file. Defaults to project default.
-        
-    Returns:
-        Dictionary containing the task definition.
-        
-    Raises:
-        FileNotFoundError: If the task definitions file doesn't exist.
-        ValueError: If the task ID is not found in the definitions.
+    Load a specific task definition from the YAML file.
+    Returns None if task_id is not found.
     """
-    if task_definitions_path is None:
-        task_definitions_path = project_root / "src" / "tasks" / "task_definitions.yaml"
-        
-    if not task_definitions_path.exists():
-        raise FileNotFoundError(f"Task definitions file not found at {task_definitions_path}")
-        
-    with open(task_definitions_path, 'r') as f:
-        data = yaml.safe_load(f)
-        
-    # Handle both list and dict formats
-    if isinstance(data, dict):
-        # If it's a dict, keys should be task IDs
-        if task_id in data:
-            return data[task_id]
-        # Try numeric lookup if string ID not found
-        if task_id.isdigit():
-            numeric_id = int(task_id)
-            # Check if keys are numeric strings or integers
-            for key, value in data.items():
-                if (isinstance(key, int) and key == numeric_id) or \
-                   (isinstance(key, str) and key.isdigit() and int(key) == numeric_id):
-                    return value
-        raise ValueError(f"Task definition not found for ID: {task_id}")
-        
-    elif isinstance(data, list):
-        # If it's a list, find by task_id field
-        for task in data:
-            if task.get("task_id") == task_id or str(task.get("task_id")) == task_id:
-                return task
-        raise ValueError(f"Task definition not found for ID: {task_id}")
-    else:
-        raise ValueError(f"Task definitions file is not a list of tasks or a dict. Type: {type(data)}")
+    task_path = Path(task_file)
+    if not task_path.exists():
+        logger.error(f"Task definitions file not found: {task_path}")
+        return None
 
-def load_modality_configs(modality_dir: Optional[Path] = None) -> Dict[str, Dict[str, Any]]:
+    try:
+        with open(task_path, 'r') as f:
+            definitions = yaml.safe_load(f)
+
+        if not definitions or 'tasks' not in definitions:
+            logger.error("Task definitions file is empty or missing 'tasks' key")
+            return None
+
+        # Search for task by ID (handle both string and int comparisons)
+        for task in definitions['tasks']:
+            if str(task.get('task_id', '')) == str(task_id):
+                return task
+
+        logger.warning(f"Task ID '{task_id}' not found in definitions.")
+        return None
+
+    except Exception as e:
+        logger.error(f"Error loading task definitions: {e}")
+        return None
+
+def load_modality_configs(modality_dir: str = "src/benchmark/config/modalities") -> Dict[str, Dict[str, Any]]:
     """
-    Load all modality configuration files from the modalities directory.
-    
-    Args:
-        modality_dir: Path to the modalities directory. Defaults to project default.
-        
-    Returns:
-        Dictionary mapping modality names to their configurations.
+    Load all modality configuration files from the specified directory.
+    Returns a dictionary mapping modality names to their configs.
     """
-    if modality_dir is None:
-        modality_dir = project_root / "src" / "benchmark" / "config" / "modalities"
-        
-    if not modality_dir.exists():
-        logger.warning(f"Modality directory not found at {modality_dir}. Using empty configs.")
-        return {}
-        
+    modality_path = Path(modality_dir)
     configs = {}
-    for config_file in modality_dir.glob("*.yaml"):
-        modality_name = config_file.stem
-        with open(config_file, 'r') as f:
-            configs[modality_name] = yaml.safe_load(f)
-            
+
+    if not modality_path.exists():
+        logger.warning(f"Modality config directory not found: {modality_path}")
+        return configs
+
+    for yaml_file in modality_path.glob("*.yaml"):
+        try:
+            with open(yaml_file, 'r') as f:
+                config = yaml.safe_load(f)
+                if config and 'model_id' in config:
+                    # Use filename as modality key
+                    modality_name = yaml_file.stem
+                    configs[modality_name] = config
+                    logger.info(f"Loaded modality config: {modality_name}")
+        except Exception as e:
+            logger.error(f"Error loading modality config {yaml_file}: {e}")
+
     return configs
 
-def execute_task(task_def: Dict[str, Any], additional_modalities: Optional[List[str]] = None) -> Dict[str, Any]:
+def execute_task(task_def: Dict[str, Any], modality_configs: Dict[str, Dict[str, Any]], 
+                 added_modality: Optional[str] = None) -> Dict[str, Any]:
     """
-    Execute a single task with the given definition.
-    
-    Args:
-        task_def: The task definition dictionary.
-        additional_modalities: Optional list of additional modalities to include.
-        
-    Returns:
-        Dictionary containing execution results with prediction, modality_contributions, and timing.
+    Execute a single task based on its definition and available modality configs.
+    Handles missing modalities and routing.
     """
-    task_id = task_def.get("task_id", "unknown")
-    required_modalities = task_def.get("modalities", [])
-    datasets = task_def.get("datasets", [])
-    label_column = task_def.get("label_column", None)
+    task_id = task_def.get('task_id', 'unknown')
+    modalities = task_def.get('modalities', [])
+    datasets = task_def.get('datasets', [])
     
-    # Start timing
     start_time = time.time()
-    
-    logger.info(f"Starting execution for task: {task_id}")
-    logger.info(f"Required modalities: {required_modalities}")
-    logger.info(f"Datasets: {datasets}")
-    
-    # Initialize router
-    router = ModalityRouter()
-    
-    # Prepare modalities list
-    modalities_to_use = list(required_modalities)
-    if additional_modalities:
-        modalities_to_use.extend(additional_modalities)
-        logger.info(f"Adding additional modalities: {additional_modalities}")
-    
-    # Create placeholder data for each modality (simulated for this implementation)
-    # In a real scenario, this would load actual data from the datasets
-    modality_data = {}
-    for modality in modalities_to_use:
-        # Generate mock data based on modality type
-        if modality == "timeseries":
-            modality_data[modality] = {
-                "data": [1.0, 2.0, 3.0, 4.0, 5.0],
-                "label": "activity"
-            }
-        elif modality == "tabular":
-            modality_data[modality] = {
-                "data": {"feature1": 10, "feature2": 20, "feature3": 30},
-                "label": "class"
-            }
-        elif modality == "text":
-            modality_data[modality] = {
-                "data": "This is a sample text for classification.",
-                "label": "sentiment"
-            }
-        else:
-            # Handle unknown modalities (including added ones like "image")
-            logger.warning(f"Unknown modality type: {modality}. Using placeholder data.")
-            modality_data[modality] = {
-                "data": f"placeholder_data_for_{modality}",
-                "label": "generic"
-            }
-    
-    # Execute prediction using the router
-    prediction = None
-    modality_contributions = {}
-    
-    try:
-        # Route to appropriate models and get prediction
-        # Note: This is a simplified execution flow. In production, this would
-        # involve loading actual models and processing real data.
-        prediction_result = router.predict(modality_data)
-        prediction = prediction_result.get("prediction", "no_prediction")
-        modality_contributions = prediction_result.get("contributions", {})
-        
-    except Exception as e:
-        logger.error(f"Error during task execution: {str(e)}")
-        # Fallback: generate a default prediction
-        prediction = "execution_failed"
-        modality_contributions = {mod: 0.0 for mod in modalities_to_use}
-    
-    # Calculate timing
-    end_time = time.time()
-    execution_time = end_time - start_time
-    
-    # Build result
     result = {
         "task_id": task_id,
-        "status": "completed" if prediction != "execution_failed" else "failed",
-        "prediction": prediction,
-        "modality_contributions": modality_contributions,
-        "timing": {
-            "total_seconds": execution_time,
-            "start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)),
-            "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))
-        },
-        "metadata": {
-            "modalities_used": modalities_to_use,
-            "datasets": datasets,
-            "label_column": label_column
-        }
+        "status": "failed",
+        "prediction": None,
+        "modality_contributions": {},
+        "timing": {},
+        "error": None
     }
-    
-    logger.info(f"Task {task_id} completed in {execution_time:.2f} seconds")
+
+    try:
+        # Handle added modality
+        if added_modality:
+            if added_modality not in modalities:
+                modalities = modalities + [added_modality]
+                logger.info(f"Added modality '{added_modality}' to task {task_id}")
+            
+            # Check if config exists for added modality
+            if added_modality not in modality_configs:
+                logger.warning(f"No config found for added modality: {added_modality}")
+                # Attempt to create a placeholder config or use missing handler
+                modality_configs[added_modality] = {"model_id": f"placeholder_{added_modality}", "model_type": "placeholder"}
+
+        # Identify missing modalities
+        missing_modalities = []
+        for mod in modalities:
+            if mod not in modality_configs:
+                missing_modalities.append(mod)
+
+        # Handle missing modalities
+        if missing_modalities:
+            for mod in missing_modalities:
+                handle_missing_modality(task_id, mod, "heterogeneous")
+            
+            # Remove missing modalities from execution list for heterogeneous mode
+            # In heterogeneous mode, we skip missing modalities
+            available_modalities = [m for m in modalities if m in modality_configs]
+            if not available_modalities:
+                raise ValueError("No available modalities to execute task")
+        else:
+            available_modalities = modalities
+
+        # Initialize router and load models
+        router = ModalityRouter()
+        
+        # Load models for available modalities
+        loaded_models = {}
+        for mod in available_modalities:
+            config = modality_configs[mod]
+            model_id = config.get('model_id')
+            model_type = config.get('model_type', mod)
+            
+            logger.info(f"Loading model for {mod}: {model_id}")
+            # Use router to load appropriate model wrapper based on type
+            model = router.get_model(model_type, model_id)
+            if model:
+                loaded_models[mod] = model
+                result["modality_contributions"][mod] = "loaded"
+            else:
+                logger.warning(f"Failed to load model for {mod}")
+
+        if not loaded_models:
+            raise ValueError("No models could be loaded for task execution")
+
+        # Simulate data loading (in real scenario, download_dataset would be called)
+        # For now, we create synthetic input data based on modality types
+        input_data = {}
+        for mod in loaded_models.keys():
+            # Create minimal synthetic input for each modality
+            if mod == "timeseries":
+                input_data[mod] = {"data": [1.0, 2.0, 3.0, 4.0, 5.0], "label": "activity"}
+            elif mod == "tabular":
+                input_data[mod] = {"data": [[1, 2], [3, 4]], "label": "class"}
+            elif mod == "text":
+                input_data[mod] = {"data": "sample text input", "label": "sentiment"}
+            else:
+                input_data[mod] = {"data": "generic input", "label": "unknown"}
+
+        # Execute prediction using router
+        logger.info(f"Executing prediction for task {task_id} with modalities: {list(loaded_models.keys())}")
+        prediction = router.predict(input_data)
+        
+        end_time = time.time()
+        result["status"] = "success"
+        result["prediction"] = prediction
+        result["timing"]["total_seconds"] = round(end_time - start_time, 3)
+        result["timing"]["models_loaded"] = len(loaded_models)
+
+    except Exception as e:
+        logger.error(f"Task execution failed: {e}", exc_info=True)
+        result["error"] = str(e)
+        result["timing"]["total_seconds"] = round(time.time() - start_time, 3)
+
     return result
 
 def main():
-    """Main entry point for the run_task script."""
-    parser = argparse.ArgumentParser(
-        description="Execute a single task from the benchmark suite.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
-    
-    parser.add_argument(
-        "--task-id",
-        type=str,
-        required=True,
-        help="The ID of the task to execute (e.g., 'T001', '3')"
-    )
-    
-    parser.add_argument(
-        "--add-modality",
-        type=str,
-        nargs="+",
-        default=None,
-        help="Optional list of additional modalities to include in the task execution"
-    )
-    
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Path to save the output JSON file. If not specified, prints to stdout."
-    )
-    
-    parser.add_argument(
-        "--task-definitions",
-        type=str,
-        default=None,
-        help="Path to the task definitions YAML file. Defaults to project default."
-    )
-    
-    parser.add_argument(
-        "--modality-dir",
-        type=str,
-        default=None,
-        help="Path to the modalities configuration directory. Defaults to project default."
-    )
+    """Main entry point for single task execution."""
+    parser = argparse.ArgumentParser(description="Execute a single benchmark task")
+    parser.add_argument("--task-id", required=True, help="Task ID to execute (e.g., T001)")
+    parser.add_argument("--add-modality", type=str, default=None, 
+                        help="Optional modality to add to the task definition")
+    parser.add_argument("--task-file", type=str, default="src/tasks/task_definitions.yaml",
+                        help="Path to task definitions YAML file")
+    parser.add_argument("--modality-dir", type=str, default="src/benchmark/config/modalities",
+                        help="Directory containing modality config files")
     
     args = parser.parse_args()
-    
-    try:
-        # Load task definition
-        task_path = Path(args.task_definitions) if args.task_definitions else None
-        task_def = load_task_definition(args.task_id, task_path)
-        
-        # Load modality configs (for validation/logging)
-        modality_path = Path(args.modality_dir) if args.modality_dir else None
-        modality_configs = load_modality_configs(modality_path)
-        
-        # Execute the task
-        result = execute_task(task_def, args.add_modality)
-        
-        # Output result
-        output_json = json.dumps(result, indent=2)
-        
-        if args.output:
-            output_path = Path(args.output)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, 'w') as f:
-                f.write(output_json)
-            logger.info(f"Results saved to {args.output}")
-        else:
-            print(output_json)
-            
-        # Exit with appropriate code
-        sys.exit(0 if result["status"] == "completed" else 1)
-        
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        print(json.dumps({"error": str(e), "status": "failed"}, indent=2))
+
+    logger.info(f"Starting task execution for: {args.task_id}")
+
+    # Load task definition
+    task_def = load_task_definition(args.task_id, args.task_file)
+    if not task_def:
+        error_result = {
+            "error": f"Task definition not found for ID: {args.task_id}",
+            "status": "failed"
+        }
+        print(json.dumps(error_result))
         sys.exit(1)
-    except ValueError as e:
-        logger.error(str(e))
-        print(json.dumps({"error": str(e), "status": "failed"}, indent=2))
+
+    # Load modality configs
+    modality_configs = load_modality_configs(args.modality_dir)
+    if not modality_configs:
+        logger.warning("No modality configurations found. Execution may fail.")
+
+    # Execute task
+    result = execute_task(task_def, modality_configs, args.add_modality)
+
+    # Output result as JSON
+    print(json.dumps(result, indent=2))
+
+    # Exit with error code if failed
+    if result["status"] == "failed":
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        print(json.dumps({"error": str(e), "status": "failed"}, indent=2))
-        sys.exit(1)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

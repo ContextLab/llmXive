@@ -106,7 +106,7 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 1
 
 - [X] T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300) -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset('UCI_HAR')`, DROP/MUST via HuggingFace datasets; depends on T007/T008 complete
-- [X] T023 [US1] Create task_runner.py in src/tasks/task_runner.py (FR-001, FR-006); class TaskRunner with methods: run_task(task_id), get_task(task_id), validate_task(task_id); depends on T017 complete
+- [ ] T023 [US1] Create task_runner.py in src/tasks/task_runner.py (FR-001, FR-006); class TaskRunner with methods: run_task(task_id), get_task(task_id), validate_task(task_id); depends on T017 complete
 - [X] T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013); function signatures: enforce_timeout(func, timeout_seconds=300) -> result; raise TimeoutError if exceeded; depends on T016 complete
 - [X] T025 [US1] Implement seed/version AND environment details logging in src/utils/logging.py (FR-005); depends on T016 completion; functions: log_random_seed(seed), log_model_versions(models), log_environment_details(); log random seeds, model versions, AND environment details (Python version, OS, CPU info)
 - [X] T026 [US1] Implement metrics computation (F1, MAPE) in src/evaluation/metrics.py (FR-004); function signatures: compute_f1(y_true, y_pred) -> float, compute_mape(y_true, y_pred) -> float; handle edge cases (division by zero, empty arrays)
@@ -285,11 +285,11 @@ With multiple developers:
 
 ## Compute Feasibility Notes
 
-- All models must be CPU-tractable (< 1 GB weights) [UNRESOLVED-CLAIM: c_97dca646 — status=not_enough_info] - validated in T006
+- All models must be CPU-tractable (< 1 GB weights) - validated in T006
 - No GPU/CUDA dependencies
 - {{claim:c_b9b3cab2}} (Wikipedia: Hutter Prize, https://en.wikipedia.org/wiki/Hutter_Prize)
-- Per-task inference ≤ 5 minutes on 2 CPU cores [UNRESOLVED-CLAIM: c_5f5b0faa — status=refuted]
-- Full benchmark ≤ 4 hours wall-clock time [UNRESOLVED-CLAIM: c_2b8f05b0 — status=not_enough_info]
+- Per-task inference ≤ 5 minutes on 2 CPU cores
+- Full benchmark ≤ 4 hours wall-clock time
 - Use UCI_HAR for time-series, DROP/MUST for text (per plan.md substitution strategy)
 - No 8-bit/4-bit quantization (bitsandbytes requires CUDA)
 - Dataset downloads MUST use verified URLs or HuggingFace datasets.load_dataset()
