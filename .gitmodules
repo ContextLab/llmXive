@@ -88,3 +88,18 @@
 [submodule "projects/PROJ-688-agents-last-exam/external/agents-last-exam"]
 	path = projects/PROJ-688-agents-last-exam/external/agents-last-exam
 	url = https://github.com/rdi-berkeley/agents-last-exam
+[submodule "projects/PROJ-700-spatialclaw-rethinking-action-interface/external/SpatialClaw"]
+	path = projects/PROJ-700-spatialclaw-rethinking-action-interface/external/SpatialClaw
+	url = https://github.com/NVlabs/SpatialClaw
+[submodule "projects/PROJ-632-https-arxiv-org-abs-2605-26230/external/GARD"]
+	path = projects/PROJ-632-https-arxiv-org-abs-2605-26230/external/GARD
+	url = https://github.com/cvlab-kaist/GARD
+[submodule "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/external/MM-OCEAN"]
+	path = projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/external/MM-OCEAN
+	url = https://github.com/kkkcx/MM-OCEAN
+[submodule "projects/PROJ-750-dragmesh-2-physically-plausible-dexterou/external/DragMesh-2"]
+	path = projects/PROJ-750-dragmesh-2-physically-plausible-dexterou/external/DragMesh-2
+	url = https://github.com/AIGeeksGroup/DragMesh-2
+[submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
+	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
+	url = https://github.com/DeepExperience/MMSkills

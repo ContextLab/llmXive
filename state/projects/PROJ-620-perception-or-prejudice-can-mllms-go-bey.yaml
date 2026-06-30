@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-23T08:43:43.343638Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-620-perception-or-prejudice-can-mllms-go-bey
-last_run_id: a03b3fdc-65a3-461e-964c-de773febef4d
+last_run_id: 6cb985d5-e22e-441a-91dd-6d25404f8c1c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/specs/001-perception-or-prejudice-can-mllms-go-bey
 title: 'Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Personality?'
-updated_at: '2026-06-30T07:38:45.436569Z'
+updated_at: '2026-06-30T19:08:56.687357Z'

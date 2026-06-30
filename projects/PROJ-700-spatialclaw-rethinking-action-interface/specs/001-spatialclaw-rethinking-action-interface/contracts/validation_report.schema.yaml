@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SpatialClaw Validation Report"
+type: "object"
+required:
+  - "run_id"
+  - "observed_accuracy"
+  - "status"
+  - "resource_compliance"
+  - "sample_size"
+properties:
+  run_id:
+    type: "string"
+    description: "Link to the associated run artifact"
+  baseline_accuracy:
+    type: "number"
+    description: "Paper reported accuracy (e.g., 0.599) - Optional, for reference only. Not used for validation."
+  observed_accuracy:
+    type: "number"
+    description: "Accuracy observed in the run against ground truth"
+  status:
+    type: "string"
+    enum: ["PASS", "WARN", "FAIL"]
+    description: "Validation status based on resource compliance and execution success, NOT paper baseline comparison"
+  resource_compliance:
+    type: "object"
+    required:
+      - "ram_ok"
+      - "time_ok"
+      - "gpu_ok"
+    properties:
+      ram_ok:
+        type: "boolean"
+        description: "True if peak_ram_mb <= 7000"
+      time_ok:
+        type: "boolean"
+        description: "True if cpu_time_sec <= 21600"
+      gpu_ok:
+        type: "boolean"
+        description: "True if no GPU was used (or GPU not available)"
+  warnings:
+    type: "array"
+    description: "List of warnings (e.g., 'Model Mismatch', 'Low Sample Size', 'Dataset Mismatch')"
+    items:
+      type: "string"
+  sample_size:
+    type: "integer"
+    description: "Number of samples in the subset"
+  confidence_note:
+    type: "string"
+    description: "Note on statistical confidence if sample size is small (e.g., 'n=5: Results are indicative only, not statistically significant')"
+  execution_success_rate:
+    type: "number"
+    description: "Percentage of samples for which the agent produced an executable code block"
+  ground_truth_match_rate:
+    type: "number"
+    description: "Percentage of samples where the agent's answer matched the ground truth"

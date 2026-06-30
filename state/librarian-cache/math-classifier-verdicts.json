@@ -335,6 +335,10 @@
     "classified_at": "2026-06-30T17:01:04Z",
     "verdict": false
   },
+  "PROJ-579-https-arxiv-org-abs-2605-15155::1.6.0": {
+    "classified_at": "2026-06-30T17:51:42Z",
+    "verdict": false
+  },
   "PROJ-582-socratic-transformers-dialogue-based-sel::1.6.0": {
     "classified_at": "2026-05-30T03:33:41Z",
     "verdict": false

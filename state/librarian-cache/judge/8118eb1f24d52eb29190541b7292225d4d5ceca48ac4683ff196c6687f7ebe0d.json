@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.13649",
+  "judged_at": "2026-06-30T17:52:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "self-distilled agentic reinforcement learning computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the intersection of Reinforcement Learning (RL) and distillation techniques (specifically Distribution Matching Distillation) within the domain of generative models, which is the core mechanism and domain of the user's query regarding \"Self-Distilled Agentic Reinforcement Learning.\" Although the paper focuses on diffusion models rather than general \"agentic\" systems, it provides the canonical prior work on unifying RL and distillation ",
+  "relevant": true
+}

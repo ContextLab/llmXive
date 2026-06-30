@@ -26,6 +26,7 @@ properties:
     required:
       - "num_tasks"
       - "task_timeout"
+      - "fixed_task_ids"
     properties:
       num_tasks:
         type: "integer"
@@ -35,6 +36,11 @@ properties:
         type: "integer"
         minimum: 1
         description: "Timeout in seconds per task."
+      fixed_task_ids:
+        type: "array"
+        description: "List of hardcoded task IDs used for all seeds to ensure paired test validity."
+        items:
+          type: "string"
   tasks:
     type: "array"
     minItems: 5
@@ -50,7 +56,7 @@ properties:
         - "error_message"
       properties:
         task_id:
-          type: "integer"
+          type: "string"
           description: "Unique task identifier."
         task_type:
           type: "string"

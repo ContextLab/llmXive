@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionResult"
+description: "Schema for statistical analysis results including regression and permutation tests."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  coefficient_flexibility:
+    type: "number"
+    description: "Beta coefficient for the excess network flexibility predictor."
+  p_value_flexibility:
+    type: "number"
+    description: "Two-tailed p-value for the flexibility coefficient."
+  r_squared:
+    type: "number"
+    description: "R-squared value of the full model."
+  delta_r_squared:
+    type: "number"
+    description: "Difference in R-squared between full model and static-only baseline."
+  permutation_p_value:
+    type: "number"
+    description: "Empirical p-value from 10,000 permutation tests of the outcome vector."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval for the flexibility coefficient."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval for the flexibility coefficient."
+  window_length:
+    type: "integer"
+    description: "Sliding window length used for this result."
+  n_samples:
+    type: "integer"
+    description: "Number of participants included in the analysis."
+required:
+  - model_id
+  - coefficient_flexibility
+  - p_value_flexibility
+  - r_squared
+  - delta_r_squared
+  - permutation_p_value
+  - window_length
+  - n_samples
+additionalProperties: false

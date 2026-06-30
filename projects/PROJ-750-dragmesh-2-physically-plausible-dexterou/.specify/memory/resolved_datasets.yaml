@@ -1,0 +1,449 @@
+resolved_at: '2026-06-30T19:13:11.984390+00:00'
+datasets:
+- intent: CUDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 74288
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-CUDA-v1/resolve/main/data/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDXXXIV_b_/32840453
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Berberine-Loaded_Folate-Targeted_Glycol_Chitosan_Nanocarrier_BFGCN_Modulates_the_Lipid_Immune_Bone_Axis_in_Rheumatoid_Arthritis_Rat_Model/32840458
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual_Nickel_Photoredox-Catalyzed_Radical_Phosphonylacylation_of_Terminal_Alkenes_with_Aroyl_Chlorides_and_H_Phosphine_Oxides/32840455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/BRisk_Supplemental/31891555
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Drug-Conjugated_Tam-NHC-Gold_I_Complexes_Overcome_ESR1_Mutant_Breast_Cancer_Resistance_and_Downregulate_the_RAMP3_CALCR_Signaling_Pathway/32840452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21072066
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21072066
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20739282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20739282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21064787
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDXXXIV_b_/32840453
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Berberine-Loaded_Folate-Targeted_Glycol_Chitosan_Nanocarrier_BFGCN_Modulates_the_Lipid_Immune_Bone_Axis_in_Rheumatoid_Arthritis_Rat_Model/32840458
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual_Nickel_Photoredox-Catalyzed_Radical_Phosphonylacylation_of_Terminal_Alkenes_with_Aroyl_Chlorides_and_H_Phosphine_Oxides/32840455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/BRisk_Supplemental/31891555
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Drug-Conjugated_Tam-NHC-Gold_I_Complexes_Overcome_ESR1_Mutant_Breast_Cancer_Resistance_and_Downregulate_the_RAMP3_CALCR_Signaling_Pathway/32840452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21080704
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21080704
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21079712
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stanfordphs.redivis.com/datasets/7qrn-arc18h7ny?v=0.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21079820
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PICA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/picas9dan/multidomain_2023-11-30_10.20.00/resolve/main/2023-11-30_10.20.00_dev.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 122028
+      parsed: true
+  - url: https://huggingface.co/datasets/picas9dan/ontospecies_2024-01-04_13.45.20/resolve/main/ontospecies_2024-01-04_13.45.20_paraphrases.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/picas9dan/ontokin_2024-01-04_18.06.18/resolve/main/ontokin_2024-01-04_18.06.18_paraphrases.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 60051
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/picas9dan/multidomain_2023-11-30_10.20.00/resolve/main/2023-11-30_10.20.00_dev.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/picas9dan/ontospecies_2024-01-04_13.45.20/resolve/main/ontospecies_2024-01-04_13.45.20_paraphrases.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/picas9dan/ontokin_2024-01-04_18.06.18/resolve/main/ontokin_2024-01-04_18.06.18_paraphrases.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/picas9dan/ontocompchem_2024-01-05_11.38.45/bc0467623f1877dc571d8f70fddb8645fa16dcf4/ontocompchem_2024-01-05_11.38.45.json?%2Fdatasets%2Fpicas9dan%2Fontocompchem_2024-01-05_11.38.45%2Fresolve%2Fmain%2Fontocompchem_2024-01-05_11.38.45.json=&etag=%229bca5c5420e621bbaf1724997b024d2839bc779a%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/picas9dan/ontocompchem_2024-01-05_14.16.32/resolve/main/ontocompchem_2024-01-05_14.16.32_paraphrases.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDXXXV_b_/32840459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDXXXIV_b_/32840453
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Berberine-Loaded_Folate-Targeted_Glycol_Chitosan_Nanocarrier_BFGCN_Modulates_the_Lipid_Immune_Bone_Axis_in_Rheumatoid_Arthritis_Rat_Model/32840458
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual_Nickel_Photoredox-Catalyzed_Radical_Phosphonylacylation_of_Terminal_Alkenes_with_Aroyl_Chlorides_and_H_Phosphine_Oxides/32840455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/BRisk_Supplemental/31891555
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14427426
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13167591
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13167589
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13167593
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/_i_Dendrobium_devonum_i_juice_modulates_aroma_formation_in_coffee_cherry_husks_processing_insights_into_key_pathways_and_flavour_enhancement/32732453
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/_i_Dendrobium_devonum_i_juice_modulates_aroma_formation_in_coffee_cherry_husks_processing_insights_into_key_pathways_and_flavour_enhancement/32732453/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/occurrence/download/0005701-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0005294-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://doi.org/10.17863/cam.75876
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.repository.cam.ac.uk'',
+      port=443): Max retries exceeded with url: /handle/1810/328429 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''www.repository.cam.ac.uk'',
+      port=443) at 0x7f7973d932d0>, ''Connection to www.repository.cam.ac.uk timed
+      out. (connect timeout=20.0)''))'
+- intent: GAPartNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jirufengyu/gapartnet/resolve/main/akb48_all_split.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 3025
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jirufengyu/gapartnet/resolve/main/akb48_all_split.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/yangyandan/GAPartNet_PhyScene/resolve/main/partnet_mobility_part.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDXXXV_b_/32840459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDXXXIV_b_/32840453
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Berberine-Loaded_Folate-Targeted_Glycol_Chitosan_Nanocarrier_BFGCN_Modulates_the_Lipid_Immune_Bone_Axis_in_Rheumatoid_Arthritis_Rat_Model/32840458
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual_Nickel_Photoredox-Catalyzed_Radical_Phosphonylacylation_of_Terminal_Alkenes_with_Aroyl_Chlorides_and_H_Phosphine_Oxides/32840455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/BRisk_Supplemental/31891555
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.15133
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2412.16656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2211.05272
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/optimum-benchmark/cpu/resolve/main/cpu_inference_diffusers_stable-diffusion_CompVis/stable-diffusion-v1-4/benchmark.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDXXXV_b_/32840459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDXXXIV_b_/32840453
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Berberine-Loaded_Folate-Targeted_Glycol_Chitosan_Nanocarrier_BFGCN_Modulates_the_Lipid_Immune_Bone_Axis_in_Rheumatoid_Arthritis_Rat_Model/32840458
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dual_Nickel_Photoredox-Catalyzed_Radical_Phosphonylacylation_of_Terminal_Alkenes_with_Aroyl_Chlorides_and_H_Phosphine_Oxides/32840455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/BRisk_Supplemental/31891555
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21079712
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21079712
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21080225
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21080225
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21079950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

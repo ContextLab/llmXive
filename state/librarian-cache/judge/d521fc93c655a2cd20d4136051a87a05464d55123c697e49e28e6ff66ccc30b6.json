@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.02910",
+  "judged_at": "2026-06-30T17:52:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "self-distilled agentic reinforcement learning computer science",
+  "rationale": "The paper focuses on curriculum reinforcement learning and task sequencing using Structural Causal Models, which is a distinct mechanism from \"Self-Distilled Agentic Reinforcement Learning\" (a specific paradigm involving agent self-improvement via distillation). While both fall under the broad domain of reinforcement learning, the candidate paper does not measure the self-distillation mechanism, the agentic loop, or the specific variables central to the user's query, failing to meet the criteria",
+  "relevant": false
+}

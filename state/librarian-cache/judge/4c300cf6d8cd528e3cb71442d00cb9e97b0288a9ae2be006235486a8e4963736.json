@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.05859",
+  "judged_at": "2026-06-30T18:43:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the impact of data imputation methods on causal inference statistics",
+  "rationale": "This paper satisfies criterion (a) and (b) because it explicitly investigates \"mass imputation\" as a mechanism for integrating survey data and evaluates the resulting statistical properties (variance, efficiency) of the estimators, which directly pertains to the user's inquiry into how imputation methods impact statistical inference. Although the specific context is survey data integration rather than general causal inference, it provides canonical evidence on the behavior of imputation-based es",
+  "relevant": true
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-06-30T19:30:06.214494+00:00",
+    "project": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/xlangai/osworld",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/supergoose/buzz_sources_309_http/resolve/main/data/train-00000-of-00001.parquet",
+        "intent": "xlangai osworld Note: Use datasets.load_dataset \"xlangai/osworld\", split=\"train\" via HuggingFace datasets library. Direct HTTP links may vary by auth state, but the library loader is"
+      }
+    ]
+  }
+]

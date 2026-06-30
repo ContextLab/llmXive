@@ -1,0 +1,247 @@
+project_id: PROJ-780-openthoughts-agent-data-recipes-for-agen
+arxiv_id: '2606.24855'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-30T18:56:37.089202+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 227cf08fb760
+    text: 'Teacher Model Performance (Section 3.5): The claim that GPT-5.3-Codex is
+      a worse teacher than GLM-4.7-AWQ, causing a ~5pp drop on Terminal-Bench 2.0,
+      is supported by Table 4. The table shows GPT-5.3-Codex at 11.94 (raw) and GLM-4.7
+      at 18.16 (raw), a difference of 6.22pp. The text''s "5pp" is a reasonable approximation,
+      but the specific baseline (GLM-4.7 AWQ) should be explicitly linked to the table
+      entry to avoid ambiguity, as the table lists "GLM 4.7 (Quantized)" without specifying
+      "AWQ" in the'
+    severity: writing
+  - id: 3a887eb87723
+    text: 'Model Naming Consistency (Section 4.1 vs. Table 1): The text refers to
+      the final 32B model as "OpenThoughts-Agent-v2" (Section 4.1) and "OpenThoughts-Agent"
+      (Section 1), while Table 1 labels the top-performing 32B model as "OpenThinkerAgent-32B".
+      While likely the same model, the inconsistent naming across the text and the
+      primary results table is a factual ambiguity that should be resolved. The claims
+      of 54.0%, 26.2%, and 41.3% are numerically accurate to Table 1, but the model
+      identifier mismat'
+    severity: writing
+  - id: 67bf628a7a9b
+    text: 'RL Data Source Spread (Section 5.1): The text states a "7.6pp" spread in
+      raw average accuracy across six RL data sources. Table 5 (rl_data_ablation)
+      shows the highest raw average (pymethods2test) at 21.72 and the lowest (llm-verifier-freelancer)
+      at 15.27, a difference of 6.45pp. The 7.6pp figure does not match the raw average
+      spread in the table. It is possible the claim refers to a different metric (e.g.,
+      normalized score, or a specific benchmark subset like SWE-Bench only, where
+      the spread is'
+    severity: writing
+  - id: b9bbdabe4f99
+    text: 'Ablation Count (Abstract/Section 1): The claim of ">100 controlled ablations"
+      is plausible given the 95 task generation strategies, 6 RL sources, and other
+      stages, but the paper does not explicitly enumerate them to reach this total.
+      While not a factual error, providing a breakdown or a reference to a comprehensive
+      list would strengthen the claim''s verifiability.'
+    severity: writing
+  - id: 08aff3a1ffcc
+    text: 'Scaling Claims (Section 4): The claim that synthetic augmentation scales
+      past the upsampling plateau is supported by Figure 2 and the text. The specific
+      numbers (31.6K plateau, +3pp SWE-Bench) align with the figure caption and text.
+      No discrepancies found here. Conclusion: The paper contains minor factual inconsistencies
+      regarding model naming and a potential discrepancy in the reported spread of
+      RL data source performance. The core numerical claims (benchmarks scores, percentages)
+      are generally'
+    severity: writing
+  - id: bf44f7492e15
+    text: The LaTeX source relies on external files (e.g., table1.tex, otagent.bib)
+      and figures that are not fully provided in the input. Reproducibility from scratch
+      is currently impossible without these dependencies. The review must be conditional
+      on the full artifact set being available.
+    severity: writing
+  - id: f168fdd64b92
+    text: The manuscript references specific hyperparameter configurations (e.g.,
+      DeepSpeed ZeRO-3, specific learning rates) in tables (e.g., tab:sft_hp_common_32b)
+      but does not provide the actual configuration JSON files or scripts used to
+      generate the 100+ ablation runs. To ensure reproducibility, the code repository
+      must include the exact training scripts and config files referenced.
+    severity: science
+  - id: 3c0013d85979
+    text: The paper claims >100 controlled ablations and specific scaling results
+      (e.g., Fig. scaling_methods_plot.png), but the raw experimental logs, seed values,
+      and the exact data processing pipeline scripts (e.g., for the 95 task generation
+      strategies) are not included in the provided artifacts. Without these, the statistical
+      claims cannot be independently verified.
+    severity: science
+  - id: 57b8474211a7
+    text: The manuscript presents a comprehensive empirical study on data recipes
+      for agentic models, but significant gaps exist regarding data provenance, versioning,
+      and long-term accessibility. First, while the authors claim to release the full
+      dataset and pipeline (Section 6), the text fails to provide specific version
+      identifiers or persistent identifiers (DOIs) for the "OpenThoughts-Agent-v2"
+      dataset. In data-centric papers, the absence of a version tag (e.g., v1.0, v2.0)
+      or a specific commit hash f
+    severity: writing
+  - id: dd1937e92d68
+    text: Figure 1 (scaling-curves) and Figure 2 (scaling_methods) lack visible axis
+      labels and units in the provided source. The x-axis (dataset size) and y-axis
+      (accuracy %) must be explicitly labeled with units (e.g., 'Dataset Size (K examples)',
+      'Accuracy (%)') to ensure legibility at print scale.
+    severity: writing
+  - id: 4eb6a695fb69
+    text: The Sankey diagram (Fig. 3, sft_sankey_top4.png) is referenced as 5.6MB.
+      Verify that the final PDF embedding does not degrade resolution or cause excessive
+      file size. Ensure flow labels are legible and color contrast meets accessibility
+      standards for print.
+    severity: writing
+  - id: 5643cb801109
+    text: The RL behavior figures (rl_hero_reward_collapse.png, rl_hero_temporal_panels.png)
+      are cited in the text but their captions are missing from the provided LaTeX
+      chunks. Ensure all figures have descriptive captions explaining the axes, legend
+      keys, and the specific behavioral shift being illustrated.
+    severity: writing
+  - id: 4e474cd14193
+    text: Define 'SFT' (Supervised Fine-Tuning) and 'RL' (Reinforcement Learning)
+      at first use in the Abstract or Introduction. Currently, they appear as acronyms
+      without definition, excluding non-specialist readers.
+    severity: writing
+  - id: 208bbd63cf72
+    text: Replace 'pp' (percentage points) with 'percentage points' or 'percent' (with
+      clarification) in Section 3.1 and 3.4. 'pp' is field-specific shorthand that
+      may confuse general readers.
+    severity: writing
+  - id: 01009b6ffb32
+    text: Define 'OOD' (Out-of-Distribution) in Section 5.1 or Table 4 caption. The
+      term is used without definition, assuming prior knowledge of statistical learning
+      terminology.
+    severity: writing
+  - id: f671ec429ce8
+    text: Define 'z-score' in Section 4.1. While common in statistics, its specific
+      application as an 'average z-score across three benchmarks' needs a brief explanatory
+      clause for non-statisticians.
+    severity: writing
+  - id: 102af4dd65c2
+    text: Replace 'ablations' with 'controlled experiments' or 'component removal
+      tests' in Section 1 and throughout. 'Ablation' is jargon-heavy; a plain description
+      improves accessibility.
+    severity: writing
+  - id: 652326babade
+    text: Define 'ID' (In-Distribution) in Section 5.1. Paired with 'OOD', this assumes
+      the reader knows the specific distributional context of the benchmarks.
+    severity: writing
+  - id: c7d70ee40e86
+    text: Replace 'rollouts' with 'generated trajectories' or 'model attempts' in
+      Section 3.6 and 5.1. 'Rollouts' is RL-specific jargon that obscures meaning
+      for general audiences.
+    severity: writing
+  - id: 9a590411115d
+    text: Define 'SotA' (State-of-the-Art) in Figure 1 caption. Acronyms for common
+      phrases should be spelled out on first use in figure captions.
+    severity: writing
+  - id: 7245eb032b89
+    text: The paper presents a logical inconsistency in its central argument regarding
+      teacher model selection (Section 3.5). The authors claim that GPT-5.3-Codex
+      is a "worse teacher" despite being the "strongest on benchmarks." However, Table
+      6 (Teacher Model Ablation) explicitly shows that GPT-5.3-Codex achieves the
+      lowest SWE-Bench Verified score (21.67%) among the listed teachers, while GLM
+      4.7 achieves 28.00%. The premise that GPT-5.3 is the "strongest" model is not
+      supported by the data presented in
+    severity: writing
+  - id: 22d2580a4715
+    text: The claim of being the 'first open, multi-benchmark SFT pipeline' (Conclusion)
+      is overreaching given the existence of SERA and SWE-Smith which, while single-benchmark
+      focused, are open pipelines. Rephrase to 'first open pipeline explicitly optimized
+      for generalization across multiple distinct agentic benchmarks simultaneously'
+      to be precise.
+    severity: writing
+  - id: 18957da31df2
+    text: "The statement that the model achieves 'SotA performance' (Figure 1 caption)\
+      \ is an overclaim. Table 1 shows Frontier models (Kimi-K2.5, Qwen3.5) significantly\
+      \ outperform the 32B model on most benchmarks. The claim should be restricted\
+      \ to 'strongest open-data model \u226432B' as stated in the text, removing the\
+      \ unqualified 'SotA' label."
+    severity: writing
+  - id: ab75858fd3ac
+    text: The assertion that 'Synthetic task augmentation scales past the upsampling
+      plateau' (Fig 2 caption) implies a universal scaling law. The data only supports
+      this for the specific 'Tezos' subset and the specific augmentation method used.
+      Generalize the claim to 'synthetic augmentation of low-diversity sources' rather
+      than implying a general property of all synthetic augmentation.
+    severity: writing
+  - id: 9cdf071b2407
+    text: The claim that GPT-5.3-Codex is a 'worse teacher' causing a '5 pp drop'
+      (Sec 3.5) is based on a single benchmark (Terminal-Bench 2.0) where it underperforms,
+      despite outperforming on SWE-Bench. This is an overgeneralization of 'worse
+      teacher' without a weighted aggregate justification. Qualify the claim to 'worse
+      teacher for Terminal-Bench 2.0 specifically' or provide a composite metric.
+    severity: writing
+  - id: 332025b3cebe
+    text: 'Sandbox Security: The evaluation relies on "Daytona sandboxes" (Section
+      4). The safety of the released models depends heavily on the assumption that
+      these agents will be run in similar isolated environments. The paper should
+      briefly describe the security guarantees of this sandboxing infrastructure to
+      ensure readers understand the necessary deployment constraints.'
+    severity: writing
+  - id: 1645b7eb038a
+    text: The paper presents an extensive ablation study (>100 runs) on data recipes
+      for agentic models, but the statistical rigor required to support the central
+      claims is insufficient in several key areas. First, the conclusion regarding
+      teacher model selection (Section 3.5, Table 5) asserts that GPT-5.3-Codex is
+      a "worse teacher" than GLM-4.7-AWQ, citing a ~5 percentage point drop on Terminal-Bench
+      2.0. However, the table reports standard errors (SE) of 1.40 and 0.99 respectively.
+      Without a reported p-
+    severity: writing
+  - id: fae291a4c002
+    text: Report p-values or confidence intervals for all benchmark comparisons (e.g.,
+      Table 1). Claims of superiority (e.g., Top-4 vs Top-2) lack statistical significance
+      testing across the n=3 runs.
+    severity: science
+  - id: 4c4320a97604
+    text: Address the multiple-comparisons problem in the >100 ablation study (Section
+      3.1). Apply corrections (e.g., Bonferroni) to p-values or explicitly label results
+      as exploratory to avoid false positives.
+    severity: science
+  - id: 2f4404317a05
+    text: Provide formal statistical tests (e.g., ANOVA) for scaling claims in Figure
+      2. Visual error bar overlap suggests the 'plateau' vs 'improvement' distinction
+      may not be significant without trend analysis.
+    severity: science
+  - id: 19c0c0b83814
+    text: Quantify uncertainty for the teacher model drop (Section 3.5). A confidence
+      interval for the ~5pp difference is required to validate the claim that GPT-5.3
+      is a worse teacher.
+    severity: science
+  - id: '540064632993'
+    text: 'Duplicate Figure 1: The figure labeled ''scaling-curves'' (Fig. 1) appears
+      twice in the source. It is first defined in chunk e000 (lines 135-143) and again
+      in chunk e001 (lines 10-18) with identical captions and labels. This will cause
+      a LaTeX ''multiply defined'' warning and duplicate rendering in the PDF.'
+    severity: writing
+  - id: fafc557e9a5b
+    text: "Inconsistent Citation Style: The bibliography uses a mix of \\citep and\
+      \ \\citet commands in the text (e.g., e000 line 10 uses \\citep{dsv4} while\
+      \ e000 line 135 uses \\cite{novasky2026skyrlharbor}). The \thebibliography environment\
+      \ manually defines \bibitem with \\citet wrappers (e000 lines 150-160), which\
+      \ is non-standard and likely to cause compilation errors or formatting inconsistencies.\
+      \ Standardize to \bibitem{key} {Author} {Title}..."
+    severity: writing
+  - id: f0e6d88102d6
+    text: "Table Formatting Hygiene: Several tables (e.g., e001 lines 105-115, e002\
+      \ lines 10-25) use \resizebox{\textwidth}{!} to force fit. This often results\
+      \ in inconsistent font sizes across tables and poor readability. Consider using\
+      \ \\small or \footnotesize with standard column widths instead of scaling the\
+      \ entire table."
+    severity: writing
+  - id: 9569c678e085
+    text: "Missing Cross-Reference Targets: The text references \\Cref{tab:compute_controlled_filtering}\
+      \ (e000 line 108) and \ref{tab:task_gen_full_part1} (e000 line 65), but the\
+      \ corresponding \\label definitions are missing or mismatched in the provided\
+      \ chunks. Ensure all \ref and \\Cref commands point to existing \\label definitions\
+      \ to prevent '??' in the final PDF."
+    severity: writing
+  - id: 8f80e8b01b38
+    text: "The manuscript presents a comprehensive study on data recipes for agentic\
+      \ models, but the writing quality requires minor revisions to address structural\
+      \ inconsistencies and stylistic uniformity. The most critical issue is the apparent\
+      \ duplication of the Abstract and Introduction sections in the provided LaTeX\
+      \ source (comparing chunk e000 and e001). The text in e000 begins with \"Agentic\
+      \ language models enable complex tool\u2011using tasks...\", while e001 starts\
+      \ with \"Moreover, our training data exhibi"
+    severity: writing

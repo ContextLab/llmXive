@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.07967",
+  "judged_at": "2026-06-30T18:43:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the impact of data imputation methods on causal inference statistics",
+  "rationale": "The paper addresses selection bias and causal estimands in cluster randomized trials but does not measure, model, or discuss data imputation methods or their specific impact on causal inference statistics. While both topics fall under the broad umbrella of causal inference, the paper fails to satisfy any inclusion criteria (a-f) as it lacks the specific mechanism (imputation) or variables required by the user's question, representing a distinct construct within the same general domain rather tha",
+  "relevant": false
+}

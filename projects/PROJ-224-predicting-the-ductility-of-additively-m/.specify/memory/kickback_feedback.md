@@ -6,4 +6,4 @@ The convergence panel for this stage could not resolve the concerns below within
 
 ## Unresolved concerns
 
-- [template_placeholder] unfilled [NNN-...] branch-name template placeholder in 'projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/spec.md': '[###-brain-dynamics-creativity]'. A converged spec must not carry this; the reviser must resolve it before the spec advances.
+- [template_placeholder] unfilled [NNN-...] branch-name template placeholder in 'projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/spec.md': '[###-ductility-prediction]'. A converged spec must not carry this; the reviser must resolve it before the spec advances.

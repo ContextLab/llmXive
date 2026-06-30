@@ -98,7 +98,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/llmXive/PROJ-573-https-arxiv-org-abs-2604-27351
   verified_at: '2026-06-30T17:44:16.182312Z'
-- artifact_hash: f23621ea202126b432e47d1dce131e13dda393ba80a26ede1e12661f1b05c39b
+- artifact_hash: 3805d9c57df8b8928d859ced0f1fd4acb851ee76294b86bd2d0bc0cf1f7373f6
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -109,10 +109,21 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-06-30T17:54:33.547830Z'
-- artifact_hash: f23621ea202126b432e47d1dce131e13dda393ba80a26ede1e12661f1b05c39b
+  verified_at: '2026-06-30T19:10:48.201602Z'
+- artifact_hash: 3805d9c57df8b8928d859ced0f1fd4acb851ee76294b86bd2d0bc0cf1f7373f6
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1809.01635] A Differentially Private Wilcoxon Signed-Rank Test'
+  kind: url
+  value: https://arxiv.org/abs/1809.01635
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/1809.01635
+  verified_at: '2026-06-30T19:10:48.201602Z'
+- artifact_hash: 3805d9c57df8b8928d859ced0f1fd4acb851ee76294b86bd2d0bc0cf1f7373f6
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: p-value - Wikipedia
@@ -120,10 +131,10 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-06-30T17:54:33.547830Z'
-- artifact_hash: f23621ea202126b432e47d1dce131e13dda393ba80a26ede1e12661f1b05c39b
+  verified_at: '2026-06-30T19:10:48.201602Z'
+- artifact_hash: 3805d9c57df8b8928d859ced0f1fd4acb851ee76294b86bd2d0bc0cf1f7373f6
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  cite_id: c-003
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: Bootstrapping - Wikipedia
@@ -131,10 +142,10 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-06-30T17:54:33.547830Z'
-- artifact_hash: f23621ea202126b432e47d1dce131e13dda393ba80a26ede1e12661f1b05c39b
+  verified_at: '2026-06-30T19:10:48.201602Z'
+- artifact_hash: 3805d9c57df8b8928d859ced0f1fd4acb851ee76294b86bd2d0bc0cf1f7373f6
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  cite_id: c-004
+  cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: Hutter Prize - Wikipedia
@@ -142,4 +153,4 @@
   value: https://en.wikipedia.org/wiki/Hutter_Prize
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Hutter_Prize
-  verified_at: '2026-06-30T17:54:33.547830Z'
+  verified_at: '2026-06-30T19:10:48.201602Z'

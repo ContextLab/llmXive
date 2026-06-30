@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-13T09:06:24.074530Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-700-spatialclaw-rethinking-action-interface
-last_run_id: fe3a9ae7-7ff2-4a73-b58b-f1ee9671a013
+last_run_id: 08a548b8-9ba4-47ac-abdd-2496b2622caa
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: specs/auto-revisions/PROJ-700-spatialclaw-rethinking-action-interface/round-1
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-700-spatialclaw-rethinking-action-interface/specs/001-spatialclaw-rethinking-action-interface
 title: 'SpatialClaw: Rethinking Action Interface for Agentic Spatial Reasoning'
-updated_at: '2026-06-30T17:12:11.681902Z'
+updated_at: '2026-06-30T17:59:27.329505Z'

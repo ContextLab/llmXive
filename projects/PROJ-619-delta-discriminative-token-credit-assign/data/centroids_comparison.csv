@@ -1,0 +1,3 @@
+method,cosine_similarity,description
+Standard_RLVR,0.07693183497780062,Baseline centroid separation
+DelTA_Proxy,-0.4354053359557016,Discriminative token credit assignment

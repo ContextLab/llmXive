@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-16T09:58:10.381752Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-706-memory-is-reconstructed-not-retrieved-gr
-last_run_id: 2289d128-de28-4c34-bd30-55c4e6dfd6ef
+last_run_id: f922da24-a53e-45e9-a7e5-e696efd032a7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-706-memory-is-reconstructed-not-re
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents'
-updated_at: '2026-06-30T02:30:05.200150Z'
+updated_at: '2026-06-30T17:20:57.850606Z'

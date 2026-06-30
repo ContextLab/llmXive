@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T11:04:08.352304Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents in Large-Scale
   Tool Ecosystems'
-updated_at: '2026-06-28T21:49:10.154481Z'
+updated_at: '2026-06-30T18:41:00.886801Z'

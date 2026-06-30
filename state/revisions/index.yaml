@@ -303,3 +303,6 @@ ready:
 - project_id: PROJ-579-https-arxiv-org-abs-2605-15155
   revision_spec_path: specs/auto-revisions/PROJ-579-https-arxiv-org-abs-2605-15155/round-2
   queued_at: '2026-06-30T17:17:06.927384+00:00'
+- project_id: PROJ-780-openthoughts-agent-data-recipes-for-agen
+  revision_spec_path: specs/auto-revisions/PROJ-780-openthoughts-agent-data-recipes-for-agen/round-1
+  queued_at: '2026-06-30T18:56:37.120508+00:00'

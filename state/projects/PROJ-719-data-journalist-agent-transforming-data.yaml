@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-17T09:40:39.588824Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-719-data-journalist-agent-transfor
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Data Journalist Agent: Transforming Data into Verifiable Multimodal Stories'
-updated_at: '2026-06-30T06:49:54.577597Z'
+updated_at: '2026-06-30T17:20:36.865914Z'

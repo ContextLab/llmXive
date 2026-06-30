@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FlexibilityMetric"
+description: "Schema for per-participant network flexibility metrics derived from sliding-window analysis."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique HCP subject identifier."
+  flexibility_score:
+    type: "number"
+    description: "Mean proportion of community changes across ROIs."
+  null_flexibility_mean:
+    type: "number"
+    description: "Mean flexibility from phase-randomized null model."
+  excess_flexibility:
+    type: "number"
+    description: "Difference between observed flexibility and null mean."
+  static_strength:
+    type: "number"
+    description: "Mean absolute correlation of the full-window static connectivity matrix."
+  window_length:
+    type: "integer"
+    description: "Sliding window length in seconds (e.g., 20, 30, 40)."
+  step_size:
+    type: "integer"
+    description: "Step size in seconds (default 5)."
+  roi_change_counts:
+    type: "object"
+    description: "Optional map of ROI name to change count."
+    additionalProperties:
+      type: "integer"
+  motion_flag:
+    type: "boolean"
+    description: "True if subject was excluded due to excessive motion."
+  exclusion_reason:
+    type: "string"
+    description: "Reason for exclusion if motion_flag is true."
+required:
+  - subject_id
+  - flexibility_score
+  - null_flexibility_mean
+  - excess_flexibility
+  - static_strength
+  - window_length
+  - motion_flag
+additionalProperties: false
