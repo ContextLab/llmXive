@@ -1,0 +1,77 @@
+% Tiled-length component cross-entropies entering the IB-residual
+% headline metric \cref{tab:minimality-delta-ib}. Both tables feed
+% \mathbf{T} to the probe at a common position count
+% (tile_to_length=128 in the experiments repo) so that representations
+% of different native lengths are evaluated at the same window size.
+% The native-length companion of CE(Y|T) is in \cref{tab:minimality-ce-y}
+% under the earlier formulation.
+
+\begin{table}[!htbp]
+  \caption{Output-prediction cross-entropy $\text{CE}(Y \mid \mathbf{T})$ across source LLMs with $\mathbf{T}$ tiled to a common length. The tiled form is the one entering the IB-residual measure of \cref{tab:minimality-delta-ib}. Comparison with \cref{tab:minimality-ce-y} isolates the effect of length normalisation on each representation.}
+  \label{tab:minimality-ce-y-tiled}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.1}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l *{2}{c} !{\vrule} *{2}{c} *{5}{c} *{5}{c} *{5}{c} !{\vrule} *{2}{c}@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textit{Output Emb.}}
+      & \multicolumn{2}{c}{\textit{Last Input Tok.}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (no noise)}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (Gumbel)}}
+      & \multicolumn{5}{c}{\textit{Latent Thinking}}
+      & \multicolumn{2}{c}{\textit{Baselines}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-10}\cmidrule(lr){11-15}\cmidrule(lr){16-20}\cmidrule(lr){21-22}
+    \textbf{LLM}
+      & Exc & Pool
+      & All & Final
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & IE & RV \\
+    \midrule
+    Llama-3.1 8B     & \ciSE{0.72}{0.03} & \ciSE{0.79}{0.02} & \ciSE{0.80}{0.02} & \ciSE{0.78}{0.02} & \ciSE{0.82}{0.03} & \ciSE{0.82}{0.02} & \ciSE{0.80}{0.02} & \ciSE{0.82}{0.02} & \ciSE{0.83}{0.03} & \ciSE{0.86}{0.03} & \ciSE{0.88}{0.03} & \ciSE{0.88}{0.03} & \ciSE{0.89}{0.02} & \ciSE{0.90}{0.03} & \ciSE{0.82}{0.02} & \ciSE{0.79}{0.02} & \ciSE{0.79}{0.02} & \ciSE{0.80}{0.02} & \ciSE{0.82}{0.02} & \ciSE{0.82}{0.03} & \ciSE{7.08}{0.08} \\
+    Llama-3.3 70B    & \ciSE{1.26}{0.03} & \ciSE{1.29}{0.03} & \ciSE{1.16}{0.03} & \ciSE{1.22}{0.03} & \ciSE{1.37}{0.03} & \ciSE{1.19}{0.03} & \ciSE{1.22}{0.03} & \ciSE{1.24}{0.03} & \ciSE{1.25}{0.03} & \ciSE{1.38}{0.03} & \ciSE{1.29}{0.04} & \ciSE{1.27}{0.03} & \ciSE{1.25}{0.03} & \ciSE{1.27}{0.03} & \ciSE{1.26}{0.03} & \ciSE{1.26}{0.03} & \ciSE{1.26}{0.03} & \ciSE{1.29}{0.03} & \ciSE{1.29}{0.03} & \ciSE{1.33}{0.03} & \ciSE{7.61}{0.06} \\
+    DS-R1-Qwen 32B   & \ciSE{0.82}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.76}{0.02} & \ciSE{0.80}{0.02} & \ciSE{0.81}{0.02} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.02} & \ciSE{0.81}{0.03} & \ciSE{0.85}{0.03} & \ciSE{0.85}{0.03} & \ciSE{0.84}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.81}{0.02} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.85}{0.03} & \ciSE{6.90}{0.07} \\
+    Skywork-OR1 32B  & \ciSE{0.96}{0.03} & \ciSE{0.97}{0.03} & \ciSE{0.89}{0.02} & \ciSE{0.94}{0.03} & \ciSE{0.95}{0.03} & \ciSE{0.97}{0.03} & \ciSE{0.94}{0.03} & \ciSE{0.95}{0.03} & \ciSE{0.95}{0.03} & \ciSE{0.97}{0.03} & \ciSE{1.00}{0.03} & \ciSE{0.97}{0.03} & \ciSE{0.97}{0.03} & \ciSE{0.96}{0.03} & \ciSE{0.95}{0.03} & \ciSE{0.93}{0.03} & \ciSE{0.93}{0.03} & \ciSE{0.93}{0.03} & \ciSE{0.94}{0.03} & \ciSE{1.02}{0.03} & \ciSE{6.77}{0.07} \\
+    GPT-OSS 20B      & \ciSE{0.83}{0.03} & \ciSE{0.80}{0.03} & \ciSE{0.78}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.82}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.84}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.80}{0.03} & \ciSE{0.80}{0.03} & \ciSE{0.80}{0.03} & \ciSE{0.80}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.84}{0.03} & \ciSE{6.59}{0.08} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\begin{table}[!htbp]
+  \caption{Conditional input cross-entropy $\text{CE}(X \mid Y, \mathbf{T})$ across source LLMs with $\mathbf{T}$ tiled to a common length. Higher values indicate that, given the output, $\mathbf{T}$ leaks less residual information about the input. This is the input component of the IB-residual measure in \cref{tab:minimality-delta-ib}, paired with $\text{CE}(Y \mid \mathbf{T})$ from \cref{tab:minimality-ce-y-tiled}.}
+  \label{tab:minimality-ce-xyt-tiled}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.1}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l *{2}{c} !{\vrule} *{2}{c} *{5}{c} *{5}{c} *{5}{c} !{\vrule} *{2}{c}@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textit{Output Emb.}}
+      & \multicolumn{2}{c}{\textit{Last Input Tok.}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (no noise)}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (Gumbel)}}
+      & \multicolumn{5}{c}{\textit{Latent Thinking}}
+      & \multicolumn{2}{c}{\textit{Baselines}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-10}\cmidrule(lr){11-15}\cmidrule(lr){16-20}\cmidrule(lr){21-22}
+    \textbf{LLM}
+      & Exc & Pool
+      & All & Final
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & IE & RV \\
+    \midrule
+    Llama-3.1 8B     & \ciSE{1.09}{0.03} & \ciSE{1.06}{0.03} & \ciSE{0.89}{0.03} & \ciSE{0.94}{0.03} & \ciSE{1.07}{0.03} & \ciSE{1.00}{0.03} & \ciSE{1.01}{0.03} & \ciSE{1.01}{0.03} & \ciSE{1.02}{0.03} & \ciSE{1.11}{0.03} & \ciSE{1.05}{0.03} & \ciSE{1.04}{0.03} & \ciSE{1.05}{0.03} & \ciSE{1.05}{0.03} & \ciSE{0.99}{0.03} & \ciSE{0.98}{0.03} & \ciSE{0.97}{0.03} & \ciSE{0.97}{0.03} & \ciSE{0.99}{0.03} & \ciSE{1.04}{0.03} & \ciSE{6.69}{0.07} \\
+    Llama-3.3 70B    & \ciSE{1.13}{0.03} & \ciSE{1.09}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.92}{0.03} & \ciSE{1.13}{0.03} & \ciSE{0.92}{0.03} & \ciSE{0.91}{0.03} & \ciSE{0.93}{0.03} & \ciSE{0.94}{0.03} & \ciSE{1.14}{0.03} & \ciSE{0.98}{0.03} & \ciSE{0.96}{0.03} & \ciSE{0.96}{0.03} & \ciSE{0.95}{0.03} & \ciSE{0.95}{0.03} & \ciSE{0.95}{0.03} & \ciSE{0.96}{0.03} & \ciSE{0.96}{0.03} & \ciSE{0.99}{0.03} & \ciSE{1.10}{0.03} & \ciSE{6.62}{0.07} \\
+    DS-R1-Qwen 32B   & \ciSE{0.90}{0.03} & \ciSE{0.89}{0.03} & \ciSE{0.68}{0.03} & \ciSE{0.75}{0.03} & \ciSE{0.91}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.79}{0.03} & \ciSE{0.80}{0.03} & \ciSE{0.81}{0.03} & \ciSE{0.95}{0.03} & \ciSE{0.89}{0.03} & \ciSE{0.88}{0.03} & \ciSE{0.84}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.86}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.89}{0.03} & \ciSE{6.40}{0.07} \\
+    Skywork-OR1 32B  & \ciSE{0.80}{0.03} & \ciSE{0.79}{0.03} & \ciSE{0.58}{0.02} & \ciSE{0.67}{0.02} & \ciSE{0.83}{0.03} & \ciSE{0.69}{0.03} & \ciSE{0.66}{0.03} & \ciSE{0.66}{0.03} & \ciSE{0.69}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.78}{0.03} & \ciSE{0.76}{0.03} & \ciSE{0.74}{0.03} & \ciSE{0.71}{0.03} & \ciSE{0.77}{0.03} & \ciSE{0.73}{0.03} & \ciSE{0.72}{0.03} & \ciSE{0.72}{0.03} & \ciSE{0.72}{0.03} & \ciSE{0.81}{0.03} & \ciSE{6.17}{0.07} \\
+    GPT-OSS 20B      & \ciSE{0.58}{0.02} & \ciSE{0.57}{0.02} & \ciSE{0.50}{0.02} & \ciSE{0.55}{0.02} & \ciSE{0.62}{0.02} & \ciSE{0.60}{0.02} & \ciSE{0.60}{0.02} & \ciSE{0.60}{0.02} & \ciSE{0.60}{0.02} & \ciSE{0.65}{0.02} & \ciSE{0.57}{0.02} & \ciSE{0.60}{0.02} & \ciSE{0.56}{0.02} & \ciSE{0.60}{0.02} & \ciSE{0.56}{0.02} & \ciSE{0.61}{0.02} & \ciSE{0.63}{0.02} & \ciSE{0.63}{0.02} & \ciSE{0.58}{0.02} & \ciSE{0.50}{0.02} & \ciSE{6.29}{0.07} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}

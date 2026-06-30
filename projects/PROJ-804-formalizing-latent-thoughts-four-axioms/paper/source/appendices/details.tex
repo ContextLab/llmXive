@@ -1,0 +1,130 @@
+\section{Training Details}
+\label{appendix:sub:train_details}
+
+\subsection{LLM Data Generation}
+The generator models, benchmark, beam count, and maximum generation length
+are defined in \cref{sec:exp_setup}; all models are loaded in their native precision (bfloat16). From each beam we extract hidden states at every decoding step
+across all layers, and take the last token of the prefill step as the
+primary thought representation (position $-1$, decoding step $0$, all
+layers). The per-model layer count is 33, 81, 65, 65, and 25 for
+Llama-3.1 8B, Llama-3.3 70B, DeepSeek-R1-Distill-Qwen 32B, Skywork-OR1 32B, and
+GPT-OSS 20B respectively.
+
+\subsection{Soft Thinking and Latent Thinking Generation}
+\label{appendix:sub:soft_latent_formula}
+Soft Thinking (No Noise) replaces discrete decoding with the
+weighted combination of token embeddings $\mathbf{T} = \sum_v p_v \mathbf{e}_v$
+where $p_v = \mathrm{softmax}(z)_v$ and $\mathbf{e}_v$ is the token
+embedding~\citep{zhang2025softthinkingunlockingreasoning}.
+Soft Thinking with Gumbel Noise applies $\hat{p}_v \propto \exp((z_v + \epsilon_v)/\tau)$
+with $\epsilon_v \sim \mathrm{Gumbel}(0,1)$ and temperature
+$\tau=1.0$~\citep{wu2026llms}.
+Latent Thinking applies recurrent hidden state updates using
+a protocol similar to COCONUT \citep{hao2024training}, as implemented in \citet{zou2025latentcollaborationmultiagentsystems}.
+For all iterative methods, we evaluate steps
+$s \in \{1, 16, 32, 64, 128\}$.
+
+\paragraph{Determinism under stochastic extraction.}
+The idealized mapping $g$ in \cref{def:thought-mapping} is defined deterministically. Extraction methods that include stochastic components, such as Gumbel noise in Soft Thinking, fix a global random seed across all evaluations, so each input deterministically produces the same $\mathbf{T}$. The Gumbel perturbation is therefore a property of the extraction procedure rather than a source of representational randomness, and $g$ remains well-defined as a deterministic function of $x$.
+
+\subsection{Causality Evaluation Protocol}
+\label{appendix:sub:causality_eval}
+The causality evaluation does not involve training.
+Given a test problem with $K=8$ beams $\{y_k\}_{k=1}^K$ and
+corresponding thought representations $\{\mathbf{T}_k\}_{k=1}^K$,
+we compute:
+\begin{enumerate}[nosep,leftmargin=1.5em]
+  \item \textbf{Prefix--suffix split}: Let $y_{\mathrm{suf}}$ denote the last 50 tokens
+        of $y_k$ (the answer suffix) and $y_{\mathrm{pre}}$ the preceding tokens (the
+        reasoning prefix), so that $y_k = [y_{\mathrm{pre}},\, y_{\mathrm{suf}}]$.
+        Beams shorter than 51 tokens are excluded from this evaluation.
+  \item \textbf{Baseline distribution}: Run the evaluation backbone on the explicit
+        token embeddings of $y_{\mathrm{pre}}$ to obtain
+        $P(y_{\mathrm{suf}} \mid y_{\mathrm{pre}})$ at the $y_{\mathrm{suf}}$ positions
+        via teacher forcing.
+  \item \textbf{Intervened distribution}: Replace the prefix embeddings
+        with the projected thought representation $\mathbf{T}_k$ to
+        obtain $P(y_{\mathrm{suf}} \mid \mathbf{T}_k)$ at the same positions. The
+        projection is taken from an output-reconstruction projection trained on the
+        source LLM's output sequences via cross-entropy loss (same training splits as
+        the Minimality probe); see \cref{appendix:sub:causality_minproj}
+        for the ablation comparing this choice against the discriminator projection.
+        The evaluation backbone is LLaMA-3.2-1B~\citep{grattafiori2024llama3herdmodels}
+        with its parameters held fixed; the projection learns to map $\mathbf{T}$ into
+        the backbone's embedding space so that the KL measures whether $\mathbf{T}$
+        induces the same functional generative effect on $y_{\mathrm{suf}}$ as
+        $y_{\mathrm{pre}}$, rather than raw cross-model transferability.
+  \item \textbf{KL divergence}: Compute
+        $D_\mathrm{KL}\!\left(P(y_{\mathrm{suf}} \mid y_{\mathrm{pre}}) \,\|\,
+        P(y_{\mathrm{suf}} \mid \mathbf{T}_k)\right)$
+        averaged over $y_{\mathrm{suf}}$ positions.
+\end{enumerate}
+\paragraph{Position indices under tiling.}
+Because all candidates are tiled to the same substitution length ($128$ positions), the absolute position indices seen by $y_{\mathrm{suf}}$ under LLaMA-3.2-1B's Rotary Position Embeddings are identical across every candidate for a given problem. Any KL inflation arising from the difference between the tiled length and the natural prefix length $|y_{\mathrm{pre}}|$ is therefore a constant offset shared by every candidate and does not affect their relative ordering.
+This is performed on the held-out test split (\cref{appendix:dataset}),
+minus beams excluded by the length gate above.
+We report the mean KL across all valid beam--problem pairs.
+
+\subsection{Minimality Probe Architecture and Training}
+Two probes are trained under the same architecture, an output-reconstruction probe
+estimating $\mathrm{CE}(Y \mid \mathbf{T})$ and a conditional input probe
+estimating $\mathrm{CE}(X \mid Y, \mathbf{T})$.
+Both probes tile $\mathbf{T}$ to 128 positions.
+The probe maps $\mathbf{T}$ through a parameter-free LayerNorm, a learned linear
+projection ($d_{\mathrm{thought}} \to 2048$), a second LayerNorm, and a learned
+position-independent offset before prepending the result to the token embedding
+sequence of the target or conditioning text, which is processed by the frozen backbone.
+Training uses AdamW with a cosine learning-rate schedule
+($\mathrm{lr}_{\max} = 5 \times 10^{-5}$, 1 epoch, warmup steps $= 20$),
+batch size 64, and cross-entropy loss over the tokenized target sequence.
+
+\subsection{Discriminator Architecture and Training}
+\label{appendix:sub:disc_arch}
+The discriminator $f_\mathrm{disc}(\mathbf{T}, Y)$ applies a parameter-free LayerNorm
+to $\mathbf{T}$, projects it with a learned linear map ($d_{\mathrm{thought}} \to 2048$),
+and passes the result through a second LayerNorm.
+The input sequence to the frozen backbone is formed by concatenating the token embeddings
+of $Y$, a learned separator embedding, the projected thought vectors, and a learned CLS
+token.
+The hidden state at the CLS position is classified by a two-layer head consisting of
+Linear($2048 \to 1024$), LayerNorm, ReLU, Dropout($0.1$), and Linear($1024 \to 1$).
+This pattern of training a binary classifier on projected latent
+activations as a read-out mechanism for behavioral signals inside
+transformer models is consistent with recent work on activation
+read-outs across LLM families~\citep{zhan2026real}.
+Training uses binary cross-entropy loss with AdamW,
+learning rate $1 \times 10^{-4}$, batch size 64, and 1 epoch.
+
+\paragraph{Hyperparameter provenance.} The probe and discriminator configurations reported in this section, including the projection dimensions, the LLaMA-3.2-1B backbone, and the optimizer settings, were selected from a small set of variants explored during initial pilots. The values listed above are fixed across every source LLM and every candidate thought representation reported in this paper. No hyperparameter was tuned on the held-out test split.
+
+\subsection{Stability Sub-Properties and DCS Diagnostics}
+\label{appendix:sub:dcs_tau}
+
+\paragraph{Sub-property coverage.} Candidate representations fall into two empirical categories on the lexical-invariance axis. The Last Input Token, Pooled Output Embedding, Input Embedding, and Random Vector candidates, together with the iterative thinking families (Soft Thinking with and without Gumbel noise, Latent Thinking), produce a single vector per question regardless of which beam is drawn, so $\mathbf{T}_i = \mathbf{T}_j$ for every beam pair $(i,j)$ within the same question and lexical invariance holds by construction for these candidates. Mode-collapse resistance is the only Stability sub-property that admits a nontrivial test for them. The Exact Output Embedding is per-beam, with $\mathbf{T}_i = \mathrm{emb}(y_i)$ derived from each beam's generated text independently. For DCS it is aggregated per-question. Because $H_x$ is computed from pairwise cosine similarities between these same Nemotron output embeddings, the DCS score for the Exact Output Embedding confirms the alignment of the metric with the output distribution rather than a representational property under evaluation.
+
+\paragraph{Input-embedding baseline.} We report the embedding of the question text as a question-difficulty baseline alongside all thought representations. Because $H_x$ is computed in the same embedding space, this input embedding benefits from a structural alignment with the label that model-derived representations do not share. Where it matches or exceeds thought representations, distributional uncertainty is largely predictable from the question text alone, which constitutes a finding about model capability rather than a flaw of the metric (see \cref{sec:results}).
+
+\paragraph{GPT-OSS-20B as an MoE outlier.} GPT-OSS-20B yields a non-singleton semantic cluster across beams on only $1.0\%$ of questions at $\tau = 0.9$, against $16$--$46\%$ for the four dense source LLMs. The Random Vector baseline drifts above $0.5$ on the same model because the positive class is extremely small. The pattern is consistent with Top-$K$ MoE routing acting as a re-convergence force on diverging beams, an architectural feature absent in the four dense source LLMs that pulls beam representations back toward each other after they begin to differ. Bespoke generation techniques tailored to MoE architectures may surface divergent semantic outputs but were avoided in this audit to keep the protocol consistent across source LLMs.
+
+\paragraph{Threshold sweep.} \Cref{fig:dcs-stability-tau} sweeps the semantic equivalence threshold $\tau$ over $\{0.70, 0.80, 0.85, 0.90, 0.95\}$ for one representative per thought-representation family across all five LLMs.
+All other quantities are held fixed. Only the binarization of the cosine similarity matrix used to compute $H_x$ varies.
+Rankings are stable across the full range. Families that score above the random-vector baseline at the main-text threshold do so at every other threshold, and families that score near the random baseline do so uniformly.
+
+\citet{cencerrado2026answerneededpredictingllm} demonstrate that when $H_x$ is linearly decodable from a representation via a difference-of-means probe, the uncertainty signal is encoded within it.
+We note that the converse does not necessarily follow, since a representation may encode $H_x$ through a non-linear structure that a linear probe cannot detect and would in that case score near the random baseline despite carrying the relevant information.
+DCS scores near the random baseline are therefore evidence against linear encoding of distributional uncertainty rather than definitive evidence against encoding in any form.
+
+\input{figures/dcs_stability_tau}
+
+\subsection{Reproducibility and Code Release}
+\label{appendix:sub:reproducibility}
+
+The full evaluation pipeline is publicly available at \url{https://fard-lab.github.io/formalize-thoughts} under the MIT license. The repository is organized as a Hydra project with one runnable script per phase and a shared configuration tree. Every random seed used in the pipeline is pinned in the corresponding Hydra config so that any individual phase can be re-executed without further parameter passing. Source LLMs are downloaded from public HuggingFace repositories at the identifiers given in \cref{sec:exp_setup}, BBEH is taken from the official Google DeepMind release under the Apache~2.0 license, the LLaMA-3.2-1B backbone shared by every probe and discriminator is a public HuggingFace asset, and the text embedder used is \texttt{nvidia/llama-embed-nemotron-8b} on HuggingFace.
+
+\paragraph{Environment.} The repository targets Python~3.12 and CUDA~12.6, with dependencies pinned via \texttt{pyproject.toml} and resolved by \texttt{uv sync}. Optional flash-attention support is documented in the README and is not required to reproduce the reported numbers.
+
+\paragraph{Hardware.} The vast majority of compute was performed on NVIDIA H100~SXM 80\,GB GPUs, including all source-LLM data generation and all discriminator training. NVIDIA A100~40\,GB GPUs were used for a small subset of probe-training and evaluation runs, without changes to the configuration.
+
+\paragraph{Compute totals.} All numbers below are H100-equivalent GPU-hours and are reported per source LLM. LLM data generation varies substantially across tasks and source LLMs, ranging from roughly $12$ to $48$ hours per BBEH task depending on output length and model capacity, and averages near $18$ hours per task for an aggregate of approximately $400$ hours per LLM. Discriminator training comprises $42$ runs per LLM ($21$ candidates each evaluated under same-task and cross-task pairing), with each run taking roughly $3$ to $7$ hours and an aggregate of approximately $210$ hours per LLM. Minimality probe training comprises $42$ runs per LLM ($21$ candidates each producing the $\mathrm{CE}(Y\mid\mathbf{T})$ and $\mathrm{CE}(X\mid Y, \mathbf{T})$ probes that enter $\Delta_{\mathrm{IB}}$), with each run taking roughly $2$ to $4$ hours and an aggregate of approximately $125$ hours per LLM. Causality evaluation runs in roughly $15$ to $20$ minutes per candidate, for an aggregate near $6$ hours per LLM. DCS evaluation runs in roughly $5$ minutes total for all five LLMs combined, since it operates only on cached embeddings and a difference-of-means probe. Aggregating across the five source LLMs, the experiments reported in this paper consumed approximately $3{,}700$ H100-equivalent GPU-hours. The full research project consumed additional compute beyond this figure for pilot architecture and hyperparameter exploration, whose final settings underwrite the configurations recorded in \cref{appendix:sub:train_details,appendix:sub:disc_arch}.
+
+

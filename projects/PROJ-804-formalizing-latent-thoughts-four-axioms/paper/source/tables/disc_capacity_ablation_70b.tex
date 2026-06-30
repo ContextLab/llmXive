@@ -1,0 +1,28 @@
+% Probe capacity ablation on Llama-3.3-70B same-task discrimination.
+% Three architectures of strictly increasing capacity vs. three thought
+% representations chosen as anchors. Cells report (test accuracy,
+% tail-50 mean training BCE). $\ln 2 \approx 0.693$ marks random guess.
+% Numbers are pulled directly from the corresponding training logs in
+% ~/hidden/logs/disc_70b_parallel/ (Baseline) and
+% ~/hidden/logs/disc_70b_deep_ablation/ (Deep / Deep+UF2).
+
+\begin{table}[!htbp]
+  \caption{Probe capacity ablation on Llama-3.3-70B same-task discrimination. Each cell reports test accuracy and the tail-$50$ mean of the training BCE loss. Columns increase discriminator capacity from a single linear projection (Baseline) through a deep MLP projection (Deep) to additionally unfreezing the last two transformer blocks of the frozen $1$B backbone (Deep $+$ UF2). $\ln 2 \approx 0.693$ is the BCE value at uniform $0.5$ output and equates to random guess.}
+  \label{tab:disc-capacity-ablation-70b}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{@{}l cc cc cc@{}}
+    \toprule
+                              & \multicolumn{2}{c}{\textit{Baseline}} & \multicolumn{2}{c}{\textit{Deep}} & \multicolumn{2}{c}{\textit{Deep $+$ UF2}} \\
+                              & \multicolumn{2}{c}{($\sim 19$M trainable)} & \multicolumn{2}{c}{($\sim 44$M trainable)} & \multicolumn{2}{c}{($\sim 165$M trainable)} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+    Thought representation        & Acc & BCE & Acc & BCE & Acc & BCE \\
+    \midrule
+    Last Input Token              & $0.516$ & $0.685$ & $0.500$ & $0.693$ & $0.501$ & $0.696$ \\
+    Soft Thinking at $128$ steps  & $0.513$ & $0.689$ & $0.511$ & $0.689$ & $0.508$ & $0.692$ \\
+    Output Embedding (Exact)      & $0.726$ & $0.494$ & $0.617$ & $0.631$ & $0.642$ & $0.659$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

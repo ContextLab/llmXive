@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-06-30T20:50:28.931494Z'
+current_stage: paper_ingested
+failed_stage: null
+field: linguistics
+human_escalation_reason: null
+id: PROJ-804-formalizing-latent-thoughts-four-axioms
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 'Formalizing Latent Thoughts: Four Axioms of Thought Representation in LLMs'
+updated_at: '2026-06-30T20:50:29.693277Z'

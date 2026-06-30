@@ -1,0 +1,104 @@
+\section{Formal Analysis of the Axiomatic System}
+\label{appendix:theoretical_properties}
+
+In this section, we provide the theoretical justification for the four axiomatic properties defined in Section \ref{methodology}. We use the same notation as the main text. Appendix-specific symbols are introduced where they first appear. We formally establish the logical framework of the set $\mathcal{P} = \{\text{Causality}, \text{Minimality}, \text{Separability}, \text{Stability}\}$.
+
+\subsection{Consistency (Existence)}
+\label{app:consistency}
+
+We first analyze the logical consistency of $\mathcal{P}$. In empirical, frozen language models trained via next-token prediction, there exists an inherent tension between Causality (which requires $\mathbf{T}$ to perfectly mimic the lexically-entangled predictive state of $\mathcal{M}_\theta$) and Stability/Minimality (which require $\mathbf{T}$ to discard lexical information). 
+
+\begin{proposition}
+The set of properties $\mathcal{P}$ is logically consistent. There exists an idealized model configuration $\mathcal{M}^*$ and representation $\mathbf{T}^*$ that satisfies all four axioms simultaneously.
+\end{proposition}
+
+\begin{proof}
+To prove strict logical consistency, we construct an idealized model $\mathcal{M}^*$ whose intermediate representations perfectly disentangle semantics from syntax.
+Let $\mathcal{S}_{\mathcal{M}}$ be a discrete semantic space. Let $\mathcal{M}^*$ be constructed such that its forward pass strictly factors through a one-hot semantic bottleneck before projecting to vocabulary logits, a construction closely related to the discrete latent bottlenecks used in recent latent reasoning architectures~\citep{deng2025latentreasoningllmsvocabularyspace}. Let $\mathbf{T}^*$ be the one-hot activation at this bottleneck.
+\begin{enumerate}
+    \item \textbf{Causality:} Because $\mathcal{M}^*$ explicitly generates $Z$ conditioned entirely on this semantic bottleneck, substituting the explicit sequence $Y$ with $\mathbf{T}^*$ yields identical downstream logits, so $D_{\text{KL}}(P_{\mathcal{M}^*}(Z \mid Y) \parallel P_{\mathcal{M}^*}(Z \mid \mathbf{T}^*)) = 0$, matching the formal causality criterion of \cref{methodology}.
+    \item \textbf{Minimality:} By construction $Y$ depends on $X$ only through $\mathbf{T}^*$, so $X \to \mathbf{T}^* \to Y$ forms a Markov chain and $\mathbf{T}^*$ is sufficient with $I(\mathbf{T}^*; Y) = I(X; Y)$. For any deterministic sufficient statistic $T = T(X)$, $I(X; T) = H(T) \geq I(T; Y) = I(X; Y)$, with equality precisely when $T$ is a bijective function of $\mathbf{T}^*$. Hence $\mathbf{T}^*$ attains the minimum of $I(X; T)$ over all sufficient $T$ and saturates the information-bottleneck objective. This is an existence claim about the idealized configuration $\mathcal{M}^*$. The empirical question of how closely a given frozen $\mathcal{M}_\theta$ approaches this construction is what \cref{sec:results} measures.
+    \item \textbf{Separability:} Distinct semantic intents map to orthogonal one-hot vectors, perfectly resolvable by any linear projection $\phi \in \mathcal{H}$.
+    \item \textbf{Stability:} Semantically equivalent outputs map deterministically to the same one-hot bottleneck, ensuring perfect lexical invariance at the output level. Mode Collapse Resistance holds vacuously in $\mathcal{M}^*$: by construction, each input $x$ induces a deterministic semantic class, so $P(Y \mid x)$ is a point mass with $H_x = 0$. There is no distributional uncertainty to represent or collapse, and the one-hot encoding faithfully reflects this zero-entropy output distribution.
+\end{enumerate}
+Because this configuration satisfies $\mathcal{P}$ without contradiction, the system is logically consistent.
+\end{proof}
+
+\begin{remark}
+For an arbitrary frozen model $\mathcal{M}_\theta$ with lexical-semantic entanglement, the four axioms define a Pareto-optimal frontier rather than a strict intersection. In empirical settings $\mathbf{T}$ acts as an $\epsilon$-optimal approximation that bounds the tradeoff between causal exactness and semantic stability, consistent with prior evidence that intermediate layers balance information compression against signal preservation~\citep{skean2025layerlayeruncoveringhidden,shani2025tokensthoughtsllmshumans}. We quantify this frontier empirically in \cref{sec:results}.
+\end{remark}
+
+\subsection{Independence (Non-Redundancy)}
+\label{app:independence}
+
+\begin{proposition}
+The axioms in $\mathcal{P}$ are logically independent. No property can be derived solely from the conjunction of the others.
+\end{proposition}
+
+\begin{proof}
+We prove independence by constructing a theoretical counter-model for each property $p \in \mathcal{P}$ that satisfies $\mathcal{P} \setminus \{p\}$ but violates $p$. Let $\mathbf{T}^*$ be an optimal representation satisfying all axioms in an idealized network.
+
+\paragraph{Case 1: Violation of Causality.}
+Construct $\mathbf{T} = \pi(\mathbf{T}^*)$, where $\pi$ is a fixed, random permutation of the coordinate dimensions of $\mathbf{T}^*$. Throughout this case the generation head of $\mathcal{M}^*$ is held frozen, while the Separability probe $\phi \in \mathcal{H}$ may be re-fit on the new representation. This asymmetry reflects how each axiom is operationalised in \cref{methodology} (probes test latent geometry and are trained per representation, whereas Causality tests substitution into a fixed model whose head is never retrained).
+\begin{itemize}
+    \item \textbf{Satisfies Minimality:} A permutation is a bijection on coordinates, so $I(X; \mathbf{T}) = I(X; \pi(\mathbf{T}^*)) = I(X; \mathbf{T}^*)$ (mutual information is invariant under invertible deterministic transformations), and the information-bottleneck objective is preserved exactly.
+    \item \textbf{Satisfies Separability:} Permutations are orthogonal transformations and preserve inner products. Since the Separability probe $\phi \in \mathcal{H}$ is trained on whichever representation is presented, it can absorb $\pi^{-1}$ in its first linear layer at no cost in norm or expressive power, recovering the separability of $\mathbf{T}^*$.
+    \item \textbf{Satisfies Stability:} The permutation is deterministic and depends only on coordinate indices, not on the output, so $\mathbf{T}^*_{y_1} = \mathbf{T}^*_{y_2} \implies \pi(\mathbf{T}^*_{y_1}) = \pi(\mathbf{T}^*_{y_2})$, preserving lexical invariance.
+    \item \textbf{Violates Causality:} The frozen generation head expects specific semantic features at specific indices. Because the head is not retrained, it cannot absorb $\pi^{-1}$, so the permuted representation activates wrong indices and is decoded as a different (typically incorrect) semantic class. Consequently $P_{\mathcal{M}^*}(Z \mid \mathbf{T})$ diverges from $P_{\mathcal{M}^*}(Z \mid Y)$ and the Causality KL spikes despite the geometry being preserved.
+\end{itemize}
+
+\paragraph{Case 2: Violation of Minimality.}
+Construct $\mathbf{T} = [\mathbf{T}^*, \xi(X)]$, where $\xi(X)$ is a high-entropy nuisance vector (e.g., a hash of the exact character sequence of $X$) that is independent of the semantic class. We assume the downstream generation head structurally ignores the dimensions of $\xi(X)$ (e.g., via an attention mask that zeroes them out), so that nuisance information is appended without affecting prediction.
+\begin{itemize}
+    \item \textbf{Satisfies Causality:} Since the head ignores $\xi(X)$, the conditional distribution $P_{\mathcal{M}^*}(Z \mid \mathbf{T})$ depends only on the $\mathbf{T}^*$ component and matches $P_{\mathcal{M}^*}(Z \mid \mathbf{T}^*) = P_{\mathcal{M}^*}(Z \mid Y)$ exactly.
+    \item \textbf{Satisfies Separability:} A linear classifier in $\mathcal{H}$ can place zero weight on the $\xi(X)$ coordinates and recover the same decision boundary as on $\mathbf{T}^*$, so the Separability margin $\delta$ is preserved.
+    \item \textbf{Satisfies Stability:} Stability requires lexical invariance among sibling outputs drawn from the same input $x$. Because $\xi$ is a function of the input alone, all sibling outputs $y_i \sim_{sem} y_j$ generated from the same $x$ inherit an identical $\xi(x)$, so their representations agree.
+    \item \textbf{Violates Minimality:} Independence of $\xi(X)$ from $\mathbf{T}^*$ gives $I(X; \mathbf{T}) = I(X; \mathbf{T}^*) + H(\xi(X) \mid \mathbf{T}^*) = I(X; \mathbf{T}^*) + H(\xi(X))$, so $I(X; \mathbf{T})$ exceeds the bottleneck minimum by $\Theta(H(\xi(X)))$ bits, which can be made arbitrarily large by lengthening the hash. The representation therefore carries strictly more information about $X$ than any sufficient statistic.
+\end{itemize}
+
+\paragraph{Case 3: Violation of Separability.}
+\emph{Scope of $\mathcal{H}$ for this case.} The Independence argument below analyzes Separability under the trainable component of $\mathcal{H}$ and treats the frozen LLM in the empirical realization of $f_\mathrm{disc}$ (\cref{appendix:sub:disc_arch}) as a fixed feature kernel outside the optimized class. This scoping aligns with the linear representation hypothesis~\citep{park2024linear}, under which high-level semantic concepts are linearly decodable from frozen LLM activations. Because empirical $f_\mathrm{disc}$ has access to LLM-induced nonlinear features that the theoretical $\mathcal{H}$ does not, the empirical test is more permissive. An empirical Separability failure implies a theoretical violation under $\mathcal{H}$, but the converse does not hold. The construction below therefore establishes Independence at the theoretical level and a conservative refinement at the empirical level.
+
+Fix two semantic classes $s \in \{0, 1\}$. Encode the representations such that class $0$ maps to $R_0 = \{(0,0,\mathbf{0}), (1,1,\mathbf{0})\} \subset \{0,1\}^d$ and class $1$ maps to $R_1 = \{(0,1,\mathbf{0}), (1,0,\mathbf{0})\}$, where $\mathbf{0}$ is the zero vector in $\{0,1\}^{d-2}$. The four vertices are the XOR configuration of the unit square padded into the ambient $d$-cube. The deep layers of $\mathcal{M}^*$ are parameterized to compute the XOR of the first two coordinates before decoding.
+\begin{itemize}
+    \item \textbf{Satisfies Causality:} The deep network applies the parity function before generation, so $\mathbf{T}$ matches the intermediate distribution the deep head expects and $P_{\mathcal{M}^*}(Z \mid \mathbf{T}) = P_{\mathcal{M}^*}(Z \mid Y)$.
+    \item \textbf{Approximately satisfies Minimality:} The representation occupies four configurations for two classes, contributing a fixed overhead of one bit above the minimum-sufficient encoding of the binary class label. This is a constant, content-independent cost: $I(X; \mathbf{T}) = I(X; \mathbf{T}^*) + 1\,\text{bit}$, where the extra bit encodes within-class position but carries no additional information about $X$ beyond the class label. The violation of strict Minimality is bounded and does not grow with the semantic complexity of $X$; for the purposes of the independence argument, this $\epsilon$-deviation from strict Minimality is the same approximation acknowledged in the Remark following \cref{app:consistency}.
+    \item \textbf{Satisfies Stability:} Within-class pairs satisfy $\mathbf{E}_{ij} = 1$ in the DCS equivalence matrix (\cref{methodology}) and the corresponding latent representations differ by Hamming distance at most two. The operational $\approx$ tolerance the Stability axiom permits is therefore satisfied.
+    \item \textbf{Violates Separability:} The bounded hypothesis class $\mathcal{H}$ defined in \cref{methodology} consists of a linear projection into an embedding space followed by a linear head~\citep{park2024linear}. The composition of two linear maps is itself linear, so every $\phi \in \mathcal{H}$ realises a single halfspace decision $\mathrm{sign}(w^\top \mathbf{T} + b)$ over $\mathbf{T}$. We show no such halfspace separates $R_0$ from $R_1$. Requiring positive decisions on $R_0$ forces $b > 0$ and $w_1 + w_2 + b > 0$, while requiring negative decisions on $R_1$ forces $w_1 + b < 0$ and $w_2 + b < 0$. Summing the last two yields $w_1 + w_2 < -2b$, which contradicts $w_1 + w_2 + b > 0$ whenever $b > 0$. The classes are XOR-configured and provably outside the linear hypothesis class. Beyond non-realizability, gradient-based training of any such $\phi$ on parity targets needs sample complexity scaling as $\Omega(d^2)$ before any nontrivial correlation emerges~\citep{barak2022hidden}, so even the relaxed empirical version of Separability fails. No $\phi \in \mathcal{H}$ therefore attains the required margin $\delta$.
+\end{itemize}
+
+\paragraph{Case 4: Violation of Stability.}
+Under \cref{def:thought-mapping}, $g$ is a deterministic function of $x$ alone, which means every beam drawn from the same input shares the same representation and Lexical Invariance is satisfied trivially. To show that Stability is not logically entailed by the remaining three axioms, we therefore work in the natural extended domain where the generator may depend on the generation trajectory: $g: \mathcal{X} \times \mathcal{Y} \to \mathcal{T}$. This extension captures stochastic extraction methods (e.g., beam-specific random seeds) and allows Lexical Invariance to be a nontrivial requirement. The independence argument below shows that even in this richer domain the other three axioms do not force Lexical Invariance. $\mathbf{T}_y$ denotes the representation value associated with output $y$ in this counter-model; $\mathbf{T}^*$ remains the input-determined component from \cref{def:thought-mapping}, and $\alpha_\mathrm{lex}(y)$ is the output-dependent augmentation whose role this case isolates.
+
+Construct $\mathbf{T}_y = [\mathbf{T}^*, \alpha_{lex}(y)]$, where $\alpha_{lex}(y) \in \{0, \lambda\}$ is a single massive scalar that flags a trivial lexical feature of the output sequence $y$, for concreteness the presence of a trailing space. We assume the downstream generation head structurally drops this augmented index. This assumption isolates Stability cleanly. Causality, Minimality, and Separability are all preserved precisely because the offending coordinate is suppressed at inference. The case is informative for representations consumed by models without such suppression which is exactly the empirical setting we evaluate, where the frozen LLM has no architectural mechanism to know which coordinate carries lexical noise. Under those conditions, even a single uncontrolled lexical-flag dimension destroys output-level invariance.
+\begin{itemize}
+    \item \textbf{Satisfies Causality:} The augmented index is dropped prior to prediction, so the causal logits remain identical to those of $\mathbf{T}^*$.
+    \item \textbf{Satisfies Minimality:} By construction $Y \perp X \mid \mathbf{T}^*$, so $\alpha_\mathrm{lex}(Y) \perp X \mid \mathbf{T}^*$ and $I(X; \mathbf{T}) = I(X; \mathbf{T}^*)$ exactly. Minimality is preserved without overhead.
+    \item \textbf{Satisfies Separability:} Any $\phi \in \mathcal{H}$ can place zero weight on the augmented coordinate and recover the same decision boundary as on $\mathbf{T}^*$, so the Separability margin $\delta$ is preserved.
+    \item \textbf{Violates Stability:} Two semantically equivalent outputs $y_i \sim_{sem} y_j$ that differ only in whether they end in a trailing space acquire $\alpha_{lex}(y_i) \neq \alpha_{lex}(y_j)$. Their representations are then separated by Euclidean distance $\lambda$, which can be made arbitrarily large, fundamentally destroying the output-level lexical invariance the axiom requires.
+\end{itemize}
+
+Therefore, no axiom logically entails another.
+\end{proof}
+
+\subsection{Completeness (Sufficiency)}
+\label{app:completeness}
+
+\begin{proposition}
+The set of properties $\mathcal{P}$ is complete with respect to the definition of a Functional Thought Representation. Any representation $\mathbf{T}$ strictly satisfying $\mathcal{P}$ establishes a well-defined functional isomorphism between the reachable latent space $\mathcal{T}$ and the reachable semantic manifold $\mathcal{S}_{\mathcal{M}}$.
+\end{proposition}
+
+\begin{proof}
+For each semantic class $s \in \mathcal{S}_{\mathcal{M}}$, choose a high-probability output $y \in \mathcal{Y}$ with $\Phi(y) = s$, and define $\psi : \mathcal{S}_{\mathcal{M}} \to \mathcal{T}$ by $\psi(s) = \mathbf{T}_y$. We verify that $\psi$ is a bijection onto $\mathcal{T}$.
+\begin{enumerate}
+    \item \textbf{Well-Defined (Stability and Minimality):} Fix a representative $y$ with $\Phi(y) = s$ to define $\psi(s) = \mathbf{T}_y$. For any other $y'$ with $\Phi(y') = s$, we need $\mathbf{T}_{y'} = \mathbf{T}_y$. If $y'$ is a sibling output drawn from the same input $x$ as $y$, strict Stability (Lexical Invariance) gives $\mathbf{T}_{y'} = \mathbf{T}_y$ directly. If $y'$ is drawn from a different input, strict Minimality forces $\mathbf{T}$ to be a function of $s$ alone, so $\mathbf{T}_{y'} = \mathbf{T}_y$ again. Hence $\psi(s)$ is well-defined.
+    \item \textbf{Injective (Separability):} For distinct classes $s_1 \neq s_2$ with disjoint high-probability semantic spaces, Separability supplies some $\phi \in \mathcal{H}$ that resolves $\psi(s_1)$ from $\psi(s_2)$ with margin $\delta > 0$. In particular $\psi(s_1) \neq \psi(s_2)$, so $\psi$ is injective.
+    \item \textbf{Surjective (Minimality and the generator definition):} The reachable latent $\mathcal{T}$ is defined as the image $g(\mathcal{X})$, so every $\mathbf{T} \in \mathcal{T}$ equals $g(x)$ for some input $x$, which induces a semantic class $\Phi(\mathcal{M}(x)) \in \mathcal{S}_{\mathcal{M}}$. Minimality (in the idealized limit clarified in the Remark below) additionally forces $\mathbf{T}$ to carry no information about $X$ beyond a sufficient statistic for the semantic class, because any excess would raise $I(X; \mathbf{T})$ above the bottleneck minimum. Consequently $g(x)$ coincides with $\mathbf{T}_y$ whenever $\Phi(\mathcal{M}(x)) = \Phi(y)$, so $\mathbf{T} = \psi(\Phi(\mathcal{M}(x)))$ and $\psi$ surjects onto $\mathcal{T}$.
+    \item \textbf{Functional Equivalence (Causality):} Causality upgrades the set-theoretic bijection to a functional one. Each $\mathbf{T} = \psi(s)$ substitutes for the explicit output sequence $Y$ inside $\mathcal{M}_\theta$ and induces the same downstream distribution $P_{\theta}(Z \mid \mathbf{T}) = P_{\theta}(Z \mid Y)$.
+\end{enumerate}
+Because $\psi$ is well-defined, injective, surjective onto $\mathcal{T}$, and functionally equivalent to the explicit generative pathway, it realizes a bijection $\mathcal{T} \cong \mathcal{S}_{\mathcal{M}}$. The four axioms therefore fully determine the structural isomorphism, and no further axiom is required.
+\end{proof}
+
+\begin{remark}
+The term "completeness" here refers to adequacy of the axiom set in the categoricity sense. No additional axiom is required beyond $\mathcal{P}$ to pin down the functional isomorphism up to relabeling of semantic classes. The bijection is strict in the idealized limit where Stability holds with equality and the Separability margin is unbounded. Under the empirical $\approx$ tolerance of Stability and the finite $\delta$-margin of Separability, the bijection becomes approximate and is quantified in \cref{sec:results}.
+\end{remark}

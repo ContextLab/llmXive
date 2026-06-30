@@ -1,0 +1,37 @@
+% Legacy headline causality. Cells display the mean KL(Z | T) with its
+% marginal bootstrap SE under the discriminator-trained projection of
+% \cref{appendix:sub:disc_arch}. Retained for cell-by-cell comparison
+% against the headline (\cref{tab:causality-results}).
+
+\begin{table}[!htbp]
+  \caption{Causality KL ($\downarrow$) across source LLMs under the discriminator-trained projection of \cref{appendix:sub:disc_arch}. The discriminator dataset expands single-vector representations to a common training length and repeats shorter multi-vector representations to that same length, so the projection itself is learned at fixed length and is internally consistent with feeding $\mathbf{T}$ at the same length here.}
+  \label{tab:causality-disc}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.1}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l *{2}{c} !{\vrule} *{2}{c} *{5}{c} *{5}{c} *{5}{c} !{\vrule} *{2}{c}@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textit{Output Emb.}}
+      & \multicolumn{2}{c}{\textit{Last Input Tok.}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (no noise)}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (Gumbel)}}
+      & \multicolumn{5}{c}{\textit{Latent Thinking}}
+      & \multicolumn{2}{c}{\textit{Baselines}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-10}\cmidrule(lr){11-15}\cmidrule(lr){16-20}\cmidrule(lr){21-22}
+    \textbf{LLM}
+      & Exc & Pool
+      & All & Final
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & IE & RV \\
+    \midrule
+    Llama-3.1 8B     & \ciAdvNS{4.89}{0.09} & \ciAdvNS{4.69}{0.09} & \ciAdvNS{6.13}{0.06} & \ciAdvNS{4.52}{0.07} & \ciAdvNS{4.43}{0.06} & \ciAdvNS{5.83}{0.08} & \ciAdvNS{9.31}{0.09} & \ciAdvNS{8.93}{0.08} & \ciAdvNS{7.31}{0.08} & \ciAdvNS{4.96}{0.08} & \ciAdvNS{7.46}{0.16} & \ciAdvNS{7.94}{0.10} & \ciAdvNS{8.40}{0.08} & \ciAdvNS{7.15}{0.06} & \ciAdvInf{4.21}{0.07} & \ciAdvNS{8.06}{0.08} & \ciAdvNS{4.37}{0.09} & \ciAdvNS{9.81}{0.09} & \ciAdvNS{8.14}{0.10} & \ciAdvNS{7.46}{0.13} & \ciSE{4.48}{0.07} \\
+    Llama-3.3 70B    & \ciAdvNS{4.90}{0.08} & \ciAdvNS{8.45}{0.06} & \ciAdvNS{7.41}{0.07} & \ciAdvNS{10.36}{0.04} & \ciAdvNSB{4.85}{0.09} & \ciAdvNS{9.34}{0.07} & \ciAdvNS{7.69}{0.05} & \ciAdvNS{9.61}{0.09} & \ciAdvNS{10.51}{0.07} & \ciAdvNS{5.84}{0.07} & \ciAdvNS{6.93}{0.08} & \ciAdvNS{10.27}{0.12} & \ciAdvNS{7.18}{0.06} & \ciAdvNS{8.53}{0.05} & \ciAdvNS{6.85}{0.06} & \ciAdvNS{8.99}{0.05} & \ciAdvNS{9.47}{0.05} & \ciAdvNS{8.09}{0.05} & \ciAdvNS{9.52}{0.05} & \ciAdvNS{4.54}{0.12} & \ciSE{4.44}{0.05} \\
+    DS-R1-Qwen 32B  & \ciAdvNS{4.60}{0.08} & \ciAdvNS{4.81}{0.07} & \ciAdvNS{9.21}{0.06} & \ciAdvNS{9.18}{0.08} & \ciAdvNS{7.01}{0.08} & \ciAdvNS{6.20}{0.06} & \ciAdvNS{7.24}{0.07} & \ciAdvNS{9.20}{0.07} & \ciAdvNS{7.74}{0.08} & \ciAdvNS{8.15}{0.13} & \ciAdvNS{7.42}{0.06} & \ciAdvNS{6.83}{0.06} & \ciAdvNS{8.90}{0.07} & \ciAdvNS{7.34}{0.05} & \ciAdvNSB{4.74}{0.06} & \ciAdvNS{5.52}{0.06} & \ciAdvNS{9.55}{0.09} & \ciAdvNS{7.67}{0.06} & \ciAdvNS{8.02}{0.06} & \ciAdvNS{6.56}{0.11} & \ciSE{4.54}{0.06} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}

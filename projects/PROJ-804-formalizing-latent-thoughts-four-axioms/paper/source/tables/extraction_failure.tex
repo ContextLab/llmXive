@@ -1,0 +1,17 @@
+\begin{table}[!htbp]
+  \caption{Answer-parsing statistics across LLMs over all generations. \emph{Per-beam failure} is the fraction of beams whose response does not contain any of the BBEH answer prefixes recognised by the official extractor of \citet{kazemi2025bigbenchextrahard}. \emph{Recoverable problems} reports the fraction of problems for which at least one of the $K=8$ beams parses successfully, the headroom a beam-level verifier could realise.}
+  \label{tab:extraction-failure}
+  \centering
+  \footnotesize
+  \begin{tabular}{@{}l r r@{}}
+    \toprule
+    \textbf{LLM} & per-beam failure & recoverable problems \\
+    \midrule
+    Llama-3.1 8B       &  42.9\% &  74.1\% \\
+    Llama-3.3 70B      &   4.3\% &  99.0\% \\
+    DS-R1-Qwen 32B     &  34.9\% &  68.1\% \\
+    Skywork-OR1 32B    &  49.6\% &  51.7\% \\
+    GPT-OSS 20B        &  58.3\% &  43.7\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}

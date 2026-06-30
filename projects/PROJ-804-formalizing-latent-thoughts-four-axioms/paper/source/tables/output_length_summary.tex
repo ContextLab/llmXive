@@ -1,0 +1,19 @@
+\begin{table}[!htbp]
+  \caption{Output-length statistics in characters across LLMs over all generations. Each row reports the median, interquartile range, mean, $95$th percentile and maximum of \texttt{generated\_text} length over every beam.}
+  \label{tab:output-length-stats}
+  \centering
+  \footnotesize
+  \begin{tabular}{@{}l r r r r r@{}}
+    \toprule
+    & \multicolumn{5}{c}{\textit{Length in characters}} \\
+    \cmidrule(lr){2-6}
+    \textbf{LLM} & median & IQR & mean & 95th pct. & max \\
+    \midrule
+    Llama-3.1 8B       & 2,076 & 140--6,859 & 5,826 & 29,423 & 42,582 \\
+    Llama-3.3 70B      & 2,091 & 668--3,957 & 3,152 & 10,116 & 39,809 \\
+    DS-R1-Qwen 32B     & 7,458 & 2,377--16,213 & 10,160 & 29,259 & 39,082 \\
+    Skywork-OR1 32B    & 17,043 & 6,447--24,469 & 15,986 & 30,990 & 38,375 \\
+    GPT-OSS 20B        & 19,316 & 5,093--27,129 & 18,053 & 33,773 & 818,647 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

@@ -1,0 +1,20 @@
+% Methodology axiom summary. Compact 4-row map of the four axioms with
+% the formal requirement on T and the metric used to quantify each.
+\begin{table}[!htbp]
+  \caption{The four axioms with their formal requirement on $\mathbf{T}$ and quantifying measure.}
+  \label{tab:axiom-summary}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}p{0.14\linewidth} p{0.45\linewidth} p{0.32\linewidth}@{}}
+    \toprule
+    \textbf{Axiom} & \textbf{Formal requirement} & \textbf{Quantitative measure} \\
+    \midrule
+    1. Causality      & $D_{\mathrm{KL}}\big(P_\theta(Z \mid Y) \,\|\, P_\theta(Z \mid \mathbf{T})\big) \approx 0$  & KL substitution error (\cref{eq:causality-error}) \\
+    2. Minimality     & $\min_{\mathbf{T}}\; I(X;\mathbf{T}) - \beta\, I(\mathbf{T};Y)$  & IB residual gap $\Delta_{\mathrm{IB}}$ (\cref{eq:delta-ib}) \\
+    3. Separability   & $d_\mathcal{S}\big(\phi(\mathbf{T}_{x_1}), \phi(\mathbf{T}_{x_2})\big) > \delta$, $\phi \in \mathcal{H}$  & Discriminator accuracy \\
+    4. Stability      & $\mathbf{T}$ encodes the entropy of $P(\mathcal{S} \mid x)$  & DCS AUROC \\
+    \bottomrule
+  \end{tabular}
+\end{table}

@@ -1,0 +1,114 @@
+\section{Formalizing thought}
+\label{methodology}
+
+\subsection{Semantic equivalence and geometric space}
+
+\textbf{Notation.} Calligraphic letters ($\mathcal{X}$, $\mathcal{Y}$, $\mathcal{S}$, $\mathcal{T}$) denote spaces, capital letters ($X$, $Y$, $Z$) denote random variables, lowercase letters ($x$, $y$, $z$) denote specific instances, and bold $\mathbf{T}$ denotes a candidate Thought Representation (TR) throughout the paper.
+
+To rigorously characterize the properties of a thought representation, we first establish a tractable criterion for \emph{semantic equivalence} between output sequences. Let $\mathcal{Y}$ be the space of all possible generated sequences. We posit the existence of a semantic mapping function $\Phi: \mathcal{Y} \to \mathcal{S}$, where $\mathcal{S}$ is a semantic manifold. Two sequences $y, y' \in \mathcal{Y}$ are defined as semantically equivalent, denoted $y \sim_{sem} y'$, if and only if $\Phi(y) = \Phi(y')$.
+
+We further impose a geometric structure on $\mathcal{S}$ equipped with a metric $d_\mathcal{S}(\cdot, \cdot)$. Equivalence implies locality. Non-equivalent sequences nevertheless exhibit varying degrees of proximity. For sequences $y_1, y_2, y_3$, if $y_1$ and $y_2$ share partial semantic overlap (e.g., distinct numerical answers to the same query) whereas $y_3$ is conceptually disjoint, we require $d_\mathcal{S}(\Phi(y_1), \Phi(y_2)) < d_\mathcal{S}(\Phi(y_1), \Phi(y_3))$.
+
+Computationally, we approximate this metric space using high-dimensional embeddings. We utilize the cosine similarity between embedding representations $\mathbf{e}_y, \mathbf{e}_{y'} \in \mathbb{R}^d$ as inversely correlated with the semantic metric $d_\mathcal{S}$, consistent with evidence that modern learned text embeddings approximate human semantic judgments across a wide range of similarity tasks~\citep{assadi2026hume}.
+
+\subsection{Thought as a latent functional state}
+
+\begin{quote}
+\itshape What functional properties must a representation $\mathbf{T}$ satisfy to qualify as a thought, and how can each be measured directly on LLMs?
+\end{quote}
+
+We define a thought representation not as a communicable linguistic artifact (e.g., Chain-of-Thought) but as a \emph{Functional Thought} $\mathbf{T}$, a latent state that mediates the transformation from an Input space $\mathcal{X}$ to the semantic Output space $\mathcal{S}$. 
+
+Formally, given an input $x \in \mathcal{X}$, the model induces a probability distribution over the output $P(Y|x)$. The functional thought $\mathbf{T}$ is a representation intended to capture the sufficient statistics of this distribution. We explicitly exclude interpretability from this definition. Interpretability is an observer-dependent property. In contrast, a functional thought $\mathbf{T}$ is constructed to be mathematically optimal in mediating $X \to Y$, which may render it opaque to human inspection. 
+
+\begin{definition}[Idealized Thought Representation Mapping]\label{def:thought-mapping}
+Let $\mathcal{X}$ denote the input space and $\mathcal{S}$ denote the semantic output space of a model $\mathcal{M}: \mathcal{X} \to \mathcal{S}$. We define a thought representation generator as a function $g: \mathcal{X} \to \mathcal{T}$, where $\mathcal{T}$ represents the thought space.
+
+The function $g$ is constructed such that it induces an equivalence relation on $\mathcal{X}$ based on the semantic outputs in $\mathcal{S}$. Specifically, for any pair of inputs $x_i, x_j \in \mathcal{X}$, the mapping satisfies:
+\begin{equation}
+    g(x_i) = g(x_j) \iff \mathcal{M}(x_i) = \mathcal{M}(x_j)
+\end{equation}
+This implies that $g$ is a many-to-one mapping effectively compressing $\mathcal{X}$ into $\mathcal{T}$ by preserving distinctness only if the inputs result in semantically distinct outputs in $\mathcal{S}$.
+\end{definition}
+
+\noindent\textit{Remark.} Stochastic extraction methods (e.g., Gumbel noise) fix a global random seed, so $g$ remains deterministic in practice. The formal construction is in \cref{appendix:theoretical_properties}.
+
+\subsection{Quantifying the axioms of Functional Thought}
+
+We propose that a robust thought representation $\mathbf{T}$ must satisfy four axiomatic properties, formalized below via information theory and probability and shown in Figure \ref{fig:characteristics}. \Cref{tab:axiom-summary} maps each axiom to its formal requirement and to the metric used to quantify it. Through Appendix~\ref{appendix:theoretical_properties}, we prove consistency that follows from an idealized one-hot semantic bottleneck construction. Independence is established by four counter-models, each preserving three axioms while violating the fourth. Completeness follows from a bijection between $\mathcal{T}$ and the reachable semantic manifold $\mathcal{S}_\mathcal{M}$.
+
+\begin{runex}
+Take $x =$ ``Is $13$ prime, and why?'' with output
+$y =$ ``Yes. $13$ is prime because no integer from $2$ to $12$ divides it.''
+produced by $\mathcal{M}_\theta$. Let $\mathbf{T}$ denote a candidate thought
+representation extracted from $\mathcal{M}_\theta$ for $x$. The examples below
+are simplified for clarity.
+\end{runex}
+
+\paragraph{1. Causality.}
+Each output $y$ is partitioned into a reasoning prefix $y_{\mathrm{pre}}$ and an answer suffix $y_{\mathrm{suf}}$. If $\mathbf{T}$ is a valid thought representation derived from $y_{\mathrm{pre}}$, it must functionally substitute $y_{\mathrm{pre}}$ within the computational graph of $\mathcal{M}_\theta$, so that conditioning on $\mathbf{T}$ yields a predictive distribution over $y_{\mathrm{suf}}$ indistinguishable from conditioning on the explicit tokens $y_{\mathrm{pre}}$.
+
+\textbf{Example.} Causality requires that replacing the token embeddings of
+the reasoning prefix $y_{\mathrm{pre}} =$ ``Yes. $13$ is prime because no integer from $2$ to $12$ divides it.''
+inside $\mathcal{M}_\theta$ with the projected $\mathbf{T}$ leaves the
+distribution over the answer suffix $y_{\mathrm{suf}}$ essentially unchanged.
+Here $y_{\mathrm{suf}}$ could be the concluding portion of the same output, such as ``Therefore, $13$ is prime.''
+
+\textbf{Quantification.} We replace the token embeddings of $y_{\mathrm{pre}}$ in the model with the projected $\mathbf{T}$ and measure the resulting divergence on $y_{\mathrm{suf}}$:
+\begin{equation}\label{eq:causality-error}
+    \text{Causality Error} = D_{\mathrm{KL}}\Big( P(y_{\mathrm{suf}} \mid y_{\mathrm{pre}}) \parallel P(y_{\mathrm{suf}} \mid \mathbf{T}) \Big)
+\end{equation}
+A lower value indicates that $\mathbf{T}$ encapsulates the effect of $y_{\mathrm{pre}}$ on subsequent generation, consistent with empirical analyses showing causal structure between intermediate latent representations and downstream generation in continuous reasoning~\citep{li2026dynamics}. Sensitivity to the answer-window length and number of substituted positions is documented in \cref{appendix:causality_length}.
+
+\paragraph{2. Minimality.}
+A thought representation satisfies optimality iff it compresses the input and retains maximum relevance to the output distribution. This aligns with the Information Bottleneck principle, a framing that has recently been applied both to characterize how LLM pre-training approaches minimal sufficient compression~\citep{conklin2026learning} and to cast chain-of-thought reasoning itself as a bottleneck variable between prompt and answer~\citep{massoli2026reasoning}. Let $X$ and $Y$ denote the random variables over inputs and generated outputs respectively, and let $I(\cdot;\cdot)$ denote mutual information. An optimal $\mathbf{T}$ minimizes $I(X; \mathbf{T})$ subject to a constraint on $I(\mathbf{T}; Y)$:
+\begin{equation}\label{eq:minimality-axiom}
+    \min_{\mathbf{T}} I(X; \mathbf{T}) - \beta I(\mathbf{T}; Y)
+\end{equation}
+This characteristic ensures that $\mathbf{T}$ filters out nuisance variables in $X$ (e.g., irrelevant context or noise) that do not contribute to the generation of the high probability semantic output space.
+
+\textbf{Example.} Suppose the input contains two unrelated topics, e.g.,
+``Hamlet was written by Shakespeare around $1600$. Is $13$ prime, and why?''
+If the model's output addresses only the primality question, the literary
+detail did not contribute to that output and $\mathbf{T}$ should not encode it.
+If the output addressed both topics, $\mathbf{T}$ should retain both. Minimality penalises encoding content that did not contribute to $y$.
+
+\textbf{Quantification.} The IB Lagrangian is intractable because $I(X; \mathbf{T})$ and $I(\mathbf{T}; Y)$ depend on unknown distributions. We construct a cross-entropy surrogate that preserves the Lagrangian's ranking at $\beta = 2$. The surrogate combines three cross-entropies, $\text{CE}(Y \mid \mathbf{T})$, $\text{CE}(X \mid Y)$, and $\text{CE}(X \mid Y, \mathbf{T})$, and reduces after dropping TR-independent constants to:
+\begin{equation}\label{eq:delta-ib}
+    \Delta_{\text{IB}} = \text{CE}(X \mid Y, \mathbf{T}) - \text{CE}(Y \mid \mathbf{T})
+\end{equation}
+A larger $\Delta_{\text{IB}}$ indicates a representation that is simultaneously relevant ($\mathbf{T}$ predicts $Y$ with low residual entropy) and minimal ($\mathbf{T}$ contributes negligible additional information about $X$ beyond what $Y$ provides). The reduction assumes $I(Y; \mathbf{T} \mid X) = 0$, which holds when $\mathbf{T}$ is a function of $X$ alone\footnote{The output embeddings used in experiments violate this assumption by construction and are reported as anchor references rather than IB-Lagrangian estimates; see \cref{appendix:sub:minimality_ib_derivation} for the full derivation.}.
+
+\paragraph{3. Separability.}
+Separability defines the functional injectivity of the mapping from semantic content to the latent space. Because logical distinctions in high-dimensional representations are encoded in the curvature and flow structure of the underlying manifold rather than in raw point distances~\citep{zhou2026geometryreasoning}, we do not adopt fixed geometric distances (e.g., Euclidean margins) and instead rely on functional discriminability. The representation must contain sufficient topological structure to distinguish between semantically nonequivalent output distributions using a bounded capacity projection. Given two inputs $x_1, x_2 \in \mathcal{X}$ that induce disjoint high probability semantic spaces $\mathcal{S}_1 \cap \mathcal{S}_2 = \emptyset$, their corresponding thought representations $\mathbf{T}_{x_1}$ and $\mathbf{T}_{x_2}$ must be resolvable by an optimal semantic projection $\phi: \mathcal{T} \to \mathcal{S}$ drawn from a bounded hypothesis class $\mathcal{H}$ (a linear projection followed by a linear classification head, consistent with the linear representation hypothesis~\citep{park2024linear}). Using the semantic metric $d_\mathcal{S}$ defined over the semantic manifold, we require:
+\begin{equation}\label{eq:separability-axiom}
+    d_\mathcal{S}\big(\phi(\mathbf{T}_{x_1}), \phi(\mathbf{T}_{x_2})\big) > \delta \quad \text{for some } \phi \in \mathcal{H}
+\end{equation}
+Conversely, if distinct inputs lead to semantically convergent outputs, their representations should reside on the same functional manifold, rendering them indistinguishable under $\phi$. Separability thus ensures that $\mathcal{T}$ contains the necessary decision boundaries to be isomorphic to the semantic space $\mathcal{S}$.
+
+\textbf{Example.} The same-task setting pairs $x$ with
+$x' =$ ``Is $14$ prime, and why?'', which yields $y' =$ ``No. $14 = 2 \times 7$.''
+The inputs differ by a single token and the answers are semantically opposite,
+so a bounded classifier acting on $\mathbf{T}_x$ and $\mathbf{T}_{x'}$ must
+place them on opposite sides of its decision boundary. A cross-task setting
+pairs $x$ with a medical-domain prompt such as
+``What are the symptoms of Alzheimer's?''. Its output occupies a disjoint
+semantic region and must remain just as resolvable.
+
+\textbf{Quantification.} We instantiate $\phi$ as a learned binary discriminator $f_{\text{disc}}(\mathbf{T}, Y) \in [0,1]$ drawn from $\mathcal{H}$, which scores the alignment between $\mathbf{T}$ and a candidate output sequence $Y$. Positives pair $\mathbf{T}$ with its corresponding generated sequence. Negatives use two strategies, same-task pairing for fine-grained within-task discrimination and cross-task pairing for cross-domain separability. We realize $f_{\text{disc}}$ as a trainable linear projection that maps $\mathbf{T}$ into the embedding space of a frozen LLM backbone, followed by a trained classification head optimized with binary cross-entropy. Classification accuracy is the metric. Concurrent analyses of soft-thinking representations~\citep{rizvi-martel2026the} report an analogous superposition failure in which distinct reasoning paths become indistinguishable.
+
+\paragraph{4. Stability.}
+The representation must be invariant to surface level lexical variations in the output space and robust to sampling stochasticity. Rather than encoding a single realization $y \sim P(Y|x)$, $\mathbf{T}$ should encode the parameters of the semantic distribution $P(\mathcal{S}|x)$. This implies two conditions: (1) \textbf{Mode Collapse Resistance:} If $P(Y|x)$ represents uncertainty or confusion, $\mathbf{T}$ must reflect this entropy, because LLM generation frequently collapses to a small subset of high probability modes and fails to mirror the underlying predictive distribution~\citep{zhu2026exploring}. (2) \textbf{Lexical Invariance:} For any set of high probability sibling outputs $\{y_1, \dots, y_k\}$ drawn from the same input $x$ that are semantically equivalent ($y_i \sim_{sem} y_j$), the induced representations should satisfy $\mathbf{T}_{y_i} \approx \mathbf{T}_{y_j}$, a property requiring explicit enforcement against latent divergence under paraphrasing~\citep{prasanth2026enforcing}.
+
+\textbf{Example.} For lexical invariance, two sibling outputs
+$y_1 =$ ``Yes. $13$ is prime because no integer from $2$ to $12$ divides it.''
+and $y_2 =$ ``Yes, $13$ has no divisors other than $1$ and itself.'' are
+semantically equivalent and must induce $\mathbf{T}_{y_1} \approx \mathbf{T}_{y_2}$.
+For mode-collapse resistance, suppose the model is imperfect and outputs
+``Yes'' in some generations and ``No'' in others, so its high-probability outputs
+do not all agree. Then $P(Y|x)$ has positive entropy and $\mathbf{T}$ must
+reflect both modes rather than encode just one.
+
+\textbf{Quantification.} For candidates that produce a single representation per input, lexical invariance holds by construction and we probe mode-collapse resistance only. We quantify distributional uncertainty via the semantic entropy $H_x$ of \citet{kuhn2023semantic}, computed by binarizing pairwise cosine similarities between $K$ output embeddings at threshold $\tau$ to form semantic equivalence classes and setting $H_x$ to the Shannon entropy over class sizes. A question with $H_x = 0$ has all outputs in one class, whereas $H_x > 0$ indicates spread across semantically distinct outputs. To measure whether $\mathbf{T}$ linearly encodes this property, we adopt the difference-of-means probe of \citet{cencerrado2026answerneededpredictingllm} and report the cross-validated AUROC for predicting $H_x > 0$. The resulting Distributional Consistency Score (DCS) ranges from $0.5$ (random baseline) to $1.0$ (perfect discrimination). Further analysis on DCS, input embeddings as a proxy to question difficulty, and sensitivity to $\tau$ are in \cref{appendix:sub:dcs_tau}.
+
+\input{tables/c1_axiom_summary}

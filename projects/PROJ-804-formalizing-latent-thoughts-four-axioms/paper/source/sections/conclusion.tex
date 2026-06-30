@@ -1,0 +1,26 @@
+\section{Conclusion}
+\label{conclusion}
+
+We introduce an axiomatic evaluation framework for candidate thought representations that runs directly on the source LLM without retraining, instantiated by four measures. We apply this methodology across LLMs that span dense, sparse-MoE, reasoning-distilled, and RL-trained paradigms. The protocol exposes a representational collapse on per-question identity that downstream task accuracy does not reveal. By focusing our evaluation on the representation rather than the subsequent reasoning process, our approach provides a unified foundation. This principled approach readily adapts to new thought representations and axiom measurement designs. Future contributions can propose additional candidate constructions beyond the soft-thinking, latent-thinking, and hidden-state families considered in this work.
+
+\textbf{Implications.} The four axioms serve as explicit optimization targets and diagnostic readouts for thought representations. A new candidate can be scored on each axiom independently, so any change in downstream reasoning accuracy is attributable to the property responsible rather than to an aggregate benchmark score that obscures the cause. An audit identifies which axiom is the binding constraint on an existing representation before any retraining is undertaken, and competing representations are compared directly on a four-metric profile rather than on a single accuracy number. This places future thought representation development on explicit, decomposable, and directly comparable properties that researchers can utilize.
+
+\textbf{Limitations.}
+The lexical invariance sub-property of Stability is not measured
+because every candidate evaluated here produces vectors identical
+across paraphrases by construction, leaving the sub-property trivial
+in our setting. A measurement protocol awaits candidate constructions
+that admit non-trivial paraphrase variation. Measurement cost
+exceeds that of running a single accuracy benchmark, as the protocol
+requires LLM generations and an additional short probe training
+step. We position the framework as orthogonal to reasoning benchmark evaluation,
+where the cost of running the protocol once is small relative to the
+representation quality information it produces. The empirical audit covers
+the 23 reasoning tasks of BBEH and five open-weight English-language LLMs
+spanning a range of architectures, sizes, and training paradigms, and our
+conclusions do not necessarily hold for multilingual workloads or for
+generations outside reasoning. Finally, the candidates audited here are
+all obtainable from a pre-trained LLM without any additional training, and
+representations satisfying all four axioms may require specifically designed extraction that is trained explicitly to meet those functional requirements.
+Applying the protocol to such representations is a natural direction for
+future work.
