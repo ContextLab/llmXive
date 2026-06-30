@@ -1,0 +1,11 @@
+- artifact_hash: 48aec02a3304de28d010a23594c7632bbb027714779ddcb99a7bd53fa82a3d9f
+  artifact_path: projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/specs/001-sciatlas-a-large-scale-knowledge-graph-f/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://openalex.org
+  verification_status: unreachable
+  verified_against_url: https://openalex.org
+  verified_at: '2026-06-30T14:22:39.086658Z'

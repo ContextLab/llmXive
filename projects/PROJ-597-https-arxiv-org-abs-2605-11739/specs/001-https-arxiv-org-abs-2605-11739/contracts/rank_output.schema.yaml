@@ -1,0 +1,23 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Rank Concentration Output Schema
+description: Schema for the update rank concentration analysis results (Delta W).
+type: object
+properties:
+  layer_id:
+    type: integer
+    description: Identifier of the model layer
+    minimum: 0
+  rank:
+    type: integer
+    description: Effective rank of the update matrix (Delta W)
+    minimum: 1
+  concentration_score:
+    type: number
+    description: Score indicating low-rank concentration
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - layer_id
+  - rank
+  - concentration_score
+additionalProperties: false

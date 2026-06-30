@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProRL Dataset Schema"
+description: "Schema for the input Books dataset used in ProRL reproduction."
+type: "object"
+properties:
+  inter:
+    type: "object"
+    description: "User-Item interaction file"
+    properties:
+      path:
+        type: "string"
+        description: "Path to .inter file"
+      format:
+        type: "string"
+        enum: ["csv", "tsv"]
+      min_rows:
+        type: "integer"
+        minimum: 1000
+        description: "Minimum rows required for validity"
+  datamaps:
+    type: "object"
+    description: "ID mapping file"
+    properties:
+      user_map:
+        type: "string"
+        description: "Path to user mapping"
+      item_map:
+        type: "string"
+        description: "Path to item mapping"
+  sem_ids:
+    type: "object"
+    description: "Semantic embeddings"
+    properties:
+      path:
+        type: "string"
+        description: "Path to .sem_ids file (e.g., qwen3-embedding-8b-pca.sem_ids)"
+      required:
+        type: "boolean"
+        const: true
+        description: "Must exist for pre-training"
+      format:
+        type: "string"
+        enum: ["npy", "pkl"]
+constraints:
+  - "Total dataset size must be < 6GB or sampled"
+  - "No CUDA dependencies allowed in loader"

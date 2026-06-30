@@ -67,3 +67,12 @@
 [submodule "projects/PROJ-652-https-arxiv-org-abs-2606-00408/external/observation-masking"]
 	path = projects/PROJ-652-https-arxiv-org-abs-2606-00408/external/observation-masking
 	url = https://github.com/i-DeepSearch/observation-masking
+[submodule "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/external/SciAtlas"]
+	path = projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/external/SciAtlas
+	url = https://github.com/zjunlp/SciAtlas
+[submodule "projects/PROJ-597-https-arxiv-org-abs-2605-11739/external/EffOPD"]
+	path = projects/PROJ-597-https-arxiv-org-abs-2605-11739/external/EffOPD
+	url = https://github.com/caiyuchen-ustc/EffOPD
+[submodule "projects/PROJ-640-https-arxiv-org-abs-2605-28293/external/ProRL"]
+	path = projects/PROJ-640-https-arxiv-org-abs-2605-28293/external/ProRL
+	url = https://github.com/hongruhou89/ProRL

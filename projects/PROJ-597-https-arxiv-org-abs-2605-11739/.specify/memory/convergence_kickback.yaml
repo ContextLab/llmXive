@@ -1,0 +1,26 @@
+artifact_links:
+- projects/PROJ-597-https-arxiv-org-abs-2605-11739/specs/001-https-arxiv-org-abs-2605-11739/plan.md
+- specs/*/contracts/*
+- specs/*/data-model.md
+- specs/*/plan.md
+- specs/*/quickstart.md
+- specs/*/research.md
+reason: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst
+  unresolved severity = 'methodology'. Routing to 'specified' with full provenance
+  so the next worker can address the root cause.
+stage: plan
+to_stage: specified
+unresolved_concerns:
+- artifact: projects/PROJ-597-https-arxiv-org-abs-2605-11739/specs/001-https-arxiv-org-abs-2605-11739/plan.md
+  id: methodology-c9cb1770
+  location: research.md:1.3 Statistical & Measurement Rigor
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The plan defines 'Pass@k' as a metric for 'reasoning_eval.py' but does not
+    define the baseline for comparison. The paper's claim of 'efficiency' implies
+    a trade-off (e.g., same accuracy with fewer steps, or higher accuracy with same
+    steps). Measuring Pass@k in isolation on a small subset does not validate the
+    'Unlocking Efficiency' claim without a comparative control group (e.g., standard
+    distillation or full training).
+worst_severity: methodology
