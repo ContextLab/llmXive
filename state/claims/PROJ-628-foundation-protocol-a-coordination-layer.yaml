@@ -1,0 +1,609 @@
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Foundation Protocol reduces Hanabi mean episode length to 95% and mean
+    messages to 90% of baseline
+  claim_id: c_542d3c07
+  context: "Independent Test: Execute Hanabi benchmark with multiple seeds for Foundation\
+    \ and Native Direct protocols; verify mean episode length \u2264 95% of baseline\
+    \ and mean messages \u2264 90% of baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Foundation Protocol must reduce mean episode length to \u2264 95%\
+    \ of the baseline and mean messages to \u2264 90% of the baseline in Hanabi."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:29:52Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Foundation Protocol achieves 90% recovery success and 1.5x latency baseline
+    under crash injection
+  claim_id: c_46250551
+  context: "Independent Test: Run smart-contract auditing workflow with crash injection\
+    \ at an intermediate progress stage (single and simultaneous); verify recovery\
+    \ success \u2265 90% and latency \u2264 1.5\xD7 baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Foundation Protocol must achieve a recovery success rate of \u2265\
+    \ 90% and latency \u2264 1.5\xD7 baseline under injected crashes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:29:52Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Foundation Protocol bandwidth consumption is 90% of baseline for Hanabi
+    and 85% for other tasks
+  claim_id: c_0c007397
+  context: "Independent Test: Collect per-episode byte traffic (normalized) for all\
+    \ three tasks; verify Foundation Protocol \u2264 85-90% of baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Foundation Protocol must consume bandwidth \u2264 90% of baseline\
+    \ for Hanabi and \u2264 85% of baseline for other tasks."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:29:52Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Full experiment suite of 30 seeds, 3 tasks, and 2 protocols runs within
+    6 hours
+  claim_id: c_287b0a0c
+  context: "Performance optimization: Profile `run_simulation.py` and refactor to\
+    \ use multiprocessing if single-threaded; optimize `stats_analyzer.py` vectorization\
+    \ to ensure full experiment suite (30 seeds \xD7 3 tasks \xD7 2 protocols) runs\
+    \ within 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full experiment suite (30 seeds \xD7 3 tasks \xD7 2 protocols) is\
+    \ expected to run within 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:30:09Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: 30 seeds used for Hanabi benchmark experiment
+  claim_id: c_70706ecb
+  context: "T018 [US1] Implement `code/experiments/run_simulation.py` to orchestrate\
+    \ 30 seeds \xD7 2 protocols (Foundation, Native Direct) for Hanabi."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment configuration uses 30 seeds for the Hanabi benchmark.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:30:25Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Project requires Python 3.10 with pettingzoo 1.24.0 and stable-baselines3
+    2.3.0
+  claim_id: c_26689ac1
+  context: 'T002 Initialize Python 3.10 project with `code/requirements.txt` containing
+    pinned versions: `pettingzoo==1.24.0`, `stable-baselines3==2.3.0`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.10 with specific package versions including
+    pettingzoo 1.24.0 and stable-baselines3 2.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:30:36Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Scaling analysis computes overhead for 10^6, 10^8, and 10^10 agents
+  claim_id: c_09d810a7
+  context: "T037 [P] Implement `code/reports/scaling_analysis.py` to compute theoretical\
+    \ bandwidth and cryptographic overhead for N = 10\u2076, 10\u2078, 10\xB9\u2070\
+    \ agents using the model from T037b and empirical per-agent metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scaling analysis will compute theoretical bandwidth and cryptographic
+    overhead for agent counts of 10^6, 10^8, and 10^10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:30:59Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Python 3.10 project with specific pinned package versions
+  claim_id: c_ece21607
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    asserted: '3.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.10 project with code/requirements.txt containing
+    pinned versions: pettingzoo==1.24.0, stable-baselines3==2.3.0, numpy==1.26.0,
+    pandas==2.1.0, scipy==1.11.0, ed25519==1.5, pyyaml==6.0.1, jinja2==3.1.2, statsmodels==0.14.0,
+    pytest==7.4.0, pytest-cov==4.1.0, pytest-randomly==3.15.0, jsonschema==4.19.0,
+    ruff==0.1.0, black==23.0.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T09:35:21Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Mean episode length 95% of baseline and mean messages 90% of baseline
+  claim_id: c_cad95db4
+  context: 'Phase 3: User Story 1 - Independent Test criteria'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify mean episode length \u2264 95% of baseline and mean messages \u2264\
+    \ 90% of baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:35:21Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Recovery success 90% and latency 1.5 times baseline
+  claim_id: c_7bb206d3
+  context: 'Phase 4: User Story 2 - Independent Test criteria'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify recovery success \u2265 90% and latency \u2264 1.5\xD7 baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:35:22Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Foundation Protocol bandwidth 85% to 90% of baseline
+  claim_id: c_0c73398a
+  context: 'Phase 5: User Story 3 - Independent Test criteria'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Foundation Protocol \u2264 85-90% of baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:35:22Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis binary metrics at alpha 0.01 0.05 0.10
+  claim_id: c_c3e9aaee
+  context: 'Phase 3: User Story 1 - Task T020a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate results/sensitivity_binary.csv with columns: alpha, metric,\
+    \ p_value, significant across \u03B1 \u2208 {0.01, 0.05, 0.10}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:35:51Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: 30 seeds and 2 protocols for Hanabi experiment
+  claim_id: c_6746d6db
+  context: 'Phase 3: User Story 1 - Task T018'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Orchestrate 30 seeds \xD7 2 protocols (Foundation, Native Direct) for\
+    \ Hanabi."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:35:53Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Theoretical bandwidth and overhead for 10^6 10^8 10^10 agents
+  claim_id: c_33077890
+  context: 'Phase 6: Reviewer Concerns - Task T037'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute theoretical bandwidth and cryptographic overhead for N = 10\u2076\
+    , 10\u2078, 10\xB9\u2070 agents."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:35:57Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Full experiment suite 30 seeds 3 tasks 2 protocols runs within 6 hours
+  claim_id: c_327ac5cd
+  context: 'Phase 7: Polish & Cross-Cutting Concerns - Task T046'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure full experiment suite (30 seeds \xD7 3 tasks \xD7 2 protocols)\
+    \ runs within 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:35:59Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Full experiment suite runs within 6 hours
+  claim_id: c_cf920801
+  context: "Performance optimization: Profile run_simulation.py and refactor to use\
+    \ multiprocessing if single-threaded; optimize stats_analyzer.py vectorization\
+    \ to ensure full experiment suite (30 seeds \xD7 3 tasks \xD7 2 protocols) runs\
+    \ within 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Optimize stats_analyzer.py vectorization to ensure full experiment suite\
+    \ (30 seeds \xD7 3 tasks \xD7 2 protocols) runs within 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:38:47Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Mean episode length less than or equal to 95 percent of baseline and
+    mean messages less than or equal to 90 percent of baseline
+  claim_id: c_62f51a2b
+  context: "Independent Test: Execute Hanabi benchmark with multiple seeds for Foundation\
+    \ and Native Direct protocols; verify mean episode length \u2264 95% of baseline\
+    \ and mean messages \u2264 90% of baseline."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_episode_length_less_than_or_equal_to_95_percent_of_base
+  kind: magnitude
+  raw_text: "Verify mean episode length \u2264 95% of baseline and mean messages \u2264\
+    \ 90% of baseline."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:39:17Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Recovery success greater than or equal to 90 percent and latency less
+    than or equal to 1.5 times baseline
+  claim_id: c_4ca14adb
+  context: "Independent Test: Run smart-contract auditing workflow with crash injection\
+    \ at an intermediate progress stage (single and simultaneous); verify recovery\
+    \ success \u2265 90% and latency \u2264 1.5\xD7 baseline."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recovery_success_greater_than_or_equal_to_90_percent_and_lat
+  kind: magnitude
+  raw_text: "Verify recovery success \u2265 90% and latency \u2264 1.5\xD7 baseline."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:39:47Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Foundation Protocol less than or equal to 85 to 90 percent of baseline
+  claim_id: c_03329d93
+  context: "Independent Test: Collect per-episode byte traffic (normalized) for all\
+    \ three tasks; verify Foundation Protocol \u2264 85-90% of baseline."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Foundation_Protocol_less_than_or_equal_to_85_to_90_percent_o
+  kind: magnitude
+  raw_text: "Verify Foundation Protocol \u2264 85-90% of baseline."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:40:04Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Hanabi bandwidth less than or equal to 90 percent and other tasks less
+    than or equal to 85 percent
+  claim_id: c_ac7e6b19
+  context: "Generate comparative bandwidth reports per task (Hanabi \u2264 90%, others\
+    \ \u2264 85%) comparing Foundation Protocol against Native Direct Communication\
+    \ baseline."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hanabi_bandwidth_less_than_or_equal_to_90_percent_and_other
+  kind: magnitude
+  raw_text: "Generate comparative bandwidth reports per task (Hanabi \u2264 90%, others\
+    \ \u2264 85%) comparing Foundation Protocol against Native Direct Communication\
+    \ baseline."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:40:18Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Compute theoretical bandwidth and cryptographic overhead for 10 to the
+    power of 6 10 to the power of 8 and 10 to the power of 10 agents
+  claim_id: c_6b88190b
+  context: "Implement code/reports/scaling_analysis.py to compute theoretical bandwidth\
+    \ and cryptographic overhead for N = 10\u2076, 10\u2078, 10\xB9\u2070 agents using\
+    \ the model from T037b and empirical per-agent metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute theoretical bandwidth and cryptographic overhead for N = 10\u2076\
+    , 10\u2078, 10\xB9\u2070 agents."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:40:18Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Pinned versions for pettingzoo stable-baselines3 numpy pandas scipy ed25519
+    pyyaml jinja2 statsmodels pytest pytest-cov pytest-randomly jsonschema ruff and
+    black
+  claim_id: c_9482bb8a
+  context: 'Initialize Python 3.10 project with code/requirements.txt containing pinned
+    versions: pettingzoo==1.24.0, stable-baselines3==2.3.0, numpy==1.26.0, pandas==2.1.0,
+    scipy==1.11.0, ed25519==1.5, pyyaml==6.0.1, jinja2==3.1.2, statsmodels==0.14.0,
+    pytest==7.4.0, pytest-cov==4.1.0, pytest-randomly==3.15.0, jsonschema==4.19.0,
+    ruff==0.1.0, black==23.0.0.'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement pettingzoo==1.24.0, stable-baselines3==2.3.0, numpy==1.26.0,
+    pandas==2.1.0, scipy==1.11.0, ed25519==1.5, pyyaml==6.0.1, jinja2==3.1.2, statsmodels==0.14.0,
+    pytest==7.4.0, pytest-cov==4.1.0, pytest-randomly==3.15.0, jsonschema==4.19.0,
+    ruff==0.1.0, black==23.0.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T09:40:18Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Orchestrate 30 seeds times 2 protocols for Hanabi
+  claim_id: c_aafd20a3
+  context: "Implement code/experiments/run_simulation.py to orchestrate 30 seeds \xD7\
+    \ 2 protocols (Foundation, Native Direct) for Hanabi."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Orchestrate 30 seeds \xD7 2 protocols (Foundation, Native Direct) for\
+    \ Hanabi."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:40:18Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: 30 seeds x 2 protocols for Hanabi experiments
+  claim_id: c_a6fad241
+  context: "Phase 3, Implementation for User Story 1, T018: Implement `code/experiments/run_simulation.py`\
+    \ to orchestrate 30 seeds \xD7 2 protocols (Foundation, Native Direct) for Hanabi."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Experiments orchestrate 30 seeds \xD7 2 protocols (Foundation, Native\
+    \ Direct) for Hanabi."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:43:33Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Hanabi mean episode length <= 95% of baseline and mean messages <= 90%
+    of baseline
+  claim_id: c_13bd7807
+  context: "Phase 3, Independent Test: Execute Hanabi benchmark with multiple seeds\
+    \ for Foundation and Native Direct protocols; verify mean episode length \u2264\
+    \ 95% of baseline and mean messages \u2264 90% of baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify mean episode length \u2264 95% of baseline and mean messages \u2264\
+    \ 90% of baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:43:33Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Recovery success >= 90% and latency <= 1.5x baseline
+  claim_id: c_a7fc5eca
+  context: "Phase 4, Independent Test: Run smart-contract auditing workflow with crash\
+    \ injection at an intermediate progress stage (single and simultaneous); verify\
+    \ recovery success \u2265 90% and latency \u2264 1.5\xD7 baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify recovery success \u2265 90% and latency \u2264 1.5\xD7 baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:43:34Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Foundation Protocol bandwidth <= 85-90% of baseline
+  claim_id: c_fc35e921
+  context: "Phase 5, Independent Test: Collect per-episode byte traffic (normalized)\
+    \ for all three tasks; verify Foundation Protocol \u2264 85-90% of baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Foundation Protocol \u2264 85-90% of baseline for bandwidth consumption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:43:34Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: 'Bandwidth reports: Hanabi <= 90%, others <= 85%'
+  claim_id: c_06ff2a3d
+  context: "Phase 5, Implementation for User Story 3, T035: Generate comparative bandwidth\
+    \ reports per task (Hanabi \u2264 90%, others \u2264 85%) comparing Foundation\
+    \ Protocol against Native Direct Communication baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate comparative bandwidth reports per task (Hanabi \u2264 90%, others\
+    \ \u2264 85%) comparing Foundation Protocol against Native Direct Communication\
+    \ baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:43:34Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Theoretical bandwidth and cryptographic overhead for 10^6, 10^8, 10^10
+    agents
+  claim_id: c_093a899a
+  context: "Phase 6, Reviewer Concern: Freeman Dyson (Simulated) - Scaling & Governance\
+    \ Overhead, T037: Implement `code/reports/scaling_analysis.py` to compute theoretical\
+    \ bandwidth and cryptographic overhead for N = 10\u2076, 10\u2078, 10\xB9\u2070\
+    \ agents using the model from T037b and empirical per-agent metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute theoretical bandwidth and cryptographic overhead for N = 10\u2076\
+    , 10\u2078, 10\xB9\u2070 agents."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:43:34Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Full experiment suite (30 seeds x 3 tasks x 2 protocols) runs within
+    6 hours
+  claim_id: c_c938d187
+  context: "Phase 7, Polish & Cross-Cutting Concerns, T046: Performance optimization:\
+    \ Profile `run_simulation.py` and refactor to use multiprocessing if single-threaded;\
+    \ optimize `stats_analyzer.py` vectorization to ensure full experiment suite (30\
+    \ seeds \xD7 3 tasks \xD7 2 protocols) runs within 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure full experiment suite (30 seeds \xD7 3 tasks \xD7 2 protocols)\
+    \ runs within 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:43:34Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Orchestrate 30 seeds and 2 protocols for Hanabi benchmark
+  claim_id: c_e5a6e982
+  context: Implementation for User Story 1 - T018
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/experiments/run_simulation.py to orchestrate 30 seeds\
+    \ \xD7 2 protocols (Foundation, Native Direct) for Hanabi."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:46:26Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Compute theoretical bandwidth and overhead for 10^6, 10^8, and 10^10
+    agents
+  claim_id: c_dce10920
+  context: 'Phase 6: Reviewer Concerns & Scaling Analysis - T037 and T038'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate results/scaling_table.csv containing estimated bandwidth (Mbps),\
+    \ latency, and governance overhead for the three scales: N = 10\u2076, 10\u2078\
+    , 10\xB9\u2070 agents."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:46:41Z'
+- artifact_path: projects/PROJ-628-foundation-protocol-a-coordination-layer/specs/001-foundation-protocol-a-coordination-layer/tasks.md
+  attempts: 1
+  canonical: Fit empirical data to power-law models y = aN^b
+  claim_id: c_db01142f
+  context: 'Phase 6: Reviewer Concerns & Scaling Analysis - T040'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fit_empirical_data_to_power-law_models_y_=_aN%5Eb
+  kind: entity_fact
+  raw_text: Implement code/reports/scaling_law_fit.py to fit empirical data (from
+    multiple seeds) to power-law models (y = aN^b).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T09:47:09Z'

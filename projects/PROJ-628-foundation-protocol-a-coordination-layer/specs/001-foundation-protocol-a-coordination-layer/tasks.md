@@ -24,10 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create root project structure: `projects/PROJ-628-foundation-protocol-a-coordination-layer/` and verify existence via `tree` or `ls`.
-- [ ] T001b Create sub-directories: `code/`, `code/foundation_protocol/`, `code/agents/`, `code/benchmarks/`, `code/experiments/`, `code/reports/`, `code/data/`, `code/tests/`, `data/`, `results/`, `state/`, `docs/`.
-- [ ] T002 Initialize Python 3.10 project with `code/requirements.txt` containing pinned versions: `pettingzoo==1.24.0`, `stable-baselines3==2.3.0`, `numpy==1.26.0`, `pandas==2.1.0`, `scipy==1.11.0`, `ed25519==1.5`, `pyyaml==6.0.1`, `jinja2==3.1.2`, `statsmodels==0.14.0`, `pytest==7.4.0`, `pytest-cov==4.1.0`, `pytest-randomly==3.15.0`, `jsonschema==4.19.0`, `ruff==0.1.0`, `black==23.0.0`.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools with pre-commit hooks.
+- [X] T001a Create root project structure: `projects/PROJ-628-foundation-protocol-a-coordination-layer/` and verify existence via `tree` or `ls`.
+- [X] T001b Create sub-directories: `code/`, `code/foundation_protocol/`, `code/agents/`, `code/benchmarks/`, `code/experiments/`, `code/reports/`, `code/data/`, `code/tests/`, `data/`, `results/`, `state/`, `docs/`.
+- [X] T002 Initialize Python 3.10 project with `code/requirements.txt` containing pinned versions: `pettingzoo==1.24.0`, `stable-baselines3==2.3.0`, `numpy==1.26.0`, `pandas==2.1.0`, `scipy==1.11.0`, `ed25519==1.5`, `pyyaml==6.0.1`, `jinja2==3.1.2`, `statsmodels==0.14.0`, `pytest==7.4.0`, `pytest-cov==4.1.0`, `pytest-randomly==3.15.0`, `jsonschema==4.19.0`, `ruff==0.1.0`, `black==23.0.0`.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools with pre-commit hooks.
 
 ---
 
@@ -37,20 +37,20 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Define `MessageEnvelope` schema and generate `contracts/dataset.schema.yaml` with fields: `sender_id`, `receiver_id`, `timestamp`, `signature`, `payload_size`, `checkpoint_ref`.
-- [ ] T005 Define `MetricRecord` schema and generate `contracts/metrics.schema.yaml` with fields: `seed`, `protocol`, `episode_length`, `msg_count`, `bytes_sent`, `recovery_success`, `recovery_latency`, `task_success`.
-- [ ] T006a [P] Implement `code/foundation_protocol/utils.py` with function `log_seed(seed: int)` and `get_hash(file_path: str) -> str` for deterministic seed logging (FR-008).
-- [ ] T006b [P] Implement `scripts/hash_artifacts.py` to generate SHA-256 checksums for all files in `data/` and `code/` and write to `state/artifact_hashes.json`.
-- [ ] T007b [P] Implement `code/foundation_protocol/checkpoint.py` as a shared module for checkpointing logic (serialization, loading) used by both `middleware.py` and `direct_comm.py`.
-- [ ] T007 [P] Implement `code/foundation_protocol/direct_comm.py` (Native Direct Communication Baseline) ensuring logic equivalence with middleware; CRITICAL: Must import `checkpoint` from shared module. Verify logic equivalence by running `tests/test_direct_vs_middleware.py` to confirm identical output hashes for same input.
-- [ ] T008 [P] Implement `code/foundation_protocol/middleware.py` (routing, signing, checkpointing) importing `checkpoint` from shared module.
-- [ ] T008b [P] Implement `code/foundation_protocol/wrappers.py` to wrap legacy protocols (MCP, A2A) with `FoundationProtocol` API; ensure wrappers can be instantiated and passed messages (functional, not mocks) for API compatibility testing ONLY; NOT for statistical baseline execution.
-- [ ] T009 Implement `code/data/generate_spear.py` to generate synthetic audit logs (INPUT DATA) for the SPEAR benchmark, structured to be consumed by the simulation runners. Output must be deterministic based on multiple random seeds.
-- [ ] T009b Implement `code/data/generate_seeds.py` to generate deterministic seed configurations for Hanabi and Resource Allocation tasks.
-- [ ] T010 Implement `code/data/verified_datasets.yaml` listing all data sources (pettingzoo, IRM4MLS, SPEAR) and checksums.
-- [ ] T011b Verify open-source IRM4MLS implementation: Identify and verify the open-source implementation of the IRM4MLS methodology as required by Plan Phase 0. Record verification status in `docs/verification_log.md`.
-- [ ] T011 [P] Implement `code/benchmarks/resource_alloc_runner.py` (IRM4MLS simulation) with inputs: `N_agents`, `resource_constraints`; output: `MetricRecord` rows; ensuring CPU-only compatibility.
-- [ ] T012 [P] Implement `tests/test_schema_validation.py` (unit test) to validate schema generation logic against `contracts/*.schema.yaml` (does not require runtime logs).
+- [X] T004 Define `MessageEnvelope` schema and generate `contracts/dataset.schema.yaml` with fields: `sender_id`, `receiver_id`, `timestamp`, `signature`, `payload_size`, `checkpoint_ref`.
+- [X] T005 Define `MetricRecord` schema and generate `contracts/metrics.schema.yaml` with fields: `seed`, `protocol`, `episode_length`, `msg_count`, `bytes_sent`, `recovery_success`, `recovery_latency`, `task_success`.
+- [X] T006a [P] Implement `code/foundation_protocol/utils.py` with function `log_seed(seed: int)` and `get_hash(file_path: str) -> str` for deterministic seed logging (FR-008).
+- [X] T006b [P] Implement `scripts/hash_artifacts.py` to generate SHA-256 checksums for all files in `data/` and `code/` and write to `state/artifact_hashes.json`.
+- [X] T007b [P] Implement `code/foundation_protocol/checkpoint.py` as a shared module for checkpointing logic (serialization, loading) used by both `middleware.py` and `direct_comm.py`.
+- [X] T007 [P] Implement `code/foundation_protocol/direct_comm.py` (Native Direct Communication Baseline) ensuring logic equivalence with middleware; CRITICAL: Must import `checkpoint` from shared module. Verify logic equivalence by running `tests/test_direct_vs_middleware.py` to confirm identical output hashes for same input.
+- [X] T008 [P] Implement `code/foundation_protocol/middleware.py` (routing, signing, checkpointing) importing `checkpoint` from shared module.
+- [X] T008b [P] Implement `code/foundation_protocol/wrappers.py` to wrap legacy protocols (MCP, A2A) with `FoundationProtocol` API; ensure wrappers can be instantiated and passed messages (functional, not mocks) for API compatibility testing ONLY; NOT for statistical baseline execution.
+- [X] T009 Implement `code/data/generate_spear.py` to generate synthetic audit logs (INPUT DATA) for the SPEAR benchmark, structured to be consumed by the simulation runners. Output must be deterministic based on multiple random seeds.
+- [X] T009b Implement `code/data/generate_seeds.py` to generate deterministic seed configurations for Hanabi and Resource Allocation tasks.
+- [X] T010 Implement `code/data/verified_datasets.yaml` listing all data sources (pettingzoo, IRM4MLS, SPEAR) and checksums.
+- [X] T011b Verify open-source IRM4MLS implementation: Identify and verify the open-source implementation of the IRM4MLS methodology as required by Plan Phase 0. Record verification status in `docs/verification_log.md`.
+- [X] T011 [P] Implement `code/benchmarks/resource_alloc_runner.py` (IRM4MLS simulation) with inputs: `N_agents`, `resource_constraints`; output: `MetricRecord` rows; ensuring CPU-only compatibility.
+- [X] T012 [P] Implement `tests/test_schema_validation.py` (unit test) to validate schema generation logic against `contracts/*.schema.yaml` (does not require runtime logs).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -64,19 +64,19 @@
 
 ### Tests for User Story 1 (REQUIRED)
 
-- [ ] T013 [P] [US1] Contract test for Hanabi metrics schema in `tests/contract/test_hanabi_metrics.py` with function `test_schema_compliance` asserting logs match `contracts/metrics.schema.yaml`.
-- [ ] T014 [P] [US1] Integration test for baseline vs. intervention comparison in `tests/integration/test_hanabi_comparison.py` with function `test_comparison_logic` asserting data generation runs for Foundation and Native Direct protocols.
+- [X] T013 [P] [US1] Contract test for Hanabi metrics schema in `tests/contract/test_hanabi_metrics.py` with function `test_schema_compliance` asserting logs match `contracts/metrics.schema.yaml`.
+- [X] T014 [P] [US1] Integration test for baseline vs. intervention comparison in `tests/integration/test_hanabi_comparison.py` with function `test_comparison_logic` asserting data generation runs for Foundation and Native Direct protocols.
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `code/agents/ppo_agent.py` (Pre-trained PPO, Inference-only, CPU mode).
-- [ ] T016 [US1] Implement `code/agents/rule_based.py` and `code/agents/heuristic.py`.
-- [ ] T017 [US1] Implement `code/benchmarks/hanabi_runner.py` with message logging (FR-003) supporting Foundation Protocol and Native Direct Communication.
-- [ ] T018 [US1] Implement `code/experiments/run_simulation.py` to orchestrate 30 seeds × 2 protocols (Foundation, Native Direct) for Hanabi.
-- [ ] T019 [US1] Implement `code/experiments/stats_analyzer.py` with PRIMARY analysis: Linear Mixed-Effects Models (LMM); SENSITIVITY analysis: McNemar's test, paired t-tests, Bonferroni correction (FR-006).
-- [ ] T020a [US1] Implement sensitivity analysis sweep for BINARY metrics (recovery_success, task_success) using McNemar's test across α ∈ {0.01, 0.05, 0.10}; Generate `results/sensitivity_binary.csv` with columns: `alpha`, `metric`, `p_value`, `significant`.
-- [ ] T020b [US1] Implement sensitivity analysis sweep for CONTINUOUS metrics (episode_length, messages, bandwidth, latency) using paired t-tests across a range of significance levels and Cohen's d calculation; Generate `results/sensitivity_continuous.csv` with columns: `alpha`, `metric`, `p_value`, `cohen_d`, `significant`.
-- [ ] T021 [US1] Verify logic equivalence: Run `tests/test_direct_vs_middleware.py` to confirm identical agent logic in Baseline and Intervention.
+- [X] T015 [US1] Implement `code/agents/ppo_agent.py` (Pre-trained PPO, Inference-only, CPU mode).
+- [X] T016 [US1] Implement `code/agents/rule_based.py` and `code/agents/heuristic.py`.
+- [X] T017 [US1] Implement `code/benchmarks/hanabi_runner.py` with message logging (FR-003) supporting Foundation Protocol and Native Direct Communication.
+- [X] T018 [US1] Implement `code/experiments/run_simulation.py` to orchestrate 30 seeds × 2 protocols (Foundation, Native Direct) for Hanabi.
+- [X] T019 [US1] Implement `code/experiments/stats_analyzer.py` with PRIMARY analysis: Linear Mixed-Effects Models (LMM); SENSITIVITY analysis: McNemar's test, paired t-tests, Bonferroni correction (FR-006).
+- [X] T020a [US1] Implement sensitivity analysis sweep for BINARY metrics (recovery_success, task_success) using McNemar's test across α ∈ {0.01, 0.05, 0.10}; Generate `results/sensitivity_binary.csv` with columns: `alpha`, `metric`, `p_value`, `significant`.
+- [X] T020b [US1] Implement sensitivity analysis sweep for CONTINUOUS metrics (episode_length, messages, bandwidth, latency) using paired t-tests across a range of significance levels and Cohen's d calculation; Generate `results/sensitivity_continuous.csv` with columns: `alpha`, `metric`, `p_value`, `cohen_d`, `significant`.
+- [X] T021 [US1] Verify logic equivalence: Run `tests/test_direct_vs_middleware.py` to confirm identical agent logic in Baseline and Intervention.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -90,18 +90,18 @@
 
 ### Tests for User Story 2 (REQUIRED)
 
-- [ ] T022 [P] [US2] Contract test for crash injection metrics in `tests/contract/test_crash_metrics.py` with function `test_crash_schema_compliance`.
-- [ ] T023 [P] [US2] Integration test for recovery workflow in `tests/integration/test_recovery_workflow.py` with function `test_recovery_logic`.
+- [X] T022 [P] [US2] Contract test for crash injection metrics in `tests/contract/test_crash_metrics.py` with function `test_crash_schema_compliance`.
+- [X] T023 [P] [US2] Integration test for recovery workflow in `tests/integration/test_recovery_workflow.py` with function `test_recovery_logic`.
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Implement `code/experiments/crash_injector.py` supporting configurable crash fraction (FR-004) and single-agent crash.
-- [ ] T024b [P] [US2] Extend `code/experiments/crash_injector.py` to support simultaneous crash injection of multiple agents at the same timestep.
-- [ ] T025 [US2] Implement `code/benchmarks/spear_runner.py` integrating crash injector (single and simultaneous) and checkpointing (shared module).
-- [ ] T026 [US2] Extend `code/experiments/run_simulation.py` to handle SPEAR benchmark with crash injection for Foundation and Native Direct protocols.
-- [ ] T027 [US2] Update `code/experiments/stats_analyzer.py` to compute recovery success rate and latency statistics; PRIMARY: LMM; SENSITIVITY: McNemar's test (FR-006).
-- [ ] T028 [US2] Implement logging for `recovery_success`, `recovery_latency`, and `task_success` in `MetricRecord`.
-- [ ] T029 [US2] Verify baseline uses equivalent checkpointing capabilities by confirming `direct_comm.py` imports `code/foundation_protocol/checkpoint.py`.
+- [X] T024 [P] [US2] Implement `code/experiments/crash_injector.py` supporting configurable crash fraction (FR-004) and single-agent crash.
+- [X] T024b [P] [US2] Extend `code/experiments/crash_injector.py` to support simultaneous crash injection of multiple agents at the same timestep.
+- [X] T025 [US2] Implement `code/benchmarks/spear_runner.py` integrating crash injector (single and simultaneous) and checkpointing (shared module).
+- [X] T026 [US2] Extend `code/experiments/run_simulation.py` to handle SPEAR benchmark with crash injection for Foundation and Native Direct protocols.
+- [X] T027 [US2] Update `code/experiments/stats_analyzer.py` to compute recovery success rate and latency statistics; PRIMARY: LMM; SENSITIVITY: McNemar's test (FR-006).
+- [X] T028 [US2] Implement logging for `recovery_success`, `recovery_latency`, and `task_success` in `MetricRecord`.
+- [X] T029 [US2] Verify baseline uses equivalent checkpointing capabilities by confirming `direct_comm.py` imports `code/foundation_protocol/checkpoint.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -115,13 +115,13 @@
 
 ### Tests for User Story 3 (REQUIRED)
 
-- [ ] T030 [P] [US3] Contract test for bandwidth metrics in `tests/contract/test_bandwidth_metrics.py` with function `test_bandwidth_schema_compliance`.
-- [ ] T031 [P] [US3] Integration test for multi-task bandwidth comparison in `tests/integration/test_multi_task_bandwidth.py` with function `test_multi_task_logic`.
+- [X] T030 [P] [US3] Contract test for bandwidth metrics in `tests/contract/test_bandwidth_metrics.py` with function `test_bandwidth_schema_compliance`.
+- [X] T031 [P] [US3] Integration test for multi-task bandwidth comparison in `tests/integration/test_multi_task_bandwidth.py` with function `test_multi_task_logic`.
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Extend `code/benchmarks/resource_alloc_runner.py` with detailed byte-level logging supporting Foundation and Native Direct protocols.
-- [ ] T033 [US3] Update `code/experiments/run_simulation.py` to execute all three tasks (Hanabi, SPEAR, Resource) for Foundation and Native Direct protocols.
+- [X] T032 [P] [US3] Extend `code/benchmarks/resource_alloc_runner.py` with detailed byte-level logging supporting Foundation and Native Direct protocols.
+- [X] T033 [US3] Update `code/experiments/run_simulation.py` to execute all three tasks (Hanabi, SPEAR, Resource) for Foundation and Native Direct protocols.
 - [ ] T034 [US3] Implement `code/experiments/stats_analyzer.py` logic for normalized byte-per-episode aggregation; PRIMARY: LMM; SENSITIVITY: Paired t-test (FR-006).
 - [ ] T035 [US3] Generate comparative bandwidth reports per task (Hanabi ≤ 90%, others ≤ 85%) comparing Foundation Protocol against Native Direct Communication baseline.
 - [ ] T036 [US3] Verify normalization logic divides total bytes by payload size as per spec.
@@ -173,11 +173,11 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - T004/T005 (Schemas) must complete before T009/T009b (Data Generation)
-  - T007b (Checkpoint) must complete before T007/T008 (Communication)
+ - T004/T005 (Schemas) must complete before T009/T009b (Data Generation)
+ - T007b (Checkpoint) must complete before T007/T008 (Communication)
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Reviewer Concerns (Phase 6)**: Depends on completion of US1, US2, US3 (requires empirical data to model scaling)
 - **Polish (Phase 7)**: Depends on all desired user stories and reviewer concerns being complete
 
@@ -200,8 +200,8 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2), EXCEPT:
-  - T007b must precede T007/T008
-  - T004/T005 must precede T009/T009b
+ - T007b must precede T007/T008
+ - T004/T005 must precede T009/T009b
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -235,10 +235,10 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-   - Developer D: Scaling Analysis (Phase 6) - data dependent
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
+ - Developer D: Scaling Analysis (Phase 6) - data dependent
 3. Stories complete and integrate independently
 
 ---

@@ -1,0 +1,5 @@
+# Initial requirements for PROJ-628-foundation-protocol-a-coordination-layer
+# T001a creates the structure; T002 will pin specific versions.
+# This placeholder allows the project to be recognized as a Python project.
+pytest>=7.4.0
+pyyaml>=6.0.1

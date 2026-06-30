@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MessageEnvelope
+description: |
+  Schema for the Foundation Protocol message envelope.
+  Defines the structure for all inter-agent communications to ensure
+  integrity, traceability, and checkpoint consistency.
+type: object
+required:
+  - sender_id
+  - receiver_id
+  - timestamp
+  - signature
+  - payload_size
+  - checkpoint_ref
+properties:
+  sender_id:
+    type: string
+    description: Unique identifier of the sending agent.
+    minLength: 1
+  receiver_id:
+    type: string
+    description: Unique identifier of the receiving agent.
+    minLength: 1
+  timestamp:
+    type: string
+    description: ISO 8601 formatted timestamp of message creation.
+    format: date-time
+  signature:
+    type: string
+    description: Ed25519 cryptographic signature of the message payload and metadata.
+    pattern: '^[A-Za-z0-9+/=]+$'
+  payload_size:
+    type: integer
+    description: Size of the payload in bytes.
+    minimum: 0
+  checkpoint_ref:
+    type: string
+    description: Reference identifier to the specific checkpoint state associated with this message.
+    minLength: 1
+additionalProperties: false
