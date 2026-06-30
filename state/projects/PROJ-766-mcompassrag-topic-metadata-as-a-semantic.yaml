@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-766-mcompassrag-topic-metadata-as-a-semantic
-last_run_id: null
+last_run_id: 9034b347-ef75-4c13-ba3a-e8928205f0b0
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-766-mcompassrag-topic-metadata-as-a-semantic/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MCompassRAG: Topic Metadata as a Semantic Compass for Paragraph-Level Retrieval'
-updated_at: '2026-06-23T09:10:37.318425Z'
+updated_at: '2026-06-30T15:15:10.994079Z'

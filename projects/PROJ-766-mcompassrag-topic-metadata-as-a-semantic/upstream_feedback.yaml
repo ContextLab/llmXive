@@ -1,0 +1,138 @@
+project_id: PROJ-766-mcompassrag-topic-metadata-as-a-semantic
+arxiv_id: '2606.18508'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-30T15:15:10.935747+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 93edfb9eb2b4
+    text: Section 5.1 lists LongBenchV2 as a benchmark but states it is used only
+      for downstream evaluation due to lack of retrieval labels. The initial listing
+      implies it is a retrieval benchmark, which is factually inaccurate.
+    severity: writing
+  - id: 80215b60f3c6
+    text: The abstract claims "over 5x lower latency" than strongest efficient baselines.
+      Table 2 shows MCompassRAG (174ms) is only ~4.1x faster than REFRAG (720ms),
+      not 5x. The claim is overstated for the full set of baselines.
+    severity: writing
+  - id: a80297be3a0c
+    text: Section 4 lacks specific architecture details (hidden dims, heads) for the
+      student encoder and abstraction Transformer, preventing code reproduction.
+    severity: science
+  - id: 2f7a43fb72bd
+    text: The paper relies on external datasets (e.g., WikiWeb2M, EDR-200, LongBenchV1)
+      and models (CEMTM, Qwen3) without providing explicit license terms or version
+      hashes in the text or bibliography. Section 5.1 and Appendix A must include
+      specific license identifiers (e.g., CC-BY-4.0, Apache 2.0) and commit hashes
+      or version numbers for all external data and model weights to ensure reproducibility
+      and legal compliance.
+    severity: writing
+  - id: 3f9dfd983bbd
+    text: The metadata bank construction (Section 4.1) and training data synthesis
+      (Section 4.3) involve processing large corpora. The paper lacks a statement
+      on how missing data or corrupted chunks were handled during the topic modeling
+      and query generation phases. A brief description of data cleaning pipelines
+      or exclusion criteria for low-quality chunks is required.
+    severity: writing
+  - id: 28a18972256d
+    text: The GitHub link in the Abstract (lines 18-20) and the arXiv URL in the provenance
+      section are external dependencies. The paper should verify these links are stable
+      and consider archiving the code/data snapshot (e.g., via Zenodo) to prevent
+      link rot, ensuring the artifact remains accessible for future review.
+    severity: writing
+  - id: 9ae4c529bef0
+    text: Figure 1 (main-teaser) subfigure (a) and (b) lack axis labels and units.
+      Subfigure (b) plots 'Performance' vs 'Latency' but the axes are not explicitly
+      labeled with metric names (e.g., 'Avg. F1', 'ms') or units in the image itself,
+      relying solely on the caption. This violates print legibility standards.
+    severity: writing
+  - id: aaee99f3a2b4
+    text: Figure 2 (CompassRAG-pipeline_v2) contains no caption text describing the
+      specific icons (fire/snowflake) or the flow of data between the 'Metadata Bank'
+      and 'Student Retriever'. The visual complexity requires a more descriptive caption
+      to be self-contained.
+    severity: writing
+  - id: 9a22a570f1be
+    text: Figure 4 (student_teacher_ie_plots) and Figure 5 (tsne_qualitative_new)
+      lack explicit axis labels and legends within the image files. Figure 4's x-axis
+      (number of topics) and y-axis (IE) are not labeled on the plot, and Figure 5's
+      t-SNE axes are unlabeled. These must be added for standalone readability.
+    severity: writing
+  - id: 2230bb58075c
+    text: Figure 3 (CompassRAG_qualitative_comparison) uses color coding (teal, red)
+      to distinguish chunks but lacks a legend or explicit text labels within the
+      figure indicating which color corresponds to 'Gold Chunk' vs 'Distractor'. The
+      caption explains it, but the figure itself is ambiguous without reading the
+      text.
+    severity: writing
+  - id: 0ea794ed2ef8
+    text: The manuscript relies heavily on specialized terminology and acronyms that
+      are not defined at their first occurrence, creating a barrier for non-specialist
+      readers. In the Abstract, the term "Information Efficiency (IE)" is introduced
+      as a primary result metric without definition. While the authors likely assume
+      familiarity, a general reader cannot deduce that this is a product of precision
+      and recall without searching the text. Similarly, "LLM-teacher distillation"
+      is used as a compound noun; e
+    severity: writing
+  - id: 9eb986f7045d
+    text: 'The logical consistency of the paper is generally sound in its high-level
+      narrative: topic metadata helps disambiguate coarse chunks, and distillation
+      allows a lightweight model to mimic an LLM teacher. However, specific causal
+      claims and algorithmic descriptions contain internal contradictions that undermine
+      the rigor of the efficiency and training arguments. First, the training logic
+      in Section 4.3 presents a circular dependency. The authors claim the student
+      learns to "recover useful missing'
+    severity: writing
+  - id: '720845330103'
+    text: The claim of "5x lower latency" vs "strong LLM baselines" is misleading
+      as Table 2 shows non-LLM baselines (e.g., DenseXRetrieval) are faster. Clarify
+      the comparison set.
+    severity: writing
+  - id: b29420d7ed94
+    text: The statement that the IE gap to the oracle is "under 1 point" is only true
+      for easy datasets (SCI-DOCS, SQuAD). On DRBench, the gap is 2.3 points. Qualify
+      this claim.
+    severity: writing
+  - id: 3725e2f7d6ac
+    text: Attributing success to "topic-guided retrieval alone" overstates the role
+      of metadata vs. the LLM-teacher distillation. The student does not fully match
+      the teacher, suggesting distillation is key.
+    severity: science
+  - id: e0e292eb47cf
+    text: The paper presents MCompassRAG, a retrieval framework that leverages topic
+      metadata to improve efficiency and accuracy. From a safety and ethics perspective,
+      the reliance on Large Language Models (LLMs) for training data synthesis and
+      teacher distillation introduces specific risks that are currently under-discussed.
+      First, in Section 4.3 (Training with LLM-Teacher Distillation), the authors
+      describe using GPT-4o to generate 20,000 synthetic query-chunk pairs and to
+      assign relevance labels. While
+    severity: writing
+  - id: 348662e5ff08
+    text: The scientific evidence supporting the central claims of MCompassRAG is
+      generally robust in terms of experimental breadth (six benchmarks) and the inclusion
+      of strong baselines. However, the statistical rigor regarding efficiency claims
+      and the validity of the synthetic training data require clarification. First,
+      the claim of "over 5x lower latency" (Abstract, Section 2) is not supported
+      by the provided statistical evidence. Table 2 presents single-point latency
+      measurements (e.g., 174ms for MCo
+    severity: writing
+  - id: 68bd505c1322
+    text: 'The statistical analysis in the paper requires clarification and additional
+      rigor to fully support the performance claims. First, the definition of the
+      primary retrieval metric, Information Efficiency (IE), is defined in Section
+      5.1 as the product of Precision and Recall ($\mathrm{IE} = P \times R$). This
+      is a non-standard metric in information retrieval literature, where the F1-score
+      (harmonic mean) or nDCG are typically used. The product metric has distinct
+      statistical properties: it heavily p'
+    severity: writing
+  - id: 8bec07d2ff40
+    text: 'The manuscript demonstrates a high level of LaTeX hygiene overall, with
+      a clean structure and appropriate use of the ACL template. However, several
+      text formatting issues require attention before final submission. First, in
+      sections/2_introduction.tex, the caption for Figure 1 (fig:main-teaser) contains
+      empty sub-captions: \caption{} for both sub-figures (a) and (b). These must
+      be populated with descriptive text explaining the specific content of each panel
+      to ensure the figure is self-contained'
+    severity: writing
