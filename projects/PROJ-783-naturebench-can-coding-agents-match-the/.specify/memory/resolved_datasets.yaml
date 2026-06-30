@@ -1,0 +1,440 @@
+resolved_at: '2026-06-30T21:01:18.486984+00:00'
+datasets:
+- intent: SWE-agent
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nebius/SWE-agent-trajectories/resolve/main/data/train-00000-of-00012.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sailplane/swe-agent-trajs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SWE-Gym/MoatlessTools-Agent-Verifier-Train-Data/resolve/main/agent-32b-final.openai.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-RL-Agentic-SWE-Pivot-v1/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nebius/SWE-agent-trajectories/resolve/main/data/train-00000-of-00012.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sailplane/swe-agent-trajs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/SWE-Gym/MoatlessTools-Agent-Verifier-Train-Data/resolve/main/agent-32b-final.openai.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/AxT-dev/swe-agent-lm-32b-r2e-gym-trajectories/resolve/main/r2egym-swe-agent-lm-32b-ctx131072-attempt-1.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_From_lab_to_field_Mating-dependent_gut_enlargement_and_immune_suppression_in_field-caught_b_b_i_Aedes_aegypti_i_b_/31900876
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_ChatGPT_Menggunakan_Model_Nielsen_dan_SmartPLS/32840825
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDLXV_b_/32840855
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDLXIV_b_/32840843
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20708135
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7446739
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.83bk3j9nn
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19249245
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3920431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21078864
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21078864
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20814658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21076824
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21076824
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/Dataset_and_repository_for_Who_Says_WONTFIX_Understanding_the_Sentiment_Participation_and_Ownership_in_WONTFIX-Labeled_GitHub_Issues_/32840870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_From_lab_to_field_Mating-dependent_gut_enlargement_and_immune_suppression_in_field-caught_b_b_i_Aedes_aegypti_i_b_/31900876
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_ChatGPT_Menggunakan_Model_Nielsen_dan_SmartPLS/32840825
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Systematic_Expansion_of_Medicinally_Relevant_Chemical_Space_Based_on_Imidazole_and_Imidazoline_Scaffolds_Part_CDLXV_b_/32840855
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Structural_evolution_of_lotus_seed_resistant_starch_during_in_vitro_fecal_fermentation_in_food-allergic_rats_modulates_gut_microbiota_and_SCFAs_docx/32840900
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Dataset_and_repository_for_Who_Says_WONTFIX_Understanding_the_Sentiment_Participation_and_Ownership_in_WONTFIX-Labeled_GitHub_Issues_/32840870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_From_lab_to_field_Mating-dependent_gut_enlargement_and_immune_suppression_in_field-caught_b_b_i_Aedes_aegypti_i_b_/31900876
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_ChatGPT_Menggunakan_Model_Nielsen_dan_SmartPLS/32840825
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/3xmzq/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18278836
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18278836
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21083627
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21083627
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SOTA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/LangChainDatasets/agent-vectordb-qa-sota-pg/resolve/main/vectorstore_sota_pg.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12290
+      parsed: true
+  - url: https://huggingface.co/datasets/AndrewZeng/deita_sota_pool/resolve/main/instag_mix.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Sotaro0124/Ainu-Japan_translation_model/resolve/main/model_ainu_05_torch.h5
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Sotaro0124/Ainu-Japan_translation_model/resolve/main/model_ainu_05_torch.h5
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/LangChainDatasets/agent-vectordb-qa-sota-pg/resolve/main/vectorstore_sota_pg.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/AndrewZeng/deita_sota_pool/resolve/main/instag_mix.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Structural_evolution_of_lotus_seed_resistant_starch_during_in_vitro_fecal_fermentation_in_food-allergic_rats_modulates_gut_microbiota_and_SCFAs_docx/32840900
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Dataset_and_repository_for_Who_Says_WONTFIX_Understanding_the_Sentiment_Participation_and_Ownership_in_WONTFIX-Labeled_GitHub_Issues_/32840870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_From_lab_to_field_Mating-dependent_gut_enlargement_and_immune_suppression_in_field-caught_b_b_i_Aedes_aegypti_i_b_/31900876
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_ChatGPT_Menggunakan_Model_Nielsen_dan_SmartPLS/32840825
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13935162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5653682
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20595631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3417/1055-3177(2007)17[27:UNCEMC]2.0.CO;2
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/17148873
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048677
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048677
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5517/ccdc.csd.cc2qzgmt
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21064413
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21064413
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Structural_evolution_of_lotus_seed_resistant_starch_during_in_vitro_fecal_fermentation_in_food-allergic_rats_modulates_gut_microbiota_and_SCFAs_docx/32840900
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Dataset_and_repository_for_Who_Says_WONTFIX_Understanding_the_Sentiment_Participation_and_Ownership_in_WONTFIX-Labeled_GitHub_Issues_/32840870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_From_lab_to_field_Mating-dependent_gut_enlargement_and_immune_suppression_in_field-caught_b_b_i_Aedes_aegypti_i_b_/31900876
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_ChatGPT_Menggunakan_Model_Nielsen_dan_SmartPLS/32840825
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JYXFZY
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21082383
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21082383
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dmphub.uc3prd.cdlib.net/dmps/10.48321/D1CA73ED6D
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21040161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

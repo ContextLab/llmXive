@@ -1,0 +1,1173 @@
+% given llm representations try to predict whether CoT will succeed showing that it does have correlation
+@inproceedings{afzal2025knowingsayingllmrepresentations,
+    title = "Knowing Before Saying: {LLM} Representations Encode Information About Chain-of-Thought Success Before Completion",
+    author = "Afzal, Anum and Matthes, Florian and Chechik, Gal and Ziser, Yftah",
+    editor = "Che, Wanxiang and Nabende, Joyce and Shutova, Ekaterina and Pilehvar, Mohammad Taher",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2025",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.findings-acl.662/",
+    doi = "10.18653/v1/2025.findings-acl.662",
+    pages = "12791--12806",
+    ISBN = "979-8-89176-256-5",
+}
+
+% state that LLMs represent objects in the same way humans do and understand
+@article{Du_2025,
+   title={{Human-like object concept representations emerge naturally in multimodal large language models}},
+   volume={7},
+   ISSN={2522-5839},
+   url={http://dx.doi.org/10.1038/s42256-025-01049-z},
+   DOI={10.1038/s42256-025-01049-z},
+   number={6},
+   journal={Nature Machine Intelligence},
+   publisher={Springer Science and Business Media LLC},
+   author={Du, Changde and Fu, Kaicheng and Wen, Bincheng and Sun, Yi and Peng, Jie and Wei, Wei and Gao, Ying and Wang, Shengpei and Zhang, Chuncheng and Li, Jinpeng and Qiu, Shuang and Chang, Le and He, Huiguang},
+   year={2025},
+   month=jun, pages={860–875} 
+}
+
+% introduces pause tokens as a way to iterate on thinking
+@inproceedings{goyal2024thinkspeaktraininglanguage,
+    title = {Think before you speak: Training Language Models With Pause Tokens},
+    author = {Sachin Goyal and Ziwei Ji and Ankit Singh Rawat and Aditya Krishna Menon and Sanjiv Kumar and Vaishnavh Nagarajan},
+    booktitle = {The Twelfth International Conference on Learning Representations},
+    year = {2024},
+    url = {https://openreview.net/forum?id=ph04CRkPdC},
+}
+
+% uses last hidden state in pretraining and achieves very competitive results due to it being used during pretrianing thus the last hidden state is adapted to be received as input
+% this makes LLMs inherently pretrained on receiving last hidden state before generating the token which demonstrate thinking given last hidden states
+@misc{zeng2025ponderlm2pretrainingllmlatent,
+      title={{PonderLM-2: Pretraining LLM with Latent Thoughts in Continuous Space}}, 
+      author={Boyi Zeng and He Li and Shixiang Song and Yixuan Wang and Ziwei He and Xinbing Wang and Zhouhan Lin},
+      year={2025},
+      eprint={2509.23184},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2509.23184}, 
+}
+
+% Models can notice injected concepts and accurately identify them
+% in addition, can recall prior intentions
+@article{lindsey2025emergent,
+  title={{Emergent Introspective Awareness in Large Language Models}},
+  author={Lindsey, Jack},
+  journal={Transformer Circuits Thread},
+  year={2025},
+  url={https://transformer-circuits.pub/2025/introspection/index.html}
+}
+
+% use hidden states to answer QA datasets with a custom network, motivated by using all hidden states in prediction rather than last hidden states
+% this directly uses all hidden states and demonstrates that it achieves better results when doing so, which shows information loss can happen as we go through transformer stages, which suggests that important knowledge exist in hidden states of LLMs that are discarded in normal settings
+@inproceedings{chételat2025innerthoughtsdisentanglingrepresentationspredictions,
+    title = {{InnerThoughts: Disentangling Representations and Predictions in Large Language Models}},
+    author = {Ch{\'e}telat, Didier and Cotnareanu, Joseph and Thompson, Rylee and Zhang, Yingxue and Coates, Mark},
+    booktitle = {Proceedings of The 28th International Conference on Artificial Intelligence and Statistics},
+    pages = {3862--3870},
+    year = {2025},
+    editor = {Li, Yingzhen and Mandt, Stephan and Agrawal, Shipra and Khan, Emtiyaz},
+    volume = {258},
+    series = {Proceedings of Machine Learning Research},
+    month = {03--05 May},
+    publisher = {PMLR},
+    url = {https://proceedings.mlr.press/v258/chetelat25a.html},
+}
+
+
+% coconut paper
+% uses last hidden states as input to the model to try to maintain multiple thinking paths but doesnt achieve much improvements in performance
+@article{hao2024training,
+  title={{Training large language models to reason in a continuous latent space}},
+  author={Hao, Shibo and Sukhbaatar, Sainbayar and Su, DiJia and Li, Xian and Hu, Zhiting and Weston, Jason and Tian, Yuandong},
+  journal={arXiv preprint arXiv:2412.06769},
+  year={2024}
+}
+
+% tries to improve implicit cot
+% These results validate that LLMs can reason effectively not only in natural language, but also in a latent continuous space.
+@inproceedings{shen2025codicompressingchainofthoughtcontinuous,
+    title = "{CODI}: Compressing Chain-of-Thought into Continuous Space via Self-Distillation",
+    author = "Shen, Zhenyi and Yan, Hanqi and Zhang, Linhai and Hu, Zhanghao and Du, Yali and He, Yulan",
+    editor = "Christodoulopoulos, Christos and Chakraborty, Tanmoy and Rose, Carolyn and Peng, Violet",
+    booktitle = "Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2025",
+    address = "Suzhou, China",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.emnlp-main.36/",
+    doi = "10.18653/v1/2025.emnlp-main.36",
+    pages = "677--693",
+    ISBN = "979-8-89176-332-6",
+}
+
+
+% tries to make llms reason by capturing multiple trajectories of an LLM in a continuous concept space
+% formed by weighted summation of embedidngs and predicted probs over vocab instead of discretizing with tokens
+% this shows that COCONUT method is bad for using last hidden state as input to LLM when it is not in same token space
+@inproceedings{zhang2025softthinkingunlockingreasoning,
+      title={{Soft Thinking: Unlocking the Reasoning Potential of {LLM}s in Continuous Concept Space}},
+      author={Zhen Zhang and Xuehai He and Weixiang Yan and Ao Shen and Chenyang Zhao and Xin Eric Wang},
+      booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems},
+      year={2026},
+      url={https://openreview.net/forum?id=ByQdHPGKgU},
+}
+
+% says soft thinking is bad and shows how without adding noise to the continuous token soft thinking ends up being greedy decoding
+% introduces a method called stochastic soft thinking
+@inproceedings{wu2026llms,
+title={{{LLM}s are Single-threaded Reasoners: Demystifying the Working Mechanism of Soft Thinking}},
+author={Junhong Wu and Jinliang Lu and Zixuan Ren and Gangqiang Hu and Zhi Wu and Dai Dai and Hua Wu},
+booktitle={The Fourteenth International Conference on Learning Representations},
+year={2026},
+url={https://openreview.net/forum?id=ASLuOoP78o}
+}
+
+% builds on the idea of soft thinking but improves with RL learning of continuous CoT and added noise for exploration of RL, similar to stochastic soft thinking
+@inproceedings{butt2026soft,
+title={{Soft Tokens, Hard Truths}},
+author={Natasha Butt and Ariel Kwiatkowski and Ismail Labiad and Julia Kempe and Yann Ollivier},
+booktitle={The Fourteenth International Conference on Learning Representations},
+year={2026},
+url={https://openreview.net/forum?id=9JjKTp8Jmy}
+}
+
+% tries to make an approach that improves soft thinking, and targets token space, compress tokens, and semantic correctness while trying to preserve multiple thinking paths.
+% I believe it lacks correct proof that it thinks in multiple paths most likely just a result of having r > 1 which would compress multiple tokens
+% something else is that decoding these vectors are not supposed to mean anything, by the way they compose the token itself it is a combination of tokens so it is expected to have all of that and will be found in soft thinking as well it is not an addition.
+% The improved result is likely just due to a more rich representation of the model's thoughts.
+% compares against approaches like CODI & COCONUT
+@misc{deng2025latentreasoningllmsvocabularyspace,
+      title={{Latent Reasoning in LLMs as a Vocabulary-Space Superposition}}, 
+      author={Jingcheng Deng and Liang Pang and Zihao Wei and Shichen Xu and Zenghao Duan and Kun Xu and Yang Song and Huawei Shen and Xueqi Cheng},
+      year={2025},
+      eprint={2510.15522},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2510.15522}, 
+}
+
+% try pruning reasoning with RL to try preserving performance and reducing overhead
+@misc{hou2025thinkprunepruninglongchainofthought,
+      title={{ThinkPrune: Pruning Long Chain-of-Thought of LLMs via Reinforcement Learning}}, 
+      author={Bairu Hou and Yang Zhang and Jiabao Ji and Yujian Liu and Kaizhi Qian and Jacob Andreas and Shiyu Chang},
+      year={2025},
+      eprint={2504.01296},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2504.01296}, 
+}
+
+
+% CEPE uses cross-attention blocks to attend to retrieved chunks, between self attention and feedforward layers (will be used in injection of thoughts to other models)
+@misc{yen2024longcontextlanguagemodelingparallel,
+      title={{Long-Context Language Modeling with Parallel Context Encoding}}, 
+      author={Howard Yen and Tianyu Gao and Danqi Chen},
+      year={2024},
+      eprint={2402.16617},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2402.16617}, 
+}
+
+
+% they basically show that mid-depth embeddings can exceed the last layer's performance
+% highlights how each layer balances information compression and signal preservation
+% intermediate layers appear to strike a balance between retaining sufficient information (avoiding over-compression) and discarding low-level noise
+% Autoregressive models show mid-layer bottlenecks while bidirectional models maintain more uniform trends
+@inproceedings{skean2025layerlayeruncoveringhidden,
+    title = {Layer by Layer: Uncovering Hidden Representations in Language Models},
+    author = {Oscar Skean and Md Rifat Arefin and Dan Zhao and Niket Nikul Patel and Jalal Naghiyev and Yann LeCun and Ravid Shwartz-Ziv},
+    booktitle = {Forty-second International Conference on Machine Learning},
+    year = {2025},
+    url = {https://openreview.net/forum?id=WGXb7UdvTX},
+}
+
+% the model may have separation of layers of: beggining, middle, ending
+% the middle layers seem to share a common representation space
+% middle layers are performing different functions.
+% Mathematical and reasoning tasks are more layer order dependent than “semantic” tasks
+@inproceedings{sun2025transformerlayerspainters,
+    title = {{Transformer Layers as Painters}},
+    author = {Sun, Qi and Pickett, Marc and Nain, Aakash Kumar and Jones, Llion},
+    booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+    volume = {39},
+    pages = {25219--25227},
+    year = {2025},
+    doi = {10.1609/aaai.v39i24.34708},
+    url = {https://ojs.aaai.org/index.php/AAAI/article/view/34708},
+}
+
+% show that some layers can be skipped and still preserve performance 
+@misc{luo2025adaptivelayerskippingpretrainedllms,
+      title={{Adaptive Layer-skipping in Pre-trained LLMs}}, 
+      author={Xuan Luo and Weizhi Wang and Xifeng Yan},
+      year={2025},
+      eprint={2503.23798},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2503.23798}, 
+}
+
+% semantic processing migrating from deeper to mid-network layers as models discover more efficient encoding
+% LLMs broadly align with human categories but miss fine-grained semantic distinctions crucial for human understanding.
+% LLMs optimize for compression and humans for adaptive utility
+% challenge the assumption that statistical optimality equals understanding
+@misc{shani2025tokensthoughtsllmshumans,
+      title={{From Tokens to Thoughts: How LLMs and Humans Trade Compression for Meaning}}, 
+      author={Chen Shani and Liron Soffer and Dan Jurafsky and Yann LeCun and Ravid Shwartz-Ziv},
+      year={2025},
+      eprint={2505.17117},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2505.17117}, 
+}
+
+% show that different parts of the model have different functionalities
+@article{ameisen2025circuit,
+  author={Ameisen, Emmanuel and Lindsey, Jack and Pearce, Adam and Gurnee, Wes and Turner, Nicholas L. and Chen, Brian and Citro, Craig and Abrahams, David and Carter, Shan and Hosmer, Basil and Marcus, Jonathan and Sklar, Michael and Templeton, Adly and Bricken, Trenton and McDougall, Callum and Cunningham, Hoagy and Henighan, Thomas and Jermyn, Adam and Jones, Andy and Persic, Andrew and Qi, Zhenyi and Ben Thompson, T. and Zimmerman, Sam and Rivoire, Kelley and Conerly, Thomas and Olah, Chris and Batson, Joshua},
+  title={{Circuit Tracing: Revealing Computational Graphs in Language Models}},
+  journal={Transformer Circuits Thread},
+  year={2025},
+  url={https://transformer-circuits.pub/2025/attribution-graphs/methods.html}
+}
+
+% demonstrate that you may get better results with much smaller models if they are allowed to reiterate and think and reflect on their latent representation
+% basically supports that we can encapsulate thinking in a vector and reiterate on it
+@misc{jolicoeurmartineau2025morerecursivereasoningtiny,
+      title={{Less is More: Recursive Reasoning with Tiny Networks}}, 
+      author={Alexia Jolicoeur-Martineau},
+      year={2025},
+      eprint={2510.04871},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2510.04871}, 
+}
+
+% Language fine‑tuning mostly changes the first few and last few layers.
+% Task fine‑tuning (for math) changes mostly the middle layers.
+% motivates the layer‑swapping strategy.
+% and evidence as motivation that middle layers are what actually compute/do the thinking
+@inproceedings{bandarkar2025layerswappingzeroshotcrosslingual,
+    title = {Layer Swapping for Zero-Shot Cross-Lingual Transfer in Large Language Models},
+    author = {Lucas Bandarkar and Benjamin Muller and Pritish Yuvraj and Rui Hou and Nayan Singhal and Hongjiang Lv and Bing Liu},
+    booktitle = {The Thirteenth International Conference on Learning Representations},
+    year = {2025},
+    url = {https://openreview.net/forum?id=vQhn4wrQ6j},
+}
+
+% LLMs' proficiency in processing a particular language is predominantly due to a small subset of neurons, primarily situated in the models' top and bottom layers.
+% suggesting that top and bottom layers are usually leaning more on the linguistic rather than compute which supports other works
+@inproceedings{tang-etal-2024-language,
+    title = "Language-Specific Neurons: The Key to Multilingual Capabilities in Large Language Models",
+    author = "Tang, Tianyi  and
+      Luo, Wenyang  and
+      Huang, Haoyang  and
+      Zhang, Dongdong  and
+      Wang, Xiaolei  and
+      Zhao, Xin  and
+      Wei, Furu  and
+      Wen, Ji-Rong",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.acl-long.309/",
+    doi = "10.18653/v1/2024.acl-long.309",
+    pages = "5701--5715",
+    abstract = "Large language models (LLMs) demonstrate remarkable multilingual capabilities without being pre-trained on specially curated multilingual parallel corpora.It remains a challenging problem to explain the underlying mechanisms by which LLMs process multilingual texts.In this paper, we delve into the composition of Transformer architectures in LLMs to pinpoint language-specific regions.Specially, we propose a novel detection method, language activation probability entropy (LAPE), to identify language-specific neurons within LLMs.Based on LAPE, we conduct comprehensive experiments on several representative LLMs, such as LLaMA-2, BLOOM, and Mistral. Our findings indicate that LLMs' proficiency in processing a particular language is predominantly due to a small subset of neurons, primarily situated in the models' top and bottom layers.Furthermore, we showcase the feasibility to ``steer'' the output language of LLMs by selectively activating or deactivating language-specific neurons. Our research provides important evidence to the understanding and exploration of the multilingual capabilities of LLMs."
+}
+
+%  Says that in LLMs such as Llama we can notice hidden states divided as: input space, concept space, and output space
+% supports that an LLM can be divided into 3 parts which supports other works
+@inproceedings{wendler-etal-2024-llamas,
+    title = "Do Llamas Work in English? On the Latent Language of Multilingual Transformers",
+    author = "Wendler, Chris  and
+      Veselovsky, Veniamin  and
+      Monea, Giovanni  and
+      West, Robert",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.acl-long.820/",
+    doi = "10.18653/v1/2024.acl-long.820",
+    pages = "15366--15394",
+    abstract = "We ask whether multilingual language models trained on unbalanced, English-dominated corpora use English as an internal pivot language{---}-a question of key importance for understanding how language models function and the origins of linguistic bias. Focusing on the Llama-2 family of transformer models, our study is based on carefully constructed non-English prompts with a unique correct single-token continuation. From layer to layer, transformers gradually map an input embedding of the final prompt token to an output embedding from which next-token probabilities are computed. Tracking intermediate embeddings through their high-dimensional space reveals three distinct phases, whereby intermediate embeddings (1) start far away from output token embeddings; (2) already in middle layers allow for decoding a semantically correct next token, but giving higher probability to its version in English than in the input language; (3) move into an input-language-specific region of the embedding space. We cast these results into a conceptual model where the three phases operate in ``input space'', ``concept space'', and ``output space'', respectively. Crucially, our evidence suggests that the abstract ``concept space'' lies closer to English than to other input languages, which may have important consequences regarding the biases embodied by multilingual language models."
+}
+
+% even for adapter methods, adapter predictions is done in LM language trained on while target lang is developed towrds the end
+% adapter process is gradual possible to skip some and preserve performance
+% adapters operate in same space of LMs
+% supports works saying models can be divided and that linguistic side is done towards the top and bottom layer
+@inproceedings{alabi-etal-2024-hidden,
+    title = "The Hidden Space of Transformer Language Adapters",
+    author = "Alabi, Jesujoba  and
+      Mosbach, Marius  and
+      Eyal, Matan  and
+      Klakow, Dietrich  and
+      Geva, Mor",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.acl-long.356/",
+    doi = "10.18653/v1/2024.acl-long.356",
+    pages = "6588--6607",
+    abstract = "We analyze the operation of transformer language adapters, which are small modules trained on top of a frozen language model to adapt its predictions to new target languages. We show that adapted predictions mostly evolve in the source language the model was trained on, while the target language becomes pronounced only in the very last layers of the model. Moreover, the adaptation process is gradual and distributed across layers, where it is possible to skip small groups of adapters without decreasing adaptation performance. Last, we show that adapters operate on top of the model{'}s frozen representation space while largely preserving its structure, rather than on an isolated subspace. Our findings provide a deeper view into the adaptation process of language models to new languages, showcasing the constraints imposed on it by the underlying model and introduces practical implications to enhance its efficiency."
+}
+
+% encode docs to fixed sized embeddings
+@misc{macavaney2025efficientconstantspacemultivectorretrieval,
+      title={{Efficient Constant-Space Multi-Vector Retrieval}}, 
+      author={Sean MacAvaney and Antonio Mallia and Nicola Tonellotto},
+      year={2025},
+      eprint={2504.01818},
+      archivePrefix={arXiv},
+      primaryClass={cs.IR},
+      url={https://arxiv.org/abs/2504.01818}, 
+}
+
+% LMs faithfully represent their input contexts in a latent world model
+% extract these latent world states as logical propositions.
+@inproceedings{feng2025monitoring,
+title={{Monitoring Latent World States in Language Models with Propositional Probes}},
+author={Jiahai Feng and Stuart Russell and Jacob Steinhardt},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=0yvZm2AjUr}
+}
+
+% abstract grammatical concepts are often encoded in feature directions shared across many languages, suggesting a concept space exists in LLMs
+@misc{brinkmann2025largelanguagemodelsshare,
+      title={{Large Language Models Share Representations of Latent Grammatical Concepts Across Typologically Diverse Languages}}, 
+      author={Jannik Brinkmann and Chris Wendler and Christian Bartelt and Aaron Mueller},
+      year={2025},
+      eprint={2501.06346},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2501.06346}, 
+}
+
+
+% good survey
+@article{sui2025stopoverthinkingsurveyefficient,
+    title = {Stop Overthinking: A Survey on Efficient Reasoning for Large Language Models},
+    author = {Yang Sui and Yu-Neng Chuang and Guanchu Wang and Jiamu Zhang and Tianyi Zhang and Jiayi Yuan and Hongyi Liu and Andrew Wen and Shaochen Zhong and Na Zou and Hanjie Chen and Xia Hu},
+    journal = {Transactions on Machine Learning Research},
+    issn = {2835-8856},
+    year = {2025},
+    url = {https://openreview.net/forum?id=HvoG8SxggZ},
+}
+
+% reasoning survey
+@article{feng2025efficientreasoningmodelssurvey,
+    title = {Efficient Reasoning Models: A Survey},
+    author = {Sicheng Feng and Gongfan Fang and Xinyin Ma and Xinchao Wang},
+    journal = {Transactions on Machine Learning Research},
+    issn = {2835-8856},
+    year = {2025},
+    url = {https://openreview.net/forum?id=sySqlxj8EB},
+}
+
+% they get concepts for a task to help them pick good examples for in context learning few shot examples, they encode every x,y pair and then average across the task, then get top cosine similarity as best examples
+@misc{wang2024largelanguagemodelslatent,
+      title={{Large Language Models Are Latent Variable Models: Explaining and Finding Good Demonstrations for In-Context Learning}}, 
+      author={Xinyi Wang and Wanrong Zhu and Michael Saxon and Mark Steyvers and William Yang Wang},
+      year={2024},
+      eprint={2301.11916},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2301.11916}, 
+}
+
+% separability in deeper models
+% Representations of different semantic domains become linearly separable clusters in hidden space; separation improves in deeper layers
+% Prompts or instructions that elicit structured reasoning (e.g., chain‑of‑thought) or alignment behavior further sharpen and disentangle these latent representations.
+% they demonstrate a proof‑of‑concept latent‑space classifier (simple MLP) that can detect adversarial or malicious prompts by leveraging the separable subspaces.
+% suggests that hidden states represent meaningful concepts
+@misc{saglam2025largelanguagemodelsencode,
+      title={{Large Language Models Encode Semantics in Low-Dimensional Linear Subspaces}}, 
+      author={Baturay Saglam and Paul Kassianik and Blaine Nelson and Sajana Weerawardhena and Yaron Singer and Amin Karbasi},
+      year={2025},
+      eprint={2507.09709},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2507.09709}, 
+}
+
+% recursion and routing for layers
+@misc{bae2025mixtureofrecursionslearningdynamicrecursive,
+      title={{Mixture-of-Recursions: Learning Dynamic Recursive Depths for Adaptive Token-Level Computation}}, 
+      author={Sangmin Bae and Yujin Kim and Reza Bayat and Sungnyun Kim and Jiyoun Ha and Tal Schuster and Adam Fisch and Hrayr Harutyunyan and Ziwei Ji and Aaron Courville and Se-Young Yun},
+      year={2025},
+      eprint={2507.10524},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2507.10524}, 
+}
+
+% out of distribution tokens
+@article{yuan2023revisiting,
+  title={{Revisiting out-of-distribution robustness in nlp: Benchmarks, analysis, and llms evaluations}},
+  author={Yuan, Lifan and Chen, Yangyi and Cui, Ganqu and Gao, Hongcheng and Zou, Fangyuan and Cheng, Xingyi and Ji, Heng and Liu, Zhiyuan and Sun, Maosong},
+  journal={Advances in Neural Information Processing Systems},
+  volume={36},
+  pages={58478--58507},
+  year={2023}
+}
+
+% interpretting and explaining reasoning in llms
+@inproceedings{mondorf2024accuracyevaluatingreasoningbehavior,
+    title = {Beyond Accuracy: Evaluating the Reasoning Behavior of Large Language Models -- A Survey},
+    author = {Philipp Mondorf and Barbara Plank},
+    booktitle = {First Conference on Language Modeling ({COLM})},
+    year = {2024},
+    url = {https://openreview.net/forum?id=Lmjgl2n11u},
+}
+
+% layer interpretation that early is .. and later is ...
+@misc{chen2024biggerdeeperbetterprobing,
+      title={{Is Bigger and Deeper Always Better? Probing LLaMA Across Scales and Layers}}, 
+      author={Nuo Chen and Ning Wu and Shining Liang and Ming Gong and Linjun Shou and Dongmei Zhang and Jia Li},
+      year={2024},
+      eprint={2312.04333},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2312.04333}, 
+}
+
+% something for latent space for embedding
+@inproceedings{tan2024learning,
+  title={{Learning global controller in latent space for parameter-efficient fine-tuning}},
+  author={Tan, Zeqi and Shen, Yongliang and Cheng, Xiaoxia and Zong, Chang and Zhang, Wenqi and Shao, Jian and Lu, Weiming and Zhuang, Yueting},
+  booktitle={Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  pages={4044--4055},
+  year={2024}
+}
+
+
+% joint modalities continuous and discrete
+@misc{zhou2025coevolutionarycontinuousdiscretediffusion,
+      title={{Coevolutionary Continuous Discrete Diffusion: Make Your Diffusion Language Model a Latent Reasoner}}, 
+      author={Cai Zhou and Chenxiao Yang and Yi Hu and Chenyu Wang and Chubin Zhang and Muhan Zhang and Lester Mackey and Tommi Jaakkola and Stephen Bates and Dinghuai Zhang},
+      year={2025},
+      eprint={2510.03206},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2510.03206}, 
+}
+
+% improves on codi
+@misc{wei2025simcotsupervisedimplicitchainofthought,
+      title={{SIM-CoT: Supervised Implicit Chain-of-Thought}}, 
+      author={Xilin Wei and Xiaoran Liu and Yuhang Zang and Xiaoyi Dong and Yuhang Cao and Jiaqi Wang and Xipeng Qiu and Dahua Lin},
+      year={2025},
+      eprint={2509.20317},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2509.20317}, 
+}
+
+% llms collaborating on thoughts
+@misc{ning2025thoughtsgeneratedequalefficient,
+      title={{Not All Thoughts are Generated Equal: Efficient LLM Reasoning via Multi-Turn Reinforcement Learning}}, 
+      author={Yansong Ning and Wei Li and Jun Fang and Naiqiang Tan and Hao Liu},
+      year={2025},
+      eprint={2505.11827},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2505.11827}, 
+}
+
+% new bench for system 1 thinking
+@misc{zhang2025s1benchsimplebenchmarkevaluating,
+      title={{S1-Bench: A Simple Benchmark for Evaluating System 1 Thinking Capability of Large Reasoning Models}}, 
+      author={Wenyuan Zhang and Shuaiyi Nie and Xinghua Zhang and Zefeng Zhang and Tingwen Liu},
+      year={2025},
+      eprint={2504.10368},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2504.10368}, 
+}
+
+
+% custom decoding for reasoning models
+@misc{li2025makesreasoningmodelsdifferent,
+      title={{What makes Reasoning Models Different? Follow the Reasoning Leader for Efficient Decoding}}, 
+      author={Ming Li and Zhengyuan Yang and Xiyao Wang and Dianqi Li and Kevin Lin and Tianyi Zhou and Lijuan Wang},
+      year={2025},
+      eprint={2506.06998},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2506.06998}, 
+}
+
+
+% when to stop thinking
+@misc{jiang2025flashthinkearlyexitmethod,
+      title={{FlashThink: An Early Exit Method For Efficient Reasoning}}, 
+      author={Guochao Jiang and Guofeng Quan and Zepeng Ding and Ziqin Luo and Dixuan Wang and Zheng Hu},
+      year={2025},
+      eprint={2505.13949},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2505.13949}, 
+}
+
+
+% AI gen
+%=======================================
+@misc{lcm2024,
+      title={{Large Concept Models: Language Modeling in a Sentence Representation Space}},
+      author={LCM team and Loïc Barrault and Paul-Ambroise Duquenne and Maha Elbayad and Artyom Kozhevnikov and Belen Alastruey and Pierre Andrews and Mariano Coria and Guillaume Couairon and Marta R. Costa-jussà and David Dale and Hady Elsahar and Kevin Heffernan and João Maria Janeiro and Tuan Tran and Christophe Ropers and Eduardo Sánchez and Robin San Roman and Alexandre Mourachko and Safiyyah Saleem and Holger Schwenk},
+      year={2024},
+      eprint={2412.08821},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2412.08821},
+}
+
+@misc{lin2025refrag,
+      title={{REFRAG: Rethinking RAG based Decoding}},
+      author={Xiaoqiang Lin and Aritra Ghosh and Bryan Kian Hsiang Low and Anshumali Shrivastava and Vijai Mohan},
+      year={2025},
+      eprint={2509.01092},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2509.01092},
+}
+
+% adapts a decoder-only transformer to operate in SONAR concept space via token-level CE through a frozen SONAR decoder
+% specialized adaptation recipe for LCM-style models
+@misc{dragunov2025sonarllm,
+      title={{SONAR-LLM: Autoregressive Transformer that Thinks in Sentence Embeddings and Speaks in Tokens}},
+      author={Nikita Dragunov and Temurbek Rahmatullaev and Elizaveta Goncharova and Andrey Kuznetsov and Anton Razzhigaev},
+      year={2025},
+      eprint={2508.05305},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2508.05305},
+}
+
+@misc{sastre2025memorytokenslargelanguage,
+      title={{Memory Tokens: Large Language Models Can Generate Reversible Sentence Embeddings}},
+      author={Ignacio Sastre and Aiala Rosá},
+      year={2025},
+      eprint={2506.15001},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2506.15001},
+}
+
+@misc{cui2025stepwiseperplexityguidedrefinementefficient,
+      title={{Stepwise Perplexity-Guided Refinement for Efficient Chain-of-Thought Reasoning in Large Language Models}},
+      author={Yingqian Cui and Pengfei He and Jingying Zeng and Hui Liu and Xianfeng Tang and Zhenwei Dai and Yan Han and Chen Luo and Jing Huang and Zhen Li and Suhang Wang and Yue Xing and Jiliang Tang and Qi He},
+      year={2025},
+      eprint={2502.13260},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2502.13260},
+}
+
+@misc{fang2025wrongperplexitylongcontextlanguage,
+      title={{What is Wrong with Perplexity for Long-context Language Modeling?}},
+      author={Lizhe Fang and Yifei Wang and Zhaoyang Liu and Chenheng Zhang and Stefanie Jegelka and Jinyang Gao and Bolin Ding and Yisen Wang},
+      year={2025},
+      eprint={2410.23771},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2410.23771},
+}
+
+@article{shao2024deepseekmath,
+  title={{Deepseekmath: Pushing the limits of mathematical reasoning in open language models}},
+  author={Shao, Zhihong and Wang, Peiyi and Zhu, Qihao and Xu, Runxin and Song, Junxiao and Bi, Xiao and Zhang, Haowei and Zhang, Mingchuan and Li, YK and Wu, Yang and others},
+  journal={arXiv preprint arXiv:2402.03300},
+  year={2024}
+}
+
+% Dataset / canonical references (placeholders - replace with canonical citations as needed)
+@article{cobbe2021gsm8k,
+  title={{Training verifiers to solve math word problems}},
+  author={Cobbe, Karl and Kosaraju, Vin and Bavarian, Mojtaba and Schulman, John and Moss, Joshua and Brundage, Miles and others},
+  journal={arXiv preprint arXiv:2110.14168},
+  year={2021}
+}
+
+
+@misc{bahdanau2016neuralmachinetranslationjointly,
+      title={{Neural Machine Translation by Jointly Learning to Align and Translate}}, 
+      author={Dzmitry Bahdanau and Kyunghyun Cho and Yoshua Bengio},
+      year={2016},
+      eprint={1409.0473},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/1409.0473}, 
+}
+
+
+@inproceedings{holtzman2020curiouscaseneuraltext,
+    title = {The Curious Case of Neural Text Degeneration},
+    author = {Ari Holtzman and Jan Buys and Li Du and Maxwell Forbes and Yejin Choi},
+    booktitle = {International Conference on Learning Representations},
+    year = {2020},
+    url = {https://openreview.net/forum?id=rygGQyrFvH},
+}
+
+% the embedding
+@misc{lee2024nv,
+  title={{NV-Embed: Improved Techniques for Training LLMs as Generalist Embedding Models}},
+  author={Lee, Chankyu and Roy, Rajarshi and Xu, Mengyao and Raiman, Jonathan and Shoeybi, Mohammad and Catanzaro, Bryan and Ping, Wei},
+  journal={arXiv preprint arXiv:2405.17428},
+  year={2024}
+}
+
+@misc{moreira2025nvretrieverimprovingtextembedding,
+      title={{NV-Retriever: Improving text embedding models with effective hard-negative mining}}, 
+      author={Gabriel de Souza P. Moreira and Radek Osmulski and Mengyao Xu and Ronay Ak and Benedikt Schifferer and Even Oldridge},
+      year={2025},
+      eprint={2407.15831},
+      archivePrefix={arXiv},
+      primaryClass={cs.IR},
+      url={https://arxiv.org/abs/2407.15831}, 
+}
+
+@misc{muennighoff2023mtebmassivetextembedding,
+      title={{MTEB: Massive Text Embedding Benchmark}}, 
+      author={Niklas Muennighoff and Nouamane Tazi and Loïc Magne and Nils Reimers},
+      year={2023},
+      eprint={2210.07316},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2210.07316}, 
+}
+
+% use basis of recusriveness but during training and maintaing first and last layers
+@misc{koishekenov2025encodethinkdecodescaling,
+      title={{Encode, Think, Decode: Scaling test-time reasoning with recursive latent thoughts}}, 
+      author={Yeskendir Koishekenov and Aldo Lipani and Nicola Cancedda},
+      year={2025},
+      eprint={2510.07358},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2510.07358}, 
+}
+
+@misc{duquenne2023sonarsentencelevelmultimodallanguageagnostic,
+      title={{SONAR: Sentence-Level Multimodal and Language-Agnostic Representations}}, 
+      author={Paul-Ambroise Duquenne and Holger Schwenk and Benoît Sagot},
+      year={2023},
+      eprint={2308.11466},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2308.11466}, 
+}
+
+% the limitation of embeddings that single-vector embeddings might
+@misc{weller2025theoreticallimitationsembeddingbasedretrieval,
+      title={{On the Theoretical Limitations of Embedding-Based Retrieval}}, 
+      author={Orion Weller and Michael Boratko and Iftekhar Naim and Jinhyuk Lee},
+      year={2025},
+      eprint={2508.21038},
+      archivePrefix={arXiv},
+      primaryClass={cs.IR},
+      url={https://arxiv.org/abs/2508.21038}, 
+}
+
+
+@misc{cerebras2023slimpajama,
+  author = {Soboleva, Daria and Al-Khateeb, Faisal and Myers, Robert and Steeves, Jacob R and Hestness, Joel and Dey, Nolan},
+  title = {{SlimPajama: A 627B token cleaned and deduplicated version of RedPajama}},
+  month = {June},
+  year = {2023},
+  howpublished = {\url{https://www.cerebras.net/blog/slimpajama-a-627b-token-cleaned-and-deduplicated-version-of-redpajama}},
+  url = {https://huggingface.co/datasets/cerebras/SlimPajama-627B},
+}
+
+@article{johnson2019billion,
+  title={{Billion-scale similarity search with {GPUs}}},
+  author={Johnson, Jeff and Douze, Matthijs and J{\'e}gou, Herv{\'e}},
+  journal={IEEE Transactions on Big Data},
+  volume={7},
+  number={3},
+  pages={535--547},
+  year={2019},
+  publisher={IEEE}
+}
+
+@misc{grattafiori2024llama3herdmodels,
+      title={{The Llama 3 Herd of Models}},
+      author={Grattafiori, Aaron and Dubey, Abhimanyu and Jauhri, Abhinav and Pandey, Abhinav and Kadian, Abhishek and Al-Dahle, Ahmad and Letman, Aiesha and Mathur, Akhil and Schelten, Alan and Vaughan, Alex and others},
+      year={2024},
+      eprint={2407.21783},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2407.21783}, 
+}
+
+
+% dataset to consider using
+@misc{zhao2024mmlucfcontaminationfreemultitasklanguage,
+      title={{MMLU-CF: A Contamination-free Multi-task Language Understanding Benchmark}}, 
+      author={Qihao Zhao and Yangyu Huang and Tengchao Lv and Lei Cui and Qinzheng Sun and Shaoguang Mao and Xin Zhang and Ying Xin and Qiufeng Yin and Scarlett Li and Furu Wei},
+      year={2024},
+      eprint={2412.15194},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2412.15194}, 
+}
+
+
+% summary paper
+@article{kim2025nexussum,
+  title={{NexusSum: Hierarchical LLM Agents for Long-Form Narrative Summarization}},
+  author={Kim, Hyuntak and Kim, Byung-Hak},
+  journal={arXiv preprint arXiv:2505.24575},
+  year={2025}
+}
+
+
+% povides a way to measure when the model is doing complex computation by examining the unpredictability and hence information content of the hidden states
+@inproceedings{herrmann2025measuring,
+title={{Measuring In-Context Computation Complexity via Hidden State Prediction}},
+author={Vincent Herrmann and R{\'o}bert Csord{\'a}s and J{\"u}rgen Schmidhuber},
+booktitle={Forty-second International Conference on Machine Learning},
+year={2025},
+url={https://openreview.net/forum?id=X21P8etjWL}
+}
+
+% summarization prompt output constriant guidelines
+@article{long2025beyond,
+  title={{Beyond In-Context Learning: Aligning Long-form Generation of Large Language Models via Task-Inherent Attribute Guidelines}},
+  author={Long, Do Xuan and Yen, Duong Ngoc and Trong, Do Xuan and Tuan, Luu Anh and Kawaguchi, Kenji and Joty, Shafiq and Kan, Min-Yen and Chen, Nancy F},
+  journal={arXiv preprint arXiv:2506.01265},
+  year={2025}
+}
+
+% evidance that summarization is hard for LLMs
+@article{chen2025cothssum,
+  title={{CoTHSSum: Structured long-document summarization via chain-of-thought reasoning and hierarchical segmentation}},
+  author={Chen, Xiaoyong and Chen, Zhiqiang and Cheng, Shi},
+  journal={Journal of King Saud University Computer and Information Sciences},
+  volume={37},
+  number={4},
+  pages={40},
+  year={2025},
+  publisher={Springer}
+}
+
+% more evidance that summarization is hard
+@article{wei2024cnnsum,
+  title={{CNNSum: Exploring Long-Context Summarization with Large Language Models in Chinese Novels}},
+  author={Wei, Lingxiao and Yan, He and Lu, Xiangju and Zhu, Junmin and Wang, Jun and Zhang, Wei},
+  journal={arXiv preprint arXiv:2412.02819},
+  year={2024}
+}
+
+
+% chain of thouht
+@misc{wei2023chainofthoughtpromptingelicitsreasoning,
+      title={{Chain-of-Thought Prompting Elicits Reasoning in Large Language Models}}, 
+      author={Jason Wei and Xuezhi Wang and Dale Schuurmans and Maarten Bosma and Brian Ichter and Fei Xia and Ed Chi and Quoc Le and Denny Zhou},
+      year={2023},
+      eprint={2201.11903},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2201.11903}, 
+}
+
+
+% big bench extra hard
+@inproceedings{kazemi2025bigbenchextrahard,
+    title = "{BIG}-Bench Extra Hard",
+    author = "Kazemi, Mehran and Fatemi, Bahare and Bansal, Hritik and Palowitch, John and Anastasiou, Chrysovalantis and Mehta, Sanket Vaibhav and Jain, Lalit K and Aglietti, Virginia and Jindal, Disha and Chen, Peter and Dikkala, Nishanth and Tyen, Gladys and Liu, Xin and Shalit, Uri and Chiappa, Silvia and Olszewska, Kate and Tay, Yi and Tran, Vinh Q. and Le, Quoc V and Firat, Orhan",
+    editor = "Che, Wanxiang and Nabende, Joyce and Shutova, Ekaterina and Pilehvar, Mohammad Taher",
+    booktitle = "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.acl-long.1285/",
+    doi = "10.18653/v1/2025.acl-long.1285",
+    pages = "26473--26501",
+    ISBN = "979-8-89176-251-0",
+}
+
+%% ------------------------------------------------------------
+%% BBEH constituent-task attributions (per BBEH authors' request)
+%% ------------------------------------------------------------
+
+@article{kazemi2024boardgameqa,
+  title={{{BoardgameQA}: A dataset for natural language reasoning with contradictory information}},
+  author={Kazemi, Mehran and Yuan, Quan and Bhatia, Deepti and Kim, Najoung and Xu, Xin and Imbrasaite, Vaiva and Ramachandran, Deepak},
+  journal={Advances in Neural Information Processing Systems},
+  volume={36},
+  year={2024}
+}
+
+@article{nie2024moca,
+  title={{{MoCa}: Measuring human-language model alignment on causal and moral judgment tasks}},
+  author={Nie, Allen and Zhang, Yuhui and Amdekar, Atharva Shailesh and Piech, Chris and Hashimoto, Tatsunori B and Gerstenberg, Tobias},
+  journal={Advances in Neural Information Processing Systems},
+  volume={36},
+  year={2024}
+}
+
+@article{kiciman2023causal,
+  title={{Causal reasoning and large language models: Opening a new frontier for causality}},
+  author={K{\i}c{\i}man, Emre and Ness, Robert and Sharma, Amit and Tan, Chenhao},
+  journal={arXiv preprint arXiv:2305.00050},
+  year={2023}
+}
+
+@article{tyen2023llms,
+  title={{{LLMs} cannot find reasoning errors, but can correct them!}},
+  author={Tyen, Gladys and Mansoor, Hassan and Chen, Peter and Mak, Tony and C{\u{a}}rbune, Victor},
+  journal={arXiv preprint arXiv:2311.08516},
+  year={2023}
+}
+
+@article{kazemi2023geomverse,
+  title={{{GeomVerse}: A systematic evaluation of large models for geometric reasoning}},
+  author={Kazemi, Mehran and Alvari, Hamidreza and Anand, Ankit and Wu, Jialin and Chen, Xi and Soricut, Radu},
+  journal={arXiv preprint arXiv:2312.12241},
+  year={2023}
+}
+
+@article{sanchez2024linguini,
+  title={{{Linguini}: A benchmark for language-agnostic linguistic reasoning}},
+  author={S{\'a}nchez, Eduardo and Alastruey, Belen and Ropers, Christophe and Stenetorp, Pontus and Artetxe, Mikel and Costa-juss{\`a}, Marta R},
+  journal={arXiv preprint arXiv:2409.12126},
+  year={2024}
+}
+
+@article{hessel2022androids,
+  title={{Do androids laugh at electric sheep? Humor ``understanding'' benchmarks from the {New Yorker} caption contest}},
+  author={Hessel, Jack and Marasovi{\'c}, Ana and Hwang, Jena D and Lee, Lillian and Da, Jeff and Zellers, Rowan and Mankoff, Robert and Choi, Yejin},
+  journal={arXiv preprint arXiv:2209.06293},
+  year={2022}
+}
+
+@article{zhang2024humor,
+  title={{Humor in {AI}: Massive scale crowd-sourced preferences and benchmarks for cartoon captioning}},
+  author={Zhang, Jifan and Jain, Lalit and Guo, Yang and Chen, Jiayi and Zhou, Kuan Lok and Suresh, Siddharth and Wagenmaker, Andrew and Sievert, Scott and Rogers, Timothy and Jamieson, Kevin and others},
+  journal={arXiv preprint arXiv:2406.10522},
+  year={2024}
+}
+
+@article{yamada2023evaluating,
+  title={{Evaluating spatial understanding of large language models}},
+  author={Yamada, Yutaro and Bao, Yihan and Lampinen, Andrew K and Kasai, Jungo and Yildirim, Ilker},
+  journal={arXiv preprint arXiv:2310.14540},
+  year={2023}
+}
+
+@article{fatemi2024test,
+  title={{Test of Time: A benchmark for evaluating {LLMs} on temporal reasoning}},
+  author={Fatemi, Bahare and Kazemi, Mehran and Tsitsulin, Anton and Malkan, Karishma and Yim, Jinyeong and Palowitch, John and Seo, Sungyong and Halcrow, Jonathan and Perozzi, Bryan},
+  journal={arXiv preprint arXiv:2406.09170},
+  year={2024}
+}
+
+@article{white2024livebench,
+  title={{{LiveBench}: A challenging, contamination-free {LLM} benchmark}},
+  author={White, Colin and Dooley, Samuel and Roberts, Manley and Pal, Arka and Feuer, Ben and Jain, Siddhartha and Shwartz-Ziv, Ravid and Jain, Neel and Saifullah, Khalid and Naidu, Siddartha and others},
+  journal={arXiv preprint arXiv:2406.19314},
+  year={2024}
+}
+
+@article{shah2024causal,
+  title={{Causal language modeling can elicit search and reasoning capabilities on logic puzzles}},
+  author={Shah, Kulin and Dikkala, Nishanth and Wang, Xin and Panigrahy, Rina},
+  journal={arXiv preprint arXiv:2409.10502},
+  year={2024}
+}
+
+@misc{zou2025latentcollaborationmultiagentsystems,
+      title={{Latent Collaboration in Multi-Agent Systems}},
+      author={Jiaru Zou and Xiyuan Yang and Ruizhong Qiu and Gaotang Li and Katherine Tieu and Pan Lu and Ke Shen and Hanghang Tong and Yejin Choi and Jingrui He and James Zou and Mengdi Wang and Ling Yang},
+      year={2025},
+      eprint={2511.20639},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2511.20639},
+}
+
+@article{he2025skywork,
+  title={{Skywork Open Reasoner 1 Technical Report}},
+  author={He, Jujie and Liu, Jiacai and Liu, Chris Yuhao and Yan, Rui and Wang, Chaojie and Cheng, Peng and Zhang, Xiaoyu and Zhang, Fuxiang and Xu, Jiacheng and Shen, Wei and Li, Siyuan and Zeng, Liang and Wei, Tianwen and Cheng, Cheng and An, Bo and Liu, Yang and Zhou, Yahui},
+  journal={arXiv preprint arXiv:2505.22312},
+  year={2025}
+}
+
+@misc{skywork-or1-2025,
+  title={{Skywork Open Reasoner Series}},
+  author = {He, Jujie and Liu, Jiacai and Liu, Chris Yuhao and Yan, Rui and Wang, Chaojie and Cheng, Peng and Zhang, Xiaoyu and Zhang, Fuxiang and Xu, Jiacheng and Shen, Wei and Li, Siyuan and Zeng, Liang and Wei, Tianwen and Cheng, Cheng and Liu, Yang and Zhou, Yahui},
+  howpublished={\url{https://capricious-hydrogen-41c.notion.site/Skywork-Open-Reaonser-Series-1d0bc9ae823a80459b46c149e4f51680}},
+  note={Notion Blog},
+  year={2025}
+}
+
+@article{deepseekai2025deepseekr1incentivizingreasoningcapability,
+    title = {{DeepSeek-R1} incentivizes reasoning in {LLM}s through reinforcement learning},
+    author = {{DeepSeek-AI}},
+    journal = {Nature},
+    volume = {645},
+    number = {8081},
+    pages = {633--638},
+    year = {2025},
+    publisher = {Nature Publishing Group},
+    doi = {10.1038/s41586-025-09422-z},
+    url = {https://www.nature.com/articles/s41586-025-09422-z},
+}
+
+@misc{openai2025gptoss120bgptoss20bmodel,
+      title={{gpt-oss-120b \& gpt-oss-20b Model Card}},
+      author={OpenAI},
+      year={2025},
+      eprint={2508.10925},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2508.10925},
+}
+
+
+% ---- ICLR 2026 LIT Workshop ----
+@inproceedings{cai2026tmlr, title = {{T2MLR: Transformer with Temporal Middle-Layer Recurrence}}, author = {Ziyang Cai and Xingyu Zhu and Yihe Dong and Yinghui He and Sanjeev Arora}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://openreview.net/forum?id=fQbk1EQWBO}}
+
+@inproceedings{sahoo2026when, title = {{When Shallow Wins: Silent Failures and the Depth-Accuracy Paradox in Latent Reasoning}}, author = {Subramanyam Sahoo and Aman Chadha and Vinija Jain and Divya Chaudhary}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2603.03475}}
+
+@inproceedings{li2026learning, title = {{Learning Multi-step Reasoning via Persistent Latent State Propagation}}, author = {Yinxi Li and Jiaao Chen and Fang Wu and Jiakai Yu and Heli Qi and Weihao Xuan and Haokai Zhao and Pengyu Nie and Di Jin and Xiangru Tang}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://openreview.net/forum?id=Dcv4B1UCuW}}
+
+@inproceedings{efstathiou2026recursive, title = {{Recursive Reasoning as Attractor Landscape Search: Mechanistic Dynamics of the Tiny Recursive Model}}, author = {Andreas Efstathiou and Aishwarya Balwani}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://openreview.net/forum?id=kKps9W1K7n}}
+
+@inproceedings{huang2026transformers, title = {{Transformers Provably Learn to Internalize Chain-of-Thought}}, author = {Yixiao Huang and Hanlin Zhu and Zixuan Wang and Jiantao Jiao and Stuart Russell and Somayeh Sojoudi and Song Mei}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://openreview.net/forum?id=gFdDXKfGbn}}
+
+@inproceedings{sheshanarayana2026thinking, title = {{Thinking in Latents: Adaptive Anchor Refinement for Implicit Reasoning in LLMs}}, author = {Disha Sheshanarayana and Rajat Subhra Pal and Manjira Sinha and Tirthankar Dasgupta}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2603.15051}}
+
+@inproceedings{helff2026activationreasoning,
+    title = {ActivationReasoning: Logical Reasoning in Latent Activation Spaces},
+    author = {Lukas Helff and Ruben H{\"a}rle and Wolfgang Stammer and Felix Friedrich and Manuel Brack and Antonia W{\"u}st and Hikaru Shindo and Patrick Schramowski and Kristian Kersting},
+    booktitle = {The Fourteenth International Conference on Learning Representations},
+    year = {2026},
+    url = {https://openreview.net/forum?id=gGJh5AZTG7},
+}
+
+@inproceedings{rizvi-martel2026the, title = {{The Illusion of Superposition in Latent CoT via Soft Thinking}}, author = {Michael Rizvi-Martel and Marius Mosbach}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://openreview.net/forum?id=FvPx9Nzvnw}}
+
+@inproceedings{ye2026latentchem, title = {{LatentChem: From Textual CoT to Latent Thinking in Chemical Reasoning}}, author = {Xinwu Ye and Yicheng Mao and Jia Zhang and Yimeng Liu and Li Hao and Fang Wu and Zhiwei Li and Yuxuan Liao and Zehong Wang and Yingcheng Wu and Zhiyuan Liu and Zhenfei Yin and Li Yuan and Philip Torr and Huan Sun and Xiangxiang Zeng and Mengdi Wang and Le Cong and Shenghua Gao and Xiangru Tang}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2602.07075}}
+
+@inproceedings{lugoloobi2026llms, title = {{LLMs Encode Their Failures: Predicting Success from Pre-Generation Activations}}, author = {William Lugoloobi and Thomas Foster and William Bankes and Chris Russell}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2602.09924}}
+
+@inproceedings{li2026dynamics, title = {{Dynamics Within Latent Chain-of-Thought: An Empirical Study of Causal Structure}}, author = {Zirui Li and Xuefeng Bai and Kehai Chen and Yizhi Li and Jian Yang and Chenghua Lin and Min Zhang}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2602.08783}}
+
+@inproceedings{wang2026tiny, title = {{Tiny Recursive Reasoning with Mamba-2 Attention Hybrid}}, author = {Wenlong Wang and Fergal Reid}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2602.12078}}
+
+@inproceedings{dilgren2026are, title = {{Are Latent Reasoning Models Easily Interpretable?}}, author = {Connor Dilgren and Sarah Wiegreffe}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2604.04902}}
+
+@inproceedings{cui2026how, title = {{How Do Latent Reasoning Methods Perform Under Weak and Strong Supervision?}}, author = {Yingqian Cui and Zhenwei Dai and Bing He and Zhan Shi and Hui Liu and Rui Sun and Zhiji Liu and Yue Xing and Jiliang Tang and Benoit Dumoulin}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2602.22441}}
+
+@inproceedings{brown2026taskspecific, title = {{Task-Specific Knowledge Distillation via Intermediate Probes}}, author = {Ryan Brown and Chris Russell}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2603.12270}}
+
+@inproceedings{ye2026mechanistic, title = {{Mechanistic Evidence for Faithfulness Decay in Chain-of-Thought Reasoning}}, author = {Donald Ye and Max Loffgren and Om Kotadia and Linus Wong}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://arxiv.org/abs/2602.11201}}
+
+@inproceedings{ramjee2026ulterior, title = {{Ulterior Motives: Detecting Misaligned Reasoning in Continuous Thought Models}}, author = {Sharan Ramjee}, booktitle = {LIT Workshop @ ICLR 2026}, year = {2026}, url = {https://openreview.net/forum?id=ya0Nz7TppN}}
+
+
+@inproceedings{assadi2026hume, title = {{HUME}: Measuring the Human-Model Performance Gap in Text Embedding Tasks}, author = {Adnan El Assadi and Isaac Chung and Roman Solomatin and Niklas Muennighoff and Kenneth Enevoldsen}, booktitle = {The Fourteenth International Conference on Learning Representations}, year = {2026}, url = {https://openreview.net/forum?id=rcmfu1ydAf}}
+
+@inproceedings{massoli2026reasoning, title = {{Reasoning as Compression: Unifying Budget Forcing via the Conditional Information Bottleneck}}, author = {Fabio Valerio Massoli and Andrey Kuzmin and Arash Behboodi}, booktitle = {The 1st Workshop on Scaling Post-training for LLMs}, year = {2026}, url = {https://openreview.net/forum?id=98sbP0T8ck}}
+
+@inproceedings{conklin2026learning, title = {{Learning is Forgetting; LLM Training As Lossy Compression}}, author = {Henry Conklin and Tom Hosking and Tan Yi-Chern and Jonathan D. Cohen and Sarah-Jane Leslie and Thomas L. Griffiths and Max Bartolo and Seraphina Goldfarb-Tarrant}, booktitle = {The Fourteenth International Conference on Learning Representations}, year = {2026}, url = {https://openreview.net/forum?id=tvDlQj0GZB}}
+
+@misc{cencerrado2026answerneededpredictingllm,
+      title={No Answer Needed: Predicting LLM Answer Accuracy from Question-Only Linear Probes},
+      author={Iván Vicente Moreno Cencerrado and Arnau Padrés Masdemont and Anton Gonzalvez Hawthorne and David Demitri Africa and Lorenzo Pacchiardi},
+      year={2026},
+      eprint={2509.10625},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2509.10625},
+}
+
+@inproceedings{kuhn2023semantic,
+  title     = {Semantic Uncertainty: Linguistic Invariances for Uncertainty Estimation in Natural Language Generation},
+  author    = {Lorenz Kuhn and Yarin Gal and Sebastian Farquhar},
+  booktitle = {The Eleventh International Conference on Learning Representations},
+  year      = {2023},
+  url       = {https://openreview.net/forum?id=VD-AYtP0dve},
+}
+
+@inproceedings{zhou2026geometryreasoning, title = {{The Geometry of Reasoning: Flowing Logics in Representation Space}}, author = {Yufa Zhou and Yixiao Wang and Xunjian Yin and Shuyan Zhou and Anru Zhang}, booktitle = {The Fourteenth International Conference on Learning Representations}, year = {2026}, url = {https://openreview.net/forum?id=ixr5Pcabq7}}
+
+@inproceedings{zhan2026real, title = {{REAL: Reading Out Transformer Activations for Precise Localization in Language Model Steering}}, author = {Li-Ming Zhan and Bo Liu and Yujie Feng and Chengqiang Xie and Jiannong Cao and Xiao-Ming Wu}, booktitle = {The Fourteenth International Conference on Learning Representations}, year = {2026}, url = {https://openreview.net/forum?id=P38RYdkFLI}}
+
+@inproceedings{zhu2026exploring, title = {{Exploring Diverse Generation Paths via Inference-time Stiefel Activation Steering}}, author = {Dongxuan Zhu and Ly Tran Ho Khanh and Andy Yat-Ming Cheung and Man-Chung Yue and Viet Anh Nguyen}, booktitle = {The Fourteenth International Conference on Learning Representations}, year = {2026}, url = {https://openreview.net/forum?id=v0QOVSVPtq}}
+
+@inproceedings{prasanth2026enforcing, title = {{Enforcing Logical Invariance in Large Language Models via Symmetry Pair Training}}, author = {Prasanth}, booktitle = {ICLR 2026 Workshop on Logical Reasoning of Large Language Models}, year = {2026}, url = {https://openreview.net/forum?id=aZFS8rc6Bf}}
+
+@inproceedings{fadeeva2026dont, title = {{Don't Throw Away Your Beams: Improving Consistency-based Uncertainties in LLMs via Beam Search}}, author = {Ekaterina Fadeeva and Maiya Goloburda and Aleksandr Rubashevskii and Roman Vashurin and Artem Shelmanov and Preslav Nakov and Mrinmaya Sachan and Maxim Panov}, booktitle = {The Fourteenth International Conference on Learning Representations}, year = {2026}, url = {https://openreview.net/forum?id=igcQRiVlgu}}
+
+@inproceedings{salhan2026do, title = {{Do Monolingual Language Models Learn Cross-Lingual Universal Conceptual Representations?}}, author = {Suchir Salhan and Ej Zhou and Paula Buttery}, booktitle = {ICLR 2026 Workshop on Unifying Concept Representation Learning}, year = {2026}, url = {https://openreview.net/forum?id=frKa6ujOyE}}
+
+% Formalization of bounded-capacity linear probes and the geometry of LLM representations; anchor for Case 3 Separability.
+@inproceedings{park2024linear,
+  title={{The Linear Representation Hypothesis and the Geometry of Large Language Models}},
+  author={Park, Kiho and Choe, Yo Joong and Veitch, Victor},
+  booktitle={Proceedings of the 41st International Conference on Machine Learning},
+  series={Proceedings of Machine Learning Research},
+  volume={235},
+  pages={39643--39666},
+  year={2024},
+  publisher={PMLR},
+  url={https://proceedings.mlr.press/v235/park24c.html}
+}
+
+% Sparse-parity hardness under SGD on neural networks; anchor for Case 3 Separability sample-complexity claim.
+@inproceedings{barak2022hidden,
+  title={{Hidden Progress in Deep Learning: SGD Learns Parities Near the Computational Limit}},
+  author={Barak, Boaz and Edelman, Benjamin L. and Goel, Surbhi and Kakade, Sham and Malach, Eran and Zhang, Cyril},
+  booktitle={Advances in Neural Information Processing Systems},
+  volume={35},
+  year={2022},
+  url={https://proceedings.neurips.cc/paper_files/paper/2022/hash/884baf65392170763b27c914087bde01-Abstract-Conference.html}
+}
+
+% =====================================================================
+% Geometric-analysis references for appendix:geometric (Probe Capacity
+% / Geometric Analysis appendix). Anisotropy adjustment, participation
+% ratio, k-NN purity foundations.
+% =====================================================================
+
+% Foundational LLM anisotropy paper. Defines self-similarity and the
+% anisotropy adjustment that we apply at the example level for the
+% Delta_cos quantity in the geometric appendix.
+@inproceedings{ethayarajh2019contextual,
+  title     = {{How Contextual are Contextualized Word Representations? Comparing the Geometry of BERT, ELMo, and GPT-2 Embeddings}},
+  author    = {Ethayarajh, Kawin},
+  booktitle = {Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing ({EMNLP}-{IJCNLP})},
+  pages     = {55--65},
+  year      = {2019},
+  doi       = {10.18653/v1/D19-1006},
+  url       = {https://aclanthology.org/D19-1006}
+}
+
+% Theoretical grounding that anisotropy is structural to self-attention
+% itself, not an artifact of any particular pretraining objective.
+% Cited alongside Ethayarajh for the Delta_cos baseline.
+@inproceedings{godey2024anisotropy,
+  title     = {{Anisotropy Is Inherent to Self-Attention in Transformers}},
+  author    = {Godey, Nathan and de la Clergerie, {\'E}ric and Sagot, Beno{\^\i}t},
+  booktitle = {Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics ({EACL}) (Volume 1: Long Papers)},
+  pages     = {35--48},
+  year      = {2024},
+  eprint    = {2401.12143},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url       = {https://arxiv.org/abs/2401.12143}
+}
+
+% Canonical formulation of the participation ratio as a measure of
+% effective dimensionality of population activity.
+@article{litwinkumar2017optimal,
+  title   = {{Optimal Degrees of Synaptic Connectivity}},
+  author  = {Litwin-Kumar, Ashok and Harris, Kameron Decker and Axel, Richard and Sompolinsky, Haim and Abbott, L. F.},
+  journal = {Neuron},
+  volume  = {93},
+  number  = {5},
+  pages   = {1153--1164.e7},
+  year    = {2017},
+  doi     = {10.1016/j.neuron.2017.01.030}
+}
+
+% Direct precedent for applying the participation ratio to deep network
+% hidden states; documents expand-then-compress patterns across depth.
+@misc{recanatesi2019dimensionality,
+  title         = {{Dimensionality compression and expansion in Deep Neural Networks}},
+  author        = {Recanatesi, Stefano and Farrell, Matthew and Advani, Madhu and Moore, Timothy and Lajoie, Guillaume and Shea-Brown, Eric},
+  year          = {2019},
+  eprint        = {1906.00443},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/1906.00443}
+}
+
+% Introduced the weighted k-NN classifier as a non-parametric
+% representation evaluation. Foundational reference for k-NN as a
+% probe-free geometry test in the appendix.
+@inproceedings{wu2018unsupervised,
+  title     = {{Unsupervised Feature Learning via Non-Parametric Instance Discrimination}},
+  author    = {Wu, Zhirong and Xiong, Yuanjun and Yu, Stella X. and Lin, Dahua},
+  booktitle = {Proceedings of the {IEEE} Conference on Computer Vision and Pattern Recognition ({CVPR})},
+  pages     = {3733--3742},
+  year      = {2018}
+}
+
+% DINO. Popularised k-NN top-1 as the standard non-parametric SSL
+% representation diagnostic. Cited alongside Wu et al. for k-NN purity.
+@inproceedings{caron2021emerging,
+  title     = {{Emerging Properties in Self-Supervised Vision Transformers}},
+  author    = {Caron, Mathilde and Touvron, Hugo and Misra, Ishan and J{\'e}gou, Herv{\'e} and Mairal, Julien and Bojanowski, Piotr and Joulin, Armand},
+  booktitle = {Proceedings of the {IEEE}/{CVF} International Conference on Computer Vision ({ICCV})},
+  pages     = {9650--9660},
+  year      = {2021},
+  eprint    = {2104.14294},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CV},
+  url       = {https://arxiv.org/abs/2104.14294}
+}
+
+@inproceedings{barber2003variational,
+  author    = {Barber, David and Agakov, Felix},
+  title     = {The {IM} algorithm: a variational approach to Information Maximization},
+  year      = {2003},
+  publisher = {{MIT} Press},
+  address   = {Cambridge, MA, USA},
+  booktitle = {Proceedings of the 17th International Conference on Neural Information Processing Systems},
+  pages     = {201--208},
+  numpages  = {8},
+  location  = {Whistler, British Columbia, Canada},
+  series    = {{NIPS}'03}
+}
+
+@misc{babakhin2025llamaembednemotron8buniversaltextembedding,
+      title={Llama-Embed-Nemotron-8B: A Universal Text Embedding Model for Multilingual and Cross-Lingual Tasks},
+      author={Yauhen Babakhin and Radek Osmulski and Ronay Ak and Gabriel Moreira and Mengyao Xu and Benedikt Schifferer and Bo Liu and Even Oldridge},
+      year={2025},
+      eprint={2511.07025},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2511.07025},
+}
+
+@misc{chen2025reasoninglanguagecomprehensivesurvey,
+      title={Reasoning Beyond Language: A Comprehensive Survey on Latent Chain-of-Thought Reasoning},
+      author={Xinghao Chen and Anhao Zhao and Heming Xia and Xuan Lu and Hanlin Wang and Yanjun Chen and Wei Zhang and Jian Wang and Wenjie Li and Xiaoyu Shen},
+      year={2025},
+      eprint={2505.16782},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2505.16782},
+}
+
+@misc{zou2026the,
+      title={The Theoretical Benefits and Limitations of Latent Chain-of-Thought Reasoning},
+      author={Jiaxuan Zou and Yaozhong Xiong and Yong Liu},
+      year={2026},
+      url={https://openreview.net/forum?id=q7Nhu2Fw11},
+}

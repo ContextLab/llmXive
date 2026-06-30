@@ -1,0 +1,12 @@
+- artifact_hash: 962d0bcd2a7951cdded78f22a34386777669ea07c4c7d1da89791ab3f4a4b506
+  artifact_path: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - opensquilla/claw-swe-bench: Unified adapter framework for\
+    \ evaluating agent harnesses (claws) on SWE-bench \xB7 GitHub"
+  kind: url
+  value: https://github.com/opensquilla/claw-swe-bench`
+  verification_status: verified
+  verified_against_url: https://github.com/opensquilla/claw-swe-bench
+  verified_at: '2026-06-30T20:03:03.038622Z'

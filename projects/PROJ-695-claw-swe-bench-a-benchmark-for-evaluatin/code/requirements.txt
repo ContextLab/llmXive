@@ -1,0 +1,5 @@
+# Minimal dependencies for the adaptation
+# The script uses stdlib + optional datasets
+datasets>=2.0.0
+# Note: If datasets is not installed, the script falls back to embedded data automatically.
+# No heavy ML libraries are required.

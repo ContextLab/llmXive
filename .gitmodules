@@ -103,3 +103,9 @@
 [submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
 	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
 	url = https://github.com/DeepExperience/MMSkills
+[submodule "projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/external/Crafter"]
+	path = projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/external/Crafter
+	url = https://github.com/HaozheZhao/Crafter
+[submodule "projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/external/claw-swe-bench"]
+	path = projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/external/claw-swe-bench
+	url = https://github.com/opensquilla/claw-swe-bench

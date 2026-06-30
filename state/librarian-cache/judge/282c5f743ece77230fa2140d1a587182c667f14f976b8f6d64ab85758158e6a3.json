@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.13040",
+  "judged_at": "2026-06-30T20:49:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "naturebench: can coding agents match the published sota of nature-family papers? linguistics",
+  "rationale": "The paper focuses on prompting techniques for speech language models in speech processing tasks, which is a distinct domain from the user's question regarding coding agents and their performance on Nature-family papers in the field of linguistics. It does not measure the same mechanism, variables, or empirical population, nor does it serve as a foundational reference for evaluating coding agents against scientific benchmarks.",
+  "relevant": false
+}

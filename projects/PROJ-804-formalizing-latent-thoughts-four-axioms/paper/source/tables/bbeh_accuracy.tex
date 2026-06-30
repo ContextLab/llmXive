@@ -1,0 +1,40 @@
+\begin{table}[!htbp]
+  \caption{BBEH accuracy (\%) per task and source LLM. \textsc{p@1} averages correctness over all beams per problem and \textsc{p@8} marks a problem solved if at least one beam scores correct. Bottom rows give the micro average across all problems and the adjusted harmonic mean $N\,/\,\sum_i 1/(a_i+1)$ over the per-task column above.}
+  \label{tab:bbeh-accuracy}
+  \centering
+  \footnotesize
+  \begin{tabular}{@{}l rr rr rr rr rr@{}}
+    \toprule
+     & \multicolumn{2}{c}{Llama-8B} & \multicolumn{2}{c}{Llama-70B} & \multicolumn{2}{c}{DS-R1-Qwen 32B} & \multicolumn{2}{c}{Skywork-OR1 32B} & \multicolumn{2}{c}{GPT-OSS 20B} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+    \textbf{Task} & \textsc{p@1} & \textsc{p@8} & \textsc{p@1} & \textsc{p@8} & \textsc{p@1} & \textsc{p@8} & \textsc{p@1} & \textsc{p@8} & \textsc{p@1} & \textsc{p@8} \\
+    \midrule
+    BoardgameQA & 14.4 & 31.0 & 31.2 & 35.0 & 44.4 & 53.5 & 49.2 & 53.0 & 51.9 & 52.5 \\
+    Boolean Expressions & 17.6 & 30.0 & 24.1 & 49.0 & 16.4 & 17.5 & 22.8 & 24.0 & 6.6 & 7.0 \\
+    Buggy Tables & 0.0 & 0.0 & 0.6 & 1.5 & 0.5 & 0.5 & 1.9 & 2.5 & 7.0 & 7.0 \\
+    Causal Understanding & 30.6 & 68.0 & 47.4 & 73.5 & 55.4 & 59.0 & 51.7 & 58.5 & 53.8 & 54.0 \\
+    DisambiguationQA & 33.4 & 60.0 & 55.2 & 68.3 & 40.6 & 46.7 & 51.0 & 54.2 & 40.6 & 41.7 \\
+    Dyck Languages & 4.1 & 32.0 & 5.9 & 16.5 & 6.8 & 7.5 & 20.7 & 21.0 & 3.6 & 4.0 \\
+    Geometric Shapes & 13.5 & 26.0 & 30.4 & 51.5 & 7.6 & 11.5 & 1.5 & 1.5 & 1.0 & 2.0 \\
+    Hyperbaton & 0.4 & 1.0 & 4.5 & 12.5 & 0.4 & 0.5 & 3.5 & 3.5 & 0.7 & 1.0 \\
+    Linguini & 1.6 & 3.5 & 7.8 & 16.5 & 6.0 & 10.0 & 7.4 & 10.0 & 6.9 & 7.0 \\
+    Movie Recommendation & 12.7 & 29.0 & 62.9 & 70.0 & 34.8 & 60.5 & 40.2 & 47.5 & 64.3 & 68.0 \\
+    Multistep Arithmetic & 0.0 & 0.0 & 7.2 & 9.5 & 22.6 & 23.5 & 35.6 & 37.0 & 27.2 & 29.5 \\
+    NYCC & 12.9 & 47.5 & 10.8 & 27.0 & 10.1 & 32.0 & 12.2 & 24.5 & 18.0 & 18.0 \\
+    Object Counting & 0.0 & 0.0 & 14.6 & 19.5 & 3.4 & 3.5 & 9.1 & 10.0 & 0.0 & 0.0 \\
+    Object Properties & 0.5 & 2.0 & 1.1 & 3.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.7 & 1.0 \\
+    SARC Triples & 13.9 & 40.0 & 33.7 & 44.0 & 19.8 & 54.5 & 24.8 & 32.5 & 19.2 & 21.0 \\
+    Shuffled Objects & 12.8 & 58.0 & 12.4 & 34.0 & 2.3 & 5.5 & 2.9 & 3.0 & 1.6 & 2.5 \\
+    Spatial Reasoning & 5.2 & 8.5 & 11.4 & 17.0 & 14.2 & 15.0 & 16.3 & 17.5 & 0.5 & 0.5 \\
+    SportQA & 2.8 & 11.5 & 15.9 & 28.0 & 23.9 & 29.0 & 24.3 & 26.5 & 17.2 & 22.5 \\
+    Temporal Sequences & 0.6 & 1.5 & 2.9 & 5.5 & 4.9 & 5.0 & 0.0 & 0.0 & 0.5 & 0.5 \\
+    Time Arithmetic & 5.4 & 11.5 & 30.6 & 36.5 & 42.1 & 48.5 & 48.7 & 52.0 & 70.1 & 78.0 \\
+    Web of Lies & 4.2 & 8.0 & 24.3 & 29.5 & 17.6 & 18.0 & 18.3 & 18.5 & 7.0 & 8.0 \\
+    Word Sorting & 3.2 & 18.0 & 20.6 & 34.5 & 25.2 & 39.5 & 33.2 & 43.0 & 46.8 & 56.0 \\
+    Zebra Puzzles & 3.2 & 11.0 & 25.4 & 53.5 & 6.1 & 12.0 & 1.6 & 3.0 & 3.1 & 4.5 \\
+    \midrule
+    \textbf{Micro avg.} & 7.9 & 21.0 & 20.3 & 31.3 & 17.2 & 23.7 & 20.2 & 23.1 & 19.1 & 20.8 \\
+    \textbf{Adj.\ HM}   & 3.1 & 4.4 & 8.7 & 15.1 & 5.5 & 6.3 & 5.3 & 5.7 & 4.0 & 4.5 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

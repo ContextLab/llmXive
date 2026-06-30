@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.24530",
+  "judged_at": "2026-06-30T20:49:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "naturebench: can coding agents match the published sota of nature-family papers? linguistics",
+  "rationale": "The candidate paper is the exact source of the user's research question, as the title and abstract explicitly define the benchmark and study (\"NatureBench\") used to evaluate whether coding agents can match the SOTA of Nature-family papers. This satisfies the inclusion criteria as the foundational methodology and empirical baseline (categories c and d) for any literature review on this specific topic.",
+  "relevant": true
+}

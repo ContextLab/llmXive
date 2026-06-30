@@ -1,0 +1,35 @@
+% DCS per source LLM under E_emb (E_parse agreement shown in figure).
+% Transposed layout matching main-text convention in tables/disc_results.tex.
+
+\begin{table}[!htbp]
+  \caption{Discriminator-based DCS under $\mathbf{E}_{\mathrm{emb}}$ ($\tau{=}0.9$, $\uparrow$) across source LLMs, using the formulation documented in \cref{appendix:sub:dcs_disc}. Values near $0.5$ across representations reflect discriminator saturation on within-question pairs.}
+  \label{tab:dcs}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.1}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l *{2}{c} !{\vrule} *{2}{c} *{5}{c} *{5}{c} *{5}{c} !{\vrule} *{2}{c}@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textit{Output Emb.}}
+      & \multicolumn{2}{c}{\textit{Last Input Tok.}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (no noise)}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (Gumbel)}}
+      & \multicolumn{5}{c}{\textit{Latent Thinking}}
+      & \multicolumn{2}{c}{\textit{Baselines}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-10}\cmidrule(lr){11-15}\cmidrule(lr){16-20}\cmidrule(lr){21-22}
+    \textbf{LLM}
+      & Exc & Pool
+      & All & Final
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & IE & RV \\
+    \midrule
+    Llama-3.1 8B    & \ciAdvNS{0.393}{0.012} & \ciAdvNS{0.436}{0.010} & \ciAdvInf{0.505}{0.001} & \ciAdvNS{0.499}{0.002} & \ciAdvInf{0.502}{0.001} & \ciAdvInf{0.504}{0.001} & \ciAdvInfB{0.515}{0.002} & \ciAdvInf{0.506}{0.002} & \ciAdvInf{0.502}{0.001} & \ciAdvNS{0.502}{0.001} & \ciAdvInf{0.503}{0.001} & \ciAdvInf{0.504}{0.001} & \ciAdvNS{0.500}{0.001} & \ciAdvNS{0.499}{0.000} & \ciAdvInf{0.505}{0.002} & \ciAdvNS{0.499}{0.001} & \ciAdvNS{0.495}{0.001} & \ciAdvNS{0.498}{0.001} & \ciAdvNS{0.497}{0.001} & \ciAdvNS{0.498}{0.003} & \ciAdvNS{0.499}{0.001} \\
+    Llama-3.3 70B   & \ciAdvNS{0.514}{0.012} & \ciAdvInf{0.506}{0.001} & \ciAdvNS{0.500}{0.001} & \ciAdvNS{0.498}{0.000} & \ciAdvInf{0.509}{0.001} & \ciAdvInf{0.502}{0.001} & \ciAdvNS{0.499}{0.000} & \ciAdvNS{0.497}{0.001} & \ciAdvNS{0.498}{0.000} & \ciAdvInf{0.506}{0.001} & \ciAdvInf{0.503}{0.000} & \ciAdvNS{0.495}{0.001} & \ciAdvNS{0.498}{0.001} & \ciAdvNS{0.497}{0.000} & \ciAdvNS{0.498}{0.000} & \ciAdvNS{0.498}{0.000} & \ciAdvNS{0.498}{0.001} & \ciAdvNS{0.498}{0.000} & \ciAdvNS{0.498}{0.000} & \ciAdvNS{0.499}{0.001} & \ciSE{0.498}{0.001} \\
+    DS-R1-Qwen 32B & \ciAdvNS{0.399}{0.010} & \ciAdvNS{0.404}{0.010} & \ciAdvInfB{0.502}{0.000} & \ciAdvNS{0.496}{0.001} & \ciAdvNS{0.498}{0.001} & \ciAdvNS{0.492}{0.003} & \ciAdvNS{0.482}{0.004} & \ciAdvNS{0.494}{0.003} & \ciAdvNS{0.496}{0.002} & \ciAdvNS{0.499}{0.001} & \ciAdvNS{0.498}{0.001} & \ciAdvNS{0.493}{0.001} & \ciAdvNS{0.495}{0.001} & \ciAdvNS{0.495}{0.000} & \ciAdvNS{0.496}{0.000} & \ciAdvNS{0.497}{0.000} & \ciAdvNS{0.491}{0.001} & \ciAdvNS{0.496}{0.000} & \ciAdvNS{0.497}{0.000} & \ciAdvNS{0.479}{0.005} & \ciSE{0.497}{0.001} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}

@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-25T09:08:39.004518Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-780-openthoughts-agent-data-recipe
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'OpenThoughts-Agent: Data Recipes for Agentic Models'
-updated_at: '2026-06-30T18:56:37.157070Z'
+updated_at: '2026-06-30T19:33:55.531572Z'

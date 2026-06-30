@@ -1,0 +1,111 @@
+\section{Earlier Formulations}
+\label{appendix:earlier}
+
+\subsection{Discriminator-Based DCS Evaluation Protocol}
+\label{appendix:sub:dcs_disc}
+
+The earlier formulation of DCS reused the same-task discriminator $f_{\mathrm{disc}}$ to score within-question beam pairs.
+For each test problem $x$ with $K=8$ beams, two variants of the semantic equivalence matrix were constructed.
+$\mathbf{E}^{\mathrm{emb}} \in \{0,1\}^{K \times K}$ sets $\mathbf{E}^{\mathrm{emb}}_{ij} = 1$ when the cosine similarity between the Nemotron embeddings of $y_i$ and $y_j$ exceeds $\tau = 0.9$, and $0$ otherwise.
+$\mathbf{E}^{\mathrm{parse}} \in \{0,1\}^{K \times K}$ sets $\mathbf{E}^{\mathrm{parse}}_{ij} = 1$ when the extracted final answers from $y_i$ and $y_j$ match exactly using the official BBEH answer extraction logic~\citep{kazemi2025bigbenchextrahard}, with beam pairs for which either side has no extractable answer excluded rather than labelled non-equivalent.
+The functional similarity matrix $\mathbf{M} \in [0,1]^{K \times K}$ was defined by the symmetric cross score $\mathbf{M}_{ij} = \tfrac{1}{2}(f_{\mathrm{disc}}(\mathbf{T}_i, y_j) + f_{\mathrm{disc}}(\mathbf{T}_j, y_i))$, and the score was the inverse mean absolute error between $\mathbf{M}$ and $\mathbf{E}$ over off-diagonal pairs,
+\begin{equation}\label{eq:dcs-disc-earlier}
+    \mathrm{DCS}_{\mathrm{disc}}(x) = 1 - \frac{1}{K(K-1)}\sum_{i}\sum_{j \neq i} \bigl|\mathbf{M}_{ij} - \mathbf{E}_{ij}\bigr|.
+\end{equation}
+This formulation proved uninformative in practice.
+The discriminator was trained on cross-question pairs and provided no gradient signal for within-question scoring, so $f_{\mathrm{disc}}$ returned values near $0.5$ for all same-question beam pairs.
+This collapsed $\mathrm{DCS}_{\mathrm{disc}}$ to the random baseline for every representation family and source LLM (see \cref{tab:dcs}).
+
+\subsection{Causality with the Discriminator-Trained Projection}
+\label{appendix:sub:causality_disc_proj}
+
+\cref{tab:causality-disc} reports the causality KL under the discriminator-trained projection of \cref{appendix:sub:disc_arch}. This was the projection used in our first iteration of the causality protocol, before the projection-swap pilot of \cref{appendix:sub:causality_minproj} motivated adopting the output-reconstruction projection in \cref{tab:causality-results}. The earlier table is retained so that the effect of the projection swap remains visible cell-by-cell against the current results. Without length normalisation and under the discriminator-trained projection, several causality values are not well calibrated. Random vectors receive lower causality scores than expected because the model can ignore an uninformative input and produce whatever is more aligned with the output. Several other candidate representations produce higher causality than the random vector, which contradicts the behavioural reading the metric should provide.
+
+\input{tables/caus_res_disc}
+
+\subsection{Cross-Entropy Proxy for Minimality}
+\label{appendix:minimality-components}
+
+The minimality formulation we initially proposed approximated the IB Lagrangian as a single cross-entropy gap $\Delta_{\text{CE}} = \text{CE}(X \mid \mathbf{T}) - \text{CE}(Y \mid \mathbf{T})$, on the intuition that a high gap reflects a representation that compresses the input while retaining output-relevant information. We retain that analysis here for transparency. Two issues motivated the corrected formulation $\Delta_{\text{IB}}$ adopted in \cref{methodology} and derived in \cref{appendix:sub:minimality_ib_derivation}. First, $\Delta_{\text{CE}}$ corresponds to the IB Lagrangian only at the trade-off weight $\beta = 1$, where the chain-rule decomposition cancels the sufficiency reward and leaves only the redundancy penalty $-I(X; \mathbf{T} \mid Y)$, so the metric is unbalanced before any empirical concern. Second, the input-reconstruction probe $\text{CE}(X \mid \mathbf{T})$ saturates uniformly across representations because no probe in our class can reconstruct the exact lexical phrasing of $X$ from any latent $\mathbf{T}$, which collapses the gap into a function of $\text{CE}(Y \mid \mathbf{T})$ alone. The corrected $\Delta_{\text{IB}}$ replaces $\text{CE}(X \mid \mathbf{T})$ with the conditional $\text{CE}(X \mid Y, \mathbf{T})$, which estimates the residual mutual information $I(X; \mathbf{T} \mid Y)$ and does not saturate. The components reported below corroborate the saturation diagnosis on every source model.
+
+A high $\Delta_{\text{CE}}$ driven by high $\text{CE}(X \mid \mathbf{T})$ (input compression) and low $\text{CE}(Y \mid \mathbf{T})$ (output retention) would reflect a minimal sufficient $\mathbf{T}$, whereas a high gap produced by both conditionals drifting upward reflects a $\mathbf{T}$ that has lost information about both $X$ and $Y$. \cref{tab:minimality-ce-x} reports the input component per source LLM, and \cref{tab:minimality-ce-y} reports the output component. The Random Vector anchor for the input probe converges to $\text{CE}(X \mid \mathrm{RV}) \approx 1.87 \pm 0.04$ on every source LLM, since the probe sees the same input distribution and i.i.d.\ noise regardless of which model produced the candidates, so the column is omitted from \cref{tab:minimality-ce-x} and reported once here. Every Llama-3.1-8B cell of $\text{CE}(X \mid \mathbf{T})$ has a CI that overlaps this anchor, so the input component alone does not discriminate among candidates on this model. The output component does separate $\mathrm{RV}$ from every other candidate, since the Random Vector $\text{CE}(Y \mid \mathbf{T})$ is above the upper CI bound of every non-RV cell.
+
+The two anchor candidates make the rest of the table interpretable. The Output Embedding (\emph{Exact}) achieves the lowest CE$(Y \mid \mathbf{T})$ on Llama-3.1-8B, since the probe is being asked to predict $Y$ from a representation of $Y$ itself, and the Pooled variant follows behind with the per-beam information collapsed away. The Input Embedding is at the centre of the candidate cloud, since the input prompt alone determines the high-probability output and a probe over its embedding can already predict $Y$ before any latent computation has happened. Any candidate above the Input Embedding's CE$(Y \mid \mathbf{T})$ has drifted away from the input without acquiring additional $Y$-relevant content, while any candidate below it has packed in further output-relevant information beyond what the prompt already carries.
+
+The same anchor reading carries to the implied gap. Subtracting the two components above on Llama-3.1-8B places the Input Embedding's $\Delta_{\text{CE}}$ already in the high $0.9$ range, so the prompt itself, before any latent computation, already exhibits the minimality profile that a thought representation is supposed to provide. Most thinking candidates land at or below that input-alone gap, and only the Output Embedding (\emph{Exact}) clearly exceeds it. The proxy therefore separates Random Vector from the rest of the field, but it also reports that latent thinking does not produce a more compressed, output-relevant summary of the problem than directly embedding the input prompt.
+
+\input{tables/min_components}
+
+\subsection{Qualitative Probe Reconstruction}
+\label{appendix:qualitative_probe}
+
+\cref{tab:probe_reconstruction} shows a concrete example of input probe
+reconstruction failure. Given the Last Input Token thought representation
+$\mathbf{T}$ extracted from a BoardGame QA problem (a multi-step logical deduction
+task from BBEH), the input probe (a linear projection followed by a frozen
+LLaMA-3.2-1B) attempts to reconstruct the original input sequence $X$.
+
+\begin{table}[h]
+\caption{Qualitative example of input probe reconstruction failure.
+The probe is conditioned on the Last Input Token thought representation
+($\Delta_{\mathrm{CE}} = 0.18$, $\mathrm{CE}(X|\mathbf{T}) = 1.63$).
+All 10 sampled problems from this task produce the same boilerplate prediction.}
+\label{tab:probe_reconstruction}
+\small
+\begin{tabular}{p{0.47\textwidth} p{0.47\textwidth}}
+\toprule
+\textbf{Reference Input $X$ (truncated)} & \textbf{Probe Prediction $\hat{X}$ given $\mathbf{T}$} \\
+\midrule
+\textit{A few players are playing a boardgame. The current state of the game
+is as follows. The akita is watching a movie from 1974. The akita is a high
+school teacher. The dove has a football with a radius of 30 inches. The elk is
+3 years old. The german shepherd unites with the ant. [\ldots] And the rules of
+the game are as follows. Rule1: \ldots Rule2: \ldots Rule3: \ldots}
+&
+\textit{Question: Which of the following is not a valid argument for the claim
+that the number of people who are not in the United States is greater than the
+number of people who are in the United States?\newline
+A. The number of people who are in the United States is greater than \ldots\newline
+B. \ldots\newline
+C. \ldots\newline
+D. \ldots\newline
+Answer: D}
+\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Crucially, all 10 sampled BoardGame QA problems yield the same
+boilerplate prediction, namely a multiple-choice question about a completely unrelated
+topic. This indicates that the thought representation $\mathbf{T}$ has discarded
+all problem-specific content. The probe has learned to output a domain-generic
+template (plausible given the BBEH multiple-choice format) rather than
+recovering any instance-specific detail. This qualitatively confirms the
+same-task separability collapse. If the probe cannot distinguish between 10
+different board game problems when conditioned on $\mathbf{T}$, neither can
+the same-task discriminator.
+
+\subsection{Discriminator-Based DCS Results}
+\label{appendix:sub:dcs_disc_results}
+
+The discriminator-based DCS formulation and its failure mode are documented in \cref{appendix:sub:dcs_disc}.
+The results below retain that analysis for transparency.
+
+\cref{fig:dcs-emb-vs-parse} (top row) plots discriminator-based DCS under $\mathbf{E}_{\text{parse}}$ against the same score under $\mathbf{E}_{\text{emb}}$ for every representation, one panel per source model.
+The two variants agree closely on every model, so the table reports $\mathbf{E}_{\text{emb}}$.
+On Llama-3.3-70B-Instruct every representation crowds near $0.5$, so the linear correlation collapses to noise even though the absolute disagreement remains small.
+$\mathbf{E}_{\text{emb}}$ also remains defined on beams where BBEH answer extraction fails (see \cref{appendix:dataset}).
+
+\cref{fig:dcs-emb-vs-parse} (bottom row) shows the cosine-similarity distribution over off-diagonal beam pairs.
+The distribution is bimodal on every model, with a large right mode near $1$ accounting for paraphrase-equivalent pairs and a small left mode below $0.5$ for genuine cross-answer pairs.
+
+\input{figures/dcs_emb_vs_parse}
+
+\input{tables/dcs_res}
+
+\cref{tab:dcs-tau-sweep} sweeps the cosine-similarity threshold $\tau$ on Llama-3.1-8B-Instruct.
+All rows share the same test split, trained discriminator, and beam embeddings.
+Only the binarisation $\mathbf{E}_{\mathrm{emb}}^{ij} = \mathbb{1}[\cos(y_i, y_j) > \tau]$ varies.
+The ranking is stable across the full range and the chance-floor cluster does not reshuffle at any threshold, confirming that the saturation is intrinsic to the discriminator-based scoring and not an artefact of the threshold choice.
+
+\input{tables/dcs_tau_sweep}

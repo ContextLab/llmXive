@@ -1,0 +1,23 @@
+% Result-table column groups, wrapped next to the Result-table
+% organisation paragraph. "Group" used as neutral header that covers
+% upper-anchor (Output Embedding), under-audit (Candidates), and
+% reference (Baselines) rows alike.
+\begin{wraptable}{r}{0.38\linewidth}
+  \vspace{-0.6em}
+  \caption{Result-table column groups.}
+  \label{tab:candidate-blocks}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{@{}l l@{}}
+    \toprule
+    \textbf{Group} & \textbf{Variants} \\
+    \midrule
+    Output Emb. & Exact, Pooled \\
+    Candidates       & Hidden states, Think. methods \\
+    Baselines        & IE, RV \\
+    \bottomrule
+  \end{tabular}
+  \vspace{-0.6em}
+\end{wraptable}

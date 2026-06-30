@@ -1,0 +1,39 @@
+% Headline causality. Cells display the mean KL(Z | T) with its
+% marginal bootstrap SE (cluster bootstrap over problems, 10k resamples).
+% Source: outputs/causality/llama8b_minproj_tiled (proj_source=minimality_output,
+% tile_to_length=128).
+
+\begin{table}[!htbp]
+  \caption{KL divergence $\mathrm{KL}(P(Z \mid Y)\,\|\,P(Z \mid \mathbf{T}))$ ($\downarrow$) across source LLMs. Lower values indicate higher predictive sufficiency of $\mathbf{T}$ for the continuation.}
+  \label{tab:causality-results}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.1}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l *{2}{c} !{\vrule} *{2}{c} *{5}{c} *{5}{c} *{5}{c} !{\vrule} *{2}{c}@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textit{Output Emb.}}
+      & \multicolumn{2}{c}{\textit{Last Input Tok.}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (no noise)}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (Gumbel)}}
+      & \multicolumn{5}{c}{\textit{Latent Thinking}}
+      & \multicolumn{2}{c}{\textit{Baselines}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-10}\cmidrule(lr){11-15}\cmidrule(lr){16-20}\cmidrule(lr){21-22}
+    \textbf{LLM}
+      & Exc & Pool
+      & All & Final
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & IE & RV \\
+    \midrule
+    Llama-3.1 8B     & \ciSE{5.25}{0.08} & \ciSE{5.21}{0.08} & \ciSE{5.26}{0.06} & \ciSE{5.01}{0.08} & \ciSE{5.07}{0.08} & \ciSE{5.69}{0.07} & \ciSE{5.51}{0.07} & \ciSE{5.07}{0.06} & \ciSE{4.96}{0.06} & \ciSE{5.20}{0.07} & \ciSE{5.42}{0.07} & \ciSE{5.06}{0.06} & \ciSE{4.70}{0.06} & \ciSE{4.73}{0.06} & \ciSE{5.32}{0.07} & \ciSE{5.79}{0.08} & \ciSE{6.05}{0.08} & \ciSE{6.49}{0.08} & \ciSE{6.17}{0.08} & \ciSE{5.36}{0.07} & \ciSE{9.49}{0.06} \\
+    Llama-3.3 70B    & \ciSE{4.56}{0.06} & \ciSE{4.58}{0.05} & \ciSE{6.00}{0.06} & \ciSE{5.28}{0.06} & \ciSE{4.65}{0.05} & \ciSE{5.36}{0.06} & \ciSE{5.63}{0.06} & \ciSE{5.19}{0.05} & \ciSE{5.48}{0.06} & \ciSE{5.08}{0.05} & \ciSE{5.22}{0.06} & \ciSE{5.21}{0.05} & \ciSE{5.34}{0.07} & \ciSE{5.44}{0.06} & \ciSE{4.21}{0.06} & \ciSE{5.17}{0.05} & \ciSE{5.35}{0.05} & \ciSE{5.45}{0.05} & \ciSE{5.88}{0.06} & \ciSE{4.71}{0.06} & \ciSE{8.93}{0.05} \\
+    DS-R1-Qwen 32B   & \ciSE{4.67}{0.06} & \ciSE{4.77}{0.07} & \ciSE{6.33}{0.07} & \ciSE{4.79}{0.07} & \ciSE{4.45}{0.07} & \ciSE{5.60}{0.08} & \ciSE{5.74}{0.07} & \ciSE{5.34}{0.07} & \ciSE{4.82}{0.06} & \ciSE{4.57}{0.07} & \ciSE{5.42}{0.06} & \ciSE{5.00}{0.06} & \ciSE{4.91}{0.06} & \ciSE{4.98}{0.06} & \ciSE{4.62}{0.07} & \ciSE{5.41}{0.07} & \ciSE{4.84}{0.07} & \ciSE{5.77}{0.07} & \ciSE{5.36}{0.07} & \ciSE{4.50}{0.07} & \ciSE{9.36}{0.05} \\
+    Skywork-OR1 32B  & \ciSE{4.10}{0.06} & \ciSE{4.37}{0.06} & \ciSE{6.39}{0.06} & \ciSE{4.09}{0.06} & \ciSE{3.90}{0.06} & \ciSE{5.07}{0.06} & \ciSE{4.86}{0.05} & \ciSE{4.62}{0.05} & \ciSE{4.82}{0.05} & \ciSE{4.75}{0.07} & \ciSE{4.91}{0.05} & \ciSE{4.68}{0.05} & \ciSE{4.72}{0.05} & \ciSE{4.89}{0.05} & \ciSE{5.00}{0.06} & \ciSE{4.52}{0.07} & \ciSE{4.34}{0.07} & \ciSE{4.35}{0.06} & \ciSE{4.50}{0.07} & \ciSE{4.08}{0.06} & \ciSE{9.31}{0.05} \\
+    GPT-OSS 20B      & \ciSE{3.82}{0.07} & \ciSE{4.17}{0.08} & \ciSE{5.61}{0.08} & \ciSE{4.19}{0.07} & \ciSE{4.04}{0.08} & \ciSE{4.00}{0.07} & \ciSE{4.01}{0.07} & \ciSE{4.08}{0.07} & \ciSE{4.23}{0.08} & \ciSE{4.17}{0.08} & \ciSE{4.48}{0.08} & \ciSE{4.48}{0.07} & \ciSE{4.57}{0.08} & \ciSE{4.74}{0.08} & \ciSE{3.90}{0.08} & \ciSE{5.12}{0.08} & \ciSE{4.63}{0.08} & \ciSE{4.68}{0.08} & \ciSE{4.67}{0.08} & \ciSE{3.78}{0.07} & \ciSE{9.60}{0.06} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}

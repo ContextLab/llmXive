@@ -56,21 +56,23 @@ _As a researcher, I want to examine how analysis choices (e.g., percentile thres
 - What happens when an image lacks object masks or the mask file is corrupted?
 - How does the system handle a participant who provides no recall statements for a given image?
 - What if the saliency model fails to produce a fixation map for an image (e.g., due to size incompatibility)?
+- What if the Visual Genome dataset does not contain an annotation for an object that the participant claims to remember (potential false negative in ground truth)?
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download and cache Visual Genome images and their region/object annotations. (See US-1)
-- **FR-002**: System MUST compute saliency maps for each image using the Deep Visual Attention Prediction model on CPU only. (See US-1)
-- **FR-003**: System MUST validate the saliency model on the SALICON benchmark, achieving an AUC ≥ 0.70. (See US-2)
-- **FR-004**: System MUST identify “salient but irrelevant” objects by selecting objects whose average saliency falls in the top **[deferred]** of all objects **and** are not mentioned in the ground‑truth scene description. (See US-1)
-- **FR-005**: System MUST compute a binary false‑memory flag for each object from participant recall transcripts and aggregate a false‑memory rate per object. (See US-1)
-- **FR-006**: System MUST calculate Pearson’s r, two‑tailed p‑value, and 95 % confidence interval for the relationship between object saliency and false‑memory rate. (See US-1)
+- **FR-002**: System MUST compute saliency maps for each image using a configurable primary model (default: Deep Visual Attention Prediction on CPU; alternative: ViT-B/16 CAM if GPU available). (See US-1, US-2)
+- **FR-003**: System MUST validate the primary saliency model on the SALICON benchmark, achieving an AUC ≥ 0.70. (See US-2)
+- **FR-004**: System MUST identify “salient but irrelevant” objects by selecting objects whose average saliency falls in the top [deferred] of objects within that image **and** are verified as physically absent from the scene (ground-truth absence in Visual Genome annotations). (See US-1)
+- **FR-005**: System MUST compute a binary false‑memory flag for each object from participant recall transcripts. An object is flagged as a false memory ONLY if: (a) it appears in the transcript, (b) it is absent from the Visual Genome ground-truth for that image, AND (c) a secondary verification step (e.g., manual spot-check or consensus) confirms it is not a valid unannotated object. (See US-1)
+- **FR-006**: System MUST calculate Pearson’s r, two‑tailed p‑value, and 95 % confidence interval for the relationship between object saliency and false‑memory rate, where the unit of analysis is the object (aggregated across participants). (See US-1)
 - **FR-007**: System MUST fit a mixed‑effects logistic regression with random intercepts for participants and items, reporting coefficient estimates, standard errors, and p‑values. (See US-1)
 - **FR-008**: System MUST apply Benjamini‑Hochberg FDR correction to any item‑wise significance tests. (See US-1)
-- **FR-009**: System MUST perform a sensitivity analysis over percentile thresholds {low percentile (e.g., the lowest few percentiles), [deferred], [deferred]} and report how the correlation magnitude varies. (See US-1)
-- **FR-010**: System MUST conduct an a‑priori power analysis targeting detection of **r = 0.30** with 80 % power (α = 0.01), reporting the required participant‑image sample size. (See US-1)
+- **FR-009**: System MUST perform a sensitivity analysis over high-saliency percentile thresholds and report how the correlation magnitude varies. (See US-3)
+- **FR-010**: System MUST conduct an a‑priori power analysis targeting detection of **r = 0.30** with 80% power (α = 0.01), reporting the required participant‑image sample size. (See US-1)
+- **FR-011**: System MUST verify the data-linking protocol between Visual Genome image IDs and recall transcripts. If the alignment cannot be confirmed for a specific image-participant pair, the system MUST exclude that pair and log the exclusion reason. (See US-1)
 
 ### Key Entities
 
@@ -88,13 +90,13 @@ _As a researcher, I want to examine how analysis choices (e.g., percentile thres
 - **SC-003**: Sensitivity analysis must show that the sign of the correlation remains positive across thresholds {5 %, 10 %, 15 %} and that the absolute change in **r** does not exceed **0.05**. (See US-3)
 - **SC-004**: Saliency model benchmark performance on SALICON must be **AUC ≥ 0.70**. (See US-2)
 - **SC-005**: Power analysis must indicate that the collected dataset meets or exceeds the required sample size for [deferred] power; if not, the shortfall must be documented. (See US-1)
+- **SC-006**: The rate of objects flagged as false memories that fail the secondary verification (due to potential Visual Genome incompleteness) must be reported; if this rate exceeds 10%, the study conclusions must be flagged as "inconclusive due to ground-truth uncertainty". (See US-1)
 
 ## Assumptions
 
-- The “Memory for Scenes” subset (or the OpenNeuro ds003166 “Free Recall” annotations) contains per‑image participant recall transcripts aligned with Visual Genome image IDs. **[NEEDS CLARIFICATION: does the chosen recall dataset provide object‑level false‑memory annotations for the Visual Genome images?]**
-- Visual Genome provides accurate object masks for all images used; missing masks will be excluded without affecting overall power. **[NEEDS CLARIFICATION: are there images without masks that could reduce usable sample size?]**
-- All computations will run on GitHub Actions free‑tier runners (≤2 CPU cores, ≤7 GB RAM, ≤6 h runtime); therefore, only CPU‑compatible libraries (e.g., PyTorch CPU, scikit‑learn) are employed.
-- The saliency model’s pretrained weights are compatible with CPU inference and do not require GPU acceleration.
-- The analysis is observational; results will be framed **associationally**, not as causal claims.  
-
----
+- The "Memory for Scenes" subset (or the OpenNeuro ds003166 "Free Recall" annotations) contains per‑image participant recall transcripts. The system relies on FR-011 to verify the alignment with Visual Genome image IDs.
+- Visual Genome provides accurate object masks for the majority of images; images lacking masks are excluded (see FR-001).
+- All computations will run on GitHub Actions free‑tier runners (≤2 CPU cores, ≤7 GB RAM, ≤6 h runtime); therefore, only CPU‑compatible libraries (e.g., PyTorch CPU, scikit‑learn) are employed by default.
+- The saliency model’s pretrained weights are compatible with CPU inference and do not require GPU acceleration for the default configuration.
+- The analysis is observational; results will be framed **associationally**, not as causal claims.
+- The Visual Genome dataset is treated as the ground truth for object presence, with the understanding that it may be incomplete; FR-005 and SC-006 provide mechanisms to mitigate this risk.

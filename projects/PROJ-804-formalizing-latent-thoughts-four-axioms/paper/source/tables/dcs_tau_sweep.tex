@@ -1,0 +1,43 @@
+% DCS under E_emb swept across six cosine-similarity thresholds tau.
+% Rows: tau in {0.60, 0.70, 0.80, 0.85, 0.90, 0.95}. Columns mirror
+% tables/dcs_res.tex. Cells are plain black (\ciSE) since this table
+% reports sensitivity, not the informative-vs-chance verdict. Values
+% are recomputed offline from the cos_sim and M matrices cached in the
+% main DCS run, so the tau=0.90 row reproduces tables/dcs_res.tex
+% cell-for-cell.
+
+\begin{table}[!htbp]
+  \caption{Discriminator-based DCS threshold sensitivity under $\mathbf{E}_{\mathrm{emb}}$ ($\uparrow$) on Llama-3.1-8B-Instruct. The column layout follows \cref{tab:dcs} and the $\tau{=}0.90$ row reproduces it cell-for-cell.}
+  \label{tab:dcs-tau-sweep}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.1}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l *{2}{c} !{\vrule} *{2}{c} *{5}{c} *{5}{c} *{5}{c} !{\vrule} *{2}{c}@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textit{Output Emb.}}
+      & \multicolumn{2}{c}{\textit{Last Input Tok.}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (no noise)}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (Gumbel)}}
+      & \multicolumn{5}{c}{\textit{Latent Thinking}}
+      & \multicolumn{2}{c}{\textit{Baselines}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-10}\cmidrule(lr){11-15}\cmidrule(lr){16-20}\cmidrule(lr){21-22}
+    $\boldsymbol{\tau}$
+      & Exc & Pool
+      & All & Final
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & IE & RV \\
+    \midrule
+    $0.60$ & \ciSE{0.385}{0.012} & \ciSE{0.438}{0.010} & \ciSE{0.509}{0.001} & \ciSE{0.496}{0.002} & \ciSE{0.510}{0.001} & \ciSE{0.506}{0.001} & \ciSE{0.516}{0.003} & \ciSE{0.507}{0.002} & \ciSE{0.501}{0.001} & \ciSE{0.504}{0.001} & \ciSE{0.502}{0.001} & \ciSE{0.501}{0.001} & \ciSE{0.505}{0.001} & \ciSE{0.498}{0.000} & \ciSE{0.503}{0.002} & \ciSE{0.500}{0.001} & \ciSE{0.496}{0.002} & \ciSE{0.499}{0.001} & \ciSE{0.496}{0.001} & \ciSE{0.499}{0.003} & \ciSE{0.496}{0.001} \\
+    $0.70$ & \ciSE{0.387}{0.012} & \ciSE{0.437}{0.010} & \ciSE{0.509}{0.001} & \ciSE{0.497}{0.002} & \ciSE{0.509}{0.001} & \ciSE{0.506}{0.001} & \ciSE{0.516}{0.003} & \ciSE{0.507}{0.002} & \ciSE{0.501}{0.001} & \ciSE{0.504}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.501}{0.001} & \ciSE{0.505}{0.001} & \ciSE{0.498}{0.000} & \ciSE{0.504}{0.002} & \ciSE{0.500}{0.001} & \ciSE{0.496}{0.002} & \ciSE{0.499}{0.001} & \ciSE{0.496}{0.001} & \ciSE{0.499}{0.003} & \ciSE{0.496}{0.001} \\
+    $0.80$ & \ciSE{0.387}{0.012} & \ciSE{0.436}{0.010} & \ciSE{0.506}{0.001} & \ciSE{0.497}{0.002} & \ciSE{0.506}{0.001} & \ciSE{0.506}{0.001} & \ciSE{0.516}{0.003} & \ciSE{0.506}{0.002} & \ciSE{0.501}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.502}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.498}{0.000} & \ciSE{0.503}{0.002} & \ciSE{0.500}{0.001} & \ciSE{0.495}{0.001} & \ciSE{0.499}{0.001} & \ciSE{0.496}{0.001} & \ciSE{0.498}{0.003} & \ciSE{0.497}{0.001} \\
+    $0.85$ & \ciSE{0.388}{0.012} & \ciSE{0.435}{0.010} & \ciSE{0.505}{0.001} & \ciSE{0.497}{0.002} & \ciSE{0.504}{0.001} & \ciSE{0.504}{0.001} & \ciSE{0.516}{0.003} & \ciSE{0.506}{0.002} & \ciSE{0.502}{0.001} & \ciSE{0.502}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.502}{0.001} & \ciSE{0.498}{0.000} & \ciSE{0.503}{0.002} & \ciSE{0.499}{0.001} & \ciSE{0.494}{0.001} & \ciSE{0.499}{0.001} & \ciSE{0.496}{0.001} & \ciSE{0.497}{0.003} & \ciSE{0.498}{0.001} \\
+    $0.90$ & \ciSE{0.393}{0.012} & \ciSE{0.436}{0.010} & \ciSE{0.505}{0.001} & \ciSE{0.499}{0.002} & \ciSE{0.502}{0.001} & \ciSE{0.504}{0.001} & \ciSE{0.515}{0.002} & \ciSE{0.506}{0.002} & \ciSE{0.502}{0.001} & \ciSE{0.502}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.504}{0.001} & \ciSE{0.500}{0.001} & \ciSE{0.499}{0.000} & \ciSE{0.505}{0.002} & \ciSE{0.499}{0.001} & \ciSE{0.495}{0.001} & \ciSE{0.498}{0.001} & \ciSE{0.497}{0.001} & \ciSE{0.498}{0.003} & \ciSE{0.499}{0.001} \\
+    $0.95$ & \ciSE{0.404}{0.011} & \ciSE{0.437}{0.009} & \ciSE{0.506}{0.001} & \ciSE{0.501}{0.002} & \ciSE{0.501}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.514}{0.002} & \ciSE{0.505}{0.002} & \ciSE{0.503}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.503}{0.001} & \ciSE{0.505}{0.001} & \ciSE{0.499}{0.001} & \ciSE{0.499}{0.000} & \ciSE{0.506}{0.002} & \ciSE{0.499}{0.001} & \ciSE{0.496}{0.001} & \ciSE{0.498}{0.001} & \ciSE{0.497}{0.001} & \ciSE{0.497}{0.002} & \ciSE{0.500}{0.001} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}

@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-518"
+version = "0.1.0"
+description = "Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving"
+requires-python = ">=3.10"
+dependencies = [
+    "nilearn==0.10.0",
+    "networkx==3.2.1",
+    "scikit-learn==1.4.2",
+    "numpy==1.26.4",
+    "pandas==2.2.2",
+    "matplotlib==3.8.4",
+    "scipy==1.12.0",
+    "brainconn==0.1.0",
+    "flake8",
+    "black",
+    "pytest",
+    "pytest-cov",
+    "statsmodels",
+    "pyyaml",
+    "python-dotenv"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | docs
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=code --cov-report=term-missing"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "contract: marks contract tests",
+    "integration: marks integration tests"
+]

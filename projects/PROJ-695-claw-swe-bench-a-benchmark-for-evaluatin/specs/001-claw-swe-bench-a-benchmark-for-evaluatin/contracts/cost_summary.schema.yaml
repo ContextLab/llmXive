@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Claw-SWE-Bench Cost Summary"
+description: "Schema for the cost summary CSV (represented as a JSON object for validation)."
+type: "object"
+additionalProperties: false
+properties:
+  instance_id:
+    type: "string"
+  api_cost_usd:
+    type: "number"
+  wall_time_seconds:
+    type: "number"
+  tokens_input:
+    type: "integer"
+  tokens_output:
+    type: "integer"
+  status:
+    type: "string"
+required:
+  - "instance_id"
+  - "api_cost_usd"
+  - "wall_time_seconds"
+  - "tokens_input"
+  - "tokens_output"
+  - "status"
+description: "This schema validates the structure of the cost_summary.csv file. In practice, this is a CSV, but the schema defines the expected columns and types."

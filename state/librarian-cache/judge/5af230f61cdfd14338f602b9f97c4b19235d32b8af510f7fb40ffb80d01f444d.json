@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16212",
+  "judged_at": "2026-06-30T20:49:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "naturebench: can coding agents match the published sota of nature-family papers? linguistics",
+  "rationale": "The paper focuses on morphological processing of a specific low-resource language (Tangkhul) using unsupervised methods, which does not address the user's question about evaluating the performance of coding agents against SOTA in scientific (Nature-family) papers. There is no overlap in the mechanism (coding agents vs. morphological analysis), domain (software engineering/LLM benchmarks vs. linguistics corpus creation), or variables being measured.",
+  "relevant": false
+}

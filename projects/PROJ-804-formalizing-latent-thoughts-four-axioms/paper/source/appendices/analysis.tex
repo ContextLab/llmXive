@@ -1,0 +1,239 @@
+\section{Additional Analysis}
+\label{appendix:additional_analysis}
+
+\subsection{Bootstrap Confidence Intervals}
+\label{appendix:sub:bootstrap}
+
+All main-table metrics are reported as $\mu \pm \widehat{\sigma}_B$, where
+$\mu$ is the cell mean over the held-out test split and $\widehat{\sigma}_B$
+is the bootstrap standard error obtained by the percentile method with
+$B = 10{,}000$ resamples and a fixed random seed. The statistical
+unit of resampling is the \emph{problem}, with replacement from the test split. We then recompute
+the cell-level mean on the resampled problems, and take
+$\widehat{\sigma}_B$ as the sample standard deviation of the resampled
+means. The reported $\pm$ values are therefore $1\sigma$ bootstrap standard
+errors, and a $95\%$ interval is recovered as $\mu \pm 1.96\,\widehat{\sigma}_B$
+under the normal approximation, or as the $[2.5\%, 97.5\%]$ percentiles of
+the bootstrap distribution when that approximation is undesirable.
+
+The axioms differ in how each problem contributes observations, and we
+resample at the problem level in every case so that within-problem
+beam correlations are preserved.
+\begin{itemize}[nosep,leftmargin=1.5em]
+  \item \textbf{Minimality input component
+        $\text{CE}(X \mid \mathbf{T})$}:
+        each problem contributes one per-problem cross-entropy.
+        Resample the test split; the effective sample size equals the
+        test-split problem count from \cref{appendix:dataset}.
+  \item \textbf{Causality} $\mathrm{KL}\!\left(P(y_{\mathrm{suf}} \mid y_{\mathrm{pre}}) \,\|\, P(y_{\mathrm{suf}} \mid \mathbf{T})\right)$:
+        cluster bootstrap by problem, with all valid beams of a resampled
+        problem kept together. Beams excluded by the $51$-token length
+        gate are absent from the resampled mean, and problems whose
+        beams are all excluded are absent entirely; on Llama-3.1-8B
+        this reduces the effective support to $360$ problems. The paired
+        advantage $\Delta^{\mathrm{RV}}_{\mathrm{KL}}$ is resampled on
+        the same support with each $(\mathbf{T}, \mathrm{RV})$ pair kept
+        glued together (see below).
+  \item \textbf{Discriminator-based DCS}: the per-problem
+        discriminator-based DCS score, computed over all
+        off-diagonal beam pairs in the $K \times K$ within-problem matrix,
+        is a single observation per problem. Resample problems, average
+        per-problem score.
+\end{itemize}
+
+\paragraph{Paired advantage versus the noise floor (Causality).}
+Because $\mathrm{KL}$ is unbounded above, absolute values are difficult to
+compare across candidate $\mathbf{T}$ without a shared reference. We
+therefore compute the paired advantage $\Delta^{\mathrm{RV}}_{\mathrm{KL}}(\mathbf{T})_g = \mathrm{KL}(\mathbf{T})_g - \mathrm{KL}(\mathrm{RV})_g$ per problem $g$, and average over the Causality support defined above.
+Pairing on the problem cancels per-problem shifts in the KL scale (the
+dominant source of dispersion in the raw metric), yielding a
+sign-interpretable statistic where $\Delta < 0$ indicates $\mathbf{T}$ conveys
+information about $y_{\mathrm{suf}}$ beyond the evaluation backbone's projection of noise,
+whereas $\Delta \geq 0$ indicates no detectable advantage. The paired
+bootstrap resamples problems with each
+$(\mathrm{KL}(\mathbf{T})_g,\,\mathrm{KL}(\mathrm{RV})_g)$ pair kept
+together, so the resulting standard error quantifies the variance of the
+paired difference rather than that of the two unpaired means.
+In \cref{tab:causality-results}, each cell displays the mean
+$\mathrm{KL}(y_{\mathrm{suf}} \mid \mathbf{T})$ with its marginal bootstrap standard
+error.
+
+\subsection{Detailed per-axiom results}
+\label{appendix:sub:detailed_results}
+
+\Cref{tab:disc-results,tab:causality-results,tab:minimality-delta-ib}
+report the cell-level mean and bootstrap standard error of the
+Separability, Causality, and Minimality metrics across the populated
+source LLMs. \Cref{fig:dcs-stability} reports the corresponding
+Stability AUROC values. Each candidate occupies one column and each
+source LLM occupies one row. The cell formatting follows the
+methodology of \cref{appendix:sub:bootstrap}.
+
+\input{tables/disc_results}
+\input{tables/caus_res}
+\input{tables/min_res_ib}
+\input{tables/min_components_tiled}
+\input{figures/dcs_stability}
+
+The Minimality residual $\Delta_{\text{IB}}$ in
+\cref{tab:minimality-delta-ib} is read within source LLM. The absolute
+sign and scale of $\Delta_{\text{IB}}$ shift across source LLMs because
+the cross-entropy decomposition discards a TR-independent constant
+whose value depends on the conditional entropies of $X$ and $Y$ for
+that LLM, and recovering the absolute IB Lagrangian requires this
+constant (\cref{appendix:sub:minimality_ib_derivation}).
+The within-LLM ranking of candidates is the meaningful comparison.
+\Cref{fig:results_summary} in the main text applies this within-LLM
+normalisation directly so that all four axioms appear on a comparable
+within-LLM scale.
+
+\subsection{Distributional Views of Causality}
+\label{appendix:sub:distributional_views}
+
+\cref{tab:causality-results} reduces each candidate to a single number per source LLM.
+We complement that view with two diagnostics that read the same per-problem records bootstrapped in \cref{appendix:sub:bootstrap}, without reweighting or new measurements.
+
+\cref{fig:causality-kl-pooled-cdf} pools all per-beam KLs at the $50$-token
+window into one distribution per representation and reports its CDF, with
+one panel per representation family. A curve sitting to the left has smaller
+per-problem KL on average. A steeper curve has a tighter per-problem
+distribution around the mean reported in \cref{tab:causality-results}. A
+curve that approaches the top slowly has a heavy upper tail of high-KL
+problems that pulls the mean above the per-problem median. With this
+reading, the anchor panel separates candidates that the mean alone
+clusters into a single rank, since Exact output embedding lands at a similar
+mean as Random vector but carries a longer upper tail. Within the thinking
+families, increasing the step count shifts the entire distribution rather
+than only its mean, and Soft thinking with Gumbel noise at $32$ steps shows
+a particularly heavy upper tail that is invisible at the mean.
+
+\cref{fig:causality-kl-variance} decomposes the KL dispersion into
+between-problem and within-problem components. Values close to $1$ indicate
+that the per-problem mean is carried by problem-level differences, supporting
+the cluster-bootstrap design of \cref{appendix:sub:bootstrap}, while values close
+to $0$ indicate that the dispersion lives across beams within a single
+problem, so the mean averages over a heterogeneous within-problem
+distribution.
+The Random Vector and Output Embedding anchors show low ICC values, indicating that their per-beam KL dispersion is concentrated within individual problems rather than driven by problem-level differences.
+The soft-thinking and latent-thinking families show high ICC, so the scalar mean reported in \cref{tab:causality-results} is a stable per-problem property rather than an average over heterogeneous within-problem noise.
+
+\input{figures/causality_kl_pooled_cdf}
+\input{figures/causality_kl_variance}
+
+\subsection{Causality with the Output-Reconstruction Projection}
+\label{appendix:sub:causality_minproj}
+
+
+The headline Causality results in \cref{tab:causality-results} use the projection trained under the language-modelling objective of the Minimality output probe. The Minimality probe learns a projection of the same shape as the discriminator's, mapping $\mathbf{T}$ into the embedding space of the frozen $1$B model, but optimised to reconstruct $Y$ rather than to solve a binary discrimination task. We document here the ablation that motivated this choice.
+
+We test whether the projection objective is the bottleneck for Causality by substituting the discriminator-trained projection in place of the output-reconstruction projection. Each representation is evaluated at its native substitution length without tiling, so the comparison isolates the projection objective from the length effects examined in \cref{appendix:causality_length}. The substitution path and KL formula are otherwise unchanged, and the random-vector reference column controls for any fixed projection-induced shift.
+
+\cref{tab:causality-minproj-70b} reports the comparison on Llama-3.3-70B for the four representations of \cref{methodology}. The output-reconstruction projection meaningfully lowers KL for the latent representations that already live on the source-model manifold, with soft thinking dropping by roughly half on the KL scale and last input token by a smaller but separable margin. The exact output embedding moves the other way and the random-vector reference is unchanged, confirming the effect is representation-specific rather than a fixed projection-induced shift. The discriminator-projection numbers are retained in \cref{tab:causality-disc} for cell-by-cell comparison.
+
+\input{tables/causality_minproj_70b}
+
+The projection objective is accordingly a substantial contributor to the high KL values in \cref{tab:causality-results} for representations native to the source-LLM residual stream, where switching to the output-reconstruction projection yields representation-specific reductions while the random-vector reference remains unchanged.
+
+\subsection{Information-Bottleneck Decomposition for the Minimality Metric}
+\label{appendix:sub:minimality_ib_derivation}
+
+The minimality metric $\Delta_{\text{IB}}$ of \cref{methodology} is the Information Bottleneck Lagrangian at the symmetric weight $\beta = 2$, expressed in cross-entropies a probe can compute. We give the derivation, identify the constant offset between $\Delta_{\text{IB}}$ and the absolute Lagrangian, and characterise the conditions under which the surrogate is exact.
+
+\paragraph{Chain-rule decomposition.} The general chain rule for mutual information reads $I(X; \mathbf{T}) + I(Y; \mathbf{T} \mid X) = I(\mathbf{T}; Y) + I(X; \mathbf{T} \mid Y)$. When $\mathbf{T}$ is a deterministic function of $X$, the term $I(Y; \mathbf{T} \mid X)$ vanishes because $\mathbf{T}$ has no residual variance once $X$ is known, so the chain rule collapses to $I(X; \mathbf{T}) = I(\mathbf{T}; Y) + I(X; \mathbf{T} \mid Y)$. Substituting into the IB Lagrangian $L(\beta) = I(X; \mathbf{T}) - \beta\, I(\mathbf{T}; Y)$ gives $L(\beta) = (1 - \beta)\, I(\mathbf{T}; Y) + I(X; \mathbf{T} \mid Y)$. At $\beta = 2$ the two coefficients have equal magnitude with opposite signs, recovering the symmetric trade-off
+\begin{equation}\label{eq:ib-decomposition}
+    -L(2) = I(\mathbf{T}; Y) - I(X; \mathbf{T} \mid Y)
+\end{equation}
+
+\paragraph{Barber--Agakov surrogates.} Mutual information is intractable because $H(\cdot \mid \cdot)$ depends on unknown distributions. For any approximate conditional $q$, Gibbs' inequality gives $H(A \mid B) \le \text{CE}_q(A \mid B)$, with equality iff $q$ matches the true conditional. Training a probe to minimise empirical negative log-likelihood on $(B, A)$ pairs therefore yields a tight upper bound on $H(A \mid B)$ in the limit of a sufficiently expressive probe class. We use this to estimate the two terms of $-L(2)$,
+\begin{align}
+    I(\mathbf{T}; Y) &= H(Y) - H(Y \mid \mathbf{T}) \;\approx\; H(Y) - \text{CE}(Y \mid \mathbf{T}), \label{eq:ib-surrogate-y} \\
+    I(X; \mathbf{T} \mid Y) &= H(X \mid Y) - H(X \mid Y, \mathbf{T}) \;\approx\; \text{CE}(X \mid Y) - \text{CE}(X \mid Y, \mathbf{T}). \label{eq:ib-surrogate-x}
+\end{align}
+The first follows from the standard Barber--Agakov lower bound on mutual information~\citep{barber2003variational}. The second is its conditional analogue, where two probes share the input $Y$ and differ only in whether $\mathbf{T}$ is appended.
+
+\paragraph{Reduction to $\Delta_{\text{IB}}$.} Substituting the surrogates into $-L(2)$ and grouping $\mathbf{T}$-dependent terms,
+\begin{equation}\label{eq:ib-reduction}
+    -L(2) \;\approx\; \big[\text{CE}(X \mid Y, \mathbf{T}) - \text{CE}(Y \mid \mathbf{T})\big] + \big[H(Y) - \text{CE}(X \mid Y)\big] = \Delta_{\text{IB}} + C
+\end{equation}
+The constant $C = H(Y) - \text{CE}(X \mid Y)$ depends only on the dataset and the unconditional baseline probe, not on the candidate $\mathbf{T}$. Comparisons of $\Delta_{\text{IB}}$ across representations are therefore comparisons of $-L(2)$ shifted by a single offset.
+
+\paragraph{Bounding direction and ranking preservation.} By Gibbs' inequality each CE term upper-bounds the corresponding conditional entropy, so each approximation in \cref{eq:ib-surrogate-y,eq:ib-surrogate-x} yields a lower bound on the mutual information term it estimates. In $\Delta_{\text{IB}}$, however, the two CE approximations are subtracted from each other. Any systematic bias shared across candidates that is absorbed into the constant $C$ cancels in the difference. Within a fixed probe class and a fixed source LLM, the residual approximation error is candidate-independent, so the ranking of $\Delta_{\text{IB}}$ across thought representations is preserved. This is why the metric is read within a source LLM rather than across LLMs, as $C$ varies with the source LLM's output distribution and must not be compared across models.
+
+\paragraph{Random Vector cross-entropy interpretation.} The elevated $\text{CE}(Y \mid \mathbf{T})$ observed for the Random Vector anchor is not an out-of-distribution artifact. A random vector carries no information about $Y$, so a probe conditioned on pure noise cannot predict the output sequence and cross-entropy rises to the level of an unconditional language model. The probe is asked to optimize a signal that does not exist in $\mathbf{T}$, and the resulting high CE confirms that the metric correctly identifies the absence of output-relevant content rather than a distributional mismatch.
+
+\paragraph{When the chain-rule assumption fails.} The reduction relies on $I(Y; \mathbf{T} \mid X) = 0$. The exact output embedding and pooled output embedding candidates are computed directly from the generated continuation, so $\mathbf{T}$ is a function of $Y$ as well as $X$ and $I(Y; \mathbf{T} \mid X) > 0$. For these rows, the substitution into the Lagrangian carries a correction term that does not collapse into a TR-independent constant, so $\Delta_{\text{IB}}$ no longer estimates $-L(2)$ even up to $C$. The reported value still has a clear empirical reading. For the exact output embedding, $\mathbf{T}$ contains $Y$ by construction, so $\text{CE}(Y \mid \mathbf{T})$ collapses toward zero and $\text{CE}(X \mid Y, \mathbf{T})$ approaches $\text{CE}(X \mid Y)$. The metric therefore flags this row as a trivially sufficient anchor with no residual leakage, which is the correct behavioural diagnosis even though the IB-Lagrangian interpretation no longer applies.
+
+\subsection{Length Sensitivity of the Causality Metric}
+\label{appendix:causality_length}
+
+The causality KL in \cref{tab:causality-results} averages over the last $50$ tokens of each generated beam, which raises two length-based concerns. First, the metric might track prompt size rather than thought content. Second, a longer generation alone could inflate KL for whichever candidate happens to produce it. \cref{fig:causality-length-correlation} examines both.
+
+The first concern is ruled out outright. No candidate shows a meaningful coupling between KL and input length, so the main-text ordering does not reflect task-to-task variation in prompt size.
+
+The second concern resolves cleanly. Output length couples with KL only for the Random Vector lower-bound reference, since its content is uninformative by construction and longer generations accumulate more positions that disagree with the explicit prefix and inflate its KL on long beams. The candidates clearly below this reference in \cref{tab:causality-results} show near-zero coupling, so their KL is driven by representational fit rather than by how much the source model chose to generate. Output length is therefore not a competing explanation for the main-text ranking but a property of the lower-bound reference against which the ranking is measured.
+
+\input{figures/causality_length_correlation}
+
+We further test whether the choice of $50$ tokens itself drives the ranking by recomputing the metric across windows of $\{10, 25, 50, 100, 200\}$ tokens at no extra source-LLM cost, since each beam saves a per-window KL during a single causality pass through the discriminator. \cref{fig:causality-window-sweep} shows the result. The coarse ordering between candidates is stable across windows, with strong candidates sitting near the bottom of the KL axis and weak candidates near the top at every scale, so the ranking in \cref{tab:causality-results} does not depend on the exact window length. Fine-grained orderings within clusters of similarly-performing candidates do shift at the longer windows, where the shared $Z$ context narrows absolute differences to the point that small method-to-method gaps become statistically indistinguishable. At the shortest window the metric averages over very few positions, where per-token stochastic variance dominates and no candidate cleanly separates from the floor. The $50$-token window sits between these two extremes, giving the cleanest separation between candidates while still averaging over enough positions to be statistically stable.
+
+\input{figures/causality_window_sweep}
+
+A third length-based concern is the number of substituted vector positions itself, which varies across candidates. Last input token (all layers) substitutes one position per source-model layer, Soft thinking substitutes one position per thinking step, while embedding candidates substitute a single position. To isolate the geometric effect of substitution length from any change in information content, we tile each candidate to a common number of positions and recompute KL. \cref{fig:causality-kl-vs-length} reports the result on Llama-3.3-70B for the four candidates from \cref{tab:causality-results} that admit clean tiling.
+
+The Random vector curve rises markedly with substitution length, even though its content is by construction uninformative about the prefix, and the same trend appears for Exact output embedding with a smaller dynamic range. Substitution length therefore inflates KL on candidates that carry no instance information, which establishes that absolute KL magnitudes are not commensurable across candidates of different native lengths. The relative ordering between candidates also reorganises once length is matched, with candidates that sat at the strong end of the table at native length sliding toward the weak end once they are tiled out to the length of the longer candidates. The reorganisation does not nullify \cref{tab:causality-results}, since tiling a one-position candidate produces a rank-one substitution that is structurally different from a natively multi-position candidate, but it does mean that absolute KL gaps in the table reflect a mix of representational quality and substitution geometry.
+
+This finding fixes the methodological choice that all subsequent quantitative comparisons feed $\mathbf{T}$ at a common substitution length, so that no representation is rewarded or penalised by the metric simply for being natively shorter or longer than another. The causality results of \cref{tab:causality-results} and the minimality probes underlying \cref{tab:minimality-delta-ib} both adopt the same tiled length, and varying-length comparisons are reserved for the diagnostic in \cref{fig:causality-kl-vs-length}.
+
+\input{figures/causality_kl_vs_length}
+
+\subsection{Geometric Analysis of Representational Collapse}
+\label{appendix:geometric}
+
+\cref{tab:disc-results} reports near-ceiling cross-task discrimination on most candidates and near-random same-task discrimination on almost all of them, which invites the objection that the same-task failure reflects probe capacity rather than a property of the representation. We address this objection by measuring the thought-vector geometry directly, with no trained probe in the loop. Each candidate is flattened to a single vector per problem (the full $L{\times}d$ hidden-state stack for LIT, the $s{\times}d$ prefix for $s$-step thinking candidates), and all comparisons use cosine similarity.
+
+\paragraph{Two quantities, one per discriminator task.}
+\begin{itemize}[leftmargin=1.6em,itemsep=3pt,topsep=2pt]
+  \item \textbf{$k$-NN task purity} \citep{wu2018unsupervised, caron2021emerging} at $k{=}10$. For each thought vector, purity is the fraction of its ten nearest neighbours (by cosine similarity) that carry the same task label. The average over all vectors lies in $[0, 1]$, with uniform random neighbour assignment giving $\approx 0.042$, and a value near $1$ means the geometry clusters problems by task.
+  \item \textbf{Within-task participation ratio} \citep{litwinkumar2017optimal, recanatesi2019dimensionality} $\mathrm{PR} = \bigl(\sum_i \sigma_i^2\bigr)^2 / \sum_i \sigma_i^4$, where $\sigma_i$ are the singular values of the centred matrix of within-task vectors for a given task (so $\sigma_i^2$ are the eigenvalues of its sample covariance), averaged over tasks. $\mathrm{PR}$ counts how many directions are needed to describe the within-task variance, ranging from $1$ when every within-task vector points the same way up to $N{-}1$ when the vectors spread over as many orthogonal directions as centering allows, where $N$ is the number of within-task problems. On this split $N \approx 20$, so the ceiling is $\approx 19$, and Random Vector reaches $\mathrm{PR} = 18.5$ close to that ceiling.
+\end{itemize}
+
+Each clustering quantity tracks one discriminator. Purity must clearly exceed the random-neighbour baseline for cross-task discrimination to succeed, since no probe can recover task structure that is absent from the geometry. $\mathrm{PR}$ must clearly exceed $1$ for same-task discrimination to succeed, since two within-task vectors that span too few directions are too close together for any learned projection to pull apart. The converse is weaker, because Random Vector achieves the maximum $\mathrm{PR}$ by construction and so a high $\mathrm{PR}$ alone cannot certify that the within-task directions encode instance content. Geometry therefore detects the two failure modes (low purity or low $\mathrm{PR}$) without relying on probe behaviour, but cannot certify success.
+
+\paragraph{An anisotropy-adjusted similarity scale.}
+We complement the two clustering quantities with a third diagnostic, the within-task self-similarity adjusted for anisotropy, following \citet{ethayarajh2019contextual}. Define $\Delta_{\cos} = \overline{\cos}_{\text{within-task}} - \overline{\cos}_{\text{cross-task}}$, where the cross-task pair mean serves as the anisotropy baseline inherent to self-attention \citep{godey2024anisotropy}. Subtracting this baseline isolates the within-task scale beyond what transformer geometry alone produces. Where \citet{ethayarajh2019contextual} apply the adjustment at the token level, we compute it on flattened example-level vectors so that a single number summarises each candidate. $\Delta_{\cos}$ is orthogonal to $k$-NN purity and $\mathrm{PR}$, since it varies in similarity scale rather than in cluster structure.
+
+\input{figures/geom_summary}
+
+\cref{fig:geom-summary} places every candidate on the $(\mathrm{PR}, \text{purity})$ plane for each LLM, and the top-right region remains empty in every panel. LIT, Latent Thinking at one step, Input Embedding, and the two Output Embedding candidates occupy the same region of the plane on four of the five LLMs, with moderate $\mathrm{PR}$ below the ceiling and high purity; on GPT-OSS-20B both LIT variants drop to lower purity while the Output and Input Embedding candidates stay in their usual region. The geometry therefore admits cross-task discrimination but constrains within-task variance to a narrow subspace regardless of architecture or size. Output Embedding candidates land in this same cluster yet still succeed at same-task discrimination in \cref{tab:disc-results}, because their within-task directions encode instance content that LIT's do not. Geometry alone cannot tell the two cases apart, so the analysis rules out failure without certifying success.
+
+Same-task discrimination fails because the within-task geometry of latent thought representations is itself collapsed, either too narrow (low $\mathrm{PR}$), too noise-drifted (low purity), or both, and this holds across every LLM tested. Probe capacity therefore cannot explain the failure. Latent Thinking begins at one step in the high-purity region near LIT on every LLM, but adding latent steps cuts purity by roughly half on each LLM and additionally sheds $\mathrm{PR}$ on the larger Llama and on both distilled and RL-trained reasoning models. Soft Thinking begins in the opposite low-$\mathrm{PR}$ corner and gains $\mathrm{PR}$ steadily as depth grows, but $\Delta_{\cos}$ contracts in step with the gain (from $\sim 0.30$ at one step to $\sim 0.09$ at $128$ on the Llama models), so the additional dimensions opened up by depth carry less, not more, anisotropy-adjusted within-task signal. Soft Thinking with Gumbel noise traces the same rightward path at consistently lower purity and lands at $\Delta_{\cos} \in [0.02, 0.05]$ across all five LLMs, indistinguishable from Random Vector on that axis. No trajectory in any panel enters the high-$\mathrm{PR}$, high-purity, high-$\Delta_{\cos}$ region occupied by LIT and Output Embedding. The verdict is uniform across architectures and sizes. The distilled and RL-trained reasoning models produce nearly identical panels in \cref{fig:geom-summary}, with every clustering quantity and similarity scale agreeing to within a few percent across all candidates and only minor offsets in the Latent and Soft Thinking trajectories.
+
+The geometric verdict matches the main-text tables across LLMs. Every candidate apart from Output Embedding has either low $\mathrm{PR}$ or low purity in each panel, and all of them fail same-task discrimination in \cref{tab:disc-results}. The $\mathrm{DCS}$ floor in \cref{tab:dcs} shares the same origin, because cosine similarity over a narrow or noise-drifted within-task subspace cannot reproduce a richer semantic equivalence matrix at any threshold. The picture is therefore consistent across architectures and sizes. The failure to discriminate within a task is a property of the geometry that latent computation produces, not an artifact of any single LLM.
+
+$\Delta_{\cos}$ anchors the same picture on the scale axis. Random Vector is at the lower bound near $0$, Input Embedding at the upper bound near $0.52$, and LIT and Output Embedding occupy a range between roughly $0.18$ and $0.45$. All three diagnostics converge on the same failure pattern, and none depend on a trained discriminator.
+
+\subsection{Probe Capacity Ablation}
+\label{appendix:capacity_ablation}
+
+\Cref{appendix:geometric} ruled out the most direct version of the weak-probe objection at the level of the geometry itself, with no trained classifier in the loop. We add a complementary line of defense within the probe-based metric by varying the same-task discriminator's capacity on the largest source model, Llama-3.3-70B, and showing that the chance-level same-task verdict for the latent-thinking and last-input-token candidates is invariant under three architectures of strictly increasing capacity.
+
+The Baseline architecture, used throughout the main paper, projects the source hidden state into the input space of the frozen $1$B model through a single linear layer. The Deep projection replaces the linear with a two-layer MLP and a LayerNorm. The Deep projection $+$ UF2 architecture additionally unfreezes the last two transformer blocks of the $1$B model. Each step strictly enlarges the trainable-parameter budget, and the deepest tier carries roughly an order of magnitude more trainable parameters than the Baseline.
+
+Three thought representations are evaluated as anchors. Last Input Token and Soft Thinking at $128$ steps are the focus of the same-task failure mode in the main results. Output Embedding (Exact) acts as the positive control, since it is computed from the generated answer itself. If any architecture has a chance to descend below the random-guess plateau, it should descend on this representation.
+
+\input{tables/disc_capacity_ablation_70b}
+
+\Cref{tab:disc-capacity-ablation-70b} reports test accuracy alongside the tail-$50$ mean of the training-loss curve, where $\ln 2 \approx 0.693$ is the BCE value at uniform $0.5$ output and equates to random-guess accuracy. Output Embedding (Exact) achieves its highest test accuracy at the Baseline tier ($0.726$), and adding capacity causes overfitting, with test accuracy declining to $0.617$ at the Deep tier and $0.642$ at Deep$+$UF2 despite an order-of-magnitude increase in trainable parameters, while BCE worsens toward the random-guess plateau. Last Input Token and Soft Thinking remain at random-guess accuracy at every capacity tier, with no improvement in accuracy or BCE regardless of how many parameters are available. The Baseline architecture was fixed in pilot experiments and applied consistently across all source LLMs and thought representations (see \cref{appendix:sub:disc_arch}). These ablations confirm post-hoc that it avoids the overfitting induced by deeper tiers while retaining the discriminative accuracy of the positive control. Under the larger architectures, the training loss of the candidates carrying no instance-discriminating content decreases transiently during training, but the tail-$50$ average over held-out steps remains at the plateau, indicating the optimiser learns batch-specific patterns rather than a generalisable structure.
+
+Two independent attacks on the same objection, the geometric one with no probe in the loop and the probe-based one with a probe of increasing capacity, converge on the conclusion that the same-task failure is a property of the representation and not of the discriminator.
+
+\subsection{Relationship to Downstream Task Accuracy}
+\label{appendix:downstream}
+
+A natural concern is that within-task separability collapses on hard tasks because the model's output distribution itself becomes less structured under difficulty, not because the representation is inadequate. If this were true, the collapse would track downstream task accuracy and tasks with lower pass@1 would show lower within-task discriminability across all candidates.
+
+\Cref{fig:downstream-correlation} tests this directly by plotting per-task within-task discriminator accuracy against BBEH pass@1 across the 23 BBEH tasks and five LLMs. For thought-representation candidates averaged over the Last Input Token, soft-thinking, latent-thinking, and last-hidden-state families, the pooled Spearman correlation with downstream accuracy is $\rho = 0.10$ ($p = 0.31$, $n = 115$), and no individual LLM reaches significance. The Exact Output Embedding anchor, which has direct access to the generated continuation, also shows no significant correlation ($\rho = 0.14$, $p = 0.13$). Both series are consistent with near-zero correlation across the full range of task difficulties.
+
+These results support the interpretation in \cref{sec:results:per-axiom}. The within-task separability collapse is a property of the thought representations rather than a consequence of tasks being difficult. The framework surfaces representational failures that downstream accuracy does not register.
+
+\input{figures/downstream_correlation}

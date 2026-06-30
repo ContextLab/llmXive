@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-12T09:26:31.837436Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin
-last_run_id: 3454c755-2c93-4a28-a7ab-6acc072db7bd
+last_run_id: 5b8081e6-6f61-4fb6-8622-650bb74dac0a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/specs/001-claw-swe-bench-a-benchmark-for-evaluatin
 title: 'Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses
   on Coding Tasks'
-updated_at: '2026-06-30T17:12:11.673671Z'
+updated_at: '2026-06-30T20:51:41.495410Z'

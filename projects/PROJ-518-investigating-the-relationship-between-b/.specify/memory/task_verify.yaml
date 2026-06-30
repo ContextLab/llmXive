@@ -1,0 +1,9 @@
+? T010 [P] [US1] Contract test `tests/contract/test_loader.py::test_loader_raises_on_missing_caq`
+  asserting `DataMissingCreativityError` is raised when CAQ is missing.
+: 1
+? T011 [P] [US1] Integration test `tests/integration/test_pipeline_flow.py::test_end_to_end_correlation`
+  runs the full pipeline on a mock subset and asserts numeric `r` and `p` values.
+: 1
+? 'T012 [P] [US1] Implement `code/data/loader.py` function `fetch_hcp_data(subject_id:
+  str)` that downloads raw fMRI and behavioral JSON **after** validation succeeds.'
+: 1

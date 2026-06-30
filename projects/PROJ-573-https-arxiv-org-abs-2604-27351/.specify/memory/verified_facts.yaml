@@ -1,4 +1,4 @@
-'|alpha default statistical test threshold':
+'|alpha default threshold':
   quote: "The error that a practising statistician would consider the more important\
     \ to avoid (which is a subjective judgment) is called the error of the first kind.\
     \ The first demand of the mathematical theory is to deduce such test criteria\
@@ -8,13 +8,3 @@
   source_id: P-value
   url: https://en.wikipedia.org/wiki/P-value
   value: '0.05'
-'|python version':
-  quote: "As of June 2026, Python 3.14.6  is the latest stable release. This version\
-    \ currently receives full bug-fix and security updates, while Python 3.13\u2014\
-    released in October 2024\u2014will continue to receive bug-fixes until October\
-    \ 2026, and after that will only receive security fixes until its end-of-life\
-    \ in 2029. Python 3.10 is the oldest supported branch of Python (albeit in the\
-    \ 'security support' phase)."
-  source_id: History of Python
-  url: https://en.wikipedia.org/wiki/History_of_Python
-  value: 3.14.6

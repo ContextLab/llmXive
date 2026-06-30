@@ -1,0 +1,52 @@
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/paper/specs/001-paper/spec.md
+  attempts: 1
+  canonical: OpenComputer pipeline reproducible on CPU-only CI runner with 14 GB disk
+    quota
+  claim_id: c_748ef54c
+  context: Required Claims section listing Claim 1 regarding pipeline reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The OpenComputer pipeline is reproducible on a standard CPU-only CI runner\
+    \ with a free-tier disk quota (\u226414 GB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T21:23:46Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/paper/specs/001-paper/spec.md
+  attempts: 1
+  canonical: hardcode verifiers show high alignment with human adjudication on 5 tasks
+  claim_id: c_e82aaefe
+  context: Required Claims section listing Claim 2 regarding verifier alignment on
+    a sample set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hardcode verifiers demonstrate high alignment with human adjudication
+    on a sample set of 5 tasks, despite the inability to calculate a statistical margin
+    of error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T21:24:02Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/paper/specs/001-paper/spec.md
+  attempts: 1
+  canonical: 10% margin of error requirement invalid for N=5
+  claim_id: c_66ce3bf9
+  context: Required Claims section listing Claim 4 regarding the invalidity of the
+    10% margin requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The '10% margin of error' requirement in the original specification is
+    scientifically invalid for N=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T21:25:47Z'

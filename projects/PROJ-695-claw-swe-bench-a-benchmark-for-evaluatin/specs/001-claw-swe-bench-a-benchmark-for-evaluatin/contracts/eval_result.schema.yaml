@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Claw-SWE-Bench Evaluation Result"
+description: "Schema for a single instance evaluation result in the Claw-SWE-Bench reproduction pipeline."
+type: "object"
+required:
+  - "instance_id"
+  - "run_id"
+  - "status"
+  - "tokens_input"
+  - "tokens_output"
+  - "api_cost_usd"
+  - "wall_time_seconds"
+properties:
+  instance_id:
+    type: "string"
+    description: "Unique identifier for the SWE-bench instance."
+  run_id:
+    type: "string"
+    description: "UUID of the evaluation run."
+  status:
+    type: "string"
+    enum:
+      - "passed"
+      - "failed"
+      - "failed_apply"
+      - "timeout"
+      - "data_missing"
+      - "api_error"
+    description: "Final status of the instance processing."
+  patch_generated:
+    type: "boolean"
+    description: "Whether a patch was generated (regardless of success)."
+  patch_content:
+    type: ["string", "null"]
+    description: "The generated diff content. Null if no patch was generated."
+  execution_log:
+    type: ["string", "null"]
+    description: "A snippet of the execution log for debugging."
+  tokens_input:
+    type: "integer"
+    minimum: 0
+    description: "Number of input tokens consumed."
+  tokens_output:
+    type: "integer"
+    minimum: 0
+    description: "Number of output tokens consumed."
+  api_cost_usd:
+    type: "number"
+    minimum: 0
+    description: "Estimated API cost in USD."
+  wall_time_seconds:
+    type: "number"
+    minimum: 0
+    description: "Wall-clock time taken in seconds."
+  error_message:
+    type: ["string", "null"]
+    description: "Error message if status is not 'passed'."
+additionalProperties: false

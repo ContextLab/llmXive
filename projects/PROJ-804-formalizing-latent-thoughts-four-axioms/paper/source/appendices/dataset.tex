@@ -1,0 +1,221 @@
+\section{Dataset and Benchmark Details}
+\label{appendix:dataset}
+
+\subsection{BBEH Task Coverage}
+We evaluate on all 23 tasks from BBEH~\citep{kazemi2025bigbenchextrahard}.
+Table~\ref{tab:bbeh_tasks} lists the tasks and their categories.
+For each task, we use all available examples from the BBEH dataset,
+yielding 4{,}520 unique problems across all 23 tasks.
+Each problem is expanded to $K=8$ beams during generation, for 36{,}160 beam--problem
+pairs in total.
+These 4{,}520 problems are further partitioned for probe and discriminator training,
+stratified per task: within each BBEH task, problems are randomly shuffled and split
+into train / validation / test at an $0.8 / 0.1 / 0.1$ ratio, so every task
+contributes proportionally to every split (3{,}616 / 452 / 452 problems in aggregate).
+
+\input{tables/bbeh}
+
+Several BBEH tasks build on earlier benchmarks, and we acknowledge the
+originating work as requested by the BBEH authors.
+BoardGame QA originates from~\citet{kazemi2024boardgameqa}.
+Causal Understanding draws on~\citet{nie2024moca} and~\citet{kiciman2023causal}.
+Dyck Languages and Word Sorting follow the setup
+of~\citet{tyen2023llms}.
+Geometric Shapes is based on~\citet{kazemi2023geomverse},
+Linguini on~\citet{sanchez2024linguini},
+and NYCC builds on~\citet{hessel2022androids}
+and~\citet{zhang2024humor}.
+Spatial Reasoning follows~\citet{yamada2023evaluating},
+Time Arithmetic follows~\citet{fatemi2024test},
+Web of Lies follows~\citet{white2024livebench},
+and Zebra Puzzles follows~\citet{shah2024causal}.
+
+\subsection{BBEH Answer Extraction}
+We use the official BBEH answer extraction logic from
+\citet{kazemi2025bigbenchextrahard}, which implements task-specific
+regular expression patterns to extract final answers from free-form
+model outputs.
+\cref{tab:extraction-failure} reports per-LLM parsing statistics over
+every generation. Per-beam parsing failure varies by more than an order
+of magnitude across the LLMs we evaluate, and the fraction of problems
+with at least one parsed beam follows the same ordering. For
+Llama-3.3-70B-Instruct nearly every beam emits one of the canonical
+answer prefixes, whereas the other LLMs leave a substantially larger
+fraction of beams without any of the prefixes the extractor matches
+against, and the answer cannot be recovered without other methods.
+
+\input{tables/extraction_failure}
+
+\subsection{Output-Length Statistics}
+\label{appendix:output_length}
+
+\cref{tab:output-length-stats,fig:output-length,fig:output-length-per-task}
+report character-length statistics of the saved generations across the
+five LLMs we evaluate, computed over the entire dataset. Two patterns
+emerge. First, GPT-OSS-20B, Skywork-OR1-32B and DS-R1-Qwen-32B exceed
+Llama-3.1-8B-Instruct and Llama-3.3-70B-Instruct at the median by
+roughly an order of magnitude, and their interquartile bands reach into
+the ten-thousand-character range. Second, individual tasks shift the
+entire column by a near-constant offset. Hard combinatorial tasks like
+Web of Lies, Zebra Puzzles, Multistep Arithmetic and Shuffled Objects
+remain at the top of every column, while short answer-format tasks like
+NYCC, Linguini, SportQA and SARC Triples remain at the bottom, and
+each LLM's relative ordering of tasks is preserved across columns.
+Llama-3.3-70B-Instruct produces the tightest distribution of the five,
+with both the narrowest IQR and the lowest mean despite a comparable
+median to the 8B checkpoint.
+The maximum of $818{,}647$ characters for GPT-OSS~20B originates from a single pathological example in the Multistep Arithmetic task. The model emits roughly $7{,}000$ characters of valid reasoning, then enters a runaway indentation loop in which each successive opening parenthesis is preceded by an increasing number of leading spaces, growing quadratically until the $8{,}192$-token generation cap is reached. Approximately $816{,}000$ of the $818{,}647$ characters are whitespace. All eight beams degenerate identically due to deterministic beam search. Evaluation operates at the token level and is unaffected by character length.
+
+\input{tables/output_length_summary}
+\input{figures/output_length}
+\input{figures/output_length_per_task}
+
+\subsection{BBEH Accuracy of the Source LLMs}
+\label{appendix:bbeh_accuracy}
+
+\cref{tab:bbeh-accuracy} reports BBEH correctness of the five LLMs
+scored with the official extraction logic of
+\citet{kazemi2025bigbenchextrahard} against the canonical task
+targets. \textsc{p@1} averages correctness over all beams per problem,
+while \textsc{p@8} marks a problem solved if at least one beam scores
+correct, and the gap between the two columns quantifies the margin a
+verifier could realise from the existing beam set. Across tasks,
+Llama-3.3-70B-Instruct, Skywork-OR1-32B and GPT-OSS-20B remain ahead
+of the other two on \textsc{p@1} within a few percentage points of
+each other, and DS-R1-Qwen-32B records the largest \textsc{p@8} gain
+relative to its own \textsc{p@1}, while GPT-OSS-20B records the
+smallest such gain.
+
+The bottom rows aggregate the per-task numbers two ways. The micro
+average pools all problems across tasks, while the adjusted harmonic
+mean uses the BBEH paper's aggregation $N\,/\,\sum_i 1/(a_i+1)$, which
+down-weights uneven performance across tasks. For the two LLMs that
+overlap with their Table~2 (Llama-3.1-8B-Instruct and DS-R1-Qwen-32B,
+reported there at $3.6\%$ and $5.2\%$), our \textsc{p@1} adjusted
+harmonic means agree to within the rounding granularity of the
+published per-task accuracies. Llama-3.3-70B-Instruct, Skywork-OR1-32B
+and GPT-OSS-20B were not evaluated under this aggregation in the
+original BBEH release, so the corresponding columns extend the
+benchmark's leaderboard to those checkpoints.
+
+\input{tables/bbeh_accuracy}
+
+\subsection{Qualitative Beam Outputs and Embedder Similarity}
+\label{appendix:beam_similarity}
+
+To make the per-LLM beam pool concrete and to motivate why the
+Output Embedding (\emph{Exact}) candidate of \cref{methodology}
+captures the available semantic signal, we inspect pairs of beams from
+the same input prompt and contrast a high-similarity pair against a
+low-similarity pair. Cosine similarity is taken in the
+Llama-Embed-Nemotron-8B space, the same space used by the Pooled and
+Exact Output Embedding candidates throughout the paper. Both prompts
+are drawn from the held-out test split of \cref{appendix:bbeh_accuracy}.
+
+\begin{table}[h]
+\caption{High-similarity pair from example~107 of the Time Arithmetic task. Both beams
+walk through the same arithmetic chain and converge on the same answer,
+with only the wording of the closing sentence differing.}
+\label{tab:beam_sim_high}
+\small
+\centering
+\begin{tabular}{p{0.47\textwidth} p{0.47\textwidth}}
+\toprule
+\multicolumn{2}{p{0.96\textwidth}}{\textbf{Prompt (truncated).}\
+\textit{Question1\ldots If the date for the day after yesterday is
+2017-12-02, what is the date 1116 days from now? Question2: A plane
+leaves Location A at 01 AM UTC$+$0000 and arrives in Location B
+$X'{:}Y'{:}Z'$ later. Location B is in IST(+0530). What time is it in
+Location B when the plane lands?}} \\
+\midrule
+\textbf{Beam 1} & \textbf{Beam 2} \\
+\midrule
+\textit{To find the date 1116 days from 2017-12-02\ldots
+$1116 \div 365 = 3$ years with a remainder of $111$\ldots
+$2020$-$12$-$02 + 111$ days $= 2021$-$03$-$23$\ldots
+$X' = 3$, $Y' = 24$, $Z' = 9$\ldots
+UTC$+$0000\ $01{:}00{:}00 + 03{:}24{:}09 = 04{:}24{:}09 + 5\,$h
+$+ 0.5\,$h $=$ UTC$+$0530\ $09{:}54{:}09$.
+So, the plane lands on \underline{the same day at 09:54:09 in Location B}.
+The answer is: same\_day, 09:54:09}
+&
+\textit{To find the date 1116 days from 2017-12-02\ldots
+$1116 \div 365 = 3$ years with a remainder of $111$\ldots
+$2020$-$12$-$02 + 111$ days $= 2021$-$03$-$23$\ldots
+$X' = 3$, $Y' = 24$, $Z' = 9$\ldots
+UTC$+$0000\ $01{:}00{:}00 + 03{:}24{:}09 = 04{:}24{:}09 + 5\,$h
+$+ 0.5\,$h $=$ UTC$+$0530\ $09{:}54{:}09$.
+So, the plane lands on \underline{the same day, 09:54:09}.
+The answer is: same\_day, 09:54:09}
+\\
+\midrule
+\multicolumn{2}{c}{Embedder-space cosine $\cos = 0.997$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{Low-similarity pair from example~113 of the Causal Understanding task. The
+left beam walks through the rules in a multi-step argument; the right
+beam returns the verdict in one line. The two beams sit in opposite
+regions of the embedder space. They also disagree on the final answer:
+the long-form beam concludes Yes (matching the ground truth), while the
+short beam answers No.}
+\label{tab:beam_sim_low}
+\small
+\centering
+\begin{tabular}{p{0.47\textwidth} p{0.47\textwidth}}
+\toprule
+\multicolumn{2}{p{0.96\textwidth}}{\textbf{Prompt (truncated).}\
+\textit{Jim, Carol, Bob, and Nancy share electricity from 8--9 PM. The
+breaker fails if three lamps are on at the same time. Jim is not
+supposed to use his lamp on Thursdays. Carol, Bob, and Nancy may use
+theirs. This Thursday Jim, Carol, and Bob all turn on their lamps at
+8 PM and the breaker fails. Did Jim cause the breaker to fail? Reply
+Yes / No / Ambiguous.}} \\
+\midrule
+\textbf{Beam 2} (long-form chain of thought) & \textbf{Beam 7} (short
+direct answer) \\
+\midrule
+\textit{To determine if Jim turning on his lamp at 8 PM caused the
+circuit breaker to fail, let's analyze the situation step by step.
+1.~The breaker will fail if three people turn on their lamps at the
+same time. 2.~Jim is not supposed to use his lamp on Thursdays, but he
+turned it on anyway. 3.~Carol and Bob also turned on their lamps at the
+same time as Jim. 4.~Since Carol and Bob are allowed to use their lamps
+on Thursdays, their actions did not cause the breaker to fail.
+5.~The breaker failed because three people (Jim, Carol, and Bob) turned
+on their lamps at the same time. Considering these points, the majority
+of people would likely say that Jim turning on his lamp at 8 PM caused
+the circuit breaker to fail\ldots}
+&
+\vspace{2em}\textit{The answer is: No.}
+\\
+\midrule
+\textit{Verdict: \textbf{Yes} (correct)} & \textit{Verdict: \textbf{No}} \\
+\midrule
+\multicolumn{2}{c}{Embedder-space cosine $\cos = 0.063$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The eight beams of the Causal Understanding example~113 cluster into three
+regions of the embedder space. These are the long-form chain-of-thought mode and
+the two short-answer modes (``Yes'' and ``No''). Within each mode,
+beams sit at $\cos \ge 0.98$ from one another. Between the long-form
+mode and either short mode, $\cos$ collapses to the $[0.06, 0.10]$
+range regardless of whether the two beams agree on the final verdict,
+so the low score in \cref{tab:beam_sim_low} is driven by format
+divergence rather than answer disagreement. The showcased pair happens
+to combine both format divergence and answer disagreement. The long-form beam reaches the correct answer (Yes)
+while the short beam answers No, but a long-form Yes paired with a
+short-form Yes would yield a cosine in the same low range. The two
+short modes sit at $\cos \approx 0.80$ from each other despite
+contradicting each other on the verdict. The embedder therefore
+separates beams primarily by response format and only secondarily by
+the content of the answer itself. This format-first geometry is what
+lets the Output Embedding reach the high-purity, high-$\Delta_{\cos}$
+region of \cref{appendix:geometric}, and is also why no purely latent
+candidate inherits the same separation, since none of them preserves
+the surface form that the embedder keys on.
+

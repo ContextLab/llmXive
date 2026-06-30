@@ -1,0 +1,41 @@
+% Headline Minimality metric $\Delta_{\text{IB}} = \text{CE}(X \mid Y, \mathbf{T}) - \text{CE}(Y \mid \mathbf{T})$,
+% paired per problem (CE averaged over beams within a problem before pairing).
+% Equals the IB Lagrangian at $\beta = 2$ up to a TR-independent constant.
+% Derivation in \cref{appendix:sub:minimality_ib_derivation}; legacy
+% $\Delta_{\text{CE}}$ proxy in \cref{appendix:minimality-components}.
+% Component cross-entropies in \cref{tab:minimality-ce-y-tiled,tab:minimality-ce-xyt-tiled}.
+
+\begin{table}[!htbp]
+  \caption{Minimality measure $\Delta_{\text{IB}} = \text{CE}(X \mid Y, \mathbf{T}) - \text{CE}(Y \mid \mathbf{T})$ across source LLMs, paired per problem. Larger positive values indicate a representation that is more sufficient for $Y$ and adds less $X$-information beyond $Y$.}
+  \label{tab:minimality-delta-ib}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.1}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l *{2}{c} !{\vrule} *{2}{c} *{5}{c} *{5}{c} *{5}{c} !{\vrule} *{2}{c}@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textit{Output Emb.}}
+      & \multicolumn{2}{c}{\textit{Last Input Tok.}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (no noise)}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (Gumbel)}}
+      & \multicolumn{5}{c}{\textit{Latent Thinking}}
+      & \multicolumn{2}{c}{\textit{Baselines}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-10}\cmidrule(lr){11-15}\cmidrule(lr){16-20}\cmidrule(lr){21-22}
+    \textbf{LLM}
+      & Exc & Pool
+      & All & Final
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & IE & RV \\
+    \midrule
+    Llama-3.1 8B     & \ciSE{0.37}{0.04} & \ciSE{0.27}{0.04} & \ciSE{0.08}{0.03} & \ciSE{0.16}{0.04} & \ciSE{0.25}{0.04} & \ciSE{0.18}{0.03} & \ciSE{0.21}{0.03} & \ciSE{0.19}{0.04} & \ciSE{0.19}{0.03} & \ciSE{0.24}{0.04} & \ciSE{0.17}{0.03} & \ciSE{0.16}{0.03} & \ciSE{0.17}{0.03} & \ciSE{0.16}{0.03} & \ciSE{0.17}{0.03} & \ciSE{0.19}{0.04} & \ciSE{0.18}{0.04} & \ciSE{0.17}{0.04} & \ciSE{0.17}{0.04} & \ciSE{0.22}{0.04} & \ciSE{-0.40}{0.06} \\
+    Llama-3.3 70B    & \ciSE{-0.13}{0.04} & \ciSE{-0.20}{0.03} & \ciSE{-0.33}{0.03} & \ciSE{-0.30}{0.03} & \ciSE{-0.24}{0.03} & \ciSE{-0.27}{0.03} & \ciSE{-0.32}{0.03} & \ciSE{-0.32}{0.03} & \ciSE{-0.31}{0.03} & \ciSE{-0.24}{0.03} & \ciSE{-0.31}{0.04} & \ciSE{-0.31}{0.03} & \ciSE{-0.29}{0.03} & \ciSE{-0.32}{0.03} & \ciSE{-0.31}{0.03} & \ciSE{-0.31}{0.03} & \ciSE{-0.30}{0.03} & \ciSE{-0.33}{0.03} & \ciSE{-0.31}{0.03} & \ciSE{-0.23}{0.03} & \ciSE{-0.99}{0.05} \\
+    DS-R1-Qwen 32B   & \ciSE{0.07}{0.03} & \ciSE{0.05}{0.03} & \ciSE{-0.07}{0.03} & \ciSE{-0.05}{0.03} & \ciSE{0.10}{0.04} & \ciSE{0.00}{0.04} & \ciSE{-0.02}{0.04} & \ciSE{-0.01}{0.03} & \ciSE{-0.01}{0.04} & \ciSE{0.10}{0.04} & \ciSE{0.04}{0.04} & \ciSE{0.04}{0.03} & \ciSE{0.01}{0.03} & \ciSE{0.00}{0.03} & \ciSE{0.05}{0.03} & \ciSE{0.03}{0.03} & \ciSE{0.03}{0.03} & \ciSE{0.02}{0.03} & \ciSE{0.02}{0.03} & \ciSE{0.04}{0.03} & \ciSE{-0.50}{0.05} \\
+    Skywork-OR1 32B  & \ciSE{-0.16}{0.03} & \ciSE{-0.19}{0.03} & \ciSE{-0.31}{0.03} & \ciSE{-0.27}{0.03} & \ciSE{-0.13}{0.03} & \ciSE{-0.28}{0.03} & \ciSE{-0.29}{0.03} & \ciSE{-0.29}{0.03} & \ciSE{-0.27}{0.03} & \ciSE{-0.14}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.22}{0.03} & \ciSE{-0.23}{0.03} & \ciSE{-0.25}{0.03} & \ciSE{-0.18}{0.03} & \ciSE{-0.20}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.59}{0.05} \\
+    GPT-OSS 20B      & \ciSE{-0.26}{0.04} & \ciSE{-0.22}{0.03} & \ciSE{-0.27}{0.03} & \ciSE{-0.25}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.20}{0.04} & \ciSE{-0.24}{0.04} & \ciSE{-0.21}{0.03} & \ciSE{-0.24}{0.03} & \ciSE{-0.21}{0.03} & \ciSE{-0.23}{0.03} & \ciSE{-0.18}{0.03} & \ciSE{-0.17}{0.03} & \ciSE{-0.18}{0.03} & \ciSE{-0.23}{0.03} & \ciSE{-0.34}{0.04} & \ciSE{-0.30}{0.05} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}

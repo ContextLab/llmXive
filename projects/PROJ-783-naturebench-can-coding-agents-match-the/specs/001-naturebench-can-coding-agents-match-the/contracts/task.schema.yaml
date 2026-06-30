@@ -1,0 +1,29 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Task
+description: A single unit of work from the dataset (NatureBench or SWE-bench).
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task."
+  method_description:
+    type: string
+    description: "Text description of the scientific method."
+  ground_truth_sota:
+    type: number
+    description: "Numerical SOTA value for validation."
+  domain_cluster:
+    type: string
+    description: "Category of the task (e.g., Genomics)."
+  gold_standard_methods:
+    type: array
+    items:
+      type: string
+    description: "List of function names from the ground truth."
+required:
+  - task_id
+  - method_description
+  - ground_truth_sota
+  - domain_cluster
+  - gold_standard_methods
+additionalProperties: false

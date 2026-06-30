@@ -1,0 +1,77 @@
+% Minimality components: input-reconstruction cross-entropy
+% $\text{CE}(X \mid \mathbf{T})$ and output-prediction cross-entropy
+% $\text{CE}(Y \mid \mathbf{T})$ per source LLM. The headline Minimality Gap
+% $\Delta_{\text{CE}}$ derived from these components is reported in
+% \cref{tab:minimality-delta-ce}.
+
+\begin{table}[!htbp]
+  \caption{Input-reconstruction cross-entropy $\text{CE}(X \mid \mathbf{T})$ across source LLMs. Higher values indicate that $\mathbf{T}$ carries less information about the input prompt. The Random Vector baseline is omitted because the probe sees the same $X$ and i.i.d.\ noise on every source LLM, so $\text{CE}(X \mid \mathrm{RV}) \approx 1.87$ uniformly and serves as a single shared anchor referenced in the surrounding prose.}
+  \label{tab:minimality-ce-x}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.1}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l *{2}{c} !{\vrule} *{2}{c} *{5}{c} *{5}{c} *{5}{c} !{\vrule} c@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textit{Output Emb.}}
+      & \multicolumn{2}{c}{\textit{Last Input Tok.}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (no noise)}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (Gumbel)}}
+      & \multicolumn{5}{c}{\textit{Latent Thinking}}
+      & \textit{Baseline} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-10}\cmidrule(lr){11-15}\cmidrule(lr){16-20}\cmidrule(lr){21-21}
+    \textbf{LLM}
+      & Exc & Pool
+      & All & Final
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & IE \\
+    \midrule
+    Llama-3.1 8B     & \ciSE{1.77}{0.04} & \ciSE{1.78}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.75}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.75}{0.04} & \ciSE{1.77}{0.04} & \ciSE{1.78}{0.04} & \ciSE{1.75}{0.04} & \ciSE{1.75}{0.04} & \ciSE{1.76}{0.04} & \ciSE{1.77}{0.04} & \ciSE{1.78}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.75}{0.04} & \ciSE{1.76}{0.04} & \ciSE{1.76}{0.04} & \ciSE{1.78}{0.04} \\
+    Llama-3.3 70B    & \ciSE{1.75}{0.04} & \ciSE{1.77}{0.04} & \ciSE{1.70}{0.04} & \ciSE{1.73}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.69}{0.04} & \ciSE{1.72}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.76}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.72}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.75}{0.04} & \ciSE{1.76}{0.04} & \ciSE{1.72}{0.04} & \ciSE{1.72}{0.04} & \ciSE{1.73}{0.04} & \ciSE{1.73}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.78}{0.04} \\
+    DS-R1-Qwen 32B  & \ciSE{1.75}{0.04} & \ciSE{1.78}{0.04} & \ciSE{1.73}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.75}{0.04} & \ciSE{1.76}{0.04} & \ciSE{1.78}{0.04} & \ciSE{1.80}{0.04} & \ciSE{1.75}{0.04} & \ciSE{1.78}{0.04} & \ciSE{1.78}{0.04} & \ciSE{1.79}{0.04} & \ciSE{1.81}{0.04} & \ciSE{1.73}{0.04} & \ciSE{1.72}{0.04} & \ciSE{1.73}{0.04} & \ciSE{1.74}{0.04} & \ciSE{1.75}{0.04} & \ciSE{1.78}{0.04} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\begin{table}[!htbp]
+  \caption{Output-prediction cross-entropy $\text{CE}(Y \mid \mathbf{T})$ across source LLMs at each representation's native sequence length. Lower values indicate that $\mathbf{T}$ retains information sufficient to predict the output sequence. The tiled-length companion in \cref{tab:minimality-ce-y-tiled} reports the same quantity with every representation fed at a common length, isolating the effect of length normalisation.}
+  \label{tab:minimality-ce-y}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.1}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l *{2}{c} !{\vrule} *{2}{c} *{5}{c} *{5}{c} *{5}{c} !{\vrule} *{2}{c}@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textit{Output Emb.}}
+      & \multicolumn{2}{c}{\textit{Last Input Tok.}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (no noise)}}
+      & \multicolumn{5}{c}{\textit{Soft Thinking (Gumbel)}}
+      & \multicolumn{5}{c}{\textit{Latent Thinking}}
+      & \multicolumn{2}{c}{\textit{Baselines}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-10}\cmidrule(lr){11-15}\cmidrule(lr){16-20}\cmidrule(lr){21-22}
+    \textbf{LLM}
+      & Exc & Pool
+      & All & Final
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & 1 & 16 & 32 & 64 & 128
+      & IE & RV \\
+    \midrule
+    Llama-3.1 8B     & \ciSE{0.77}{0.03} & \ciSE{0.84}{0.02} & \ciSE{0.78}{0.02} & \ciSE{0.81}{0.02} & \ciSE{0.85}{0.03} & \ciSE{0.82}{0.02} & \ciSE{0.84}{0.02} & \ciSE{0.86}{0.02} & \ciSE{0.83}{0.03} & \ciSE{0.89}{0.03} & \ciSE{0.84}{0.03} & \ciSE{0.88}{0.02} & \ciSE{0.88}{0.02} & \ciSE{0.90}{0.03} & \ciSE{0.83}{0.02} & \ciSE{0.78}{0.02} & \ciSE{0.79}{0.02} & \ciSE{0.80}{0.02} & \ciSE{0.82}{0.02} & \ciSE{0.83}{0.02} & \ciSE{1.91}{0.08} \\
+    Llama-3.3 70B    & \ciSE{1.25}{0.03} & \ciSE{1.31}{0.03} & \ciSE{1.16}{0.03} & \ciSE{1.22}{0.03} & \ciSE{1.38}{0.03} & \ciSE{1.21}{0.03} & \ciSE{1.23}{0.03} & \ciSE{1.25}{0.03} & \ciSE{1.25}{0.03} & \ciSE{1.39}{0.03} & \ciSE{1.24}{0.03} & \ciSE{1.27}{0.03} & \ciSE{1.28}{0.03} & \ciSE{1.27}{0.03} & \ciSE{1.28}{0.03} & \ciSE{1.24}{0.03} & \ciSE{1.25}{0.03} & \ciSE{1.27}{0.03} & \ciSE{1.29}{0.03} & \ciSE{1.35}{0.03} & \ciSE{2.35}{0.07} \\
+    DS-R1-Qwen 32B  & \ciSE{0.83}{0.03} & \ciSE{0.86}{0.03} & \ciSE{0.76}{0.02} & \ciSE{0.78}{0.02} & \ciSE{0.83}{0.03} & \ciSE{0.82}{0.03} & \ciSE{0.83}{0.03} & \ciSE{0.87}{0.03} & \ciSE{0.89}{0.03} & \ciSE{0.86}{0.03} & \ciSE{0.89}{0.03} & \ciSE{0.87}{0.03} & \ciSE{0.88}{0.03} & \ciSE{0.89}{0.03} & \ciSE{0.82}{0.02} & \ciSE{0.83}{0.03} & \ciSE{0.84}{0.03} & \ciSE{0.86}{0.03} & \ciSE{0.87}{0.03} & \ciSE{0.91}{0.03} & \ciSE{1.33}{0.05} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+% The tiled-length companion of CE(Y|T) is in
+% \cref{tab:minimality-ce-y-tiled}, paired with the conditional input
+% probe CE(X|Y,T) in \cref{tab:minimality-ce-xyt-tiled}; both live with
+% the IB-residual headline (\cref{tab:minimality-delta-ib}) in the
+% main appendix.

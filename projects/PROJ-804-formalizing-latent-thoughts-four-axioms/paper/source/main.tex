@@ -1,0 +1,126 @@
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{wrapfig}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+% hyperref makes hyperlinks in the resulting PDF.
+\usepackage{hyperref}
+\usepackage{url}
+
+% etoc: appendix-only table of contents (filtered by tag)
+\usepackage{etoc}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% NeurIPS 2026 style file.
+\PassOptionsToPackage{numbers}{natbib}
+\usepackage[preprint]{preprint}
+\makeatletter
+\renewcommand{\@notice}{\enlargethispage{2\baselineskip}}
+\makeatother
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{nicefrac}
+
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+
+\usepackage{float}
+\usepackage{placeins}
+
+\usepackage{xcolor}
+
+\definecolor{okabeOrange}{HTML}{D55E00}
+\definecolor{okabeBlue}{HTML}{0072B2}
+\newcommand{\ciSE}[2]{\makecell{$#1$\\{\tiny$\pm#2$}}}
+\newcommand{\ciSEB}[2]{\makecell{$#1$\\{\tiny$\pm#2$}}}
+\newcommand{\ciAdvInf}[2]{\makecell{$#1$\\{\tiny$\pm#2$}}}
+\newcommand{\ciAdvNS}[2]{\makecell{$#1$\\{\tiny$\pm#2$}}}
+\newcommand{\ciAdvInfB}[2]{\makecell{$#1$\\{\tiny$\pm#2$}}}
+\newcommand{\ciAdvNSB}[2]{\makecell{$#1$\\{\tiny$\pm#2$}}}
+
+\newtcolorbox{runex}{
+  colback=gray!5,
+  colframe=gray!40,
+  arc=2pt, boxrule=0.4pt,
+  left=6pt, right=6pt,
+  top=4pt, bottom=4pt,
+  title=Running Example,
+  fonttitle=\bfseries\small,
+  coltitle=black,
+  colbacktitle=gray!15,
+}
+
+\usepackage[disable,textsize=tiny]{todonotes}
+
+
+\title{Formalizing Latent Thoughts: Four Axioms of Thought Representation in LLMs}
+
+\author{%
+  Fahd Seddik \\
+  Department of Computer Science\\
+  University of British Columbia\\
+  Kelowna, BC, Canada \\
+  \texttt{fahd.seddik@ubc.ca} \\
+  \And
+  Fatemeh Fard \\
+  Department of Computer Science\\
+  University of British Columbia\\
+  Kelowna, BC, Canada \\
+  \texttt{fatemeh.fard@ubc.ca} \\
+}
+
+
+\begin{document}
+\etocdepthtag.toc{main}
+
+\maketitle
+
+\begin{abstract}
+We introduce an axiomatic evaluation framework for latent thought representations in LLMs, comprising metrics that are independent of downstream benchmark scores and reveal representational failures that benchmark accuracy masks. Existing evaluations conflate representation quality with model capacity. Therefore, failures cannot be attributed to the representation rather than to the model that processes it. We formalize four functional axioms (Causality, Minimality, Separability, and Stability) and define a quantitative measure for each, computed directly on the representation independently of downstream accuracy. We audit open-weight LLMs across 23 reasoning tasks (e.g., Spatial Reasoning, Factual QA). We find that no candidate satisfies all four axioms simultaneously, that the representations distinguish task type reliably but cannot distinguish between two questions within the same task, and that the representations encode little information beyond what is already present in the input embedding. The failure is consistent across dense, reasoning-distilled, and RL-trained model families, indicating that the gap is structural rather than a property of model size or training procedure. Code: \url{https://fard-lab.github.io/formalize-thoughts}.
+\end{abstract}
+
+\input{sections/introduction}
+\input{sections/related}
+\input{sections/methodology}
+\input{sections/experiments}
+\input{sections/results}
+\input{sections/conclusion}
+
+\clearpage
+\bibliographystyle{abbrvnat}
+\bibliography{references}
+
+\newpage
+\appendix
+\input{sections/appendix}
+
+\end{document}

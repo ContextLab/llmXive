@@ -1,0 +1,10 @@
+{
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-802-qwen-image-2-0-rl-technical-report/paper/pdf/main-llmxive.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
+  "paper_id": "PROJ-802-qwen-image-2-0-rl-technical-report",
+  "updated_at": "2026-06-30T21:36:49.002438+00:00"
+}

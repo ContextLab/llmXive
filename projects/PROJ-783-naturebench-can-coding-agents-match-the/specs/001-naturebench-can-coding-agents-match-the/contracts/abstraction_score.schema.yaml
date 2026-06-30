@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AbstractionScore
+description: System-rated metric for a Task.
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Foreign key to Task."
+  score:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: "Abstraction distance score (1-5)."
+  novelty_index:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Calculated novelty score (unique functions / total functions)."
+  stdlib_percentage:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Calculated percentage of stdlib calls."
+  justification:
+    type: string
+    description: "Text explaining the score."
+  expert_validated:
+    type: boolean
+    description: "Indicates if this score was part of the expert validation set."
+required:
+  - task_id
+  - score
+  - novelty_index
+  - stdlib_percentage
+  - justification
+  - expert_validated
+additionalProperties: false

@@ -1,0 +1,24 @@
+% Source LLMs at-a-glance, wrapped next to the Source LLMs paragraph.
+% Model names abbreviated per the convention used by the appendix
+% headline tables (DS-R1-Qwen 32B, Skywork-OR1 32B, GPT-OSS 20B etc.)
+\begin{wraptable}{r}{0.44\linewidth}
+  \vspace{-0.6em}
+  \caption{Source LLMs covered by the audit.}
+  \label{tab:source-llms}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.1}
+  \begin{tabular}{@{}l l l@{}}
+    \toprule
+    \textbf{Source LLM} & \textbf{Family} & \textbf{Paradigm} \\
+    \midrule
+    Llama-3.1 8B    & Dense      & Instruct          \\
+    Llama-3.3 70B   & Dense      & Instruct          \\
+    DS-R1-Qwen 32B  & Dense      & Reasoning-distill \\
+    Skywork-OR1 32B & Dense      & Native RL         \\
+    GPT-OSS 20B     & Sparse MoE & Adjust effort  \\
+    \bottomrule
+  \end{tabular}
+  \vspace{-0.6em}
+\end{wraptable}

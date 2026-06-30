@@ -1,0 +1,6 @@
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.78\linewidth]{figures/pdf/causality_kl_vs_length_70b.pdf}
+  \caption{Mean causality KL on Llama-3.3-70B as the substituted length $L$ varies, with $95\%$ cluster-bootstrap CI bands. The single-vector candidates (Exact Output Embedding, Random Vector) are repeated $L$ times. Soft Thinking (No Noise) uses its native $128$-step trajectory truncated to its first $L$ vectors at $L\le 128$, so different $L$ points cover different prefixes of the same trajectory rather than tiled copies of one vector. Last Input Token (all layers) has native length $81$ on Llama-3.3-70B and is shown at $L=81$ (no tiling) and at $L=128$ (the stack is wrapped to fill the substitution window).}
+  \label{fig:causality-kl-vs-length}
+\end{figure}

@@ -1,0 +1,31 @@
+% Per-LLM consistency table (wrapped). For each candidate
+% configuration, count the (axis, source LLM) cells out of 20
+% (4 axes x 5 LLMs) on which it beats the Input Embedding reference.
+\begin{wraptable}{r}{0.26\linewidth}
+  \vspace{-0.6em}
+  \caption{Cells beating IE.}
+  \label{tab:per-llm-consistency}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.05}
+  \definecolor{c4low}{HTML}{F4D8C8}
+  \definecolor{c4high}{HTML}{D6E8F4}
+  \begin{tabular}{@{}l c@{}}
+    \toprule
+    \textbf{Candidate} & \textbf{Cells/$20$} \\
+    \midrule
+    Exact                & \cellcolor{c4high}$16$ \\
+    Pooled               & \cellcolor{c4high}$16$ \\
+    LIT (all, final)     & \cellcolor{c4low}$6$ \\
+    \midrule
+    ST@$1$               & $13$ \\
+    ST@$16{-}128$        & \cellcolor{c4low}$3{-}5$ \\
+    STN@$1$              & $7$ \\
+    STN@$16{-}128$       & \cellcolor{c4low}$2{-}3$ \\
+    LT@$1$               & $7$ \\
+    LT@$16{-}128$        & \cellcolor{c4low}$2{-}3$ \\
+    \bottomrule
+  \end{tabular}
+  \vspace{-0.6em}
+\end{wraptable}
