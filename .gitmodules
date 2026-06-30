@@ -88,3 +88,9 @@
 [submodule "projects/PROJ-688-agents-last-exam/external/agents-last-exam"]
 	path = projects/PROJ-688-agents-last-exam/external/agents-last-exam
 	url = https://github.com/rdi-berkeley/agents-last-exam
+[submodule "projects/PROJ-700-spatialclaw-rethinking-action-interface/external/SpatialClaw"]
+	path = projects/PROJ-700-spatialclaw-rethinking-action-interface/external/SpatialClaw
+	url = https://github.com/NVlabs/SpatialClaw
+[submodule "projects/PROJ-632-https-arxiv-org-abs-2605-26230/external/GARD"]
+	path = projects/PROJ-632-https-arxiv-org-abs-2605-26230/external/GARD
+	url = https://github.com/cvlab-kaist/GARD

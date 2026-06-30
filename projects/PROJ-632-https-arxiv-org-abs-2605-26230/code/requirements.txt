@@ -1,0 +1,9 @@
+torch
+datasets
+torchvision
+matplotlib
+scikit-learn
+pandas
+tqdm
+pillow  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
