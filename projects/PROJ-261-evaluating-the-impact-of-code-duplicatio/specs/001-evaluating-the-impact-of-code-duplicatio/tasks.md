@@ -61,7 +61,7 @@
 - [X] T015b [US1] Integration test for pipeline on a Integration test for pipeline on a small sample (10 files) verifying clone‑density and perplexity CSV output (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_us1_small_sample.py`) using pytest
 - [X] T016a [US1] Edge‑case test for parse‑failure logging (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_parse_failures.py`) using pytest
 - [X] T016b [US1] Edge‑case test for zero‑clone‑density handling (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_zero_clone_density.py`) using pytest
-- [X] T016c [US1] Edge‑case test for model‑loading failure in 8‑bit quantization (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_loading_failure.py`) using pytest
+- [X] T016c [US1] Edge‑case test for model‑loading failure in 8‑bit quantization (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_metrics.py`) using pytest
 
 ### Implementation Tasks (sequential – data flow requires order)
 
@@ -75,6 +75,7 @@
 - [X] T024 [US1] Add validation task to verify **SC‑001** (24‑hour completion) AND **500MB corpus requirement** on the full dataset (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`) using pytest
 - [X] T025 [US1] Add checksum computation for all output files AND intermediate files/logs, record in `artifact_hashes` state manifest
 - [X] T026 [US1] Add validation task to verify **SC‑003** ({{claim:c_df8f9f4b}} (2409.08555, https://arxiv.org/abs/2409.08555)) (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
+- [x] T053 [US1] Implement semantic distance calculation in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/model_metrics.py` (or `code/semantic_cloner.py`) per FR-003 using embedding-based similarity, and add a corresponding unit test in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_metrics.py`
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently
 

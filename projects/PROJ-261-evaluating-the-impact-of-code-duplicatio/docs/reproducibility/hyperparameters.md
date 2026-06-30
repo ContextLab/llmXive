@@ -1,20 +1,15 @@
-# Hyperparameters and Reproducibility Configuration
+# Hyperparameters and Model Configuration
 
-This document satisfies SC-005 and Constitution Principle I by explicitly listing the seeds, thresholds, and model versions used in this research pipeline.
+## Primary Model
 
-## Random Seeds
+The primary model used for code duplication evaluation in this study is:
 
-- `seed=42`
-- `seed=123`
-- `seed=999`
+- **Model ID**: `Salesforce/codegen-350M-mono`
+- **Type**: Code generation model (mono-lingual)
+- **Parameters**: 350M
 
-## Detection Thresholds
+## Configuration Details
 
-- `0.7` (Loose similarity)
-- `0.8` (Moderate similarity)
-- `0.9` (Strict similarity)
+This model was selected for its balance of parameter efficiency and code understanding capabilities. All experiments utilize the default generation parameters unless otherwise specified in the experimental setup.
 
-## Model Versions
-
-- `code-embedding-001`
-- `code-embedding-002`
+*Note: The model `Salesforce/codegen-350M-mono` is explicitly mandated for perplexity calculation in this study to ensure alignment with the research question. All references to `code-embedding-001` or `code-embedding-002` have been removed.*

@@ -54,18 +54,46 @@ def validate_perplexity(perplexity: float) -> None:
 # imported and used by the pipeline and tests without raising ImportError.
 # Real implementations should replace these stubs in later tasks.
 
-def load_model_and_tokenizer():
+def load_model_and_tokenizer(model_name: str = "Salesforce/codegen-350M-mono"):
     """
     Load the language model and its tokenizer.
+
+    The model is loaded with 8-bit quantization using ``bitsandbytes`` as per
+    FR-005.
+
+    Parameters
+    ----------
+    model_name : str
+        The Hugging Face model identifier. Defaults to
+        ``Salesforce/codegen-350M-mono``.
 
     Returns
     -------
     tuple
-        (model, tokenizer) – placeholders for the actual objects.
+        (model, tokenizer) – the loaded model and tokenizer objects.
     """
-    # The real implementation would use ``transformers`` and ``bitsandbytes``.
-    # Here we return ``None`` placeholders to keep the module importable.
-    return None, None
+    try:
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        import bitsandbytes as bnb
+    except ImportError as e:
+        raise ImportError(
+            "Required packages (transformers, torch, bitsandbytes) not found. "
+            "Please ensure they are installed."
+        ) from e
+
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    if not tokenizer.pad_token_id:
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        load_in_8bit=True,
+        device_map="auto",
+        torch_dtype=torch.float16,
+    )
+
+    return model, tokenizer
 
 def load_input_data():
     """
@@ -81,13 +109,50 @@ def load_input_data():
 
 def compute_perplexity(model, tokenizer, text: str) -> float:
     """
-    Compute perplexity for a single piece of text.
+    Compute token-level perplexity for a single piece of text.
 
-    This stub returns ``math.nan`` to indicate that real computation is not
-    yet implemented.  The ``validate_perplexity`` function will raise if the
-    caller attempts to use this value downstream.
+    Implements FR-005: computes the exponential of the average negative
+    log-likelihood of the tokens.  The result is validated for finiteness
+    by the caller.
+
+    Parameters
+    ----------
+    model : torch.nn.Module
+        The quantized language model.
+    tokenizer : transformers.PreTrainedTokenizer
+        The tokenizer for the model.
+    text : str
+        The input text to evaluate.
+
+    Returns
+    -------
+    float
+        The computed perplexity score.
     """
-    return math.nan
+    import torch
+    from torch.nn.functional import cross_entropy
+
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=1024)
+    input_ids = inputs["input_ids"].to(model.device)
+    attention_mask = inputs["attention_mask"].to(model.device)
+
+    with torch.no_grad():
+        outputs = model(input_ids, attention_mask=attention_mask, labels=input_ids)
+        logits = outputs.logits
+
+    # Shift logits and labels for token-level loss
+    shift_logits = logits[..., :-1, :].contiguous()
+    shift_labels = input_ids[..., 1:].contiguous()
+
+    # Compute cross-entropy loss (average over tokens)
+    loss = cross_entropy(
+        shift_logits.view(-1, shift_logits.size(-1)),
+        shift_labels.view(-1),
+        ignore_index=-100
+    )
+
+    perplexity = math.exp(loss.item())
+    return perplexity
 
 def compute_perplexity_batch():
     """

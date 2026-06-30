@@ -291,3 +291,9 @@ ready:
 - project_id: PROJ-766-mcompassrag-topic-metadata-as-a-semantic
   revision_spec_path: specs/auto-revisions/PROJ-766-mcompassrag-topic-metadata-as-a-semantic/round-1
   queued_at: '2026-06-30T15:15:10.955233+00:00'
+- project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+  revision_spec_path: specs/auto-revisions/PROJ-261-evaluating-the-impact-of-code-duplicatio/round-2
+  queued_at: '2026-06-30T16:37:09.171199+00:00'
+- project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
+  revision_spec_path: specs/auto-revisions/PROJ-261-evaluating-the-impact-of-code-duplicatio/round-3
+  queued_at: '2026-06-30T16:49:25.814204+00:00'

@@ -53,16 +53,33 @@ def download_and_save_sample(*args, **kwargs) -> None:
     try:
         # Load a subset of the dataset (using streaming to handle large datasets)
         # Filter for Python files to ensure valid content and reasonable size
-        dataset = load_dataset(
-            "codeparrot/github-code",
-            split="train",
-            streaming=True,
-            trust_remote_code=True,
-            filter=lambda x: x["language"] == "Python"
-        )
+        # Ensure Hugging Face authentication is available if the dataset requires it
+        import time
+
+        max_retries = 5
+        retry_delay = 5
+
+        for attempt in range(max_retries):
+            try:
+                dataset = load_dataset(
+                    "codeparrot/github-code",
+                    split="train",
+                    streaming=True,
+                    trust_remote_code=True,
+                    filter=lambda x: x["language"] == "Python"
+                )
+                break
+            except Exception as load_err:
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to load dataset after {max_retries} attempts (check Hugging Face authentication/network): {load_err}")
+                    raise
+                logger.warning(f"Attempt {attempt + 1}/{max_retries} failed to load dataset: {load_err}. Retrying in {retry_delay}s...")
+                time.sleep(retry_delay)
+                retry_delay *= 2
         
         # Shuffle the dataset to get a representative sample
-        dataset = dataset.shuffle(seed=42)
+        # Note: shuffle() on streaming datasets requires a buffer_size to be effective
+        dataset = dataset.shuffle(seed=42, buffer_size=10000)
         
         with open(output_file, "w", encoding="utf-8") as f:
             # Write CSV header
@@ -80,8 +97,9 @@ def download_and_save_sample(*args, **kwargs) -> None:
                 file_path = record.get("path", "unknown")
                 content = record.get("content", "")
                 
-                # Skip if content is empty
-                if not content:
+                # Skip if content is empty or too small (e.g. < 32 bytes to avoid 29-byte failures)
+                if not content or len(content) < 32:
+                    logger.debug(f"Skipping invalid record: {file_path} (size: {len(content)})")
                     continue
                 
                 # Escape CSV fields properly

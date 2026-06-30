@@ -1,12 +1,12 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
-  "ok": true,
-  "reason": "ok",
+  "ok": false,
+  "reason": "263 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py: self-declared fabricated metric \u2014 \u201c\u2026_queue = deque(maxlen=100)  # arbitrary value         self.read_event = asy\u2026\u201d; 1 declared deliverable(s) absent: data/raw/github-code-sample.csv",
   "artifacts": [
     "data/processed/clone_metrics.csv"
   ],
   "failures": [],
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "model_tier": 1,
-  "updated_at": "2026-06-30T05:41:42Z"
+  "updated_at": "2026-06-30T16:45:41Z"
 }

@@ -209,3 +209,142 @@ rounds:
     text: 'Address action item **[d3cd5350f9b6]** (severity: writing): Validate data/analysis/pii_findings.csv:
       Investigate why this file is 33MB; if it contains raw data instead of a PII
       log, refactor code/pii_'
+- round_number: 2
+  ran_at: '2026-06-30T16:41:52.957412Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-30)
+  tasks_done: 13
+  tasks_failed: 1
+  tasks_skipped: 9
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-261-evaluating-the-impact-of-code-duplicatio/round-2/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ec5a67035e75]** (severity: writing): Fix data ingestion
+      pipeline: Verify and correct projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/data_loader.py
+      to successfu'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[faeb99c2ca00]** (severity: writing): Correct model
+      configuration: Update projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/config.py
+      and docs/reproducibility/hype'
+  - id: '003'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[e3c19128a77f]** (severity: writing): Implement semantic
+      distance analysis: Add semantic clone detection functionality to projects/PROJ-261-evaluating-the-impact-of-code-duplicat'
+  - id: '004'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[3e27d4cc8957]** (severity: writing): Validate output
+      integrity: Ensure all intermediate and final CSV files contain actual data (not
+      empty or placeholder content) before conside'
+  - id: '005'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[603a090edde3]** (severity: writing): File: projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/raw/github-code-sample.csv'
+  - id: '006'
+    severity: writing
+    status: done
+    text: 'Address action item **[de791d285f0d]** (severity: writing): File: docs/reproducibility/hyperparameters.md'
+  - id: '007'
+    severity: writing
+    status: done
+    text: 'Address action item **[0855bc0a4aee]** (severity: writing): File: projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/artifact_checksums.json'
+  - id: 008
+    severity: writing
+    status: done
+    text: 'Address action item **[71de218fe66b]** (severity: writing): File: projects/PROJ-261-evaluating-the-impact-of-code-duplication/docs/reproducibility/hyperparameters.md'
+  - id: 009
+    severity: writing
+    status: done
+    text: 'Address action item **[d0e3ba5f2f38]** (severity: writing): Complete Data
+      Ingestion: Execute code/data_loader.py to stream the 500MB codeparrot/github-code
+      subset and verify data/raw/github-code-sampl'
+  - id: '010'
+    severity: writing
+    status: done
+    text: 'Address action item **[3295f3b27574]** (severity: writing): Correct Model
+      Documentation: Update docs/reproducibility/hyperparameters.md to list Salesforce/codegen-350M-mono
+      as the primary model, remov'
+  - id: '011'
+    severity: writing
+    status: done
+    text: 'Address action item **[fe853a14b885]** (severity: writing): Implement Semantic
+      Distance: Add a new module code/semantic_cloner.py (or extend code/model_metrics.py)
+      to implement the embedding-based sem'
+  - id: '012'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[84943ff7eaf5]** (severity: writing): Split Large
+      Modules: Refactor code/visualization.py into code/visualization/plotting.py
+      and code/visualization/figures.py; split code/bug_de'
+  - id: '013'
+    severity: writing
+    status: done
+    text: 'Address action item **[f51f0b79445f]** (severity: writing): code/data_loader.py:
+      Debug and fix the HuggingFace streaming implementation to ensure data/raw/github-code-sample.csv
+      contains actual code s'
+  - id: '014'
+    severity: writing
+    status: done
+    text: 'Address action item **[4f516c5fb831]** (severity: writing): docs/reproducibility/hyperparameters.md:
+      Update the "Model Versions" section to explicitly list Salesforce/codegen-350M-mono
+      and remove the '
+  - id: '015'
+    severity: writing
+    status: done
+    text: 'Address action item **[132ff6fb5bf2]** (severity: writing): code/model_metrics.py:
+      Verify the code loads Salesforce/codegen-350M-mono with bitsandbytes 8-bit quantization
+      and compute token-level perpl'
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[bc6277b6645c]** (severity: writing): code/: Implement
+      the missing semantic distance analysis component (e.g., code/semantic_cloner.py
+      or integration in ast_cloner.py) to satisfy'
+  - id: '017'
+    severity: science
+    status: done
+    text: 'Address action item **[374c029739b5]** (severity: science): Redefine the
+      Research Question: Rewrite specs/001-evaluate-code-duplication-llm-understanding/spec.md
+      to propose a novel hypothesis that mov'
+  - id: 018
+    severity: science
+    status: skipped
+    text: 'Address action item **[a31ec06f0705]** (severity: science): Introduce a
+      Novel Metric or Method: Replace the standard AST subtree matching and embedding
+      similarity with a creative, non-trivial approach'
+  - id: 019
+    severity: science
+    status: skipped
+    text: 'Address action item **[e08d83f2dedd]** (severity: science): Reframe the
+      "Understanding" Metric: The current use of perplexity is insufficient for a
+      creative study. Propose a more nuanced evaluation of'
+  - id: '020'
+    severity: science
+    status: done
+    text: 'Address action item **[fd3f60d4125a]** (severity: science): Redefine the
+      Unit of Analysis: In specs/001-evaluating-the-impact-of-code-duplication-llm-understanding/spec.md,
+      explicitly define whether t'
+  - id: '021'
+    severity: science
+    status: done
+    text: 'Address action item **[bbff16a807ca]** (severity: science): Clarify the
+      Causal Claim: In specs/001-evaluating-the-impact-of-code-duplication-llm-understanding/spec.md,
+      rephrase the research question f'
+  - id: '022'
+    severity: science
+    status: done
+    text: 'Address action item **[208391e88448]** (severity: science): Correct Model
+      Specification: In specs/001-evaluating-the-impact-of-code-duplication-llm-understanding/spec.md
+      and docs/reproducibility/hyper'
+  - id: '023'
+    severity: science
+    status: needs-external-data
+    text: 'Address action item **[7ba2eb1ff87e]** (severity: science): Fix Data Pipeline
+      Logic: In code/data_loader.py (T018), implement a robust check to ensure the
+      streamed dataset yields valid code segments ('

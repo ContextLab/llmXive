@@ -5,15 +5,21 @@
 **Status**: Draft  
 **Input**: User description: "Evaluating the Impact of Code Duplication on LLM Code Understanding"
 
+## Research Question
+
+**Research Question**: What is the association between code duplication density and LLM code understanding performance (measured by perplexity and bug-detection accuracy), after controlling for confounding variables such as code length and syntactic complexity?
+
+**Note on Causal Claims**: This study investigates statistical associations rather than causal impact. To isolate the effect of duplication, the analysis will employ multivariate regression controlling for code length (token count) and syntactic complexity (AST depth/nodes). Correlation alone does not prove causation.
+
 ## User Scenarios & Testing *(mandatory)*
 
 **NOTE**: Independent Tests are MANDATORY for each user story. Tests MUST be written before implementation and verified to fail before code is written (red-green-refactor cycle). This is a constitutional requirement for reproducibility (Principle I).
 
-### User Story 1 - Compute Clone Density and Model Perplexity (Priority: P1)
+### User Story 1 - Compute Clone Density, Semantic Distance, and Model Perplexity (Priority: P1)
 
-As a researcher, I want to download a Python code corpus, compute syntactic clone density for each file using AST subtree matching, and measure token-level perplexity using a pre-trained language model, so that I can establish the core correlation data between code duplication and model understanding.
+As a researcher, I want to download a Python code corpus, compute both syntactic clone density and semantic distance for each file using AST subtree matching and embedding similarity, and measure token-level perplexity using a pre-trained language model, so that I can establish the differential impact of syntactic vs. semantic variation on model understanding.
 
-**Why this priority**: This is the foundational measurement capability without which no correlation analysis is possible. It represents the minimum viable research experiment that directly addresses the research question.
+**Why this priority**: This is the foundational measurement capability required to test the new hypothesis. It moves beyond simple correlation to distinguish between failure modes caused by syntactic novelty (anti-clones) versus semantic divergence, representing the minimum viable research experiment for the revised research question.
 
 **Independent Test**: Can be fully tested by running the pipeline on a small sample (e.g., 10 files) and verifying that clone density scores and perplexity values are computed and stored correctly in CSV format. **Test tasks are MANDATORY and must be included in tasks.md**.
 
@@ -79,7 +85,7 @@ As a researcher, I want to perform sensitivity analysis across multiple clone-de
 - **FR-004**: System MUST load the Salesforce/codegen-350M-mono model in 8-bit quantization using bitsandbytes
 - **FR-005**: System MUST compute token-level perplexity using the model's log-probability outputs for each code segment
 - **FR-006**: System MUST evaluate bug detection accuracy on a held-out 50-problem subset from human-eval using pass@1 accuracy
-- **FR-007**: System MUST calculate Spearman's rank correlation between duplication density and both perplexity and bug detection accuracy. For HumanEval problems, clone density is defined as the ratio of duplicated code segments (identified via AST subtree matching with a default threshold) to the total number of segments in the problem file, where a segment is a function body.
+- **FR-007**: System MUST calculate Spearman's rank correlation between duplication density and both perplexity and bug detection accuracy at the **segment level**. For this analysis, a 'segment' is defined strictly as a function body. Clone density is calculated per segment as the ratio of duplicated AST subtrees within that segment to the total AST subtrees in that segment. The correlation aggregates these per-segment metrics; file-level aggregation is explicitly excluded.
 - **FR-008**: System MUST store all intermediate metrics in CSV format for auditability and reproducibility
 - **FR-009**: System MUST scan all files under `data/` for PII patterns and log findings per Constitution Principle III (Data Hygiene)
 - **FR-010**: System MUST compute checksums for all output files and record them in `artifact_hashes` state manifest
