@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-16T08:36:33.385690Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion
   Transformer'
-updated_at: '2026-06-27T23:38:15.477446Z'
+updated_at: '2026-06-30T01:42:35.752430Z'

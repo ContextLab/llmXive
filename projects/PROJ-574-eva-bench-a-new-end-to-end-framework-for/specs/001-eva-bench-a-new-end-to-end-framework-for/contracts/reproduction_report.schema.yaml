@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reproduction Report Schema"
+description: "Defines the structure of the generated reproduction_report.md (parsed as JSON for validation)."
+type: object
+properties:
+  status:
+    type: string
+    enum:
+      - "Pass"
+      - "Fail"
+    description: "Overall execution status."
+  execution_time_seconds:
+    type: integer
+    minimum: 1
+    maximum: 21600
+    description: "Total runtime in seconds. Target < 300s."
+  checks:
+    type: object
+    description: "Individual success criteria results."
+    properties:
+      sc_001_runtime:
+        type: boolean
+        description: "Pass if execution_time_seconds < 300."
+      sc_002_pdf_size:
+        type: boolean
+        description: "Pass if PDF size > 50KB."
+      sc_003_fatal_errors:
+        type: boolean
+        description: "Pass if fatal_errors == 0."
+      sc_004_report_exists:
+        type: boolean
+        const: true
+        description: "Always true if this report exists."
+      sc_005_gpu_free:
+        type: boolean
+        description: "Pass if gpu_errors == 0."
+    required:
+      - sc_001_runtime
+      - sc_002_pdf_size
+      - sc_003_fatal_errors
+      - sc_004_report_exists
+      - sc_005_gpu_free
+  warnings:
+    type: array
+    items:
+      type: string
+    description: "List of non-fatal warnings encountered."
+  discrepancies:
+    type: array
+    items:
+      type: string
+    description: "List of deviations from the paper's claims."
+required:
+  - status
+  - execution_time_seconds
+  - checks
+  - warnings
+  - discrepancies
+additionalProperties: false

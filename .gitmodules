@@ -1,3 +1,6 @@
-[submodule "projects/PROJ-565-edit-compass-editreward-compass-a-unifie/external/Edit-Compass-and-EditReward-Compass"]
-	path = projects/PROJ-565-edit-compass-editreward-compass-a-unifie/external/Edit-Compass-and-EditReward-Compass
-	url = https://github.com/bxhsort/Edit-Compass-and-EditReward-Compass
+[submodule "projects/PROJ-575-training-long-context-vision-language-mo/external/MMLongBench"]
+	path = projects/PROJ-575-training-long-context-vision-language-mo/external/MMLongBench
+	url = https://github.com/EdinburghNLP/MMLongBench
+[submodule "projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/external/dlbook_notation"]
+	path = projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/external/dlbook_notation
+	url = https://github.com/goodfeli/dlbook_notation

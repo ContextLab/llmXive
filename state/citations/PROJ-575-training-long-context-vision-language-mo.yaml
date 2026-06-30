@@ -1,0 +1,11 @@
+- artifact_hash: 1e700e29a9c63480a1baa93260651abce44a26d4c0c3a501945183ab135a19e0
+  artifact_path: projects/PROJ-575-training-long-context-vision-language-mo/specs/001-training-long-context-vision-language-mo/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: verified
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-06-30T01:59:13.528612Z'

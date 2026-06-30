@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkResult"
+description: "Schema for the score of a model on a specific task at a specific context length."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Identifier for the task category."
+  context_length:
+    type: "integer"
+    description: "Context window size in tokens."
+    minimum: 1
+  score:
+    type: "number"
+    description: "Score for the target model."
+  baseline_score:
+    type: "number"
+    description: "Score for the baseline model."
+  improvement_pct:
+    type: "number"
+    description: "Calculated percentage improvement."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "oom"
+    description: "Status of the evaluation for this sample."
+  metric_scale:
+    type: "string"
+    enum:
+      - "accuracy"
+      - "normalized"
+    description: "The scale of the score metric to avoid tautological interpretations."
+required:
+  - task_id
+  - context_length
+  - score
+  - baseline_score
+  - improvement_pct
+  - status
+  - metric_scale
+additionalProperties: false
