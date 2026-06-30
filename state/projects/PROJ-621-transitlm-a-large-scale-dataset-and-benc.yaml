@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-23T08:43:44.888553Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-621-transitlm-a-large-scale-dataset-and-benc
-last_run_id: f866c888-3e51-4d53-9853-221a8abdd24e
+last_run_id: 8f64c45b-fb65-40b2-882a-e234c21f5775
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/specs/001-transitlm-a-large-scale-dataset-and-benc
 title: 'TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route
   Generation'
-updated_at: '2026-06-29T23:26:54.480537Z'
+updated_at: '2026-06-30T00:54:33.229928Z'

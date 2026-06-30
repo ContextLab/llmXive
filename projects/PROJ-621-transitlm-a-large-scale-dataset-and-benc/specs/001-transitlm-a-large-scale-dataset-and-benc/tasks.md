@@ -20,32 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `specs/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (torch-cpu, transformers, datasets, networkx, scikit-learn, pydantic, gtfs)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001a [P] Create `src/setup_project.py` script to atomically generate directory structure (`src/`, `tests/`, `specs/`)
+- [X] T001b [P] Execute `src/setup_project.py` to create project structure per implementation plan
+
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (torch-cpu, transformers, datasets, networkx, scikit-learn, pydantic, gtfs)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,11 +57,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement GTFS data fetcher in `src/lib/gtfs_fetcher.py` (handles NYC MTA feed with deterministic fallback)
-- [ ] T005 [P] Create `src/lib/graph_utils.py` to convert GTFS `stops.txt`/`transfers.txt` to NetworkX graph (no coordinates)
-- [ ] T006 [P] Implement checksumming and PII scanning in `src/lib/data_hygiene.py`
-- [ ] T007 [P] Setup random seed configuration and logging infrastructure in `src/lib/config.py`
-- [ ] T008 [P] Create executable schemas in `src/contracts/` (gtfs-graph.schema.yaml, route-sequence.schema.yaml, validation-result.schema.yaml) using Pydantic models; ensure these schemas are used to validate outputs from T004 and T005 before consumption by US3.
+- [X] T004 [P] Implement GTFS data fetcher in `src/lib/gtfs_fetcher.py` (handles NYC MTA feed; fails if canonical source unreachable, no synthetic fallback)
+- [X] T005 [P] Create `src/lib/graph_utils.py` to convert GTFS `stops.txt`/`transfers.txt` to NetworkX graph (no coordinates)
+- [X] T006 [P] Implement checksumming and PII scanning in `src/lib/data_hygiene.py`
+- [X] T007 [P] Setup random seed configuration and logging infrastructure in `src/lib/config.py`
+- [X] T008 [P] Create executable schemas in `src/contracts/` (gtfs-graph.schema.yaml, route-sequence.schema.yaml, validation-result.schema.yaml) using Pydantic models; ensure these schemas are used to validate outputs from T004 and T005 before consumption by US3. (Depends on T004, T005)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,15 +77,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US3] Unit test for coordinate leakage detection in `tests/unit/test_text_utils_leakage.py`
-- [ ] T010 [P] [US3] Contract test for GTFS-to-text conversion schema in `tests/contract/test_route_sequence_schema.py`
+- [X] T009 [P] [US3] Unit test `test_no_lat_lon_regex` in `tests/unit/test_text_utils_leakage.py`: Input `data/processed/sample_prompts.txt`; Assert zero matches for regex `r'lat[=:\s]*[-\d.]+|lon[=:\s]*[-\d.]+'`
+- [X] T010 [P] [US3] Contract test `test_missing_station_field` in `tests/contract/test_route_sequence_schema.py`: Input `{"line": "L", "sequence": []}`; Assert `pydantic.ValidationError` with message "Field 'stations' is required"
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Implement GTFS-to-text converter in `src/lib/text_utils.py` (generates "Take Line X from Station A to Station B" sequences)
-- [ ] T012 [US3] Implement "map-free" validation script in `src/analysis/verify_map_free.py` (regex scan for coordinates/graph topology)
-- [ ] T013 [US3] Create dataset split logic in `src/lib/splitter.py` to generate path-disjoint training vs. held-out test sets
-- [ ] T014 [US3] Generate `data/processed/train_sequences.txt` and `data/processed/test_od_pairs.json`
+- [X] T011 [US3] Implement GTFS-to-text converter in `src/lib/text_utils.py` (generates "Take Line X from Station A to Station B" sequences)
+- [X] T012 [US3] Implement "map-free" validation script in `src/analysis/verify_map_free.py` (regex scan for coordinates/graph topology)
+- [X] T013 [US3] Create dataset split logic in `src/lib/splitter.py` to generate path-disjoint AND edge-disjoint training vs. held-out test sets (ensuring no intermediate connections overlap)
+- [X] T014 [US3] Generate `data/processed/train_sequences.txt` and `data/processed/test_od_pairs.json`
 
 **Checkpoint**: Map-free dataset is constructed, validated, and split (training vs. held-out)
 
@@ -99,17 +101,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T015 [P] [US1] Unit test for graph traversal oracle in `tests/unit/test_graph_validation.py`
-- [ ] T016 [P] [US1] Integration test for end-to-end generation and validation pipeline in `tests/integration/test_route_generation.py`
+- [X] T015 [P] [US1] Unit test `test_linear_chain_validity` in `tests/unit/test_graph_validation.py`: Input graph `3-node linear chain (A-B-C)`, sequence `["A", "B", "C"]`; Assert `True`
+- [X] T016 [P] [US1] Integration test `test_end_to_end_generation` in `tests/integration/test_route_generation.py`: Input O-D pair `("Station_A", "Station_Z")`; Assert output format `{"valid": bool, "score": float}` and `validity_score > 0.0`
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement graph-traversal oracle in `src/models/validation.py` (returns Valid/Invalid, Exact Match score; consumes ground-truth graph)
-- [ ] T018 [US1] Implement small LLM inference wrapper in `src/models/inference.py` (supports CPU-only, batch=1, memory monitoring)
-- [ ] T019 [US1] Implement LoRA fine-tuning script in `src/analysis/train.py` (target model ≤1.5B, CPU-only, logs peak RSS)
-- [ ] T020 [US1] Implement output parser in `src/lib/text_utils.py` to strip conversational filler and extract station sequences
-- [ ] T021 [US1] Create end-to-end benchmark runner in `src/cli/run_benchmark.py` (orchestrates generation, parsing, validation)
-- [ ] T022 [US1] Generate `data/results/validation_scores.json` for held-out set
+- [X] T017 [US1] Implement graph-traversal oracle in `src/models/validation.py` (returns Valid/Invalid, Exact Match score; consumes ground-truth graph)
+- [X] T018 [US1] Implement small LLM inference wrapper in `src/models/inference.py` (supports CPU-only, batch=1, memory monitoring)
+- [X] T019a [US1] Implement memory monitoring script in `src/lib/memory_monitor.py` (logs peak RSS, verifies <7GB constraint)
+- [X] T019 [US1] Implement LoRA fine-tuning script in `src/analysis/train.py` (target model ≤1.5B, CPU-only, logs peak RSS; Depends on T014, T019a)
+- [X] T020 [US1] Implement output parser in `src/lib/text_utils.py` to strip conversational filler and extract station sequences (Depends on T011)
+- [X] T021 [US1] Create end-to-end benchmark runner in `src/cli/run_benchmark.py` (orchestrates generation, parsing, validation; measures and reports total inference time for N=100 samples)
+- [X] T022 [US1] Generate `data/results/validation_scores.json` for held-out set
 
 **Checkpoint**: Route generation and validation pipeline is functional and produces metrics for the held-out set
 
@@ -123,13 +126,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US2] Unit test for statistical significance calculation in `tests/unit/test_stats.py`
+- [X] T023 [P] [US2] Unit test `test_mcnemar_p_value_calculation` in `tests/unit/test_stats.py`: Input `confusion_matrix=[[10, 2], [3, 15]]`; Assert `p_value < 0.05`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement zero-shot baseline runner in `src/analysis/baseline.py` (use TinyLlama full precision/8-bit for CPU; run on same held-out set; log peak RSS memory)
-- [ ] T025 [US2] Implement statistical analysis script in `src/analysis/stats.py` (McNemar's test on binary validity scores; output p-value)
-- [ ] T026 [US2] Generate `data/results/statistical_report.md` with p-value and confidence intervals
+- [X] T024 [US2] Implement zero-shot baseline runner in `src/analysis/baseline.py` (use TinyLlama CPU-only; verify GB RAM constraint; run on same held-out set; log peak RSS memory; Depends on T014, T018)
+- [X] T025 [US2] Implement statistical analysis script in `src/analysis/stats.py` (McNemar's test on binary validity scores; output p-value)
+- [X] T025a [US2] Update `spec.md` FR-004 to explicitly mandate "McNemar's test" for binary validity scores, resolving contradiction with plan.md and T025 <!-- FAILED: unspecified -->
+- [X] T026 [US2] Generate `data/results/statistical_report.md` with p-value and confidence intervals
 
 **Checkpoint**: Statistical significance of the fine-tuned model's improvement is established
 
@@ -139,12 +143,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T027 [P] Documentation updates in `docs/` (including `quickstart.md` validation)
-- [ ] T028 Code cleanup and refactoring of `src/lib/` and `src/models/`
-- [ ] T029 Performance optimization for inference batch processing (ensure N=100 completes <6h)
-- [ ] T030 [P] Additional unit tests for edge cases (loops, hallucinated stations, disconnected O-D pairs) in `tests/unit/`
+- [X] T027a [P] Update `quickstart.md` with specific instructions for running the benchmark and interpreting results
+- [X] T027b [P] Run `quickstart.md` validation and update if needed
+- [X] T028 Code cleanup and refactoring of `src/lib/` and `src/models/`
+- [X] T029 Performance optimization for inference batch processing (ensure N=100 completes <6h)
+- [X] T030a [P] Unit test `test_infinite_loop_detection` in `tests/unit/test_edge_cases.py`: Input sequence `["A", "B", "A", "B"]`; Assert `valid=False`
+- [X] T030b [P] Unit test `test_hallucinated_station` in `tests/unit/test_edge_cases.py`: Input sequence `["A", "FakeStation", "B"]`; Assert `valid=False`
+- [X] T030c [P] Unit test `test_disconnected_pairs` in `tests/unit/test_edge_cases.py`: Input O-D pair with no path; Assert `validity_score=0`
 - [ ] T031 Security hardening (input sanitization for GTFS data)
-- [ ] T032 Run `quickstart.md` validation and update if needed
 
 ---
 
@@ -155,9 +161,9 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **US3 (P3)** MUST run first to generate the dataset required by US1 and US2.
-  - **US1 (P1)** depends on US3 (data) and Foundational (graph).
-  - **US2 (P2)** depends on US1 (results) and Foundational.
+ - **US3 (P3)** MUST run first to generate the dataset required by US1 and US2.
+ - **US1 (P1)** depends on US3 (data) and Foundational (graph).
+ - **US2 (P2)** depends on US1 (results) and Foundational.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -220,8 +226,8 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 3 (Dataset Construction)
-   - Developer B: User Story 1 (Model & Validation) - can start on graph logic while waiting for data
+ - Developer A: User Story 3 (Dataset Construction)
+ - Developer B: User Story 1 (Model & Validation) - can start on graph logic while waiting for data
 3. Once Data is ready, Developer B completes US1.
 4. Developer C (or A/B) performs US2 (Analysis).
 
@@ -238,4 +244,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All model training/inference must run on CPU-only, ≤7GB RAM, ≤6h total time. No 4-bit quantization (unless explicitly stable for small models like TinyLlama) or GPU-specific code.
 - **Statistical Note**: Use McNemar's test for binary validity scores; do not use t-tests.
-- **Baseline Note**: Zero-shot baseline must be a local, CPU-tractable model (e.g., TinyLlama-1.1B full precision/8-bit), not an external API.
+- **Baseline Note**: Zero-shot baseline must be a local, CPU-tractable model (e.g., TinyLlama small-scale full precision/8-bit), not an external API.

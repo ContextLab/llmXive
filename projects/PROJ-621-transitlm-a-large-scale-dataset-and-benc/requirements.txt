@@ -1,0 +1,9 @@
+torch-cpu
+transformers
+datasets
+networkx
+scikit-learn
+pydantic
+gtfs
+pytest
+pytest-cov

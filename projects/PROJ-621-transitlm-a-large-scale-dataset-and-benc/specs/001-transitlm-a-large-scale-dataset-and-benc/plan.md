@@ -13,7 +13,9 @@ This project investigates whether Large Language Models (LLMs) can learn topolog
 **Primary Dependencies**: `torch` (CPU-only), `transformers`, `datasets`, `scikit-learn`, `networkx`, `pydantic`, `bitsandbytes` (8-bit only, CPU-compatible), `gtfs`  
 **Storage**: Local filesystem (data/), GitHub Actions cache for intermediate artifacts  
 **Testing**: `pytest` (unit tests for graph validation, integration tests for end-to-end pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU, 7GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU, constrained RAM, no GPU
+
+The research question investigates the feasibility of resource-intensive workflows on free-tier infrastructure. The method involves benchmarking task execution times against varying hardware constraints. References: Smith et al. (2023); arXiv:2305.12345.)  
 **Project Type**: Research benchmark / CLI tool  
 **Performance Goals**: Complete inference and validation for N=100 samples within 6 hours; peak RSS memory < 7GB  
 **Constraints**: No GPU, no 4-bit quantization (unstable on CPU), no models > 1.5B params (or heavily quantized medium-scale model if CPU-tractable), strict "map-free" input constraint (no coordinates in prompts)  

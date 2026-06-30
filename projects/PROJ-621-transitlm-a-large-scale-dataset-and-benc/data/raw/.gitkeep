@@ -1,0 +1,3 @@
+"""
+Raw data storage.
+"""
