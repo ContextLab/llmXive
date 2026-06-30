@@ -1,0 +1,14 @@
+{
+  "session_id": "P001_TEST_enhanced_1735000000",
+  "participant_id": "P001_TEST",
+  "condition": "enhanced",
+  "timestamp": "2025-01-01T00:00:00.000000",
+  "responses": [
+    {
+      "id": "P001_TEST_dummy_001",
+      "question_id": "dummy_q",
+      "value": "skipped_missing_stimulus",
+      "timestamp": "2025-01-01T00:00:00.000000"
+    }
+  ]
+}
