@@ -236,13 +236,21 @@ def _active_tasks_md(project_dir: Path, *, track: str) -> Path | None:
     return tasks if tasks.is_file() else None
 
 
+# A task the implementer CLAIMED done that the independent task-verifier has NOT
+# yet accepted — "under review". It is NOT complete: a project must not advance
+# with unverified tasks, and the count drives the implement loop. Distinct from
+# `[ ]` (not started) so the dashboard + next implementer see the under-review
+# state, and distinct from `[X]` (verifier-accepted, truly done).
+UNDER_REVIEW_MARK = "- [~]"
+
+
 def _all_tasks_done(project_dir: Path) -> bool:
     tasks = _active_tasks_md(project_dir, track="research")
     if tasks is None:
         return False
     text = tasks.read_text(encoding="utf-8")
-    has_any = "[ ]" in text or "[X]" in text or "[x]" in text
-    return has_any and "[ ]" not in text
+    has_any = "[ ]" in text or "[X]" in text or "[x]" in text or "[~]" in text
+    return has_any and "[ ]" not in text and "[~]" not in text
 
 
 def _all_paper_tasks_done(project_dir: Path) -> bool:
@@ -250,23 +258,26 @@ def _all_paper_tasks_done(project_dir: Path) -> bool:
     if tasks is None:
         return False
     text = tasks.read_text(encoding="utf-8")
-    has_any = "[ ]" in text or "[X]" in text or "[x]" in text
-    return has_any and "[ ]" not in text
+    has_any = "[ ]" in text or "[X]" in text or "[x]" in text or "[~]" in text
+    return has_any and "[ ]" not in text and "[~]" not in text
 
 
 def _incomplete_task_count(project_dir: Path, *, paper: bool) -> int:
-    """Count remaining unchecked (`- [ ]`) tasks in the project's tasks.md.
+    """Count remaining unchecked (`- [ ]`) PLUS under-review (`- [~]`) tasks.
 
     Drives the implement-batch loop's progress guard: each speckit-implementer
     run checks off (or skips) exactly one task, so this count must strictly
     DECREASE every iteration. If it ever fails to (a task left `[ ]`), the batch
-    stops rather than spinning. Returns a large sentinel when no tasks.md exists
-    yet (treated as "not drainable this tick"). Resolves the ACTIVE feature dir
-    (SSoT) so the loop drains the REAL tasks.md, not a stale ghost spec dir."""
+    stops rather than spinning. An `- [~]` (verifier-rejected / awaiting review)
+    task is also incomplete — the project may not advance until the independent
+    task-verifier accepts it. Returns a large sentinel when no tasks.md exists yet
+    (treated as "not drainable this tick"). Resolves the ACTIVE feature dir (SSoT)
+    so the loop drains the REAL tasks.md, not a stale ghost spec dir."""
     tasks = _active_tasks_md(project_dir, track="paper" if paper else "research")
     if tasks is None:
         return -1
-    return tasks.read_text(encoding="utf-8").count("- [ ]")
+    text = tasks.read_text(encoding="utf-8")
+    return text.count("- [ ]") + text.count(UNDER_REVIEW_MARK)
 
 
 def _human_escalation_reason_from_markers(project_dir: Path) -> str | None:
