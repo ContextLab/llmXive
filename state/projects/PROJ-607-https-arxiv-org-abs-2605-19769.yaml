@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-21T09:09:57.200449Z'
-current_stage: paper_review
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-607-https-arxiv-org-abs-2605-19769
-last_run_id: a1779c94-d6a0-4c89-a0bc-2f0c39b9cf31
+last_run_id: 2ef4bdc5-0044-4509-a44f-cf8092facba5
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769
 title: 'OpenComputer: Verifiable Software Worlds for Computer-Use Agents'
-updated_at: '2026-06-27T10:18:44.627145Z'
+updated_at: '2026-06-30T07:28:26.630105Z'

@@ -1,0 +1,16 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: OpenComputer Smoke Report
+type: object
+properties:
+  status:
+    type: string
+    enum: ["success", "partial_success", "build_failed", "disk_quota_exceeded"]
+  task_id:
+    type: string
+  error_log:
+    type: string
+    nullable: true
+    description: "Full error output if status is not success"
+required:
+  - status
+  - task_id

@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Step Log Schema"
+description: "Schema for the JSONL log file recording AntiSD metrics per step, including baseline comparison and accuracy delta."
+type: "object"
+properties:
+  step:
+    type: "integer"
+    description: "Current training step (1-based)."
+  total_steps:
+    type: "integer"
+    description: "Configured max steps."
+  teacher_entropy:
+    type: "number"
+    description: "Entropy of the teacher model's output distribution."
+  gate_status:
+    type: "string"
+    description: "Enabled or Disabled based on entropy threshold."
+    enum:
+      - "Enabled"
+      - "Disabled"
+  baseline_loss:
+    type: "number"
+    description: "Standard RL loss without AntiSD."
+  antisd_loss:
+    type: "number"
+    description: "The calculated AntiSD divergence loss."
+  total_loss:
+    type: "number"
+    description: "Combined loss (Base + AntiSD)."
+  loss_diff:
+    type: "number"
+    description: "Difference between total_loss and baseline_loss."
+  accuracy_baseline:
+    type: "number"
+    description: "Accuracy of the baseline run on the 50 samples."
+  accuracy_antisd:
+    type: "number"
+    description: "Accuracy of the AntiSD run on the 50 samples."
+  accuracy_delta:
+    type: "number"
+    description: "Difference between accuracy_antisd and accuracy_baseline."
+  status:
+    type: "string"
+    description: "Status of the step execution."
+    enum:
+      - "OK"
+      - "NaN_Clamped"
+      - "OOM"
+      - "Missing_Trace"
+required:
+  - step
+  - total_steps
+  - teacher_entropy
+  - gate_status
+  - baseline_loss
+  - antisd_loss
+  - total_loss
+  - loss_diff
+  - accuracy_baseline
+  - accuracy_antisd
+  - accuracy_delta
+  - status
+additionalProperties: false

@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: OpenComputer Task
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task (e.g., 'audacity_export_wav_440')"
+  env_manifest:
+    type: object
+    description: "Docker image and environment requirements"
+    properties:
+      image_name:
+        type: string
+        description: "Docker image to use (e.g., 'opencomputer:audacity')"
+      apps:
+        type: array
+        items:
+          type: string
+        description: "List of applications required (e.g., ['audacity'])"
+  task_spec:
+    type: object
+    description: "Human-readable or structured instructions for the agent"
+    properties:
+      prompt:
+        type: string
+        description: "The instruction given to the agent"
+      expected_artifact:
+        type: string
+        description: "Path or pattern for the expected output file"
+      verification_logic:
+        type: string
+        description: "Description of how the verifier checks success"
+required:
+  - task_id
+  - env_manifest
+  - task_spec

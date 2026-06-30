@@ -22,3 +22,12 @@
 [submodule "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/external/AnyFlow"]
 	path = projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/external/AnyFlow
 	url = https://github.com/NVLabs/AnyFlow
+[submodule "projects/PROJ-611-https-arxiv-org-abs-2605-11609/external/AntiSD"]
+	path = projects/PROJ-611-https-arxiv-org-abs-2605-11609/external/AntiSD
+	url = https://github.com/FloyedShen/AntiSD
+[submodule "projects/PROJ-609-https-arxiv-org-abs-2605-14236/external/IReranker"]
+	path = projects/PROJ-609-https-arxiv-org-abs-2605-14236/external/IReranker
+	url = https://github.com/jerecoder/IReranker
+[submodule "projects/PROJ-607-https-arxiv-org-abs-2605-19769/external/OpenComputer"]
+	path = projects/PROJ-607-https-arxiv-org-abs-2605-19769/external/OpenComputer
+	url = https://github.com/echo0715/OpenComputer
