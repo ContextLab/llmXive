@@ -116,6 +116,36 @@ def to_backfilled_project(project: Project, *, repo_root: Path) -> Project:
         entry_scripts=entry_scripts,
     )
 
+    # --- step 4b: PROACTIVE CPU-adaptation of the GPU-heavy shipped code -----
+    # The vendored repo is almost always GPU-heavy / large-scale and cannot run
+    # on the free CI, so the run-book above (which invokes the real entry points)
+    # would stall the execution gate. Ask the code_adapter agent to emit a
+    # SIMPLIFIED, CPU-runnable adaptation under code/ + a quickstart.md that runs
+    # it. On success it OVERRIDES the run-book to point at the adapted code/
+    # (a non-empty list with quickstart.md + >=1 code/*.py); on any failure it
+    # returns [] and the external-pointing quickstart above stands. Either way the
+    # execution fix-loop converges any residual issues — this is best-effort.
+    from llmxive.paper_reprocess.code_adapter import adapt_code
+
+    adapted = adapt_code(
+        pdir,
+        repo_root=repo_root,
+        paper_summary=paper_summary,
+        submodule_abs=abs_submodule,
+        file_tree=file_tree,
+        entry_scripts=entry_scripts,
+    )
+    # adapt_code writes quickstart.md under pdir, but the execution gate reads the
+    # run-book from the speckit FEATURE dir (analysis_runner._find_quickstart is
+    # pointer-first). On a successful adaptation, mirror the adapted run-book into
+    # the feature dir so the gate runs the CPU-runnable code/ instead of the
+    # external-pointing quickstart repaired above.
+    if adapted and "quickstart.md" in adapted:
+        feature_dir_abs.mkdir(parents=True, exist_ok=True)
+        (feature_dir_abs / "quickstart.md").write_text(
+            (pdir / "quickstart.md").read_text(encoding="utf-8"), encoding="utf-8"
+        )
+
     # --- step 5: seed the draft FROM the ingested paper (already on disk) ----
     _assert_paper_draft_present(pdir)
 

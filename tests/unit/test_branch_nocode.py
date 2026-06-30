@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import shutil
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -21,11 +20,6 @@ from llmxive.paper_reprocess import branch_nocode
 from llmxive.types import Project, Stage
 
 # A real no-code (code: []) ingested project to copy the paper/ from.
-_SRC_PROJECT = (
-    Path(__file__).resolve().parents[2]
-    / "projects"
-    / "PROJ-563-many-shot-cot-icl-making-in-context-lear"
-)
 _PROJ_ID = "PROJ-901-nocode-followup-test"
 
 
@@ -80,7 +74,29 @@ def tmp_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     repo = tmp_path / "repo"
     pdir = repo / "projects" / _PROJ_ID
     pdir.mkdir(parents=True)
-    shutil.copytree(_SRC_PROJECT / "paper", pdir / "paper")
+    # Hermetic SYNTHETIC paper/ — do NOT copy a real project's paper/: that
+    # project gets legitimately reprocessed by the no-code drain (authors dropped,
+    # idea rewritten), which would mutate the fixture out from under these
+    # assertions (the original cause of this test breaking).
+    paper = pdir / "paper"
+    (paper / "source").mkdir(parents=True)
+    (paper / "metadata.json").write_text(json.dumps({
+        "arxiv_id": "2605.13511",
+        "arxiv_url": "https://arxiv.org/abs/2605.13511",
+        "title": "Many-Shot CoT-ICL: Making In-Context Learning Truly Learn",
+        "authors": ["Tsz Ting Chung", "Wei Wang", "Yu Zhang"],
+        "abstract": "We study many-shot chain-of-thought in-context learning.",
+        "submitted_via": "test", "license": "arXiv", "license_url": "",
+        "code": [], "data": [],
+        "toplevel_tex": ["main.tex"], "source_files": ["main.tex"],
+    }, indent=2), encoding="utf-8")
+    (paper / "source" / "main.tex").write_text(
+        "\\title{Many-Shot CoT-ICL: Making In-Context Learning Truly Learn}\n"
+        "\\begin{abstract}\nWe study many-shot chain-of-thought in-context "
+        "learning and show it can truly learn from many demonstrations.\n"
+        "\\end{abstract}\n",
+        encoding="utf-8",
+    )
 
     # The agent registry is PLATFORM config; the hermetic repo needs it so the
     # registry resolves under $LLMXIVE_REPO_ROOT. Symlink the real agents/ tree

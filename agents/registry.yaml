@@ -144,6 +144,21 @@ agents:
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
+- name: code_adapter
+  purpose: Turn a vendored GPU-heavy ingested-paper repo into a simplified, CPU-runnable
+    adaptation under code/ + quickstart.md so the execution gate can run it.
+  inputs:
+  - code
+  outputs:
+  - code
+  prompt_path: agents/prompts/code_adapter.md
+  prompt_version: 1.0.0
+  default_backend: dartmouth
+  fallback_backends:
+  - local
+  default_model: qwen.qwen3.5-122b
+  wall_clock_budget_seconds: 900
+  paid_opt_in: false
 - name: tasker
   purpose: Drive /speckit.tasks then /speckit.analyze; resolve every analyze finding.
   inputs:
