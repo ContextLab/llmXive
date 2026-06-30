@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.19950",
+  "judged_at": "2026-06-30T17:01:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multabench: benchmarking multimodal tabular learning with text and image computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) because it explicitly addresses the mechanism of multimodal learning involving \"tabular data\" alongside other modalities (sequences, graphs, time series) and proposes a general framework for fusing these specific data types, which is directly relevant to the user's question about benchmarking multimodal tabular learning with text and image.",
+  "relevant": true
+}

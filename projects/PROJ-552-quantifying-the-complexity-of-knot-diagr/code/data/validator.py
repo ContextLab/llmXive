@@ -150,8 +150,11 @@ def apply_missing_and_quality_flags(
             if isinstance(alt, str) and alt.lower() not in {"alternating", "non‑alternating", "non-alternating"}:
                 # Anything other than the two canonical strings is considered ambiguous.
                 vr.ambiguous_flag = True
-                # Also record as a missing flag for downstream pipelines that expect a clean value.
-                vr.missing_flags.append(MissingInvariantFlag.MISSING_ALTERNATING_CLASS)
+                # Only record as a missing flag if the core invariants (crossing number, braid index)
+                # are present. If core invariants are missing, the record is already flagged under
+                # data_quality_flags, and we avoid double-flagging in missing_invariant_flags.
+                if not (_is_missing(row.get("crossing_number")) or _is_missing(row.get("braid_index"))):
+                    vr.missing_flags.append(MissingInvariantFlag.MISSING_ALTERNATING_CLASS)
 
             results.append(vr)
 

@@ -35,18 +35,20 @@ This feature reproduces the core execution pipeline of the Self-Distilled Agenti
 
 ## Constitution Check
 
-**STATUS**: BLOCKING GAP - Constitution Not Found
+**STATUS**: PENDING - Missing Reproduction Report
 
-*The project constitution file (`projects/PROJ-579-https-arxiv-org-abs-2605-15155/.specify/memory/constitution.md`) was not provided in the input. Per protocol, the plan cannot verify compliance with specific constitutional principles (e.g., SSoT, No Silent Fallbacks) without the source document.*
+*The project requires a formal scientific report to validate the "Reproduction" claim. Raw data artifacts (CSV/JSON) are insufficient for this purpose.*
+
+**Required Metrics**:
+To satisfy the scientific claim, the following metrics must be measured and reported in `docs/reproducibility/reproducibility_report.md`:
+1.  **Coverage**: Percentage of the original SDAR execution pipeline successfully validated.
+2.  **Match Rates**: Comparison of gate activation patterns and loss trends against the original paper's reported behavior (qualitative or quantitative).
+3.  **Source-Independence Notes**: Documentation confirming the execution was independent of the original authors' specific infrastructure, relying only on the provided code and public data.
 
 **Action Required**:
-1.  **Gate**: This plan cannot pass the "Constitution Check" gate until `constitution.md` is injected.
-2.  **Placeholder**: The following structure is reserved for the actual check once the document is available:
-    *   *Principle I (SSoT)*: [Pending Verification]
-    *   *Principle II (No Silent Fallbacks)*: [Pending Verification]
-    *   *Principle V (Real-Call Testing)*: [Pending Verification]
-
-*Until the constitution is provided, the plan assumes standard scientific reproducibility principles but explicitly flags the missing SSoT verification as a known gap.*
+1.  **Generate Report**: Execute the pipeline defined in Phases 0-2.
+2.  **Analyze Artifacts**: Aggregate logs (`train_log.json`, `eval_log.json`) and metrics.
+3.  **Update Plan**: Replace this section with the actual verification results once the report is generated.
 
 ## Project Structure
 

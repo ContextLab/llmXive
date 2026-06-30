@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-15T15:15:39.980228Z'
-current_stage: research_review
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-577-multabench-benchmarking-multimodal-tabul
-last_run_id: d80a1d47-5d8f-4058-aca6-4842c14f5d9b
+last_run_id: 73c74d21-1825-4ab6-8707-f8acec223c4e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-577-multabench-benchmarking-multimodal-tabul/specs/001-multabench-benchmarking-multimodal-tabul
 title: 'MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image'
-updated_at: '2026-06-30T05:38:30.070098Z'
+updated_at: '2026-06-30T17:02:40.824203Z'

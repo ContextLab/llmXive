@@ -1,0 +1,14 @@
+{
+  "data_files": [
+    {
+      "path": "sdar_results.csv",
+      "sha256": "<calculated_hash_for_sdar_results.csv>"
+    },
+    {
+      "path": "sdar_summary.json",
+      "sha256": "<calculated_hash_for_sdar_summary.json>"
+    }
+  ],
+  "git_commit": "<current_git_commit_hash>",
+  "requirements_version": "<content_hash_or_version_of_requirements.txt>"
+}

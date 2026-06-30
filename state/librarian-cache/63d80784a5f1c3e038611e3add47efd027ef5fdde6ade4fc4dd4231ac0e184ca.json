@@ -1,0 +1,811 @@
+{
+  "fetched_at": "2026-06-30T17:01:47Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image",
+      "target_n": 5
+    },
+    "duration_seconds": 77.827,
+    "ended_at": "2026-06-30T17:01:47Z",
+    "expansion": null,
+    "extracted_queries": [
+      "tabular multimodal fusion vision language",
+      "TabFact TabularVQA multimodal table understanding",
+      "tabular foundation model image text alignment",
+      "multimodal tabular downstream task performance evaluation",
+      "data modality integration heterogeneous feature representation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2406.08100"
+      ]
+    },
+    "per_query_hit_count": {
+      "MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image computer science": 3,
+      "TabFact TabularVQA multimodal table understanding": 3,
+      "data modality integration heterogeneous feature representation": 6,
+      "multimodal tabular downstream task performance evaluation": 6,
+      "tabular foundation model image text alignment": 6,
+      "tabular multimodal fusion vision language": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2508.19294",
+          "rationale": "The paper focuses exclusively on object detection and localization within computer vision, which is a distinct task from the user's question regarding multimodal learning on *tabular* data (structured rows/columns). While both involve multimodal inputs (text and image), the domain of \"tabular learning\" is fundamentally different from \"object detection,\" and the paper does not address the mechanisms, variables, or empirical populations specific to tabular datasets.",
+          "title": "Object Detection with Multimodal Large Vision-Language Models: An In-depth Review"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1109/JSTARS.2025.3625958",
+          "rationale": "The paper focuses on remote sensing image-text alignment and vision-language foundation models, which is an off-domain application compared to the user's specific question about \"multimodal tabular learning\" involving structured tabular data combined with text and images. While both involve multimodal learning, the core data modality (tabular vs. remote sensing imagery) and the specific learning mechanisms differ significantly, failing to meet the criteria for same-mechanism evidence or independ",
+          "title": "DGTRSD and DGTRSCLIP: A Dual-Granularity Remote Sensing Image–Text Dataset and Vision–Language Foundation Model for Alignment"
+        },
+        {
+          "primary_pointer": "https://doi.org/10.1109/TGRS.2025.3604075",
+          "rationale": "The paper focuses on remote sensing image segmentation using hypergraphs to handle missing modalities, which is an off-domain application (computer vision/remote sensing) that does not address the user's specific focus on \"multimodal tabular learning\" or the integration of text and image data for tabular benchmarks. While both involve multimodal learning, the data structures (tabular vs. pixel-based remote sensing) and the specific problem settings (benchmarking tabular models vs. semantic segme",
+          "title": "Multimodal Heterogeneous Hypergraph Learning for Incomplete Multimodal Semantic Segmentation of Remote Sensing Images"
+        },
+        {
+          "primary_pointer": "2504.21375",
+          "rationale": "The paper focuses on integrating visual, textual, and **audio** modalities for general representation learning, whereas the user's question specifically targets **multimodal tabular learning** involving text and **image** data. This represents an off-domain mismatch where the core data structure (tabular vs. continuous media like audio/video) and the specific modality combination do not align with the user's research scope.",
+          "title": "Synergy-CLIP: Extending CLIP with Multi-modal Integration for Robust Representation Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-30T17:00:29Z",
+    "term_input": {
+      "normalized": "multabench: benchmarking multimodal tabular learning with text and image computer science",
+      "raw": "MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Contemporary decision-making systems face growing complexity from heterogeneous data streams that span structured tabular records, free-form natural language, and high-dimensional visual content. Unimodal predictive models exploit only a fraction of available information, yielding suboptimal inference. This paper presents a systematic literature review of multimodal predictive analytics, examining 87 peer-reviewed studies published between 2018 and 2025. We analyze fusion architectures (early, late, and hybrid), benchmark reported performance across five application domains—healthcare, finance, sentiment analysis, survival prediction, and autonomous systems—and quantify the accuracy gains attributable to each additional modality. Our synthesis demonstrates that fully multimodal pipelines integrating structured data, natural language processing (NLP), and convolutional or transformer-based vision encoders consistently outperform unimodal baselines by 15.3–19.1 percentage points in classification accuracy and by 0.169 in concordance index for survival tasks. We further identify open challenges in modality alignment, missingdata robustness, and explainability, and outline a forward-looking research agenda to advance trustworthy multimodal decision support.",
+          "claimed_authors": [
+            "Sungho Kim",
+            "Mohammad Mahmudur Rahman",
+            "Mainuddin Adel Rafi",
+            "Md Shahnawaj",
+            "Debabrata Biswas",
+            "Abdul Ahad Mridul",
+            "Himel Hemayet Uddin",
+            "Mohammad Somon Sikder",
+            "J. Mawa"
+          ],
+          "claimed_title": "MULTIMODAL PREDICTIVE ANALYTICS: A SYSTEMATIC INTEGRATION OF STRUCTURED DATA, NATURAL LANGUAGE, AND VISUAL MODALITIES FOR ENHANCED DECISION SUPPORT",
+          "claimed_venue": "International Journal of Grid Computing &amp; Applications",
+          "claimed_year": 2026,
+          "primary_pointer": "https://doi.org/10.5121/ijgca.2026.17113"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='MULTIMODAL PREDICTIVE ANALYTICS: A SYSTEMATIC INTEGRATION OF STRUCTURED DATA, NATURAL LANGUAGE, AND VISUAL MODALITIES FOR ENHANCED DECISION SUPPORT')",
+        "failed_at": "2026-06-30T17:01:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robot vision has greatly benefited from advancements in multimodal fusion techniques and vision-language models (VLMs). We adopt a task-oriented perspective to systematically review the applications and advancements of multimodal fusion methods and VLMs in the field of robot vision. For semantic scene understanding tasks, we categorize fusion approaches into encoder-decoder frameworks, attention-based architectures, and graph neural networks. Meanwhile, we also analyze the architectural characteristics and practical implementations of these fusion strategies in key tasks such as simultaneous localization and mapping (SLAM), 3D object detection, navigation, and manipulation. We compare the evolutionary paths and applicability of VLMs based on large language models (LLMs) with traditional multimodal fusion methods.Additionally, we conduct an in-depth analysis of commonly used datasets, evaluating their applicability and challenges in real-world robotic scenarios. Building on this analysis, we identify key challenges in current research, including cross-modal alignment, efficient fusion, real-time deployment, and domain adaptation. We propose future directions such as self-supervised learning for robust multimodal representations, structured spatial memory and environment modeling to enhance spatial intelligence, and the integration of adversarial robustness and human feedback mechanisms to enable ethically aligned system deployment. Through a comprehensive review, comparative analysis, and forward-looking discussion, we provide a valuable reference for advancing multimodal perception and interaction in robotic vision. A comprehensive list of studies in this survey is available at https://github.com/Xiaofeng-Han-Res/MF-RV.",
+          "claimed_authors": [
+            "Xiaofeng Han",
+            "Shunpeng Chen",
+            "Zenghuang Fu",
+            "Zhe Feng",
+            "Lue Fan",
+            "Dong An",
+            "Changwei Wang",
+            "Li Guo",
+            "Weiliang Meng",
+            "Xiaopeng Zhang",
+            "Rongtao Xu",
+            "Shibiao Xu"
+          ],
+          "claimed_title": "Multimodal Fusion and Vision-Language Models: A Survey for Robot Vision",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.02477"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Multimodal Fusion and Vision-Language Models: A Survey for Robot Vision')",
+        "failed_at": "2026-06-30T17:01:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multimodal LLMs are evolving from vision-language to tri-modality that see, hear, and read, yet pipelines and benchmarks remain English-centric and compute-heavy. The tutorial offers an overview of this emerging research area for multilingual multimodality across text, speech, and vision under limited data/compute budgets, synthesizing foundations, recent multilingual models (PALO, Maya), speech-text LLMs. We cover low-cost data creation/curation; adapter stacks for tri-modal alignment; culture-aware evaluation beyond English and hands on resources for fine-tuning a compact multilingual VLM and wiring a speech->text->LLM pipeline. The content will be delivered as an interactive half-day tutorial, designed for researchers and practitioners working on multilingual, multimodal AI in low-resource language settings.",
+          "claimed_authors": [
+            "Firoj Alam",
+            "Shammur Absar Chowdhury",
+            "Enamul Hoque Prince"
+          ],
+          "claimed_title": "Multilingual and Multimodal LLMs in the Wild: Building for Low-Resource Languages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.17152"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Multilingual and Multimodal LLMs in the Wild: Building for Low-Resource Languages')",
+        "failed_at": "2026-06-30T17:01:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The mass table in the deformed relativistic Hartree-Bogoliubov theory in continuum (DRHBc) with the PC-PK1 density functional has been established for even-$Z$ nuclei with $8\\le Z\\le120$, extended from the previous work for even-even nuclei [Zhang $\\it{et.~al.}$ (DRHBc Mass Table Collaboration), At. Data Nucl. Data Tables 144, 101488 (2022)]. The calculated binding energies, two-nucleon and one-neutron separation energies, root-mean-square (rms) radii of neutron, proton, matter, and charge distributions, quadrupole deformations, and neutron and proton Fermi surfaces are tabulated and compared with available experimental data. A total of 4829 even-$Z$ nuclei are predicted to be bound, with an rms deviation of 1.477 MeV from the 1244 mass data. Good agreement with the available experimental odd-even mass differences, $α$ decay energies, and charge radii is also achieved. The description accuracy for nuclear masses and nucleon separation energies as well as the prediction for drip lines is compared with the results obtained from other relativistic and nonrelativistic density functional. The comparison shows that the DRHBc theory with PC-PK1 provides an excellent microscopic description for the masses of even-$Z$ nuclei. The systematics of the nucleon separation energies, odd-even mass differences, pairing energies, two-nucleon gaps, $α$ decay energies, rms radii, quadrupole deformations, potential energy curves, neutron density distributions, and neutron mean-field potentials are discussed.",
+          "claimed_authors": [
+            "DRHBc Mass Table Collaboration",
+            "Peng Guo",
+            "Xiaojie Cao",
+            "Kangmin Chen",
+            "Zhihui Chen",
+            "Myung-Ki Cheoun",
+            "Yong-Beom Choi",
+            "Pak Chung Lam",
+            "Wenmin Deng",
+            "Jianmin Dong",
+            "Pengxiang Du",
+            "Xiaokai Du",
+            "Kangda Duan",
+            "Xiaohua Fan",
+            "Wei Gao",
+            "Lisheng Geng",
+            "Eunja Ha",
+            "Xiao-Tao He",
+            "Jinniu Hu",
+            "Jingke Huang",
+            "Kun Huang",
+            "Yanan Huang",
+            "Zidan Huang",
+            "Kim Da Hyung",
+            "Hoi Yat Chan",
+            "Xiaofei Jiang",
+            "Seonghyun Kim",
+            "Youngman Kim",
+            "Chang-Hwan Lee",
+            "Jenny Lee",
+            "Jian Li",
+            "Minglong Li",
+            "Zhipan Li",
+            "Zhengzheng Li",
+            "Zhanjiang Lian",
+            "Haozhao Liang",
+            "Lang Liu",
+            "Xiao Lu",
+            "Zhi-Rui Liu",
+            "Jie Meng",
+            "Ziyan Meng",
+            "Myeong-Hwan Mun",
+            "Yifei Niu",
+            "Zhongming Niu",
+            "Cong Pan",
+            "Jing Peng",
+            "Xiaoying Qu",
+            "Panagiota Papakonstantinou",
+            "Tianshuai Shang",
+            "Xinle Shang",
+            "Caiwan Shen",
+            "Guofang Shen",
+            "Tingting Sun",
+            "Xiang-Xiang Sun",
+            "Sibo Wang",
+            "Tianyu Wang",
+            "Yiran Wang",
+            "Yuanyuan Wang",
+            "Jiawei Wu",
+            "Liang Wu",
+            "Xinhui Wu",
+            "Xuewei Xia",
+            "Huihui Xie",
+            "Jiangming Yao",
+            "Ip Kwan Yau Ip",
+            "To Chung Yiu",
+            "Jianghan Yu",
+            "Yangyang Yu",
+            "Kaiyuan Zhang",
+            "Shijie Zhang",
+            "Shuangquan Zhang",
+            "Wei Zhang",
+            "Xiaoyan Zhang",
+            "Yanxin Zhang",
+            "Ying Zhang",
+            "Yingxun Zhang",
+            "Zhenhua Zhang",
+            "Qiang Zhao",
+            "Yingchun Zhao",
+            "Ruyou Zheng",
+            "Chang Zhou",
+            "Shan-Gui Zhou",
+            "Lianjian Zou"
+          ],
+          "claimed_title": "Nuclear mass table in deformed relativistic Hartree-Bogoliubov theory in continuum, II: Even-$Z$ nuclei",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.02935"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Nuclear mass table in deformed relativistic Hartree-Bogoliubov theory in continuum, II: Even-$Z$ nuclei')",
+        "failed_at": "2026-06-30T17:01:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated deception detection systems can enhance health, justice, and security in society by helping humans detect deceivers in high-stakes situations across medical and legal domains, among others. This paper presents a novel analysis of the discriminative power of dimensional representations of facial affect for automated deception detection, along with interpretable features from visual, vocal, and verbal modalities. We used a video dataset of people communicating truthfully or deceptively in real-world, high-stakes courtroom situations. We leveraged recent advances in automated emotion recognition in-the-wild by implementing a state-of-the-art deep neural network trained on the Aff-Wild database to extract continuous representations of facial valence and facial arousal from speakers. We experimented with unimodal Support Vector Machines (SVM) and SVM-based multimodal fusion methods to identify effective features, modalities, and modeling approaches for detecting deception. Unimodal models trained on facial affect achieved an AUC of 80%, and facial affect contributed towards the highest-performing multimodal approach (adaptive boosting) that achieved an AUC of 91% when tested on speakers who were not part of training sets. This approach achieved a higher AUC than existing automated machine learning approaches that used interpretable visual, vocal, and verbal features to detect deception in this dataset, but did not use facial affect. Across all videos, deceptive and truthful speakers exhibited significant differences in facial valence and facial arousal, contributing computational support to existing psychological theories on affect and deception. The demonstrated importance of facial affect in our models informs and motivates the future development of automated, affect-aware machine learning approaches for modeling and detecting deception and other social behaviors in-the-wild.",
+          "claimed_authors": [
+            "Leena Mathur",
+            "Maja J Matarić"
+          ],
+          "claimed_title": "Introducing Representations of Facial Affect in Automated Multimodal Deception Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.13369"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Introducing Representations of Facial Affect in Automated Multimodal Deception Detection')",
+        "failed_at": "2026-06-30T17:01:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The foundation model fine-tuning optimization method has gradually become a research hotspot due to the development of generative pretrained transformer. However, compared to natural scene images, remote sensing images have a wide range of spatial scales, complex objects, and limited labelled samples, which introduce great challenges to image interpretation. To reduce the gap between nature scene images and remote sensing images, this paper proposes a novel RLita optimization method for foundation models. Specifically, a region-level image–text alignment optimization method is proposed to represent the features of images and texts as visual and sematic representation vectors in one embedding space for better model generalization, and a parameter-efficient tuning strategy is designed to reduce computational resources. Experiments on five remote sensing datasets including object detection, semantic segmentation, and change detection show the effectiveness of the RLita method.",
+          "claimed_authors": [
+            "Qiang Zhang",
+            "Decheng Wang",
+            "Xiao Yu"
+          ],
+          "claimed_title": "RLita: A Region-Level Image–Text Alignment Method for Remote Sensing Foundation Model",
+          "claimed_venue": "Remote Sensing",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.3390/rs17101661"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='RLita: A Region-Level Image–Text Alignment Method for Remote Sensing Foundation Model')",
+        "failed_at": "2026-06-30T17:01:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of tabular foundation models (TFMs) has accelerated in recent years, showing strong potential to outperform traditional ML methods for structured data. A key finding is that TFMs can be pretrained entirely on synthetic datasets, opening opportunities to design data generators that encourage desirable model properties. Prior work has mainly focused on crafting high-quality priors over generators to improve overall pretraining performance. Our insight is that parameterizing the generator distribution enables an adversarial robustness perspective: during training, we can adapt the generator to emphasize datasets that are particularly challenging for the model. We formalize this by introducing an optimality gap measure, given by the difference between TFM performance and the best achievable performance as estimated by strong baselines such as XGBoost, CatBoost, and Random Forests. Building on this idea, we propose Robust Tabular Foundation Models (RTFM), a model-agnostic adversarial training framework. Applied to the TabPFN V2 classifier, RTFM improves benchmark performance, with up to a 6% increase in mean normalized AUC over the original TabPFN and other baseline algorithms, while requiring less than 100k additional synthetic datasets. These results highlight a promising new direction for targeted adversarial training and fine-tuning of TFMs using synthetic data alone.",
+          "claimed_authors": [
+            "Matthew Peroni",
+            "Franck Le",
+            "Vadim Sheinin"
+          ],
+          "claimed_title": "Robust Tabular Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.03307"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Robust Tabular Foundation Models')",
+        "failed_at": "2026-06-30T17:01:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The integration of AI-assisted biomedical image analysis into clinical practice demands AI-generated findings that are not only accurate but also interpretable to clinicians. However, existing biomedical AI models generally lack the ability to simultaneously generate diagnostic findings and localize corresponding biomedical objects. This limitation makes it challenging for clinicians to correlate AI-generated findings with visual evidence (e.g., tiny lesions) in images and interpret the results of AI models. To address this challenge, we introduce UniBiomed, the first universal foundation model for grounded biomedical image interpretation, which is capable of generating accurate diagnostic findings and simultaneously segmenting the corresponding biomedical targets. UniBiomed is based on a novel integration of Multi-modal Large Language Model and Segment Anything Model, which can effectively unify diverse biomedical tasks in universal training for advancing grounded interpretation. To develop UniBiomed, we curate a large-scale dataset comprising over 27 million triplets of images, region annotations, and text descriptions across ten biomedical imaging modalities. Extensive validation on 70 internal and 14 external datasets demonstrated the state-of-the-art performance of UniBiomed in diverse biomedical tasks, including image segmentation, disease recognition, region-aware diagnosis, vision question answering, and report generation. In summary, UniBiomed is a powerful and versatile biomedical foundation model, unlocking the untapped grounded interpretation capability for optimizing AI-assisted biomedical image analysis.",
+          "claimed_authors": [
+            "Linshan Wu",
+            "Yuxiang Nie",
+            "Sunan He",
+            "Jiaxin Zhuang",
+            "Luyang Luo",
+            "Tao Li",
+            "Zhuoyao Xie",
+            "Dexuan Chen",
+            "Yinghua Zhao",
+            "Neeraj Mahboobani",
+            "Varut Vardhanabhuti",
+            "Ronald Cheong Kin Chan",
+            "Yifan Peng",
+            "Pranav Rajpurkar",
+            "Hao Chen"
+          ],
+          "claimed_title": "UniBiomed: A Universal Foundation Model for Grounded Biomedical Image Interpretation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.21336"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='UniBiomed: A Universal Foundation Model for Grounded Biomedical Image Interpretation')",
+        "failed_at": "2026-06-30T17:01:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Multi-modal Large Language Models (MLLMs) integrate visual and linguistic reasoning to address complex tasks such as image captioning and visual question answering. While MLLMs demonstrate remarkable versatility, MLLMs appears limited performance on special applications. But tuning MLLMs for downstream tasks encounters two key challenges: Task-Expert Specialization, where distribution shifts between pre-training and target datasets constrain target performance, and Open-World Stabilization, where catastrophic forgetting erases the model general knowledge. In this work, we systematically review recent advancements in MLLM tuning methodologies, classifying them into three paradigms: (I) Selective Tuning, (II) Additive Tuning, and (III) Reparameterization Tuning. Furthermore, we benchmark these tuning strategies across popular MLLM architectures and diverse downstream tasks to establish standardized evaluation analysis and systematic tuning principles. Finally, we highlight several open challenges in this domain and propose future research directions. To facilitate ongoing progress in this rapidly evolving field, we provide a public repository that continuously tracks developments: https://github.com/WenkeHuang/Awesome-MLLM-Tuning.",
+          "claimed_authors": [
+            "Wenke Huang",
+            "Jian Liang",
+            "Xianda Guo",
+            "Yiyang Fang",
+            "Guancheng Wan",
+            "Xuankun Rong",
+            "Chi Wen",
+            "Zekun Shi",
+            "Qingyun Li",
+            "Didi Zhu",
+            "Yanbiao Ma",
+            "Ke Liang",
+            "Bin Yang",
+            "He Li",
+            "Jia Shao",
+            "Mang Ye",
+            "Bo Du"
+          ],
+          "claimed_title": "Keeping Yourself is Important in Downstream Tuning Multimodal Large Language Model",
+          "claimed_venue": "arXiv.org",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2503.04543"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Keeping Yourself is Important in Downstream Tuning Multimodal Large Language Model')",
+        "failed_at": "2026-06-30T17:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
+          "claimed_authors": [
+            "Berivan Isik",
+            "Natalia Ponomareva",
+            "Hussein Hazimeh",
+            "Dimitris Paparas",
+            "Sergei Vassilvitskii",
+            "Sanmi Koyejo"
+          ],
+          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.04177"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
+        "failed_at": "2026-06-30T17:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+          "claimed_authors": [
+            "Dorsaf Sebai",
+            "Abderrazak Jemai",
+            "Imed Bennour"
+          ],
+          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1154"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
+        "failed_at": "2026-06-30T17:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-06-30T17:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Multi-omics data capture complex biomolecular interactions and provide insights into metabolism and disease. However, missing modalities hinder integrative analysis across heterogeneous omics. To address this, we present MOIRA (Multi-Omics Integration with Robustness to Absent modalities), an early integration method enabling robust learning from incomplete omics data via representation alignment and adaptive aggregation. MOIRA leverages all samples, including those with missing modalities, by projecting each omics dataset onto a shared embedding space where a learnable weighting mechanism fuses them. Evaluated on the Religious Order Study and Memory and Aging Project (ROSMAP) dataset for Alzheimer's Disease (AD), MOIRA outperformed existing approaches, and further ablation studies confirmed modality-wise contributions. Feature importance analysis revealed AD-related biomarkers consistent with prior literature, highlighting the biological relevance of our approach.",
+          "claimed_authors": [
+            "Sungjoon Park",
+            "Kyungwook Lee",
+            "Soorin Yim",
+            "Doyeong Hwang",
+            "Dongyun Kim",
+            "Soonyoung Lee",
+            "Amy Dunn",
+            "Daniel M Gatti",
+            "Elissa J Chesler",
+            "Kristen O’Connell",
+            "Kiyoung Kim"
+          ],
+          "claimed_title": "Robust Multi-Omics Integration from Incomplete Modalities Significantly Improves Prediction of Alzheimer's Disease",
+          "claimed_venue": "arXiv.org",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.48550/arXiv.2509.20842"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title=\"Robust Multi-Omics Integration from Incomplete Modalities Significantly Improves Prediction of Alzheimer's Disease\")",
+        "failed_at": "2026-06-30T17:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Abstract Motivation Accurately predicting cancer survival is crucial for helping clinicians to plan appropriate treatments, which largely improves the life quality of cancer patients and spares the related medical costs. Recent advances in survival prediction methods suggest that integrating complementary information from different modalities, e.g. histopathological images and genomic data, plays a key role in enhancing predictive performance. Despite promising results obtained by existing multimodal methods, the disparate and heterogeneous characteristics of multimodal data cause the so-called modality gap problem, which brings in dramatically diverse modality representations in feature space. Consequently, detrimental modality gaps make it difficult for comprehensive integration of multimodal information via representation learning and therefore pose a great challenge to further improvements of cancer survival prediction. Results To solve the above problems, we propose a novel method called cross-aligned multimodal representation learning (CAMR), which generates both modality-invariant and -specific representations for more accurate cancer survival prediction. Specifically, a cross-modality representation alignment learning network is introduced to reduce modality gaps by effectively learning modality-invariant representations in a common subspace, which is achieved by aligning the distributions of different modality representations through adversarial training. Besides, we adopt a cross-modality fusion module to fuse modality-invariant representations into a unified cross-modality representation for each patient. Meanwhile, CAMR learns modality-specific representations which complement modality-invariant representations and therefore provides a holistic view of the multimodal data for cancer survival prediction. Comprehensive experiment results demonstrate that CAMR can successfully narrow modality gaps and consistently yields better performance than other survival prediction methods using multimodal data. Availability and implementation CAMR is freely available at https://github.com/wxq-ustc/CAMR. Supplementary information Supplementary data are available at Bioinformatics online.",
+          "claimed_authors": [
+            "Xingqi Wu",
+            "Yi Shi",
+            "Minghui Wang",
+            "Ao Li"
+          ],
+          "claimed_title": "CAMR: cross-aligned multimodal representation learning for cancer survival prediction",
+          "claimed_venue": "Bioinform.",
+          "claimed_year": 2023,
+          "primary_pointer": "https://doi.org/10.1093/bioinformatics/btad025"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='CAMR: cross-aligned multimodal representation learning for cancer survival prediction')",
+        "failed_at": "2026-06-30T17:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-06-30T17:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image compute', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-30T17:01:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alan Arazi",
+            "Eilam Shapira",
+            "Shoham Grunblat",
+            "Mor Ventura",
+            "Elad Hoffer",
+            "Gioia Blayer",
+            "David Holzmüller",
+            "Lennart Purucker",
+            "G. Varoquaux",
+            "Frank Hutter",
+            "Roi Reichart"
+          ],
+          "title": "MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image",
+          "venue": "",
+          "year": 2026
+        },
+        "primary_pointer": "2605.10616",
+        "summary": "Tabular Foundation Models have recently established the state of the art in supervised tabular learning, by leveraging pretraining to learn generalizable representations of numerical and categorical structured data. However, they lack native support for unstructured modalities such as text and image, and rely on frozen, pretrained embeddings to process them. On established Multimodal Tabular Learning benchmarks, we show that tuning the embeddings to the task improves performance. Existing benchmarks, however, often focus on the mere co-occurrence of modalities; this leads to high variance across datasets and masks the benefits of task-specific tuning. To address this gap, we introduce MulTaBench, a benchmark of 40 datasets, split equally between image-tabular and text-tabular tasks. We focus on predictive tasks where the modalities provide complementary predictive signal, and where generic embeddings lose critical information, necessitating Target-Aware Representations that are aligned with the task. Our experimental results demonstrate that the gains from target-aware representation tuning generalize across both text and image modalities, several tabular learners, encoder scales, and embedding dimensions. MulTaBench constitutes the largest image-tabular benchmarking effort to date, spanning high-impact domains such as healthcare and e-commerce. It is designed to enable the research of novel architectures which incorporate joint modeling and target-aware representations, paving the way for the development of novel Multimodal Tabular Foundation Models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2605.10616",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7778,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yury Gorishniy",
+            "Ivan Rubachev",
+            "Dmitrii Feoktistov",
+            "Artem Babenko"
+          ],
+          "title": "Benchmarking Optimizers for MLPs in Tabular Deep Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.15297",
+        "summary": "MLP is a heavily used backbone in modern deep learning (DL) architectures for supervised learning on tabular data, and AdamW is the go-to optimizer used to train tabular DL models. Unlike architecture design, however, the choice of optimizer for tabular DL has not been examined systematically, despite new optimizers showing promise in other domains. To fill this gap, we benchmark 15 optimizers on 17 tabular datasets for training MLP-based models in the standard supervised learning setting under a shared experiment protocol. Our main finding is that the Muon optimizer consistently outperforms AdamW, and thus should be considered a strong and practical choice for practitioners and researchers, if the associated training efficiency overhead is affordable. Additionally, we find exponential moving average of model weights to be a simple yet effective technique that improves AdamW on vanilla MLPs, though its effect is less consistent across model variants.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.15297",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xingjian Shi",
+            "Jonas Mueller",
+            "Nick Erickson",
+            "Mu Li",
+            "Alexander J. Smola"
+          ],
+          "title": "Benchmarking Multimodal AutoML for Tabular Data with Text Fields",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.02705",
+        "summary": "We consider the use of automated supervised learning systems for data tables that not only contain numeric/categorical columns, but one or more text fields as well. Here we assemble 18 multimodal data tables that each contain some text fields and stem from a real business application. Our publicly-available benchmark enables researchers to comprehensively evaluate their own methods for supervised learning with numeric, categorical, and text features. To ensure that any single modeling strategy which performs well over all 18 datasets will serve as a practical foundation for multimodal text/tabular AutoML, the diverse datasets in our benchmark vary greatly in: sample size, problem types (a mix of classification and regression tasks), number of features (with the number of text columns ranging from 1 to 28 between datasets), as well as how the predictive signal is decomposed between text vs. numeric/categorical features (and predictive interactions thereof). Over this benchmark, we evaluate various straightforward pipelines to model such data, including standard two-stage approaches where NLP is used to featurize the text such that AutoML for tabular data can then be applied. Compared with human data science teams, the fully automated methodology that performed best on our benchmark (stack ensembling a multimodal Transformer with various tree models) also manages to rank 1st place when fit to the raw text/tabular data in two MachineHack prediction competitions and 2nd place (out of 2380 teams) in Kaggle's Mercari Price Suggestion Challenge.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.02705",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiaqi Luo",
+            "Yuan Yuan",
+            "Shixin Xu"
+          ],
+          "title": "TIME: TabPFN-Integrated Multimodal Engine for Robust Tabular-Image Learning",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2506.00813",
+        "summary": "Tabular-image multimodal learning, which integrates structured tabular data with imaging data, holds great promise for a variety of tasks, especially in medical applications. Yet, two key challenges remain: (1) the lack of a standardized, pretrained representation for tabular data, as is commonly available in vision and language domains; and (2) the difficulty of handling missing values in the tabular modality, which are common in real-world medical datasets. To address these issues, we propose the TabPFN-Integrated Multimodal Engine (TIME), a novel multimodal framework that builds on the recently introduced tabular foundation model, TabPFN. TIME leverages TabPFN as a frozen tabular encoder to generate robust, strong embeddings that are naturally resilient to missing data, and combines them with image features from pretrained vision backbones. We explore a range of fusion strategies and tabular encoders, and evaluate our approach on both natural and medical datasets. Extensive experiments demonstrate that TIME consistently outperforms competitive baselines across both complete and incomplete tabular inputs, underscoring its practical value in real-world multimodal learning scenarios.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2506.00813",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2506.00813"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Konstantin Hemker",
+            "Nikola Simidjievski",
+            "M. Jamnik"
+          ],
+          "title": "Multimodal Lego: Model Merging and Fine-Tuning Across Topologies and Modalities in Biomedicine",
+          "venue": "International Conference on Learning Representations",
+          "year": 2024
+        },
+        "primary_pointer": "2405.19950",
+        "summary": "Learning holistic computational representations in physical, chemical or biological systems requires the ability to process information from different distributions and modalities within the same model. Thus, the demand for multimodal machine learning models has sharply risen for modalities that go beyond vision and language, such as sequences, graphs, time series, or tabular data. While there are many available multimodal fusion and alignment approaches, most of them require end-to-end training, scale quadratically with the number of modalities, cannot handle cases of high modality imbalance in the training set, or are highly topology-specific, making them too restrictive for many biomedical learning tasks. This paper presents Multimodal Lego (MM-Lego), a general-purpose fusion framework to turn any set of encoders into a competitive multimodal model with no or minimal fine-tuning. We achieve this by introducing a wrapper for any unimodal encoder that enforces shape consistency between modality representations. It harmonises these representations by learning features in the frequency domain to enable model merging with little signal interference. We show that MM-Lego 1) can be used as a model merging method which achieves competitive performance with end-to-end fusion models without any fine-tuning, 2) can operate on any unimodal encoder, and 3) is a model fusion method that, with minimal fine-tuning, surpasses all benchmarks in five out of seven datasets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2405.19950",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mingyu Zheng",
+            "Xinwei Feng",
+            "Qingyi Si",
+            "Qiaoqiao She",
+            "Zheng Lin",
+            "Wenbin Jiang",
+            "Weiping Wang"
+          ],
+          "title": "Multimodal Table Understanding",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.08100",
+        "summary": "Although great progress has been made by previous table understanding methods including recent approaches based on large language models (LLMs), they rely heavily on the premise that given tables must be converted into a certain text sequence (such as Markdown or HTML) to serve as model input. However, it is difficult to access such high-quality textual table representations in some real-world scenarios, and table images are much more accessible. Therefore, how to directly understand tables using intuitive visual information is a crucial and urgent challenge for developing more practical applications. In this paper, we propose a new problem, multimodal table understanding, where the model needs to generate correct responses to various table-related requests based on the given table image. To facilitate both the model training and evaluation, we construct a large-scale dataset named MMTab, which covers a wide spectrum of table images, instructions and tasks. On this basis, we develop Table-LLaVA, a generalist tabular multimodal large language model (MLLM), which significantly outperforms recent open-source MLLM baselines on 23 benchmarks under held-in and held-out settings. The code and data is available at this https://github.com/SpursGoZmy/Table-LLaVA",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.08100",
+          "http_status": 200,
+          "pdf_sample_score": 0.2781,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hyojin Bahng",
+            "Caroline Chan",
+            "Fr´edo Durand",
+            "Phillip Isola"
+          ],
+          "title": "Cycle Consistency as Reward: Learning Image-Text Alignment Without Human Preferences",
+          "venue": "IEEE International Conference on Computer Vision",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/ICCV51701.2025.02129",
+        "summary": "Learning alignment between language and vision is a fundamental challenge, especially as multimodal data becomes increasingly detailed and complex. Existing methods often rely on collecting human or AI preferences, which can be costly and time-intensive. We propose an alternative approach that leverages cycle consistency as a supervisory signal. Given an image and generated text, we map the text back to image space using a text-to-image model and compute the similarity between the original image and its reconstruction. Analogously, for text-to-image generation, we measure the textual similarity between an input caption and its reconstruction through the cycle. We use the cycle consistency score to rank candidates and construct a preference dataset of 866 K comparison pairs. The reward model trained on our dataset, CycleReward, outperforms state-of-the-art alignment metrics on detailed captioning, with superior inference-time scalability when used as a verifier for Best-of- $N$ sampling, while maintaining speed and differentiability. Furthermore, performing DPO and Diffusion DPO using our dataset enhances performance across a wide range of vision-language tasks and text-to-image generation. Our dataset, model, and code are publicly released at https://cyclereward.github.io/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://ieeexplore.ieee.org/document/11443599/",
+          "http_status": 202,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [
+            "https://doi.org/10.1109/ICCV51701.2025.02129"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Martin Mráz",
+            "Breenda Das",
+            "Anshul Gupta",
+            "Lennart Purucker",
+            "Frank Hutter"
+          ],
+          "title": "Towards Benchmarking Foundation Models for Tabular Data With Text",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.07829",
+        "summary": "Foundation models for tabular data are rapidly evolving, with increasing interest in extending them to support additional modalities such as free-text features. However, existing benchmarks for tabular data rarely include textual columns, and identifying real-world tabular datasets with semantically rich text features is non-trivial. We propose a series of simple yet effective ablation-style strategies for incorporating text into conventional tabular pipelines. Moreover, we benchmark how state-of-the-art tabular foundation models can handle textual data by manually curating a collection of real-world tabular datasets with meaningful textual features. Our study is an important step towards improving benchmarking of foundation models for tabular data with text.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.07829",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lanrui Wang",
+            "Mingyu Zheng",
+            "Hongyin Tang",
+            "Zheng Lin",
+            "Yanan Cao",
+            "Jingang Wang",
+            "Xunliang Cai",
+            "Weiping Wang"
+          ],
+          "title": "NeedleInATable: Exploring Long-Context Capability of Large Language Models towards Long-Structured Tables",
+          "venue": "arXiv.org",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.48550/arXiv.2504.06560",
+        "summary": "Processing structured tabular data, particularly large and lengthy tables, constitutes a fundamental yet challenging task for large language models (LLMs). However, existing long-context benchmarks like Needle-in-a-Haystack primarily focus on unstructured text, neglecting the challenge of diverse structured tables. Meanwhile, previous tabular benchmarks mainly consider downstream tasks that require high-level reasoning abilities, and overlook models'underlying fine-grained perception of individual table cells, which is crucial for practical and robust LLM-based table applications. To address this gap, we introduce \\textsc{NeedleInATable} (NIAT), a new long-context tabular benchmark that treats each table cell as a ``needle''and requires models to extract the target cell based on cell locations or lookup questions. Our comprehensive evaluation of various LLMs and multimodal LLMs reveals a substantial performance gap between popular downstream tabular tasks and the simpler NIAT task, suggesting that they may rely on dataset-specific correlations or shortcuts to obtain better benchmark results but lack truly robust long-context understanding towards structured tables. Furthermore, we demonstrate that using synthesized NIAT training data can effectively improve performance on both NIAT task and downstream tabular tasks, which validates the importance of NIAT capability for LLMs'genuine table understanding ability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://arxiv.org/abs/2504.06560",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [
+            "https://doi.org/10.48550/arXiv.2504.06560"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Siyi Du",
+            "Xinzhe Luo",
+            "Declan P. O’Regan",
+            "Chen Qin"
+          ],
+          "title": "STiL: Semi-supervised Tabular-Image Learning for Comprehensive Task-Relevant Information Exploration in Multimodal Classification",
+          "venue": "Computer Vision and Pattern Recognition",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.1109/CVPR52734.2025.01449",
+        "summary": "Multimodal image-tabular learning is gaining attention, yet it faces challenges due to limited labeled data. While earlier work has applied self-supervised learning (SSL) to unlabeled data, its task-agnostic nature often results in learning suboptimal features for downstream tasks. Semi-supervised learning (SemiSL), which combines labeled and unlabeled data, offers a promising solution. However, existing multimodal SemiSL methods typically focus on unimodal or modality-shared features, ignoring valuable task-relevant modality-specific information, leading to a Modality Information Gap. In this paper, we propose STiL, a novel SemiSL tabular-image framework that addresses this gap by comprehensively exploring task-relevant information. STiL features a new disentangled contrastive consistency module to learn cross-modal invariant representations of shared information while retaining modality-specific information via disentanglement. We also propose a novel consensus-guided pseudo-labeling strategy to generate reliable pseudo-labels based on classifier consensus, along with a new prototype-guided label smoothing technique to refine pseudo-label quality with prototype embeddings, thereby enhancing task-relevant information learning in unlabeled data. Experiments on natural and medical image datasets show that STiL outperforms the state-of-the-art supervised/SSL/SemiSL image/multimodal approaches. Our code is available at https://github.com/siyi-wind/STiL.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://ieeexplore.ieee.org/document/11095225/",
+          "http_status": 202,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [
+            "https://doi.org/10.1109/CVPR52734.2025.01449"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:01:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "multabench: benchmarking multimodal tabular learning with text and image computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

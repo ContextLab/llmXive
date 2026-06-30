@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
-  "ok": true,
-  "reason": "ok",
+  "ok": false,
+  "reason": "33 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/fontTools/cffLib/__init__.py: self-declared fabricated metric \u2014 \u201c\u2026ue):         return (0, 0)  # dummy value   class SubrsConverter(TableC\u2026\u201d",
   "artifacts": [
     "data/sdar_results.csv",
     "data/sdar_summary.json",
@@ -9,7 +9,7 @@
     "figures/success_rate_vs_noise.png"
   ],
   "failures": [],
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "model_tier": 0,
-  "updated_at": "2026-06-30T12:14:15Z"
+  "updated_at": "2026-06-30T17:21:30Z"
 }

@@ -33,3 +33,4 @@ The script implements the **Gated Distillation** mechanism:
 *   `data/sdar_results.csv`: Numerical comparison of success rates.
 *   `figures/success_rate_vs_noise.png`: Visual proof of SDAR's robustness.
 *   `figures/gate_attenuation.png`: Visualization of the gating mechanism.
+*   `docs/reproducibility/reproducibility_report.md`: Full reproducibility report with environment details and execution metrics.

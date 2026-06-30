@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1109/CVPR52734.2025.01449",
+  "judged_at": "2026-06-30T17:01:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multabench: benchmarking multimodal tabular learning with text and image computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly investigates the same mechanism (multimodal learning combining tabular data and images) and measures the same dependent variables (classification performance) on the same domain (tabular-image datasets), serving as a canonical prior work for the specific sub-task of tabular-image fusion within the broader multimodal tabular learning landscape.",
+  "relevant": true
+}

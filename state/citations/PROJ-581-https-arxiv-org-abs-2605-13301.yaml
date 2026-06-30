@@ -3,12 +3,13 @@
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified
+    Scaling
   kind: arxiv
   value: '2605.13301'
-  verification_status: unreachable
+  verification_status: verified
   verified_against_url: null
-  verified_at: '2026-06-30T04:21:14.735335Z'
+  verified_at: '2026-06-30T17:27:03.040716Z'
 - artifact_hash: 1679aaac1e1b804d32e070400a5d56fb0c5ea86a27c8d4f57dc4581f222c14b4
   artifact_path: projects/PROJ-581-https-arxiv-org-abs-2605-13301/specs/001-https-arxiv-org-abs-2605-13301/quickstart.md
   cite_id: c-001
@@ -25,9 +26,9 @@
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: cpu
   kind: url
   value: https://download.pytorch.org/whl/cpu`
-  verification_status: unreachable
+  verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu%60
-  verified_at: '2026-06-30T04:53:53.891020Z'
+  verified_at: '2026-06-30T17:27:03.040716Z'

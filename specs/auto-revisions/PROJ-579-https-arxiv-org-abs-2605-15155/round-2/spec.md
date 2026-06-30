@@ -1,0 +1,47 @@
+# Revision Specification: Research Revision (writing) — PROJ-579-https-arxiv-org-abs-2605-15155 round 2
+
+**Generated**: 2026-06-30T17:17:06.921368+00:00
+**Kind**: research_writing
+**Project**: PROJ-579-https-arxiv-org-abs-2605-15155
+**Round**: 2
+
+## Input
+
+Address the following reviewer-raised action items:
+
+- **[c4206d0171b9] (severity: writing)** Split sdar_sim.py into modular components: Refactor the monolithic sdar_sim.py into at least three distinct modules to align with the User Stories: scripts/ray_health_check.py (US1), scripts/run_training.py (US2), and scripts/run_evaluation.py (US3). Each module must be self-contained, <200 lines, and executable independently to ensure that a failure in one phase does not obscure the results of the others.
+- **[6e1e7d957b21] (severity: writing)** Create docs/reproducibility/reproducibility_report.md: Generate a mandatory documentation file that explicitly lists the Python version, dependency versions (from requirements.txt), the specific model backbone used (verifying CPU-tractability as per T005b), the exact command-line arguments used to generate data/sdar_results.csv and the figures, and a note on source independence (e.g., "Results generated from a fresh clone of the repository").
+- **[965f19591cea] (severity: writing)** Add type hints and docstrings to sdar_sim.py (pre-split): Before splitting, ensure the existing functions in sdar_sim.py have clear docstrings describing inputs/outputs, as the current ~12KB file lacks visible documentation in the summary, hindering immediate understanding of the logic flow.
+- **[199c48bf9c6a] (severity: writing)** Create docs/reproducibility/data_schema.md (or data/sdar_results.schema.yaml) defining the exact columns, data types, and units for data/sdar_results.csv and data/sdar_summary.json, explicitly mapping them to the metrics in spec.md (e.g., SDAR Gate Loss, RL Loss, success_rate).
+- **[6ffb31cd6a32] (severity: writing)** Add a data validation script code/data/validate_results.py that reads data/sdar_results.csv, checks for the presence of required columns and minimum row counts (e.g., >= 5 loss entries), and outputs a pass/fail status to docs/reproducibility/data_quality_report.md.
+- **[df11f4e885ac] (severity: writing)** Generate a data/manifest.json file that records the SHA-256 hashes of data/sdar_results.csv and data/sdar_summary.json, along with the git commit hash of the code and the requirements.txt version used to generate them, to establish provenance.
+- **[09c3377cce18] (severity: writing)** Create docs/reproducibility/reproducibility_report.md containing the measured execution metrics (e.g., gate_activation_rate, success_rate), the specific model backbone used (verifying CPU-tractability), and a note on source-independence confirming the results were generated from the current code state.
+- **[54c731f389e3] (severity: writing)** Move sdar_sim.py from the repository root to src/ (or external/SDAR/ if it is part of the vendored logic) to align with the directory structure defined in plan.md and tasks.md.
+- **[7924bb81e7a1] (severity: writing)** Ensure README.md accurately reflects the current file locations and includes a direct link to the newly created docs/reproducibility/reproducibility_report.md.
+- **[87f8221515ad] (severity: writing)** Update specs/579-https-arxiv-org-abs-2605-15155-repro/spec.md: Replace all instances of "[deferred]" in User Story 3 and Success Criteria with a precise definition of the "success" condition (e.g., "Success is defined as the ALFWorld environment returning a success=True flag within the 60s timeout").
+- **[e06b3c8d6685] (severity: writing)** Update plan.md (Phase 2): Add a new task to execute a Baseline Run (standard RL agent without SDAR gating) on the same 5 tasks to enable a comparative analysis of the "success_rate" metric.
+- **[b27484aac446] (severity: writing)** Create docs/reproducibility/reproducibility_report.md: Document the exact hyperparameters (model name, steps, batch size), environment version, and the mapping between the generated sdar_results.csv columns and the paper's reported metrics.
+- **[ac908e3f7ae3] (severity: writing)** Defect: The project lacks the docs/reproducibility/reproducibility_report.md file.
+- **[adb98910fd4e] (severity: writing)** Impact: Without this report, the "Reproduction" claim is scientifically unsound. The spec requires measuring coverage, match rates, and source-independence notes (see plan.md Constitution Check section). The current artifacts (CSV/JSON) are raw data, not the required scientific report.
+- **[33950788134d] (severity: writing)** Required Action: Create docs/reproducibility/reproducibility_report.md documenting the measured ALFWorld task coverage, the match rate of the "SDAR Gate Loss" against the paper's description, and a note on source independence. 2. Missing Required Output Artifacts (Spec FR-003 & FR-005) The spec requires specific log files and a structured final report that are not present in the code summary or data summary.
+- **[a3a02470b3cd] (severity: writing)** Defect: The outputs/logs/train_log.json and outputs/logs/eval_log.json (required by plan.md Project Structure and spec.md FR-003) are missing. The outputs/final_report.json (required by tasks.md T028) is also missing.
+- **[9d6c62ed3158] (severity: writing)** Impact: The implementation does not fully satisfy the "Artifact Consolidation" requirement. The current sdar_results.csv and sdar_summary.json do not map to the specific schema defined in the plan (e.g., gate_activation_rate, total_time).
+- **[c8b2d6712602] (severity: writing)** Required Action: Ensure the training and evaluation scripts write to outputs/logs/train_log.json and outputs/logs/eval_log.json respectively, and generate outputs/final_report.json aggregating the metrics as defined in T028. 3. Missing Timeout Wrapper Script (Plan Phase 2)
+- **[51fb78310776] (severity: writing)** Defect: tasks.md T006c requires creating scripts/global_timeout_wrapper.sh. This file is not listed in the code summary.
+- **[0534b1f7f9d9] (severity: writing)** Impact: The "Hard timeout" requirement (FR-005) is not visibly implemented as a standalone script, raising questions about how the 60s per task limit is enforced if not via the specified wrapper.
+- **[de519b16fa3d] (severity: writing)** Required Action: Create scripts/global_timeout_wrapper.sh and verify it is invoked by the training/evaluation entry points. The project has produced *some* results, but the implementation is incomplete because it lacks the mandatory documentation and specific artifact files required to validate the reproduction claim scientifically.
+- **[06120c1b1067] (severity: writing)** Create the directory structure external/SDAR/tests/ray_cpu/check_worker_alive/ and implement main.py to match the spec's Ray health check requirements, or move the existing logic from sdar_sim.py into this structure and update tasks.md to reflect the actual file location if the modular approach was intentionally abandoned (with justification).
+- **[3727200ffe39] (severity: writing)** Implement a hard timeout mechanism (e.g., scripts/global_timeout_wrapper.sh or equivalent logic in sdar_sim.py) that enforces the 60s per-task limit and logs timeout events, as required by T006c and T023.
+- **[b2e46456d10b] (severity: writing)** Create docs/reproducibility/reproducibility_report.md containing the measured ALFWorld task coverage, success rate match against the paper's claims, and a note on source independence, as required by the "Reproduction" scope.
+
+
+## Success Criterion
+
+After the implementer applies this revision, the project returns to
+``research_review`` and the per-specialist re-review protocol confirms
+each of the 24 action item(s) above as ADEQUATELY ADDRESSED.
+
+## Out of scope
+
+- New experiments not directly required by a ``science``-severity item above.
+- Refactors / cleanups not required by an action item.

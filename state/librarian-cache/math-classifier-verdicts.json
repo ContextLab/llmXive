@@ -331,6 +331,10 @@
     "classified_at": "2026-06-07T09:21:23Z",
     "verdict": false
   },
+  "PROJ-577-multabench-benchmarking-multimodal-tabul::1.6.0": {
+    "classified_at": "2026-06-30T17:01:04Z",
+    "verdict": false
+  },
   "PROJ-582-socratic-transformers-dialogue-based-sel::1.6.0": {
     "classified_at": "2026-05-30T03:33:41Z",
     "verdict": false

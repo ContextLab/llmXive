@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.02705",
+  "judged_at": "2026-06-30T17:01:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multabench: benchmarking multimodal tabular learning with text and image computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly benchmarks supervised learning on tabular data containing text fields, which is a core component of the user's \"Multimodal Tabular Learning with Text and Image\" question. Although the candidate paper focuses on text rather than images, it establishes the canonical empirical baseline and methodology for the text-tabular modality within the same domain, which is essential for a literature review on multimodal tabular learning.",
+  "relevant": true
+}

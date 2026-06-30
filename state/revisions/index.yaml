@@ -297,3 +297,9 @@ ready:
 - project_id: PROJ-261-evaluating-the-impact-of-code-duplicatio
   revision_spec_path: specs/auto-revisions/PROJ-261-evaluating-the-impact-of-code-duplicatio/round-3
   queued_at: '2026-06-30T16:49:25.814204+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-3
+  queued_at: '2026-06-30T17:07:26.885147+00:00'
+- project_id: PROJ-579-https-arxiv-org-abs-2605-15155
+  revision_spec_path: specs/auto-revisions/PROJ-579-https-arxiv-org-abs-2605-15155/round-2
+  queued_at: '2026-06-30T17:17:06.927384+00:00'

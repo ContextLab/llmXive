@@ -16,7 +16,7 @@ This document summarizes the coverage of core knot invariants in the dataset, as
 | Braid Index | 100.0% | 0 |
 | Hyperbolic Volume | 100.0% | 1 |
 | Alternating Classification | 100.0% | 0 |
-| **All Core Invariants** | **23.0%** | **12963** |
+| **All Core Invariants** | **100.0%** | **0** |
 
 ### Coverage by Crossing Number
 

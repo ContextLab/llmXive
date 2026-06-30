@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.10616",
+  "judged_at": "2026-06-30T17:01:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multabench: benchmarking multimodal tabular learning with text and image computer science",
+  "rationale": "The candidate paper is the exact foundational work defining the \"MulTaBench\" benchmark mentioned in the user's query, satisfying criteria (d) as the canonical reference for this specific research topic and (c) as the empirical baseline for multimodal tabular learning with text and image.",
+  "relevant": true
+}

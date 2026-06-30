@@ -11,7 +11,7 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-581-https-arxiv-org-abs-2605-13301/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-581-https-arxiv-org-abs-2605-13301/specs/001-https-arxiv-org-abs-2605-13301
 title: Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling

@@ -1,0 +1,258 @@
+project_id: PROJ-579-https-arxiv-org-abs-2605-15155
+round: 2
+revision_kind: research_writing
+from_stage: research_review
+to_stage: tasked
+worst_severity: writing
+seed_action_items:
+- id: c4206d0171b9
+  text: 'Split sdar_sim.py into modular components: Refactor the monolithic sdar_sim.py
+    into at least three distinct modules to align with the User Stories: scripts/ray_health_check.py
+    (US1), scripts/run_training.py (US2), and scripts/run_evaluation.py (US3). Each
+    module must be self-contained, <200 lines, and executable independently to ensure
+    that a failure in one phase does not obscure the results of the others.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 6e1e7d957b21
+  text: 'Create docs/reproducibility/reproducibility_report.md: Generate a mandatory
+    documentation file that explicitly lists the Python version, dependency versions
+    (from requirements.txt), the specific model backbone used (verifying CPU-tractability
+    as per T005b), the exact command-line arguments used to generate data/sdar_results.csv
+    and the figures, and a note on source independence (e.g., "Results generated from
+    a fresh clone of the repository").'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 965f19591cea
+  text: 'Add type hints and docstrings to sdar_sim.py (pre-split): Before splitting,
+    ensure the existing functions in sdar_sim.py have clear docstrings describing
+    inputs/outputs, as the current ~12KB file lacks visible documentation in the summary,
+    hindering immediate understanding of the logic flow.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 199c48bf9c6a
+  text: Create docs/reproducibility/data_schema.md (or data/sdar_results.schema.yaml)
+    defining the exact columns, data types, and units for data/sdar_results.csv and
+    data/sdar_summary.json, explicitly mapping them to the metrics in spec.md (e.g.,
+    SDAR Gate Loss, RL Loss, success_rate).
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 6ffb31cd6a32
+  text: Add a data validation script code/data/validate_results.py that reads data/sdar_results.csv,
+    checks for the presence of required columns and minimum row counts (e.g., >= 5
+    loss entries), and outputs a pass/fail status to docs/reproducibility/data_quality_report.md.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: df11f4e885ac
+  text: Generate a data/manifest.json file that records the SHA-256 hashes of data/sdar_results.csv
+    and data/sdar_summary.json, along with the git commit hash of the code and the
+    requirements.txt version used to generate them, to establish provenance.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 09c3377cce18
+  text: Create docs/reproducibility/reproducibility_report.md containing the measured
+    execution metrics (e.g., gate_activation_rate, success_rate), the specific model
+    backbone used (verifying CPU-tractability), and a note on source-independence
+    confirming the results were generated from the current code state.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 54c731f389e3
+  text: Move sdar_sim.py from the repository root to src/ (or external/SDAR/ if it
+    is part of the vendored logic) to align with the directory structure defined in
+    plan.md and tasks.md.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 7924bb81e7a1
+  text: Ensure README.md accurately reflects the current file locations and includes
+    a direct link to the newly created docs/reproducibility/reproducibility_report.md.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 87f8221515ad
+  text: 'Update specs/579-https-arxiv-org-abs-2605-15155-repro/spec.md: Replace all
+    instances of "[deferred]" in User Story 3 and Success Criteria with a precise
+    definition of the "success" condition (e.g., "Success is defined as the ALFWorld
+    environment returning a success=True flag within the 60s timeout").'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: e06b3c8d6685
+  text: 'Update plan.md (Phase 2): Add a new task to execute a Baseline Run (standard
+    RL agent without SDAR gating) on the same 5 tasks to enable a comparative analysis
+    of the "success_rate" metric.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: b27484aac446
+  text: 'Create docs/reproducibility/reproducibility_report.md: Document the exact
+    hyperparameters (model name, steps, batch size), environment version, and the
+    mapping between the generated sdar_results.csv columns and the paper''s reported
+    metrics.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: ac908e3f7ae3
+  text: 'Defect: The project lacks the docs/reproducibility/reproducibility_report.md
+    file.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: adb98910fd4e
+  text: 'Impact: Without this report, the "Reproduction" claim is scientifically unsound.
+    The spec requires measuring coverage, match rates, and source-independence notes
+    (see plan.md Constitution Check section). The current artifacts (CSV/JSON) are
+    raw data, not the required scientific report.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 33950788134d
+  text: 'Required Action: Create docs/reproducibility/reproducibility_report.md documenting
+    the measured ALFWorld task coverage, the match rate of the "SDAR Gate Loss" against
+    the paper''s description, and a note on source independence. 2. Missing Required
+    Output Artifacts (Spec FR-003 & FR-005) The spec requires specific log files and
+    a structured final report that are not present in the code summary or data summary.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: a3a02470b3cd
+  text: 'Defect: The outputs/logs/train_log.json and outputs/logs/eval_log.json (required
+    by plan.md Project Structure and spec.md FR-003) are missing. The outputs/final_report.json
+    (required by tasks.md T028) is also missing.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 9d6c62ed3158
+  text: 'Impact: The implementation does not fully satisfy the "Artifact Consolidation"
+    requirement. The current sdar_results.csv and sdar_summary.json do not map to
+    the specific schema defined in the plan (e.g., gate_activation_rate, total_time).'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: c8b2d6712602
+  text: 'Required Action: Ensure the training and evaluation scripts write to outputs/logs/train_log.json
+    and outputs/logs/eval_log.json respectively, and generate outputs/final_report.json
+    aggregating the metrics as defined in T028. 3. Missing Timeout Wrapper Script
+    (Plan Phase 2)'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 51fb78310776
+  text: 'Defect: tasks.md T006c requires creating scripts/global_timeout_wrapper.sh.
+    This file is not listed in the code summary.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 0534b1f7f9d9
+  text: 'Impact: The "Hard timeout" requirement (FR-005) is not visibly implemented
+    as a standalone script, raising questions about how the 60s per task limit is
+    enforced if not via the specified wrapper.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: de519b16fa3d
+  text: 'Required Action: Create scripts/global_timeout_wrapper.sh and verify it is
+    invoked by the training/evaluation entry points. The project has produced *some*
+    results, but the implementation is incomplete because it lacks the mandatory documentation
+    and specific artifact files required to validate the reproduction claim scientifically.'
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 06120c1b1067
+  text: Create the directory structure external/SDAR/tests/ray_cpu/check_worker_alive/
+    and implement main.py to match the spec's Ray health check requirements, or move
+    the existing logic from sdar_sim.py into this structure and update tasks.md to
+    reflect the actual file location if the modular approach was intentionally abandoned
+    (with justification).
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: 3727200ffe39
+  text: Implement a hard timeout mechanism (e.g., scripts/global_timeout_wrapper.sh
+    or equivalent logic in sdar_sim.py) that enforces the 60s per-task limit and logs
+    timeout events, as required by T006c and T023.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+- id: b2e46456d10b
+  text: Create docs/reproducibility/reproducibility_report.md containing the measured
+    ALFWorld task coverage, success rate match against the paper's claims, and a note
+    on source independence, as required by the "Reproduction" scope.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+  location: ''
+kickback_reason: 'advancement.evaluate: research-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-579-https-arxiv-org-abs-2605-15155/specs/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 24 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-30T17:17:06.921989+00:00'

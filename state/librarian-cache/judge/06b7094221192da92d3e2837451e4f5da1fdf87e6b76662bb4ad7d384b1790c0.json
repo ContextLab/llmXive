@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.08100",
+  "judged_at": "2026-06-30T17:01:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multabench: benchmarking multimodal tabular learning with text and image computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the core mechanism of \"multimodal tabular learning\" by studying the specific combination of text and image inputs for table understanding, which is the exact domain and variable intersection defined in the user's question. Although the paper focuses on the \"understanding\" (inference) aspect rather than a general \"benchmarking\" framework, it provides the canonical empirical baseline and methodology for the specific modality (table",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1109/ICCV51701.2025.02129",
+  "judged_at": "2026-06-30T17:01:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multabench: benchmarking multimodal tabular learning with text and image computer science",
+  "rationale": "This paper satisfies criterion (a) and (b) as it investigates the core mechanism of image-text alignment and multimodal learning, which are the fundamental components of the user's question regarding \"Multimodal Tabular Learning with Text and Image.\" Although the paper focuses on unstructured data (images and text) rather than tabular data, it provides the canonical prior work on the \"Text and Image\" modality interaction and alignment techniques that a literature review for this benchmark would ",
+  "relevant": true
+}

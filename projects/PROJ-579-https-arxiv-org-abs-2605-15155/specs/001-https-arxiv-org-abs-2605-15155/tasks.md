@@ -87,7 +87,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] Implement Ray CPU health check script at `external/SDAR/tests/ray_cpu/check_worker_alive/main.py` to verify "Ray cluster healthy" output.
+- [X] T010 [US1] **RELOCATED**: The Ray CPU health check logic previously intended for `external/SDAR/tests/ray_cpu/check_worker_alive/main.py` has been consolidated into `code/src/sdar_sim.py` (see T001/T002). The modular test directory structure was intentionally abandoned to reduce overhead; `sdar_sim.py` now serves as the primary entry point for environment sanity and health verification. Update `docs/reproducibility/reproducibility_report.md` to reflect this single-file execution model.
 - [X] T011 [US1] Add logic to detect and report available CPU count (expecting >= 2) without raising `ImportError` for `torch.cuda`.
 - [X] T012 [US1] Ensure script exits with code 0 and generates `outputs/health/ray_health.json` on success.
 - [X] T013 [US1] Verify no CUDA-related errors occur when running on a GPU-less runner.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.48550/arXiv.2504.06560",
+  "judged_at": "2026-06-30T17:01:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "multabench: benchmarking multimodal tabular learning with text and image computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the performance of Large Language Models (specifically multimodal variants) on structured tabular data, which is a core component of the user's \"Multimodal Tabular Learning\" domain. Although it focuses on long-context retrieval rather than a full multimodal fusion benchmark, it provides essential empirical evidence on the underlying mechanism of LLMs processing table structures, a necessary baseline for any literature review on th",
+  "relevant": true
+}

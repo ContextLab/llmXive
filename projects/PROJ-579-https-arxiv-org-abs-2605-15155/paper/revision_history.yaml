@@ -1,0 +1,154 @@
+schema_version: '1'
+project_id: PROJ-579-https-arxiv-org-abs-2605-15155
+rounds:
+- round_number: 2
+  ran_at: '2026-06-30T17:21:06.601703Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-30)
+  tasks_done: 16
+  tasks_failed: 1
+  tasks_skipped: 7
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-579-https-arxiv-org-abs-2605-15155/round-2/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[c4206d0171b9]** (severity: writing): Split sdar_sim.py
+      into modular components: Refactor the monolithic sdar_sim.py into at least three
+      distinct modules to align with the User S'
+  - id: '002'
+    severity: writing
+    status: done
+    text: 'Address action item **[6e1e7d957b21]** (severity: writing): Create docs/reproducibility/reproducibility_report.md:
+      Generate a mandatory documentation file that explicitly lists the Python version,
+      dep'
+  - id: '003'
+    severity: writing
+    status: done
+    text: 'Address action item **[965f19591cea]** (severity: writing): Add type hints
+      and docstrings to sdar_sim.py (pre-split): Before splitting, ensure the existing
+      functions in sdar_sim.py have clear docstrin'
+  - id: '004'
+    severity: writing
+    status: done
+    text: 'Address action item **[199c48bf9c6a]** (severity: writing): Create docs/reproducibility/data_schema.md
+      (or data/sdar_results.schema.yaml) defining the exact columns, data types, and
+      units for data/sda'
+  - id: '005'
+    severity: writing
+    status: compile-failed
+    text: 'Address action item **[6ffb31cd6a32]** (severity: writing): Add a data
+      validation script code/data/validate_results.py that reads data/sdar_results.csv,
+      checks for the presence of required columns and'
+  - id: '006'
+    severity: writing
+    status: done
+    text: 'Address action item **[df11f4e885ac]** (severity: writing): Generate a
+      data/manifest.json file that records the SHA-256 hashes of data/sdar_results.csv
+      and data/sdar_summary.json, along with the git c'
+  - id: '007'
+    severity: writing
+    status: done
+    text: 'Address action item **[09c3377cce18]** (severity: writing): Create docs/reproducibility/reproducibility_report.md
+      containing the measured execution metrics (e.g., gate_activation_rate, success_rate), '
+  - id: 008
+    severity: writing
+    status: done
+    text: 'Address action item **[54c731f389e3]** (severity: writing): Move sdar_sim.py
+      from the repository root to src/ (or external/SDAR/ if it is part of the vendored
+      logic) to align with the directory struct'
+  - id: 009
+    severity: writing
+    status: done
+    text: 'Address action item **[7924bb81e7a1]** (severity: writing): Ensure README.md
+      accurately reflects the current file locations and includes a direct link to
+      the newly created docs/reproducibility/reprodu'
+  - id: '010'
+    severity: writing
+    status: done
+    text: 'Address action item **[87f8221515ad]** (severity: writing): Update specs/579-https-arxiv-org-abs-2605-15155-repro/spec.md:
+      Replace all instances of "[deferred]" in User Story 3 and Success Criteria wi'
+  - id: '011'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[e06b3c8d6685]** (severity: writing): Update plan.md
+      (Phase 2): Add a new task to execute a Baseline Run (standard RL agent without
+      SDAR gating) on the same 5 tasks to enable a c'
+  - id: '012'
+    severity: writing
+    status: done
+    text: 'Address action item **[b27484aac446]** (severity: writing): Create docs/reproducibility/reproducibility_report.md:
+      Document the exact hyperparameters (model name, steps, batch size), environment
+      versi'
+  - id: '013'
+    severity: writing
+    status: done
+    text: 'Address action item **[ac908e3f7ae3]** (severity: writing): Defect: The
+      project lacks the docs/reproducibility/reproducibility_report.md file.'
+  - id: '014'
+    severity: writing
+    status: done
+    text: 'Address action item **[adb98910fd4e]** (severity: writing): Impact: Without
+      this report, the "Reproduction" claim is scientifically unsound. The spec requires
+      measuring coverage, match rates, and sour'
+  - id: '015'
+    severity: writing
+    status: done
+    text: 'Address action item **[33950788134d]** (severity: writing): Required Action:
+      Create docs/reproducibility/reproducibility_report.md documenting the measured
+      ALFWorld task coverage, the match rate of th'
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[a3a02470b3cd]** (severity: writing): Defect: The
+      outputs/logs/train_log.json and outputs/logs/eval_log.json (required by plan.md
+      Project Structure and spec.md FR-003) are missin'
+  - id: '017'
+    severity: writing
+    status: done
+    text: 'Address action item **[9d6c62ed3158]** (severity: writing): Impact: The
+      implementation does not fully satisfy the "Artifact Consolidation" requirement.
+      The current sdar_results.csv and sdar_summary.js'
+  - id: 018
+    severity: writing
+    status: skipped
+    text: 'Address action item **[c8b2d6712602]** (severity: writing): Required Action:
+      Ensure the training and evaluation scripts write to outputs/logs/train_log.json
+      and outputs/logs/eval_log.json respectively'
+  - id: 019
+    severity: writing
+    status: skipped
+    text: 'Address action item **[51fb78310776]** (severity: writing): Defect: tasks.md
+      T006c requires creating scripts/global_timeout_wrapper.sh. This file is not
+      listed in the code summary.'
+  - id: '020'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0534b1f7f9d9]** (severity: writing): Impact: The
+      "Hard timeout" requirement (FR-005) is not visibly implemented as a standalone
+      script, raising questions about how the 60s per t'
+  - id: '021'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[de519b16fa3d]** (severity: writing): Required Action:
+      Create scripts/global_timeout_wrapper.sh and verify it is invoked by the training/evaluation
+      entry points. The project has '
+  - id: '022'
+    severity: writing
+    status: done
+    text: 'Address action item **[06120c1b1067]** (severity: writing): Create the
+      directory structure external/SDAR/tests/ray_cpu/check_worker_alive/ and implement
+      main.py to match the spec''s Ray health check re'
+  - id: '023'
+    severity: writing
+    status: done
+    text: 'Address action item **[3727200ffe39]** (severity: writing): Implement a
+      hard timeout mechanism (e.g., scripts/global_timeout_wrapper.sh or equivalent
+      logic in sdar_sim.py) that enforces the 60s per-ta'
+  - id: '024'
+    severity: writing
+    status: done
+    text: 'Address action item **[b2e46456d10b]** (severity: writing): Create docs/reproducibility/reproducibility_report.md
+      containing the measured ALFWorld task coverage, success rate match against the
+      paper''s'

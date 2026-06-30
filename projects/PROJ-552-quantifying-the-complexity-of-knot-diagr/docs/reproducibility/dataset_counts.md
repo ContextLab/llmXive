@@ -8,7 +8,7 @@ dataset enumeration requirement.
 
 ### Summary
 
-- **Total Prime Knots**: 12967
+- **Total Prime Knots**: 9988
 - **Crossing Number Range**: 3 - 13
 
 ### Counts by Crossing Number

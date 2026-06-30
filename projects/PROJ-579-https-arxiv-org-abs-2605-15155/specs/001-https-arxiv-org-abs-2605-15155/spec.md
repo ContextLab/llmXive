@@ -47,7 +47,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained (or randomly initialized) model and the evaluation script configured for `num_tasks=5`, **When** the evaluation loop runs, **Then** the system must attempt to solve each task and output a final success rate (e.g., "Success Rate: [deferred]") to the console and a log file.
+1. **Given** a trained (or randomly initialized) model and the evaluation script configured for `num_tasks=5`, **When** the evaluation loop runs, **Then** the system must attempt to solve each task and output a final success rate (e.g., "Success Rate: 0.XX") to the console and a log file, where success is defined as the ALFWorld environment returning a success=True flag within the 60s timeout.
 2. **Given** the evaluation encounters a task timeout, **When** the task fails, **Then** the system must record the failure reason (e.g., "Max steps exceeded") in the log and continue to the next task without crashing the entire evaluation suite.
 
 ---

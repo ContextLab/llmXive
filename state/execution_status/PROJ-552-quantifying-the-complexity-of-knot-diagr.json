@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/reproducibility/checksum_generator.py",
+  "reason": "106 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/fontTools/cffLib/__init__.py: self-declared fabricated metric \u2014 \u201c\u2026ue):         return (0, 0)  # dummy value   class SubrsConverter(TableC\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/reproducibility/checksum_generator.py",
   "artifacts": [
     "data/plots/crossing_vs_braid.png",
     "data/processed/knots_cleaned.csv",
@@ -10,9 +10,9 @@
     "data/raw/knot_atlas_raw.json"
   ],
   "failures": [
-    "python code/reproducibility/checksum_generator.py -> rc=2\n    /home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/checksum_generator.py': [Errno 2] No such file or directory"
+    "python code/reproducibility/checksum_generator.py -> rc=2\n    /opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/checksum_generator.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "updated_at": "2026-06-30T13:03:52Z"
+  "updated_at": "2026-06-30T17:13:56Z"
 }

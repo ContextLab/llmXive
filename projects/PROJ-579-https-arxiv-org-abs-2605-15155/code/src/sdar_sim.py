@@ -27,6 +27,15 @@ import matplotlib.pyplot as plt
 # improvement of SDAR over naive GRPO+OPSD when the teacher is imperfect (noisy).
 
 # --- Configuration ---
+import signal
+
+# Timeout configuration (Task T006c, T023)
+TASK_TIMEOUT_SECONDS = 60
+
+def timeout_handler(signum, frame):
+    """Handler for timeout events."""
+    raise TimeoutError(f"Task exceeded {TASK_TIMEOUT_SECONDS}s limit.")
+
 NUM_EPISODES = 500
 GRID_SIZE = 5
 MAX_STEPS = 15
@@ -41,7 +50,13 @@ FIGURES_DIR = "figures"
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(FIGURES_DIR, exist_ok=True)
 
-def set_seed(seed=42):
+def set_seed(seed: int = 42) -> None:
+    """
+    Sets the random seed for reproducibility.
+
+    Args:
+        seed: The integer seed value for random and numpy random number generators.
+    """
     random.seed(seed)
     np.random.seed(seed)
 
