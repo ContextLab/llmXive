@@ -1,42 +1,53 @@
 # Data Model: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
 
-## Primary Dataset (`data/dataset.csv`)
-| Column | Type | Description |
-|--------|------|-------------|
-| `cod_id` | string | COD entry identifier (e.g., '1234567'). |
-| `smiles` | string | Canonical SMILES string for the molecule. |
-| `smiles_source` | string | `"extracted"` or `"generated"` flag. |
-| `unit_cell_volume` | float | Unit‑cell volume (Å³) as reported in the CIF. |
-| `packing_coefficient` | float | Raw packing coefficient (unit‑cell volume divided by sum of atomic vdW volumes). |
-| `cape` | float | Composition‑adjusted packing efficiency (CAPE). |
-| `radius_of_gyration` | float | 3‑D descriptor (Å) computed from a RDKit‑generated conformer of the isolated molecule. |
-| `asphericity` | float | 3‑D descriptor (dimensionless) from the same conformer. |
-| `principal_moments` | string | JSON‑encoded list of three moments (Å²) from the same conformer. |
-| `lattice_system` | string | Crystal lattice system (e.g., `monoclinic`). |
-| `temperature_K` | float | Measurement temperature (K). |
-| `has_solvent` | boolean | Presence of solvent molecules (`true/false`). |
-| `atom_type_counts` | string | JSON‑encoded dict of element → count (e.g., `{"C":12,"O":2}`); **not used as predictor** in the MLP. |
-| `mlp_features` | string | JSON‑encoded combined feature vector **excluding** `atom_type_counts` (fingerprint PCs + 3‑D descriptors + confounders). |
+## Data Flow
 
-*All rows must have non‑null values for the columns above; rows failing any check are excluded and logged.*
+1.  **Raw Input**: CIF files from COD Organic Subset (downloaded).
+2.  **Intermediate**: Parsed molecular structures (RDKit `Mol` objects), 3D coordinates.
+3.  **Processed**: `dataset.csv` (features + target).
+4.  **Model Input**: NumPy arrays (features), PyTorch tensors (targets).
+5.  **Output**: `validation_report.json`, `model.pt`, `report.html`.
 
-## Model Checkpoint (`models/mlp_regressor.pt`)
-- **Framework**: PyTorch (CPU).  
-- **Architecture**: Input size = `fingerprint_dim_PCs + 3 + N_confounders`; hidden layer = 128 units; ReLU activation; output layer = 1 (CAPE).  
-- **Parameter Count**: ≤ 100 k (FR‑005).  
-- **State Dict**: Serialized `torch.save(model.state_dict())`.  
+## Entity Definitions
 
-## Validation Report (`results/validation_report.json`)
-Conforms to `contracts/validation_report.schema.yaml`. Contains:
-- `metrics`: `{ "MAE": float, "Pearson_r": float, "Spearman_rho": float, "Shapiro_W": float, "Shapiro_p": float }`
-- `permutation_test`: `{ "p_value": float, "num_shuffles": 10000 }`
-- `partial_correlation`: `{ "adjusted_r": float, "controlled_features": ["atom_type_counts"] }`
-- `vif`: `{ "<feature_name>": float, ... }` (computed on PCA‑reduced fingerprint PCs + 3‑D descriptors + confounders)
-- `sensitivity`: list of objects `{ "threshold": float, "Pearson_r": float, "Spearman_rho": float, "MAE": float, "p_value": float, "bonferroni_corrected_p": float }`
-- `ablation`: `{ "MAE": float, "Pearson_r": float, "Spearman_rho": float, "Shapiro_W": float, "Shapiro_p": float }`
-- `runtime_seconds`: float
-- `git_commit": string
-- `artifact_hashes`: `{ "dataset_csv": string, "model_pt": string, "report_html": string }`
+### 1. Crystal Record
+Represents a single organic crystal structure entry.
 
----
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `cod_id` | str | Unique COD identifier | CIF Header |
+| `smiles` | str | Canonical SMILES string | Extracted or RDKit Gen |
+| `smiles_source` | str | "extracted" or "generated" | Pipeline Flag |
+| `unit_cell_volume` | float | Volume in Å³ | CIF Cell Parameters |
+| `n_atoms` | int | Count of non-H atoms | RDKit |
+| `sum_vdw_volume` | float | Sum of atomic VdW volumes (Bondi) | RDKit + Bondi Radii |
+| `packing_coefficient` | float | $V_{cell} / \sum V_{vdW}$ | Calculated (Diagnostic Only) |
+| `cape` | float | Composition-Adjusted Packing Efficiency | Calculated (Target for ALL Models) |
+| `radius_gyration` | float | $R_g$ in Å | 3D Geometry |
+| `asphericity` | float | Shape parameter (0-1) | 3D Geometry |
+| `moments_inertia` | list(float) | [I1, I2, I3] in amu·Å² | 3D Geometry |
+| `lattice_system` | str | e.g., "monoclinic", "orthorhombic" | CIF Metadata |
+| `temperature_K` | float | Measurement temperature | CIF Metadata |
+| `has_solvent` | bool | Presence of solvent molecules | CIF Metadata |
+| `atom_type_counts` | dict | {C: 5, N: 2, ...} | RDKit |
 
+### 2. Model Features
+The feature vector $X$ for the MLPs:
+-   **Baseline Model**: $X_{smiles}$ (Fixed-length embedding from frozen transformer). **Target**: `cape`.
+-   **Control Model**: $X_{geo}$ (Radius of Gyration, Asphericity, Moments) + $X_{conf}$ (Lattice, Temp, Solvent). **Target**: `cape`.
+-   **Upper Bound Model**: $X_{smiles}$ + $X_{geo}$ + $X_{conf}$. **Target**: `cape`.
+    -   **Exclusion**: `sum_vdw_volume` and `n_atoms` are **NOT** included in the feature set for any CAPE model to prevent circularity.
+
+### 3. Prediction Output
+-   `predicted_cape`: float.
+-   `residual`: `observed_cape` - `predicted_cape`.
+
+## Data Constraints
+
+-   **SMILES**: Must be valid RDKit SMILES.
+-   **CAPE**: Must be > 0.
+-   **Missing Data**: Records with missing CIF metadata (e.g., no temperature) are excluded or imputed with "unknown" category if applicable.
+-   **Atom Count**: Filtered to ≤ 50 non-H atoms.
+
+## Schema Validation
+All processed data must conform to `contracts/dataset.schema.yaml`.
