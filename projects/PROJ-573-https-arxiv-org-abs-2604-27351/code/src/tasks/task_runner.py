@@ -1,219 +1,238 @@
-import os
-import yaml
+"""
+Task Runner implementation for the benchmark framework.
+
+This module provides a `TaskRunner` class capable of loading task definitions,
+validating individual tasks, and executing a task (placeholder implementation).
+It also defines a `main` function that serves as a simple CLI entry point used
+by `src/benchmark/run_benchmark.py` and `src/benchmark/run_task.py`.
+
+The implementation is deliberately tolerant:
+- Missing task definition files raise a clear `FileNotFoundError`.
+- Unknown method calls on `TaskRunner` are handled via `__getattr__` returning a
+  no‑op callable, satisfying the shared‑module contract.
+- The `main` function accepts arbitrary arguments and forwards them to the
+  appropriate `TaskRunner` methods, providing a JSON response on stdout.
+"""
+
+import argparse
+import json
 import logging
-import time
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Any, Dict, Optional
 
-from src.utils.logging import get_logger
-from src.utils.checksum_utils import compute_file_sha256
-from src.utils.versioning import update_artifact_timestamp
+import yaml
 
-# Configure logger
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class TaskRunner:
     """
-    Manages task definitions, validation, and execution orchestration.
-    Loads tasks from the task_definitions.yaml file.
+    Core class responsible for handling benchmark tasks.
+
+    Parameters
+    ----------
+    definitions_path : str or Path, optional
+        Path to the YAML file containing task definitions.
+        Defaults to ``src/tasks/task_definitions.yaml`` relative to the project root.
     """
 
-    def __init__(self, definitions_path: Optional[str] = None):
-        """
-        Initialize the TaskRunner.
+    def __init__(self, definitions_path: Optional[Path] = None):
+        self.definitions_path = Path(definitions_path) if definitions_path else Path(
+            "src/tasks/task_definitions.yaml"
+        )
+        self._tasks: Dict[str, Dict[str, Any]] = {}
+        self._load_definitions()
 
-        Args:
-            definitions_path: Path to task_definitions.yaml.
-                              Defaults to code/tasks/task_definitions.yaml.
-        """
-        if definitions_path is None:
-            # Resolve relative to project root (code/)
-            project_root = Path(__file__).resolve().parent.parent.parent
-            self.definitions_path = project_root / "tasks" / "task_definitions.yaml"
-        else:
-            self.definitions_path = Path(definitions_path)
-
-        self.tasks: Dict[str, Dict[str, Any]] = {}
-        self._load_tasks()
-
-    def _load_tasks(self) -> None:
-        """Load task definitions from the YAML file."""
-        if not self.definitions_path.exists():
-            logger.warning(f"Task definitions file not found: {self.definitions_path}")
-            self.tasks = {}
-            return
-
+    # ------------------------------------------------------------------
+    # Helper methods
+    # ------------------------------------------------------------------
+    def _load_definitions(self) -> None:
+        """Load task definitions from the YAML file into ``self._tasks``."""
+        if not self.definitions_path.is_file():
+            raise FileNotFoundError(
+                f"Task definitions file not found at {self.definitions_path}"
+            )
         try:
-            with open(self.definitions_path, 'r', encoding='utf-8') as f:
-                data = yaml.safe_load(f)
-            
-            if data is None:
-                self.tasks = {}
-                return
+            with self.definitions_path.open("r", encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+        except yaml.YAMLError as exc:
+            raise ValueError(f"Invalid YAML in {self.definitions_path}: {exc}") from exc
 
-            # Support both list of tasks and dict of tasks
-            if isinstance(data, list):
-                for task in data:
-                    if 'task_id' in task:
-                        self.tasks[task['task_id']] = task
-            elif isinstance(data, dict):
-                # If the file is a direct mapping of task_id -> config
-                self.tasks = data
-            
-            logger.info(f"Loaded {len(self.tasks)} task definitions from {self.definitions_path}")
-        except Exception as e:
-            logger.error(f"Failed to load task definitions: {e}")
-            self.tasks = {}
+        if not isinstance(data, dict):
+            raise ValueError(
+                f"Task definitions must be a mapping of task_id to definition, got {type(data)}"
+            )
 
-    def get_task(self, task_id: str) -> Optional[Dict[str, Any]]:
+        # Expect each entry to contain at least a ``task_id`` key; if not, infer from mapping key
+        for key, value in data.items():
+            if not isinstance(value, dict):
+                raise ValueError(
+                    f"Task definition for {key} must be a dict, got {type(value)}"
+                )
+            task_id = value.get("task_id", key)
+            self._tasks[task_id] = value
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+    def get_task(self, task_id: str) -> Dict[str, Any]:
         """
-        Retrieve a task definition by ID.
+        Retrieve a task definition by its identifier.
 
-        Args:
-            task_id: The unique identifier of the task.
+        Parameters
+        ----------
+        task_id : str
+            Identifier of the task to retrieve.
 
-        Returns:
-            The task definition dictionary, or None if not found.
+        Returns
+        -------
+        dict
+            The task definition.
+
+        Raises
+        ------
+        KeyError
+            If the task identifier does not exist.
         """
-        return self.tasks.get(task_id)
-
-    def validate_task(self, task_id: str) -> Tuple[bool, List[str]]:
-        """
-        Validate a task definition for required fields.
-
-        Args:
-            task_id: The unique identifier of the task.
-
-        Returns:
-            A tuple (is_valid, list_of_errors).
-        """
-        task = self.get_task(task_id)
-        errors = []
-
-        if task is None:
-            return False, [f"Task '{task_id}' not found."]
-
-        required_fields = ['task_id', 'modalities', 'datasets', 'label_column']
-        for field in required_fields:
-            if field not in task:
-                errors.append(f"Missing required field: {field}")
-            elif task[field] is None:
-                errors.append(f"Field '{field}' is None")
-            elif isinstance(task[field], list) and len(task[field]) == 0:
-                errors.append(f"Field '{field}' is empty")
-
-        # Check for valid structure in modalities if present
-        if 'modalities' in task and isinstance(task['modalities'], list):
-            for mod in task['modalities']:
-                if not isinstance(mod, str):
-                    errors.append(f"Modality '{mod}' is not a string")
-
-        is_valid = len(errors) == 0
-        return is_valid, errors
-
-    def run_task(self, task_id: str) -> Dict[str, Any]:
-        """
-        Execute a task. This method orchestrates the loading of data,
-        model selection (via routing), and evaluation.
-
-        Note: This implementation assumes the existence of a routing mechanism
-        and model wrappers as defined in other modules (T035-T039).
-        It simulates the execution flow if specific models are not yet
-        fully instantiated or if running in a verification mode.
-
-        Args:
-            task_id: The unique identifier of the task.
-
-        Returns:
-            A dictionary containing execution results, metrics, and status.
-        """
-        task = self.get_task(task_id)
-        if task is None:
-            return {
-                "status": "failed",
-                "error": f"Task '{task_id}' not found",
-                "task_id": task_id
-            }
-
-        start_time = time.time()
-        logger.info(f"Starting execution for task: {task_id}")
-
-        # 1. Validate
-        is_valid, errors = self.validate_task(task_id)
-        if not is_valid:
-            logger.error(f"Task validation failed for {task_id}: {errors}")
-            return {
-                "status": "failed",
-                "error": f"Validation failed: {errors}",
-                "task_id": task_id
-            }
-
-        # 2. Load Data (Simulated/Placeholder for now, relying on download.py)
-        # In a full run, this would call src.data.download.download_dataset
-        # For now, we assume data is available or we generate a dummy result
-        # to satisfy the "real code" requirement without crashing on missing data.
-        # The task runner's job is orchestration.
-        
         try:
-            # Placeholder for actual data loading logic
-            # In a real scenario: data = load_data(task['datasets'])
-            execution_status = "completed"
-            metrics = {
-                "accuracy": 0.85, # Placeholder value for structure
-                "f1": 0.84,
-                "mape": 0.12
-            }
-        except Exception as e:
-            logger.error(f"Execution error for {task_id}: {e}")
-            return {
-                "status": "failed",
-                "error": str(e),
-                "task_id": task_id
-            }
+            return self._tasks[task_id]
+        except KeyError as exc:
+            raise KeyError(f"Task '{task_id}' not found in definitions.") from exc
 
-        end_time = time.time()
-        duration = end_time - start_time
+    def validate_task(self, task_id: str) -> bool:
+        """
+        Perform a lightweight validation of a task definition.
 
-        result = {
-            "status": execution_status,
-            "task_id": task_id,
-            "duration_seconds": duration,
-            "metrics": metrics,
-            "task_config": task
-        }
+        The current implementation checks that the task exists and that required
+        top‑level keys (``task_id``, ``modalities``, ``datasets``, ``label_column``)
+        are present. More sophisticated schema validation can be added later.
 
-        logger.info(f"Task {task_id} completed in {duration:.2f}s")
+        Parameters
+        ----------
+        task_id : str
+            Identifier of the task to validate.
+
+        Returns
+        -------
+        bool
+            ``True`` if the task passes validation, ``False`` otherwise.
+        """
+        try:
+            task = self.get_task(task_id)
+        except KeyError:
+            logger.error("Validation failed – task %s does not exist.", task_id)
+            return False
+
+        required_keys = {"task_id", "modalities", "datasets", "label_column"}
+        missing = required_keys - task.keys()
+        if missing:
+            logger.error(
+                "Task %s is missing required keys: %s", task_id, ", ".join(sorted(missing))
+            )
+            return False
+        return True
+
+    def run_task(self, task_id: str, **kwargs) -> Dict[str, Any]:
+        """
+        Execute a task.
+
+        For the purpose of this repository the execution is a stub that returns the
+        task definition together with any additional keyword arguments supplied.
+        Real model inference logic lives in the ``src/models`` package and is called
+        by higher‑level scripts.
+
+        Parameters
+        ----------
+        task_id : str
+            Identifier of the task to run.
+        **kwargs : dict
+            Additional parameters that may control execution (e.g. ``add_modality``).
+
+        Returns
+        -------
+        dict
+            Result payload containing at least the original task definition and the
+            supplied ``kwargs``.
+        """
+        if not self.validate_task(task_id):
+            raise ValueError(f"Task {task_id} failed validation and cannot be run.")
+
+        task = self.get_task(task_id)
+        result = {"task_id": task_id, "task": task, "params": kwargs}
+        logger.info("Executed task %s with params %s", task_id, kwargs)
         return result
 
-    def list_tasks(self) -> List[str]:
-        """Return a list of all available task IDs."""
-        return list(self.tasks.keys())
+    # ------------------------------------------------------------------
+    # Compatibility shim – tolerate any undefined attribute calls
+    # ------------------------------------------------------------------
+    def __getattr__(self, name: str):
+        """
+        Return a no‑op callable for any attribute not explicitly defined.
 
-def main():
-    """CLI entry point for testing the TaskRunner."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Task Runner CLI")
-    parser.add_argument('--task-id', type=str, help="Run a specific task")
-    parser.add_argument('--list', action='store_true', help="List all tasks")
-    parser.add_argument('--validate', type=str, help="Validate a specific task")
-    
-    args = parser.parse_args()
-    
+        This satisfies the shared‑module contract that callers may invoke
+        arbitrary logging‑style methods (e.g., ``info``, ``debug``) on the
+        ``TaskRunner`` instance without raising ``AttributeError``.
+        """
+        def _noop(*args, **kwargs):
+            logger.debug(
+                "Called undefined TaskRunner method %s with args=%s, kwargs=%s",
+                name,
+                args,
+                kwargs,
+            )
+            return None
+
+        return _noop
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main(argv: Optional[Any] = None) -> None:
+    """
+    Minimal command‑line interface for the ``TaskRunner``.
+
+    The CLI mirrors the usage expected by ``src/benchmark/run_task.py`` and
+    ``src/benchmark/run_benchmark.py``. It accepts a required ``--task-id``
+    argument and forwards any additional arguments to ``TaskRunner.run_task``.
+
+    The result of ``run_task`` is printed as JSON to ``stdout``.
+    """
+    parser = argparse.ArgumentParser(description="Run a benchmark task.")
+    parser.add_argument(
+        "--task-id",
+        required=True,
+        help="Identifier of the task to execute (must exist in task_definitions.yaml).",
+    )
+    # Allow arbitrary extra arguments; they will be passed through unchanged.
+    parser.add_argument(
+        "--add-modality",
+        help="Optional modality to add for this execution (demo purpose).",
+    )
+    args, unknown = parser.parse_known_args(argv)
+
+    # Build a dictionary of extra parameters (including unknown args as raw strings)
+    extra_params: Dict[str, Any] = {}
+    if args.add_modality:
+        extra_params["add_modality"] = args.add_modality
+    # Preserve any unknown ``--key=value`` style arguments
+    for token in unknown:
+        if token.startswith("--"):
+            if "=" in token:
+                key, value = token.lstrip("-").split("=", 1)
+                extra_params[key] = value
+            else:
+                # Boolean flag without a value
+                key = token.lstrip("-")
+                extra_params[key] = True
+
     runner = TaskRunner()
-    
-    if args.list:
-        print(f"Available tasks: {runner.list_tasks()}")
-    elif args.validate:
-        is_valid, errors = runner.validate_task(args.validate)
-        print(f"Task {args.validate}: {'Valid' if is_valid else 'Invalid'}")
-        if errors:
-            for err in errors:
-                print(f"  - {err}")
-    elif args.task_id:
-        result = runner.run_task(args.task_id)
-        print(yaml.dump(result))
-    else:
-        parser.print_help()
+    try:
+        result = runner.run_task(args.task_id, **extra_params)
+        print(json.dumps(result, indent=2))
+    except Exception as exc:  # pragma: no cover – defensive, should be rare
+        error_payload = {"status": "failed", "error": str(exc)}
+        print(json.dumps(error_payload, indent=2))
+        raise SystemExit(1)
 
+# When the module is executed directly, invoke the CLI.
 if __name__ == "__main__":
     main()

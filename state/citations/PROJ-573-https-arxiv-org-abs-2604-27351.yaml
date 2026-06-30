@@ -53,7 +53,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmXive-proj-573
   verified_at: '2026-06-30T06:58:50.279484Z'
-- artifact_hash: 0a7c3d8d134552b2a3952cefaad557d3e901217c390643d1646e39f1ae095063
+- artifact_hash: fe1f6a1b0d0ce3204ecef86959c86ca1149ccc187bfd40261dab45ae0ad33818
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,8 +63,8 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-06-30T12:12:40.328494Z'
-- artifact_hash: 0a7c3d8d134552b2a3952cefaad557d3e901217c390643d1646e39f1ae095063
+  verified_at: '2026-06-30T12:34:53.796211Z'
+- artifact_hash: fe1f6a1b0d0ce3204ecef86959c86ca1149ccc187bfd40261dab45ae0ad33818
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -74,8 +74,8 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-06-30T12:12:40.328494Z'
-- artifact_hash: 0a7c3d8d134552b2a3952cefaad557d3e901217c390643d1646e39f1ae095063
+  verified_at: '2026-06-30T12:34:53.796211Z'
+- artifact_hash: fe1f6a1b0d0ce3204ecef86959c86ca1149ccc187bfd40261dab45ae0ad33818
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -85,4 +85,4 @@
   value: https://en.wikipedia.org/wiki/Hutter_Prize
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Hutter_Prize
-  verified_at: '2026-06-30T12:12:40.328494Z'
+  verified_at: '2026-06-30T12:34:53.796211Z'

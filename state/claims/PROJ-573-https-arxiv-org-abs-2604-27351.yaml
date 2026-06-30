@@ -5018,3 +5018,187 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T12:12:08Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: model weights less than 1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM
+  claim_id: c_68d28518
+  context: "Phase 0 task T006 validates that model weights are under 1\u202FGB for\
+    \ the listed models."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_weights_less_than_1_GB_for_TimeSeries-Transformer,_Tab
+  kind: magnitude
+  raw_text: "Validate model weights <1\u202FGB for TimeSeries-Transformer, TabPFN,\
+    \ distilled LLM via HuggingFace model cards."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T12:31:49Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: "per-task inference \u22645 minutes on 2 CPU cores"
+  claim_id: c_db127606
+  context: Tasks T055c and T055b specify runtime limits for individual tasks and the
+    full benchmark.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Per\u2011task inference must be \u22645\u202Fminutes on 2\u202FCPU cores."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T12:31:50Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: "total benchmark runtime \u22644 hours"
+  claim_id: c_22cc87e5
+  context: "Task T055b enforces that the entire benchmark completes within a four\u2011\
+    hour wall\u2011clock window."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total benchmark runtime must be \u22644\u202Fhours on reference hardware."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T12:31:51Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: "mean accuracy differences CI width \u226415%"
+  claim_id: c_1e1a3187
+  context: "Task T056 requires reproducibility such that the CI width of mean accuracy\
+    \ differences does not exceed 15\u202F%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mean accuracy differences must be within a 95\u202F% confidence interval\
+    \ with CI width \u226415\u202F%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T12:32:12Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: "default \u03B1 = 0.05"
+  claim_id: c_509ca1a0
+  context: "Statistical test implementation (Task T027) uses a default \u03B1 threshold\
+    \ of 0.05."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: "Default significance level \u03B1 is 0.05."
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T12:32:21Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: Bootstrapping is a statistical resampling method
+  claim_id: c_4aa219ce
+  context: 'Validate statistical methodology (paired t-test, Wilcoxon signed-rank,
+    {{claim:c_55db4237}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics)))'
+  evidence:
+    entailment_evidence: Bootstrapping is a statistical resampling method
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_is_a_statistical_resampling_method
+  kind: entity_fact
+  raw_text: Bootstrapping (statistics)
+  resolved_value: Bootstrapping is a statistical resampling method
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T12:34:13Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: The Hutter Prize is a competition for data compression
+  claim_id: c_0929bcb6
+  context: 'All models must be CPU-tractable (< 1 GB weights) - validated in T006;
+    {{claim:c_b9b3cab2}} (Wikipedia: Hutter Prize, https://en.wikipedia.org/wiki/Hutter_Prize)'
+  evidence:
+    entailment_evidence: The Hutter Prize is a competition for data compression
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/The_Hutter_Prize_is_a_competition_for_data_compression
+  kind: entity_fact
+  raw_text: Hutter Prize
+  resolved_value: The Hutter Prize is a competition for data compression
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T12:34:15Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: total runtime 4 hours
+  claim_id: c_a78a8b3b
+  context: "Implement total runtime verification in src/evaluation/runtime_verification.py;\
+    \ verify total runtime \u22644 hours on reference hardware (SC-003); record pass/fail\
+    \ to data/runtime_metrics.yaml."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total runtime \u22644 hours on reference hardware"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T12:34:49Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: per-task inference 5 minutes
+  claim_id: c_599e9992
+  context: "Implement per-task inference verification in src/evaluation/runtime_verification.py;\
+    \ verify per-task inference \u22645 minutes (SC-002); record pass/fail to data/runtime_metrics.yaml."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "per-task inference \u22645 minutes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T12:34:50Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: mean accuracy CI width 15 percent
+  claim_id: c_985b8083
+  context: "Verify reproducibility across multiple seeds (SC-004); mean accuracy differences\
+    \ within 95% CI with CI width \u226415% (implementation-specific threshold - document\
+    \ in spec as staged); run benchmark 5 times with different seeds, compare results."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "mean accuracy differences within 95% CI with CI width \u226415%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T12:34:51Z'

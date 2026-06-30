@@ -48,7 +48,7 @@
 - [X] T001 [P] Verify time-series dataset availability (UCI_HAR) via `datasets.load_dataset('UCI_HAR')`; create `src/research/verify_timeseries.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace datasets; create `src/research/verify_tabular.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets; create `src/research/verify_text.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
-- [X] T004 Validate statistical methodology (paired t-test, Wilcoxon signed-rank, {{claim:c_55db4237}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))); document in research.md section "Methodology" with formula, {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3)
+- [X] T004 Validate statistical methodology (paired t-test, Wilcoxon signed-rank, {{claim:c_55db4237}} (Wikipedia: {{claim:c_4aa219ce}}, https://en.wikipedia.org/wiki/Bootstrapping_(statistics))); document in research.md section "Methodology" with formula, {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3)
 - [X] T005 Document dataset-variable fit and flag any missing variables in research.md section "Gap Analysis" with fields: dataset_name, missing_variables (list), impact_assessment (FR-001, Phase 0.4)
 - [X] T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards; create `src/research/verify_models.py` script; document in research.md section "Model Verification" with fields: model_name, hf_id, size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)
 - [X] T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py` with title-token-overlap ≥ 0.7 check before contributing review points; add blocking gate for Constitution II compliance (Constitution II, Plan Gap)
@@ -180,9 +180,9 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T053 [P] Additional unit tests in tests/unit/ (model wrappers, metrics, statistical tests); specific tests: test_timeseries_model.py, test_tabular_model.py, test_text_model.py, test_metrics.py, test_statistical_tests.py
 - [X] T054 Run quickstart.md validation to ensure reproducible setup; validation method: fresh venv, pip install -r requirements.txt, run --help, verify no errors
 - [X] T055a Create runtime measurement script in src/utils/runtime_monitor.py (SC-003, SC-002); function signatures: measure_total_benchmark_time(), measure_per_task_time(task_id); record results to data/runtime_metrics.yaml
-- [X] T055b Implement total runtime verification in src/evaluation/runtime_verification.py; verify total runtime ≤4 hours on reference hardware (SC-003); record pass/fail to data/runtime_metrics.yaml
-- [X] T055c Implement per-task inference verification in src/evaluation/runtime_verification.py; verify per-task inference ≤5 minutes (SC-002); record pass/fail to data/runtime_metrics.yaml
-- [X] T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy differences within 95% CI with CI width ≤15% (implementation-specific threshold - document in spec as staged); run benchmark 5 times with different seeds, compare results
+- [X] T055b Implement total runtime verification in src/evaluation/runtime_verification.py; verify total runtime ≤4 hours on reference hardware [UNRESOLVED-CLAIM: c_a78a8b3b — status=not_enough_info] (SC-003); record pass/fail to data/runtime_metrics.yaml
+- [X] T055c Implement per-task inference verification in src/evaluation/runtime_verification.py; verify per-task inference ≤5 minutes [UNRESOLVED-CLAIM: c_599e9992 — status=not_enough_info] (SC-002); record pass/fail to data/runtime_metrics.yaml
+- [X] T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy differences within 95% CI with CI width ≤15% [UNRESOLVED-CLAIM: c_985b8083 — status=not_enough_info] (implementation-specific threshold - document in spec as staged); run benchmark 5 times with different seeds, compare results
 - [X] T057 Archive artifacts with content hashes in state/artifact_hashes (Constitution V); artifacts to archive: data/, state/, src/ (excluding __pycache__); hash format: sha256; update procedure: compute hash for each file, write to state/artifact_hashes.yaml with file_path and hash value
 - [X] T058 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml updated_at timestamp on artifact changes; depends on T018; helper function: update_timestamp_on_change(artifact_path); integrate with T040-T042 config updates
 
@@ -287,7 +287,7 @@ With multiple developers:
 
 - All models must be CPU-tractable (< 1 GB weights) - validated in T006
 - No GPU/CUDA dependencies
-- {{claim:c_b9b3cab2}} (Wikipedia: Hutter Prize, https://en.wikipedia.org/wiki/Hutter_Prize)
+- {{claim:c_b9b3cab2}} (Wikipedia: {{claim:c_0929bcb6}}, https://en.wikipedia.org/wiki/Hutter_Prize)
 - Per-task inference ≤ 5 minutes on 2 CPU cores
 - Full benchmark ≤ 4 hours wall-clock time
 - Use UCI_HAR for time-series, DROP/MUST for text (per plan.md substitution strategy)

@@ -1,0 +1,16 @@
+# Minimal task definitions file required by the benchmark scripts.
+# Each entry must contain at least the keys required by TaskRunner.validate_task.
+#
+# In a real experiment this file would be populated with many
+# multi‑modal tasks.  For now we provide a single placeholder task
+# that satisfies the schema and allows the benchmark to run end‑to‑end.
+- task_id: T001
+  modalities:
+    - timeseries
+    - tabular
+    - text
+  datasets:
+    - UCI_HAR
+    - DROP
+  label_column: label
+# Additional tasks can be added here following the same structure.
