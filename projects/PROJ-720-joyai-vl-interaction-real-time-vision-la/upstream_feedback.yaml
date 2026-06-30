@@ -1,0 +1,169 @@
+project_id: PROJ-720-joyai-vl-interaction-real-time-vision-la
+arxiv_id: '2606.14777'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-30T08:13:34.055415+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: e538380a6293
+    text: The paper makes several strong factual claims regarding the internal mechanisms
+      of competitor products (Doubao, Gemini) and the emergent nature of the proposed
+      model's capabilities. While the narrative is compelling, the evidentiary support
+      for specific implementation details of third-party products requires more precise
+      attribution. In Section 2, the paper asserts that Doubao's video call "does
+      not send [frames] to the model" until a trigger is fired, citing Volcengine
+      documentation. However, t
+    severity: writing
+  - id: 5548588ffe5d
+    text: The system architecture section (sec:system) contains multiple uncompiled
+      TODO comments (e.g., \todo{default}, \todo{state the contract...}) that indicate
+      missing implementation details or documentation. These must be resolved or removed
+      before the code repository can be considered complete and reproducible.
+    severity: writing
+  - id: 8e5c70303721
+    text: The paper claims a 'complete, deployable system' with specific components
+      (ASR, TTS, Memory, Background Bridge). However, the LaTeX source lacks a `requirements.txt`,
+      `pyproject.toml`, or `Dockerfile` reference, and the code paths are not explicitly
+      linked to the text. To ensure reproducibility from scratch, the manuscript must
+      cite the specific repository structure and provide a clear entry point (e.g.,
+      `main.py` or `run.sh`) in the text or appendix.
+    severity: writing
+  - id: cc691d6e236e
+    text: The data construction section (sec:data) describes a complex multi-stage
+      pipeline with 'verifier agents' and 'synthesis' steps. The current text does
+      not provide a code reference or a link to a data generation script. For the
+      'training recipe' to be reproducible, the manuscript must explicitly reference
+      the code module responsible for this pipeline (e.g., `scripts/data_gen.py`).
+    severity: writing
+  - id: 7d6e4384ef5b
+    text: The paper makes significant claims regarding the release of a "complete,
+      deployable system" and "fully open-sourced" data and training recipes (Abstract,
+      Section 1). However, a review of the data quality and provenance reveals critical
+      gaps that prevent verification of these claims. First, the data provenance and
+      licensing are insufficiently documented. Section 3.2 ("Data Construction for
+      VL-Interaction") describes a corpus of "more than 4M time-aligned streaming
+      clips" derived from "open-source
+    severity: science
+  - id: be18f4fa12a1
+    text: 'The paper relies heavily on three figures to convey its architectural novelty
+      and system design. While the conceptual flow is clear, the figures currently
+      lack the self-contained clarity required for a standalone review or print publication.
+      Figure 1 (overview.pdf): This figure is central to the paper''s argument, illustrating
+      the "watch-and-do" paradigm. However, the caption is minimal. It describes the
+      high-level flow but fails to explicitly define the visual encoding of the three
+      distinct acti'
+    severity: writing
+  - id: 7fcece013e5e
+    text: The paper makes a strong case for a new interaction paradigm but frequently
+      relies on unexplained acronyms and field-specific jargon that hinders accessibility
+      for the non-specialist audience the authors claim to target. In the Abstract,
+      the terms ASR (Automatic Speech Recognition) and TTS (Text-to-Speech) appear
+      without definition. Similarly, VL (Vision-Language) is used in "VL-interaction
+      model" without the expansion being explicitly provided in the abstract text
+      itself, forcing the reader to
+    severity: writing
+  - id: c1920935cf28
+    text: The paper presents a coherent argument for a shift from turn-based to event-driven
+      interaction models. However, there are logical gaps in the evaluation methodology
+      and the support for specific emergent claims. First, the evaluation of the "Long-horizon
+      memory" scenario (Section 4.1) contains a circularity in its success metric.
+      The authors note that baselines (Doubao, Gemini) disconnect after 2-5 minutes,
+      rendering them unable to answer questions about events occurring earlier. The
+      paper counts
+    severity: writing
+  - id: a2463d39ec1f
+    text: The paper makes several significant claims regarding the autonomy and emergent
+      capabilities of the JoyAI-VL-Interaction model that appear to overreach the
+      provided evidence. First, the central claim that the model "decides on its own"
+      when to delegate complex tasks (Section 3.1, 3.2) is not fully supported by
+      the data construction description. Section 3.2 details a multi-stage pipeline
+      where a "Planner" scripts episodes and a "Timestamp/Visual Verifier" checks
+      triggers. This suggests that the "d
+    severity: science
+  - id: 3a95ebb504a3
+    text: The paper proposes a system for continuous, unprompted surveillance of video
+      feeds (security, home, public) with autonomous alerting. Section 3.2 and 4.1
+      describe training on 'anomaly detection' and 'fall detection' without addressing
+      the ethical risks of false positives, privacy violations, or the lack of human-in-the-loop
+      verification for critical alerts. A dedicated ethics section detailing mitigation
+      strategies for these dual-use risks is required.
+    severity: science
+  - id: 0e9e66fabf39
+    text: The evaluation protocol (Section 4.1) involves human raters comparing the
+      system against commercial products using 'public footage' and 'recorded' videos.
+      The paper fails to state whether IRB approval was obtained for this human evaluation,
+      or if informed consent was secured for the individuals appearing in the 'public
+      footage' used for testing, especially given the system's capability to identify
+      specific actions (e.g., 'physical confrontation').
+    severity: science
+  - id: 871b2f02eb55
+    text: The system architecture (Section 3.3) allows for 'face-recognition' modules
+      and 'long-horizon memory' to track individuals over hours. The paper does not
+      discuss the potential for misuse in stalking, unauthorized tracking, or the
+      lack of built-in privacy safeguards (e.g., automatic blurring, data retention
+      limits) for sensitive deployments.
+    severity: writing
+  - id: 967187d1142e
+    text: The scientific evidence supporting the central claims of JoyAI-VL-Interaction
+      is currently insufficient to validate the reported performance margins. While
+      the architectural proposal is novel, the experimental validation in Section
+      4 suffers from critical flaws in statistical power and experimental control.
+      First, the human evaluation protocol is underpowered. The study relies on only
+      5 raters and 58 total cases across six scenarios. Reporting a win rate of 87.9%
+      against Gemini without confidenc
+    severity: science
+  - id: 7cd387ee6269
+    text: The statistical analysis in Section 4 (Experiments) is insufficient to support
+      the strong claims of superiority made in the abstract and conclusion. The primary
+      issue is the treatment of the human evaluation data. The paper reports aggregate
+      win rates (77.6% vs Doubao, 87.9% vs Gemini) derived from 58 cases rated by
+      5 raters. However, no confidence intervals are provided for these proportions,
+      nor is there a statistical significance test (such as a binomial test or a permutation
+      test) to determi
+    severity: science
+  - id: 206f6159a56e
+    text: In sections/04_experiments.tex, the two evaluation tables (lines 135-150
+      and 152-167) are missing captions. The first table lacks a \caption{} command
+      entirely, and the second table's caption is present but the table environment
+      lacks a label. Add descriptive captions and labels (e.g., \label{tab:doubao_eval})
+      to both tables for proper cross-referencing.
+    severity: writing
+  - id: 3e244b3043d9
+    text: In sections/03_method.tex, the \begin{wrapfigure} environment (lines 14-22)
+      has a negative vertical skip (\vspace{-1.3\baselineskip}) that may cause overlap
+      with preceding text depending on the document class. Verify the final PDF layout;
+      if the figure overlaps text, adjust the \vspace value or switch to a standard
+      \begin{figure} environment.
+    severity: writing
+  - id: 366b21379a38
+    text: In sections/03_method.tex, the \begin{figure*} environment (lines 138-141)
+      uses \centerline instead of \centering. While functional, \centering is the
+      standard LaTeX command for figure content and ensures better compatibility with
+      caption placement. Replace \centerline with \centering.
+    severity: writing
+  - id: 8d415aeaad87
+    text: In sections/99_appendix.tex, the \begin{lstlisting} environments (lines
+      10, 50, 90) use 'language=json' but the content includes LaTeX-style line breaks
+      (\n) and image tags (<image>) that may not render correctly in the JSON syntax
+      highlighter. Ensure the 'breaklines' and 'showstringspaces' options in the lstlisting
+      style are configured to handle these non-standard JSON characters without breaking
+      the layout.
+    severity: writing
+  - id: a1a57ed90931
+    text: In Section 2, 'when to response live' uses a noun instead of a verb. Change
+      'response' to 'respond'.
+    severity: writing
+  - id: 153d8d36d503
+    text: In Section 3, 'covers continue training' is non-standard. Change to 'continued
+      training' or 'continual training'.
+    severity: writing
+  - id: 13fc0a52f6c7
+    text: 'In Section 4, the scenario count list is slightly ambiguous. Clarify: ''10
+      cases each for... and 9 cases each for...''.'
+    severity: writing
+  - id: 540d90ed4547
+    text: Standardize the capitalization and hyphenation of 'watch-and-do' throughout
+      the paper for consistency.
+    severity: writing
