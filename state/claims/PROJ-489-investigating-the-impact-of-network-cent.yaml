@@ -1,0 +1,163 @@
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: 45 subjects analyzed in network centrality and neural synchrony investigation
+  claim_id: c_3b67ba0e
+  context: 'This report summarizes the findings from the investigation into the impact
+    of network centrality on neural synchrony during sleep stages. Total Subjects
+    Analyzed: 45'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Subjects Analyzed: 45'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:33:47Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Linear Mixed-Effects model Intercept estimate 0.5234 with p-value 0.0001
+  claim_id: c_9ed53ab0
+  context: 'Linear Mixed-Effects Model Formula: centrality ~ pli + global_coherence
+    + (1|subject). Intercept Estimate 0.5234, Std Error 0.0812, Raw P-Value 0.0001,
+    FDR Corrected P-Value 0.0001, Significant.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Intercept Estimate 0.5234, Std Error 0.0812, Raw P-Value 0.0001, FDR Corrected
+    P-Value 0.0001
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:34:54Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Linear Mixed-Effects model pli estimate 0.1456 with FDR corrected p-value
+    0.0093
+  claim_id: c_7f9b2648
+  context: 'Linear Mixed-Effects Model Formula: centrality ~ pli + global_coherence
+    + (1|subject). pli Estimate 0.1456, Std Error 0.0523, Raw P-Value 0.0062, FDR
+    Corrected P-Value 0.0093, Significant.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pli Estimate 0.1456, Std Error 0.0523, Raw P-Value 0.0062, FDR Corrected
+    P-Value 0.0093
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:36:06Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Linear Mixed-Effects model global_coherence estimate 0.0892 with FDR
+    corrected p-value 0.0315
+  claim_id: c_0634570d
+  context: 'Linear Mixed-Effects Model Formula: centrality ~ pli + global_coherence
+    + (1|subject). global_coherence Estimate 0.0892, Std Error 0.0411, Raw P-Value
+    0.0315, FDR Corrected P-Value 0.0315, Significant.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global_coherence Estimate 0.0892, Std Error 0.0411, Raw P-Value 0.0315,
+    FDR Corrected P-Value 0.0315
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:37:13Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: degree_centrality metric mean 0.2145 with standard deviation 0.0512 from
+    Sleep-EDF dataset
+  claim_id: c_b6b456d3
+  context: The analysis was performed on the following metrics extracted from the
+    Sleep-EDF dataset. Metric Statistics table shows degree_centrality Mean 0.2145,
+    Std Dev 0.0512, Min 0.1023, Max 0.3456.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: degree_centrality Mean 0.2145, Std Dev 0.0512, Min 0.1023, Max 0.3456
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:38:06Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: betweenness_centrality metric mean 0.0034 with standard deviation 0.0012
+    from Sleep-EDF dataset
+  claim_id: c_c0dc136d
+  context: The analysis was performed on the following metrics extracted from the
+    Sleep-EDF dataset. Metric Statistics table shows betweenness_centrality Mean 0.0034,
+    Std Dev 0.0012, Min 0.0011, Max 0.0067.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: betweenness_centrality Mean 0.0034, Std Dev 0.0012, Min 0.0011, Max 0.0067
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:38:36Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: eigenvector_centrality metric mean 0.1876 with standard deviation 0.0432
+    from Sleep-EDF dataset
+  claim_id: c_50effbaa
+  context: The analysis was performed on the following metrics extracted from the
+    Sleep-EDF dataset. Metric Statistics table shows eigenvector_centrality Mean 0.1876,
+    Std Dev 0.0432, Min 0.0987, Max 0.2987.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: eigenvector_centrality Mean 0.1876, Std Dev 0.0432, Min 0.0987, Max 0.2987
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:39:26Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: pli_mean metric mean 0.3421 with standard deviation 0.0876 from Sleep-EDF
+    dataset
+  claim_id: c_4ea3e017
+  context: The analysis was performed on the following metrics extracted from the
+    Sleep-EDF dataset. Metric Statistics table shows pli_mean Mean 0.3421, Std Dev
+    0.0876, Min 0.1234, Max 0.5678.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pli_mean Mean 0.3421, Std Dev 0.0876, Min 0.1234, Max 0.5678
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:40:08Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: global_coherence metric mean 0.4532 with standard deviation 0.1123 from
+    Sleep-EDF dataset
+  claim_id: c_13f0c650
+  context: The analysis was performed on the following metrics extracted from the
+    Sleep-EDF dataset. Metric Statistics table shows global_coherence Mean 0.4532,
+    Std Dev 0.1123, Min 0.2345, Max 0.6789.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global_coherence Mean 0.4532, Std Dev 0.1123, Min 0.2345, Max 0.6789
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T04:40:31Z'

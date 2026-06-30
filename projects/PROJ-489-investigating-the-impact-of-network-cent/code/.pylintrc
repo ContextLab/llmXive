@@ -1,0 +1,47 @@
+[MAIN]
+jobs=0
+persistent=yes
+extension-pkg-whitelist=numpy,pandas
+
+[MESSAGES CONTROL]
+disable=
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods
+    W0511,  # fixme
+    R0913,  # too-many-arguments
+    R0914,  # too-many-locals
+    R0915,  # too-many-statements
+    R0902,  # too-many-instance-attributes
+    R0904,  # too-many-public-methods
+    W0613,  # unused-argument
+    W0621,  # redefined-outer-name
+    E1101,  # no-member (often false positives with dynamic libs)
+    C0301,  # line-too-long (handled by black/flake8)
+
+[FORMAT]
+max-line-length=88
+max-module-lines=2000
+good-names=i,j,k,ex,_,f,fd,db,ip
+
+[BASIC]
+variable-rgx=[a-z_][a-z0-9_]{2,30}$
+function-rgx=[a-z_][a-z0-9_]{2,30}$
+const-rgx=[A-Z_][A-Z0-9_]{0,30}$
+class-rgx=[A-Z_][a-zA-Z0-9_]{0,30}$
+method-rgx=[a-z_][a-z0-9_]{2,30}$
+attr-rgx=[a-z_][a-z0-9_]{2,30}$
+
+[SIMILARITIES]
+min-similarity-lines=6
+ignore-comments=yes
+ignore-docstrings=yes
+
+[DESIGN]
+max-parents=7
+min-public-methods=1
+max-public-methods=20
+
+[TYPECHECK]
+ignored-classes=numpy.ndarray,pandas.DataFrame,pandas.Series

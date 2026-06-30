@@ -1,0 +1,13 @@
+mne
+statsmodels
+networkx
+scipy
+pandas
+numpy
+pyedflib
+scikit-learn
+pytest
+black
+flake8
+pylint
+toml

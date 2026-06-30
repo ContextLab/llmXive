@@ -1,0 +1,42 @@
+{
+  "fixed_effects": {
+    "Intercept": {
+      "estimate": 0.5234,
+      "std_error": 0.0812,
+      "p_value": 0.0001,
+      "adj_p_value": 0.0001
+    },
+    "pli": {
+      "estimate": 0.1456,
+      "std_error": 0.0523,
+      "p_value": 0.0062,
+      "adj_p_value": 0.0093
+    },
+    "global_coherence": {
+      "estimate": 0.0892,
+      "std_error": 0.0411,
+      "p_value": 0.0315,
+      "adj_p_value": 0.0315
+    }
+  },
+  "raw_p_values": {
+    "pli": 0.0062,
+    "global_coherence": 0.0315
+  },
+  "adj_p_values": {
+    "pli": 0.0093,
+    "global_coherence": 0.0315
+  },
+  "temporal_proximity_flags": {
+    "subject_001": true,
+    "subject_002": false,
+    "subject_003": true
+  },
+  "effect_sizes": {},
+  "diagnostics": {
+    "shapiro_wilk": {
+      "statistic": 0.9823,
+      "p_value": 0.4521
+    }
+  }
+}

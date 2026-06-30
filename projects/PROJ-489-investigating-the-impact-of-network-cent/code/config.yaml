@@ -1,0 +1,109 @@
+# Configuration for Network Centrality and Sleep Synchrony Analysis
+# This file defines signal processing parameters, thresholds, and analysis settings.
+
+# Random seed for reproducibility
+random_seed: 42
+
+# Signal Processing Parameters
+signal_processing:
+  # Band-pass filter configuration (Hz)
+  filter:
+    low_cutoff: 0.5
+    high_cutoff: 45.0
+    filter_type: "bandpass"
+    order: 4
+    method: "butter"
+  
+  # ICA (Independent Component Analysis) settings for artifact removal
+  ica:
+    n_components: 0.95  # Keep 95% of variance
+    algorithm: "fastica"
+    # Artifact detection thresholds
+    thresholds:
+      kurtosis: 5.0
+      high_freq_power_multiplier: 3.0
+      max_eog_correlation: 0.75
+      max_ecg_correlation: 0.75
+  
+  # Re-referencing
+  re_reference:
+    method: "average"  # Options: 'average', 'mastoid', 'none'
+
+# Frequency Band Definitions (Hz)
+frequency_bands:
+  delta: [0.5, 4.0]
+  theta: [4.0, 8.0]
+  alpha: [8.0, 13.0]
+  sigma: [13.0, 15.0]
+  beta: [15.0, 30.0]
+  gamma: [30.0, 45.0]
+  # Waking connectivity bands
+  waking_connectivity:
+    - theta
+    - alpha
+
+# Epoching Parameters
+epoching:
+  # Epoch length in seconds
+  duration: 30
+  # Time window relative to event (tmin, tmax) in seconds
+  tmin: 0.0
+  tmax: 30.0
+  # Sleep stages to label
+  sleep_stages:
+    - "Wake"
+    - "N1"
+    - "N2"
+    - "N3"
+    - "REM"
+
+# Connectivity Analysis Parameters
+connectivity:
+  # Method for functional connectivity
+  method: "coherence"
+  # Minimum number of epochs required for valid connectivity matrix
+  min_epochs: 5
+  # Threshold for edge inclusion in network graph
+  edge_threshold: 0.2
+  
+# Network Centrality Parameters
+centrality:
+  # Metrics to compute
+  metrics:
+    - "degree"
+    - "betweenness"
+    - "eigenvector"
+    - "closeness"
+
+# Synchrony Parameters
+synchrony:
+  # Method for phase synchrony
+  method: "pli"  # Phase Lag Index
+  # Minimum number of epochs for valid PLI calculation
+  min_epochs: 5
+
+# Statistical Analysis Parameters
+statistics:
+  # Significance level
+  alpha: 0.05
+  # FDR correction method
+  fdr_method: "benjamini_hochberg"
+  # Minimum sample size for effect size calculation
+  min_sample_size: 30
+  # VIF threshold for multicollinearity flagging
+  vif_threshold: 5.0
+
+# Path Configuration (relative to project root)
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  metrics_output: "data/metrics"
+  results_output: "data/results"
+  figures_output: "figures"
+  reports_output: "reports"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/pipeline.log"
