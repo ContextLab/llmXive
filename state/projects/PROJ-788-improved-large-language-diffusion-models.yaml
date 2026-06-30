@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-788-improved-large-language-diffusion-models
-last_run_id: null
+last_run_id: 01288676-6806-463b-a369-41189de0d8e4
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-788-improved-large-language-diffusion-models/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Improved Large Language Diffusion Models
-updated_at: '2026-06-26T09:08:45.188499Z'
+updated_at: '2026-06-30T21:49:16.227278Z'
