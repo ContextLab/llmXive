@@ -158,3 +158,38 @@ def test_all_tasks_done_triggers_execute_and_gate_not_implementer(tmp_path, monk
     graph.run_one_step(project, repo_root=tmp_path)
 
     assert gate_called["n"] == 1
+
+
+def _write_pointer(tmp_path: Path, pid: str, rel_feature_dir: str) -> None:
+    """Write the SSoT ``state/projects/<id>.yaml`` pointer feature_dir_for reads."""
+    import yaml
+
+    sp = tmp_path / "state" / "projects" / f"{pid}.yaml"
+    sp.parent.mkdir(parents=True, exist_ok=True)
+    sp.write_text(yaml.safe_dump({"speckit_research_dir": rel_feature_dir}), encoding="utf-8")
+
+
+def test_task_gates_use_active_feature_dir_not_stale_lower_numbered(tmp_path) -> None:
+    """A stale lower-numbered specs/* dir must NOT shadow the real (pointer-named)
+    one. Reproduces PROJ-552: ``specs/001-old`` (unchecked) sorted before the real
+    ``specs/010-new`` (all checked) made _all_tasks_done False forever AND pointed
+    the implement-batch loop at the wrong tasks.md. The gates must resolve through
+    the SSoT feature_dir_for, so they read the pointer-named active dir."""
+    pid = "PROJ-771-stale-dir"
+    pdir = tmp_path / "projects" / pid
+
+    stale = pdir / "specs" / "001-old"
+    stale.mkdir(parents=True)
+    (stale / "tasks.md").write_text(
+        "# Tasks\n\n- [ ] T001 ghost task\n- [ ] T002 ghost task\n", encoding="utf-8"
+    )
+    real = pdir / "specs" / "010-new"
+    real.mkdir(parents=True)
+    (real / "tasks.md").write_text(
+        "# Tasks\n\n- [X] T001 real done\n- [X] T002 real done\n", encoding="utf-8"
+    )
+    _write_pointer(tmp_path, pid, f"projects/{pid}/specs/010-new")
+
+    # Reads the active (010-new, all checked), NOT the stale lexicographically-first.
+    assert graph._all_tasks_done(pdir) is True
+    assert graph._incomplete_task_count(pdir, paper=False) == 0

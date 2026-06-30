@@ -222,20 +222,34 @@ _SPECKIT_AGENTS: dict[str, type[SlashCommandAgent]] = {
 }
 
 
+def _active_tasks_md(project_dir: Path, *, track: str) -> Path | None:
+    """The ``tasks.md`` of the project's ACTIVE feature dir — resolved through the
+    SSoT ``feature_dir_for`` (honors the ``speckit_*_dir`` pointer) so a stale
+    lower-numbered ``specs/*`` dir can NEVER shadow the real one. A plain
+    ``sorted(glob)[0]`` reads the lexicographically-first dir, which froze
+    PROJ-552 (a passing project sat at in_progress forever because the gate read
+    a ghost ``specs/001`` while the work happened in ``specs/010``)."""
+    fdir = project_store.feature_dir_for(project_dir, track=track)
+    if fdir is None:
+        return None
+    tasks = fdir / "tasks.md"
+    return tasks if tasks.is_file() else None
+
+
 def _all_tasks_done(project_dir: Path) -> bool:
-    candidates = sorted(project_dir.glob("specs/*/tasks.md"))
-    if not candidates:
+    tasks = _active_tasks_md(project_dir, track="research")
+    if tasks is None:
         return False
-    text = candidates[0].read_text(encoding="utf-8")
+    text = tasks.read_text(encoding="utf-8")
     has_any = "[ ]" in text or "[X]" in text or "[x]" in text
     return has_any and "[ ]" not in text
 
 
 def _all_paper_tasks_done(project_dir: Path) -> bool:
-    candidates = sorted((project_dir / "paper").glob("specs/*/tasks.md"))
-    if not candidates:
+    tasks = _active_tasks_md(project_dir, track="paper")
+    if tasks is None:
         return False
-    text = candidates[0].read_text(encoding="utf-8")
+    text = tasks.read_text(encoding="utf-8")
     has_any = "[ ]" in text or "[X]" in text or "[x]" in text
     return has_any and "[ ]" not in text
 
@@ -247,12 +261,12 @@ def _incomplete_task_count(project_dir: Path, *, paper: bool) -> int:
     run checks off (or skips) exactly one task, so this count must strictly
     DECREASE every iteration. If it ever fails to (a task left `[ ]`), the batch
     stops rather than spinning. Returns a large sentinel when no tasks.md exists
-    yet (treated as "not drainable this tick")."""
-    base = (project_dir / "paper") if paper else project_dir
-    candidates = sorted(base.glob("specs/*/tasks.md"))
-    if not candidates:
+    yet (treated as "not drainable this tick"). Resolves the ACTIVE feature dir
+    (SSoT) so the loop drains the REAL tasks.md, not a stale ghost spec dir."""
+    tasks = _active_tasks_md(project_dir, track="paper" if paper else "research")
+    if tasks is None:
         return -1
-    return candidates[0].read_text(encoding="utf-8").count("- [ ]")
+    return tasks.read_text(encoding="utf-8").count("- [ ]")
 
 
 def _human_escalation_reason_from_markers(project_dir: Path) -> str | None:
