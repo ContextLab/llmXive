@@ -1,0 +1,15 @@
+num_steps,method,mse_error
+1,Consistency_Distillation,5265.375392968497
+1,AnyFlow,9537.760143290205
+2,Consistency_Distillation,1953750.772553591
+2,AnyFlow,2761753.9604215557
+4,Consistency_Distillation,14197365596.396599
+4,AnyFlow,30088839684.34574
+8,Consistency_Distillation,1562703479076996.0
+8,AnyFlow,2795895972845273.0
+16,Consistency_Distillation,1.5333978222747111e+19
+16,AnyFlow,4.437749517917192e+19
+32,Consistency_Distillation,152758093485.23767
+32,AnyFlow,886344679641.4697
+64,Consistency_Distillation,0.006210417001409437
+64,AnyFlow,0.00028312825710559463

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-14T04:19:57.469269Z'
-current_stage: in_progress
+current_stage: research_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-567-anyflow-any-step-video-diffusion-model-w
-last_run_id: a32d2539-006d-42eb-bb00-b9128f2789a4
+last_run_id: b309cc90-0974-46f7-a3fe-8d5e0d26cd2d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/specs/001-anyflow-any-step-video-diffusion-model-w
 title: 'AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation'
-updated_at: '2026-06-30T05:52:39.812821Z'
+updated_at: '2026-06-30T12:20:33.915751Z'

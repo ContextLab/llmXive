@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-16T08:36:57.061646Z'
-current_stage: in_progress
+current_stage: research_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-581-https-arxiv-org-abs-2605-13301
-last_run_id: 19e696f9-61a6-4491-aa09-a95320576427
+last_run_id: 688d41ae-1c0e-44bc-948a-5f5ed0b3c9b5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-581-https-arxiv-org-abs-2605-13301
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-581-https-arxiv-org-abs-2605-13301/specs/001-https-arxiv-org-abs-2605-13301
 title: Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling
-updated_at: '2026-06-30T04:54:46.279902Z'
+updated_at: '2026-06-30T12:14:23.200880Z'

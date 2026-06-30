@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-604-https-arxiv-org-abs-2605-18739",
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/quant_benchmark_results.csv",
+    "data/quant_benchmark_summary.json",
+    "figures/quant_benchmark_comparison.png"
+  ],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T12:21:17Z"
+}

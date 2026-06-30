@@ -1,0 +1,4 @@
+Metric,Single-Doc,Multi (N-Gold),Overall
+QA_ACC,89.3,80.0,87.0
+Recall,60.0,44.0,56.0
+SAA,60.0,44.0,56.0

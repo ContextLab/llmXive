@@ -46,7 +46,7 @@ specs/575-reproduce-long-context-vlm/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
+├── quickstart.md        # Phase 2 output (updated)
 ├── contracts/           # Phase 1 output
 │   ├── evaluation_run.schema.yaml
 │   └── benchmark_result.schema.yaml

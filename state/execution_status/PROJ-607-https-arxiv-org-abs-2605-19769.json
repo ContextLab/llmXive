@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/summary.json",
+    "data/verification_results.csv",
+    "figures/verifier_comparison.png"
+  ],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T12:24:29Z"
+}

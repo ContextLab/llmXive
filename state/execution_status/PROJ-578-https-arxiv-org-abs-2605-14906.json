@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
+  "ok": false,
+  "reason": "1 command(s) failed: python code/run_memlens_demo.py (rc=1)",
+  "artifacts": [
+    "data/simulation_results.csv"
+  ],
+  "failures": [
+    "python code/run_memlens_demo.py -> rc=1\n    eturn self.writer.writerows(map(self._dict_to_list, rowdicts))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/lib/python3.11/csv.py\", line 149, in _dict_to_list\n    raise ValueError(\"dict contains fields not in fieldnames: \"\nValueError: dict contains fields not in fieldnames: 'condition'"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T12:14:02Z"
+}

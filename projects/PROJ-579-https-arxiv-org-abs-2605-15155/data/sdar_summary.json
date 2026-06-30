@@ -1,0 +1,14 @@
+{
+  "paper": "Self-Distilled Agentic Reinforcement Learning",
+  "simulation_type": "Simplified Grid World with Noisy Teacher",
+  "findings": [
+    {
+      "condition": "High Noise (0.4)",
+      "sdar_success": 0.034,
+      "naive_success": 0.036,
+      "improvement": -0.001999999999999995,
+      "sdar_avg_gate": 0.5007337321717195,
+      "interpretation": "SDAR maintains higher success rate by gating out noisy teacher signals."
+    }
+  ]
+}

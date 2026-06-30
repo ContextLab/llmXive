@@ -1,0 +1,16 @@
+{
+  "paper_title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation",
+  "adaptation_notes": {
+    "data": "Synthetic ODE trajectory generated (81 frames, 128-dim) to simulate video latent space.",
+    "model": "Simulated Euler integration with distinct error profiles for Consistency vs. Flow Map.",
+    "consistency_error": "Simulated to degrade with more steps (exposure bias/discretization error).",
+    "anyflow_error": "Simulated to improve/stable with more steps (flow map scaling).",
+    "constraints": "CPU-only, no GPU, no real video generation."
+  },
+  "results_summary": {
+    "best_steps_consistency": 64,
+    "best_steps_anyflow": 64,
+    "anyflow_improvement_at_4_steps": -111.93255523392678,
+    "anyflow_improvement_at_16_steps": -189.40627497005542
+  }
+}

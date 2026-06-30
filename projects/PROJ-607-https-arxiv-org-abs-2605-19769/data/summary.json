@@ -1,0 +1,8 @@
+{
+  "metric": "Accuracy vs Human Adjudication",
+  "hard_verifier_accuracy": 0.578,
+  "llm_judge_accuracy": 0.564,
+  "improvement": 0.014000000000000012,
+  "sample_size": 500,
+  "note": "Synthetic data simulating fine-grained state verification."
+}

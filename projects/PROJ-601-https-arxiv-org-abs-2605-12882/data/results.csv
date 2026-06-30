@@ -1,0 +1,101 @@
+id,dataset_type,answer_correct,citation_correct,saa
+0,Single-Doc,True,False,False
+1,Single-Doc,True,True,True
+2,Multi (N-Gold),True,True,True
+3,Multi (N-Gold),False,False,False
+4,Single-Doc,True,True,True
+5,Multi (N-Gold),True,False,False
+6,Single-Doc,True,True,True
+7,Multi (N-Gold),True,True,True
+8,Single-Doc,True,True,True
+9,Single-Doc,True,False,False
+10,Single-Doc,True,False,False
+11,Single-Doc,True,True,True
+12,Multi (N-Gold),True,False,False
+13,Single-Doc,False,False,False
+14,Single-Doc,True,True,True
+15,Single-Doc,True,True,True
+16,Single-Doc,False,False,False
+17,Single-Doc,True,True,True
+18,Single-Doc,True,True,True
+19,Single-Doc,True,True,True
+20,Single-Doc,True,True,True
+21,Single-Doc,True,True,True
+22,Multi (N-Gold),True,False,False
+23,Single-Doc,True,False,False
+24,Single-Doc,True,True,True
+25,Single-Doc,True,True,True
+26,Single-Doc,True,True,True
+27,Single-Doc,True,True,True
+28,Single-Doc,True,False,False
+29,Multi (N-Gold),False,False,False
+30,Single-Doc,True,False,False
+31,Multi (N-Gold),True,True,True
+32,Single-Doc,True,False,False
+33,Single-Doc,True,True,True
+34,Single-Doc,False,False,False
+35,Multi (N-Gold),False,False,False
+36,Multi (N-Gold),True,True,True
+37,Single-Doc,True,True,True
+38,Single-Doc,True,True,True
+39,Single-Doc,True,True,True
+40,Single-Doc,True,False,False
+41,Multi (N-Gold),True,False,False
+42,Single-Doc,False,False,False
+43,Single-Doc,True,True,True
+44,Single-Doc,True,False,False
+45,Single-Doc,True,True,True
+46,Single-Doc,True,True,True
+47,Multi (N-Gold),True,True,True
+48,Single-Doc,True,False,False
+49,Single-Doc,True,True,True
+50,Multi (N-Gold),True,True,True
+51,Single-Doc,True,True,True
+52,Single-Doc,True,False,False
+53,Single-Doc,True,True,True
+54,Multi (N-Gold),True,True,True
+55,Multi (N-Gold),True,False,False
+56,Single-Doc,True,True,True
+57,Single-Doc,True,False,False
+58,Single-Doc,True,True,True
+59,Single-Doc,True,True,True
+60,Multi (N-Gold),True,False,False
+61,Single-Doc,True,True,True
+62,Single-Doc,True,False,False
+63,Multi (N-Gold),True,True,True
+64,Multi (N-Gold),False,False,False
+65,Multi (N-Gold),True,True,True
+66,Single-Doc,True,False,False
+67,Single-Doc,True,True,True
+68,Multi (N-Gold),False,False,False
+69,Single-Doc,True,False,False
+70,Single-Doc,False,False,False
+71,Single-Doc,True,True,True
+72,Single-Doc,True,True,True
+73,Single-Doc,True,False,False
+74,Multi (N-Gold),True,True,True
+75,Multi (N-Gold),True,True,True
+76,Single-Doc,True,False,False
+77,Single-Doc,False,False,False
+78,Single-Doc,True,False,False
+79,Single-Doc,True,True,True
+80,Single-Doc,True,True,True
+81,Single-Doc,True,True,True
+82,Single-Doc,True,True,True
+83,Single-Doc,True,False,False
+84,Single-Doc,True,True,True
+85,Single-Doc,True,False,False
+86,Single-Doc,True,False,False
+87,Single-Doc,True,True,True
+88,Single-Doc,True,True,True
+89,Multi (N-Gold),True,False,False
+90,Single-Doc,True,True,True
+91,Single-Doc,True,True,True
+92,Single-Doc,True,False,False
+93,Single-Doc,True,True,True
+94,Single-Doc,True,True,True
+95,Single-Doc,True,True,True
+96,Single-Doc,False,False,False
+97,Single-Doc,False,False,False
+98,Multi (N-Gold),True,False,False
+99,Multi (N-Gold),True,False,False

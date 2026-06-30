@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-574-eva-bench-a-new-end-to-end-framework-for",
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/aggregated_metrics.json",
+    "data/evaluation_results.csv",
+    "data/simulated_conversations.json",
+    "figures/eva_performance.png",
+    "figures/robustness_gap.png"
+  ],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T12:08:46Z"
+}

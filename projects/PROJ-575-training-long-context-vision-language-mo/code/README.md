@@ -16,6 +16,8 @@ The script demonstrates that:
 - Accuracy is lowest when the target is in the middle of the context (depth ~0.5), validating the paper's finding on retrieval bottlenecks.
 
 ## Artifacts
-- `data/retrieval_results.csv`: Raw simulation data.
-- `data/metrics_summary.json`: Aggregated accuracy by length and depth.
-- `figures/accuracy_vs_length_depth.png`: Visual proof of the degradation trend.
+- `data/`: Contains input data descriptors and generated simulation outputs.
+  - `retrieval_results.csv`: Raw simulation data.
+  - `metrics_summary.json`: Aggregated accuracy by length and depth.
+- `figures/`: Contains output visualizations.
+  - `accuracy_vs_length_depth.png`: Visual proof of the degradation trend.

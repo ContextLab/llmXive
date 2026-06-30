@@ -1,0 +1,378 @@
+[
+  {
+    "scenario_id": 0,
+    "domain": "Healthcare",
+    "turns": 3,
+    "duration_sec": 4.77,
+    "noise_level": 0.371,
+    "accent_factor": 0.0,
+    "task_complete": true,
+    "fidelity": 0.778,
+    "faithfulness": 0.92,
+    "turn_times": [
+      0.9464214762976455,
+      1.9729424283280248,
+      1.8533989748458226
+    ]
+  },
+  {
+    "scenario_id": 1,
+    "domain": "Customer Support",
+    "turns": 7,
+    "duration_sec": 8.23,
+    "noise_level": 0.016,
+    "accent_factor": 0.0,
+    "task_complete": false,
+    "fidelity": 0.99,
+    "faithfulness": 0.834,
+    "turn_times": [
+      0.9372759496072067,
+      1.5107105762067248,
+      0.5530719393677272,
+      0.897675301373297,
+      1.7997688755590464,
+      1.5898829612064334,
+      0.9408812440813934
+    ]
+  },
+  {
+    "scenario_id": 2,
+    "domain": "Customer Support",
+    "turns": 4,
+    "duration_sec": 4.92,
+    "noise_level": 0.17,
+    "accent_factor": 0.0,
+    "task_complete": false,
+    "fidelity": 0.898,
+    "faithfulness": 0.727,
+    "turn_times": [
+      0.9306275242151776,
+      2.0269882580130476,
+      0.7044205530396974,
+      1.2598546012746747
+    ]
+  },
+  {
+    "scenario_id": 3,
+    "domain": "Banking",
+    "turns": 7,
+    "duration_sec": 10.29,
+    "noise_level": 0.404,
+    "accent_factor": 0.4,
+    "task_complete": false,
+    "fidelity": 0.638,
+    "faithfulness": 0.704,
+    "turn_times": [
+      1.418849759343685,
+      0.7496523257064187,
+      2.34459074405632,
+      0.6576003961569163,
+      1.0863565628141858,
+      1.7572795989888867,
+      2.270903495873614
+    ]
+  },
+  {
+    "scenario_id": 4,
+    "domain": "Customer Support",
+    "turns": 8,
+    "duration_sec": 14.62,
+    "noise_level": 0.023,
+    "accent_factor": 0.0,
+    "task_complete": true,
+    "fidelity": 0.986,
+    "faithfulness": 0.74,
+    "turn_times": [
+      2.0461366815773836,
+      2.4704430413215155,
+      2.210635442030294,
+      2.2329673335105396,
+      1.2602524500783323,
+      1.406820604736871,
+      2.1682208532815004,
+      0.8253081943121696
+    ]
+  },
+  {
+    "scenario_id": 5,
+    "domain": "Healthcare",
+    "turns": 5,
+    "duration_sec": 7.37,
+    "noise_level": 0.305,
+    "accent_factor": 0.0,
+    "task_complete": true,
+    "fidelity": 0.817,
+    "faithfulness": 0.845,
+    "turn_times": [
+      1.568279754059416,
+      0.9896218503028524,
+      1.4245204237022315,
+      1.039895653568556,
+      2.3507823592424355
+    ]
+  },
+  {
+    "scenario_id": 6,
+    "domain": "Customer Support",
+    "turns": 8,
+    "duration_sec": 10.38,
+    "noise_level": 0.421,
+    "accent_factor": 0.0,
+    "task_complete": false,
+    "fidelity": 0.747,
+    "faithfulness": 0.82,
+    "turn_times": [
+      0.9580961439282087,
+      0.5642004878080755,
+      1.1309060961181638,
+      1.0354817519514055,
+      0.9219656871726529,
+      2.385819428670109,
+      2.252735252945338,
+      1.1293557615969558
+    ]
+  },
+  {
+    "scenario_id": 7,
+    "domain": "Banking",
+    "turns": 8,
+    "duration_sec": 12.34,
+    "noise_level": 0.071,
+    "accent_factor": 0.0,
+    "task_complete": false,
+    "fidelity": 0.957,
+    "faithfulness": 0.797,
+    "turn_times": [
+      0.9932550153879669,
+      1.6227362683263016,
+      1.0254832170458705,
+      1.669171980447081,
+      2.295645767204954,
+      1.2988010102807945,
+      0.9386415183145667,
+      2.4950752129902205
+    ]
+  },
+  {
+    "scenario_id": 8,
+    "domain": "Customer Support",
+    "turns": 3,
+    "duration_sec": 4.06,
+    "noise_level": 0.076,
+    "accent_factor": 0.0,
+    "task_complete": true,
+    "fidelity": 0.954,
+    "faithfulness": 0.745,
+    "turn_times": [
+      2.084158728725928,
+      1.344319933599368,
+      0.6270554123039143
+    ]
+  },
+  {
+    "scenario_id": 9,
+    "domain": "Banking",
+    "turns": 7,
+    "duration_sec": 11.17,
+    "noise_level": 0.486,
+    "accent_factor": 0.0,
+    "task_complete": false,
+    "fidelity": 0.709,
+    "faithfulness": 0.615,
+    "turn_times": [
+      1.860566820513037,
+      0.7291034859673733,
+      2.269576900258218,
+      2.0017555991832197,
+      2.037197465314892,
+      1.1803509460620905,
+      1.0870002572948523
+    ]
+  },
+  {
+    "scenario_id": 10,
+    "domain": "Customer Support",
+    "turns": 8,
+    "duration_sec": 10.65,
+    "noise_level": 0.486,
+    "accent_factor": 0.0,
+    "task_complete": false,
+    "fidelity": 0.708,
+    "faithfulness": 0.933,
+    "turn_times": [
+      1.5153633492086505,
+      0.71282164559541,
+      1.750600387132835,
+      2.183338696344934,
+      1.5153257639552684,
+      0.8978222035294661,
+      1.247827705182296,
+      0.8230980715063068
+    ]
+  },
+  {
+    "scenario_id": 11,
+    "domain": "Healthcare",
+    "turns": 3,
+    "duration_sec": 6.78,
+    "noise_level": 0.244,
+    "accent_factor": 0.0,
+    "task_complete": false,
+    "fidelity": 0.853,
+    "faithfulness": 0.699,
+    "turn_times": [
+      2.358197232529234,
+      2.2574437556463685,
+      2.163331058722359
+    ]
+  },
+  {
+    "scenario_id": 12,
+    "domain": "Customer Support",
+    "turns": 4,
+    "duration_sec": 6.9,
+    "noise_level": 0.043,
+    "accent_factor": 0.2,
+    "task_complete": true,
+    "fidelity": 0.914,
+    "faithfulness": 0.86,
+    "turn_times": [
+      2.132046506840177,
+      2.4559689873546686,
+      1.5654123390590313,
+      0.7515210230408826
+    ]
+  },
+  {
+    "scenario_id": 13,
+    "domain": "Healthcare",
+    "turns": 4,
+    "duration_sec": 5.81,
+    "noise_level": 0.264,
+    "accent_factor": 0.4,
+    "task_complete": false,
+    "fidelity": 0.722,
+    "faithfulness": 0.654,
+    "turn_times": [
+      1.3462758804017738,
+      0.9235964108841641,
+      1.5785921775589167,
+      1.9598621381799524
+    ]
+  },
+  {
+    "scenario_id": 14,
+    "domain": "Banking",
+    "turns": 6,
+    "duration_sec": 6.85,
+    "noise_level": 0.219,
+    "accent_factor": 0.4,
+    "task_complete": false,
+    "fidelity": 0.749,
+    "faithfulness": 0.581,
+    "turn_times": [
+      1.4029722827822595,
+      0.9958112273320159,
+      0.6280517926526898,
+      0.5420685200141178,
+      1.6078430448489596,
+      1.676880228820702
+    ]
+  },
+  {
+    "scenario_id": 15,
+    "domain": "Healthcare",
+    "turns": 8,
+    "duration_sec": 11.38,
+    "noise_level": 0.114,
+    "accent_factor": 0.0,
+    "task_complete": true,
+    "fidelity": 0.931,
+    "faithfulness": 0.778,
+    "turn_times": [
+      2.219270800507493,
+      0.6417146997773069,
+      0.9760092687379904,
+      1.8379555565925612,
+      0.9284736147408772,
+      0.76462369745005,
+      2.371028481161342,
+      1.642086186650569
+    ]
+  },
+  {
+    "scenario_id": 16,
+    "domain": "Banking",
+    "turns": 6,
+    "duration_sec": 10.42,
+    "noise_level": 0.047,
+    "accent_factor": 0.4,
+    "task_complete": true,
+    "fidelity": 0.852,
+    "faithfulness": 0.635,
+    "turn_times": [
+      1.362102364812755,
+      1.3471572460398415,
+      1.43404933607335,
+      1.9581516989197012,
+      1.846729094586603,
+      2.468330422731932
+    ]
+  },
+  {
+    "scenario_id": 17,
+    "domain": "Banking",
+    "turns": 8,
+    "duration_sec": 10.41,
+    "noise_level": 0.4,
+    "accent_factor": 0.0,
+    "task_complete": false,
+    "fidelity": 0.76,
+    "faithfulness": 0.905,
+    "turn_times": [
+      0.9973126678405713,
+      0.880417816881623,
+      1.3972270956662638,
+      1.3437632796688084,
+      1.057090289333881,
+      0.999612895764201,
+      2.3465311985520256,
+      1.386261490106914
+    ]
+  },
+  {
+    "scenario_id": 18,
+    "domain": "Healthcare",
+    "turns": 3,
+    "duration_sec": 6.96,
+    "noise_level": 0.326,
+    "accent_factor": 0.4,
+    "task_complete": true,
+    "fidelity": 0.684,
+    "faithfulness": 0.907,
+    "turn_times": [
+      2.172055170159904,
+      2.4379925145695025,
+      2.352733966016255
+    ]
+  },
+  {
+    "scenario_id": 19,
+    "domain": "Customer Support",
+    "turns": 6,
+    "duration_sec": 9.34,
+    "noise_level": 0.241,
+    "accent_factor": 0.2,
+    "task_complete": false,
+    "fidelity": 0.796,
+    "faithfulness": 0.69,
+    "turn_times": [
+      2.3048857310210975,
+      0.8292742428030537,
+      0.5043107567028529,
+      1.2808435151756263,
+      2.353036147118667,
+      2.070258713588243
+    ]
+  }
+]

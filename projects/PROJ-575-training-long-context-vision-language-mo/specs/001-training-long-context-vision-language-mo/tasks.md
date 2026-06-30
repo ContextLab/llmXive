@@ -145,6 +145,7 @@
 - [X] T031b [P] Add docstrings to all modules in `src/eval/`
 - [X] T032a Refactor `run_cpu_eval.py` for modularity and separation of concerns
 - [X] T032b Remove dead code and unused imports in `src/eval/utils.py`
+- [X] T036 Commit implementation code for `src/eval/run_cpu_eval.py`, `src/eval/scaling_analysis.py`, and `src/eval/utils.py` to the repository, ensuring alignment with tasks.md logic and execution evidence artifacts.
 - [X] T033a Optimize data loading in `download_data.py` with batch size metric (target < 5s for sample)
 - [X] T033b Profile model loading time and document results
 - [X] T034a Unit test for OOM handling in `tests/unit/test_memory_utils.py`

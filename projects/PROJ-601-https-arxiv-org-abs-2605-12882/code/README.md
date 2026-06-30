@@ -15,7 +15,15 @@ This adaptation reproduces the **Strict Attributed Accuracy (SAA)** metric from 
 - `figures/saa_distribution.png`: A histogram showing the distribution of SAA scores.
 
 ## Running
-Run the main script:
+
+### Prerequisites
+Before running the pipeline, ensure the external CiteVQA submodule is initialized:
+```bash
+git submodule update --init --recursive
+```
+
+### Execution
+Run the main script from the project root:
 ```bash
 python code/citevqa_cpu_adaptation.py
 ```

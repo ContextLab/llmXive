@@ -1,0 +1,8 @@
+{
+  "files": {
+    "activity.jsonl": "<sha256_placeholder>",
+    "data/metrics_summary.json": "<sha256_placeholder>",
+    "data/retrieval_results.csv": "<sha256_placeholder>"
+  },
+  "note": "SHA-256 checksums for input dataset files and generated output artifacts (metrics_summary.json, retrieval_results.csv) to establish verifiable chain of custody. Replace placeholders with actual hashes after generation."
+}

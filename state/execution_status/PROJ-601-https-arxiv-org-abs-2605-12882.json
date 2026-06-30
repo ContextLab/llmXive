@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/results.csv",
+    "data/summary.csv",
+    "figures/saa_distribution.png"
+  ],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T12:14:33Z"
+}

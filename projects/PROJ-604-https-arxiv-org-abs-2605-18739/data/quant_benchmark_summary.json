@@ -1,0 +1,8 @@
+{
+  "experiment_type": "NVFP4 vs BF16 Simulation",
+  "paper_reference": "LongLive-2.0",
+  "constraints": "CPU-only, no GPU, simulated metrics",
+  "total_configs": 18,
+  "avg_speedup": 1.9158203483276444,
+  "avg_memory_reduction": 75.0
+}

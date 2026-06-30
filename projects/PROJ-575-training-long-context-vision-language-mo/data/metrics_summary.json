@@ -1,0 +1,43 @@
+{
+  "overall_accuracy": 0.745,
+  "total_samples": 200,
+  "by_length": {
+    "1k-10k": {
+      "count": 98,
+      "accuracy": 0.7755,
+      "avg_latency_ms": 56.86
+    },
+    "10k-30k": {
+      "count": 48,
+      "accuracy": 0.6875,
+      "avg_latency_ms": 75.12
+    },
+    "50k+": {
+      "count": 54,
+      "accuracy": 0.7407,
+      "avg_latency_ms": 197.53
+    }
+  },
+  "by_depth": {
+    "0-20": {
+      "count": 39,
+      "accuracy": 0.641
+    },
+    "20-40": {
+      "count": 29,
+      "accuracy": 0.7931
+    },
+    "40-60": {
+      "count": 43,
+      "accuracy": 0.9767
+    },
+    "60-80": {
+      "count": 41,
+      "accuracy": 0.8293
+    },
+    "80-100": {
+      "count": 48,
+      "accuracy": 0.5208
+    }
+  }
+}

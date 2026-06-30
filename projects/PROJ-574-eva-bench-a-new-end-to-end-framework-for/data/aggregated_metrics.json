@@ -1,0 +1,17 @@
+{
+  "System_A_Light": {
+    "eva_a_mean": 0.5568,
+    "eva_x_mean": 0.4165,
+    "robustness_gap": 0.1726
+  },
+  "System_B_Small": {
+    "eva_a_mean": 0.5979,
+    "eva_x_mean": 0.4679,
+    "robustness_gap": 0.1832
+  },
+  "System_C_Cpu": {
+    "eva_a_mean": 0.6185,
+    "eva_x_mean": 0.4808,
+    "robustness_gap": 0.1885
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "project_id": "PROJ-579-https-arxiv-org-abs-2605-15155",
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/sdar_results.csv",
+    "data/sdar_summary.json",
+    "figures/gate_attenuation.png",
+    "figures/success_rate_vs_noise.png"
+  ],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T12:14:15Z"
+}

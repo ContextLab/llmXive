@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/anyflow_scaling_results.csv",
+    "data/summary.json",
+    "figures/scaling_comparison.png"
+  ],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T12:08:34Z"
+}

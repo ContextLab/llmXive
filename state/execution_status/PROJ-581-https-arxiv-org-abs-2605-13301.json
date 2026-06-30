@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/pass_at_k_results.json",
+    "data/verification_log.csv"
+  ],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T12:14:23Z"
+}

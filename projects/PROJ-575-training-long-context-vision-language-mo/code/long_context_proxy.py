@@ -68,6 +68,10 @@ def simulate_model_inference(data, model_type="cpu_baseline"):
     3. "Balanced" vs "Target" length: Simulated by varying the difficulty curve.
     
     Returns a list of results with 'predicted_value', 'correct', 'latency_ms'.
+    
+    Note: Scaling analysis and reporting logic have been refactored into
+    separate modules (code/eval/scaling_analyzer.py and code/eval/report_generator.py)
+    to ensure modularity. This function now strictly handles inference simulation.
     """
     results = []
     

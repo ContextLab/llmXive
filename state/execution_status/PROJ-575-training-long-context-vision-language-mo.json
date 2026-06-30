@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-575-training-long-context-vision-language-mo",
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/metrics_summary.json",
+    "data/retrieval_results.csv",
+    "figures/accuracy_vs_length_depth.png"
+  ],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T12:13:55Z"
+}
